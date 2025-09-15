@@ -7,6 +7,7 @@ export type ProfileAttributes = {
   title?: string
   locale?: string
   location?: Location
+  properties?: Record<string, string | number | boolean>
 }
 
 export type Location = {

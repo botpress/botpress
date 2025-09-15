@@ -12,7 +12,7 @@ import { ProfileAttributes, ProfileSubscriptions } from './types'
 import { isKlaviyoErrorResponse, extractKlaviyoMessage } from './error-handler'
 
 export const createProfile: bp.IntegrationProps['actions']['createProfile'] = async ({ ctx, logger, input }) => {
-  const { email, phone, firstName, lastName, organization, title, locale, location } = input
+  const { email, phone, firstName, lastName, organization, title, locale, location, properties } = input
 
   if (!email && !phone) {
     throw new RuntimeError('Either email or phone is required to create a profile')
@@ -39,6 +39,9 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
         region: location.region,
         zip: location.zip,
       }
+    }
+    if (properties) {
+      profileAttributes.properties = properties
     }
 
     const profileQuery: ProfileCreateQuery = {
@@ -72,7 +75,7 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
 }
 
 export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = async ({ ctx, logger, input }) => {
-  const { profileId, email, phone, firstName, lastName, organization, title, locale, location } = input
+  const { profileId, email, phone, firstName, lastName, organization, title, locale, location, properties } = input
 
   if (!profileId) {
     throw new RuntimeError('Klaviyo Profile ID is require to update a profile')
@@ -99,6 +102,9 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
         region: location.region,
         zip: location.zip,
       }
+    }
+    if (properties) {
+      updatedProfileAttributes.properties = properties
     }
 
     const updatedProfileQuery: ProfilePartialUpdateQuery = {

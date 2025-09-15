@@ -39,6 +39,11 @@ const createProfile = {
         )
         .optional(),
       location: locationSchema.optional(),
+      properties: z
+        .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+        .title('Custom Properties')
+        .describe('Custom key-value pairs to store with the profile')
+        .optional(),
     }),
   },
   output: {
@@ -74,9 +79,13 @@ const updateProfile = {
         )
         .optional(),
       location: locationSchema.optional(),
+      properties: z
+        .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+        .title('Custom Properties')
+        .describe('Custom key-value pairs to store with the profile')
+        .optional(),
     }),
   },
-  // TODO: i think it merits a discussion on what to include in the output schema
   output: {
     schema: z.object({
       profile: profileSchema.title('Profile').describe('The updated profile'),
