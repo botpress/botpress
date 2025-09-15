@@ -4,12 +4,12 @@ import { profileSchema } from './shared'
 
 const locationSchema = z
   .object({
-    address1: z.string().title('Address line 1'),
-    address2: z.string().title('Address line 2'),
-    city: z.string(),
-    country: z.string(),
-    region: z.string(),
-    zip: z.string(),
+    address1: z.string().title('Address line 1').describe('First line of the address'),
+    address2: z.string().title('Address line 2').describe('Second line of the address'),
+    city: z.string().title('City').describe('City name'),
+    country: z.string().title('Country').describe('Country name'),
+    region: z.string().title('Region').describe('State or region'),
+    zip: z.string().title('ZIP Code').describe('Postal or ZIP code'),
   })
   .partial()
   .strict()
@@ -38,7 +38,7 @@ const createProfile = {
           'The locale of the profile in the IETF BCP 47 language tag format like (ISO 639-1/2)-(ISO 3166 alpha-2)'
         )
         .optional(),
-      location: locationSchema.optional(),
+      location: locationSchema.title('Location').describe('Address information for the profile').optional(),
       properties: z
         .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
         .title('Custom Properties')
@@ -78,7 +78,7 @@ const updateProfile = {
           'The locale of the profile in the IETF BCP 47 language tag format like (ISO 639-1/2)-(ISO 3166 alpha-2)'
         )
         .optional(),
-      location: locationSchema.optional(),
+      location: locationSchema.title('Location').describe('Address information for the profile').optional(),
       properties: z
         .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
         .title('Custom Properties')
