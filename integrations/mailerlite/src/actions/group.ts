@@ -61,5 +61,34 @@ export const assignToGroup: bp.Integration['actions']['assignToGroup'] = async (
         logger.forBot().debug('error', error)
     }
     throw new RuntimeError('Unexpected outcome')
+}
 
+export const unassignFromGroup: bp.Integration['actions']['unassignFromGroup'] = async({
+    ctx,
+    client,
+    input,
+    logger
+}) => {
+    const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
+    const { subscriberId, groupId } = input
+
+    logger.forBot().debug(`Unassigning user: ${subscriberId} from group: ${groupId}`)
+    try {
+        const response = await mlClient.groups.unAssignSubscriber(subscriberId, groupId)
+
+        if (response.status == 204){
+            logger.forBot().debug('Unassignment successful')
+            return { 
+                success: true,
+                message: 'Subscriber has been unassigned from group',
+            }
+        }
+        logger.forBot().debug('response', response)
+    } catch (error) {
+        if (isHttpError(error) && error.response?.status == 404){
+            return { success: false, message: 'Subscriber id or group id can not be found' }
+        }
+        logger.forBot().debug('error', error)
+    }
+    throw new RuntimeError('Unexpected outcome')
 }

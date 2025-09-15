@@ -39,7 +39,25 @@ const assignToGroup: ActionDefinition = {
     }
 }
 
+const unassignFromGroup: ActionDefinition = {
+    title: 'Unassign from group',
+    description: 'Unassign subscriber from a group',
+    input: {
+        schema: z.object({
+            subscriberId: z.string().title('Subscriber Id').describe('Id of subscriber to assign to a group').min(1),
+            groupId: z.string().title('Group Id').describe('Id of group to assign subscriber to').min(1),
+        })
+    },
+    output: {
+        schema: z.object({
+            success: z.boolean().title('Success of unassignment').describe('Boolean representing the success of the unassignment operation'),
+            message: z.string().title('Return message for more description').describe('Description of success of the unassignment operation')
+        })
+    }
+}
+
 export const actions = {
     listGroups,
     assignToGroup,
+    unassignFromGroup,
 } as const
