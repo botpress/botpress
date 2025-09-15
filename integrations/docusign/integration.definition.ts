@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { sendReminderInputSchema, sendReminderOutputSchema } from 'definitions/actions'
+import { sendEnvelopeInputSchema, sendEnvelopeOutputSchema } from 'definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'docusign',
@@ -10,14 +10,14 @@ export default new IntegrationDefinition({
   description:
     'Automate document workflows, generate intelligent insights, enhance security measures, and improve user experience.',
   actions: {
-    sendReminder: {
-      title: 'Send Reminder',
-      description: 'Sends a reminder for the recipient of a document to sign it',
+    sendEnvelope: {
+      title: 'Send Envelope',
+      description: 'Sends an envelope (document) to a recipient to sign it',
       input: {
-        schema: sendReminderInputSchema,
+        schema: sendEnvelopeInputSchema,
       },
       output: {
-        schema: sendReminderOutputSchema,
+        schema: sendEnvelopeOutputSchema,
       },
     },
   },

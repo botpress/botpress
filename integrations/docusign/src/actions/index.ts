@@ -1,6 +1,6 @@
-import { sendReminder } from './send-reminder'
+import { sendEnvelope } from './send-envelope'
 import * as bp from '.botpress'
 
 export default {
-  sendReminder,
+  sendEnvelope,
 } satisfies bp.IntegrationProps['actions']
