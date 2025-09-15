@@ -1,6 +1,6 @@
 {
   "name": "@botpress/klaviyo",
-  "integrationName": "Klaviyo integration for Botpress",
+  "integrationName": "klaviyo",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
