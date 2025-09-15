@@ -1,6 +1,6 @@
 {
-  "name": "@bp-templates/hello-world",
-  "integrationName": "simon/klaviyo",
+  "name": "@botpress/klaviyo",
+  "integrationName": "Klaviyo integration for Botpress",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
