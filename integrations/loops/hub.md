@@ -12,7 +12,7 @@
 **Send transactional emails:** \
 To send transactional emails using this integration, a template must first be [published](https://loops.so/docs/transactional/guide). The ID of this template as well as the values of its data variables must then be passed as inputs to the `Send Transactional Email` action.
 
-**_Attachments:_** to include attachments, files must first be [uploaded to the workspace](https://botpress.com/docs/api-reference/files-api/how-tos/creating-files) and made available to the integration by adding the following to the Files API call:
+**_Attachments:_** to include attachments, files can either be [uploaded to the workspace](https://botpress.com/docs/api-reference/files-api/how-tos/creating-files) and made available to the integration by adding the following to the Files API call:
 
 ```ts
 await client.uploadFile({
@@ -21,7 +21,7 @@ await client.uploadFile({
 })
 ```
 
-There are currently no actions implemented for users to upload their own files, so the only viable use case currently is sending templates.
+or can be directly included by entering the file's raw data and MIME content type in the actions input. The first method is useful for sending premade templates while the second allows the user to send personalized content.
 
 ### Events
 

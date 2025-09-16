@@ -3,7 +3,7 @@ import axios from 'axios'
 import { LoopsApi, TransactionalEmailAttachment } from 'src/loops.api'
 import * as bp from '.botpress'
 
-const _getAndEncodeFileData = async (url: string, logger: bp.Logger): Promise<string> => {
+const _encodeFileContentFromUrl = async (url: string, logger: bp.Logger): Promise<string> => {
   try {
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
@@ -11,17 +11,17 @@ const _getAndEncodeFileData = async (url: string, logger: bp.Logger): Promise<st
 
     return Buffer.from(response.data).toString('base64')
   } catch (error) {
-    logger.error('An error occurred when trying to get and encode file data from URL:', error)
+    logger.error('An error occurred when trying to get file content from URL:', error)
 
     if (axios.isAxiosError(error)) {
       if (!error.response) {
-        throw new RuntimeError('A network error occurred when trying to get and encode file data from URL.')
+        throw new RuntimeError('A network error occurred when trying to get file content from URL.')
       }
 
-      throw new RuntimeError('An HTTP error occurred when trying to get and encode file data from URL.')
+      throw new RuntimeError('An HTTP error occurred when trying to get file content from URL.')
     }
 
-    throw new RuntimeError('An unexpected error occurred when trying to get and encode file data from URL.')
+    throw new RuntimeError('An unexpected error occurred when trying to get file content from URL.')
   }
 }
 
@@ -54,7 +54,7 @@ const _getAttachmentsByFileIds = async (
       return {
         filename: file.key,
         contentType: file.contentType,
-        data: await _getAndEncodeFileData(file.url, logger),
+        data: await _encodeFileContentFromUrl(file.url, logger),
       }
     })
   )
@@ -66,7 +66,15 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
   const logger = props.logger.forBot()
 
   const {
-    input: { email, transactionalId, dataVariables: dataVariableEntries, addToAudience, idempotencyKey, fileIds },
+    input: {
+      email,
+      transactionalId,
+      dataVariables: dataVariableEntries,
+      addToAudience,
+      idempotencyKey,
+      fileIds,
+      fileData,
+    },
     ctx: {
       configuration: { apiKey },
     },
@@ -82,13 +90,29 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
 
   logger.info('This is the parsed data variables for the API request:', { dataVariables })
 
+  const attachments: TransactionalEmailAttachment[] = []
+
+  if (fileIds && fileIds.length > 0) {
+    attachments.push(...(await _getAttachmentsByFileIds(fileIds, client, logger)))
+  }
+
+  if (fileData && fileData.length > 0) {
+    attachments.push(
+      ...fileData.map(({ filename, contentType, data }) => ({
+        filename,
+        contentType,
+        data: Buffer.from(data).toString('base64'),
+      }))
+    )
+  }
+
   const requestBody = {
     email,
     transactionalId,
     addToAudience,
     idempotencyKey,
     dataVariables: Object.keys(dataVariables).length > 0 ? dataVariables : undefined,
-    attachments: fileIds && fileIds.length > 0 ? await _getAttachmentsByFileIds(fileIds, client, logger) : undefined,
+    attachments: attachments.length > 0 ? attachments : undefined,
   }
 
   logger.info('This is the request body:', { email, transactionalId, addToAudience, idempotencyKey, dataVariables })

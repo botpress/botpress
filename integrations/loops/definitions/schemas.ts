@@ -25,9 +25,14 @@ export const sendTransactionalEmailInputSchema = z.object({
     .array(z.string())
     .optional()
     .describe(
-      'The Botpress client-generated IDs of the files to be attached to the email. They must have already been uploaded to your bot via the Files API. The name of the file will be used as the filename of the attachment.'
+      'The Botpress client-generated IDs of the files to be attached to the email. They must have already been uploaded to your bot via the Files API. The name of the file will be used as the filename of the attachment. Use this for a list of templates the user can choose from.'
     )
     .title('File IDs'),
+  fileData: z
+    .array(z.object({ filename: z.string(), contentType: z.string(), data: z.string() }))
+    .optional()
+    .describe('The name, raw data, and MIME content type of custom files to be attached to the email.')
+    .title('File Data'),
 })
 
 export const sendTransactionalEmailOutputSchema = z.object({})
