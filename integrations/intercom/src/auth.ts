@@ -4,7 +4,8 @@ import { Client as IntercomClient } from 'intercom-client'
 import * as bp from '.botpress'
 
 export const getAuthenticatedIntercomClient = async (client: bp.Client, ctx: bp.Context): Promise<IntercomClient> => {
-  if (ctx.configurationType === 'manual') {
+  // TODO: Change null for 'manual' once the Intercom app is approved
+  if (ctx.configurationType === null) {
     return new IntercomClient({ tokenAuth: { token: ctx.configuration.accessToken } })
   }
 
@@ -42,8 +43,9 @@ const exchangeCodeForAccessToken = async (code: string): Promise<string> => {
   return accessToken
 }
 
-export const getSignatureSecret = (ctx: bp.Context): string => {
-  if (ctx.configurationType === 'manual') {
+export const getSignatureSecret = (ctx: bp.Context): string | undefined => {
+  // TODO: Change null for 'manual' once the Intercom app is approved
+  if (ctx.configurationType === null) {
     return ctx.configuration.clientSecret
   }
   return bp.secrets.CLIENT_SECRET

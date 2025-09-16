@@ -3,14 +3,7 @@ import { z } from '@botpress/sdk'
 export const formSchema = z.object({
   name: z.string().optional(),
   siteId: z.string(),
-  data: z
-    .object({
-      'First Name': z.string().optional(),
-      'Last Name': z.string().optional(),
-      email: z.string().optional(),
-      'Phone Number': z.number().optional(),
-    })
-    .optional(),
+  data: z.record(z.string()).optional(),
   schema: z
     .array(
       z.object({
