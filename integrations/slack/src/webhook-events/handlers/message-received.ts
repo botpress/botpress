@@ -184,9 +184,10 @@ const _getOrCreateMessageFromFiles = async (
 ) => {
   if (!slackEvent.files) {
     return
-  }
-
-  if (slackEvent.files.length === 1) {
+  } else if (
+    slackEvent.files.length === 1 &&
+    (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length)
+  ) {
     const file = slackEvent.files[0]
     if (!file) {
       return
@@ -216,6 +217,7 @@ const _getOrCreateMessageFromFiles = async (
       : (['ts', 'channelId'] as const)
     const baseItems = { tags, userId, conversationId, discriminateByTags }
 
+    logger.forBot().debug('$$$$$$$$$$$$$$$$', '1')
     switch (fileType) {
       case 'image':
         await client.getOrCreateMessage({
@@ -258,10 +260,12 @@ const _getOrCreateMessageFromFiles = async (
         logger.forBot().info('File of type', fileType, 'is not yet supported.')
         break
     }
-  }
-
-  if (slackEvent.files.length > 1) {
+  } else {
+    logger.forBot().debug('$$$$$$$$$$$$$$$$', '2')
     const items = []
+    if (slackEvent.text) {
+      items.push({ type: 'text' as const, payload: { text: slackToMarkdown(slackEvent.text) } })
+    }
     for (const file of slackEvent.files) {
       type MsgTypes = (typeof msgTypes)[number]
       const msgTypes = ['image', 'audio', 'file', 'text'] as const // TODO use zod or botpress sdk
