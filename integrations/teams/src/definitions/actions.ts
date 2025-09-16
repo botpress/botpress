@@ -46,7 +46,10 @@ export const actions = {
           .title('Teams User ID')
           .describe('The ID of any Teams user from tenant to initiate the conversation with, eg: "29:2d5f3..."')
           .optional(),
-        teamsMessageId: sdk.z.string().title('Teams Message ID'),
+        teamsMessageId: sdk.z
+          .string()
+          .title('Teams Message ID')
+          .describe('The ID of the message that the reaction(s) will be applied to'),
         // TODO: Possibly needs a conversationId
         // TODO: Add emoji code
       }),
