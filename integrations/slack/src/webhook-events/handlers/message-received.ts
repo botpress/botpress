@@ -7,14 +7,14 @@ import * as bp from '.botpress'
 type BlocItem = bp.channels.channel.bloc.Bloc['items'][number]
 type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
 
-export type HandlerEventProps = {
+export type HandleEventProps = {
   slackEvent: AllMessageEvents
   client: bp.Client
   ctx: bp.Context
   logger: bp.Logger
 }
 
-export const handleEvent = async (props: HandlerEventProps) => {
+export const handleEvent = async (props: HandleEventProps) => {
   const { slackEvent, client, ctx, logger } = props
 
   // do not handle notification-type messages such as channel_join, channel_leave, etc:
@@ -51,88 +51,98 @@ export const handleEvent = async (props: HandlerEventProps) => {
   }
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+  const isSentInChannel = !slackEvent.thread_ts
+  const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
+  const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
+  const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
+
+  const tags: Record<MessageTag, string | undefined> = {
+    ts: slackEvent.ts,
+    userId: slackEvent.user,
+    channelId: slackEvent.channel,
+    mentionsBot: mentionsBot ? 'true' : undefined,
+    forkedToThread: String(shouldForkToReplyThread),
+  }
+
+  const discriminateByTags: MessageTag[] | undefined = shouldForkToReplyThread
+    ? ['ts', 'channelId', 'forkedToThread']
+    : ['ts', 'channelId']
+
+  await _sendMessage({
+    botpressConversation,
+    botpressUser,
+    tags,
+    discriminateByTags,
+    slackEvent,
+    client,
+    ctx,
+    logger,
+  })
+
+  if (shouldForkToReplyThread) {
+    return
+  }
+
+  const { conversation: threadConversation } = await client.getOrCreateConversation({
+    channel: 'thread',
+    tags: { id: slackEvent.channel, thread: slackEvent.ts, isBotReplyThread: 'true' },
+    discriminateByTags: ['id', 'thread'],
+  })
+
+  await _sendMessage({
+    botpressConversation: threadConversation,
+    botpressUser,
+    tags,
+    discriminateByTags,
+    slackEvent,
+    client,
+    ctx,
+    logger,
+  })
+}
+
+type _SendMessageProps = HandleEventProps & {
+  botpressConversation: { id: string }
+  botpressUser: { id: string }
+  tags: Record<MessageTag, string | undefined>
+  discriminateByTags: MessageTag[] | undefined
+}
+
+const _sendMessage = async (props: _SendMessageProps) => {
+  const { slackEvent, client, ctx, logger, botpressConversation, botpressUser, tags, discriminateByTags } = props
 
   if (slackEvent.subtype === 'file_share') {
     await _getOrCreateMessageFromFiles({
       ctx,
-      mentionsBot,
-      shouldForkToThread: false,
-      conversationId: botpressConversation.id,
-      userId: botpressUser.id,
+      botpressConversation,
+      botpressUser,
       slackEvent,
       client,
       logger,
+      tags,
+      discriminateByTags,
     })
+    return
   }
 
-  if (!slackEvent.subtype) {
-    const text = _parseSlackEventText(slackEvent)
-    if (!text) {
-      logger.forBot().debug('No text was received, so the message was ignored')
-      return
-    }
-
-    await client.getOrCreateMessage({
-      type: 'text',
-      payload: { text: slackToMarkdown(text) },
-      userId: botpressUser.id,
-      conversationId: botpressConversation.id,
-      tags: {
-        ts: slackEvent.ts,
-        userId: slackEvent.user,
-        channelId: slackEvent.channel,
-        mentionsBot: mentionsBot ? 'true' : undefined,
-      },
-      discriminateByTags: ['ts', 'channelId'],
-    })
+  if (slackEvent.subtype) {
+    return
   }
 
-  const isSentInChannel = !slackEvent.thread_ts
-  const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
-  const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
-
-  const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
-
-  if (shouldForkToReplyThread) {
-    const { conversation: threadConversation } = await client.getOrCreateConversation({
-      channel: 'thread',
-      tags: { id: slackEvent.channel, thread: slackEvent.ts, isBotReplyThread: 'true' },
-      discriminateByTags: ['id', 'thread'],
-    })
-    if (slackEvent.subtype === 'file_share') {
-      await _getOrCreateMessageFromFiles({
-        ctx,
-        mentionsBot,
-        shouldForkToThread: shouldForkToReplyThread,
-        conversationId: threadConversation.id,
-        userId: botpressUser.id,
-        slackEvent,
-        client,
-        logger,
-      })
-    } else {
-      const text = _parseSlackEventText(slackEvent)
-      if (!text) {
-        logger.forBot().debug('No text was received, so the message was ignored')
-        return
-      }
-
-      await client.getOrCreateMessage({
-        type: 'text',
-        payload: { text: slackToMarkdown(text) },
-        userId: botpressUser.id,
-        conversationId: threadConversation.id,
-        tags: {
-          ts: slackEvent.ts,
-          userId: slackEvent.user,
-          channelId: slackEvent.channel,
-          mentionsBot: mentionsBot ? 'true' : undefined,
-          forkedToThread: 'true',
-        },
-        discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
-      })
-    }
+  const text = _parseSlackEventText(slackEvent)
+  if (!text) {
+    logger.forBot().debug('No text was received, so the message was ignored')
+    return
   }
+
+  await client.getOrCreateMessage({
+    type: 'text',
+    payload: { text: slackToMarkdown(text) },
+    userId: botpressUser.id,
+    conversationId: botpressConversation.id,
+    tags,
+    discriminateByTags,
+  })
 }
 
 const _isBotMentionedInMessage = async ({
@@ -181,39 +191,24 @@ const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
   return
 }
 
-type _GetOrCreateMessageFromFilesArgs = {
-  mentionsBot: boolean
-  shouldForkToThread: boolean
-  userId: string
-  conversationId: string
-  slackEvent: FileShareMessageEvent
-}
-
 const _getOrCreateMessageFromFiles = async ({
-  mentionsBot,
-  shouldForkToThread,
-  userId,
-  conversationId,
+  botpressUser,
+  botpressConversation,
   slackEvent,
   client,
   logger,
-}: HandlerEventProps & _GetOrCreateMessageFromFilesArgs) => {
+  tags,
+  discriminateByTags,
+}: _SendMessageProps & {
+  slackEvent: FileShareMessageEvent
+}) => {
   const parsedEvent = _parseFileSlackEvent(slackEvent)
   if (!parsedEvent.type) {
     return
   }
 
-  const tags = {
-    ts: slackEvent.ts,
-    userId: slackEvent.user,
-    channelId: slackEvent.channel,
-    mentionsBot: mentionsBot ? 'true' : undefined,
-    forkedToThread: String(shouldForkToThread),
-  }
-
-  const discriminateByTags: MessageTag[] | undefined = shouldForkToThread
-    ? ['ts', 'channelId', 'forkedToThread']
-    : ['ts', 'channelId']
+  const { id: userId } = botpressUser
+  const { id: conversationId } = botpressConversation
 
   if (parsedEvent.type === 'file') {
     const { payload: file } = parsedEvent
@@ -259,7 +254,7 @@ const _getOrCreateMessageFromFiles = async ({
 
 const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
   type MsgTypes = (typeof msgTypes)[number]
-  const msgTypes = ['image', 'audio', 'file', 'text'] as const // TODO use zod or botpress sdk
+  const msgTypes = ['image', 'audio', 'file', 'text'] as const satisfies (keyof bp.channels.channel.Messages)[]
   const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
 
   const fileType = file.mimetype.split('/')[0]
