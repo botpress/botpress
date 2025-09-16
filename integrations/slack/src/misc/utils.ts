@@ -9,10 +9,21 @@ export const isValidUrl = (str: string) => {
   }
 }
 
-export const getBotpressUserFromSlackUser = async (props: { slackUserId: string }, client: bp.Client) => {
+export const getBotpressUserFromSlackUser = async (
+  props: { slackUserId: string; slackUserFullName?: string },
+  client: bp.Client
+) => {
   const { user } = await client.getOrCreateUser({
     tags: { id: props.slackUserId },
+    name: props.slackUserFullName,
   })
+
+  if (!user.name) {
+    await client.updateUser({
+      ...user,
+      name: props.slackUserFullName,
+    })
+  }
 
   return {
     botpressUser: user,
