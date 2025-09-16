@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { subscriberSchema } from 'definitions/schemas'
-import { getAuthenticatedMailerLiteClient } from 'src/utils'
 import { getRequestPayload } from 'misc/utils/utils'
+import { getAuthenticatedMailerLiteClient } from 'src/utils'
 import * as bp from '.botpress'
 
 type MailerLiteClient = Awaited<ReturnType<typeof getAuthenticatedMailerLiteClient>>
