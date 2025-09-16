@@ -29,7 +29,7 @@ export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = asy
     const response = await mlClient.subscribers.find(searchParam)
     return subscriberSchema.parse(response.data.data)
   } catch (e) {
-    throw new RuntimeError('Subscriber not found, try again with a valid email')
+    throw new RuntimeError('Subscriber not found, try again with a valid email', e instanceof Error ? e : undefined)
   }
 }
 
