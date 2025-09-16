@@ -27,18 +27,20 @@ const _getAndEncodeFileData = async (url: string, logger: bp.Logger): Promise<st
 
 const _getAttachmentsByFileIds = async (
   fileIds: string[],
-  getFile: bp.Client['getFile'],
+  client: bp.Client,
   logger: bp.Logger
 ): Promise<TransactionalEmailAttachment[]> => {
+  logger.info('These are the file IDs:', { fileIds })
+
   let files
   try {
-    files = await Promise.all(fileIds.map(async (fileId) => getFile({ id: fileId })))
+    files = await Promise.all(fileIds.map(async (fileId) => client.getFile({ id: fileId })))
   } catch (error) {
     logger.error('An error occurred when getting the files from the Files API:', error)
     throw new RuntimeError('An error occurred when getting the files from the Files API.')
   }
 
-  logger.info('This is the response from the Files API on the requested file IDs:', { files })
+  logger.info('This is information about the files returned by the Files API:', { files })
 
   const fileAttachments = await Promise.all(
     files.map(async ({ file }) => {
@@ -54,6 +56,8 @@ const _getAttachmentsByFileIds = async (
     })
   )
 
+  logger.info('These are the file attachments to be sent:', { fileAttachments })
+
   return fileAttachments
 }
 
@@ -65,7 +69,7 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
     ctx: {
       configuration: { apiKey },
     },
-    client: { getFile },
+    client,
   } = props
 
   logger.info('This is the data variables:', { dataVariableEntries })
@@ -83,7 +87,7 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
     addToAudience,
     idempotencyKey,
     dataVariables: Object.keys(dataVariables).length > 0 ? dataVariables : undefined,
-    attachments: fileIds && fileIds.length > 0 ? await _getAttachmentsByFileIds(fileIds, getFile, logger) : undefined,
+    attachments: fileIds && fileIds.length > 0 ? await _getAttachmentsByFileIds(fileIds, client, logger) : undefined,
   }
 
   logger.info('This is the request body:', { requestBody })
