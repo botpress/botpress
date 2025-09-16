@@ -1,5 +1,5 @@
 import { z, ActionDefinition } from '@botpress/sdk'
-import { subscriberSchema } from '../schemas'
+import { subscriberSchema } from 'definitions/schemas'
 
 const fetchSubscriber: ActionDefinition = {
   title: 'Fetch Subscriber',

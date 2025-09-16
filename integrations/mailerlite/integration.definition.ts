@@ -1,5 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { actions, events, states } from './definitions'
+import { actions, events, states } from 'definitions'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
