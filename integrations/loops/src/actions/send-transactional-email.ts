@@ -93,7 +93,8 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
     attachments: fileIds && fileIds.length > 0 ? await _getAttachmentsByFileIds(fileIds, client, logger) : undefined,
   }
 
-  logger.info('This is the request body:', { requestBody })
+  logger.info('This is the request body:', (({ attachments, ...requestBody }) => requestBody)(requestBody))
+  logger.info('These are the attachments:', requestBody.attachments)
 
   const loops = new LoopsApi(apiKey, logger)
   return await loops.sendTransactionalEmail(requestBody)
