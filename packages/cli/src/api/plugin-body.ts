@@ -28,6 +28,7 @@ export const prepareCreatePluginBody = async (
         schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
+  recurringEvents: plugin.recurringEvents,
   actions: plugin.actions
     ? await utils.records.mapValuesAsync(plugin.actions, async (action) => ({
         ...action,
@@ -65,6 +66,10 @@ export const prepareUpdatePluginBody = (
     localItems: utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events),
     remoteItems: remotePlugin.events,
   })
+  const recurringEvents = utils.records.setNullOnMissingValues(
+    localPlugin.recurringEvents,
+    remotePlugin.recurringEvents
+  )
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)
 
   const attributes = utils.records.setNullOnMissingValues(localPlugin.attributes, remotePlugin.attributes)
@@ -84,6 +89,7 @@ export const prepareUpdatePluginBody = (
     ...localPlugin,
     actions,
     events,
+    recurringEvents,
     states,
     user: localPlugin.user, // TODO: allow deleting user tags with null
     attributes,
