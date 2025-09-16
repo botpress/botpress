@@ -4,6 +4,9 @@ import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } 
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
 
+type BlocItem = bp.channels.channel.bloc.Bloc['items'][number]
+type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
+
 export type HandlerEventProps = {
   slackEvent: AllMessageEvents
   client: bp.Client
@@ -195,141 +198,131 @@ const _getOrCreateMessageFromFiles = async ({
   client,
   logger,
 }: HandlerEventProps & _GetOrCreateMessageFromFilesArgs) => {
-  if (!slackEvent.files) {
+  const parsedEvent = _parseFileSlackEvent(slackEvent)
+  if (!parsedEvent.type) {
     return
-  } else if (
-    slackEvent.files.length === 1 &&
-    (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length)
-  ) {
-    const file = slackEvent.files[0]
-    if (!file) {
+  }
+
+  const tags = {
+    ts: slackEvent.ts,
+    userId: slackEvent.user,
+    channelId: slackEvent.channel,
+    mentionsBot: mentionsBot ? 'true' : undefined,
+    forkedToThread: String(shouldForkToThread),
+  }
+
+  const discriminateByTags: MessageTag[] | undefined = shouldForkToThread
+    ? ['ts', 'channelId', 'forkedToThread']
+    : ['ts', 'channelId']
+
+  if (parsedEvent.type === 'file') {
+    const { payload: file } = parsedEvent
+
+    const blocItem = _parseSlackFile(logger, file)
+    if (!blocItem) {
       return
     }
 
-    type MsgTypes = (typeof msgTypes)[number]
-    const msgTypes = ['image', 'audio', 'file', 'text'] as const // TODO use zod or botpress sdk
-    const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
+    await client.getOrCreateMessage({
+      tags,
+      userId,
+      conversationId,
+      discriminateByTags,
+      ...blocItem,
+    } as bp.ClientRequests['getOrCreateMessage'])
 
-    const fileType = file.mimetype.split('/')[0]
-    if (!fileType || !isMsgType(fileType)) {
+    return
+  }
+
+  const items: BlocItem[] = []
+
+  if (slackEvent.text) {
+    items.push({ type: 'text', payload: { text: slackToMarkdown(slackEvent.text) } })
+  }
+
+  for (const file of parsedEvent.items) {
+    const item = _parseSlackFile(logger, file)
+    if (item) {
+      items.push(item)
+    }
+  }
+
+  await client.getOrCreateMessage({
+    tags,
+    userId,
+    conversationId,
+    discriminateByTags,
+    type: 'bloc',
+    payload: { items },
+  })
+}
+
+const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
+  type MsgTypes = (typeof msgTypes)[number]
+  const msgTypes = ['image', 'audio', 'file', 'text'] as const // TODO use zod or botpress sdk
+  const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
+
+  const fileType = file.mimetype.split('/')[0]
+  if (!fileType || !isMsgType(fileType)) {
+    logger.forBot().info('File of type', fileType, 'is not yet supported.')
+    return null
+  }
+
+  switch (fileType) {
+    case 'image':
+      return { type: fileType, payload: { imageUrl: file.permalink_public! } }
+
+    case 'audio':
+      return { type: fileType, payload: { audioUrl: file.permalink_public! } }
+
+    case 'file':
+      return { type: fileType, payload: { fileUrl: file.permalink_public! } }
+
+    case 'text':
+      return { type: 'file', payload: { fileUrl: file.permalink_public! } }
+
+    default:
+      fileType satisfies never
       logger.forBot().info('File of type', fileType, 'is not yet supported.')
-      return
-    }
-
-    const tags = {
-      ts: slackEvent.ts,
-      userId: slackEvent.user,
-      channelId: slackEvent.channel,
-      mentionsBot: mentionsBot ? 'true' : undefined,
-      forkedToThread: String(shouldForkToThread),
-    }
-    const discriminateByTags:
-      | NoInfer<('userId' | 'ts' | 'channelId' | 'forkedToThread' | 'mentionsBot')[]>
-      | undefined = shouldForkToThread
-      ? (['ts', 'channelId', 'forkedToThread'] as const)
-      : (['ts', 'channelId'] as const)
-    const baseItems = { tags, userId, conversationId, discriminateByTags }
-
-    switch (fileType) {
-      case 'image':
-        await client.getOrCreateMessage({
-          ...baseItems,
-          type: fileType,
-          payload: {
-            imageUrl: file.permalink_public!,
-          },
-        })
-        break
-      case 'audio':
-        await client.getOrCreateMessage({
-          ...baseItems,
-          type: fileType,
-          payload: {
-            audioUrl: file.permalink_public!,
-          },
-        })
-        break
-      case 'file':
-        await client.getOrCreateMessage({
-          ...baseItems,
-          type: fileType,
-          payload: {
-            fileUrl: file.permalink_public!,
-          },
-        })
-        break
-      case 'text':
-        await client.getOrCreateMessage({
-          ...baseItems,
-          type: 'file',
-          payload: {
-            fileUrl: file.permalink_public!,
-          },
-        })
-        break
-      default:
-        fileType satisfies never
-        logger.forBot().info('File of type', fileType, 'is not yet supported.')
-        break
-    }
-  } else {
-    const items = []
-    if (slackEvent.text) {
-      items.push({ type: 'text' as const, payload: { text: slackToMarkdown(slackEvent.text) } })
-    }
-    for (const file of slackEvent.files) {
-      type MsgTypes = (typeof msgTypes)[number]
-      const msgTypes = ['image', 'audio', 'file', 'text'] as const // TODO use zod or botpress sdk
-      const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
-
-      const fileType = file.mimetype.split('/')[0]
-      if (!fileType || !isMsgType(fileType)) {
-        logger.forBot().info('File of type', fileType, 'is not yet supported.')
-        continue
-      }
-      switch (fileType) {
-        case 'image':
-          items.push({ type: fileType, payload: { imageUrl: file.permalink_public! } })
-          break
-        case 'audio':
-          items.push({ type: fileType, payload: { audioUrl: file.permalink_public! } })
-          break
-        case 'file':
-          items.push({ type: fileType, payload: { fileUrl: file.permalink_public! } })
-          break
-        case 'text':
-          items.push({ type: 'file' as const, payload: { fileUrl: file.permalink_public! } })
-          break
-        default:
-          fileType satisfies never
-          logger.forBot().info('File of type', fileType, 'is not yet supported.')
-          break
-      }
-      const tags = {
-        ts: slackEvent.ts,
-        userId: slackEvent.user,
-        channelId: slackEvent.channel,
-        mentionsBot: mentionsBot ? 'true' : undefined,
-        forkedToThread: String(shouldForkToThread),
-      }
-      const discriminateByTags:
-        | NoInfer<('userId' | 'ts' | 'channelId' | 'forkedToThread' | 'mentionsBot')[]>
-        | undefined = shouldForkToThread
-        ? (['ts', 'channelId', 'forkedToThread'] as const)
-        : (['ts', 'channelId'] as const)
-      const baseItems = { tags, userId, conversationId, discriminateByTags }
-      await client.getOrCreateMessage({
-        ...baseItems,
-        type: 'bloc',
-        payload: { items },
-      })
-    }
+      return null
   }
 }
 
-const _parseSlackEventText = (slackEvent: GenericMessageEvent): string | null => {
+const _parseSlackEventText = (slackEvent: GenericMessageEvent | FileShareMessageEvent): string | null => {
   if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
     return null
   }
   return slackEvent.text
+}
+
+type File = NonNullable<FileShareMessageEvent['files']>[number]
+type _ParsedFileSlackEvent =
+  | {
+      type: null
+    }
+  | {
+      type: 'file'
+      payload: File
+    }
+  | {
+      type: 'bloc'
+      text: string | null
+      items: File[]
+    }
+const _parseFileSlackEvent = (slackEvent: FileShareMessageEvent): _ParsedFileSlackEvent => {
+  if (!slackEvent.files) {
+    return { type: null }
+  }
+
+  const [file] = slackEvent.files
+  if (!file) {
+    return { type: null }
+  }
+
+  const text = _parseSlackEventText(slackEvent)
+  if (slackEvent.files.length === 1 && !text) {
+    return { type: 'file', payload: file }
+  }
+
+  return { type: 'bloc', text, items: slackEvent.files }
 }
