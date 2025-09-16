@@ -543,7 +543,6 @@ export class HubspotClient {
   @handleErrors('Failed to create deal')
   public async createDeal({ name, properties }: { name: string; properties: Record<string, string> }) {
     const resolvedProperties = await this._resolveAndCoerceProperties({ properties, type: 'deal' })
-    console.log('resolvedProperties', resolvedProperties) // TOOD: Remove
     const deal = await this._hsClient.crm.deals.basicApi.create({
       properties: {
         ...resolvedProperties,
