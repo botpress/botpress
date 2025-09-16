@@ -8,7 +8,7 @@ import {
 } from 'klaviyo-api'
 import { getProfilesApi } from '../auth'
 import { MAX_PROFILES_PER_BULK_OPERATION } from './constants'
-import { handleKlaviyoError } from './error-handler'
+import { getErrorMessage } from './error-handler'
 import { ProfileSubscriptions, GetProfilesOptions } from './types'
 import { buildFilter } from './utils'
 import * as bp from '.botpress'
@@ -65,7 +65,8 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
       },
     }
   } catch (error) {
-    handleKlaviyoError(error, 'Failed to create profile in Klaviyo', logger, 'Failed to create Klaviyo profile')
+    logger.forBot().error('Failed to create Klaviyo profile', error)
+    throw new RuntimeError(getErrorMessage(error))
   }
 }
 
@@ -122,7 +123,8 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
       },
     }
   } catch (error) {
-    handleKlaviyoError(error, 'Failed to update profile in Klaviyo', logger, 'Failed to update Klaviyo profile')
+    logger.forBot().error('Failed to update Klaviyo profile', error)
+    throw new RuntimeError(getErrorMessage(error))
   }
 }
 
@@ -148,7 +150,8 @@ export const getProfile: bp.IntegrationProps['actions']['getProfile'] = async ({
       },
     }
   } catch (error) {
-    handleKlaviyoError(error, 'Failed to get profile in Klaviyo', logger, 'Failed to get Klaviyo profile')
+    logger.forBot().error('Failed to get Klaviyo profile', error)
+    throw new RuntimeError(getErrorMessage(error))
   }
 }
 
@@ -182,7 +185,8 @@ export const getProfiles: bp.IntegrationProps['actions']['getProfiles'] = async 
       totalCount: result.body.data.length,
     }
   } catch (error) {
-    handleKlaviyoError(error, 'Failed to get profiles from Klaviyo', logger, 'Failed to get Klaviyo profiles')
+    logger.forBot().error('Failed to get Klaviyo profiles', error)
+    throw new RuntimeError(getErrorMessage(error))
   }
 }
 
@@ -256,6 +260,7 @@ export const subscribeProfiles: bp.IntegrationProps['actions']['subscribeProfile
       success: result.response.status === 202,
     }
   } catch (error) {
-    handleKlaviyoError(error, 'Failed to subscribe profiles in Klaviyo', logger, 'Failed to subscribe Klaviyo profiles')
+    logger.forBot().error('Failed to subscribe Klaviyo profiles', error)
+    throw new RuntimeError(getErrorMessage(error))
   }
 }

@@ -11,10 +11,6 @@ export const createKlaviyoSession = (apiKey: string): ApiKeySession => {
 }
 
 export const getApiKey = (ctx: bp.Context): string => {
-  if (ctx.configurationType !== 'manual') {
-    throw new RuntimeError('Manual configuration is required for Klaviyo integration')
-  }
-
   const { apiKey } = ctx.configuration
 
   if (!apiKey) {

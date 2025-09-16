@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'klaviyo',
   title: 'Klaviyo',
   description: 'Manage customer profiles, generate leads, and curate marketing campaigns',
-  version: '0.1.19',
+  version: '0.1.21',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
