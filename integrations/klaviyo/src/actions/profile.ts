@@ -9,7 +9,7 @@ import {
 import { getProfilesApi } from '../auth'
 import { MAX_PROFILES_PER_BULK_OPERATION } from './constants'
 import { handleKlaviyoError } from './error-handler'
-import { ProfileAttributes, ProfileSubscriptions, GetProfilesOptions } from './types'
+import { ProfileSubscriptions, GetProfilesOptions } from './types'
 import { buildFilter } from './utils'
 import * as bp from '.botpress'
 
@@ -23,7 +23,7 @@ export const createProfile: bp.IntegrationProps['actions']['createProfile'] = as
   try {
     const profilesApi = getProfilesApi(ctx)
 
-    const profileAttributes: ProfileAttributes = {}
+    const profileAttributes: ProfileCreateQuery['data']['attributes'] = {}
 
     if (email) profileAttributes.email = email
     if (phone) profileAttributes.phoneNumber = phone
@@ -79,7 +79,7 @@ export const updateProfile: bp.IntegrationProps['actions']['updateProfile'] = as
   try {
     const profilesApi = getProfilesApi(ctx)
 
-    const updatedProfileAttributes: ProfileAttributes = {}
+    const updatedProfileAttributes: ProfilePartialUpdateQuery['data']['attributes'] = {}
 
     if (email) updatedProfileAttributes.email = email
     if (phone) updatedProfileAttributes.phoneNumber = phone

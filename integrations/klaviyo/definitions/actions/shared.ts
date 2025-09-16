@@ -48,6 +48,7 @@ export const organizationSchema = z
   .describe('The organization or company of the profile')
   .optional()
 export const jobTitleSchema = z.string().title('Job title').describe('The job title of the profile').optional()
+//TODO: just make it json (like just a body of json) rather than a z.record
 export const profilePropertiesSchema = z
   .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
   .title('Custom Properties')
