@@ -4,17 +4,16 @@ import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } 
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
 
-export const handleEvent = async ({
-  slackEvent,
-  client,
-  ctx,
-  logger,
-}: {
+export type HandlerEventProps = {
   slackEvent: AllMessageEvents
   client: bp.Client
   ctx: bp.Context
   logger: bp.Logger
-}) => {
+}
+
+export const handleEvent = async (props: HandlerEventProps) => {
+  const { slackEvent, client, ctx, logger } = props
+
   // do not handle notification-type messages such as channel_join, channel_leave, etc:
   if (slackEvent.subtype && slackEvent.subtype !== 'file_share') {
     return
@@ -51,7 +50,12 @@ export const handleEvent = async ({
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
 
   if (slackEvent.subtype === 'file_share') {
-    await _getOrCreateMessageFromFiles(mentionsBot, false, botpressUser.id, botpressConversation.id, {
+    await _getOrCreateMessageFromFiles({
+      ctx,
+      mentionsBot,
+      shouldForkToThread: false,
+      conversationId: botpressConversation.id,
+      userId: botpressUser.id,
       slackEvent,
       client,
       logger,
@@ -92,7 +96,12 @@ export const handleEvent = async ({
       discriminateByTags: ['id', 'thread'],
     })
     if (slackEvent.subtype === 'file_share') {
-      await _getOrCreateMessageFromFiles(mentionsBot, shouldForkToReplyThread, botpressUser.id, threadConversation.id, {
+      await _getOrCreateMessageFromFiles({
+        ctx,
+        mentionsBot,
+        shouldForkToThread: shouldForkToReplyThread,
+        conversationId: threadConversation.id,
+        userId: botpressUser.id,
         slackEvent,
         client,
         logger,
@@ -166,21 +175,23 @@ const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
   return
 }
 
-const _getOrCreateMessageFromFiles = async (
-  mentionsBot: boolean,
-  shouldForkToThread: boolean,
-  userId: string,
-  conversationId: string,
-  {
-    slackEvent,
-    client,
-    logger,
-  }: {
-    slackEvent: FileShareMessageEvent
-    client: bp.Client
-    logger: bp.Logger
-  }
-) => {
+type _GetOrCreateMessageFromFilesArgs = {
+  mentionsBot: boolean
+  shouldForkToThread: boolean
+  userId: string
+  conversationId: string
+  slackEvent: FileShareMessageEvent
+}
+
+const _getOrCreateMessageFromFiles = async ({
+  mentionsBot,
+  shouldForkToThread,
+  userId,
+  conversationId,
+  slackEvent,
+  client,
+  logger,
+}: HandlerEventProps & _GetOrCreateMessageFromFilesArgs) => {
   if (!slackEvent.files) {
     return
   } else if (
