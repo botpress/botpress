@@ -1,4 +1,4 @@
-import { EventDefinition } from '@botpress/sdk'
+import { EventDefinition, z } from '@botpress/sdk'
 import { subscriberSchema } from './schemas'
 
 const subscriberCreated = {

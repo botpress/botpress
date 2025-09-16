@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { subscriberSchema } from 'definitions/schemas'
 import { getAuthenticatedMailerLiteClient } from 'src/utils'
+import { getRequestPayload } from '../../misc/utils/utils'
 import * as bp from '.botpress'
 
 type MailerLiteClient = Awaited<ReturnType<typeof getAuthenticatedMailerLiteClient>>
@@ -23,8 +24,13 @@ export const fetchSubscriber: bp.Integration['actions']['fetchSubscriber'] = asy
   if (!searchParam) {
     throw new RuntimeError('Must provide an email or id to search for!')
   }
-  const response = await mlClient.subscribers.find(searchParam)
-  return subscriberSchema.parse(response.data.data)
+
+  try {
+    const response = await mlClient.subscribers.find(searchParam)
+    return subscriberSchema.parse(response.data.data)
+  } catch (e) {
+    throw new RuntimeError('Subscriber not found, try again with a valid email')
+  }
 }
 
 export const createOrUpsertSubscriber: bp.Integration['actions']['createOrUpsertSubscriber'] = async ({
@@ -34,8 +40,12 @@ export const createOrUpsertSubscriber: bp.Integration['actions']['createOrUpsert
   logger,
 }) => {
   const mlClient: MailerLiteClient = await getAuthenticatedMailerLiteClient({ ctx, client })
-  const response = await mlClient.subscribers.createOrUpdate(input)
-  logger.forBot().debug(`Create or updated new user ${input}`)
+  const payload = getRequestPayload(input)
+  const typedPayload: Parameters<MailerLiteClient['subscribers']['createOrUpdate']>[0] = payload as Parameters<
+    MailerLiteClient['subscribers']['createOrUpdate']
+  >[0]
+  const response = await mlClient.subscribers.createOrUpdate(typedPayload)
+  logger.forBot().debug(`Create or updated new user ${JSON.stringify(typedPayload)}`)
 
   return subscriberSchema.parse(response.data.data)
 }

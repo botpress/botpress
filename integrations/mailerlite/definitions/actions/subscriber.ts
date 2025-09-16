@@ -29,6 +29,20 @@ const createOrUpsertSubscriber: ActionDefinition = {
       phone: z.string().title('Phone').describe('Phone number').optional(),
       state: z.string().title('State').describe('State/Province').optional(),
       zip: z.string().title('ZIP Code').describe('ZIP/Postal code').optional(),
+      customFields: z
+        .string()
+        .displayAs<any>({
+          id: 'text',
+          params: {
+            allowDynamicVariable: true,
+            growVertically: true,
+            multiLine: true,
+            resizable: true,
+          },
+        })
+        .title('Custom Fields (JSON)')
+        .describe('JSON string containing key, value pairs of custom fields')
+        .optional(),
     }),
   },
   output: {
