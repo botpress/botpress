@@ -1,5 +1,5 @@
 import { slackToMarkdown } from '@bpinternal/slackdown'
-import { AllMessageEvents, FileShareMessageEvent } from '@slack/types'
+import { AllMessageEvents, FileShareMessageEvent, GenericMessageEvent } from '@slack/types'
 import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } from 'src/misc/utils'
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
@@ -63,14 +63,15 @@ export const handleEvent = async (props: HandlerEventProps) => {
   }
 
   if (!slackEvent.subtype) {
-    if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
+    const text = _parseSlackEventText(slackEvent)
+    if (!text) {
       logger.forBot().debug('No text was received, so the message was ignored')
       return
     }
 
     await client.getOrCreateMessage({
       type: 'text',
-      payload: { text: slackToMarkdown(slackEvent.text) },
+      payload: { text: slackToMarkdown(text) },
       userId: botpressUser.id,
       conversationId: botpressConversation.id,
       tags: {
@@ -107,13 +108,15 @@ export const handleEvent = async (props: HandlerEventProps) => {
         logger,
       })
     } else {
-      if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
+      const text = _parseSlackEventText(slackEvent)
+      if (!text) {
         logger.forBot().debug('No text was received, so the message was ignored')
         return
       }
+
       await client.getOrCreateMessage({
         type: 'text',
-        payload: { text: slackToMarkdown(slackEvent.text) },
+        payload: { text: slackToMarkdown(text) },
         userId: botpressUser.id,
         conversationId: threadConversation.id,
         tags: {
@@ -322,4 +325,11 @@ const _getOrCreateMessageFromFiles = async ({
       })
     }
   }
+}
+
+const _parseSlackEventText = (slackEvent: GenericMessageEvent): string | null => {
+  if (slackEvent.text === undefined || typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
+    return null
+  }
+  return slackEvent.text
 }
