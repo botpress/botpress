@@ -82,7 +82,6 @@ export const handleEvent = async ({
   const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
-  logger.forBot().debug(isSentInChannel, isThreadingEnabled, threadingRequiresMention)
 
   const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
 
@@ -217,7 +216,6 @@ const _getOrCreateMessageFromFiles = async (
       : (['ts', 'channelId'] as const)
     const baseItems = { tags, userId, conversationId, discriminateByTags }
 
-    logger.forBot().debug('$$$$$$$$$$$$$$$$', '1')
     switch (fileType) {
       case 'image':
         await client.getOrCreateMessage({
@@ -261,7 +259,6 @@ const _getOrCreateMessageFromFiles = async (
         break
     }
   } else {
-    logger.forBot().debug('$$$$$$$$$$$$$$$$', '2')
     const items = []
     if (slackEvent.text) {
       items.push({ type: 'text' as const, payload: { text: slackToMarkdown(slackEvent.text) } })
