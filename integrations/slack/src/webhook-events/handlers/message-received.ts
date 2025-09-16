@@ -253,12 +253,8 @@ const _getOrCreateMessageFromFiles = async ({
 }
 
 const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
-  type MsgTypes = (typeof msgTypes)[number]
-  const msgTypes = ['image', 'audio', 'file', 'text'] as const satisfies (keyof bp.channels.channel.Messages)[]
-  const isMsgType = (t: string): t is MsgTypes => msgTypes.includes(t as MsgTypes)
-
   const fileType = file.mimetype.split('/')[0]
-  if (!fileType || !isMsgType(fileType)) {
+  if (!fileType) {
     logger.forBot().info('File of type', fileType, 'is not yet supported.')
     return null
   }
@@ -277,7 +273,6 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
       return { type: 'file', payload: { fileUrl: file.permalink_public! } }
 
     default:
-      fileType satisfies never
       logger.forBot().info('File of type', fileType, 'is not yet supported.')
       return null
   }
