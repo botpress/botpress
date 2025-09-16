@@ -40,7 +40,10 @@ const _getAttachmentsByFileIds = async (
     throw new RuntimeError('An error occurred when getting the files from the Files API.')
   }
 
-  logger.info('This is information about the files returned by the Files API:', { files })
+  logger.info(
+    'This is information about the files returned by the Files API:',
+    files.map(({ file }) => file)
+  )
 
   const fileAttachments = await Promise.all(
     files.map(async ({ file }) => {
