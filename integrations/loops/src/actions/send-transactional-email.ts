@@ -59,8 +59,6 @@ const _getAttachmentsByFileIds = async (
     })
   )
 
-  logger.info('These are the file attachments to be sent:', { fileAttachments })
-
   return fileAttachments
 }
 
