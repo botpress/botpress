@@ -22,11 +22,6 @@ export const handleEvent = async (props: HandleEventProps) => {
     return
   }
 
-  // Prevent the bot from answering to other Slack bots:
-  if (!slackEvent.subtype && slackEvent.bot_id) {
-    return
-  }
-
   const { botpressConversation } = await getBotpressConversationFromSlackThread(
     { slackChannelId: slackEvent.channel, slackThreadId: slackEvent.thread_ts },
     client
@@ -56,30 +51,24 @@ export const handleEvent = async (props: HandleEventProps) => {
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
   const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
 
-  const tags: Record<MessageTag, string | undefined> = {
-    ts: slackEvent.ts,
-    userId: slackEvent.user,
-    channelId: slackEvent.channel,
-    mentionsBot: mentionsBot ? 'true' : undefined,
-    forkedToThread: String(shouldForkToReplyThread),
-  }
-
-  const discriminateByTags: MessageTag[] | undefined = shouldForkToReplyThread
-    ? ['ts', 'channelId', 'forkedToThread']
-    : ['ts', 'channelId']
-
   await _sendMessage({
     botpressConversation,
     botpressUser,
-    tags,
-    discriminateByTags,
+    tags: {
+      ts: slackEvent.ts,
+      userId: slackEvent.user,
+      channelId: slackEvent.channel,
+      mentionsBot: mentionsBot ? 'true' : undefined,
+      forkedToThread: 'false',
+    },
+    discriminateByTags: ['ts', 'channelId'],
     slackEvent,
     client,
     ctx,
     logger,
   })
 
-  if (shouldForkToReplyThread) {
+  if (!shouldForkToReplyThread) {
     return
   }
 
@@ -92,8 +81,14 @@ export const handleEvent = async (props: HandleEventProps) => {
   await _sendMessage({
     botpressConversation: threadConversation,
     botpressUser,
-    tags,
-    discriminateByTags,
+    tags: {
+      ts: slackEvent.ts,
+      userId: slackEvent.user,
+      channelId: slackEvent.channel,
+      mentionsBot: mentionsBot ? 'true' : undefined,
+      forkedToThread: 'true',
+    },
+    discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
     slackEvent,
     client,
     ctx,
