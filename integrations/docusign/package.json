@@ -1,0 +1,18 @@
+{
+  "name": "@botpresshub/docusign",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.12.2",
+    "docusign-esign": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/docusign-esign": "^5.19.9"
+  }
+}
