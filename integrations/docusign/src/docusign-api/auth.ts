@@ -15,6 +15,9 @@ export class DocusignAuthClient {
   public constructor() {
     const { OAUTH_BASE_URL, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } = bp.secrets
 
+    // Opted for axios here since the docusign package only has
+    // a function for getting an accessToken from the oauth code
+    // but not for refresh tokens
     this._axiosClient = axios.create({
       baseURL: OAUTH_BASE_URL,
       headers: {
