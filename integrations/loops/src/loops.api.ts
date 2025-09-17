@@ -6,7 +6,7 @@ const LOOPS_API_BASE_URL = 'https://app.loops.so/api/v1'
 export type TransactionalEmailAttachment = {
   filename: string
   contentType: string
-  data: string
+  encodedData: string
 }
 
 type SendTransactionalEmailRequest = {
@@ -54,13 +54,24 @@ export class LoopsApi {
 
   public async sendTransactionalEmail(req: SendTransactionalEmailRequest): Promise<SendTransactionalEmailResponse> {
     const { idempotencyKey, ...reqBody } = req
+
+    if (idempotencyKey && idempotencyKey.length > 100) {
+      throw new RuntimeError('Idempotency key must be less than 100 characters.')
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': idempotencyKey,
+    }
+
+    this._logger.info('These are the headers of the Loops API request:', headers)
+
+    const { attachments, ...rest } = reqBody
+    this._logger.info('This is the request body of the Loops API request:', rest)
+    this._logger.info('These are the attachments of the Loops API request:', attachments)
+
     try {
-      await this._axios.post('/transactional', reqBody, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKey,
-        },
-      })
+      await this._axios.post('/transactional', reqBody, { headers })
 
       this._logger.info('Transactional email sent successfully.')
       return {}

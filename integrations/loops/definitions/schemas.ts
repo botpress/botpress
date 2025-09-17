@@ -29,9 +29,9 @@ export const sendTransactionalEmailInputSchema = z.object({
     )
     .title('File IDs'),
   fileData: z
-    .array(z.object({ filename: z.string(), contentType: z.string(), data: z.string() }))
+    .array(z.object({ filename: z.string(), contentType: z.string(), encodedData: z.string() }))
     .optional()
-    .describe('The name, raw data, and MIME content type of custom files to be attached to the email.')
+    .describe('The name, base64-encoded data, and MIME content type of custom files to be attached to the email.')
     .title('File Data'),
 })
 

@@ -3,6 +3,33 @@ import axios from 'axios'
 import { LoopsApi, TransactionalEmailAttachment } from 'src/loops.api'
 import * as bp from '.botpress'
 
+const _isValidBase64 = (str: string): boolean => {
+  try {
+    // Check if the string contains only valid base64 characters
+    const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/
+    if (!base64Regex.test(str)) {
+      return false
+    }
+
+    // Check if the string length is a multiple of 4 (base64 requirement)
+    if (str.length % 4 !== 0) {
+      return false
+    }
+
+    // Try to decode and re-encode to verify it's valid base64
+    const decoded = Buffer.from(str, 'base64')
+    const reencoded = decoded.toString('base64')
+
+    // Remove padding for comparison since it can vary
+    const normalizedOriginal = str.replace(/=+$/, '')
+    const normalizedReencoded = reencoded.replace(/=+$/, '')
+
+    return normalizedOriginal === normalizedReencoded
+  } catch {
+    return false
+  }
+}
+
 const _encodeFileContentFromUrl = async (url: string, logger: bp.Logger): Promise<string> => {
   try {
     const response = await axios.get(url, {
@@ -54,7 +81,7 @@ const _getAttachmentsByFileIds = async (
       return {
         filename: file.key,
         contentType: file.contentType,
-        data: await _encodeFileContentFromUrl(file.url, logger),
+        encodedData: await _encodeFileContentFromUrl(file.url, logger),
       }
     })
   )
@@ -96,14 +123,13 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
     attachments.push(...(await _getAttachmentsByFileIds(fileIds, client, logger)))
   }
 
-  if (fileData && fileData.length > 0) {
-    attachments.push(
-      ...fileData.map(({ filename, contentType, data }) => ({
-        filename,
-        contentType,
-        data: Buffer.from(data).toString('base64'),
-      }))
-    )
+  if (fileData) {
+    fileData.forEach((file) => {
+      if (!_isValidBase64(file.encodedData)) {
+        throw new RuntimeError('The encoded data is not a valid base64 string.')
+      }
+      attachments.push(file)
+    })
   }
 
   const requestBody = {
@@ -114,9 +140,6 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
     dataVariables: Object.keys(dataVariables).length > 0 ? dataVariables : undefined,
     attachments: attachments.length > 0 ? attachments : undefined,
   }
-
-  logger.info('This is the request body:', { email, transactionalId, addToAudience, idempotencyKey, dataVariables })
-  logger.info('These are the attachments:', requestBody.attachments)
 
   const loops = new LoopsApi(apiKey, logger)
   return await loops.sendTransactionalEmail(requestBody)
