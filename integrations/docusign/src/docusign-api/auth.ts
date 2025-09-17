@@ -69,7 +69,6 @@ export class DocusignAuthClient {
     return this._getAccessToken({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
     })
   }
 
@@ -110,7 +109,6 @@ type GetAccessTokenParams =
   | {
       grant_type: 'authorization_code'
       code: string
-      redirect_uri: string
     }
   | {
       grant_type: 'refresh_token'
