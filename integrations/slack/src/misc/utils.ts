@@ -1,4 +1,5 @@
 import * as bp from '.botpress'
+import { SlackClient } from 'src/slack-api'
 
 export const isValidUrl = (str: string) => {
   try {
@@ -17,6 +18,31 @@ export const getBotpressUserFromSlackUser = async (props: { slackUserId: string 
   return {
     botpressUser: user,
     botpressUserId: user.id,
+  }
+}
+
+export const updateBotpressuserFromSlackUser = async (
+  slackUserId: string,
+  botpressUser: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user'],
+  client: bp.Client,
+  ctx: bp.Context,
+  logger: bp.Logger
+) => {
+  if (!botpressUser.pictureUrl || !botpressUser.name) {
+    try {
+      const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
+      const userProfile = await slackClient.getUserProfile({ userId: slackUserId })
+      const fieldsToUpdate = {
+        pictureUrl: userProfile?.image_192,
+        name: userProfile?.real_name,
+      }
+      logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
+      if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
+        await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
+      }
+    } catch (error) {
+      logger.forBot().error('Error while fetching user profile from Slack:', error)
+    }
   }
 }
 

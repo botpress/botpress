@@ -14,8 +14,8 @@ import {
 } from './definitions'
 
 export default new IntegrationDefinition({
-  name: 'slack',
-  title: 'Slack',
+  name: 'faucon-slack',
+  title: 'faucon-Slack',
   description: 'Automate interactions with your team.',
   version: '2.5.5',
   icon: 'icon.svg',

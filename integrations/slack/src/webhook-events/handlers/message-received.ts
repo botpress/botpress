@@ -1,7 +1,10 @@
 import { slackToMarkdown } from '@bpinternal/slackdown'
 import { AllMessageEvents, FileShareMessageEvent, GenericMessageEvent } from '@slack/types'
-import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } from 'src/misc/utils'
-import { SlackClient } from 'src/slack-api'
+import {
+  getBotpressConversationFromSlackThread,
+  getBotpressUserFromSlackUser,
+  updateBotpressuserFromSlackUser,
+} from 'src/misc/utils'
 import * as bp from '.botpress'
 
 type BlocItem = bp.channels.channel.bloc.Bloc['items'][number]
@@ -27,25 +30,30 @@ export const handleEvent = async (props: HandleEventProps) => {
     client
   )
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
+  await updateBotpressuserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
-  if (!botpressUser.pictureUrl || !botpressUser.name) {
-    try {
-      const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
-      const userProfile = await slackClient.getUserProfile({ userId: slackEvent.user })
-      const fieldsToUpdate = {
-        pictureUrl: userProfile?.image_192,
-        name: userProfile?.real_name,
+  const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+
+  for (const block of slackEvent.blocks ?? []) {
+    if (!('elements' in block)) {
+      continue
+    }
+    for (const element of block.elements) {
+      if (!('elements' in element)) {
+        continue
       }
-      logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
-      if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-        await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
+      for (const subElement of element.elements) {
+        if (subElement.type !== 'user') {
+          continue
+        }
+        const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: subElement.user_id }, client)
+        await updateBotpressuserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
+        subElement.user_id = botpressUser.name!
+        slackEvent.text?.replace('<@' + subElement.user_id + '>', '<@' + botpressUser.name! + '>')
       }
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Slack:', error)
     }
   }
 
-  const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
   const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
