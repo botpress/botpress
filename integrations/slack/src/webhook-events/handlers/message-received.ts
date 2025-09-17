@@ -34,25 +34,7 @@ export const handleEvent = async (props: HandleEventProps) => {
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
 
-  for (const block of slackEvent.blocks ?? []) {
-    if (!('elements' in block)) {
-      continue
-    }
-    for (const element of block.elements) {
-      if (!('elements' in element)) {
-        continue
-      }
-      for (const subElement of element.elements) {
-        if (subElement.type !== 'user') {
-          continue
-        }
-        const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: subElement.user_id }, client)
-        await updateBotpressuserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
-        subElement.user_id = botpressUser.name!
-        slackEvent.text?.replace('<@' + subElement.user_id + '>', '<@' + botpressUser.name! + '>')
-      }
-    }
-  }
+  await _changeSlackIdForFullName(slackEvent, client, ctx, logger)
 
   const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
@@ -318,4 +300,36 @@ const _parseFileSlackEvent = (slackEvent: FileShareMessageEvent): _ParsedFileSla
   }
 
   return { type: 'bloc', text, items: slackEvent.files }
+}
+
+const _changeSlackIdForFullName = async (
+  slackEvent: GenericMessageEvent | FileShareMessageEvent,
+  client: bp.Client,
+  ctx: bp.Context,
+  logger: bp.Logger
+) => {
+  if (!slackEvent.text) {
+    return
+  }
+  for (const block of slackEvent.blocks ?? []) {
+    if (!('elements' in block)) {
+      continue
+    }
+    for (const element of block.elements) {
+      if (!('elements' in element)) {
+        continue
+      }
+      for (const subElement of element.elements) {
+        if (subElement.type !== 'user') {
+          continue
+        }
+        const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: subElement.user_id }, client)
+        await updateBotpressuserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
+        if (!botpressUser.name) {
+          continue
+        }
+        slackEvent.text = slackEvent.text.replace(subElement.user_id, botpressUser.name)
+      }
+    }
+  }
 }
