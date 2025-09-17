@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { SlackClient } from 'src/slack-api'
+import * as bp from '.botpress'
 
 export const isValidUrl = (str: string) => {
   try {
