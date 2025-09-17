@@ -15,3 +15,5 @@ Your API key is needed to configure this integration. How to find your API key i
 #### Events
 
 The webhook URL found on the configuration page of this integration should be added in the Feature Base's dashboard. [See this documentation for more information](https://docs.featurebase.app/webhooks#registering-webhooks)
+
+It is also necessary to add the webhook signing secret to the configuration. The secret can be found in Feature Base's dashboard as mentioned in the previous paragraph.
