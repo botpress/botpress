@@ -81,7 +81,7 @@ const _getAttachmentsByFileIds = async (
       return {
         filename: file.key,
         contentType: file.contentType,
-        encodedData: await _encodeFileContentFromUrl(file.url, logger),
+        data: await _encodeFileContentFromUrl(file.url, logger),
       }
     })
   )
@@ -111,6 +111,10 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
   logger.info('This is the data variables:', { dataVariableEntries })
 
   const dataVariables = dataVariableEntries?.reduce((acc: Record<string, string>, item) => {
+    if (!item.key || !item.value) {
+      throw new RuntimeError('Required fields are missing from the data variables.')
+    }
+
     acc[item.key] = item.value
     return acc
   }, {})
@@ -125,7 +129,11 @@ export const sendTransactionalEmail: bp.IntegrationProps['actions']['sendTransac
 
   if (fileData) {
     fileData.forEach((file) => {
-      if (!_isValidBase64(file.encodedData)) {
+      if (!file.filename || !file.contentType || !file.data) {
+        throw new RuntimeError('Required fields are missing from the file data.')
+      }
+
+      if (!_isValidBase64(file.data)) {
         throw new RuntimeError('The encoded data is not a valid base64 string.')
       }
       attachments.push(file)

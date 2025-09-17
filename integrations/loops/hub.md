@@ -21,7 +21,7 @@ await client.uploadFile({
 })
 ```
 
-or can be directly included by entering the file's raw data and MIME content type in the actions input. The first method is useful for sending premade templates while the second allows the user to send personalized content.
+or can be directly included by entering the file's base64-encoded data and MIME content type in the actions input. The first method is useful for sending premade templates while the second allows the user to send personalized content.
 
 ### Events
 

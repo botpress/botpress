@@ -6,7 +6,7 @@ const LOOPS_API_BASE_URL = 'https://app.loops.so/api/v1'
 export type TransactionalEmailAttachment = {
   filename: string
   contentType: string
-  encodedData: string
+  data: string
 }
 
 type SendTransactionalEmailRequest = {
