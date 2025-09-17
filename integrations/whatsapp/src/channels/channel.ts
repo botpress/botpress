@@ -22,6 +22,7 @@ import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as image from './message-types/image'
 import * as bp from '.botpress'
+import { repeat } from '../repeat'
 
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
@@ -128,6 +129,14 @@ type SendMessageProps = {
   message?: OutgoingMessage
 }
 
+// From https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes#throttling-errors
+// Only contains codes for errors that can be recovered from by waiting
+const THROTTLING_CODES = new Set([
+  80007, // WABA/app rate limit
+  130429, // Cloud API throughput reached
+  131056, // Pair rate limit (same sender↔recipient)
+])
+
 function backoffDelayMs(attempt: number) {
   // Helper function for backoff delay with jitter. Uses Meta recommendation for exponential curve
   // https://developers.facebook.com/docs/whatsapp/cloud-api/overview/?locale=en_US#pair-rate-limits
@@ -135,6 +144,8 @@ function backoffDelayMs(attempt: number) {
   const jitter = 0.75 + Math.random() * 0.5
   return Math.floor(baseMs * jitter)
 }
+
+const MAX_ATTEMPT = 3
 
 async function _send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
   if (!message) {
@@ -161,15 +172,26 @@ async function _send({ client, ctx, conversation, message, ack, logger }: SendMe
     return
   }
 
-  const feedback = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
-  // From https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes#throttling-errors
-  // Only contains codes for errors that can be recovered from by waiting
-  const THROTTLING_CODES = new Set([
-    80007,   // WABA/app rate limit
-    130429,  // Cloud API throughput reached
-    131056,  // Pair rate limit (same sender↔recipient)
-  ])
-  if ('error' in feedback && !THROTTLING_CODES.has(feedback.error?.code ?? 0)) {
+  const feedback = await repeat(
+    async (i) => {
+      if (i > 0) {
+        logger.forBot().info(`Retrying to send ${messageType} message to WhatsApp (attempt ${i + 1}/${MAX_ATTEMPT})...`)
+      }
+
+      const result = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
+      const repeat = 'error' in result && THROTTLING_CODES.has(result.error?.code ?? 0)
+      return {
+        repeat,
+        result,
+      }
+    },
+    {
+      maxIterations: MAX_ATTEMPT,
+      backoff: backoffDelayMs,
+    }
+  )
+
+  if ('error' in feedback) {
     logger
       .forBot()
       .error(
@@ -177,22 +199,6 @@ async function _send({ client, ctx, conversation, message, ack, logger }: SendMe
         feedback.error?.message ?? 'Unknown error'
       )
     return
-  }
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const delay = backoffDelayMs(attempt)
-    await sleep(delay)
-    var retry = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
-    if (!('error' in retry)) return // success
-    if ('error' in retry && !THROTTLING_CODES.has(retry.error?.code ?? 0)) {
-      // Only retry throttling errors
-      logger
-        .forBot()
-        .error(
-          `Send ${messageType} failed after retry ${attempt + 1}:`,
-          retry.error?.message ?? 'Unknown error'
-        )
-      return;
-    }
   }
 
   if (!('messages' in feedback)) {
