@@ -1,11 +1,11 @@
 import { WebhookHandlerProps } from '@botpress/sdk/dist/integration'
 import { fullEmailEventSchema } from 'definitions/schemas'
-import { formatWebhookEventPayload, TValidWebhookEventPayload } from 'src/loops.webhook'
+import { formatWebhookEventPayload, ValidWebhookEventPayload } from 'src/loops.webhook'
 import { TIntegration } from '.botpress'
 
 export const fireEmailDelivered = async (
   client: WebhookHandlerProps<TIntegration>['client'],
-  payload: TValidWebhookEventPayload
+  payload: ValidWebhookEventPayload
 ): Promise<void> => {
   const formattedPayload = formatWebhookEventPayload(payload, fullEmailEventSchema)
 

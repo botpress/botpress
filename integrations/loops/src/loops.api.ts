@@ -3,15 +3,22 @@ import axios, { type AxiosInstance } from 'axios'
 
 const LOOPS_API_BASE_URL = 'https://app.loops.so/api/v1'
 
-type sendTransactionalEmailRequest = {
+export type TransactionalEmailAttachment = {
+  filename: string
+  contentType: string
+  data: string
+}
+
+type SendTransactionalEmailRequest = {
   email: string
   transactionalId: string
   dataVariables?: Record<string, string>
   addToAudience?: boolean
   idempotencyKey?: string
+  attachments?: TransactionalEmailAttachment[]
 }
 
-type sendTransactionalEmailResponse = {}
+type SendTransactionalEmailResponse = {}
 
 export class LoopsApi {
   private _axios: AxiosInstance
@@ -39,21 +46,32 @@ export class LoopsApi {
         if (error.response.status === 401) {
           throw new RuntimeError('Invalid or missing API key.')
         }
-
-        throw new RuntimeError('An unexpected error occurred when trying to validate the API key.')
       }
+
+      throw new RuntimeError('An unexpected error occurred when trying to validate the API key.')
     }
   }
 
-  public async sendTransactionalEmail(req: sendTransactionalEmailRequest): Promise<sendTransactionalEmailResponse> {
+  public async sendTransactionalEmail(req: SendTransactionalEmailRequest): Promise<SendTransactionalEmailResponse> {
     const { idempotencyKey, ...reqBody } = req
+
+    if (idempotencyKey && idempotencyKey.length > 100) {
+      throw new RuntimeError('Idempotency key must be less than 100 characters.')
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': idempotencyKey,
+    }
+
+    this._logger.info('These are the headers of the Loops API request:', headers)
+
+    const { attachments, ...rest } = reqBody
+    this._logger.info('This is the request body of the Loops API request:', rest)
+    this._logger.info('These are the attachments of the Loops API request:', attachments)
+
     try {
-      await this._axios.post('/transactional', reqBody, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Idempotency-Key': idempotencyKey,
-        },
-      })
+      await this._axios.post('/transactional', reqBody, { headers })
 
       this._logger.info('Transactional email sent successfully.')
       return {}
