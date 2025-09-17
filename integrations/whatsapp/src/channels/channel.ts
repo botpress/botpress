@@ -16,13 +16,13 @@ import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
 import { sleep } from '../misc/util'
+import { repeat } from '../repeat'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as image from './message-types/image'
 import * as bp from '.botpress'
-import { repeat } from '../repeat'
 
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
