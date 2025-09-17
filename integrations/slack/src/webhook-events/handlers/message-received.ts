@@ -3,7 +3,7 @@ import { AllMessageEvents, FileShareMessageEvent, GenericMessageEvent } from '@s
 import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
-  updateBotpressuserFromSlackUser,
+  updateBotpressUserFromSlackUser,
 } from 'src/misc/utils'
 import * as bp from '.botpress'
 
@@ -30,12 +30,9 @@ export const handleEvent = async (props: HandleEventProps) => {
     client
   )
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
-  await updateBotpressuserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
+  await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
-
-  await _changeSlackIdForFullName(slackEvent, client, ctx, logger)
-
   const isSentInChannel = !slackEvent.thread_ts
   const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
   const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
@@ -113,7 +110,6 @@ const _sendMessage = async (props: _SendMessageProps) => {
   if (slackEvent.subtype) {
     return
   }
-
   const text = _parseSlackEventText(slackEvent)
   if (!text) {
     logger.forBot().debug('No text was received, so the message was ignored')
@@ -122,7 +118,7 @@ const _sendMessage = async (props: _SendMessageProps) => {
 
   await client.getOrCreateMessage({
     type: 'text',
-    payload: { text: slackToMarkdown(text) },
+    payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger),
     userId: botpressUser.id,
     conversationId: botpressConversation.id,
     tags,
@@ -217,7 +213,7 @@ const _getOrCreateMessageFromFiles = async ({
   const items: BlocItem[] = []
 
   if (slackEvent.text) {
-    items.push({ type: 'text', payload: { text: slackToMarkdown(slackEvent.text) } })
+    items.push({ type: 'text', payload: { text: slackToMarkdown(slackEvent.text) } }) // TODO mentions add here
   }
 
   for (const file of parsedEvent.items) {
@@ -302,15 +298,27 @@ const _parseFileSlackEvent = (slackEvent: FileShareMessageEvent): _ParsedFileSla
   return { type: 'bloc', text, items: slackEvent.files }
 }
 
-const _changeSlackIdForFullName = async (
+type mention = {
+  type: 'user' | 'bot'
+  start: number
+  end: number
+  user: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
+}
+
+const _getTextPayloadFromSlackEvent = async (
   slackEvent: GenericMessageEvent | FileShareMessageEvent,
   client: bp.Client,
   ctx: bp.Context,
   logger: bp.Logger
-) => {
+): Promise<{
+  text: string
+  mentions: mention[]
+}> => {
   if (!slackEvent.text) {
-    return
+    return { text: '', mentions: [] }
   }
+  let text = slackEvent.text
+  const mentions: mention[] = []
   for (const block of slackEvent.blocks ?? []) {
     if (!('elements' in block)) {
       continue
@@ -324,12 +332,21 @@ const _changeSlackIdForFullName = async (
           continue
         }
         const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: subElement.user_id }, client)
-        await updateBotpressuserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
+        await updateBotpressUserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
         if (!botpressUser.name) {
           continue
         }
-        slackEvent.text = slackEvent.text.replace(subElement.user_id, botpressUser.name)
+        text = text.replace(subElement.user_id, botpressUser.name)
+        mentions.push({ type: subElement.type, start: 1, end: 1, user: botpressUser })
       }
     }
   }
+  for (const mention of mentions) {
+    if (!mention.user.name) {
+      continue
+    }
+    mention.start = text.search(mention.user.name)
+    mention.end = mention.start + mention.user.name.length
+  }
+  return { text, mentions }
 }

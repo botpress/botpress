@@ -21,7 +21,7 @@ export const getBotpressUserFromSlackUser = async (props: { slackUserId: string 
   }
 }
 
-export const updateBotpressuserFromSlackUser = async (
+export const updateBotpressUserFromSlackUser = async (
   slackUserId: string,
   botpressUser: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user'],
   client: bp.Client,
