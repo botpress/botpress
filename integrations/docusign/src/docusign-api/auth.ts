@@ -22,6 +22,8 @@ export class DocusignAuthClient {
       baseURL: OAUTH_BASE_URL,
       headers: {
         Authorization: `Basic ${Buffer.from(`${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}`).toString('base64')}`,
+        'Cache-Control': 'no-store',
+        Pragma: 'no-cache',
       },
     })
   }
