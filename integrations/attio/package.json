@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/empty-integration",
+  "name": "@botpresshub/attio",
   "integrationName": "attio/attio-integration",
   "scripts": {
     "check:type": "tsc --noEmit"
