@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.37.0
-        version: 1.37.0(openapi-types@12.1.3)
+        specifier: 1.40.0
+        version: 1.40.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -3539,8 +3539,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.37.0':
-    resolution: {integrity: sha512-d5sUsxz/XAeB3Rp/mweY+zLf5moRtxnXvi6k4TFrM3eCkVuGWuuspEkQLcThSS33EsDrYL7Ys2K1kn+YFtBudg==}
+  '@botpress/api@1.40.0':
+    resolution: {integrity: sha512-23qrO680KUuSO/1ixEBwedueKhtkEv2WIIfd8Jo7EmAZDUTsZQpwMrlWlhD4gJnfVQ4J+N3dEoOfaeqyPEB/qQ==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12360,7 +12360,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.37.0(openapi-types@12.1.3)':
+  '@botpress/api@1.40.0(openapi-types@12.1.3)':
     dependencies:
       '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -20342,7 +20342,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.13.0
       readable-stream: 3.6.2
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
