@@ -16,7 +16,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   _verifyBodyIsPresent(req)
 
+  logger.forBot().debug(req) // faucon remove this
   const data = JSON.parse(req.body)
+  logger.forBot().debug(data) // faucon remove this
 
   if (isUrlVerificationRequest(data)) {
     logger.forBot().debug('Handler received request of type url_verification')
