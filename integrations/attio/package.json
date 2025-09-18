@@ -2,7 +2,8 @@
   "name": "@botpresshub/attio",
   "integrationName": "attio/attio-integration",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "dev": "nodemon --watch \"./src/*\" --ext \"ts\" --exec \"bp deploy -y\""
   },
   "private": true,
   "dependencies": {

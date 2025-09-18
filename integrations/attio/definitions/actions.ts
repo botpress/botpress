@@ -23,10 +23,12 @@ const recordSchema = z
 // Objects & Attributes
 const objectSchema = z
   .object({
-    id: z.object({
-      workspace_id: z.string(),
-      object_id: z.string(),
-    }).optional(),
+    id: z
+      .object({
+        workspace_id: z.string(),
+        object_id: z.string(),
+      })
+      .optional(),
     api_slug: z.string().optional(),
     singular_noun: z.string().optional(),
     plural_noun: z.string().optional(),
@@ -36,24 +38,30 @@ const objectSchema = z
 
 const attributeSchema = z
   .object({
-    id: z.object({
-      workspace_id: z.string(),
-      object_id: z.string(),
-      attribute_id: z.string(),
-    }).optional(),
+    id: z
+      .object({
+        workspace_id: z.string(),
+        object_id: z.string(),
+        attribute_id: z.string(),
+      })
+      .optional(),
     title: z.string().optional(),
     description: z.string().nullable().optional(),
     api_slug: z.string().optional(),
     type: z.string().optional(),
     slug: z.string().optional(),
-    options: z.array(z.object({
-      id: z.string().optional(),
-      label: z.string().optional(),
-      name: z.string().optional(),
-      value: z.string().optional(),
-      title: z.string().optional(),
-      slug: z.string().optional(),
-    })).optional(),
+    options: z
+      .array(
+        z.object({
+          id: z.string().optional(),
+          label: z.string().optional(),
+          name: z.string().optional(),
+          value: z.string().optional(),
+          title: z.string().optional(),
+          slug: z.string().optional(),
+        })
+      )
+      .optional(),
   })
   .title('Attribute')
 
@@ -64,20 +72,12 @@ const listRecordsInput: ActionDefinition = {
     schema: z.object({
       path: z
         .object({
-          object: z
-            .string()
-            .min(1)
-            .title('Object')
-            .describe("Object slug or UUID, e.g. 'people'"),
+          object: z.string().min(1).title('Object').describe("Object slug or UUID, e.g. 'people'"),
         })
         .title('Path'),
       body: z
         .object({
-          filter: z
-            .record(z.any())
-            .optional()
-            .title('Filter')
-            .describe('Filtering object; see Attio filtering guide'),
+          filter: z.record(z.any()).optional().title('Filter').describe('Filtering object; see Attio filtering guide'),
           sorts: z
             .array(
               z.object({
@@ -89,16 +89,8 @@ const listRecordsInput: ActionDefinition = {
             .optional()
             .title('Sorts')
             .describe('Sorting instructions'),
-          limit: z
-            .number()
-            .optional()
-            .title('Limit')
-            .describe('Max number of records to return (default 500)'),
-          offset: z
-            .number()
-            .optional()
-            .title('Offset')
-            .describe('Number of records to skip (default 0)'),
+          limit: z.number().optional().title('Limit').describe('Max number of records to return (default 500)'),
+          offset: z.number().optional().title('Offset').describe('Number of records to skip (default 0)'),
         })
         .title('Body')
         .describe('Filtering, sorting and pagination parameters'),
@@ -257,5 +249,3 @@ export const actions = {
   getObject,
   listAttributes,
 } as const
-
-

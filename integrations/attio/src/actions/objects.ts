@@ -91,5 +91,3 @@ export const listAttributes: bp.IntegrationProps['actions']['listAttributes'] = 
     return { data: [] }
   }
 }
-
-

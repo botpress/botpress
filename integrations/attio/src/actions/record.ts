@@ -2,16 +2,16 @@
 import * as bp from '.botpress'
 
 type AttioRecordIdentifier = {
-    workspace_id: string
-    object_id: string
-    record_id: string
+  workspace_id: string
+  object_id: string
+  record_id: string
 }
 
 type AttioRecord = {
-    id: AttioRecordIdentifier
-    created_at: string
-    web_url: string
-    values: Record<string, unknown>
+  id: AttioRecordIdentifier
+  created_at: string
+  web_url: string
+  values: Record<string, unknown>
 }
 
 export type AttioListResponse<T> = { data?: T[] }
@@ -71,9 +71,7 @@ function _buildAttributeMaps(attributes: Attribute[]) {
       for (const opt of attr.options) {
         const oid = String(opt.id ?? '')
         if (!oid) continue
-        const label = String(
-          opt.label ?? opt.name ?? opt.value ?? opt.title ?? opt.slug ?? oid
-        )
+        const label = String(opt.label ?? opt.name ?? opt.value ?? opt.title ?? opt.slug ?? oid)
         map[oid] = label
       }
       slugToOptionLabelById[slug] = map
@@ -162,20 +160,29 @@ export const getRecord: bp.IntegrationProps['actions']['getRecord'] = async (pro
     })
     const json = (await response.json()) as AttioItemResponse<AttioRecord>
     const record = json.data
-    
+
     if (!record) {
-      const emptyRecord = { id: { workspace_id: '', object_id: '', record_id: '' }, created_at: '', web_url: '', values: {} }
+      const emptyRecord = {
+        id: { workspace_id: '', object_id: '', record_id: '' },
+        created_at: '',
+        web_url: '',
+        values: {},
+      }
       return { data: emptyRecord }
     }
-    
+
     const attributes = await _fetchAttributes(accessToken, object, logger)
     const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes)
     const humanized = _humanizeRecordValues(record, idToSlug, slugToOptionLabelById)
     return { data: humanized }
-
   } catch (err) {
     logger.forBot().error('Attio getRecord failed', err)
-    const emptyRecord = { id: { workspace_id: '', object_id: '', record_id: '' }, created_at: '', web_url: '', values: {} }
+    const emptyRecord = {
+      id: { workspace_id: '', object_id: '', record_id: '' },
+      created_at: '',
+      web_url: '',
+      values: {},
+    }
     return { data: emptyRecord }
   }
 }
