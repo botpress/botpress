@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
+import { safeParseJson } from 'src/misc/utils'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
 import { isOAuthCallback, handleOAuthCallback } from './handlers/oauth-callback'
@@ -16,9 +17,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   _verifyBodyIsPresent(req)
 
-  logger.forBot().debug(req) // faucon remove this
-  const data = JSON.parse(req.body)
-  logger.forBot().debug(data) // faucon remove this
+  const decoded = decodeURIComponent(req.body)
+  const data = safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
 
   if (isUrlVerificationRequest(data)) {
     logger.forBot().debug('Handler received request of type url_verification')
