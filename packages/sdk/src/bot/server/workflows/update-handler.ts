@@ -68,19 +68,16 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
     return SUCCESS_RESPONSE
   }
 
-  await _acknowledgeWorkflowStart(props, event)
   await _dispatchToHandlers(props, event)
 
-  return SUCCESS_RESPONSE
-}
-
-const _acknowledgeWorkflowStart = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
-  if (event.payload.workflow.status !== 'pending') {
-    return
+  if (event.payload.workflow.status === 'pending') {
+    props.logger.warn(
+      `Workflow "${event.payload.workflow.name}" is still in pending status after processing "${updateType}" event. ` +
+        'This may indicate that the workflow was not properly acknowledged or terminated by the handler. '
+    )
   }
 
-  // Acknowledge start of workflow processing:
-  await props.client.updateWorkflow({ id: event.payload.workflow.id, status: 'in_progress', eventId: event.id })
+  return SUCCESS_RESPONSE
 }
 
 const _dispatchToHandlers = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
@@ -93,7 +90,7 @@ const _dispatchToHandlers = async (props: types.ServerProps, event: types.Workfl
       event,
       conversation: event.payload.conversation,
       user: event.payload.user,
-      workflow: wrapWorkflowInstance({ ...props, workflow: event.payload.workflow }),
+      workflow: wrapWorkflowInstance({ ...props, workflow: event.payload.workflow, event }),
       workflows: proxyWorkflows(props.client),
     })
   }

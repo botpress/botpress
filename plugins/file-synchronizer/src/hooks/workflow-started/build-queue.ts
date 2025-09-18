@@ -3,6 +3,8 @@ import * as SyncQueue from '../../sync-queue'
 import * as bp from '.botpress'
 
 export const handleEvent: bp.WorkflowHandlers['buildQueue'] = async (props) => {
+  await props.workflow.acknowledgeStartOfProcessing()
+
   props.logger.info('Creating job file...')
   const syncFileKey = _generateFileKey(props)
   const jobFileId = await SyncQueue.jobFileManager.updateSyncQueue(props, syncFileKey, [], props.workflow.tags)
