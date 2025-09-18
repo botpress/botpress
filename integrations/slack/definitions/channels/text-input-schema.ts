@@ -400,7 +400,6 @@ const mention = sdk.z.object({
   start: sdk.z.number(), // position in string
   end: sdk.z.number(),
   user: sdk.z.object({
-    // Do we have a bp user zod
     id: sdk.z.string(),
     createdAt: sdk.z.string(),
     updatedAt: sdk.z.string(),
