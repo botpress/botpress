@@ -20,6 +20,43 @@ const recordSchema = z
   })
   .title('Record')
 
+// Objects & Attributes
+const objectSchema = z
+  .object({
+    id: z.object({
+      workspace_id: z.string(),
+      object_id: z.string(),
+    }).optional(),
+    api_slug: z.string().optional(),
+    singular_noun: z.string().optional(),
+    plural_noun: z.string().optional(),
+    created_at: z.string().optional(),
+  })
+  .title('Object')
+
+const attributeSchema = z
+  .object({
+    id: z.object({
+      workspace_id: z.string(),
+      object_id: z.string(),
+      attribute_id: z.string(),
+    }).optional(),
+    title: z.string().optional(),
+    description: z.string().nullable().optional(),
+    api_slug: z.string().optional(),
+    type: z.string().optional(),
+    slug: z.string().optional(),
+    options: z.array(z.object({
+      id: z.string().optional(),
+      label: z.string().optional(),
+      name: z.string().optional(),
+      value: z.string().optional(),
+      title: z.string().optional(),
+      slug: z.string().optional(),
+    })).optional(),
+  })
+  .title('Attribute')
+
 const listRecordsInput: ActionDefinition = {
   title: 'List Records',
   description: 'List records of an Attio object with optional filters, sorts and pagination',
@@ -92,7 +129,12 @@ const getRecord: ActionDefinition = {
   output: {
     schema: z
       .object({
-        data: z.array(recordSchema).title('Records').describe('The fetched record in a list'),
+        data: z.object({
+          id: recordIdentifierSchema.title('Record').describe('The fetched record'),
+          web_url: z.string().title('Web URL').describe('URL of the record in Attio UI'),
+          values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s)'),
+          created_at: z.string().title('Created At').describe('RFC3339 timestamp when the record was created'),
+        }),
       })
       .title('Get Record Response'),
   },
@@ -108,11 +150,11 @@ const createRecord: ActionDefinition = {
           object: z.string().min(1).title('Object').describe('Object slug or UUID'),
         })
         .title('Path'),
-      body: z
+      data: z
         .object({
           values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s)'),
         })
-        .title('Body'),
+        .title('Data'),
     }),
   },
   output: {
@@ -135,11 +177,11 @@ const updateRecord: ActionDefinition = {
           record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
         })
         .title('Path'),
-      body: z
+      data: z
         .object({
           values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s) to upsert'),
         })
-        .title('Body'),
+        .title('Data'),
     }),
   },
   output: {
@@ -151,11 +193,69 @@ const updateRecord: ActionDefinition = {
   },
 }
 
+const listObjects: ActionDefinition = {
+  title: 'List Objects',
+  description: 'List Attio objects in the workspace',
+  input: { schema: z.object({}) },
+  output: {
+    schema: z
+      .object({
+        data: z.array(objectSchema).title('Objects').describe('List of objects'),
+      })
+      .title('List Objects Response'),
+  },
+}
+
+const getObject: ActionDefinition = {
+  title: 'Get Object',
+  description: 'Get a single Attio object by slug or ID',
+  input: {
+    schema: z.object({
+      path: z
+        .object({
+          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
+        })
+        .title('Path'),
+    }),
+  },
+  output: {
+    schema: z
+      .object({
+        data: objectSchema.title('Object').describe('The requested object'),
+      })
+      .title('Get Object Response'),
+  },
+}
+
+const listAttributes: ActionDefinition = {
+  title: 'List Attributes',
+  description: 'List attributes for a given Attio object',
+  input: {
+    schema: z.object({
+      path: z
+        .object({
+          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
+        })
+        .title('Path'),
+    }),
+  },
+  output: {
+    schema: z
+      .object({
+        data: z.array(attributeSchema).title('Attributes').describe('List of attributes'),
+      })
+      .title('List Attributes Response'),
+  },
+}
+
 export const actions = {
   listRecords: listRecordsInput,
   getRecord,
   createRecord,
   updateRecord,
+  listObjects,
+  getObject,
+  listAttributes,
 } as const
 
 
