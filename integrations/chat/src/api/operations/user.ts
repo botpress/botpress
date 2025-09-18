@@ -23,6 +23,7 @@ export const createUser: types.Operations['createUser'] = async (props, foreignR
     pictureUrl,
     tags: {
       profile,
+      fid: req.body.id, // Readonly copy of the user's foreign ID; useful for users of the Runtime API
     },
   })
 
