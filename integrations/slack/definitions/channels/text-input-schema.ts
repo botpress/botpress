@@ -425,6 +425,6 @@ export const textSchema = sdk.z
       .describe(
         'Multiple blocks can be added to this array. If a block is provided, the text field is ignored and the text must be added as a block'
       ),
-    mentions: sdk.z.array(mention),
+    mentions: sdk.z.array(mention).optional(),
   })
   .strict()

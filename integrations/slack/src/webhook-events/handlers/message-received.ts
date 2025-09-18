@@ -1,3 +1,4 @@
+import { z } from '@botpress/sdk'
 import { slackToMarkdown } from '@bpinternal/slackdown'
 import {
   ActionsBlockElement,
@@ -9,6 +10,7 @@ import {
   RichTextElement,
   RichTextSection,
 } from '@slack/types'
+import { textSchema } from 'definitions/channels/text-input-schema'
 import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
@@ -16,7 +18,18 @@ import {
 } from 'src/misc/utils'
 import * as bp from '.botpress'
 
-type BlocItem = bp.channels.channel.bloc.Bloc['items'][number]
+type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
+
+type BlocItem =
+  | bp.channels.channel.bloc.Bloc['items'][number]
+  | {
+      type: 'text'
+      payload: {
+        mentions: Mention[]
+        text: string
+      }
+    }
+
 type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
 
 export type HandleEventProps = {
@@ -182,6 +195,7 @@ const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
 }
 
 const _getOrCreateMessageFromFiles = async ({
+  ctx,
   botpressUser,
   botpressConversation,
   slackEvent,
@@ -222,7 +236,7 @@ const _getOrCreateMessageFromFiles = async ({
   const items: BlocItem[] = []
 
   if (slackEvent.text) {
-    items.push({ type: 'text', payload: { text: slackToMarkdown(slackEvent.text) } }) // TODO mentions add here
+    items.push({ type: 'text', payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger) })
   }
 
   for (const file of parsedEvent.items) {
@@ -307,13 +321,6 @@ const _parseFileSlackEvent = (slackEvent: FileShareMessageEvent): _ParsedFileSla
   return { type: 'bloc', text, items: slackEvent.files }
 }
 
-type mention = {
-  type: 'user' | 'bot'
-  start: number
-  end: number
-  user: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
-}
-
 const _getTextPayloadFromSlackEvent = async (
   slackEvent: GenericMessageEvent | FileShareMessageEvent,
   client: bp.Client,
@@ -321,13 +328,13 @@ const _getTextPayloadFromSlackEvent = async (
   logger: bp.Logger
 ): Promise<{
   text: string
-  mentions: mention[]
+  mentions: Mention[]
 }> => {
   if (!slackEvent.text) {
     return { text: '', mentions: [] }
   }
   let text = slackEvent.text
-  const mentions: mention[] = []
+  const mentions: Mention[] = []
   const blocks = slackEvent.blocks ?? []
 
   type BlockElement = ContextBlockElement | ActionsBlockElement | RichTextBlockElement
@@ -354,6 +361,7 @@ const _getTextPayloadFromSlackEvent = async (
     mention.start = text.search(mention.user.name)
     mention.end = mention.start + mention.user.name.length
   }
+  text = slackToMarkdown(text)
 
   return { text, mentions }
 }
