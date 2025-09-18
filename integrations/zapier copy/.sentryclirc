@@ -1,0 +1,5 @@
+[defaults]
+project=integration-zapier
+
+[auth]
+dsn=https://12ba088287b54d6dab91e61bfa78fc3f@o363631.ingest.sentry.io/4505274849755136
