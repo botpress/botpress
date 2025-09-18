@@ -263,18 +263,23 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
     return null
   }
 
+  if (!file.permalink_public) {
+    logger.forBot().info('File had no public permalink')
+    return null
+  }
+
   switch (fileType) {
     case 'image':
-      return { type: fileType, payload: { imageUrl: file.permalink_public! } }
+      return { type: fileType, payload: { imageUrl: file.permalink_public } }
 
     case 'audio':
-      return { type: fileType, payload: { audioUrl: file.permalink_public! } }
+      return { type: fileType, payload: { audioUrl: file.permalink_public } }
 
     case 'file':
-      return { type: fileType, payload: { fileUrl: file.permalink_public! } }
+      return { type: fileType, payload: { fileUrl: file.permalink_public } }
 
     case 'text':
-      return { type: 'file', payload: { fileUrl: file.permalink_public! } }
+      return { type: 'file', payload: { fileUrl: file.permalink_public } }
 
     default:
       logger.forBot().info('File of type', fileType, 'is not yet supported.')
