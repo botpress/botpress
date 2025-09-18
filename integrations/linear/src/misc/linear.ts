@@ -5,7 +5,7 @@ import queryString from 'query-string'
 import * as bp from '.botpress'
 
 type BaseEvent = {
-  action: 'create' | 'update' | 'remove'
+  action: 'create' | 'update' | 'remove' | 'restore'
   type: string
   webhookTimestamp: number
   data: {
@@ -27,7 +27,7 @@ export type LinearIssueEvent = {
     title: string
     updatedAt: string
     createdAt: string
-    description: string
+    description: string | null
     priority: number
     labels: {
       name: string
@@ -44,7 +44,7 @@ export type LinearIssueEvent = {
     state: {
       name: string
     }
-    project: {
+    project?: {
       id: string
     }
   }
