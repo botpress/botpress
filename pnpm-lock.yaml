@@ -433,6 +433,22 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
 
+  integrations/attio:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.24.1
+        version: 1.24.1
+      '@botpress/sdk':
+        specifier: 4.15.6
+        version: 4.15.6(@bpinternal/zui@1.0.1)(esbuild@0.16.17)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/bigcommerce-sync:
     dependencies:
       '@botpress/client':
@@ -3541,6 +3557,20 @@ packages:
 
   '@botpress/api@1.40.0':
     resolution: {integrity: sha512-23qrO680KUuSO/1ixEBwedueKhtkEv2WIIfd8Jo7EmAZDUTsZQpwMrlWlhD4gJnfVQ4J+N3dEoOfaeqyPEB/qQ==}
+
+  '@botpress/client@1.24.1':
+    resolution: {integrity: sha512-QRBVCl+ra5zFIrK9ISyPkDPc+yH057fnGsKbzbtNj+HXVC2sfI16g4p4CzvnlIsX/qEV8UcN20ebxGfRnjQqnQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/sdk@4.15.6':
+    resolution: {integrity: sha512-MFgIYW22pRL9lmMg6aLeb6nrvMyGs8FXAQ6pqSxboBSK3zuBxSbRbVmnc4OGLOLH6uI9+ECtOkggTGKX1KbptA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^1.0.1
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12368,6 +12398,25 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@botpress/client@1.24.1':
+    dependencies:
+      axios: 1.11.0
+      axios-retry: 4.5.0(axios@1.11.0)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/sdk@4.15.6(@bpinternal/zui@1.0.1)(esbuild@0.16.17)':
+    dependencies:
+      '@botpress/client': 1.24.1
+      '@bpinternal/zui': 1.0.1
+      browser-or-node: 2.1.1
+    optionalDependencies:
+      esbuild: 0.16.17
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.2.0':
@@ -15327,6 +15376,11 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
+      is-retry-allowed: 2.2.0
+
+  axios-retry@4.5.0(axios@1.11.0):
+    dependencies:
+      axios: 1.11.0
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
