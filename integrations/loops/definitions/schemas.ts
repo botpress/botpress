@@ -21,6 +21,18 @@ export const sendTransactionalEmailInputSchema = z.object({
       'Optionally send an idempotency key to avoid duplicate requests. The value should be a string of up to 100 characters and should be unique for each request. We recommend using V4 UUIDs or some other method with enough guaranteed entropy to avoid collisions during a 24 hour window. The endpoint will return a 409 Conflict response if the idempotency key has been used in the previous 24 hours.'
     )
     .title('Idempotency Key'),
+  fileIds: z
+    .array(z.string())
+    .optional()
+    .describe(
+      'The Botpress client-generated IDs of the files to be attached to the email. They must have already been uploaded to your bot via the Files API. The name of the file will be used as the filename of the attachment. Use this for a list of templates the user can choose from.'
+    )
+    .title('File IDs'),
+  fileData: z
+    .array(z.object({ filename: z.string(), contentType: z.string(), data: z.string() }))
+    .optional()
+    .describe('The name, base64-encoded data, and MIME content type of custom files to be attached to the email.')
+    .title('File Data'),
 })
 
 export const sendTransactionalEmailOutputSchema = z.object({})
