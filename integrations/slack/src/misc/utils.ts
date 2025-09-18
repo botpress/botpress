@@ -28,21 +28,23 @@ export const updateBotpressUserFromSlackUser = async (
   ctx: bp.Context,
   logger: bp.Logger
 ) => {
-  if (!botpressUser.pictureUrl || !botpressUser.name) {
-    try {
-      const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
-      const userProfile = await slackClient.getUserProfile({ userId: slackUserId })
-      const fieldsToUpdate = {
-        pictureUrl: userProfile?.image_192,
-        name: userProfile?.real_name,
-      }
-      logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
-      if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-        await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
-      }
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Slack:', error)
+  if (botpressUser.pictureUrl && botpressUser.name) {
+    return
+  }
+
+  try {
+    const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
+    const userProfile = await slackClient.getUserProfile({ userId: slackUserId })
+    const fieldsToUpdate = {
+      pictureUrl: userProfile?.image_192,
+      name: userProfile?.real_name,
     }
+    logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
+    if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
+      await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
+    }
+  } catch (error) {
+    logger.forBot().error('Error while fetching user profile from Slack:', error)
   }
 }
 
