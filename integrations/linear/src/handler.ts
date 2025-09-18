@@ -32,8 +32,10 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     throw new Error('Webhook event is not properly authenticated: the signing secret is invalid.')
   }
 
+  console.log(req.body)
+
   // ============ EVENTS ==============
-  if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
+  if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
     return
   }
