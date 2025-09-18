@@ -23,8 +23,8 @@ export function stringToDate(str: string | undefined) {
 export function toReturnedIssue(issue: Issue) {
   return {
     ...issue,
-    createdAt: issue.createdAt.toISOString(),
-    updatedAt: issue.updatedAt.toISOString(),
+    createdAt: dateToString(issue.createdAt),
+    updatedAt: dateToString(issue.updatedAt),
     archivedAt: dateToString(issue.archivedAt),
     canceledAt: dateToString(issue.canceledAt),
     completedAt: dateToString(issue.completedAt),
@@ -42,8 +42,8 @@ export function toReturnedComment(comment: Comment) {
     ...comment,
     archivedAt: dateToString(comment.archivedAt),
     editedAt: dateToString(comment.editedAt),
-    createdAt: comment.createdAt.toISOString(),
-    updatedAt: comment.updatedAt.toISOString(),
+    createdAt: dateToString(comment.createdAt),
+    updatedAt: dateToString(comment.updatedAt),
   }
 }
 
@@ -51,8 +51,8 @@ export function toReturnedIssueLabel(issueLabel: IssueLabel) {
   return {
     ...issueLabel,
     archivedAt: dateToString(issueLabel.archivedAt),
-    createdAt: issueLabel.createdAt.toISOString(),
-    updatedAt: issueLabel.updatedAt.toISOString(),
+    createdAt: dateToString(issueLabel.createdAt),
+    updatedAt: dateToString(issueLabel.updatedAt),
   }
 }
 
@@ -128,6 +128,7 @@ export const getUserAndConversation = async (props: {
     tags: {
       id: props.linearIssueId,
     },
+    discriminateByTags: ['id'],
   })
 
   const linearClient = await getLinearClient(props, props.integrationId)
@@ -144,8 +145,11 @@ export const getUserAndConversation = async (props: {
     return { conversationId: conversation.id }
   }
 
-  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
-  if (!user.name) {
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId }, discriminateByTags: ['id'] })
+
+  const shouldUpdateUser = props.forceUpdate || !user.name || !user.pictureUrl
+
+  if (shouldUpdateUser) {
     const linearUser = await linearClient.user(props.linearUserId)
 
     await props.client.updateUser({

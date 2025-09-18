@@ -1,5 +1,5 @@
 import { getIssueTags, getLinearClient, getTeam } from '../misc/utils'
-import { getIssueFields } from './get-issue'
+import { getIssueFromId } from './get-issue'
 import * as bp from '.botpress'
 
 export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async (args) => {
@@ -27,31 +27,31 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
     displayIconUrl = ctx.configuration.avatarUrl
   }
 
-  const { issue: issueFetch } = await linearClient.createIssue({
-    title,
-    description,
-    priority,
-    teamId: team.id,
-    labelIds,
-    projectId,
-    createAsUser,
-    displayIconUrl,
-  })
+  const created = await linearClient
+    .createIssue({
+      title,
+      description,
+      priority,
+      teamId: team.id,
+      labelIds,
+      projectId,
+      createAsUser,
+      displayIconUrl,
+    })
+    .then((res) => res.issue)
 
-  const fullIssue = await issueFetch
-  if (!fullIssue) {
+  if (!created) {
     throw new Error('Could not create issue')
   }
 
-  const issue = getIssueFields(fullIssue)
-  const issueTags = await getIssueTags(fullIssue)
+  const issueTags = await getIssueTags(created)
 
   await client.getOrCreateConversation({
     channel: 'issue',
     tags: issueTags,
   })
 
-  return {
-    issue,
-  }
+  const issue = await getIssueFromId(linearClient, created.id)
+
+  return { issue }
 }

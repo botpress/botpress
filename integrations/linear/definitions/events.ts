@@ -17,7 +17,16 @@ const issueUpdated = {
   }),
 } as const satisfies EventDefinition
 
+const issueRestored = {
+  title: 'Issue Restored',
+  description: 'Triggered when a deleted issue is restored',
+  schema: issueEventSchema.extend({
+    targets: targets.title('Updated Issue').describe('The issue that was updated'),
+  }),
+} as const satisfies EventDefinition
+
 export const events = {
   issueCreated,
   issueUpdated,
+  issueRestored,
 } as const satisfies IntegrationDefinitionProps['events']

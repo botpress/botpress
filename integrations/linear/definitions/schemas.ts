@@ -82,47 +82,112 @@ export const linearIdsSchema = z
   .describe('The Linear IDs of the referenced entities')
 
 const commonIssueProperties = {
+  id: z.string().title('Issue ID').describe('The issue ID on Linear'),
+  identifier: z.string().title('Identifier').describe("Issue's human readable identifier (e.g. XXX-123)"),
+
+  teamName: z
+    .string()
+    .title('Team Name')
+    .describe('The name of the Linear team the issue currently belongs to, such as "Customer Support"')
+    .nullable(),
+
+  teamKey: z
+    .string()
+    .title('Team Key')
+    .describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123')
+    .nullable(),
+
+  assignee: z
+    .object({
+      id: z.string().title('Assignee ID').describe('The Linear User ID of the assignee'),
+      name: z.string().title('Assignee Name').describe("The assignee's full name"),
+      email: z.string().title('Assignee Email').describe("The assignee's email address"),
+    })
+    .nullable(),
+
+  creator: z.object({
+    id: z.string().title('Creator ID').describe('The Linear User ID of the creator'),
+    name: z.string().title('Creator Name').describe("The creator's full name"),
+    email: z.string().title('Creator Email').describe("The creator's email address"),
+  }),
+
+  previousIdentifiers: z.array(z.string().title('Previous Identifier').describe('A previous identifier of the issue')),
+
+  estimate: z.number().title('Points Estimate').describe('The estimate of the issue in points').nullable(),
   title: z.string().title('Title').describe('The issue title on Linear, such as "Fix the bug'),
   number: z.number().title('Number').describe('The issue number on Linear, such as "123" in XXX-123'),
+
   createdAt: z.string().datetime().title('Created At').describe('The ISO date the issue was created'),
   updatedAt: z.string().datetime().title('Updated At').describe('The ISO date the issue was last updated'),
+
+  completedAt: z
+    .string()
+    .datetime()
+    .title('Completed At')
+    .describe('The ISO date the issue was changed to a completed state')
+    .nullable(),
+
+  triagedAt: z.string().datetime().title('Triaged At').describe('The ISO date the issue left triage state').nullable(),
+  canceledAt: z
+    .string()
+    .datetime()
+    .title('Canceled At')
+    .describe('The ISO date the issue was changed to a canceled state')
+    .nullable(),
+
+  startedTriageAt: z
+    .string()
+    .datetime()
+    .title('Started Triage At')
+    .describe('The ISO date the issue was changed to a triage state')
+    .nullable(),
+
+  parent: z
+    .object({
+      id: z.string().title('Parent Issue ID').describe('The parent issue ID on Linear'),
+      identifier: z
+        .string()
+        .title('Parent Identifier')
+        .describe("Parent issue's human readable identifier (e.g. XXX-123)"),
+      url: z.string().title('Parent Issue URL').describe('The URL of the parent issue on Linear'),
+    })
+    .nullable(),
+
+  project: z
+    .object({
+      id: z.string().title('Project ID').describe('The project ID on Linear'),
+      url: z.string().title('Project URL').describe('The URL of the project on Linear'),
+      name: z.string().title('Project Name').describe('The name of the project'),
+    })
+    .nullable(),
+
+  url: z.string().title('Issue URL').describe('The URL of the issue on Linear'),
   priority: z
     .number()
     .title('Priority')
     .describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
+  priorityLabel: z
+    .string()
+    .title('Priority Label')
+    .describe('The label associated with the priority, such as "Urgent"'),
   description: z
     .string()
-    .optional()
     .title('Description')
-    .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
+    .describe('A markdown description of the issue. Images and videos are inlined using markdown links.')
+    .nullable(),
+  status: z.string().title('Status').describe('The issue State name (such as "In Progress"'),
+  labels: z
+    .array(z.string().title('Label Name').describe('The name of the label'))
+    .title('Applied Labels')
+    .describe('Label names'),
 }
 
 export const issueSchema = z.object({
   ...commonIssueProperties,
-  id: z.string().title('Issue ID').describe('The issue ID on Linear'),
-  identifier: z.string().title('Identifier').describe("Issue's human readable identifier (e.g. XXX-123)"),
-  estimate: z.number().optional().title('Points Estimate').describe('The estimate of the issue in points'),
-  url: z.string().title('Issue URL').describe('The URL of the issue on Linear'),
 })
 
 export const issueEventSchema = z.object({
   ...commonIssueProperties,
-  teamName: z
-    .string()
-    .optional()
-    .title('Team Name')
-    .describe('The name of the Linear team the issue currently belongs to, such as "Customer Support"'),
-  teamKey: z
-    .string()
-    .optional()
-    .title('Team Key')
-    .describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123'),
-  status: z.string().title('Status').describe('The issue State name (such as "In Progress"'),
-  labels: z
-    .array(z.string().title('Label Name').describe('The name of the label'))
-    .optional()
-    .title('Applied Labels')
-    .describe('Label names'),
   linearIds: linearIdsSchema.title('Linear IDs').describe('The Linear IDs of the referenced entities'),
   userId: z
     .string()

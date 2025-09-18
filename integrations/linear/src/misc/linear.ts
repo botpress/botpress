@@ -5,7 +5,7 @@ import queryString from 'query-string'
 import * as bp from '.botpress'
 
 type BaseEvent = {
-  action: 'create' | 'update' | 'remove'
+  action: 'create' | 'update' | 'remove' | 'restore'
   type: string
   webhookTimestamp: number
   data: {

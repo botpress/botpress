@@ -1,5 +1,6 @@
+import { getIssueFromId } from 'src/actions/get-issue'
 import { LinearIssueEvent } from '../misc/linear'
-import { getUserAndConversation } from '../misc/utils'
+import { getLinearClient, getUserAndConversation } from '../misc/utils'
 import * as bp from '.botpress'
 
 type IssueProps = {
@@ -11,17 +12,10 @@ type IssueProps = {
 type IssueCreated = bp.events.issueCreated.IssueCreated
 
 export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps) => {
+  const linear = await getLinearClient({ client, ctx }, ctx.integrationId)
+
   const payload: Omit<IssueCreated, 'conversationId' | 'userId'> = {
-    title: linearEvent.data.title,
-    priority: linearEvent.data.priority,
-    status: linearEvent.data.state.name,
-    description: linearEvent.data.description ?? undefined,
-    number: linearEvent.data.number,
-    updatedAt: linearEvent.data.updatedAt,
-    createdAt: linearEvent.data.createdAt,
-    teamKey: linearEvent.data.team?.key,
-    teamName: linearEvent.data.team?.name,
-    labels: linearEvent.data.labels?.map((x: any) => x.name) ?? [],
+    ...(await getIssueFromId(linear, linearEvent.data.id)),
     linearIds: {
       creatorId: linearEvent.data.creatorId,
       labelIds: linearEvent.data.labelIds ?? [],

@@ -9,12 +9,12 @@ type IssueProps = {
   ctx: bp.Context
 }
 
-type IssueUpdated = bp.events.issueUpdated.IssueUpdated
+type IssueRestored = bp.events.issueRestored.IssueRestored
 
-export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps) => {
+export const fireIssueRestored = async ({ linearEvent, client, ctx }: IssueProps) => {
   const linear = await getLinearClient({ client, ctx }, ctx.integrationId)
 
-  const payload: Omit<IssueUpdated, 'conversationId' | 'userId'> = {
+  const payload: Omit<IssueRestored, 'conversationId' | 'userId'> = {
     ...(await getIssueFromId(linear, linearEvent.data.id)),
     linearIds: {
       creatorId: linearEvent.data.creatorId,
@@ -39,7 +39,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
   })
 
   await client.createEvent({
-    type: 'issueUpdated',
+    type: 'issueRestored',
     payload: { ...payload, conversationId, userId },
   })
 }
