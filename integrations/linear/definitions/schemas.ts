@@ -105,11 +105,13 @@ const commonIssueProperties = {
     })
     .nullable(),
 
-  creator: z.object({
-    id: z.string().title('Creator ID').describe('The Linear User ID of the creator'),
-    name: z.string().title('Creator Name').describe("The creator's full name"),
-    email: z.string().title('Creator Email').describe("The creator's email address"),
-  }),
+  creator: z
+    .object({
+      id: z.string().title('Creator ID').describe('The Linear User ID of the creator'),
+      name: z.string().title('Creator Name').describe("The creator's full name"),
+      email: z.string().title('Creator Email').describe("The creator's email address"),
+    })
+    .nullable(),
 
   previousIdentifiers: z.array(z.string().title('Previous Identifier').describe('A previous identifier of the issue')),
 

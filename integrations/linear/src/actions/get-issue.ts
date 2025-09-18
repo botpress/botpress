@@ -90,7 +90,7 @@ export type Response = {
   state: Pick<WorkflowState, 'name' | 'type'>
   labels: { nodes: Pick<IssueLabel, 'name' | 'description'>[] }
   assignee: Pick<User, 'id' | 'name' | 'email'> | null
-  creator: Pick<User, 'id' | 'name' | 'email'>
+  creator: Pick<User, 'id' | 'name' | 'email'> | null
   team: Pick<Team, 'id' | 'name' | 'key'> | null
   project: Pick<Project, 'id' | 'name' | 'url'> | null
   parent: Pick<Issue, 'id' | 'identifier' | 'url'> | null
@@ -122,7 +122,7 @@ export const getIssueFromId = async (linear: LinearClient, issueId: string) => {
     url: response.url,
     status: response.state.name,
     labels: response.labels.nodes.map((x) => x.name),
-    creator: response.creator,
+    creator: response.creator || null,
     project: response.project,
     assignee: response.assignee,
     canceledAt: response.canceledAt || null,

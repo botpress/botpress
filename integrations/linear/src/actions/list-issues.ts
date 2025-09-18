@@ -104,7 +104,7 @@ export type Response = {
       state: Pick<WorkflowState, 'name' | 'type'>
       labels: { nodes: Pick<IssueLabel, 'name' | 'description'>[] }
       assignee: Pick<User, 'id' | 'name' | 'email'> | null
-      creator: Pick<User, 'id' | 'name' | 'email'>
+      creator: Pick<User, 'id' | 'name' | 'email'> | null
       team: Pick<Team, 'id' | 'name' | 'key'> | null
       project: Pick<Project, 'id' | 'name' | 'url'> | null
       parent: Pick<Issue, 'id' | 'identifier' | 'url'> | null
@@ -148,7 +148,7 @@ export const listIssuesWithFilters = async (
       url: issue.url,
       status: issue.state.name,
       labels: issue.labels.nodes.map((x) => x.name),
-      creator: issue.creator,
+      creator: issue.creator || null,
       project: issue.project,
       assignee: issue.assignee,
       canceledAt: issue.canceledAt || null,
