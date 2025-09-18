@@ -1,7 +1,7 @@
 //
+import type { AttioListResponse, AttioItemResponse } from './record'
 import * as bp from '.botpress'
 // Import shared types from record.ts to avoid duplication
-import type { AttioListResponse, AttioItemResponse } from './record'
 
 type AttioObject = {
   id?: {

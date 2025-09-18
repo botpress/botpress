@@ -1,5 +1,5 @@
-import { listRecords, getRecord, createRecord, updateRecord } from './record'
 import { listObjects, getObject, listAttributes } from './objects'
+import { listRecords, getRecord, createRecord, updateRecord } from './record'
 import * as bp from '.botpress'
 
 export default {

@@ -1,5 +1,5 @@
-import actions from './actions'
 import * as sdk from '@botpress/sdk'
+import actions from './actions'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
