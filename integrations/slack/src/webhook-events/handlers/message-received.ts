@@ -1,5 +1,14 @@
 import { slackToMarkdown } from '@bpinternal/slackdown'
-import { AllMessageEvents, FileShareMessageEvent, GenericMessageEvent } from '@slack/types'
+import {
+  ActionsBlockElement,
+  AllMessageEvents,
+  ContextBlockElement,
+  FileShareMessageEvent,
+  GenericMessageEvent,
+  RichTextBlockElement,
+  RichTextElement,
+  RichTextSection,
+} from '@slack/types'
 import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
@@ -319,28 +328,25 @@ const _getTextPayloadFromSlackEvent = async (
   }
   let text = slackEvent.text
   const mentions: mention[] = []
-  for (const block of slackEvent.blocks ?? []) {
-    if (!('elements' in block)) {
+  const blocks = slackEvent.blocks ?? []
+
+  type BlockElement = ContextBlockElement | ActionsBlockElement | RichTextBlockElement
+  type BlockSubElement = RichTextSection | RichTextElement
+  const userElements = blocks
+    .flatMap((block): BlockElement[] => ('elements' in block ? block.elements : []))
+    .flatMap((element): BlockSubElement[] => ('elements' in element ? element.elements : []))
+    .filter((subElement) => subElement.type === 'user')
+
+  for (const userElement of userElements) {
+    const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: userElement.user_id }, client)
+    await updateBotpressUserFromSlackUser(userElement.user_id, botpressUser, client, ctx, logger)
+    if (!botpressUser.name) {
       continue
     }
-    for (const element of block.elements) {
-      if (!('elements' in element)) {
-        continue
-      }
-      for (const subElement of element.elements) {
-        if (subElement.type !== 'user') {
-          continue
-        }
-        const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: subElement.user_id }, client)
-        await updateBotpressUserFromSlackUser(subElement.user_id, botpressUser, client, ctx, logger)
-        if (!botpressUser.name) {
-          continue
-        }
-        text = text.replace(subElement.user_id, botpressUser.name)
-        mentions.push({ type: subElement.type, start: 1, end: 1, user: botpressUser })
-      }
-    }
+    text = text.replace(userElement.user_id, botpressUser.name)
+    mentions.push({ type: userElement.type, start: 1, end: 1, user: botpressUser })
   }
+
   for (const mention of mentions) {
     if (!mention.user.name) {
       continue
@@ -348,5 +354,6 @@ const _getTextPayloadFromSlackEvent = async (
     mention.start = text.search(mention.user.name)
     mention.end = mention.start + mention.user.name.length
   }
+
   return { text, mentions }
 }
