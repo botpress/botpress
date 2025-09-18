@@ -15,13 +15,11 @@ export default new bp.Integration({
           'Authorization': `Bearer ${accessToken}`,
         }
       })
-      const data = await response.json()
-      console.log(data)
       if (response.status !== 200) {
         throw new sdk.RuntimeError(response.status + ' - ' + response.statusText)
       }
     } catch (error: unknown) {
-      throw new sdk.RuntimeError('Response - ' + error) // replace this with your own validation logic
+      throw new sdk.RuntimeError('Response - ' + error)
     }
   },
   unregister: async () => {},

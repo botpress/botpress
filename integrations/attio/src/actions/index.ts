@@ -1,4 +1,4 @@
-import * as recordActions from './record'
+import { listRecords, getRecord, createRecord, updateRecord } from './record'
 import * as bp from '.botpress'
 
-export default { ...recordActions } as const satisfies bp.IntegrationProps['actions']
+export default { listRecords, getRecord, createRecord, updateRecord } as const satisfies bp.IntegrationProps['actions']
