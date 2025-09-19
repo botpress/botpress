@@ -7,7 +7,7 @@ export default new IntegrationDefinition({
   title: 'Attio',
   readme: 'hub.md',
   icon: 'icon.svg',
-  description: 'Attio integration', // TODO: add description
+  description: 'Interact with Attio from your chatbot',
   configuration: {
     schema: z.object({
       accessToken: z.string().title('Access Token').describe('The Access token of the Attio integration'),
