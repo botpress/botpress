@@ -32,6 +32,26 @@ export class DocusignClient {
     return new docusign.ConnectApi(this._apiClient)
   }
 
+  public async sendEnvelope(envelope: docusign.EnvelopeDefinition) {
+    try {
+      const resp = await this._envelopesApi.createEnvelope(this._accountId, {
+        envelopeDefinition: envelope,
+      })
+
+      if (!resp.envelopeId) {
+        const message = resp.errorDetails ? resp.errorDetails.message : 'Did not receive EnvelopeID from Docusign'
+        throw new Error(message)
+      }
+
+      return {
+        envelopeId: resp.envelopeId,
+      }
+    } catch (thrown: unknown) {
+      const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+      throw new RuntimeError('Failed to send envelope', err)
+    }
+  }
+
   public async getWebhooksList(): Promise<docusign.ConnectConfigResults['configurations']> {
     const resp = await this._connectApi.listConfigurations(this._accountId)
     return resp.configurations
