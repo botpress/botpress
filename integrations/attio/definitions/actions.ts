@@ -65,7 +65,7 @@ const attributeSchema = z
   })
   .title('Attribute')
 
-const listRecordsInput: ActionDefinition = {
+const listRecords: ActionDefinition = {
   title: 'List Records',
   description: 'List records of an Attio object with optional filters, sorts and pagination',
   input: {
@@ -77,7 +77,16 @@ const listRecordsInput: ActionDefinition = {
         .title('Path'),
       body: z
         .object({
-          filter: z.record(z.any()).optional().title('Filter').describe('Filtering object; see Attio filtering guide'),
+          filter: z
+            .array(
+              z.object({
+                attribute: z.string().min(1).title('Attribute'),
+                value: z.string().min(1).title('Value'),
+              })
+            )
+            .optional()
+            .title('Filter')
+            .describe('Filtering object. See Attio Shorthand Filtering guide'),
           sorts: z
             .array(
               z.object({
@@ -87,8 +96,8 @@ const listRecordsInput: ActionDefinition = {
               })
             )
             .optional()
-            .title('Sorts')
-            .describe('Sorting instructions'),
+            .title('Sorting')
+            .describe('Sorting instructions. See Attio sorting guide'),
           limit: z.number().optional().title('Limit').describe('Max number of records to return (default 500)'),
           offset: z.number().optional().title('Offset').describe('Number of records to skip (default 0)'),
         })
@@ -241,7 +250,7 @@ const listAttributes: ActionDefinition = {
 }
 
 export const actions = {
-  listRecords: listRecordsInput,
+  listRecords,
   getRecord,
   createRecord,
   updateRecord,
