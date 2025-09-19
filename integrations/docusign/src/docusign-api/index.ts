@@ -4,6 +4,7 @@ import type { CommonHandlerProps } from '../types'
 import { getAccountState, getOAuthState } from './auth-utils'
 
 type DocusignClientParams = {
+  accountId: string
   baseUri: string
   accessToken: string
   tokenType: string
@@ -11,16 +12,17 @@ type DocusignClientParams = {
 
 export class DocusignClient {
   private _apiClient: docusign.ApiClient
+  private _accountId: string
 
   private constructor(params: DocusignClientParams) {
-    const { baseUri, tokenType, accessToken } = params
+    const { baseUri, tokenType, accessToken, accountId } = params
+    this._accountId = accountId
 
     this._apiClient = new docusign.ApiClient()
     this._apiClient.addDefaultHeader('Authorization', `${tokenType} ${accessToken}`)
     this._apiClient.setBasePath(baseUri)
   }
 
-  // TODO: Use this to implement the sendEnvelope request
   private get _envelopesApi() {
     return new docusign.EnvelopesApi(this._apiClient)
   }
@@ -30,14 +32,14 @@ export class DocusignClient {
     return new docusign.ConnectApi(this._apiClient)
   }
 
-  public async getWebhooksList(accountId: string): Promise<docusign.ConnectConfigResults['configurations']> {
-    const resp = await this._connectApi.listConfigurations(accountId)
+  public async getWebhooksList(): Promise<docusign.ConnectConfigResults['configurations']> {
+    const resp = await this._connectApi.listConfigurations(this._accountId)
     return resp.configurations
   }
 
-  public async createWebhook(accountId: string, webhookUrl: string): Promise<string> {
+  public async createWebhook(webhookUrl: string): Promise<string> {
     try {
-      const resp = await this._connectApi.createConfiguration(accountId, {
+      const resp = await this._connectApi.createConfiguration(this._accountId, {
         configurationType: 'custom',
         urlToPublishTo: webhookUrl,
         name: 'Botpress',
@@ -73,22 +75,22 @@ export class DocusignClient {
     }
   }
 
-  public async removeWebhook(accountId: string, connectId: string): Promise<boolean> {
+  public async removeWebhook(connectId: string): Promise<boolean> {
     try {
-      await this._connectApi.deleteConfiguration(accountId, connectId)
+      await this._connectApi.deleteConfiguration(this._accountId, connectId)
       return true
     } catch {
       return false
     }
   }
 
-  public async removeAllWebhooksByUrl(accountId: string, webhookUrl: string): Promise<boolean> {
+  public async removeAllWebhooksByUrl(webhookUrl: string): Promise<boolean> {
     try {
-      const resp = await this.getWebhooksList(accountId)
+      const resp = await this.getWebhooksList()
       const webhookDeletionPromises = resp
         ?.filter((configuration) => configuration.urlToPublishTo === webhookUrl)
         ?.map((webhookToDelete) => {
-          return this.removeWebhook(accountId, webhookToDelete.connectId ?? '')
+          return this.removeWebhook(webhookToDelete.connectId ?? '')
         })
 
       await Promise.all(webhookDeletionPromises ?? [])
@@ -102,6 +104,7 @@ export class DocusignClient {
   public static async create(props: CommonHandlerProps): Promise<DocusignClient> {
     const [oauthState, accountState] = await Promise.all([getOAuthState(props), getAccountState(props)])
     return new DocusignClient({
+      accountId: accountState.id,
       baseUri: accountState.baseUri,
       accessToken: oauthState.accessToken,
       tokenType: oauthState.tokenType,
