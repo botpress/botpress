@@ -3,7 +3,7 @@ import { actions } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'attio',
-  version: '1.0.0',
+  version: '0.1.0',
   title: 'Attio',
   readme: 'hub.md',
   icon: 'icon.svg',

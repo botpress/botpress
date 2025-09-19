@@ -1,5 +1,3 @@
-import * as sdk from '@botpress/sdk'
-
 // Types for API responses and requests
 export type RecordIdentifier = {
   workspace_id: string
@@ -113,22 +111,15 @@ export class AttioApiClient {
       config.body = JSON.stringify(body)
     }
 
-    try {
-      const response = await fetch(url, config)
+    const response = await fetch(url, config)
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new sdk.RuntimeError(`Attio API Error: ${response.status} ${response.statusText} - ${errorText}`)
-      }
-
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof sdk.RuntimeError) {
-        throw error
-      }
-      throw new sdk.RuntimeError(`Request failed: ${error}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Attio API Error: ${response.status} ${response.statusText} - ${errorText}`)
     }
+
+    const data = await response.json()
+    return data
   }
 
   // Records API methods

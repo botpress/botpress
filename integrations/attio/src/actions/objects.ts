@@ -1,93 +1,53 @@
 //
-import type { AttioListResponse, AttioItemResponse } from './record'
+import { AttioApiClient } from '../attio-api'
 import * as bp from '.botpress'
-// Import shared types from record.ts to avoid duplication
-
-type AttioObject = {
-  id?: {
-    workspace_id: string
-    object_id: string
-  }
-  api_slug?: string
-  singular_noun?: string
-  plural_noun?: string
-  created_at?: string
-}
-
-type Attribute = {
-  id?: {
-    workspace_id: string
-    object_id: string
-    attribute_id: string
-  }
-  title?: string
-  description?: string | null
-  api_slug?: string
-  type?: string
-  slug?: string
-  options?: { id?: string; label?: string; name?: string; value?: string; title?: string; slug?: string }[]
-}
+import { RuntimeError } from '@botpress/client'
 
 export const listObjects: bp.IntegrationProps['actions']['listObjects'] = async (props) => {
-  const { ctx, logger } = props
+  const { ctx } = props
   const accessToken = ctx.configuration.accessToken
 
+  const attioApiClient = new AttioApiClient(accessToken)
+
   try {
-    const response = await fetch('https://api.attio.com/v2/objects', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const json = (await response.json()) as AttioListResponse<AttioObject>
-    const data = json.data ?? []
-    return { data }
-  } catch (err) {
-    logger.forBot().error('Attio listObjects failed', err)
-    return { data: [] }
+    const data = await attioApiClient.listObjects()
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
 
 export const getObject: bp.IntegrationProps['actions']['getObject'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object } = input.path
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object } = input
 
   try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const json = (await response.json()) as AttioItemResponse<AttioObject>
-    const data = json.data ?? ({} as AttioObject)
-    return { data }
-  } catch (err) {
-    logger.forBot().error('Attio getObject failed', err)
-    return { data: {} as AttioObject }
+    const data = await attioApiClient.getObject(object)
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
 
 export const listAttributes: bp.IntegrationProps['actions']['listAttributes'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object } = input.path
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object } = input
 
   try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}/attributes`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const json = (await response.json()) as AttioListResponse<Attribute>
-    logger.forBot().info('Attio listAttributes', { data: json.data })
-    const data = json.data ?? []
-    return { data }
-  } catch (err) {
-    logger.forBot().error('Attio listAttributes failed', err)
-    return { data: [] }
+    const data = await attioApiClient.listAttributes(object)
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }

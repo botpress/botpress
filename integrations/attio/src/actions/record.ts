@@ -1,4 +1,6 @@
 //
+import { RuntimeError } from '@botpress/client'
+import { AttioApiClient } from '../attio-api'
 import * as bp from '.botpress'
 
 type AttioRecordIdentifier = {
@@ -14,9 +16,6 @@ type AttioRecord = {
   values: Record<string, unknown>
 }
 
-export type AttioListResponse<T> = { data?: T[] }
-export type AttioItemResponse<T> = { data?: T }
-
 type AttributeOption = { id?: string; label?: string; name?: string; value?: string; title?: string; slug?: string }
 type Attribute = {
   id?: {
@@ -30,30 +29,6 @@ type Attribute = {
   type?: string
   slug?: string
   options?: AttributeOption[]
-}
-
-type LoggerCompat = {
-  forBot(): {
-    error: (...args: unknown[]) => void
-    warn: (...args: unknown[]) => void
-    info: (...args: unknown[]) => void
-  }
-}
-
-async function _fetchAttributes(accessToken: string, object: string, logger: LoggerCompat): Promise<Attribute[]> {
-  try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}/attributes`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const json = (await response.json()) as AttioListResponse<Attribute>
-    return json?.data ?? []
-  } catch (err) {
-    logger.forBot().warn('Attio fetch attributes failed', err)
-    return []
-  }
 }
 
 function _buildAttributeMaps(attributes: Attribute[]) {
@@ -116,125 +91,96 @@ function _humanizeRecordValues(
 }
 
 export const listRecords: bp.IntegrationProps['actions']['listRecords'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object } = input.path
-  const { filter, sorts, limit, offset } = input.body
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object, filter, sorts, limit, offset } = input
 
   try {
-    const response = await fetch(`https://api.attio.com/v2/objects/${encodeURIComponent(object)}/records/query`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ filter, sorts, limit, offset }),
-    })
-    const json = (await response.json()) as AttioListResponse<AttioRecord>
-    const data = json.data ?? []
-    const attributes = await _fetchAttributes(accessToken, object, logger)
-    const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes)
-    const humanized = data.map((rec) => _humanizeRecordValues(rec, idToSlug, slugToOptionLabelById))
+    const data = await attioApiClient.listRecords(object, { filter, sorts, limit, offset })
+    const attributes = await attioApiClient.listAttributes(object)
+
+    const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes.data)
+    const humanized = data.data.map((rec) => _humanizeRecordValues(rec, idToSlug, slugToOptionLabelById))
+
     return { data: humanized }
-  } catch (err) {
-    logger.forBot().error('Attio listRecords failed', err)
-    return { data: [] }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
 
 export const getRecord: bp.IntegrationProps['actions']['getRecord'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object, record_id } = input.path
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object, record_id } = input
 
   try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}/records/${encodeURIComponent(
-      record_id
-    )}`
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const json = (await response.json()) as AttioItemResponse<AttioRecord>
-    const record = json.data
+    const data = await attioApiClient.getRecord(object, record_id)
+    const attributes = await attioApiClient.listAttributes(object)
 
-    if (!record) {
-      const emptyRecord = {
-        id: { workspace_id: '', object_id: '', record_id: '' },
-        created_at: '',
-        web_url: '',
-        values: {},
-      }
-      return { data: emptyRecord }
-    }
+    const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes.data)
+    const humanized = _humanizeRecordValues(data.data, idToSlug, slugToOptionLabelById)
 
-    const attributes = await _fetchAttributes(accessToken, object, logger)
-    const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes)
-    const humanized = _humanizeRecordValues(record, idToSlug, slugToOptionLabelById)
     return { data: humanized }
-  } catch (err) {
-    logger.forBot().error('Attio getRecord failed', err)
-    const emptyRecord = {
-      id: { workspace_id: '', object_id: '', record_id: '' },
-      created_at: '',
-      web_url: '',
-      values: {},
-    }
-    return { data: emptyRecord }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
 
 export const createRecord: bp.IntegrationProps['actions']['createRecord'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object } = input.path
-  const { values } = input.data
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object, values } = input
 
   try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}/records`
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: { values } }),
-    })
-    const json = (await response.json()) as AttioItemResponse<AttioRecord>
-    return { data: json.data ?? ({} as AttioRecord) }
-  } catch (err) {
-    logger.forBot().error('Attio createRecord failed', err)
-    return { data: {} as AttioRecord }
+    const data = await attioApiClient.createRecord(object, { values })
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
 
 export const updateRecord: bp.IntegrationProps['actions']['updateRecord'] = async (props) => {
-  const { ctx, input, logger } = props
+  const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
 
-  const { object, record_id } = input.path
-  const { values } = input.data
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object, record_id, values } = input
 
   try {
-    const url = `https://api.attio.com/v2/objects/${encodeURIComponent(object)}/records/${encodeURIComponent(
-      record_id
-    )}`
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: { values } }),
-    })
-    const json = (await response.json()) as AttioItemResponse<AttioRecord>
-    return { data: json.data ?? ({} as AttioRecord) }
-  } catch (err) {
-    logger.forBot().error('Attio updateRecord failed', err)
-    return { data: {} as AttioRecord }
+    const data = await attioApiClient.updateRecord(object, record_id, { values })
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
+  }
+}
+
+export const listAttributes: bp.IntegrationProps['actions']['listAttributes'] = async (props) => {
+  const { ctx, input } = props
+  const accessToken = ctx.configuration.accessToken
+
+  const attioApiClient = new AttioApiClient(accessToken)
+
+  const { object } = input
+
+  try {
+    const data = await attioApiClient.listAttributes(object)
+    return { data: data.data }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(error.message)
   }
 }
