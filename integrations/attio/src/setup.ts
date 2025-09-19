@@ -8,15 +8,10 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx }) => {
     const client = new AttioApiClient(accessToken)
 
     // Test the connection using the API client
-    const isConnected = await client.testConnection()
-    if (!isConnected) {
-      throw new sdk.RuntimeError('Failed to connect to Attio API')
-    }
-  } catch (error: unknown) {
-    if (error instanceof sdk.RuntimeError) {
-      throw error
-    }
-    throw new sdk.RuntimeError('Response - ' + error)
+    await client.testConnection()
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new sdk.RuntimeError(error.message)
   }
 }
 

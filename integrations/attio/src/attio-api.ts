@@ -9,7 +9,7 @@ export type AttioRecord = {
   id: RecordIdentifier
   created_at: string
   web_url: string
-  values: Record<string, any>
+  values: Record<string, unknown>
 }
 
 export type AttioObject = {
@@ -63,11 +63,11 @@ export type ListRecordsParams = {
 }
 
 export type CreateRecordData = {
-  values: Record<string, any>
+  values: Record<string, unknown>
 }
 
 export type UpdateRecordData = {
-  values: Record<string, any>
+  values: Record<string, unknown>
 }
 
 export type ApiResponse<T> = {
@@ -93,7 +93,7 @@ export class AttioApiClient {
   private async _makeRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     endpoint: string,
-    body?: any
+    body?: unknown
   ): Promise<T> {
     const url = `${this._baseUrl}${endpoint}`
 
@@ -181,12 +181,7 @@ export class AttioApiClient {
   }
 
   // Utility method to test connection
-  public async testConnection(): Promise<boolean> {
-    try {
-      await this._makeRequest<{ data: any }>('GET', '/self')
-      return true
-    } catch {
-      return false
-    }
+  public async testConnection(): Promise<void> {
+    await this._makeRequest<{ data: unknown }>('GET', '/self')
   }
 }
