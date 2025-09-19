@@ -70,39 +70,30 @@ const listRecords: ActionDefinition = {
   description: 'List records of an Attio object with optional filters, sorts and pagination',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe("Object slug or UUID, e.g. 'people'"),
-        })
-        .title('Path'),
-      body: z
-        .object({
-          filter: z
-            .array(
-              z.object({
-                attribute: z.string().min(1).title('Attribute'),
-                value: z.string().min(1).title('Value'),
-              })
-            )
-            .optional()
-            .title('Filter')
-            .describe('Filtering object. See Attio Shorthand Filtering guide'),
-          sorts: z
-            .array(
-              z.object({
-                direction: z.enum(['asc', 'desc']).title('Direction'),
-                attribute: z.string().min(1).title('Attribute'),
-                field: z.string().min(1).title('Field'),
-              })
-            )
-            .optional()
-            .title('Sorting')
-            .describe('Sorting instructions. See Attio sorting guide'),
-          limit: z.number().optional().title('Limit').describe('Max number of records to return (default 500)'),
-          offset: z.number().optional().title('Offset').describe('Number of records to skip (default 0)'),
-        })
-        .title('Body')
-        .describe('Filtering, sorting and pagination parameters'),
+      object: z.string().min(1).title('Object').describe("Object slug or UUID, e.g. 'people'"),
+      filter: z
+        .array(
+          z.object({
+            attribute: z.string().min(1).title('Attribute'),
+            value: z.string().min(1).title('Value'),
+          })
+        )
+        .optional()
+        .title('Filter')
+        .describe('Filtering object. See Attio Shorthand Filtering guide'),
+      sorts: z
+        .array(
+          z.object({
+            direction: z.enum(['asc', 'desc']).title('Direction'),
+            attribute: z.string().min(1).title('Attribute'),
+            field: z.string().min(1).title('Field'),
+          })
+        )
+        .optional()
+        .title('Sorting')
+        .describe('Sorting instructions. See Attio sorting guide'),
+      limit: z.number().optional().title('Limit').describe('Max number of records to return (default 500)'),
+      offset: z.number().optional().title('Offset').describe('Number of records to skip (default 0)'),
     }),
   },
   output: {
@@ -119,12 +110,8 @@ const getRecord: ActionDefinition = {
   description: 'Get a single record by object and record ID',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-          record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
-        })
-        .title('Path'),
+      object: z.string().min(1).title('Object').describe('Object slug or UUID'),
+      record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
     }),
   },
   output: {
@@ -146,16 +133,16 @@ const createRecord: ActionDefinition = {
   description: 'Create a new record in an Attio object',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-        })
-        .title('Path'),
-      data: z
-        .object({
-          values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s)'),
-        })
-        .title('Data'),
+      object: z.string().min(1).title('Object').describe('Object slug or UUID'),
+      values: z
+        .array(
+          z.object({
+            attribute: z.string().min(1).title('Attribute'),
+            value: z.string().min(1).title('Value'),
+          })
+        )
+        .title('Values')
+        .describe('Array of attribute slug/ID to value(s)'),
     }),
   },
   output: {
@@ -172,17 +159,17 @@ const updateRecord: ActionDefinition = {
   description: 'Update an existing record by object and record ID',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-          record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
-        })
-        .title('Path'),
-      data: z
-        .object({
-          values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s) to upsert'),
-        })
-        .title('Data'),
+      object: z.string().min(1).title('Object').describe('Object slug or UUID'),
+      record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
+      values: z
+        .array(
+          z.object({
+            attribute: z.string().min(1).title('Attribute'),
+            value: z.string().min(1).title('Value'),
+          })
+        )
+        .title('Values')
+        .describe('Array of attribute slug/ID to value(s) to upsert'),
     }),
   },
   output: {
@@ -212,11 +199,7 @@ const getObject: ActionDefinition = {
   description: 'Get a single Attio object by slug or ID',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-        })
-        .title('Path'),
+      object: z.string().min(1).title('Object').describe('Object slug or UUID'),
     }),
   },
   output: {
@@ -233,11 +216,7 @@ const listAttributes: ActionDefinition = {
   description: 'List attributes for a given Attio object',
   input: {
     schema: z.object({
-      path: z
-        .object({
-          object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-        })
-        .title('Path'),
+      object: z.string().min(1).title('Object').describe('Object slug or UUID'),
     }),
   },
   output: {
