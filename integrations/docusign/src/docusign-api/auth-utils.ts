@@ -88,7 +88,7 @@ export const refreshAccountState = async (props: CommonHandlerProps) => {
   const explicitAccountId = ctx.configuration.accountId
   const account = _findAccount(accounts, explicitAccountId)
 
-  const refreshAt = !!explicitAccountId?.trim() ? Date.now() + ACCOUNT_TIMEOUT : null
+  const refreshAt = !explicitAccountId?.trim() ? Date.now() + ACCOUNT_TIMEOUT : null
   const { state } = await client.setState({
     type: 'integration',
     name: 'account',
