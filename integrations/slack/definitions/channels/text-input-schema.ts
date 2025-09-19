@@ -401,11 +401,7 @@ const mention = sdk.z.object({
   end: sdk.z.number(),
   user: sdk.z.object({
     id: sdk.z.string(),
-    createdAt: sdk.z.string(),
-    updatedAt: sdk.z.string(),
-    tags: sdk.z.record(sdk.z.string()),
-    name: sdk.z.string().optional(),
-    pictureUrl: sdk.z.string().optional(),
+    name: sdk.z.string(),
   }),
 })
 

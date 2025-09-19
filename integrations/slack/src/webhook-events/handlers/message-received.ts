@@ -356,7 +356,7 @@ const _getTextPayloadFromSlackEvent = async (
       continue
     }
     text = text.replace(userElement.user_id, botpressUser.name)
-    mentions.push({ type: userElement.type, start: 1, end: 1, user: botpressUser })
+    mentions.push({ type: userElement.type, start: 1, end: 1, user: { id: botpressUser.id, name: botpressUser.name } })
   }
 
   for (const mention of mentions) {
