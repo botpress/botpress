@@ -1,5 +1,46 @@
 The Slack integration enables seamless communication between your AI-powered chatbot and Slack, the popular collaboration platform. Connect your chatbot to Slack and streamline team communication, automate tasks, and enhance productivity. With this integration, your chatbot can send and receive messages, share updates, handle inquiries, and perform actions directly within Slack channels. Leverage Slack's extensive features such as chat, file sharing, notifications, and app integrations to create a powerful conversational AI experience. Enhance team collaboration and streamline workflows with the Slack Integration for Botpress.
 
+## Migrating from version `2.x` to `3.x`
+
+Version 3.0 of the Slack integration changes the way the mention system works with Botpress.
+It now swaps the mention text from slack to fullname and gives a infos about the mention. the payload looks like this:
+
+```JSON
+{
+   text: 'hey <@John Doe>!'
+   mentions: [
+      {
+         type: 'user',
+         start: 6,
+         end: 14,
+         user: {
+            id: 'user_abc123', // This will be a botpress user id
+            name: 'John Doe'
+         }
+      }
+   ]
+}
+```
+
+It will also do the same when the bot sends a string with mentions in it. The payload needs to look like this to work.
+
+```JSON
+{
+   text: 'hey <@John Doe>!'
+   mentions: [
+      {
+         type: 'user',
+         start: 6,
+         end: 14,
+         user: {
+            id: 'U123', // This needs to be a slack member id
+            name: 'John Doe'
+         }
+      }
+   ]
+}
+```
+
 ## Migrating from version `1.x` to `2.x`
 
 Version 2.0 of the Slack integration introduces rotating authentication tokens. If you previously configured the integration using automatic configuration, no action is required once you update to the latest version.
