@@ -16,7 +16,7 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string }
+export type ProjectCache = { botId: string; devId: string; tunnelId: string }
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
