@@ -1,7 +1,7 @@
 //
+import { RuntimeError } from '@botpress/client'
 import { AttioApiClient } from '../attio-api'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 export const listObjects: bp.IntegrationProps['actions']['listObjects'] = async (props) => {
   const { ctx } = props
