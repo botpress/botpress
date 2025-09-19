@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import docusign from 'docusign-esign'
 import type { CommonHandlerProps } from '../types'
-import { applyOAuthState, DocusignAuthClient } from './auth'
+import { getAccountState, getOAuthState } from './auth-utils'
 
 type DocusignClientParams = {
   baseUri: string
@@ -16,8 +16,8 @@ export class DocusignClient {
     const { baseUri, tokenType, accessToken } = params
 
     this._apiClient = new docusign.ApiClient()
-    this._apiClient.setBasePath(baseUri)
     this._apiClient.addDefaultHeader('Authorization', `${tokenType} ${accessToken}`)
+    this._apiClient.setBasePath(baseUri)
   }
 
   // TODO: Use this to implement the sendEnvelope request
@@ -100,38 +100,11 @@ export class DocusignClient {
 
   /** Creates a docusign api client from the oauth parameters */
   public static async create(props: CommonHandlerProps): Promise<DocusignClient> {
-    const oauthParams = await _getOAuthParams(props)
-    return new DocusignClient(oauthParams)
+    const [oauthState, accountState] = await Promise.all([getOAuthState(props), getAccountState(props)])
+    return new DocusignClient({
+      baseUri: accountState.baseUri,
+      accessToken: oauthState.accessToken,
+      tokenType: oauthState.tokenType,
+    })
   }
-}
-
-const FIVE_MINUTES_IN_MS = 300000 as const
-const _getOAuthParams = async (props: CommonHandlerProps) => {
-  const { state } = await props.client.getOrSetState({
-    type: 'integration',
-    name: 'configuration',
-    id: props.ctx.integrationId,
-    payload: {
-      oauth: null,
-    },
-  })
-  let oauthState = state.payload.oauth
-
-  if (!oauthState) {
-    throw new RuntimeError('User authentication has not been completed')
-  }
-
-  const { expiresAt, refreshToken } = oauthState
-  if (expiresAt - FIVE_MINUTES_IN_MS <= Date.now()) {
-    const authClient = new DocusignAuthClient()
-    const tokenResp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
-    if (!tokenResp.success) throw tokenResp.error
-
-    const userInfoResp = await authClient.getUserInfo(tokenResp.data.accessToken, tokenResp.data.tokenType)
-    if (!userInfoResp.success) throw userInfoResp.error
-
-    oauthState = await applyOAuthState(props, tokenResp.data, userInfoResp.data)
-  }
-
-  return oauthState
 }

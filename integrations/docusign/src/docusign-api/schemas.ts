@@ -17,19 +17,20 @@ export type GetAccessTokenResp = {
   refreshToken: string
 }
 
+const _userAccountSchema = z
+  .object({
+    account_id: z.string(),
+    account_name: z.string(),
+    is_default: z.boolean(),
+    base_uri: z.string().url(),
+  })
+  .strip()
+export type UserAccount = z.infer<typeof _userAccountSchema>
+
 export const getUserInfoRespSchema = z
   .object({
     sub: z.string().min(1),
-    accounts: z
-      .array(
-        z
-          .object({
-            is_default: z.boolean(),
-            base_uri: z.string().url(),
-          })
-          .strip()
-      )
-      .min(1),
+    accounts: z.array(_userAccountSchema).min(1),
   })
   .strip()
 export type GetUserInfoResp = z.infer<typeof getUserInfoRespSchema>

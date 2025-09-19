@@ -1,4 +1,4 @@
-import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth'
+import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth-utils'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'

@@ -13,7 +13,16 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({}),
+    schema: z.object({
+      accountId: z
+        .string()
+        .optional()
+        .title('API Account ID (Optional)')
+        .describe(
+          'The docusign user\'s "API Account ID" (This is a GUID that is found in "Apps & Keys")\nThe default account will be selected if left empty'
+        )
+        .placeholder('e.g. a1b2c3d4-e5f6-g7h8-i9j0-d4c3b2a1'),
+    }),
   },
   actions: {
     sendEnvelope: {
@@ -44,7 +53,6 @@ export default new IntegrationDefinition({
       schema: z.object({
         oauth: z
           .object({
-            baseUri: z.string().describe('The base URI for the Docusign API').title('Base URI'),
             refreshToken: z.string().describe('The refresh token for the integration').title('Refresh Token'),
             accessToken: z.string().describe('The access token for the integration').title('Access Token'),
             tokenType: z
@@ -59,6 +67,27 @@ export default new IntegrationDefinition({
           })
           .describe('The parameters used for accessing the Docusign API and refreshing the access token')
           .title('OAuth Parameters')
+          .nullable(),
+      }),
+    },
+    account: {
+      type: 'integration',
+      schema: z.object({
+        account: z
+          .object({
+            id: z.string().title('API Account ID').describe("The docusign user's api account id"),
+            baseUri: z.string().describe('The base URI for the Docusign API').title('Base URI'),
+            refreshAt: z
+              .number()
+              .min(0)
+              .title('Refresh At')
+              .describe(
+                'The unix timestamp (milliseconds) that the selected account will be refreshed (Only when not explicitly selected in the config)'
+              )
+              .nullable(),
+          })
+          .title('Account Info')
+          .describe("The docusign account's info")
           .nullable(),
       }),
     },

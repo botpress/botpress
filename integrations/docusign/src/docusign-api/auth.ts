@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
-import type { CommonHandlerProps, Result } from '../types'
+import type { Result } from '../types'
 import {
   type GetAccessTokenResp,
   docusignOAuthAccessTokenRespSchema,
   type GetUserInfoResp,
   getUserInfoRespSchema,
 } from './schemas'
+import { GetAccessTokenParams } from './types'
 import * as bp from '.botpress'
 
 export class DocusignAuthClient {
@@ -105,60 +106,4 @@ export class DocusignAuthClient {
 
     return { success: true, data: result.data }
   }
-}
-
-type GetAccessTokenParams =
-  | {
-      grant_type: 'authorization_code'
-      code: string
-    }
-  | {
-      grant_type: 'refresh_token'
-      refresh_token: string
-    }
-
-export const applyOAuthState = async (
-  { client, ctx }: CommonHandlerProps,
-  tokenResp: GetAccessTokenResp,
-  userInfoResp: GetUserInfoResp
-) => {
-  const { accessToken, refreshToken, expiresAt, tokenType } = tokenResp
-  const account = userInfoResp.accounts.find((account) => account.is_default) ?? userInfoResp.accounts[0]
-  if (!account) throw new Error('No account found for the user')
-
-  const { state } = await client.setState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-    payload: {
-      oauth: {
-        baseUri: account.base_uri,
-        accessToken,
-        tokenType,
-        refreshToken,
-        expiresAt,
-      },
-    },
-  })
-
-  if (!state.payload.oauth) {
-    throw new Error('Failed to store OAuth state')
-  }
-
-  return state.payload.oauth
-}
-
-export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
-  const authClient = new DocusignAuthClient()
-  const tokenResp = await authClient.getAccessTokenWithCode(oAuthCode)
-  if (!tokenResp.success) throw tokenResp.error
-
-  const userInfoResp = await authClient.getUserInfo(tokenResp.data.accessToken, tokenResp.data.tokenType)
-  if (!userInfoResp.success) throw userInfoResp.error
-
-  await applyOAuthState(props, tokenResp.data, userInfoResp.data)
-
-  await props.client.configureIntegration({
-    identifier: userInfoResp.data.sub,
-  })
 }
