@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
+import { safeParseJson } from 'src/misc/utils'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
 import { isOAuthCallback, handleOAuthCallback } from './handlers/oauth-callback'
@@ -16,11 +17,15 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   _verifyBodyIsPresent(req)
 
-  const data = JSON.parse(req.body)
+  const decoded = decodeURIComponent(req.body)
+  const res = safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
+  if (!res.success) {
+    logger.forBot().error('could not parse the JSON', res.error)
+  }
 
-  if (isUrlVerificationRequest(data)) {
+  if (isUrlVerificationRequest(res.data)) {
     logger.forBot().debug('Handler received request of type url_verification')
-    return handleUrlVerificationRequest(data)
+    return handleUrlVerificationRequest(res.data)
   }
 
   await _verifyMessageIsProperlyAuthenticated({ req, client, logger, ctx })
@@ -29,8 +34,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return await handleInteractiveRequest({ req, client, logger, ctx })
   }
 
-  const event: SlackEvent = data.event
-  logger.forBot().debug(`Handler received request of type ${data.event.type}`)
+  const event: SlackEvent = res.data.event
+  logger.forBot().debug(`Handler received request of type ${res.data.event.type}`)
 
   if (await _isEventProducedByBot({ client, ctx }, event)) {
     logger.forBot().debug('Ignoring event produced by the bot itself')
