@@ -451,6 +451,17 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
     })
 
+    const failedIntegrations = []
+    for (const [_integrationName, integration] of Object.entries(updatedBot.integrations)) {
+      if (integration.status === 'registration_failed') {
+        failedIntegrations.push(integration)
+      }
+    }
+    if (failedIntegrations) {
+      this.logger.warn(
+        `The registration of the integrations ${failedIntegrations.map((int) => int.id).join(', ')} has failed.`
+      )
+    }
     const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
 
