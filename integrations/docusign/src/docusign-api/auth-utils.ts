@@ -73,7 +73,7 @@ const _findAccount = (accountsList: UserAccount[], explicitAccountId: string | u
   return account
 }
 
-const ACCOUNT_TIMEOUT = MS_PER_HOUR * 24
+const ACCOUNT_REFRESH_AFTER = MS_PER_HOUR * 24
 export const refreshAccountState = async (props: CommonHandlerProps) => {
   const authClient = new DocusignAuthClient()
 
@@ -88,7 +88,7 @@ export const refreshAccountState = async (props: CommonHandlerProps) => {
   const explicitAccountId = ctx.configuration.accountId
   const account = _findAccount(accounts, explicitAccountId)
 
-  const refreshAt = !explicitAccountId?.trim() ? Date.now() + ACCOUNT_TIMEOUT : null
+  const refreshAt = !explicitAccountId?.trim() ? Date.now() + ACCOUNT_REFRESH_AFTER : null
   const { state } = await client.setState({
     type: 'integration',
     name: 'account',
