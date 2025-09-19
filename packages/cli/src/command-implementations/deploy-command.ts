@@ -451,7 +451,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
     })
 
-    const failedIntegrations = []
+    const failedIntegrations: apiUtils.IntegrationSummary[] = []
     for (const [_integrationName, integration] of Object.entries(updatedBot.integrations)) {
       if (integration.status === 'registration_failed') {
         failedIntegrations.push(integration)
