@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export const isValidUrl = (str: string) => {
@@ -65,9 +64,14 @@ export const getMessageFromSlackEvent = async (
 
 export const safeParseJson = (json: string) => {
   try {
-    return JSON.parse(json)
+    return {
+      success: true,
+      data: JSON.parse(json),
+    }
   } catch (thrown: unknown) {
-    const err = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
-    throw new sdk.RuntimeError(err)
+    return {
+      success: false,
+      error: thrown instanceof Error ? thrown : new Error(String(thrown)),
+    }
   }
 }
