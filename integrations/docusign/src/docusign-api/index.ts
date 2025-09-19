@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import docusign from 'docusign-esign'
 import type { CommonHandlerProps } from '../types'
 import { getAccountState, getOAuthState } from './auth-utils'
+import { refreshWebhooks } from './utils'
 
 type DocusignClientParams = {
   accountId: string
@@ -107,11 +108,21 @@ export class DocusignClient {
   /** Creates a docusign api client from the oauth parameters */
   public static async create(props: CommonHandlerProps): Promise<DocusignClient> {
     const [oauthState, accountState] = await Promise.all([getOAuthState(props), getAccountState(props)])
-    return new DocusignClient({
-      accountId: accountState.id,
-      baseUri: accountState.baseUri,
+    const { account, hasChanged: hasAccountChanged } = accountState
+
+    const apiClient = new DocusignClient({
+      accountId: account.id,
+      baseUri: account.baseUri,
       accessToken: oauthState.accessToken,
       tokenType: oauthState.tokenType,
     })
+
+    // This side-effect doesn't really belong here, but I can't put
+    // it anywhere else without it leading to fragile behaviour.
+    if (hasAccountChanged) {
+      await refreshWebhooks(props, process.env.BP_WEBHOOK_URL!, apiClient)
+    }
+
+    return apiClient
   }
 }

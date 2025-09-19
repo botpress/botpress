@@ -3,7 +3,6 @@ import { MS_PER_HOUR, MS_PER_MINUTE } from '../magic-numbers'
 import { CommonHandlerProps } from '../types'
 import { DocusignAuthClient } from './auth'
 import { GetAccessTokenResp, UserAccount } from './schemas'
-import { refreshWebhooks } from './utils'
 import * as bp from '.botpress'
 
 export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, tokenResp: GetAccessTokenResp) => {
@@ -119,19 +118,19 @@ export const getAccountState = async (props: CommonHandlerProps) => {
       account: null,
     },
   })
+
+  let hasAccountChanged = false
   let accountState = state.payload.account
   if (!accountState || (accountState.refreshAt && accountState.refreshAt <= Date.now())) {
     const prevAccountState = accountState
     accountState = await refreshAccountState(props)
 
-    // This side-effect doesn't really belong here, but I can't put
-    // it anywhere else without it leading to fragile behaviour.
     if (accountState.id !== prevAccountState?.id) {
-      await refreshWebhooks(props, process.env.BP_WEBHOOK_URL!)
+      hasAccountChanged = true
     }
   }
 
-  return accountState
+  return { account: accountState, hasChanged: hasAccountChanged }
 }
 
 export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
