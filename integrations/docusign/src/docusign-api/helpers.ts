@@ -2,11 +2,12 @@ import { TemplateRecipient, SendEnvelopeInput } from 'definitions/actions'
 import docusign from 'docusign-esign'
 
 const _createTemplateRecipient = (recipientInfo: TemplateRecipient): docusign.TemplateRole => {
-  const { email, name, role } = recipientInfo
+  const { email, name, role, accessCode } = recipientInfo
   return {
     email,
     name,
     roleName: role,
+    accessCode,
   }
 }
 
