@@ -57,12 +57,12 @@ export class DocusignClient {
     return resp.configurations
   }
 
-  public async createWebhook(webhookUrl: string): Promise<string> {
+  public async createWebhook(webhookUrl: string, botId: string): Promise<string> {
     try {
       const resp = await this._connectApi.createConfiguration(this._accountId, {
         configurationType: 'custom',
         urlToPublishTo: webhookUrl,
-        name: 'Botpress',
+        name: `Botpress Integration | Bot ID: ${botId}`,
         allowEnvelopePublish: 'true',
         enableLog: 'true',
         deliveryMode: 'SIM',
@@ -98,22 +98,6 @@ export class DocusignClient {
   public async removeWebhook(connectId: string): Promise<boolean> {
     try {
       await this._connectApi.deleteConfiguration(this._accountId, connectId)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  public async removeAllWebhooksByUrl(webhookUrl: string): Promise<boolean> {
-    try {
-      const resp = await this.getWebhooksList()
-      const webhookDeletionPromises = resp
-        ?.filter((configuration) => configuration.urlToPublishTo === webhookUrl)
-        ?.map((webhookToDelete) => {
-          return this.removeWebhook(webhookToDelete.connectId ?? '')
-        })
-
-      await Promise.all(webhookDeletionPromises ?? [])
       return true
     } catch {
       return false
