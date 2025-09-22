@@ -19,7 +19,5 @@ jobs:
         uses: ./.github/actions/refresh-instagram-access-tokens
         with:
           environment: production
-          item_name: 'Secrets - Instagram'
-          field_name: 'Sandbox Access Token - Instagram User - Botpress Sandbox'
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
