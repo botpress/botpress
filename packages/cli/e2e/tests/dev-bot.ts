@@ -20,6 +20,7 @@ export const devBot: Test = {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'bots')
     const botName = uuid.v4()
+    const tunnelId = uuid.v4()
     const botDir = pathlib.join(baseDir, botName)
 
     const argv = {
@@ -34,7 +35,7 @@ export const devBot: Test = {
     await utils.npmInstall({ workDir: botDir }).then(handleExitCode)
     await impl.login({ ...argv }).then(handleExitCode)
 
-    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl }).then(handleExitCode)
+    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId }).then(handleExitCode)
     await utils.sleep(5000)
 
     const allProcess = await findProcess('port', PORT)
