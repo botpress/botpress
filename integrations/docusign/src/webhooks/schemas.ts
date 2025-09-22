@@ -1,18 +1,32 @@
 import { z } from '@botpress/sdk'
 
-export const docusignEvelopeEventSchema = z.object({
-  event: z.union([
-    z.literal('envelope-sent'),
-    z.literal('envelope-resent'),
-    z.literal('envelope-delivered'),
-    z.literal('envelope-completed'),
-    z.literal('envelope-declined'),
-    z.literal('envelope-voided'),
-  ]),
-  generatedDateTime: z.string().datetime(),
-  data: z.object({
-    userId: z.string(),
-    accountId: z.string(),
-    envelopeId: z.string(),
-  }),
-})
+const _ignoredEnvelopeEventsSchema = z
+  .object({
+    // Add more as necessary
+    event: z.literal('envelope-delivered'), // The delivered event is ignored since it's trigger is misleading
+  })
+  .strip()
+
+const _envelopeEventSchema = z
+  .object({
+    event: z.union([
+      z.literal('envelope-sent'),
+      z.literal('envelope-resent'),
+      z.literal('envelope-completed'),
+      z.literal('envelope-declined'),
+      z.literal('envelope-voided'),
+    ]),
+    generatedDateTime: z.coerce.date(),
+    data: z
+      .object({
+        userId: z.string(),
+        accountId: z.string(),
+        envelopeId: z.string(),
+      })
+      .strip(),
+  })
+  .strip()
+export type EnvelopeEvent = z.infer<typeof _envelopeEventSchema>
+
+export const allEnvelopeEventsSchema = z.union([_envelopeEventSchema, _ignoredEnvelopeEventsSchema])
+export type AllEnvelopeEvents = z.infer<typeof allEnvelopeEventsSchema>

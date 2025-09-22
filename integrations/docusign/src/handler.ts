@@ -1,4 +1,6 @@
 import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth-utils'
+import { dispatchIntegrationEvent } from './webhooks/event-dispatcher'
+import { parseWebhookEvent } from './webhooks/utils'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
@@ -11,4 +13,12 @@ export const handler = async (props: bp.HandlerProps) => {
     await exchangeAuthCodeForRefreshToken(props, oAuthCode)
     return
   }
+
+  const result = parseWebhookEvent(props)
+  if (!result.success) {
+    props.logger.forBot().error(result.error.message, result.error)
+    return
+  }
+
+  await dispatchIntegrationEvent(props, result.data)
 }

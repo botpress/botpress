@@ -1,5 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { sendEnvelopeInputSchema, sendEnvelopeOutputSchema } from 'definitions/actions'
+import { envelopeEventOutputSchema } from 'definitions/events'
 
 export default new IntegrationDefinition({
   name: 'docusign',
@@ -34,6 +35,33 @@ export default new IntegrationDefinition({
       output: {
         schema: sendEnvelopeOutputSchema,
       },
+    },
+  },
+  events: {
+    envelopeSent: {
+      title: 'Envelope Sent',
+      description: 'An event that triggers when an envelope is sent to the recipient(s) to be signed',
+      schema: envelopeEventOutputSchema,
+    },
+    envelopeResent: {
+      title: 'Envelope Resent',
+      description: 'An event that triggers when an envelope is resent to the recipient(s) via the dashboard',
+      schema: envelopeEventOutputSchema,
+    },
+    envelopeCompleted: {
+      title: 'Envelope Completed',
+      description: 'An event that triggers when an envelope has been completed/signed by all recipient(s)',
+      schema: envelopeEventOutputSchema,
+    },
+    envelopeDeclined: {
+      title: 'Envelope Declined',
+      description: 'An event that triggers when a recipient has declined to sign an envelope',
+      schema: envelopeEventOutputSchema,
+    },
+    envelopeVoided: {
+      title: 'Envelope Sent',
+      description: 'An event that triggers when an envelope has been voided by the sender',
+      schema: envelopeEventOutputSchema,
     },
   },
   secrets: {
