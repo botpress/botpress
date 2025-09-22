@@ -16,7 +16,7 @@ runs:
       shell: bash
       run: |
         pnpm install -g sodium-native
-
+        echo "NODE_PATH=$(npm root -g)" >> $GITHUB_ENV
     - uses: actions/github-script@v8
       id: set-secret
       env:
