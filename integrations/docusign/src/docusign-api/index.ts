@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import axios, { AxiosInstance } from 'axios'
 import docusign from 'docusign-esign'
 import type { CommonHandlerProps } from '../types'
 import { getAccountState, getOAuthState } from './auth-utils'
@@ -12,40 +13,36 @@ type DocusignClientParams = {
 }
 
 export class DocusignClient {
-  private _apiClient: docusign.ApiClient
+  private _axiosClient: AxiosInstance
   private _accountId: string
 
   private constructor(params: DocusignClientParams) {
     const { baseUri, tokenType, accessToken, accountId } = params
     this._accountId = accountId
 
-    this._apiClient = new docusign.ApiClient()
-    this._apiClient.addDefaultHeader('Authorization', `${tokenType} ${accessToken}`)
-    this._apiClient.setBasePath(baseUri)
-  }
-
-  private get _envelopesApi() {
-    return new docusign.EnvelopesApi(this._apiClient)
-  }
-
-  /** AKA: Webhooks api */
-  private get _connectApi() {
-    return new docusign.ConnectApi(this._apiClient)
+    this._axiosClient = axios.create({
+      baseURL: `${baseUri}/restapi/v2.1`,
+      headers: {
+        Authorization: `${tokenType} ${accessToken}`,
+      },
+    })
   }
 
   public async sendEnvelope(envelope: docusign.EnvelopeDefinition) {
     try {
-      const resp = await this._envelopesApi.createEnvelope(this._accountId, {
-        envelopeDefinition: envelope,
-      })
+      const resp = await this._axiosClient.post<docusign.EnvelopeSummary>(
+        `/accounts/${this._accountId}/envelopes`,
+        envelope
+      )
+      const { data } = resp
 
-      if (!resp.envelopeId) {
-        const message = resp.errorDetails ? resp.errorDetails.message : 'Did not receive EnvelopeID from Docusign'
+      if (!data.envelopeId) {
+        const message = data.errorDetails ? data.errorDetails.message : 'Did not receive EnvelopeID from Docusign'
         throw new Error(message)
       }
 
       return {
-        envelopeId: resp.envelopeId,
+        envelopeId: data.envelopeId,
       }
     } catch (thrown: unknown) {
       const err = thrown instanceof Error ? thrown : new Error(String(thrown))
@@ -54,16 +51,19 @@ export class DocusignClient {
   }
 
   public async getWebhooksList(): Promise<docusign.ConnectConfigResults['configurations']> {
-    const resp = await this._connectApi.listConfigurations(this._accountId)
-    return resp.configurations
+    const resp = await this._axiosClient.get<docusign.ConnectConfigResults>(`/accounts/${this._accountId}/connect`)
+    return resp.data.configurations
   }
 
   public async createWebhook(webhookUrl: string, botId: string): Promise<string> {
     try {
       const body = constructWebhookBody(webhookUrl, botId)
-      const resp = await this._connectApi.createConfiguration(this._accountId, body)
+      const resp = await this._axiosClient.post<docusign.ConnectCustomConfiguration>(
+        `/accounts/${this._accountId}/connect`,
+        body
+      )
 
-      const { connectId } = resp
+      const { connectId } = resp.data
       if (!connectId) {
         throw new RuntimeError('Failed to create webhook due to unexpected api response')
       }
@@ -73,14 +73,15 @@ export class DocusignClient {
         throw thrown
       }
 
-      const error = thrown instanceof Error ? new RuntimeError(thrown.message) : new RuntimeError(String(thrown))
+      const error =
+        thrown instanceof Error ? new RuntimeError(thrown.message, thrown) : new RuntimeError(String(thrown))
       throw error
     }
   }
 
   public async removeWebhook(connectId: string): Promise<boolean> {
     try {
-      await this._connectApi.deleteConfiguration(this._accountId, connectId)
+      await this._axiosClient.delete(`/accounts/${this._accountId}/connect/${connectId}`)
       return true
     } catch {
       return false
