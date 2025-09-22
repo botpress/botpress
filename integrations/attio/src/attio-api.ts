@@ -83,8 +83,13 @@ export type WebhookCreateData = {
   subscriptions: WebhookData[]
 }
 
+export type WebhookId = {
+  workspace_id: string
+  webhook_id: string
+}
+
 export type WebhookResponse = {
-  id: string
+  id: WebhookId
   target_url: string
   subscriptions: WebhookData[]
   created_at: string
