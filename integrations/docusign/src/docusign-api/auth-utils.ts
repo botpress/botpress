@@ -1,9 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
-import { MS_PER_HOUR, MS_PER_MINUTE } from '../magic-numbers'
 import { CommonHandlerProps } from '../types'
 import { DocusignAuthClient } from './auth'
 import { GetAccessTokenResp, UserAccount } from './schemas'
 import * as bp from '.botpress'
+
+export const MS_PER_MINUTE = 60000
+export const MS_PER_HOUR = MS_PER_MINUTE * 60
 
 export const applyOAuthState = async ({ client, ctx }: CommonHandlerProps, tokenResp: GetAccessTokenResp) => {
   const { accessToken, refreshToken, expiresAt, tokenType } = tokenResp
