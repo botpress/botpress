@@ -18,14 +18,16 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   _verifyBodyIsPresent(req)
 
   const decoded = decodeURIComponent(req.body)
-  const res = safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
-  if (!res.success) {
-    logger.forBot().error('could not parse the JSON', res.error)
+  const parseRes = safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
+  if (!parseRes.success) {
+    const { error } = parseRes
+    logger.forBot().error('could not parse the JSON', error)
   }
+  const { data } = parseRes
 
-  if (isUrlVerificationRequest(res.data)) {
+  if (isUrlVerificationRequest(data)) {
     logger.forBot().debug('Handler received request of type url_verification')
-    return handleUrlVerificationRequest(res.data)
+    return handleUrlVerificationRequest(data)
   }
 
   await _verifyMessageIsProperlyAuthenticated({ req, client, logger, ctx })
@@ -34,8 +36,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return await handleInteractiveRequest({ req, client, logger, ctx })
   }
 
-  const event: SlackEvent = res.data.event
-  logger.forBot().debug(`Handler received request of type ${res.data.event.type}`)
+  const event: SlackEvent = data.event
+  logger.forBot().debug(`Handler received request of type ${data.event.type}`)
 
   if (await _isEventProducedByBot({ client, ctx }, event)) {
     logger.forBot().debug('Ignoring event produced by the bot itself')
