@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
+import { replaceMentions } from './misc/replace-mentions'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
 import { renderCard } from './slack-api/card-renderer'
@@ -9,7 +10,8 @@ import * as bp from '.botpress'
 
 const defaultMessages = {
   text: async ({ client, payload, ctx, conversation, ack, logger }) => {
-    const parsed = _getTextWithSlackMentions(textSchema.parse(payload))
+    const parsed = textSchema.parse(payload)
+    parsed.text = replaceMentions(parsed.text, parsed.mentions)
     logger.forBot().debug('Sending text message to Slack chat:', payload)
     await _sendSlackMessage(
       { ack, ctx, client, logger },
@@ -251,19 +253,6 @@ const _sendSlackMessage = async (
   await ack({ tags: { ts: message.ts, channelId: payload.channel, userId: message?.user } })
 
   return message
-}
-
-const _getTextWithSlackMentions = (text: z.infer<typeof textSchema>) => {
-  if (!text.text || !text.mentions) {
-    return text
-  }
-
-  text.mentions.sort((a, b) => b.start - a.start)
-  for (const mention of text.mentions) {
-    text.text = text.text.replace(mention.user.name, mention.user.id)
-  }
-
-  return text
 }
 
 export default {
