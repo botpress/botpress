@@ -28,6 +28,11 @@ export const sendEnvelopeInputSchema = z.object({
     .describe(
       'Sets the subject field of the sent envelope email (Leaving this empty will fallback to the template default subject)'
     ),
+  conversationId: z
+    .string()
+    .placeholder('{{ event.conversationId }}')
+    .title('Conversation ID')
+    .describe('The ID of the conversation'),
 })
 export type SendEnvelopeInput = z.infer<typeof sendEnvelopeInputSchema>
 

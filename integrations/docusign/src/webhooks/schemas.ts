@@ -7,6 +7,13 @@ const _ignoredEnvelopeEventsSchema = z
   })
   .strip()
 
+const _customTextFieldSchema = z
+  .object({
+    name: z.string(),
+    value: z.string(),
+  })
+  .strip()
+
 const _envelopeEventSchema = z
   .object({
     event: z.union([
@@ -22,6 +29,15 @@ const _envelopeEventSchema = z
         userId: z.string(),
         accountId: z.string(),
         envelopeId: z.string(),
+        envelopeSummary: z
+          .object({
+            customFields: z
+              .object({
+                textCustomFields: z.array(_customTextFieldSchema),
+              })
+              .strip(),
+          })
+          .strip(),
       })
       .strip(),
   })

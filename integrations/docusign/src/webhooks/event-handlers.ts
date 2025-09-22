@@ -1,3 +1,4 @@
+import { CONVERSATION_ID_FIELD_KEY } from '../config'
 import { EnvelopeEvent } from './schemas'
 import * as bp from '.botpress'
 
@@ -6,7 +7,12 @@ export const handleEnvelopeEvent = async (
   eventType: keyof bp.events.Events,
   event: EnvelopeEvent
 ) => {
-  const { userId, accountId, envelopeId } = event.data
+  const { userId, accountId, envelopeId, envelopeSummary } = event.data
+
+  const conversationIdField = envelopeSummary.customFields.textCustomFields.find((customField) => {
+    customField.name === CONVERSATION_ID_FIELD_KEY
+  })
+  const conversationId = conversationIdField?.value ?? null
 
   return await props.client.createEvent({
     type: eventType,
@@ -14,6 +20,7 @@ export const handleEnvelopeEvent = async (
       userId,
       accountId,
       envelopeId,
+      conversationId,
       triggeredAt: event.generatedDateTime.toISOString(),
     },
   })
