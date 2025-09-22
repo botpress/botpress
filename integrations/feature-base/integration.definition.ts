@@ -5,14 +5,19 @@ import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/ev
 
 export default new IntegrationDefinition({
   name: 'feature-base',
-  version: '0.3.0',
+  version: '1.0.0',
   title: 'Feature Base',
-  description: 'CRUD operations for Feature Base',
+  description: 'Integration with Feature Base for Botpress',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
       apiKey: z.string().min(1, 'API Key is required').describe('Your Feature Base API Key').title('API Key'),
+      webhookSecret: z
+        .string()
+        .min(1, 'Webhook signing secret is required')
+        .describe('The webhook signing secret')
+        .title('Webhook Signing Secret'),
     }),
   },
   actions: {

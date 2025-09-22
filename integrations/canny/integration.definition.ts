@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'canny',
-  version: '0.1.0',
+  version: '0.2.0',
   title: 'Canny',
   description: 'Connect your Botpress bot to Canny for feature request management and customer feedback collection',
   readme: 'hub.md',
@@ -10,7 +10,6 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().title('API Key').describe('Your Canny API key'),
-      defaultAuthorId: z.string().title('Default Author Id').describe('Default author Id for system messages'),
     }),
   },
   channels: {

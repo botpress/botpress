@@ -3,7 +3,7 @@ import { WebhookHandlerProps } from '@botpress/sdk/dist/integration'
 import crypto from 'crypto'
 import { TIntegration } from '.botpress'
 
-export type TValidWebhookEventPayload = { eventName: string }
+export type ValidWebhookEventPayload = { eventName: string }
 
 export function validateWebhookSigningSecret(value: string): void {
   if (!value || !value.startsWith('whsec_')) {
@@ -51,7 +51,7 @@ export const verifyWebhookSignature = (props: WebhookHandlerProps<TIntegration>)
 
 export const getWebhookEventPayload = (
   body: WebhookHandlerProps<TIntegration>['req']['body']
-): TValidWebhookEventPayload => {
+): ValidWebhookEventPayload => {
   if (!body) {
     throw new RuntimeError('Webhook request is missing body')
   }
@@ -70,7 +70,7 @@ export const getWebhookEventPayload = (
 }
 
 export const formatWebhookEventPayload = (
-  payload: TValidWebhookEventPayload,
+  payload: ValidWebhookEventPayload,
   targetSchema: z.ZodSchema
 ): z.infer<typeof targetSchema> => {
   const formattedPayload = targetSchema.safeParse(payload)

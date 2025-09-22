@@ -33,7 +33,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 
   // ============ EVENTS ==============
-  if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
+  if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
     return
   }
@@ -56,7 +56,13 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return
   }
 
-  if (linearEvent.type === 'comment' && linearEvent.action === 'create') {
+  if (
+    linearEvent.type === 'comment' &&
+    linearEvent.action === 'create' &&
+    // Comment can be added in projects which are not issues. Therefore they don't have issueId or
+    // issue.id. Comments in projects are currently ignored.
+    (linearEvent.data.issue || linearEvent.data.issueId)
+  ) {
     const linearCommentId = linearEvent.data.id
     const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
