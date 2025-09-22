@@ -4,6 +4,7 @@ on:
   schedule:
     # Run at 10:00 AM EST (15:00 UTC) on the first Tuesday of every month
     - cron: '0 15 1-7 * 2'
+  workflow_dispatch:
 
 jobs:
   refresh-tokens:
