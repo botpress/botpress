@@ -5,11 +5,11 @@ export const safeParseJson = (json: string): Result<unknown> => {
     return {
       success: true,
       data: JSON.parse(json),
-    } as const
+    }
   } catch (thrown: unknown) {
     return {
       success: false,
       error: thrown instanceof Error ? thrown : new Error(String(thrown)),
-    } as const
+    }
   }
 }
