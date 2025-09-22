@@ -1,5 +1,4 @@
 import { RuntimeError } from '@botpress/client'
-import { z } from '@botpress/sdk'
 import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
 import { replaceMentions } from './misc/replace-mentions'
