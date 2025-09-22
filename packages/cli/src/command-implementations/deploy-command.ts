@@ -451,6 +451,19 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
     })
 
+    this._validateIntegrationRegistration(api, updatedBot)
+
+    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
+    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
+
+    line.success('Bot deployed')
+    this.displayWebhookUrls(updatedBot)
+  }
+
+  private _validateIntegrationRegistration(
+    api: apiUtils.ApiClient,
+    updatedBot: Awaited<ReturnType<typeof api.client.updateBot>>['bot']
+  ) {
     let failedIntegrations: Awaited<ReturnType<typeof api.client.updateBot>>['bot']['integrations'] = {}
     for (const [integrationName, integration] of Object.entries(updatedBot.integrations)) {
       if (integration.status === 'registration_failed') {
@@ -463,12 +476,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         .join('\n')
       this.logger.warn(`Some integrations failed to register:\n${failedList}`)
     }
-
-    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
-    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
-
-    line.success('Bot deployed')
-    this.displayWebhookUrls(updatedBot)
   }
 
   private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {
