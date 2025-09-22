@@ -21,6 +21,7 @@ export const constructWebhookBody = (webhookUrl: string, botId: string, addition
     allUsers: 'true',
     eventData: {
       version: 'restv2.1',
+      includeData: ['custom_fields'],
     },
     ...additionalProps,
   }
