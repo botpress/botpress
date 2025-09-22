@@ -13,6 +13,7 @@ runs:
   using: 'composite'
   steps:
     - name: Install action dependencies
+      shell: bash
       run: |
         pnpm install -g sodium-native
 
