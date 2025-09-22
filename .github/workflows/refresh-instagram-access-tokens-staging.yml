@@ -15,7 +15,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F instagram'
+          extra_filters: '-F @botpresshub/instagram'
       - name: Refresh Instagram Access Tokens
         uses: ./.github/actions/refresh-instagram-access-tokens
         with:
