@@ -1,6 +1,31 @@
 import { CommonHandlerProps } from '../types'
 import { DocusignClient } from '.'
 
+export const constructWebhookBody = (webhookUrl: string, botId: string, additionalProps: object = {}) => {
+  return {
+    configurationType: 'custom',
+    urlToPublishTo: webhookUrl,
+    name: `Botpress Integration | Bot ID: ${botId}`,
+    allowEnvelopePublish: 'true',
+    enableLog: 'true',
+    deliveryMode: 'SIM',
+    requiresAcknowledgement: 'true',
+    signMessageWithX509Certificate: 'true',
+    includeTimeZoneInformation: 'true',
+    includeHMAC: 'true',
+    includeEnvelopeVoidReason: 'false',
+    includeSenderAccountasCustomField: 'true',
+    integratorManaged: 'true',
+    envelopeEvents: ['Sent', 'Delivered', 'Completed', 'Declined', 'Voided'],
+    events: ['envelope-resent', 'envelope-reminder-sent'],
+    allUsers: 'true',
+    eventData: {
+      version: 'restv2.1',
+    },
+    ...additionalProps,
+  }
+}
+
 export const cleanupWebhooks = async (props: CommonHandlerProps, webhookUrl: string, apiClient?: DocusignClient) => {
   apiClient ??= await DocusignClient.create(props)
 

@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import docusign from 'docusign-esign'
 import type { CommonHandlerProps } from '../types'
 import { getAccountState, getOAuthState } from './auth-utils'
-import { refreshWebhooks } from './utils'
+import { constructWebhookBody, refreshWebhooks } from './utils'
 
 type DocusignClientParams = {
   accountId: string
@@ -60,26 +60,8 @@ export class DocusignClient {
 
   public async createWebhook(webhookUrl: string, botId: string): Promise<string> {
     try {
-      const resp = await this._connectApi.createConfiguration(this._accountId, {
-        configurationType: 'custom',
-        urlToPublishTo: webhookUrl,
-        name: `Botpress Integration | Bot ID: ${botId}`,
-        allowEnvelopePublish: 'true',
-        enableLog: 'true',
-        deliveryMode: 'SIM',
-        requiresAcknowledgement: 'true',
-        signMessageWithX509Certificate: 'true',
-        includeTimeZoneInformation: 'true',
-        includeHMAC: 'false',
-        includeEnvelopeVoidReason: 'false',
-        includeSenderAccountasCustomField: 'true',
-        envelopeEvents: ['Sent', 'Delivered', 'Completed', 'Declined', 'Voided'],
-        recipientEvents: ['Sent', 'AutoResponded', 'Delivered', 'Completed', 'Declined', 'AuthenticationFailed'],
-        allUsers: 'true',
-        eventData: {
-          version: 'restv2.1',
-        },
-      })
+      const body = constructWebhookBody(webhookUrl, botId)
+      const resp = await this._connectApi.createConfiguration(this._accountId, body)
 
       const { connectId } = resp
       if (!connectId) {
