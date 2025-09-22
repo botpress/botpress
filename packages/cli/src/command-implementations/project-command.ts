@@ -33,6 +33,8 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
+type UpdatedBot = client.Bot
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -513,6 +515,20 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     } catch (thrown) {
       const err = errors.BotpressCLIError.map(thrown)
       this.logger.debug(`Failed to check if sdk is up to date: ${err.message}`)
+    }
+  }
+  protected validateIntegrationRegistration(
+    updatedBot: UpdatedBot,
+    onFailCallback: (failedIntegrations: UpdatedBot['integrations']) => void
+  ) {
+    let failedIntegrations: UpdatedBot['integrations'] = {}
+    for (const [integrationName, integration] of Object.entries(updatedBot.integrations)) {
+      if (integration.status === 'registration_failed') {
+        failedIntegrations = { ...failedIntegrations, [integrationName]: integration }
+      }
+    }
+    if (Object.keys(failedIntegrations).length > 0) {
+      onFailCallback(failedIntegrations)
     }
   }
 }
