@@ -4,7 +4,11 @@ const _templateRecipientSchema = z.object({
   name: z.string().title('Recipient Name').describe("The recipient's full name"),
   email: z.string().title('Recipient Email').describe("The recipient's email address"),
   role: z.string().title('Template Recipient Role').describe('The role keyword defined in the template'),
-  accessCode: z.string().title('Access Code').describe('An access code that is required to access the envelope'),
+  accessCode: z
+    .string()
+    .optional()
+    .title('Access Code')
+    .describe('An access code that is required to access the envelope'),
 })
 export type TemplateRecipient = z.infer<typeof _templateRecipientSchema>
 
