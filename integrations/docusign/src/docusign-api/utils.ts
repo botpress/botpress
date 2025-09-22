@@ -29,7 +29,7 @@ export const constructWebhookBody = (webhookUrl: string, botId: string, addition
 export const cleanupWebhooks = async (props: CommonHandlerProps, webhookUrl: string, apiClient?: DocusignClient) => {
   apiClient ??= await DocusignClient.create(props)
 
-  const resp = await apiClient.getWebhooksList()
+  const resp = await apiClient.listWebhooks()
   const webhookDeletionPromises = resp?.reduce((webhookPromises, configuration) => {
     const { urlToPublishTo, connectId } = configuration
     if (!connectId || urlToPublishTo !== webhookUrl) {

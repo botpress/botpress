@@ -50,7 +50,7 @@ export class DocusignClient {
     }
   }
 
-  public async getWebhooksList(): Promise<docusign.ConnectConfigResults['configurations']> {
+  public async listWebhooks(): Promise<docusign.ConnectConfigResults['configurations']> {
     const resp = await this._axiosClient.get<docusign.ConnectConfigResults>(`/accounts/${this._accountId}/connect`)
     return resp.data.configurations
   }
