@@ -59,7 +59,7 @@ export default new IntegrationDefinition({
       schema: envelopeEventOutputSchema,
     },
     envelopeVoided: {
-      title: 'Envelope Sent',
+      title: 'Envelope Voided',
       description: 'An event that triggers when an envelope has been voided by the sender',
       schema: envelopeEventOutputSchema,
     },
