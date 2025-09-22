@@ -1,4 +1,5 @@
-import { z } from '@botpress/sdk'
+import { Request, z } from '@botpress/sdk'
+import crypto from 'crypto'
 import { handleIncomingTextMessage } from './channels'
 import { webhookRequestSchema } from './feature-base-api'
 import * as bp from '.botpress'
@@ -12,7 +13,59 @@ const isHandeledTopic = (request: z.infer<typeof webhookTopicSchema>) => {
   return topics.includes(request.topic)
 }
 
+const MAX_TIMESTAMP_DIFF_SECS = 300 // 5 minutes
+
+type VerifyWebhookSignatureReturn =
+  | {
+      isSignatureValid: true
+      signatureError: null
+    }
+  | {
+      isSignatureValid: false
+      signatureError: string
+    }
+
+const _verifyWebhookSignature = (secret: string, request: Request): VerifyWebhookSignatureReturn => {
+  const signature = request.headers['x-webhook-signature']
+  const timestamp = request.headers['x-webhook-timestamp']
+
+  if (!signature || !timestamp) {
+    return {
+      isSignatureValid: false,
+      signatureError: 'Missing signature headers',
+    }
+  }
+
+  const timestampDiff = Math.abs(Math.floor(Date.now() / 1000) - parseInt(timestamp))
+  if (timestampDiff > MAX_TIMESTAMP_DIFF_SECS || isNaN(timestampDiff)) {
+    return {
+      isSignatureValid: false,
+      signatureError: 'Webhook timestamp too old or incorrect',
+    }
+  }
+
+  const signedPayload = `${timestamp}.${request.body}`
+  const expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex')
+
+  if (!crypto.timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(signature, 'utf8'))) {
+    return {
+      isSignatureValid: false,
+      signatureError: 'Signature invalid',
+    }
+  }
+  return {
+    isSignatureValid: true,
+    signatureError: null,
+  }
+}
+
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { isSignatureValid, signatureError } = _verifyWebhookSignature(props.ctx.configuration.webhookSecret, props.req)
+  if (!isSignatureValid) {
+    props.logger.error(`Webhook Signature Verification: ${signatureError}`)
+    return
+  }
+
   if (!props.req.body) {
     props.logger.error('Handler received an empty body')
     return

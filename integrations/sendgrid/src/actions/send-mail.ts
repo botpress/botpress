@@ -11,11 +11,11 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
       personalizations: [
         {
           to: input.to,
+          cc: input.cc,
+          bcc: input.bcc,
         },
       ],
       from: input.from,
-      cc: input.cc,
-      bcc: input.bcc,
       replyTo: input.replyTo,
       subject: input.subject,
       html: markdownToHtml(input.body),
