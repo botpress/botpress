@@ -33,7 +33,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 
   // ============ EVENTS ==============
-  if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
+  if (linearEvent.type === 'issue' && (linearEvent.action === 'create' || linearEvent.action === 'restore')) {
     await fireIssueCreated({ linearEvent, client, ctx })
     return
   }
