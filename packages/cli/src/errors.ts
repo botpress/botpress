@@ -17,7 +17,13 @@ export class BotpressCLIError extends VError {
       return thrown
     }
     if (thrown instanceof client.UnknownError) {
-      const inst = new HTTPError(500, 'An unknown error has occurred.')
+      let inst: HTTPError
+      const cause = thrown.error?.cause
+      if (cause && typeof cause === 'object' && 'code' in cause && (cause as any).code === 'ECONNREFUSED') {
+        inst = new HTTPError(500, 'The connection was refused by the server')
+      } else {
+        inst = new HTTPError(500, 'An unknown error has occurred.')
+      }
       inst.debug = thrown.message
       return inst
     }

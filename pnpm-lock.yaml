@@ -433,6 +433,22 @@ importers:
         specifier: ^0.18.12
         version: 0.18.12
 
+  integrations/attio:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/bigcommerce-sync:
     dependencies:
       '@botpress/client':
