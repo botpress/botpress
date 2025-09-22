@@ -22,3 +22,6 @@ jobs:
           environment: staging
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
+          api_url: https://api.botpress.dev
+          current_token: ${{ secrets.STAGING_INSTAGRAM_ACCESS_TOKEN }}
+          secret_name: STAGING_INSTAGRAM_ACCESS_TOKEN

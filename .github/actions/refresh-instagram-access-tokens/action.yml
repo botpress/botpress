@@ -15,6 +15,15 @@ inputs:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
+  api_url:
+    description: 'API URL'
+    required: true
+  current_token:
+    description: 'Current token'
+    required: true
+  secret_name:
+    description: 'Secret name'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -22,10 +31,11 @@ runs:
       id: refresh_tokens
       shell: bash
       env:
-        BP_API_URL: ${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}
+        BP_API_URL: ${{ inputs.api_url }}
         BP_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
         BP_TOKEN: ${{ inputs.token_cloud_ops_account }}
-        CURRENT_TOKEN: ${{ inputs.environment == 'staging' && secrets.STAGING_INSTAGRAM_ACCESS_TOKEN || secrets.PRODUCTION_INSTAGRAM_ACCESS_TOKEN }}
+      with:
+        CURRENT_TOKEN: ${{ inputs.current_token }}
       run: |
         refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --instagramRefreshToken "$CURRENT_TOKEN")
         new_token=$(echo "$refresh_result" | jq -r '.refreshedToken')
@@ -39,5 +49,5 @@ runs:
         echo "$new_token" >> "$GITHUB_OUTPUT"
     - uses: ./.github/actions/create-or-update-secret
       with:
-        secret_name: ${{ inputs.environment == 'staging' && 'STAGING_INSTAGRAM_ACCESS_TOKEN' || 'PRODUCTION_INSTAGRAM_ACCESS_TOKEN' }}
+        secret_name: ${{ inputs.secret_name }}
         secret_value: ${{ steps.refresh_tokens.outputs.result }}
