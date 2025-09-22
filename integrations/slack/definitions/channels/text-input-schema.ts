@@ -395,6 +395,16 @@ const blocks = sdk.z.discriminatedUnion('type', [
   // video // TODO:
 ])
 
+const mention = sdk.z.object({
+  type: sdk.z.string(),
+  start: sdk.z.number(), // position in string
+  end: sdk.z.number(),
+  user: sdk.z.object({
+    id: sdk.z.string(),
+    name: sdk.z.string(),
+  }),
+})
+
 export const textSchema = sdk.z
   .object({
     text: sdk.z
@@ -410,5 +420,6 @@ export const textSchema = sdk.z
       .describe(
         'Multiple blocks can be added to this array. If a block is provided, the text field is ignored and the text must be added as a block'
       ),
+    mentions: sdk.z.array(mention).optional(),
   })
   .strict()
