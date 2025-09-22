@@ -12,6 +12,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install action dependencies
+      run: |
+        pnpm install -g sodium-native
+
     - uses: actions/github-script@v8
       id: set-secret
       env:
