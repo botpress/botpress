@@ -12,34 +12,17 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Install action dependencies
+    - name: Generate a token
+      id: generate-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ vars.CREATE_OR_UPDATE_SECRET_APP_ID }}
+        private-key: ${{ secrets.CREATE_OR_UPDATE_SECRET_APP_PRIVATE_KEY }}
+    - name: Set secret
       shell: bash
-      run: |
-        npm install -g sodium-native
-        echo "NODE_PATH=$(npm root -g)" >> $GITHUB_ENV
-    - uses: actions/github-script@v8
-      id: set-secret
       env:
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         SECRET_NAME: ${{ inputs.secret_name }}
         SECRET_VALUE: ${{ inputs.secret_value }}
-      with:
-        script: |
-          const sodium = require('sodium-native');
-          const { data: {key: publicKey, key_id: keyId} } = await github.rest.actions.getRepoPublicKey({...context.repo});
-          if (publicKey) {
-            const key = Buffer.from(publicKey, 'base64');
-            const message = Buffer.from(process.env.SECRET_VALUE);
-            const ciphertext = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
-
-            sodium.crypto_box_seal(ciphertext, message, key);
-            const encryptedToken = ciphertext.toString('base64');
-
-            await github.rest.actions.createOrUpdateRepoSecret({
-              ...context.repo,
-              secret_name: process.env.SECRET_NAME,
-              encrypted_value: encryptedToken,
-              key_id: keyId,
-            });
-          } else {
-            core.error('Failed to fetch the public key. Unable to update secret');
-          }
+      run: |
+        gh secret set $SECRET_NAME --body "$SECRET_VALUE"
