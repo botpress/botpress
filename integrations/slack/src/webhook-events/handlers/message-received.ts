@@ -1,10 +1,35 @@
+import { z } from '@botpress/sdk'
 import { slackToMarkdown } from '@bpinternal/slackdown'
-import { AllMessageEvents, FileShareMessageEvent, GenericMessageEvent } from '@slack/types'
-import { getBotpressConversationFromSlackThread, getBotpressUserFromSlackUser } from 'src/misc/utils'
-import { SlackClient } from 'src/slack-api'
+import {
+  ActionsBlockElement,
+  AllMessageEvents,
+  ContextBlockElement,
+  FileShareMessageEvent,
+  GenericMessageEvent,
+  RichTextBlockElement,
+  RichTextElement,
+  RichTextSection,
+} from '@slack/types'
+import { textSchema } from 'definitions/channels/text-input-schema'
+import {
+  getBotpressConversationFromSlackThread,
+  getBotpressUserFromSlackUser,
+  updateBotpressUserFromSlackUser,
+} from 'src/misc/utils'
 import * as bp from '.botpress'
 
-type BlocItem = bp.channels.channel.bloc.Bloc['items'][number]
+type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
+
+type BlocItem =
+  | bp.channels.channel.bloc.Bloc['items'][number]
+  | {
+      type: 'text'
+      payload: {
+        mentions: Mention[]
+        text: string
+      }
+    }
+
 type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
 
 export type HandleEventProps = {
@@ -27,23 +52,7 @@ export const handleEvent = async (props: HandleEventProps) => {
     client
   )
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
-
-  if (!botpressUser.pictureUrl || !botpressUser.name) {
-    try {
-      const slackClient = await SlackClient.createFromStates({ ctx, client, logger })
-      const userProfile = await slackClient.getUserProfile({ userId: slackEvent.user })
-      const fieldsToUpdate = {
-        pictureUrl: userProfile?.image_192,
-        name: userProfile?.real_name,
-      }
-      logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
-      if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-        await client.updateUser({ ...botpressUser, ...fieldsToUpdate })
-      }
-    } catch (error) {
-      logger.forBot().error('Error while fetching user profile from Slack:', error)
-    }
-  }
+  await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
   const isSentInChannel = !slackEvent.thread_ts
@@ -123,7 +132,6 @@ const _sendMessage = async (props: _SendMessageProps) => {
   if (slackEvent.subtype) {
     return
   }
-
   const text = _parseSlackEventText(slackEvent)
   if (!text) {
     logger.forBot().debug('No text was received, so the message was ignored')
@@ -132,7 +140,7 @@ const _sendMessage = async (props: _SendMessageProps) => {
 
   await client.getOrCreateMessage({
     type: 'text',
-    payload: { text: slackToMarkdown(text) },
+    payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger),
     userId: botpressUser.id,
     conversationId: botpressConversation.id,
     tags,
@@ -187,6 +195,7 @@ const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
 }
 
 const _getOrCreateMessageFromFiles = async ({
+  ctx,
   botpressUser,
   botpressConversation,
   slackEvent,
@@ -227,7 +236,7 @@ const _getOrCreateMessageFromFiles = async ({
   const items: BlocItem[] = []
 
   if (slackEvent.text) {
-    items.push({ type: 'text', payload: { text: slackToMarkdown(slackEvent.text) } })
+    items.push({ type: 'text', payload: await _getTextPayloadFromSlackEvent(slackEvent, client, ctx, logger) })
   }
 
   for (const file of parsedEvent.items) {
@@ -254,18 +263,23 @@ const _parseSlackFile = (logger: bp.Logger, file: File): BlocItem | null => {
     return null
   }
 
+  if (!file.permalink_public) {
+    logger.forBot().info('File had no public permalink')
+    return null
+  }
+
   switch (fileType) {
     case 'image':
-      return { type: fileType, payload: { imageUrl: file.permalink_public! } }
+      return { type: fileType, payload: { imageUrl: file.permalink_public } }
 
     case 'audio':
-      return { type: fileType, payload: { audioUrl: file.permalink_public! } }
+      return { type: fileType, payload: { audioUrl: file.permalink_public } }
 
     case 'file':
-      return { type: fileType, payload: { fileUrl: file.permalink_public! } }
+      return { type: fileType, payload: { fileUrl: file.permalink_public } }
 
     case 'text':
-      return { type: 'file', payload: { fileUrl: file.permalink_public! } }
+      return { type: 'file', payload: { fileUrl: file.permalink_public } }
 
     default:
       logger.forBot().info('File of type', fileType, 'is not yet supported.')
@@ -310,4 +324,49 @@ const _parseFileSlackEvent = (slackEvent: FileShareMessageEvent): _ParsedFileSla
   }
 
   return { type: 'bloc', text, items: slackEvent.files }
+}
+
+const _getTextPayloadFromSlackEvent = async (
+  slackEvent: GenericMessageEvent | FileShareMessageEvent,
+  client: bp.Client,
+  ctx: bp.Context,
+  logger: bp.Logger
+): Promise<{
+  text: string
+  mentions: Mention[]
+}> => {
+  if (!slackEvent.text) {
+    return { text: '', mentions: [] }
+  }
+  let text = slackEvent.text
+  const mentions: Mention[] = []
+  const blocks = slackEvent.blocks ?? []
+
+  type BlockElement = ContextBlockElement | ActionsBlockElement | RichTextBlockElement
+  type BlockSubElement = RichTextSection | RichTextElement
+  const userElements = blocks
+    .flatMap((block): BlockElement[] => ('elements' in block ? block.elements : []))
+    .flatMap((element): BlockSubElement[] => ('elements' in element ? element.elements : []))
+    .filter((subElement) => subElement.type === 'user')
+
+  for (const userElement of userElements) {
+    const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: userElement.user_id }, client)
+    await updateBotpressUserFromSlackUser(userElement.user_id, botpressUser, client, ctx, logger)
+    if (!botpressUser.name) {
+      continue
+    }
+    text = text.replace(userElement.user_id, botpressUser.name)
+    mentions.push({ type: userElement.type, start: 1, end: 1, user: { id: botpressUser.id, name: botpressUser.name } })
+  }
+
+  for (const mention of mentions) {
+    if (!mention.user.name) {
+      continue
+    }
+    mention.start = text.search(mention.user.name)
+    mention.end = mention.start + mention.user.name.length
+  }
+  text = slackToMarkdown(text)
+
+  return { text, mentions }
 }
