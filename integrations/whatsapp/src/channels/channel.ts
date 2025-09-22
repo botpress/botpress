@@ -16,6 +16,7 @@ import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
 import { sleep } from '../misc/util'
+import { repeat } from '../repeat'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
@@ -128,6 +129,24 @@ type SendMessageProps = {
   message?: OutgoingMessage
 }
 
+// From https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes#throttling-errors
+// Only contains codes for errors that can be recovered from by waiting
+const THROTTLING_CODES = new Set([
+  80007, // WABA/app rate limit
+  130429, // Cloud API throughput reached
+  131056, // Pair rate limit (same sender↔recipient)
+])
+
+function backoffDelayMs(attempt: number) {
+  // Helper function for backoff delay with jitter. Uses Meta recommendation for exponential curve
+  // https://developers.facebook.com/docs/whatsapp/cloud-api/overview/?locale=en_US#pair-rate-limits
+  const baseMs = Math.pow(4, attempt) * 1000
+  const jitter = 0.75 + Math.random() * 0.5
+  return Math.floor(baseMs * jitter)
+}
+
+const MAX_ATTEMPT = 3
+
 async function _send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
   if (!message) {
     logger.forBot().debug('No message to send')
@@ -153,7 +172,25 @@ async function _send({ client, ctx, conversation, message, ack, logger }: SendMe
     return
   }
 
-  const feedback = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
+  const feedback = await repeat(
+    async (i) => {
+      if (i > 0) {
+        logger.forBot().info(`Retrying to send ${messageType} message to WhatsApp (attempt ${i + 1}/${MAX_ATTEMPT})...`)
+      }
+
+      const result = await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, message)
+      const repeat = 'error' in result && THROTTLING_CODES.has(result.error?.code ?? 0)
+      return {
+        repeat,
+        result,
+      }
+    },
+    {
+      maxIterations: MAX_ATTEMPT,
+      backoff: backoffDelayMs,
+    }
+  )
+
   if ('error' in feedback) {
     logger
       .forBot()
