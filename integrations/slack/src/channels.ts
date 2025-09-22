@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import { ChatPostMessageArguments } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
 import { isValidUrl } from './misc/utils'
@@ -250,6 +251,19 @@ const _sendSlackMessage = async (
   await ack({ tags: { ts: message.ts, channelId: payload.channel, userId: message?.user } })
 
   return message
+}
+
+const _getTextWithSlackMentions = (text: z.infer<typeof textSchema>) => {
+  if (!text.text || !text.mentions) {
+    return text
+  }
+
+  text.mentions.sort((a, b) => b.start - a.start)
+  for (const mention of text.mentions) {
+    text.text = text.text.replace(mention.user.name, mention.user.id)
+  }
+
+  return text
 }
 
 export default {
