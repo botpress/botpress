@@ -34,10 +34,8 @@ runs:
         BP_API_URL: ${{ inputs.api_url }}
         BP_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
         BP_TOKEN: ${{ inputs.token_cloud_ops_account }}
-      with:
-        CURRENT_TOKEN: ${{ inputs.current_token }}
       run: |
-        refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --instagramRefreshToken "$CURRENT_TOKEN")
+        refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --instagramRefreshToken "${{ inputs.current_token }}")
         new_token=$(echo "$refresh_result" | jq -r '.refreshedToken')
         if [ -z "$new_token" ]; then
           echo "❌ Error: Failed to refresh token" >&2
