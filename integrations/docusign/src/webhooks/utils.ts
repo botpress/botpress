@@ -11,13 +11,17 @@ export const parseWebhookEvent = (props: bp.HandlerProps): Result<AllEnvelopeEve
 
   const parseResult = safeParseJson(body)
   if (!parseResult.success) {
-    return { success: false, error: new Error('Unable to parse Docusign Webhook Payload', parseResult.error) }
+    return {
+      success: false,
+      error: new Error(`Unable to parse Docusign Webhook Payload: ${parseResult.error.message}`),
+    }
   }
 
   const zodResult = allEnvelopeEventsSchema.safeParse(parseResult.data)
   if (!zodResult.success) {
-    props.logger.error('Webhook handler received unexpected payload', zodResult.error)
-    return { success: false, error: new Error('Invalid webhook payload structure', zodResult.error) }
+    const errorMsg = `Webhook handler received unexpected payload: ${zodResult.error.message}`
+    props.logger.error(errorMsg)
+    return { success: false, error: new Error(errorMsg) }
   }
 
   return {
