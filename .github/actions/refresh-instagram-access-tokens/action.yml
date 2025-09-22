@@ -44,7 +44,7 @@ runs:
 
         echo "$refresh_result" | jq -r '.message'
         echo "✅ Tokens refreshed successfully"
-        echo "$new_token" >> "$GITHUB_OUTPUT"
+        echo $new_token >> "$GITHUB_OUTPUT"
     - uses: ./.github/actions/create-or-update-secret
       with:
         secret_name: ${{ inputs.secret_name }}
