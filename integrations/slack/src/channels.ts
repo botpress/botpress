@@ -9,7 +9,7 @@ import * as bp from '.botpress'
 
 const defaultMessages = {
   text: async ({ client, payload, ctx, conversation, ack, logger }) => {
-    const parsed = textSchema.parse(payload)
+    const parsed = _getTextWithSlackMentions(textSchema.parse(payload))
     logger.forBot().debug('Sending text message to Slack chat:', payload)
     await _sendSlackMessage(
       { ack, ctx, client, logger },
