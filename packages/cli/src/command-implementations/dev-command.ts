@@ -328,9 +328,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     this.validateIntegrationRegistration(updatedBot, (failedIntegrations) => {
       throw new errors.BotpressCLIError(
-        `${Object.keys(failedIntegrations)
-          .map((integrationKey) => failedIntegrations[integrationKey]?.name)
-          .join(', ')} integrations failed to register`
+        `Some integrations failed to register:\n${Object.entries(failedIntegrations)
+          .map(([key, int]) => `• ${key}: ${int.statusReason}`)
+          .join('\n')}`
       )
     })
 
