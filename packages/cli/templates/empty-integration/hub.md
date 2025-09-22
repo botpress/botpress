@@ -20,11 +20,13 @@
 > List known limits `ex: rate-limiting, payload sizes, etc.`
 > List unsupported use cases
 
+## Changelog
+
 ### Integration publication checklist
 
 - [ ] The register handler is implemented and validates the configuration.
 - [ ] Title and descriptions for all schemas are present in `integration.definition.ts`.
-- [ ] Integrations events store `conversationId`, `userId` and `messageId` when available.
+- [ ] Events store `conversationId`, `userId` and `messageId` when available.
 - [ ] Implement events & actions that are related to `channels`, `entities`, `user`, `conversations` and `messages`.
 - [ ] Events related to messages are implemented as messages.
 - [ ] When an action is required by the bot developer, a `RuntimeError` is thrown with instructions to fix the problem.
