@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 
-export const envelopeEventOutputSchema = z.object({
+export const envelopeEventSchema = z.object({
   userId: z.string().title('User ID').describe("The Docusign user's ID"),
   accountId: z
     .string()
