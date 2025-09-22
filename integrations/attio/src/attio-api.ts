@@ -44,11 +44,6 @@ export type Attribute = {
   }>
 }
 
-export type Filter = {
-  attribute: string
-  value: string
-}
-
 export type Sort = {
   direction: 'asc' | 'desc'
   attribute: string
@@ -56,18 +51,22 @@ export type Sort = {
 }
 
 export type ListRecordsParams = {
-  filter?: Filter[]
+  filter?: Record<string, string>
   sorts?: Sort[]
   limit?: number
   offset?: number
 }
 
 export type CreateRecordData = {
-  values: Record<string, unknown>
+  data: {
+    values: Record<string, unknown>
+  }
 }
 
 export type UpdateRecordData = {
-  values: Record<string, unknown>
+  data: {
+    values: Record<string, unknown>
+  }
 }
 
 export type ApiResponse<T> = {
@@ -126,20 +125,8 @@ export class AttioApiClient {
   public async listRecords(object: string, params?: ListRecordsParams): Promise<ListRecordsResponse> {
     const endpoint = `/objects/${object}/records/query`
 
-    // Transform filter array into single object
-    let filterObject: Record<string, string> = {}
-    if (params?.filter) {
-      filterObject = params.filter.reduce(
-        (acc, filterItem) => {
-          // Each filterItem has { attribute: value } or { name: value }
-          return { ...acc, ...filterItem }
-        },
-        {} as Record<string, string>
-      )
-    }
-
     const body = {
-      filter: Object.keys(filterObject).length > 0 ? filterObject : undefined,
+      filter: params?.filter,
       sorts: params?.sorts,
       limit: params?.limit,
       offset: params?.offset,

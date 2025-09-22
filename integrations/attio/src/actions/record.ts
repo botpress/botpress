@@ -90,6 +90,13 @@ function _humanizeRecordValues(
   return { ...record, values: dst }
 }
 
+function _mapValues(values: { attribute: string; value: string }[]) {
+  return values.reduce((acc: Record<string, any>, curr) => {
+    acc[curr.attribute] = curr.value
+    return acc
+  }, {})
+}
+
 export const listRecords: bp.IntegrationProps['actions']['listRecords'] = async (props) => {
   const { ctx, input } = props
   const accessToken = ctx.configuration.accessToken
@@ -98,8 +105,10 @@ export const listRecords: bp.IntegrationProps['actions']['listRecords'] = async 
 
   const { object, filter, sorts, limit, offset } = input
 
+  const filterMap = filter ? _mapValues(filter) : undefined
+
   try {
-    const data = await attioApiClient.listRecords(object, { filter, sorts, limit, offset })
+    const data = await attioApiClient.listRecords(object, { filter: filterMap, sorts, limit, offset })
     const attributes = await attioApiClient.listAttributes(object)
 
     const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes.data)
@@ -140,10 +149,13 @@ export const createRecord: bp.IntegrationProps['actions']['createRecord'] = asyn
 
   const attioApiClient = new AttioApiClient(accessToken)
 
-  const { object, values } = input
+  const { object, data } = input
+  const { values } = data
 
   try {
-    const data = await attioApiClient.createRecord(object, { values })
+    const valuesMap = _mapValues(values)
+
+    const data = await attioApiClient.createRecord(object, { data: { values: valuesMap } })
     return { data: data.data }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
@@ -157,10 +169,12 @@ export const updateRecord: bp.IntegrationProps['actions']['updateRecord'] = asyn
 
   const attioApiClient = new AttioApiClient(accessToken)
 
-  const { object, record_id, values } = input
+  const { object, record_id, data } = input
+  const { values } = data
 
   try {
-    const data = await attioApiClient.updateRecord(object, record_id, { values })
+    const valuesMap = _mapValues(values)
+    const data = await attioApiClient.updateRecord(object, record_id, { data: { values: valuesMap } })
     return { data: data.data }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
