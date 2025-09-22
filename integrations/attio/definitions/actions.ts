@@ -134,15 +134,17 @@ const createRecord: ActionDefinition = {
   input: {
     schema: z.object({
       object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-      values: z
-        .array(
-          z.object({
-            attribute: z.string().min(1).title('Attribute'),
-            value: z.string().min(1).title('Value'),
-          })
-        )
-        .title('Values')
-        .describe('Array of attribute slug/ID to value(s)'),
+      data: z.object({
+        values: z
+          .array(
+            z.object({
+              attribute: z.string().min(1).title('Attribute'),
+              value: z.string().min(1).title('Value'),
+            })
+          )
+          .title('Values')
+          .describe('Array of attribute slug/ID to value(s)'),
+      }),
     }),
   },
   output: {
@@ -161,15 +163,17 @@ const updateRecord: ActionDefinition = {
     schema: z.object({
       object: z.string().min(1).title('Object').describe('Object slug or UUID'),
       record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
-      values: z
-        .array(
-          z.object({
-            attribute: z.string().min(1).title('Attribute'),
-            value: z.string().min(1).title('Value'),
-          })
-        )
-        .title('Values')
-        .describe('Array of attribute slug/ID to value(s) to upsert'),
+      data: z.object({
+        values: z
+          .array(
+            z.object({
+              attribute: z.string().min(1).title('Attribute'),
+              value: z.string().min(1).title('Value'),
+            })
+          )
+          .title('Values')
+          .describe('Array of attribute slug/ID to value(s) to upsert'),
+      }),
     }),
   },
   output: {
