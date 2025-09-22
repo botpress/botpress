@@ -1,40 +1,33 @@
 import { RuntimeError } from '@botpress/client'
-import { events } from '../../definitions/events'
 import { recordCreated } from '../events'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, logger, client } = props
+export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, client }) => {
+  logger.forBot().debug(`Received request on ${req.method}: ${JSON.stringify(req.body)}`)
 
-  logger.debug(`Received request on ${req.method}: ${JSON.stringify(req.body)}`)
+  try {
+    if (!req.body) {
+      throw new RuntimeError('Invalid webhook payload')
+    }
 
-  if (req.method === 'POST' && req.path === '') {
-    try {
-      const { body } = req
+    const attioEvent = JSON.parse(req.body).events[0]
+    const event = attioEvent.event_type
+    logger.forBot().debug(`Attio Event: ${event}`)
 
-      if (!body) {
-        return
-      }
+    switch (event) {
+      case 'record.created':
+        await recordCreated({ payload: attioEvent, client, logger })
+        break
+      default:
+        throw new RuntimeError(`Unsupported event type: ${event}`)
+    }
 
-      const attioEvent = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-      const payload = events.recordCreated.schema.parse(attioEvent)
-
-      const event = payload.event_type
-
-      switch (event) {
-        case 'record.created':
-          await recordCreated({ payload, client, logger })
-          break
-        default:
-          throw new RuntimeError(`Unsupported event type: ${event}`)
-      }
-    } catch (error) {
-      logger.error('Webhook validation failed:', error)
-      return {
-        status: 400,
-        body: JSON.stringify({ error: 'invalid webhook payload' }),
-      }
+    return { status: 200 }
+  } catch (error) {
+    logger.forBot().error('Webhook validation failed:', error)
+    return {
+      status: 400,
+      body: JSON.stringify({ error: 'invalid webhook payload' }),
     }
   }
-  return
 }

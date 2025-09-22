@@ -4,7 +4,7 @@ const recordCreated = {
   title: 'Record Created',
   description: 'A new record has been created in Attio',
   schema: z.object({
-    event_type: z.literal('record.created'),
+    event_type: z.string().title('Event Type').describe('The type of event'),
     id: z.object({
       workspace_id: z.string(),
       object_id: z.string(),

@@ -26,12 +26,14 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
     if (!state.payload.attioWebhookId) {
       logger.forBot().info('Webhooks do not exist. Creating webhooks...')
       const webhookResp = await _attioClient.createWebhook({
-        target_url: webhookUrl,
-        subscriptions: [
-          { event_type: 'record.created', filter: null },
-          { event_type: 'record.updated', filter: null },
-          { event_type: 'record.deleted', filter: null },
-        ],
+        data: {
+          target_url: webhookUrl,
+          subscriptions: [
+            { event_type: 'record.created', filter: null },
+            { event_type: 'record.updated', filter: null },
+            { event_type: 'record.deleted', filter: null },
+          ],
+        },
       })
       logger.forBot().info('Webhooks created')
       const attioWebhookId = String(webhookResp.data.id.webhook_id)

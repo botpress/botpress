@@ -79,8 +79,10 @@ export type WebhookData = {
 }
 
 export type WebhookCreateData = {
-  target_url: string
-  subscriptions: WebhookData[]
+  data: {
+    target_url: string
+    subscriptions: WebhookData[]
+  }
 }
 
 export type WebhookId = {
