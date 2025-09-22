@@ -56,7 +56,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw new errors.BotpressCLIError(`Invalid tunnel URL: ${urlParseResult.error}`)
     }
 
-    let tunnelId = await this.projectCache.get('tunnelId')
+    let tunnelId = this.argv.tunnelId
+    if (this.argv.tunnelId) {
+      await this.projectCache.set('tunnelId', this.argv.tunnelId)
+    }
+    if (!tunnelId) {
+      tunnelId = await this.projectCache.get('tunnelId')
+    }
     if (!tunnelId) {
       tunnelId = uuid.v4()
       await this.projectCache.set('tunnelId', tunnelId)
