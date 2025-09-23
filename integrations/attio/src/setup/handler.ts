@@ -1,30 +1,49 @@
 import { RuntimeError } from '@botpress/client'
-import { recordCreated } from '../events'
+import { webhookPayloadSchema } from '../../definitions/events'
+import { recordCreated, recordUpdated, recordDeleted } from '../events'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, client }) => {
-  logger.forBot().debug(`Received request on ${req.method}: ${JSON.stringify(req.body)}`)
-
   try {
     if (!req.body) {
       throw new RuntimeError('Invalid webhook payload')
     }
 
-    const attioEvent = JSON.parse(req.body).events[0]
-    const event = attioEvent.event_type
-    logger.forBot().debug(`Attio Event: ${event}`)
+    // Parse and validate the webhook payload
+    const webhookData = JSON.parse(req.body)
+    const parseResult = webhookPayloadSchema.safeParse(webhookData)
 
-    switch (event) {
-      case 'record.created':
-        await recordCreated({ payload: attioEvent, client, logger })
-        break
-      default:
-        throw new RuntimeError(`Unsupported event type: ${event}`)
+    if (!parseResult.success) {
+      logger.forBot().error('Invalid webhook payload structure:', parseResult.error)
+      throw new RuntimeError('Invalid webhook payload structure')
+    }
+
+    const { webhook_id, events } = parseResult.data
+    logger.forBot().info(`Processing webhook ${webhook_id} with ${events.length} events`)
+
+    // Process each event
+    for (const attioEvent of events) {
+      const event = attioEvent.event_type
+
+      switch (event) {
+        case 'record.created':
+          await recordCreated({ payload: attioEvent, client, logger })
+          break
+        case 'record.updated':
+          logger.forBot().info(`Record updated: ${JSON.stringify(attioEvent)}`)
+          await recordUpdated({ payload: attioEvent, client, logger })
+          break
+        case 'record.deleted':
+          await recordDeleted({ payload: attioEvent, client, logger })
+          break
+        default:
+          logger.forBot().warn(`Unsupported event type: ${event}`)
+      }
     }
 
     return { status: 200 }
   } catch (error) {
-    logger.forBot().error('Webhook validation failed:', error)
+    logger.forBot().error('Webhook processing failed:', error)
     return {
       status: 400,
       body: JSON.stringify({ error: 'invalid webhook payload' }),

@@ -4,6 +4,9 @@ import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, client, webhookUrl, logger }) => {
   try {
+    logger.forBot().info('Registering Attio integration...')
+    logger.forBot().info(`Webhook URL: ${webhookUrl}`)
+
     const accessToken = ctx.configuration.accessToken
     const _attioClient = new AttioApiClient(accessToken)
 
