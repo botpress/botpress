@@ -63,6 +63,11 @@ export default new IntegrationDefinition({
       description: 'An event that triggers when an envelope has been voided by the sender',
       schema: envelopeEventSchema,
     },
+    envelopeReminderSent: {
+      title: 'Envelope Reminder Sent',
+      description: 'An event that triggers when a reminder to sign the envelope was sent to a recipient',
+      schema: envelopeEventSchema,
+    },
   },
   secrets: {
     OAUTH_BASE_URL: {

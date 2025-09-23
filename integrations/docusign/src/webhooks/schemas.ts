@@ -22,6 +22,7 @@ const _envelopeEventSchema = z
       z.literal('envelope-completed'),
       z.literal('envelope-declined'),
       z.literal('envelope-voided'),
+      z.literal('envelope-reminder-sent'),
     ]),
     generatedDateTime: z.coerce.date(),
     data: z

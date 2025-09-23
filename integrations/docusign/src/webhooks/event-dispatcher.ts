@@ -14,6 +14,8 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
       return await inviteeHandlers.handleEnvelopeEvent(props, 'envelopeDeclined', webhookEvent)
     case 'envelope-voided':
       return await inviteeHandlers.handleEnvelopeEvent(props, 'envelopeVoided', webhookEvent)
+    case 'envelope-reminder-sent':
+      return await inviteeHandlers.handleEnvelopeEvent(props, 'envelopeReminderSent', webhookEvent)
     default:
       props.logger.warn(`Ignoring unsupported webhook type: '${webhookEvent.event}'`)
       return null
