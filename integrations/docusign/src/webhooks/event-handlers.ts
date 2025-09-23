@@ -12,15 +12,15 @@ export const handleEnvelopeEvent = async (
   const conversationIdField = envelopeSummary.customFields.textCustomFields.find((customField) => {
     return customField.name === CONVERSATION_ID_FIELD_KEY
   })
-  const conversationId = conversationIdField?.value ?? null
+  const conversationId = conversationIdField?.value ?? undefined
 
   return await props.client.createEvent({
     type: eventType,
+    conversationId,
     payload: {
       userId,
       accountId,
       envelopeId,
-      conversationId,
       triggeredAt: event.generatedDateTime.toISOString(),
     },
   })

@@ -31,6 +31,7 @@ export const sendEnvelopeInputSchema = z.object({
   conversationId: z
     .string()
     .placeholder('{{ event.conversationId }}')
+    .optional()
     .title('Conversation ID')
     .describe('The ID of the conversation'),
 })
