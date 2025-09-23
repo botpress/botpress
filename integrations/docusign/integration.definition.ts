@@ -74,6 +74,9 @@ export default new IntegrationDefinition({
     OAUTH_CLIENT_SECRET: {
       description: "A secret that's used to establish and refresh the OAuth authentication",
     },
+    WEBHOOK_SIGNING_SECRET: {
+      description: "The signing key used to validate Docusign's webhook request payloads",
+    },
   },
   states: {
     configuration: {
