@@ -14,9 +14,9 @@
 
 ## Limitations
 
-> List the known bugs
+> List the known bugs.
 > List known limits `ex: rate-limiting, payload sizes, etc.`
-> List unsupported use cases
+> List unsupported use cases.
 
 ## Changelog
 
