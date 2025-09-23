@@ -43,9 +43,18 @@ export class Client extends gen.Client implements IClient {
     type ListInputs = common.types.ListInputs<IClient>
     return {
       files: (props: ListInputs['listFiles']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listFiles({ nextToken, ...props }).then((r) => ({ ...r, items: r.files }))
-        ),
+        new common.listing.AsyncCollection(({ nextToken }) => {
+          const start = Date.now()
+          const request = { nextToken, ...props }
+
+          return this.listFiles(request).then((r) => {
+            if (this.config.debug) {
+              const duration = Date.now() - start
+              console.debug('listFiles request:', request, '\nlistFiles response:', r, `\n(${duration}ms)`)
+            }
+            return { ...r, items: r.files }
+          })
+        }),
       filePassages: (props: ListInputs['listFilePassages']) =>
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))

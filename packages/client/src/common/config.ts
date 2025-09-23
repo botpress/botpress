@@ -51,6 +51,7 @@ export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig
     timeout,
     withCredentials: isBrowser,
     headers,
+    debug: props.debug ? props.debug : false,
   }
 }
 
