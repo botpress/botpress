@@ -31,8 +31,7 @@ export const parseWebhookEvent = (props: bp.HandlerProps): Result<AllEnvelopeEve
   }
 }
 
-type BoolResult = { success: true } | { success: false; error: Error }
-export const verifyWebhookSignature = (props: bp.HandlerProps): BoolResult => {
+export const verifyWebhookSignature = (props: bp.HandlerProps): Result<null> => {
   const { body, headers } = props.req
   if (!body) {
     return { success: false, error: new Error('Received empty webhook payload') }
@@ -52,7 +51,7 @@ export const verifyWebhookSignature = (props: bp.HandlerProps): BoolResult => {
       return { success: false, error: new Error('Webhook failed signature verification') }
     }
 
-    return { success: true }
+    return { success: true, data: null }
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     return { success: false, error }
