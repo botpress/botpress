@@ -56,7 +56,20 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw new errors.BotpressCLIError(`Invalid tunnel URL: ${urlParseResult.error}`)
     }
 
-    const tunnelId = uuid.v4()
+    const cachedTunnelId = await this.projectCache.get('tunnelId')
+
+    let tunnelId: string
+    if (this.argv.tunnelId) {
+      tunnelId = this.argv.tunnelId
+    } else if (cachedTunnelId) {
+      tunnelId = cachedTunnelId
+    } else {
+      tunnelId = uuid.v4()
+    }
+
+    if (cachedTunnelId !== tunnelId) {
+      await this.projectCache.set('tunnelId', tunnelId)
+    }
 
     const { url: parsedTunnelUrl } = urlParseResult
     const isSecured = parsedTunnelUrl.protocol === 'https' || parsedTunnelUrl.protocol === 'wss'
