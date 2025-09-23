@@ -1,7 +1,5 @@
 # Plugin Title
 
-## Overview
-
 > Describe the plugin's purpose.
 
 ## Configuration

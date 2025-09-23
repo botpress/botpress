@@ -1,7 +1,5 @@
 # Integration Title
 
-## Overview
-
 > Describe the integration's purpose.
 
 ## Configuration
@@ -21,6 +19,8 @@
 > List unsupported use cases
 
 ## Changelog
+
+> If some versions of your integration introduce changes worth mentionning (breaking changes, bug fixes), describe them here. This will help users to know what to expect when updating the integration.
 
 ### Integration publication checklist
 
