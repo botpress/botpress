@@ -25,3 +25,5 @@ jobs:
           api_url: https://api.botpress.dev
           current_token: ${{ secrets.STAGING_INSTAGRAM_ACCESS_TOKEN }}
           secret_name: STAGING_INSTAGRAM_ACCESS_TOKEN
+          sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}
+          sync_secret_app_private_key: ${{ secrets.SYNC_SECRET_APP_PRIVATE_KEY }}

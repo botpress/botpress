@@ -8,7 +8,12 @@ inputs:
   secret_value:
     description: 'Secret value'
     required: true
-
+  sync_secret_app_id:
+    description: 'Sync secret app id'
+    required: true
+  sync_secret_app_private_key:
+    description: 'Sync secret app private key'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -16,8 +21,8 @@ runs:
       id: generate-token
       uses: actions/create-github-app-token@v2
       with:
-        app-id: ${{ vars.CREATE_OR_UPDATE_SECRET_APP_ID }}
-        private-key: ${{ secrets.CREATE_OR_UPDATE_SECRET_APP_PRIVATE_KEY }}
+        app-id: ${{ inputs.sync_secret_app_id }}
+        private-key: ${{ inputs.sync_secret_app_private_key }}
     - name: Set secret
       shell: bash
       env:

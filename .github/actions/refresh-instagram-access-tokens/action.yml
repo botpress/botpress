@@ -24,6 +24,12 @@ inputs:
   secret_name:
     description: 'Secret name'
     required: true
+  sync_secret_app_id:
+    description: 'Create or update secret app id'
+    required: true
+  sync_secret_app_private_key:
+    description: 'Create or update secret app private key'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -50,3 +56,5 @@ runs:
       with:
         secret_name: ${{ inputs.secret_name }}
         secret_value: ${{ steps.refresh_tokens.outputs.new_token }}
+        sync_secret_app_id: ${{ inputs.sync_secret_app_id }}
+        sync_secret_app_private_key: ${{ inputs.sync_secret_app_private_key }}
