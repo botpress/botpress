@@ -10,7 +10,7 @@ export const handleEnvelopeEvent = async (
   const { userId, accountId, envelopeId, envelopeSummary } = event.data
 
   const conversationIdField = envelopeSummary.customFields.textCustomFields.find((customField) => {
-    customField.name === CONVERSATION_ID_FIELD_KEY
+    return customField.name === CONVERSATION_ID_FIELD_KEY
   })
   const conversationId = conversationIdField?.value ?? null
 
