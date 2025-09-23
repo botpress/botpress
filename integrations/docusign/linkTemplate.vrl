@@ -1,0 +1,13 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+baseDomain = "https://account-d.docusign.com/oauth/auth"
+clientId = "785488f7-c2a8-4b9f-b9ca-6a94b3dd317c"
+
+if env == "production" {
+  baseDomain = "https://account.docusign.com/oauth/auth"
+  clientId = "c32faf9a-a4c7-43dc-9b3a-3e1e902c40ec"
+}
+
+"{{baseDomain}}?client_id={{ clientId }}&response_type=code&scope=signature&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth"
