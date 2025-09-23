@@ -27,3 +27,14 @@ jobs:
           secret_name: PRODUCTION_INSTAGRAM_ACCESS_TOKEN
           sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}
           sync_secret_app_private_key: ${{ secrets.SYNC_SECRET_APP_PRIVATE_KEY }}
+  ping-success:
+    runs-on: depot-ubuntu-22.04-8
+    needs: [refresh-tokens]
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.PRODUCTION_INSTAGRAM_REFRESH_TOKEN_PING_URL }}
+  ping-failure:
+    runs-on: depot-ubuntu-22.04-8
+    if: ${{ failure() }}
+    needs: [refresh-tokens]
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.PRODUCTION_INSTAGRAM_REFRESH_TOKEN_PING_URL }}/fail
