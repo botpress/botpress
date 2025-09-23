@@ -98,11 +98,11 @@ export type WebhookResponse = {
   secret: string
 }
 
+
 export type ListRecordsResponse = ApiResponse<AttioRecord[]>
 export type GetRecordResponse = ApiResponse<AttioRecord>
 export type CreateRecordResponse = ApiResponse<AttioRecord>
 export type UpdateRecordResponse = ApiResponse<AttioRecord>
-
 export type ListObjectsResponse = ApiResponse<AttioObject[]>
 export type GetObjectResponse = ApiResponse<AttioObject>
 export type ListAttributesResponse = ApiResponse<Attribute[]>

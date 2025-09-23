@@ -4,6 +4,7 @@ import { actions, states, events } from './definitions'
 export default new IntegrationDefinition({
   name: 'attio',
   version: '0.2.0',
+
   title: 'Attio',
   readme: 'hub.md',
   icon: 'icon.svg',
