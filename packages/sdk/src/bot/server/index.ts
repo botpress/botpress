@@ -220,7 +220,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
       state: state as types.IncomingStates<common.BaseBot>[string],
     }
 
-    const stateHandlers = self.stateExpiredHandlers['*'] ?? []
+    const stateHandlers = self.stateExpiredHandlers[state.name] ?? []
     for (const handler of stateHandlers) {
       await handler(statePayload)
     }
