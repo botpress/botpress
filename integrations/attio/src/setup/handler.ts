@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { webhookPayloadSchema } from '../../definitions/events'
+import { webhookPayloadSchema } from 'definitions/events'
 import { recordCreated, recordUpdated, recordDeleted } from '../events'
 import * as bp from '.botpress'
 
