@@ -38,8 +38,8 @@ export default new sdk.BotDefinition({
   })
   .addPlugin(hitl, {
     configuration: {
-      useHumanAgentInfo: false,
       flowOnHitlStopped: false,
+      useHumanAgentInfo: false,
     },
     interfaces: {
       hitl: {
