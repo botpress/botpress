@@ -89,3 +89,17 @@ export const getMessageFromSlackEvent = async (
 
   return messages[0]
 }
+
+export const safeParseJson = (json: string) => {
+  try {
+    return {
+      success: true,
+      data: JSON.parse(json),
+    }
+  } catch (thrown: unknown) {
+    return {
+      success: false,
+      error: thrown instanceof Error ? thrown : new Error(String(thrown)),
+    }
+  }
+}
