@@ -30,7 +30,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           await recordCreated({ payload: attioEvent, client, logger })
           break
         case 'record.updated':
-          logger.forBot().info(`Record updated: ${JSON.stringify(attioEvent)}`)
           await recordUpdated({ payload: attioEvent, client, logger })
           break
         case 'record.deleted':
