@@ -28,7 +28,7 @@ The `helloWorld` action has a max name size limit of 2^28 - 16 characters (the m
 
 ## Changelog
 
-- 0.1.0: Implemented `helloWorld` action
+- 0.1.0: Implemented `helloWorld` action.
 
 > If some versions of your integration introduce changes worth mentionning (breaking changes, bug fixes), describe them here. This will help users to know what to expect when updating the integration.
 
