@@ -98,7 +98,6 @@ export type WebhookResponse = {
   secret: string
 }
 
-
 export type ListRecordsResponse = ApiResponse<AttioRecord[]>
 export type GetRecordResponse = ApiResponse<AttioRecord>
 export type CreateRecordResponse = ApiResponse<AttioRecord>
