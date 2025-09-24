@@ -1,6 +1,6 @@
 //
 import { RuntimeError } from '@botpress/client'
-import { AttioApiClient } from '../attio-api'
+import { AttioApiClient, Attribute } from '../attio-api'
 import * as bp from '.botpress'
 
 type AttioRecordIdentifier = {
@@ -14,21 +14,6 @@ type AttioRecord = {
   created_at: string
   web_url: string
   values: Record<string, unknown>
-}
-
-type AttributeOption = { id?: string; label?: string; name?: string; value?: string; title?: string; slug?: string }
-type Attribute = {
-  id?: {
-    workspace_id: string
-    object_id: string
-    attribute_id?: string
-  }
-  title?: string
-  description?: string | null
-  api_slug?: string
-  type?: string
-  slug?: string
-  options?: AttributeOption[]
 }
 
 function _buildAttributeMaps(attributes: Attribute[]) {
