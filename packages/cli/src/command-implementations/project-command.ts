@@ -16,7 +16,7 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string }
+export type ProjectCache = { botId: string; devId: string; tunnelId: string }
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
@@ -32,6 +32,8 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'bot'; definition: sdk.BotDefinition }
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
+
+type UpdatedBot = client.Bot
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -513,6 +515,20 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     } catch (thrown) {
       const err = errors.BotpressCLIError.map(thrown)
       this.logger.debug(`Failed to check if sdk is up to date: ${err.message}`)
+    }
+  }
+  protected validateIntegrationRegistration(
+    updatedBot: UpdatedBot,
+    onFailCallback: (failedIntegrations: UpdatedBot['integrations']) => void
+  ) {
+    let failedIntegrations: UpdatedBot['integrations'] = {}
+    for (const [integrationName, integration] of Object.entries(updatedBot.integrations)) {
+      if (integration.status === 'registration_failed') {
+        failedIntegrations = { ...failedIntegrations, [integrationName]: integration }
+      }
+    }
+    if (Object.keys(failedIntegrations).length > 0) {
+      onFailCallback(failedIntegrations)
     }
   }
 }
