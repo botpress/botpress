@@ -37,6 +37,7 @@
 /integrations/clickup @JustinBordage @botpress/engineering
 /integrations/confluence @Nathaniel-Girard @botpress/engineering
 /integrations/dropbox @pascal-botpress @botpress/engineering
+/integrations/docusign @JustinBordage @botpress/engineering
 /integrations/email @Nathaniel-Girard @botpress/engineering
 /integrations/freshchat @davidvitora @botpress/engineering
 /integrations/github @JustinBordage @pascal-botpress @botpress/engineering
