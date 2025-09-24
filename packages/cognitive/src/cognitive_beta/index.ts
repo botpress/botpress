@@ -9,6 +9,7 @@ type ClientProps = {
   timeout?: number
   botId?: string
   token?: string
+  headers?: Record<string, string>
 }
 
 type RequestOptions = {
@@ -28,12 +29,14 @@ export class CognitiveBeta {
       timeout: props.timeout || 60_001,
       token: props.token || '',
       botId: props.botId || '',
+      headers: props.headers || {},
     }
 
     this._axiosClient = axios.create({
       headers: {
         Authorization: `Bearer ${this._config.token}`,
         'X-Bot-Id': this._config.botId,
+        ...this._config.headers,
       },
       baseURL: this._config.baseUrl,
     })
