@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { baseIdentifierSchema } from '../definitions/actions'
+import { baseIdentifierSchema } from '../definitions/common'
 
 export const recordEventSchema = z.object({
   event_type: z.string(),
