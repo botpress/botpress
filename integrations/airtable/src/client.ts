@@ -20,6 +20,10 @@ export class AirtableApi {
     })
   }
 
+  public async testConnection() {
+    await this._axiosClient.get('/meta/whoami')
+  }
+
   public async listRecords({
     tableIdOrName,
     filterByFormula,
