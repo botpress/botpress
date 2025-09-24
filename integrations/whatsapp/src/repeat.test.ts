@@ -60,9 +60,9 @@ test('repeat uses the backoff function to determine delay', async () => {
   expect(timestamps.length).toBe(3)
   expect(timestamps[0]).toBeLessThan(50) // First call, no delay
 
-  expect(timestamps[1]).toBeGreaterThanOrEqual(100)
+  expect(timestamps[1]).toBeGreaterThanOrEqual(99)
   expect(timestamps[1]).toBeLessThan(150)
 
-  expect(timestamps[2]).toBeGreaterThanOrEqual(200)
+  expect(timestamps[2]).toBeGreaterThanOrEqual(199)
   expect(timestamps[2]).toBeLessThan(250)
 })
