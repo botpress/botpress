@@ -3,7 +3,7 @@ import type * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
-import { cloneDeep, isEqual } from 'lodash'
+import { isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../api'
@@ -364,7 +364,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
   private async _didDefinitionChange(body: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody) {
     const didChange = !isEqual(body, this._cacheDevRequestBody)
-    this._cacheDevRequestBody = cloneDeep(body)
+    this._cacheDevRequestBody = { ...body }
     return didChange
   }
 
