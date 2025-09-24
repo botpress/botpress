@@ -7,7 +7,7 @@ export const DEFINITION_CACHE_INTEGRATION = ['integration.definition.ts']
 export class DefinitionCache {
   private _cachedHash: string | undefined = undefined
 
-  public async hasDefinitionChanged(_files: string[]) {
+  public async didDefinitionChanged(_files: string[]) {
     const hash = await this._computeFilesHash(_files)
     if (hash === null) {
       return true

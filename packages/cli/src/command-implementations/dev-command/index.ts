@@ -325,7 +325,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    if (await this._definitionCache.hasDefinitionChanged(defCache.DEFINITION_CACHE_BOT)) {
+    if (await this._definitionCache.didDefinitionChanged(defCache.DEFINITION_CACHE_BOT)) {
       const updateLine = this.logger.line()
       updateLine.started('Deploying dev bot...')
 
@@ -339,10 +339,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         bot
       )
 
-      const updateBotResponse = await api.client.updateBot(updateBotBody).catch((thrown) => {
+      const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
       })
-      const updatedBot = updateBotResponse.bot
 
       this.validateIntegrationRegistration(updatedBot, (failedIntegrations) => {
         throw new errors.BotpressCLIError(
