@@ -97,6 +97,27 @@ describe('jsonSchemaToZui', () => {
     expect(jsonSchema).toEqual(converted)
   })
 
+  test('should map extensions (x-zui) to zod schema for ZodOptional', () => {
+    const jSchema = {
+      type: 'object',
+      properties: {
+        optional: {
+          type: 'string',
+          'x-zui': {
+            secret: true,
+          },
+        },
+      },
+    } as JSONSchema7
+    const zSchema = fromJSONSchemaLegacy(jSchema)
+    const expected = z.object({
+      optional: z.optional(z.string().secret()),
+    })
+    expect(zSchema.isEqual(expected)).toBe(true)
+    const field = (zSchema as z.ZodObject)._def.shape().optional as z.ZodOptional<z.ZodString>
+    expect(field._def.innerType._def['x-zui']?.secret, 'Expected secret to be true').toBe(true)
+  })
+
   test('convert object with nested', () => {
     const zuiSchema = fromJSONSchemaLegacy({
       type: 'object',
@@ -136,8 +157,8 @@ describe('jsonSchemaToZui', () => {
     traverseZodDefinitions(zuiSchema._def, (type, def, path) => {
       if (path.join('.') === 'address.city.bestFoods') {
         expect(['ZodArray', 'ZodOptional']).toContain(type)
-        if (type === 'ZodOptional') {
-          expect(def[zuiKey]?.title).toBe('Best foods')
+        if (def.typeName === 'ZodOptional') {
+          expect(def.innerType._def[zuiKey]?.title).toBe('Best foods')
         }
       }
       if (path.join('.') === 'address.city.bestFoods.0.type') {

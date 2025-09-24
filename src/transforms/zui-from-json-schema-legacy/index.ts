@@ -46,7 +46,7 @@ const jsonSchemaToZod = (schema: any): ZodTypeAny => {
 
 const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) => {
   if (jsonSchemaField[zuiKey] && zodField._def) {
-    zodField._def[zuiKey] = jsonSchemaField[zuiKey]
+    zodField.naked()._def[zuiKey] = jsonSchemaField[zuiKey]
   }
 
   if (zodField._def?.typeName === 'ZodObject' && jsonSchemaField.type === 'object' && jsonSchemaField.properties) {
