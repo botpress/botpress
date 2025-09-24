@@ -4,15 +4,12 @@ import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, client, webhookUrl, logger }) => {
   try {
-    logger.forBot().info('Registering Attio integration...')
-    logger.forBot().info(`Webhook URL: ${webhookUrl}`)
-
     const accessToken = ctx.configuration.accessToken
-    const _attioClient = new AttioApiClient(accessToken)
+    const attioClient = new AttioApiClient(accessToken)
 
     // Test the connection using the API client
     logger.forBot().info('Testing connection to Attio...')
-    await _attioClient.testConnection()
+    await attioClient.testConnection()
     logger.forBot().info('Connection to Attio successful')
 
     // Check if webhooks already exist
@@ -28,7 +25,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
 
     if (!state.payload.attioWebhookId) {
       logger.forBot().info('Webhooks do not exist. Creating webhooks...')
-      const webhookResp = await _attioClient.createWebhook({
+      const webhookResp = await attioClient.createWebhook({
         data: {
           target_url: webhookUrl,
           subscriptions: [
@@ -57,7 +54,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, w
 export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
   try {
     const accessToken = ctx.configuration.accessToken
-    const _attioClient = new AttioApiClient(accessToken)
+    const attioClient = new AttioApiClient(accessToken)
 
     const stateAttioIntegrationInfo = await client.getState({
       id: ctx.integrationId,
@@ -69,7 +66,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
     const { attioWebhookId } = state.payload
 
     if (attioWebhookId) {
-      await _attioClient.deleteWebhook(attioWebhookId)
+      await attioClient.deleteWebhook(attioWebhookId)
       logger.forBot().info('Webhook successfully deleted')
     }
   } catch (thrown) {
