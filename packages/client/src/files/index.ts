@@ -41,36 +41,53 @@ export class Client extends gen.Client implements IClient {
 
   public get list() {
     type ListInputs = common.types.ListInputs<IClient>
-    return {
-      files: (props: ListInputs['listFiles']) =>
-        new common.listing.AsyncCollection(({ nextToken }) => {
+
+    const _makeLister = <P, R extends { meta: { nextToken?: string } }, I>(
+      label: string,
+      fn: (req: P & { nextToken?: string }) => Promise<R>,
+      items: (res: R) => I[]
+    ) => {
+      return (props: P) =>
+        new common.listing.AsyncCollection(async ({ nextToken }) => {
           const start = Date.now()
           const request = { nextToken, ...props }
 
-          return this.listFiles(request).then((r) => {
-            if (this.config.debug) {
-              const duration = Date.now() - start
-              console.debug('listFiles request:', request, '\nlistFiles response:', r, `\n(${duration}ms)`)
-            }
-            return { ...r, items: r.files }
-          })
-        }),
-      filePassages: (props: ListInputs['listFilePassages']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
-        ),
-      fileTags: (props: ListInputs['listFileTags']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listFileTags({ nextToken, ...props }).then((r) => ({ ...r, items: r.tags }))
-        ),
-      fileTagValues: (props: ListInputs['listFileTagValues']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listFileTagValues({ nextToken, ...props }).then((r) => ({ ...r, items: r.values }))
-        ),
-      knowledgeBases: (props: ListInputs['listKnowledgeBases']) =>
-        new common.listing.AsyncCollection(({ nextToken }) =>
-          this.listKnowledgeBases({ nextToken, ...props }).then((r) => ({ ...r, items: r.knowledgeBases }))
-        ),
+          const response = await fn(request)
+
+          if (this.config.debug) {
+            const duration = Date.now() - start
+            console.debug(`${label} request:`, request, `\n${label} response:`, response, `\n(${duration}ms)`)
+          }
+          return { ...response, items: items(response) }
+        })
+    }
+
+    return {
+      files: _makeLister<
+        ListInputs['listFiles'],
+        gen.listFiles.ListFilesResponse,
+        gen.listFiles.ListFilesResponse['files'][number]
+      >('listFiles', this.listFiles, (r) => r.files),
+      filePassages: _makeLister<
+        ListInputs['listFilePassages'],
+        gen.listFilePassages.ListFilePassagesResponse,
+        gen.listFilePassages.ListFilePassagesResponse['passages'][number]
+      >('listFilePassages', this.listFilePassages, (r) => r.passages),
+      fileTags: _makeLister<
+        ListInputs['listFileTags'],
+        gen.listFileTags.ListFileTagsResponse,
+        gen.listFileTags.ListFileTagsResponse['tags'][number]
+      >('listFileTags', this.listFileTags, (r) => r.tags),
+      fileTagValues: _makeLister<
+        ListInputs['listFileTagValues'],
+        gen.listFileTagValues.ListFileTagValuesResponse,
+        gen.listFileTagValues.ListFileTagValuesResponse['values'][number]
+      >('listFileTagValues', this.listFileTagValues, (r) => r.values),
+      knowledgeBases: _makeLister<
+        ListInputs['listKnowledgeBases'],
+        gen.listKnowledgeBases.ListKnowledgeBasesResponse,
+        gen.listKnowledgeBases.ListKnowledgeBasesResponse['knowledgeBases'][number]
+      >('knowledgeBases', this.listKnowledgeBases, (r) => r.knowledgeBases),
     }
   }
 
