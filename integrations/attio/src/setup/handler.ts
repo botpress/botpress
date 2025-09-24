@@ -1,9 +1,4 @@
-import {
-  recordCreatedEventSchema,
-  recordDeletedEventSchema,
-  recordUpdatedEventSchema,
-  webhookPayloadSchema,
-} from 'src/schemas'
+import { webhookPayloadSchema } from 'src/schemas'
 import { recordCreated, recordUpdated, recordDeleted } from '../events'
 import * as bp from '.botpress'
 
@@ -46,15 +41,15 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
 
     switch (event) {
       case 'record.created':
-        const payloadCreated = recordCreatedEventSchema.parse(attioEvent)
+        const payloadCreated = attioEvent
         await recordCreated({ payload: payloadCreated, client, logger })
         break
       case 'record.updated':
-        const payloadUpdated = recordUpdatedEventSchema.parse(attioEvent)
+        const payloadUpdated = attioEvent
         await recordUpdated({ payload: payloadUpdated, client, logger })
         break
       case 'record.deleted':
-        const payloadDeleted = recordDeletedEventSchema.parse(attioEvent)
+        const payloadDeleted = attioEvent
         await recordDeleted({ payload: payloadDeleted, client, logger })
         break
       default:

@@ -1,22 +1,22 @@
 import { z } from '@botpress/sdk'
-import { recordCreatedEventSchema, recordUpdatedEventSchema, recordDeletedEventSchema } from 'src/schemas'
+import { recordEventSchema } from 'src/schemas'
 import * as bp from '.botpress'
-
-type Client = bp.Client
-type IntegrationLogger = bp.Logger
 
 export const recordCreated = async ({
   payload,
   client,
   logger,
 }: {
-  payload: z.infer<typeof recordCreatedEventSchema>
-  client: Client
-  logger: IntegrationLogger
+  payload: z.infer<typeof recordEventSchema>
+  client: bp.Client
+  logger: bp.Logger
 }) => {
   await client.createEvent({
     type: 'recordCreated',
-    payload,
+    payload: {
+      ...payload,
+      event_type: 'record.created',
+    },
   })
 
   logger.forBot().info(`Record created: ${payload.id.record_id}`)
@@ -27,13 +27,16 @@ export const recordUpdated = async ({
   client,
   logger,
 }: {
-  payload: z.infer<typeof recordUpdatedEventSchema>
-  client: Client
-  logger: IntegrationLogger
+  payload: z.infer<typeof recordEventSchema>
+  client: bp.Client
+  logger: bp.Logger
 }) => {
   await client.createEvent({
     type: 'recordUpdated',
-    payload,
+    payload: {
+      ...payload,
+      event_type: 'record.updated',
+    },
   })
 
   logger.forBot().info(`Record updated: ${payload.id.record_id}`)
@@ -44,13 +47,16 @@ export const recordDeleted = async ({
   client,
   logger,
 }: {
-  payload: z.infer<typeof recordDeletedEventSchema>
-  client: Client
-  logger: IntegrationLogger
+  payload: z.infer<typeof recordEventSchema>
+  client: bp.Client
+  logger: bp.Logger
 }) => {
   await client.createEvent({
     type: 'recordDeleted',
-    payload,
+    payload: {
+      ...payload,
+      event_type: 'record.deleted',
+    },
   })
 
   logger.forBot().info(`Record deleted: ${payload.id.record_id}`)
