@@ -1,4 +1,4 @@
-import { TunnelTail, ClientCloseEvent, ClientErrorEvent } from '@bpinternal/tunnel'
+import { TunnelTail, ClientCloseEvent, ClientErrorEvent, errors } from '@bpinternal/tunnel'
 import { Logger } from '../logger'
 import { EventEmitter } from './event-emitter'
 
@@ -142,6 +142,11 @@ export class TunnelSupervisor {
     })
     tunnel.events.on('close', ({ code, reason, target, type, wasClean }) => {
       this._logger.error(`Tunnel closed: ${code} ${reason}`)
+
+      if (code === errors.CLOSE_CODES.TUNNEL_ID_CONFLICT) {
+        throw new Error('Cannot start: Tunnel Id is already used, choose a different tunnel id.')
+      }
+
       this._reconnectSync({ type: 'close', ev: { code, reason, target, type, wasClean } })
     })
   }
