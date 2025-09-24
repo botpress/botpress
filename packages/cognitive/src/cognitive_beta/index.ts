@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
 import { Readable } from 'stream'
 import { StringDecoder } from 'string_decoder'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk } from './models'
+import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './models'
 
 export { CognitiveRequest, CognitiveResponse }
 
@@ -24,7 +24,7 @@ export class CognitiveBeta {
 
   public constructor(props: ClientProps) {
     this._config = {
-      baseUrl: props.baseUrl || 'https://cognitive.botpress.dev',
+      baseUrl: props.baseUrl || 'https://cognitive.botpress.cloud',
       timeout: props.timeout || 60_001,
       token: props.token || '',
       botId: props.botId || '',
@@ -44,6 +44,19 @@ export class CognitiveBeta {
 
     const { data } = await this._withServerRetry(() =>
       this._axiosClient.post<CognitiveResponse>('/v1/generate-text', input, {
+        signal,
+        timeout: options.timeout ?? this._config.timeout,
+      })
+    )
+
+    return data
+  }
+
+  public async listModels(input: void, options: RequestOptions = {}) {
+    const signal = options.signal ?? AbortSignal.timeout(this._config.timeout)
+
+    const { data } = await this._withServerRetry(() =>
+      this._axiosClient.post<Model[]>('/v1/models', input, {
         signal,
         timeout: options.timeout ?? this._config.timeout,
       })

@@ -1,6 +1,3 @@
-// this file was automatically generated, do not edit
-/* eslint-disable */
-
 export interface CognitiveRequest {
   /**
    * @minItems 1
@@ -66,28 +63,6 @@ export interface CognitiveRequest {
   responseFormat?: 'text' | 'json'
   reasoningEffort?: 'low' | 'medium' | 'high'
 }
-
-export interface CognitiveMessage {
-  role: 'user' | 'assistant' | 'system'
-  content:
-    | string
-    | {
-        type: 'text' | 'image'
-        text?: string
-        url?: string
-        mimeType?: string
-        [k: string]: any
-      }[]
-  type?: string
-}
-
-export interface CognitiveContentPart {
-  type: 'text' | 'image'
-  text?: string
-  url?: string
-  mimeType?: string
-}
-
 export interface CognitiveStreamChunk {
   output?: string
   created: number
@@ -101,29 +76,20 @@ export interface CognitiveStreamChunk {
       reasoningTokens?: number
     }
     cost?: number
-    cacheHit?: boolean
-    latencyMs?: number
+    cached?: boolean
+    latency?: number
     stopReason?: string
     reasoningEffort?: string
     warnings?: {
       type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'fallback_used'
       message: string
     }[]
+    /**
+     * List of models that were tried and failed
+     */
     fallbackPath?: string[]
   }
 }
-
-export interface HealthCheckResponse {
-  status: 'healthy' | 'degraded' | 'down'
-  timestamp: number
-  models?: {
-    id: string
-    status: 'healthy' | 'degraded' | 'down'
-    provider: string
-  }[]
-  message?: string
-}
-
 export interface CognitiveResponse {
   output: string
   metadata: {
@@ -135,15 +101,52 @@ export interface CognitiveResponse {
       reasoningTokens?: number
     }
     cost?: number
-    cacheHit?: boolean
-    latencyMs?: number
+    cached?: boolean
+    latency?: number
     stopReason?: string
     reasoningEffort?: string
     warnings?: {
       type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'fallback_used'
       message: string
     }[]
+    /**
+     * List of models that were tried and failed
+     */
     fallbackPath?: string[]
   }
   error?: string
+}
+export interface Model {
+  id: string
+  name: string
+  description: string
+  tags?: (
+    | 'recommended'
+    | 'deprecated'
+    | 'general-purpose'
+    | 'low-cost'
+    | 'flagship'
+    | 'vision'
+    | 'coding'
+    | 'agents'
+    | 'function-calling'
+    | 'roleplay'
+    | 'storytelling'
+    | 'reasoning'
+    | 'preview'
+  )[]
+  input: {
+    maxTokens: number
+    /**
+     * Cost per 1 million tokens, in U.S. dollars
+     */
+    costPer1MTokens: number
+  }
+  output: {
+    maxTokens: number
+    /**
+     * Cost per 1 million tokens, in U.S. dollars
+     */
+    costPer1MTokens: number
+  }
 }
