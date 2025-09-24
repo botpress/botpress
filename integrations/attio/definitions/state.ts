@@ -1,7 +1,7 @@
 import { z, StateDefinition } from '@botpress/sdk'
 
 const attioIntegrationInfo: StateDefinition = {
-  type: 'integration' as const,
+  type: 'integration',
   schema: z.object({
     attioWebhookId: z
       .string()
