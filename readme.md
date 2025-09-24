@@ -103,7 +103,7 @@ Coming soon.
 
 | **Package**                                                          | **Description**                                         | **Docs**                                           | **Code**               |
 | -------------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- | ---------------------- |
-| [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build, Deploy and Manage Bots, Integrations and Plugins | [Docs](https://botpress.com/docs/integration/cli/) | [Code](./packages/cli) |
+| [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build, Deploy and Manage Bots, Integrations and Plugins | [Docs](https://botpress.com/docs/for-developers/sdk/cli-reference) | [Code](./packages/cli) |
 | [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe clients to consume the Botpress APIs          | [Docs]()                                           | [Code]()               |
 | [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations                       | [Docs]()                                           | [Code]()               |
 
