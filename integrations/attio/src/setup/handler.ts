@@ -12,24 +12,27 @@ export function safeJsonParse(x: any) {
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, client }) => {
   if (!req.body) {
-    logger.forBot().error('Webhook processing failed: empty body')
+    const errorMsg = 'Webhook processing failed: empty body'
+    logger.forBot().error(errorMsg)
     return {
       status: 400,
-      body: JSON.stringify({ error: 'empty webhook payload' }),
+      body: JSON.stringify({ error: errorMsg }),
     }
   }
 
   // Parse and validate the webhook payload
   const webhookData = safeJsonParse(req.body)
   if (!webhookData.success) {
-    logger.forBot().error('Webhook processing failed: invalid body')
-    return { status: 400, body: JSON.stringify({ error: 'invalid webhook payload' }) }
+    const errorMsg = 'Webhook processing failed: invalid JSON'
+    logger.forBot().error(errorMsg)
+    return { status: 400, body: JSON.stringify({ error: errorMsg }) }
   }
 
   const parseResult = webhookPayloadSchema.safeParse(webhookData.data)
   if (!parseResult.success) {
-    logger.forBot().error('Webhook processing failed: invalid payload structure', parseResult.error)
-    return { status: 400, body: JSON.stringify({ error: 'invalid webhook payload structure' }) }
+    const errorMsg = `Webhook processing failed: ${parseResult.error.message}`
+    logger.forBot().error(errorMsg)
+    return { status: 400, body: JSON.stringify({ error: errorMsg }) }
   }
 
   const { webhook_id, events } = parseResult.data
@@ -41,16 +44,13 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
 
     switch (event) {
       case 'record.created':
-        const payloadCreated = attioEvent
-        await recordCreated({ payload: payloadCreated, client, logger })
+        await recordCreated({ payload: attioEvent, client, logger })
         break
       case 'record.updated':
-        const payloadUpdated = attioEvent
-        await recordUpdated({ payload: payloadUpdated, client, logger })
+        await recordUpdated({ payload: attioEvent, client, logger })
         break
       case 'record.deleted':
-        const payloadDeleted = attioEvent
-        await recordDeleted({ payload: payloadDeleted, client, logger })
+        await recordDeleted({ payload: attioEvent, client, logger })
         break
       default:
         logger.forBot().warn(`Unsupported event type: ${event}`)
