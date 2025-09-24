@@ -1,4 +1,4 @@
-export interface CognitiveRequest {
+export type CognitiveRequest = {
   /**
    * @minItems 1
    */
@@ -63,7 +63,7 @@ export interface CognitiveRequest {
   responseFormat?: 'text' | 'json'
   reasoningEffort?: 'low' | 'medium' | 'high'
 }
-export interface CognitiveStreamChunk {
+export type CognitiveStreamChunk = {
   output?: string
   created: number
   finished?: boolean
@@ -90,7 +90,7 @@ export interface CognitiveStreamChunk {
     fallbackPath?: string[]
   }
 }
-export interface CognitiveResponse {
+export type CognitiveResponse = {
   output: string
   metadata: {
     provider: string
@@ -116,7 +116,7 @@ export interface CognitiveResponse {
   }
   error?: string
 }
-export interface Model {
+export type Model = {
   id: string
   name: string
   description: string
