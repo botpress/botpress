@@ -73,6 +73,31 @@ export type ApiResponse<T> = {
   data: T
 }
 
+export type WebhookData = {
+  event_type: string
+  filter: Record<string, string> | null
+}
+
+export type WebhookCreateData = {
+  data: {
+    target_url: string
+    subscriptions: WebhookData[]
+  }
+}
+
+export type WebhookId = {
+  workspace_id: string
+  webhook_id: string
+}
+
+export type WebhookResponse = {
+  id: WebhookId
+  target_url: string
+  subscriptions: WebhookData[]
+  created_at: string
+  secret: string
+}
+
 export type ListRecordsResponse = ApiResponse<AttioRecord[]>
 export type GetRecordResponse = ApiResponse<AttioRecord>
 export type CreateRecordResponse = ApiResponse<AttioRecord>
@@ -80,6 +105,8 @@ export type UpdateRecordResponse = ApiResponse<AttioRecord>
 export type ListObjectsResponse = ApiResponse<AttioObject[]>
 export type GetObjectResponse = ApiResponse<AttioObject>
 export type ListAttributesResponse = ApiResponse<Attribute[]>
+
+export type CreateWebhookResponse = ApiResponse<WebhookResponse>
 
 export class AttioApiClient {
   private _accessToken: string
@@ -165,6 +192,17 @@ export class AttioApiClient {
   public async listAttributes(object: string): Promise<ListAttributesResponse> {
     const endpoint = `/objects/${object}/attributes`
     return this._makeRequest<ListAttributesResponse>('GET', endpoint)
+  }
+
+  // Webhook API methods
+  public async createWebhook(data: WebhookCreateData): Promise<CreateWebhookResponse> {
+    const endpoint = '/webhooks'
+    return this._makeRequest<CreateWebhookResponse>('POST', endpoint, data)
+  }
+
+  public async deleteWebhook(webhookId: string): Promise<void> {
+    const endpoint = `/webhooks/${webhookId}`
+    await this._makeRequest<void>('DELETE', endpoint)
   }
 
   // Utility method to test connection
