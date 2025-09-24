@@ -1,10 +1,8 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
-import { Readable } from 'stream'
-import { StringDecoder } from 'string_decoder'
 import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './models'
 
-export { CognitiveRequest, CognitiveResponse }
+export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
 
 type ClientProps = {
   baseUrl?: string
@@ -17,6 +15,8 @@ type RequestOptions = {
   signal?: AbortSignal
   timeout?: number
 }
+
+const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
 
 export class CognitiveBeta {
   private _axiosClient: AxiosInstance
@@ -71,6 +71,49 @@ export class CognitiveBeta {
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const signal = options.signal ?? AbortSignal.timeout(this._config.timeout)
 
+    if (isBrowser()) {
+      const res = await fetch(`${this._config.baseUrl}/v1/generate-text-stream`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this._config.token}`,
+          'X-Bot-Id': this._config.botId,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...request, stream: true }),
+        signal,
+      })
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
+        ;(err as any).response = { status: res.status, data: text }
+        throw err
+      }
+
+      const body = res.body
+      if (!body) {
+        throw new Error('No response body received for streaming request')
+      }
+
+      const reader = body.getReader()
+      const iterable = (async function* () {
+        for (;;) {
+          const { value, done } = await reader.read()
+          if (done) {
+            break
+          }
+          if (value) {
+            yield value
+          }
+        }
+      })()
+
+      for await (const obj of this._ndjson<CognitiveStreamChunk>(iterable)) {
+        yield obj
+      }
+      return
+    }
+
     const res = await this._withServerRetry(() =>
       this._axiosClient.post(
         '/v1/generate-text-stream',
@@ -83,22 +126,22 @@ export class CognitiveBeta {
       )
     )
 
-    const stream = res.data as Readable
-    if (!stream) {
+    const nodeStream: AsyncIterable<Uint8Array> = res.data as any
+    if (!nodeStream) {
       throw new Error('No response body received for streaming request')
     }
 
-    for await (const obj of CognitiveBeta._ndjson<CognitiveStreamChunk>(stream)) {
+    for await (const obj of this._ndjson<CognitiveStreamChunk>(nodeStream)) {
       yield obj
     }
   }
 
-  private static async *_ndjson<T>(stream: Readable): AsyncGenerator<T, void, unknown> {
-    const decoder = new StringDecoder('utf8')
+  private async *_ndjson<T>(stream: AsyncIterable<Uint8Array>): AsyncGenerator<T, void, unknown> {
+    const decoder = new TextDecoder('utf-8')
     let buffer = ''
 
     for await (const chunk of stream) {
-      buffer += decoder.write(chunk as Buffer)
+      buffer += decoder.decode(chunk, { stream: true })
 
       for (;;) {
         const i = buffer.indexOf('\n')
@@ -117,7 +160,7 @@ export class CognitiveBeta {
       }
     }
 
-    buffer += decoder.end()
+    buffer += decoder.decode()
 
     const tail = buffer.trim()
     if (tail) {
