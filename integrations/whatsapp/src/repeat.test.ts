@@ -56,13 +56,15 @@ test('repeat uses the backoff function to determine delay', async () => {
 
   const result = await repeat<string>(cb, { maxIterations: 5, backoff })
 
+  const BUFFER = 25
+
   expect(result).toBe('success')
   expect(timestamps.length).toBe(3)
-  expect(timestamps[0]).toBeLessThan(50) // First call, no delay
+  expect(timestamps[0]).toBeLessThan(BUFFER) // First call, no delay
 
-  expect(timestamps[1]).toBeGreaterThanOrEqual(99)
-  expect(timestamps[1]).toBeLessThan(150)
+  expect(timestamps[1]).toBeGreaterThanOrEqual(100 - BUFFER)
+  expect(timestamps[1]).toBeLessThan(100 + BUFFER)
 
-  expect(timestamps[2]).toBeGreaterThanOrEqual(199)
-  expect(timestamps[2]).toBeLessThan(250)
+  expect(timestamps[2]).toBeGreaterThanOrEqual(200 - BUFFER)
+  expect(timestamps[2]).toBeLessThan(200 + BUFFER)
 })
