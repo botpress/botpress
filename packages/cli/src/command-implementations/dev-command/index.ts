@@ -14,7 +14,6 @@ import { Worker } from '../../worker'
 import { BuildCommand } from '../build-command'
 import { ProjectCommand, ProjectDefinition } from '../project-command'
 import { DefinitionCache } from './definition-cache'
-import * as defCache from './definition-cache'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
@@ -325,7 +324,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    if (await this._definitionCache.didDefinitionChange(defCache.DEFINITION_CACHE_BOT)) {
+    if (await this._definitionCache.didDefinitionsChange(await this.readProjectDefinitionFromFS())) {
       const updateLine = this.logger.line()
       updateLine.started('Deploying dev bot...')
 

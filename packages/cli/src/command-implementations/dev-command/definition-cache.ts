@@ -1,14 +1,16 @@
 import * as crypto from 'crypto'
 import * as fs from 'fs/promises'
+import * as errors from '../../errors'
+import { ProjectDefinition } from '../project-command'
 
-export const DEFINITION_CACHE_BOT = ['bot.definition.ts']
-export const DEFINITION_CACHE_INTEGRATION = ['integration.definition.ts']
+const BOT_DEFINITION_PATH = 'bot.definition.ts'
+const INTEGRATION_DEFINITION_PATH = 'integration.definition.ts'
 
 export class DefinitionCache {
   private _cachedHash: string | undefined = undefined
 
-  public async didDefinitionChange(_files: string[]) {
-    const hash = await this._computeFilesHash(_files)
+  public async didDefinitionsChange(definition: ProjectDefinition) {
+    const hash = await this._computeDefinitionHash(definition)
     if (hash === null) {
       return true
     }
@@ -20,18 +22,37 @@ export class DefinitionCache {
     return false
   }
 
-  private _computeFilesHash = async (filePaths: string[]): Promise<string | null> => {
+  private async _computeDefinitionHash(project: ProjectDefinition): Promise<string | null> {
+    if (!['integration', 'bot'].includes(project.type)) {
+      throw new errors.BotpressCLIError(`DefinitionCache not supported for definition type: ${project.type}`)
+    }
+    const paths = this._fileToWatch(project)
+
     const hash = crypto.createHash('sha256')
-    let didConsumeAFile = false
-    for (const path of filePaths) {
+    let didUpdateHash = false
+    for (const path of paths) {
       await fs
         .readFile(path)
         .then((content) => {
           hash.update(content)
-          didConsumeAFile = true
+          didUpdateHash = true
         })
         .catch(() => {})
     }
-    return didConsumeAFile ? hash.digest('hex') : null
+
+    return didUpdateHash ? hash.digest('hex') : null
+  }
+
+  private _fileToWatch(project: ProjectDefinition): string[] {
+    const paths = []
+    if (project.type === 'bot') {
+      paths.push(BOT_DEFINITION_PATH)
+    } else if (project.type === 'integration') {
+      paths.push(INTEGRATION_DEFINITION_PATH)
+      paths.push(project.definition.identifier?.extractScript)
+      paths.push(project.definition.identifier?.fallbackHandlerScript)
+      paths.push(project.definition.configuration?.identifier?.linkTemplateScript)
+    }
+    return paths.filter((path): path is string => path !== undefined)
   }
 }
