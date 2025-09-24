@@ -22,7 +22,6 @@ jobs:
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
           api_url: https://api.botpress.dev
-          integration_name: instagram
           current_token: ${{ secrets.STAGING_INSTAGRAM_ACCESS_TOKEN }}
           secret_name: STAGING_INSTAGRAM_ACCESS_TOKEN
           sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}

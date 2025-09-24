@@ -22,7 +22,6 @@ jobs:
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
           api_url: https://api.botpress.cloud
-          integration_name: instagram
           current_token: ${{ secrets.PRODUCTION_INSTAGRAM_ACCESS_TOKEN }}
           secret_name: PRODUCTION_INSTAGRAM_ACCESS_TOKEN
           sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}
