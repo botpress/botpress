@@ -32,13 +32,15 @@ import * as bp from '.botpress'
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
-    await telegraf.telegram.setWebhook(webhookUrl).catch(mapToRuntimeErrorAndThrow('Fail to set webhook'))
+    await telegraf.telegram
+      .setWebhook(webhookUrl)
+      .catch(mapToRuntimeErrorAndThrow('Fail to set webhook. Check your bot token'))
   },
   unregister: async ({ ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram
       .deleteWebhook({ drop_pending_updates: true })
-      .catch(mapToRuntimeErrorAndThrow('Fail to delte webhook'))
+      .catch(mapToRuntimeErrorAndThrow('Fail to delete webhook'))
   },
   actions: {
     startTypingIndicator: async ({ input, ctx, client }) => {
