@@ -3,17 +3,17 @@ import type * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
+import { cloneDeep, isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import * as apiUtils from '../../api'
-import type commandDefinitions from '../../command-definitions'
-import * as errors from '../../errors'
-import * as tables from '../../tables'
-import * as utils from '../../utils'
-import { Worker } from '../../worker'
-import { BuildCommand } from '../build-command'
-import { ProjectCommand, ProjectDefinition } from '../project-command'
-import { DefinitionCache } from './definition-cache'
+import * as apiUtils from '../api'
+import type commandDefinitions from '../command-definitions'
+import * as errors from '../errors'
+import * as tables from '../tables'
+import * as utils from '../utils'
+import { Worker } from '../worker'
+import { BuildCommand } from './build-command'
+import { ProjectCommand, ProjectDefinition } from './project-command'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
@@ -23,7 +23,7 @@ const FILEWATCHER_DEBOUNCE_MS = 2000
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
-  private _definitionCache: DefinitionCache = new DefinitionCache()
+  private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -324,42 +324,48 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    if (await this._definitionCache.didDefinitionsChange(await this.readProjectDefinitionFromFS())) {
-      const updateLine = this.logger.line()
-      updateLine.started('Deploying dev bot...')
+    const updateBotBody = apiUtils.prepareUpdateBotBody(
+      {
+        ...(await apiUtils.prepareCreateBotBody(botDef)),
+        ...(await this.prepareBotDependencies(botDef, api)),
+        id: bot.id,
+        url: externalUrl,
+      },
+      bot
+    )
 
-      const updateBotBody = apiUtils.prepareUpdateBotBody(
-        {
-          ...(await apiUtils.prepareCreateBotBody(botDef)),
-          ...(await this.prepareBotDependencies(botDef, api)),
-          id: bot.id,
-          url: externalUrl,
-        },
-        bot
-      )
-
-      const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
-      })
-
-      this.validateIntegrationRegistration(updatedBot, (failedIntegrations) => {
-        throw new errors.BotpressCLIError(
-          `Some integrations failed to register:\n${Object.entries(failedIntegrations)
-            .map(([key, int]) => `• ${key}: ${int.statusReason}`)
-            .join('\n')}`
-        )
-      })
-
-      updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
-      updateLine.commit()
-
-      const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
-      await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
-
-      this.displayWebhookUrls(updatedBot)
-    } else {
+    if (!(await this._didDefinitionChange(updateBotBody))) {
       this.logger.log('Skipping deployment step. No changes found in bot.definition.ts')
+      return
     }
+    const updateLine = this.logger.line()
+    updateLine.started('Deploying dev bot...')
+
+    const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
+    })
+
+    this.validateIntegrationRegistration(updatedBot, (failedIntegrations) => {
+      throw new errors.BotpressCLIError(
+        `Some integrations failed to register:\n${Object.entries(failedIntegrations)
+          .map(([key, int]) => `• ${key}: ${int.statusReason}`)
+          .join('\n')}`
+      )
+    })
+
+    updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
+    updateLine.commit()
+
+    const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
+    await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
+
+    this.displayWebhookUrls(updatedBot)
+  }
+
+  private async _didDefinitionChange(body: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody) {
+    const didChange = !isEqual(body, this._cacheDevRequestBody)
+    this._cacheDevRequestBody = cloneDeep(body)
+    return didChange
   }
 
   private _forwardTunnelRequest = async (baseUrl: string, request: TunnelRequest): Promise<TunnelResponse> => {
