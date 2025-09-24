@@ -1,5 +1,4 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import { startConversationInputSchema } from 'src/misc/types'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
@@ -8,23 +7,9 @@ import * as bp from '.botpress'
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 
 export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
-  const { ctx, input, client, logger, metadata } = props
-
-  const parseResult = startConversationInputSchema.safeParse(input)
-  if (!parseResult.success) {
-    throw new RuntimeError(
-      'Invalid props for send template message: ' +
-        parseResult.error +
-        'the props should be the same as for startConversation action'
-    )
-  }
   return startConversation({
-    ctx,
-    input: parseResult.data,
-    client,
-    logger,
+    ...props,
     type: 'startConversation',
-    metadata,
   })
 }
 
