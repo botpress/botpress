@@ -1,16 +1,15 @@
 import { z, type ActionDefinition } from '@botpress/sdk'
 
-const recordIdentifierSchema = z
+export const baseIdentifierSchema = z
   .object({
     workspace_id: z.string().title('Workspace ID').describe('The Attio workspace ID'),
     object_id: z.string().title('Object ID').describe('The Attio object ID'),
-    record_id: z.string().title('Record ID').describe('The Attio record ID (UUID)'),
   })
   .title('Record Identifier')
 
 const recordSchema = z
   .object({
-    id: recordIdentifierSchema,
+    id: baseIdentifierSchema,
     created_at: z.string().title('Created At').describe('RFC3339 timestamp when the record was created'),
     web_url: z.string().title('Web URL').describe('URL of the record in Attio UI'),
     values: z
@@ -23,12 +22,7 @@ const recordSchema = z
 // Objects & Attributes
 const objectSchema = z
   .object({
-    id: z
-      .object({
-        workspace_id: z.string(),
-        object_id: z.string(),
-      })
-      .optional(),
+    id: baseIdentifierSchema.optional(),
     api_slug: z.string().optional(),
     singular_noun: z.string().optional(),
     plural_noun: z.string().optional(),
@@ -38,13 +32,7 @@ const objectSchema = z
 
 const attributeSchema = z
   .object({
-    id: z
-      .object({
-        workspace_id: z.string(),
-        object_id: z.string(),
-        attribute_id: z.string(),
-      })
-      .optional(),
+    id: baseIdentifierSchema.extend({ attribute_id: z.string().optional() }).optional(),
     title: z.string().optional(),
     description: z.string().nullable().optional(),
     api_slug: z.string().optional(),
@@ -53,7 +41,7 @@ const attributeSchema = z
     options: z
       .array(
         z.object({
-          id: z.string().optional(),
+          id: baseIdentifierSchema.extend({ attribute_option_id: z.string().optional() }).optional(),
           label: z.string().optional(),
           name: z.string().optional(),
           value: z.string().optional(),
@@ -111,14 +99,14 @@ const getRecord: ActionDefinition = {
   input: {
     schema: z.object({
       object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-      record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
+      id: baseIdentifierSchema.extend({ record_id: z.string().min(1).title('Record ID').describe('Record UUID') }),
     }),
   },
   output: {
     schema: z
       .object({
         data: z.object({
-          id: recordIdentifierSchema.title('Record').describe('The fetched record'),
+          id: baseIdentifierSchema.title('Identifier').describe('The fetched identifier'),
           web_url: z.string().title('Web URL').describe('URL of the record in Attio UI'),
           values: z.record(z.any()).title('Values').describe('Map of attribute slug/ID to value(s)'),
           created_at: z.string().title('Created At').describe('RFC3339 timestamp when the record was created'),
@@ -162,7 +150,7 @@ const updateRecord: ActionDefinition = {
   input: {
     schema: z.object({
       object: z.string().min(1).title('Object').describe('Object slug or UUID'),
-      record_id: z.string().min(1).title('Record ID').describe('Record UUID'),
+      id: baseIdentifierSchema.extend({ record_id: z.string().min(1).title('Record ID').describe('Record UUID') }),
       data: z.object({
         values: z
           .array(

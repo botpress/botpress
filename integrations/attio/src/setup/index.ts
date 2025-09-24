@@ -1,3 +1,2 @@
-export { register } from './register'
-export { unregister } from './unregister'
+export { register, unregister } from './setup'
 export { handler } from './handler'
