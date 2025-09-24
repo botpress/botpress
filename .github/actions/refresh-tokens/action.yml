@@ -1,14 +1,7 @@
-name: 'Refresh Instagram Access Tokens'
-description: 'Refreshes Instagram access token, updates the integrations secrets and update the token in 1Password'
+name: 'Refresh Access Tokens'
+description: 'Refreshes access token, updates the integrations secrets and update the token GitHub secrets'
 
 inputs:
-  environment:
-    type: choice
-    description: 'Environment to deploy the integration to'
-    required: true
-    options:
-      - staging
-      - production
   token_cloud_ops_account:
     description: 'Cloud Ops account token'
     required: true
@@ -17,6 +10,9 @@ inputs:
     required: true
   api_url:
     description: 'API URL'
+    required: true
+  integration_name:
+    description: 'Integration name'
     required: true
   current_token:
     description: 'Current token'
@@ -33,7 +29,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Refresh Instagram Access Tokens
+    - name: Refresh Access Tokens
       id: refresh_tokens
       shell: bash
       env:
@@ -41,7 +37,7 @@ runs:
         BP_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
         BP_TOKEN: ${{ inputs.token_cloud_ops_account }}
       run: |
-        refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --instagramRefreshToken "${{ inputs.current_token }}")
+        refresh_result=$(pnpm -F '${{ inputs.integration_name }}' exec -- pnpm run --silent refreshTokens --json --refreshToken "${{ inputs.current_token }}")
         new_token=$(echo "$refresh_result" | jq -r '.refreshedToken')
         if [ -z "$new_token" ]; then
           echo "❌ Error: Failed to refresh token" >&2
