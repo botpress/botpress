@@ -71,7 +71,7 @@ async function refreshSandboxAccessToken(args: RefreshSecretArgs) {
   for (const integration of integrations) {
     await client.updateIntegration({
       id: integration.id,
-      public: integration.public,
+      visibility: integration.visibility,
       secrets: {
         [INTEGRATION_SECRET_SANDBOX_ACCESS_TOKEN]: data.access_token,
       },
