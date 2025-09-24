@@ -325,7 +325,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    if (await this._definitionCache.didDefinitionChanged(defCache.DEFINITION_CACHE_BOT)) {
+    if (await this._definitionCache.didDefinitionChange(defCache.DEFINITION_CACHE_BOT)) {
       const updateLine = this.logger.line()
       updateLine.started('Deploying dev bot...')
 
