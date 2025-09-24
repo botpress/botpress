@@ -21,9 +21,7 @@ export default new bp.Integration({
         apiKey: ctx.configuration.apiKey,
       })
 
-      if (!ctx.configuration.defaultAuthorId) {
-        throw new Error('Default author ID is required in integration configuration.')
-      }
+      // Note: We use a default Botpress user for comments/posts when no authorId is provided
 
       const boardsResult = await client.listBoards()
 

@@ -26,7 +26,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
 
   const validationResult = _validateRequestAuthentication(req, props)
   if (validationResult.error) {
-    return { status: 403, body: validationResult.message }
+    return { status: 401, body: validationResult.message }
   }
   return await messagingHandler(props)
 }

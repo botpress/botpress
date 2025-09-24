@@ -64,20 +64,20 @@ export default new sdk.IntegrationDefinition({
       conversation: {
         tags: {
           owner: { title: 'Conversation Owner', description: 'ID of the user who created the conversation' },
-          fid: { title: 'fid', description: 'This tag is of no use and only exists for historical reasons' },
+          fid: { title: 'Foreign ID', description: 'Copy of the foreign ID of the conversation' },
         },
       },
       messages,
       message: {
         tags: {
-          fid: { title: 'fid', description: 'This tag is of no use and only exists for historical reasons' },
+          fid: { title: 'Foreign ID', description: 'This tag is of no use and only exists for historical reasons' },
         },
       },
     },
   },
   user: {
     tags: {
-      fid: { title: 'fid', description: 'This tag is of no use and only exists for historical reasons' },
+      fid: { title: 'Foreign ID', description: 'Copy of the foreign ID of the user' },
       profile: {
         title: 'User Profile',
         description: 'Custom profile data of the user encoded as a string',

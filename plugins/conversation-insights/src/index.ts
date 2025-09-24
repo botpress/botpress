@@ -10,7 +10,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.afterIncomingMessage('*', async (props) => {
+plugin.on.beforeIncomingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
@@ -30,11 +30,11 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   return undefined
 })
 
-plugin.on.afterOutgoingMessage('*', async (props) => {
+plugin.on.beforeOutgoingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
+  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
   return undefined
 })

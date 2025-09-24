@@ -171,7 +171,6 @@ export default new bp.Integration({
 
     switch (data.triggerType) {
       case 'form_submission':
-        console.log(data.payload)
         await fireEvent(props, 'formSubmission', data.payload)
         break
       case 'site_publish':
