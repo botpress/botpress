@@ -27,7 +27,7 @@ export type Attribute = {
   id?: {
     workspace_id: string
     object_id: string
-    attribute_id: string
+    attribute_id?: string
   }
   title?: string
   description?: string | null

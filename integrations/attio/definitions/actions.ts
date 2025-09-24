@@ -41,7 +41,7 @@ const attributeSchema = z
     options: z
       .array(
         z.object({
-          id: baseIdentifierSchema.extend({ attribute_option_id: z.string().optional() }).optional(),
+          id: z.string().optional(),
           label: z.string().optional(),
           name: z.string().optional(),
           value: z.string().optional(),

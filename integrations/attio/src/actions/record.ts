@@ -21,7 +21,7 @@ type Attribute = {
   id?: {
     workspace_id: string
     object_id: string
-    attribute_id: string
+    attribute_id?: string
   }
   title?: string
   description?: string | null
@@ -127,10 +127,10 @@ export const getRecord: bp.IntegrationProps['actions']['getRecord'] = async (pro
 
   const attioApiClient = new AttioApiClient(accessToken)
 
-  const { object, record_id } = input
+  const { object, id } = input
 
   try {
-    const data = await attioApiClient.getRecord(object, record_id)
+    const data = await attioApiClient.getRecord(object, id.record_id)
     const attributes = await attioApiClient.listAttributes(object)
 
     const { idToSlug, slugToOptionLabelById } = _buildAttributeMaps(attributes.data)
@@ -169,12 +169,12 @@ export const updateRecord: bp.IntegrationProps['actions']['updateRecord'] = asyn
 
   const attioApiClient = new AttioApiClient(accessToken)
 
-  const { object, record_id, data } = input
+  const { object, id, data } = input
   const { values } = data
 
   try {
     const valuesMap = _mapValues(values)
-    const data = await attioApiClient.updateRecord(object, record_id, { data: { values: valuesMap } })
+    const data = await attioApiClient.updateRecord(object, id.record_id, { data: { values: valuesMap } })
     return { data: data.data }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
