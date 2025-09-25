@@ -27,7 +27,5 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        SECRET_NAME: ${{ inputs.secret_name }}
-        SECRET_VALUE: ${{ inputs.secret_value }}
       run: |
-        gh secret set $SECRET_NAME --body "$SECRET_VALUE"
+        gh secret set ${{ inputs.secret_name }} --body "${{ inputs.secret_value }}"
