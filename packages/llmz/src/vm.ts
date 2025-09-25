@@ -164,9 +164,6 @@ export async function runAsyncFunction(
     try {
       isolatedVm = await getIsolatedVm()
     } catch {
-      console.warn(
-        "LLMZ: 'isolated-vm' is not available, falling back to node driver. LLMZ requires 'isolated-vm' packager to run in a sandboxed environment. The code generted by the LLM will run in the NodeJS environment, which is not sandboxed and may have access to the file system, network, and other resources that could lead to security issues."
-      )
       DRIVER = 'node'
     }
   }
