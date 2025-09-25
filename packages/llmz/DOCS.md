@@ -2,7 +2,7 @@
 
 **LLMz: A Revolutionary TypeScript AI Agent Framework**
 
-*Stop chaining tools. Start generating real code.*
+_Stop chaining tools. Start generating real code._
 
 ---
 
@@ -66,6 +66,7 @@ LLMz solves this by letting LLMs do what they do best: **generate code**. Since 
 ### Example: Traditional vs LLMz
 
 **Traditional Tool Calling:**
+
 ```
 LLM → JSON: {"tool": "getPrice", "params": {"from": "quebec", "to": "new york"}}
 System → Response: {"price": 600}
@@ -75,6 +76,7 @@ LLM → JSON: {"tool": "notifyUser", "params": {"message": "Price too high"}}
 ```
 
 **LLMz Code Generation:**
+
 ```typescript
 // Check the ticket price and user's budget in one go
 const price = await getTicketPrice({ from: 'quebec', to: 'new york' })
@@ -157,6 +159,7 @@ At its core, LLMz exposes a single method (`execute`) that runs in a loop until 
 3. **Maximum iterations reached** - Safety limit to prevent infinite loops
 
 The loop automatically handles:
+
 - Tool calling and result processing
 - Thinking about outputs and context
 - Error recovery and retry logic
@@ -240,6 +243,7 @@ LLMz uses a sophisticated Babel-based compilation system to transform generated 
 4. **Source Maps**: Generated for debugging and error tracking
 
 Key transformations include:
+
 - Tool call instrumentation for monitoring
 - Variable extraction and tracking
 - JSX component handling
@@ -254,6 +258,7 @@ LLMz supports multiple execution environments:
 - **Browser**: Uses standard JavaScript execution
 
 The VM provides:
+
 - Memory isolation and limits
 - Execution timeouts
 - Secure context separation
@@ -270,12 +275,14 @@ LLMz operates in two distinct modes depending on whether a chat interface is pro
 **Enabled when**: `chat` parameter is provided to `execute()`
 
 Chat Mode is designed for interactive conversational agents that need to:
+
 - Maintain conversation history
 - Respond to user messages
 - Yield UI components for rich interaction
 - Handle turn-taking between agent and user
 
 Key characteristics:
+
 - Agent can yield React components to user
 - Special `ListenExit` automatically available
 - Transcript management for conversation history
@@ -299,12 +306,14 @@ if (result.is(ListenExit)) {
 **Enabled when**: `chat` parameter is omitted from `execute()`
 
 Worker Mode is designed for automated execution environments that need to:
+
 - Process data and perform computations
 - Execute multi-step workflows
 - Return structured results
 - Run without human interaction
 
 Key characteristics:
+
 - Focus on computational tasks and data processing
 - Uses `DefaultExit` if no custom exits provided
 - Sandboxed execution with security isolation
@@ -325,14 +334,14 @@ if (result.is(dataProcessedExit)) {
 
 ### Mode Comparison
 
-| Feature | Chat Mode | Worker Mode |
-|---------|-----------|-------------|
-| User Interaction | ✅ Interactive | ❌ Automated |
-| UI Components | ✅ React components | ❌ No UI |
-| Conversation History | ✅ Full transcript | ❌ No history |
-| Default Exits | `ListenExit` | `DefaultExit` |
-| Primary Use Case | Conversational AI | Data processing |
-| Execution Pattern | Turn-based | Continuous |
+| Feature              | Chat Mode           | Worker Mode     |
+| -------------------- | ------------------- | --------------- |
+| User Interaction     | ✅ Interactive      | ❌ Automated    |
+| UI Components        | ✅ React components | ❌ No UI        |
+| Conversation History | ✅ Full transcript  | ❌ No history   |
+| Default Exits        | `ListenExit`        | `DefaultExit`   |
+| Primary Use Case     | Conversational AI   | Data processing |
+| Execution Pattern    | Turn-based          | Continuous      |
 
 ---
 
@@ -406,7 +415,7 @@ const tool = new Tool({
 
 // All of these work in generated code:
 // await calculatePrice(params)
-// await getPrice(params)  
+// await getPrice(params)
 // await checkCost(params)
 ```
 
@@ -437,7 +446,9 @@ const tool = new Tool({
 Clone and modify existing tools:
 
 ```typescript
-const originalTool = new Tool({ /* definition */ })
+const originalTool = new Tool({
+  /* definition */
+})
 
 const wrappedTool = originalTool.clone({
   name: 'wrappedVersion',
@@ -537,15 +548,15 @@ The LLM can read and write object properties in generated code:
 
 ```typescript
 // Reading variables
-const userName = user.name  // "John Doe"
-const userAge = user.age    // 30
+const userName = user.name // "John Doe"
+const userAge = user.age // 30
 
 // Writing to writable variables
-user.name = 'Jane Smith'    // ✅ Succeeds
-user.preferences = { theme: 'light', language: 'es' }  // ✅ Succeeds
+user.name = 'Jane Smith' // ✅ Succeeds
+user.preferences = { theme: 'light', language: 'es' } // ✅ Succeeds
 
 // Attempting to write read-only variables
-user.age = 25  // ❌ Throws AssignmentError
+user.age = 25 // ❌ Throws AssignmentError
 ```
 
 ### Type Safety and Validation
@@ -554,13 +565,13 @@ Variables are validated against their schemas:
 
 ```typescript
 // Valid assignment
-user.preferences = { theme: 'dark', language: 'fr' }  // ✅
+user.preferences = { theme: 'dark', language: 'fr' } // ✅
 
 // Invalid assignment - wrong type
-user.preferences = { theme: 'blue', language: 'fr' }  // ❌ Throws validation error
+user.preferences = { theme: 'blue', language: 'fr' } // ❌ Throws validation error
 
 // Invalid assignment - missing required fields
-user.preferences = { theme: 'dark' }  // ❌ Missing language field
+user.preferences = { theme: 'dark' } // ❌ Missing language field
 ```
 
 ### Mutation Tracking
@@ -577,7 +588,7 @@ console.log(result.iteration.mutations)
 // [
 //   {
 //     object: 'user',
-//     property: 'name', 
+//     property: 'name',
 //     before: 'John Doe',
 //     after: 'Updated Name'
 //   },
@@ -608,11 +619,11 @@ Objects are automatically sealed to prevent unauthorized modifications:
 
 ```typescript
 // In generated code - these will throw errors
-user.newProperty = 'value'  // ❌ Cannot add new properties
-delete user.name           // ❌ Cannot delete properties
+user.newProperty = 'value' // ❌ Cannot add new properties
+delete user.name // ❌ Cannot delete properties
 
 // Only predefined properties can be modified (if writable)
-user.name = 'New Name'     // ✅ Allowed if writable: true
+user.name = 'New Name' // ✅ Allowed if writable: true
 ```
 
 ### Variable Persistence
@@ -622,10 +633,10 @@ Variables persist across iterations and thinking cycles:
 ```typescript
 // Iteration 1: Set a variable
 user.preferences = { theme: 'dark', language: 'es' }
-return { action: 'think' }  // Trigger thinking
+return { action: 'think' } // Trigger thinking
 
 // Iteration 2: Variable is still available
-const currentTheme = user.preferences.theme  // 'dark'
+const currentTheme = user.preferences.theme // 'dark'
 ```
 
 ### Best Practices
@@ -669,7 +680,7 @@ Execution failed with an unrecoverable error:
 if (result.isError()) {
   console.error('Error:', result.error)
   console.error('Failed iteration:', result.iteration?.error)
-  
+
   // Analyze failure progression
   result.iterations.forEach((iter, i) => {
     console.log(`Iteration ${i + 1}: ${iter.status.type}`)
@@ -684,7 +695,7 @@ Execution was interrupted by a SnapshotSignal for pauseable operations:
 ```typescript
 if (result.isInterrupted()) {
   console.log('Interrupted:', result.signal.message)
-  
+
   // Save snapshot for later resumption
   const serialized = result.snapshot.toJSON()
   await database.saveSnapshot(serialized)
@@ -783,7 +794,7 @@ result.iterations.forEach((iteration, index) => {
 const lastIteration = result.iteration
 if (lastIteration) {
   console.log(lastIteration.variables.hello) // '1234'
-  
+
   // Access all variables from the final iteration
   Object.entries(lastIteration.variables).forEach(([name, value]) => {
     console.log(`Variable ${name}:`, value)
@@ -795,18 +806,16 @@ if (lastIteration) {
 
 ```typescript
 // Access tool calls from all iterations
-const allToolCalls = result.iterations.flatMap(iter =>
-  iter.traces.filter(trace => trace.type === 'tool_call')
-)
+const allToolCalls = result.iterations.flatMap((iter) => iter.traces.filter((trace) => trace.type === 'tool_call'))
 
 console.log('Total tool calls:', allToolCalls.length)
 
 // Access other trace types
 const lastIteration = result.iteration
 if (lastIteration) {
-  const yields = lastIteration.traces.filter(trace => trace.type === 'yield')
-  const comments = lastIteration.traces.filter(trace => trace.type === 'comment')
-  const propertyAccess = lastIteration.traces.filter(trace => trace.type === 'property')
+  const yields = lastIteration.traces.filter((trace) => trace.type === 'yield')
+  const comments = lastIteration.traces.filter((trace) => trace.type === 'comment')
+  const propertyAccess = lastIteration.traces.filter((trace) => trace.type === 'property')
 }
 ```
 
@@ -819,10 +828,16 @@ if (result.isSuccess()) {
   console.log('Loop limit:', result.context.loop)
   console.log('Temperature:', result.context.temperature)
   console.log('Model:', result.context.model)
-  
+
   // Access tools and exits that were available
-  console.log('Available tools:', result.context.tools?.map(t => t.name))
-  console.log('Available exits:', result.context.exits?.map(e => e.name))
+  console.log(
+    'Available tools:',
+    result.context.tools?.map((t) => t.name)
+  )
+  console.log(
+    'Available exits:',
+    result.context.exits?.map((e) => e.name)
+  )
 }
 ```
 
@@ -831,7 +846,7 @@ if (result.isSuccess()) {
 ```typescript
 if (result.isError()) {
   console.error('Execution failed:', result.error)
-  
+
   // Analyze the failure progression
   const failedIteration = result.iteration
   if (failedIteration) {
@@ -841,22 +856,22 @@ if (result.isError()) {
         console.error('Stack trace:', failedIteration.status.execution_error.stack)
         console.error('Failed code:', failedIteration.code)
         break
-        
+
       case 'generation_error':
         console.error('LLM generation failed:', failedIteration.status.generation_error.message)
         break
-        
+
       case 'invalid_code_error':
         console.error('Invalid code generated:', failedIteration.status.invalid_code_error.message)
         console.error('Invalid code:', failedIteration.code)
         break
-        
+
       case 'aborted':
         console.error('Execution aborted:', failedIteration.status.aborted.reason)
         break
     }
   }
-  
+
   // Review all iterations to understand failure progression
   console.log('Iterations before failure:', result.iterations.length)
   result.iterations.forEach((iter, i) => {
@@ -878,15 +893,15 @@ const result = await execute({
 
 if (result.isInterrupted()) {
   console.log('Execution paused:', result.signal.message)
-  
+
   // Serialize snapshot for persistence
   const serialized = result.snapshot.toJSON()
   await database.saveSnapshot('execution-123', serialized)
-  
+
   // Later, resume from snapshot
   const snapshot = Snapshot.fromJSON(serialized)
   snapshot.resolve({ resumeData: 'Operation completed' })
-  
+
   const continuation = await execute({
     snapshot,
     instructions: result.context.instructions,
@@ -894,7 +909,7 @@ if (result.isInterrupted()) {
     exits: result.context.exits,
     client,
   })
-  
+
   if (continuation.isSuccess()) {
     console.log('Resumed execution completed:', continuation.output)
   }
@@ -909,14 +924,14 @@ LLMz provides a comprehensive hook system that allows you to inject custom logic
 
 ### Hook Types Overview
 
-| Hook | Blocking | Mutation | Called When |
-|------|----------|----------|-------------|
-| `onTrace` | ❌ | ❌ | Each trace generated |
-| `onIterationEnd` | ✅ | ❌ | After iteration completion |
-| `onExit` | ✅ | ❌ | When exit is reached |
-| `onBeforeExecution` | ✅ | ✅ | Before code execution |
-| `onBeforeTool` | ✅ | ✅ | Before tool execution |
-| `onAfterTool` | ✅ | ✅ | After tool execution |
+| Hook                | Blocking | Mutation | Called When                |
+| ------------------- | -------- | -------- | -------------------------- |
+| `onTrace`           | ❌       | ❌       | Each trace generated       |
+| `onIterationEnd`    | ✅       | ❌       | After iteration completion |
+| `onExit`            | ✅       | ❌       | When exit is reached       |
+| `onBeforeExecution` | ✅       | ✅       | Before code execution      |
+| `onBeforeTool`      | ✅       | ✅       | Before tool execution      |
+| `onAfterTool`       | ✅       | ✅       | After tool execution       |
 
 ### onTrace (Non-blocking, Non-mutation)
 
@@ -926,7 +941,7 @@ Called for each trace generated during iteration. Useful for logging, debugging,
 await execute({
   onTrace: ({ trace, iteration }) => {
     console.log(`Iteration ${iteration}: ${trace.type}`, trace)
-    
+
     // Log specific trace types
     if (trace.type === 'tool_call') {
       console.log(`Tool ${trace.tool_name} called with:`, trace.input)
@@ -937,6 +952,7 @@ await execute({
 ```
 
 **Available Trace Types:**
+
 - `abort_signal`: Abort signal received
 - `comment`: Comment found in generated code
 - `llm_call_success`: LLM generation completed successfully
@@ -954,15 +970,15 @@ Called after each iteration ends, regardless of status. Useful for logging, clea
 await execute({
   onIterationEnd: async (iteration, controller) => {
     console.log(`Iteration ${iteration.id} ended with status: ${iteration.status.type}`)
-    
+
     // Add delays, cleanup, or conditional logic
     if (iteration.status.type === 'execution_error') {
       await logError(iteration.error)
-      
+
       // Add delay before retry
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
-    
+
     // Can use controller to abort execution if needed
     if (shouldAbort(iteration)) {
       controller.abort('Custom abort reason')
@@ -980,15 +996,15 @@ Called when an exit is reached. Useful for logging, notifications, or implementi
 await execute({
   onExit: async (result) => {
     console.log(`Exiting with: ${result.exit.name}`, result.result)
-    
+
     // Implement guardrails
     if (result.exit.name === 'approve_loan' && result.result.amount > 10000) {
       throw new Error('Manager approval required for loans over $10,000')
     }
-    
+
     // Send notifications
     await notifyStakeholders(result)
-    
+
     // Log to audit trail
     await auditLog.record({
       action: result.exit.name,
@@ -1008,25 +1024,25 @@ Called after LLM generates code but before execution. Allows code modification a
 await execute({
   onBeforeExecution: async (iteration, controller) => {
     console.log('Generated code:', iteration.code)
-    
+
     // Code modification
     if (iteration.code?.includes('dangerousOperation')) {
       return {
         code: iteration.code.replace('dangerousOperation', 'safeOperation'),
       }
     }
-    
+
     // Guardrails - throw to prevent execution
     if (iteration.code?.includes('forbidden')) {
       throw new Error('Forbidden operation detected')
     }
-    
+
     // Add security checks
     const securityIssues = await scanCodeForSecurity(iteration.code)
     if (securityIssues.length > 0) {
       throw new Error(`Security issues found: ${securityIssues.join(', ')}`)
     }
-    
+
     // Log code generation for audit
     await auditCodeGeneration(iteration.code)
   },
@@ -1042,7 +1058,7 @@ Called before any tool execution. Allows input modification and tool execution c
 await execute({
   onBeforeTool: async ({ iteration, tool, input, controller }) => {
     console.log(`Executing tool: ${tool.name}`, input)
-    
+
     // Input modification
     if (tool.name === 'sendEmail') {
       return {
@@ -1053,18 +1069,18 @@ await execute({
         },
       }
     }
-    
+
     // Access control
     if (tool.name === 'deleteFile' && !hasPermission(input.path)) {
       throw new Error('Insufficient permissions to delete file')
     }
-    
+
     // Rate limiting
     const rateLimit = await checkRateLimit(tool.name)
     if (rateLimit.exceeded) {
       throw new Error(`Rate limit exceeded for ${tool.name}`)
     }
-    
+
     // Validation
     await validateToolUsage(tool, input)
   },
@@ -1080,7 +1096,7 @@ Called after tool execution. Allows output modification and post-processing.
 await execute({
   onAfterTool: async ({ iteration, tool, input, output, controller }) => {
     console.log(`Tool ${tool.name} completed`, { input, output })
-    
+
     // Output modification
     if (tool.name === 'fetchUserData') {
       return {
@@ -1094,7 +1110,7 @@ await execute({
         },
       }
     }
-    
+
     // Result enhancement
     if (tool.name === 'calculatePrice') {
       return {
@@ -1106,7 +1122,7 @@ await execute({
         },
       }
     }
-    
+
     // Logging and caching
     await Promise.all([
       cacheResult(tool.name, input, output),
@@ -1159,7 +1175,7 @@ await execute({
     } catch (error) {
       // Log error but don't fail the entire execution
       console.error('Post-processing failed:', error)
-      
+
       // Optionally throw to retry the iteration
       if (error.retryable) {
         throw new Error('Retrying due to recoverable error')
@@ -1179,11 +1195,11 @@ await execute({
     executionMetrics.toolCalls++
     tool.startTime = Date.now()
   },
-  
+
   onAfterTool: async ({ tool }) => {
     executionMetrics.totalTime += Date.now() - tool.startTime
   },
-  
+
   onIterationEnd: async () => {
     console.log('Execution metrics:', executionMetrics)
   },
@@ -1222,7 +1238,7 @@ const longRunningTool = new Tool({
   async handler({ datasetId }) {
     // Start processing
     const dataset = await loadDataset(datasetId)
-    
+
     // At any point, pause execution for later resumption
     if (dataset.size > LARGE_THRESHOLD) {
       throw new SnapshotSignal(
@@ -1230,7 +1246,7 @@ const longRunningTool = new Tool({
         'Processing will continue once background job completes'
       )
     }
-    
+
     return { processed: true }
   },
 })
@@ -1247,11 +1263,11 @@ const result = await execute({
 
 if (result.isInterrupted()) {
   console.log('Execution paused:', result.signal.message)
-  
+
   // Serialize snapshot for persistence
   const serialized = result.snapshot.toJSON()
   await database.saveSnapshot('job-123', serialized)
-  
+
   // Start background processing
   await backgroundJobQueue.add('process-dataset', {
     snapshotId: 'job-123',
@@ -1268,10 +1284,10 @@ const serialized = await database.getSnapshot('job-123')
 const snapshot = Snapshot.fromJSON(serialized)
 
 // Resolve the snapshot with the result
-snapshot.resolve({ 
-  processed: true, 
+snapshot.resolve({
+  processed: true,
   recordCount: 1000000,
-  processingTime: 3600000 
+  processingTime: 3600000,
 })
 
 // Continue execution from where it left off
@@ -1316,7 +1332,7 @@ const analysisTool = new Tool({
   input: z.object({ data: z.array(z.number()) }),
   async handler({ data }) {
     const result = performAnalysis(data)
-    
+
     // Force the agent to think about the results before responding
     throw new ThinkSignal(
       'Analysis complete, consider the implications',
@@ -1348,11 +1364,11 @@ const price = await calculatePrice({ items: cartItems })
 const budget = await getUserBudget()
 
 // Think about pricing vs budget with specific context
-return { 
+return {
   action: 'think',
   price,
   budget,
-  recommendation: price > budget ? 'deny' : 'approve'
+  recommendation: price > budget ? 'deny' : 'approve',
 }
 ```
 
@@ -1367,7 +1383,7 @@ const result = await execute({
 
 if (result.is(ThinkExit)) {
   console.log('Agent is thinking about:', result.output.variables)
-  
+
   // Continue execution after thinking
   const continuation = await execute({
     instructions: result.context.instructions,
@@ -1402,12 +1418,12 @@ const citations = new CitationsManager()
 const source1 = citations.registerSource({
   file: 'document.pdf',
   page: 5,
-  title: 'Company Policy'
+  title: 'Company Policy',
 })
 
 const source2 = citations.registerSource({
   url: 'https://example.com/article',
-  title: 'Best Practices'
+  title: 'Best Practices',
 })
 
 console.log(source1.tag) // "【0】"
@@ -1431,31 +1447,31 @@ const ragTool = new Tool({
       limit: 20,
       contextDepth: 3,
     })
-    
+
     if (!passages.length) {
       throw new ThinkSignal(
         'No results found',
         'No results were found in the knowledge base. Try rephrasing your question.'
       )
     }
-    
+
     // Build response with citations
     let message: string[] = ['Here are the search results:']
     let { tag: example } = chat.citations.registerSource({}) // Example citation
-    
+
     // Register each passage as a source
     for (const passage of passages) {
       const { tag } = chat.citations.registerSource({
         file: passage.file.key,
         title: passage.file.tags.title,
       })
-      
+
       message.push(`<${tag} file="${passage.file.key}">`)
       message.push(`**${passage.file.tags.title}**`)
       message.push(passage.content)
       message.push(`</${tag}>`)
     }
-    
+
     // Provide context with citation instructions
     throw new ThinkSignal(
       `Got search results. When answering, you MUST add inline citations (eg: "The price is $10${example} ...")`,
@@ -1470,21 +1486,21 @@ const ragTool = new Tool({
 ```typescript
 class CLIChat extends Chat {
   public citations: CitationsManager = new CitationsManager()
-  
+
   private async sendMessage(input: RenderedComponent) {
     if (input.type === 'Text') {
       let sources: string[] = []
-      
+
       // Extract citations and format them for display
       const { cleaned } = this.citations.extractCitations(input.text, (citation) => {
         let idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
         sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
         return `${idx}` // Replace 【0】 with [1]
       })
-      
+
       // Display cleaned text and sources
       console.log(`🤖 Agent: ${cleaned}`)
-      
+
       if (sources.length) {
         console.log(chalk.dim('Citations'))
         console.log(chalk.dim('========='))
@@ -1498,6 +1514,7 @@ class CLIChat extends Chat {
 #### Advanced Citation Features
 
 **Multiple Citation Support:**
+
 ```typescript
 // Agent can reference multiple sources in one citation
 const content = 'This fact is supported by multiple studies【0,1,3】'
@@ -1507,6 +1524,7 @@ const { cleaned, citations } = manager.extractCitations(content)
 ```
 
 **Object Citation Processing:**
+
 ```typescript
 // Remove citations from complex objects
 const dataWithCitations = {
@@ -1522,6 +1540,7 @@ const [cleanData, extractedCitations] = manager.removeCitationsFromObject(dataWi
 ```
 
 **Citation Stripping:**
+
 ```typescript
 // Remove all citation tags from content
 const textWithCitations = 'This statement【0】 has multiple【1,2】 citations.'
@@ -1541,26 +1560,24 @@ await execute({
     const greeting = timeOfDay < 12 ? 'Good morning' : 'Good afternoon'
     return `${greeting}! You are a helpful assistant with access to ${ctx.tools?.length || 0} tools.`
   },
-  
+
   // Dynamic tools based on user permissions
   tools: async (ctx) => {
     const userPermissions = await getUserPermissions(ctx.userId)
-    return allTools.filter(tool => userPermissions.includes(tool.permission))
+    return allTools.filter((tool) => userPermissions.includes(tool.permission))
   },
-  
+
   // Dynamic objects with current state
   objects: async (ctx) => {
     const userPreferences = await loadUserPreferences(ctx.userId)
     return [
       new ObjectInstance({
         name: 'user',
-        properties: [
-          { name: 'preferences', value: userPreferences, writable: true }
-        ]
-      })
+        properties: [{ name: 'preferences', value: userPreferences, writable: true }],
+      }),
     ]
   },
-  
+
   client,
 })
 ```
@@ -1576,8 +1593,9 @@ await execute({
 Main execution function that runs LLMz agents in either Chat Mode or Worker Mode.
 
 **Parameters:**
+
 - `props.client` - Botpress Client or Cognitive Client instance for LLM generation
-- `props.instructions` - System prompt/instructions for the LLM (static string or dynamic function)  
+- `props.instructions` - System prompt/instructions for the LLM (static string or dynamic function)
 - `props.chat` - Optional Chat instance to enable Chat Mode with user interaction
 - `props.tools` - Array of Tool instances available to the agent (static or dynamic)
 - `props.objects` - Array of ObjectInstance for namespaced tools and variables (static or dynamic)
@@ -1601,6 +1619,7 @@ Main execution function that runs LLMz agents in either Chat Mode or Worker Mode
 Creates a new tool definition with type-safe schemas.
 
 **Properties:**
+
 - `name: string` - Tool name used in generated code
 - `description?: string` - Description for LLM understanding
 - `input?: ZuiSchema` - Input validation schema
@@ -1610,6 +1629,7 @@ Creates a new tool definition with type-safe schemas.
 - `staticInputs?: Record<string, any>` - Force specific input values
 
 **Methods:**
+
 - `execute(input: any, context?: ToolContext): Promise<any>` - Execute the tool
 - `getTypings(): string` - Get TypeScript definitions for LLM
 - `clone(overrides: Partial<ToolConfig>): Tool` - Create a modified copy
@@ -1621,6 +1641,7 @@ Creates a new tool definition with type-safe schemas.
 Defines a structured exit point for agent execution.
 
 **Properties:**
+
 - `name: string` - Exit name used in generated code
 - `description?: string` - Description for LLM understanding
 - `schema?: ZuiSchema` - Output validation schema
@@ -1633,11 +1654,13 @@ Defines a structured exit point for agent execution.
 Creates a namespaced container for tools and variables.
 
 **Properties:**
+
 - `name: string` - Object name used in generated code
 - `properties?: PropertyConfig[]` - Object properties/variables
 - `tools?: Tool[]` - Tools scoped to this object
 
 **PropertyConfig:**
+
 - `name: string` - Property name
 - `value: any` - Initial value
 - `writable: boolean` - Whether property can be modified
@@ -1648,6 +1671,7 @@ Creates a namespaced container for tools and variables.
 #### SuccessExecutionResult
 
 **Properties:**
+
 - `isSuccess(): boolean` - Type guard for success
 - `output: any` - The result data from the exit
 - `exit: Exit` - The exit that was used
@@ -1659,6 +1683,7 @@ Creates a namespaced container for tools and variables.
 #### ErrorExecutionResult
 
 **Properties:**
+
 - `isError(): boolean` - Type guard for error
 - `error: Error | string` - The error that occurred
 - `iteration?: Iteration` - Failed iteration details
@@ -1668,6 +1693,7 @@ Creates a namespaced container for tools and variables.
 #### PartialExecutionResult
 
 **Properties:**
+
 - `isInterrupted(): boolean` - Type guard for interruption
 - `signal: SnapshotSignal` - The signal that caused interruption
 - `snapshot: Snapshot` - Serializable execution state
@@ -1679,6 +1705,7 @@ Creates a namespaced container for tools and variables.
 Abstract base class for implementing chat interfaces.
 
 **Abstract Methods:**
+
 - `getTranscript(): Promise<Transcript.Message[]> | Transcript.Message[]` - Get conversation history
 - `getComponents(): Promise<ComponentDefinition[]> | ComponentDefinition[]` - Get available UI components
 - `handler(component: RenderedComponent): Promise<void>` - Handle agent messages
@@ -1688,6 +1715,7 @@ Abstract base class for implementing chat interfaces.
 Manages source citations for RAG systems.
 
 **Methods:**
+
 - `registerSource(source: any): { tag: string, id: number }` - Register a source and get citation tag
 - `extractCitations(text: string, replacer?: (citation) => string): { cleaned: string, citations: Citation[] }` - Extract and process citations
 - `removeCitationsFromObject(obj: any): [cleanedObj: any, citations: Citation[]]` - Remove citations from objects
@@ -1698,6 +1726,7 @@ Manages source citations for RAG systems.
 Manages pauseable execution state.
 
 **Methods:**
+
 - `toJSON(): string` - Serialize snapshot
 - `static fromJSON(json: string): Snapshot` - Deserialize snapshot
 - `resolve(data: any): void` - Resume with success
@@ -1783,16 +1812,19 @@ BOTPRESS_TOKEN=your_token_here
 ### Key Learning Paths
 
 **Getting Started:**
+
 - Start with `01_chat_basic` and `11_worker_minimal`
 - Understand the difference between Chat and Worker modes
 - Learn basic tool integration patterns
 
 **Intermediate Concepts:**
+
 - Explore `09_chat_variables` for state management
 - Study `16_worker_tool_chaining` for complex workflows
 - Review `14_worker_snapshot` for pauseable execution
 
 **Advanced Patterns:**
+
 - Examine `08_chat_multi_agent` for orchestration
 - Learn from `20_chat_rag` for knowledge integration
 - Study `18_worker_security` for production deployment
@@ -1801,4 +1833,4 @@ Each example includes detailed comments explaining the concepts and implementati
 
 ---
 
-*This documentation covers the complete LLMz framework. For the latest updates and community contributions, visit the [LLMz repository](https://github.com/botpress/llmz).*
+_This documentation covers the complete LLMz framework. For the latest updates and community contributions, visit the [LLMz repository](https://github.com/botpress/llmz)._

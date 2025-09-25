@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["unicorn", "typescript", "oxc", "import", "promise", "n", "vitest"],
+  "plugins": ["unicorn", "typescript", "oxc", "import", "promise", "vitest"],
   "env": {
     "browser": true,
     "es2024": true,
@@ -138,9 +138,8 @@
     // ],
     // "eslint/no-trailing-spaces": "error",
     // "eslint/object-shorthand": "error",
-    "eslint/no-unused-vars": "off",
     "typescript/no-unused-vars": "off",
-    "unused-imports/no-unused-vars": [
+    "eslint/no-unused-vars": [
       "error",
       {
         "vars": "all",

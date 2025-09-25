@@ -7,6 +7,7 @@
   "private": true,
   "dependencies": {
     "@botpress/sdk": "workspace:*",
+    "browser-or-node": "^2.1.1",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0"
   },

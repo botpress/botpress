@@ -4,6 +4,7 @@ on:
   schedule:
     # Run at 10:00 AM EST (15:00 UTC) on the first Tuesday of every month
     - cron: '0 15 1-7 * 2'
+  workflow_dispatch:
 
 jobs:
   refresh-tokens:
@@ -14,12 +15,25 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F instagram'
+          extra_filters: '-F @botpresshub/instagram'
       - name: Refresh Instagram Access Tokens
-        uses: ./.github/actions/refresh-instagram-access-tokens
+        uses: ./.github/actions/refresh-instagram-tokens
         with:
-          environment: production
-          item_name: 'Secrets - Instagram'
-          field_name: 'Sandbox Access Token - Instagram User - Botpress Sandbox'
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+          api_url: https://api.botpress.cloud
+          current_token: ${{ secrets.PRODUCTION_INSTAGRAM_ACCESS_TOKEN }}
+          secret_name: PRODUCTION_INSTAGRAM_ACCESS_TOKEN
+          sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}
+          sync_secret_app_private_key: ${{ secrets.SYNC_SECRET_APP_PRIVATE_KEY }}
+  ping-success:
+    runs-on: depot-ubuntu-22.04-8
+    needs: [refresh-tokens]
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}
+  ping-failure:
+    runs-on: depot-ubuntu-22.04-8
+    if: ${{ failure() }}
+    needs: [refresh-tokens]
+    steps:
+      - run: curl -m 10 --retry 5 ${{ secrets.INSTAGRAM_REFRESH_TOKEN_PING_URL }}/fail

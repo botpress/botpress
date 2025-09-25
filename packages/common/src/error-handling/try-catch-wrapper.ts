@@ -1,6 +1,10 @@
 import * as sdk from '@botpress/sdk'
 
 type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.RuntimeError
+type AnyFunction = (...args: any[]) => any
+
+const _isPromise = (x: unknown): x is Promise<unknown> =>
+  x instanceof Promise || (x !== null && typeof x === 'object' && 'then' in x && typeof x.then === 'function')
 
 /**
  * Creates a wrapper function for asynchronous functions that catches errors and
@@ -32,19 +36,30 @@ export const createAsyncFnWrapperWithErrorRedaction =
    * logs them as a `sdk.RuntimeError` after redacting them with a redactor
    * function to remove sensitive information.
    *
-   * @param asyncFn - The function to wrap
-   * @param errorCustomMessage - The error message to log
+   * @param fn - The function to wrap
+   * @param customErrorMessage - The error message to log
    * @returns A function identical to the input function, but wrapped with a try-catch block
    */
-  <WrappedFn extends (...args: any[]) => Promise<any>>(asyncFn: WrappedFn, errorCustomMessage: string): WrappedFn => {
-    return (async (...args: Parameters<WrappedFn>): Promise<Awaited<ReturnType<WrappedFn>>> => {
+  <WrappedFn extends AnyFunction>(fn: WrappedFn, customErrorMessage: string): WrappedFn => {
+    return ((...args: Parameters<WrappedFn>): ReturnType<WrappedFn> => {
+      let output: unknown
       try {
-        return await asyncFn(...args)
+        output = fn(...args)
       } catch (thrown: unknown) {
         const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-        const runtimeError = redactorFn(originalError, errorCustomMessage)
+        const runtimeError = redactorFn(originalError, customErrorMessage)
         throw runtimeError
       }
+
+      return (
+        _isPromise(output)
+          ? output.catch(async (thrown: unknown) => {
+              const originalError = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+              const runtimeError = redactorFn(originalError, customErrorMessage)
+              throw runtimeError
+            })
+          : output
+      ) as ReturnType<WrappedFn>
     }) as WrappedFn
   }
 

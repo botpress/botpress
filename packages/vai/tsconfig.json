@@ -4,5 +4,5 @@
     "strict": false
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*", "vitest.d.ts", "e2e/**/*"]
+  "include": ["src/**/*", "e2e/**/*", "*.ts"]
 }

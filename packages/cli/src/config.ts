@@ -217,6 +217,10 @@ const devSchema = {
     description: 'The tunnel HTTP URL to use',
     default: consts.defaultTunnelUrl,
   },
+  tunnelId: {
+    type: 'string',
+    description: 'The tunnel ID to use. The ID will be generated if not specified',
+  },
 } satisfies CommandSchema
 
 const addSchema = {

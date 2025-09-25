@@ -1,3 +1,4 @@
+import * as configuration from './configuration'
 import * as bp from '.botpress'
 
 type WebchatGetOrCreateUserInput = {
@@ -40,11 +41,16 @@ export const tryLinkWebchatUser = async (
     id: upstreamConversationId,
   })
 
+  const sessionConfig = await configuration.retrieveSessionConfig({
+    ...props,
+    upstreamConversationId,
+  })
+
   const {
     conversation: { integration: upstreamIntegration },
   } = upstreamConversation
 
-  if (upstreamIntegration !== 'webchat') {
+  if (upstreamIntegration !== 'webchat' || !sessionConfig.useHumanAgentInfo) {
     // this only works when the hitl frontend is webchat
     return undefined
   }

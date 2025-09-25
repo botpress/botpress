@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import semver from 'semver'
 import hitl from './bp_modules/hitl'
 
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
@@ -76,6 +77,13 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .nonnegative()
     .optional()
     .placeholder('0'),
+  useHumanAgentInfo: sdk.z
+    .boolean()
+    .default(true)
+    .title('Use Human Agent Info')
+    .describe(
+      '(Works only with webchat) Enable this to use the human agent name and photo (if available) as the bot name and photo while in HITL mode.'
+    ),
   flowOnHitlStopped: sdk.z
     .boolean()
     .default(true)
@@ -85,7 +93,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '0.13.2',
+  version: '1.0.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -208,7 +216,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    hitl,
+    hitl: { ...hitl, version: `>=${semver.major(hitl.version)}.0.0 <${semver.major(hitl.version) + 1}.0.0` },
   },
   events: {
     humanAgentAssignedTimeout: {
