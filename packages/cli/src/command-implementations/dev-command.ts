@@ -3,6 +3,7 @@ import type * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
+import { isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../api'
@@ -22,6 +23,7 @@ const FILEWATCHER_DEBOUNCE_MS = 2000
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
+  private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -322,9 +324,6 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    const updateLine = this.logger.line()
-    updateLine.started('Deploying dev bot...')
-
     const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
         ...(await apiUtils.prepareCreateBotBody(botDef)),
@@ -334,6 +333,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       },
       bot
     )
+
+    if (!(await this._didDefinitionChange(updateBotBody))) {
+      this.logger.log('Skipping deployment step. No changes found in bot.definition.ts')
+      return
+    }
+    const updateLine = this.logger.line()
+    updateLine.started('Deploying dev bot...')
 
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
@@ -354,6 +360,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
 
     this.displayWebhookUrls(updatedBot)
+  }
+
+  private async _didDefinitionChange(body: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody) {
+    const didChange = !isEqual(body, this._cacheDevRequestBody)
+    this._cacheDevRequestBody = { ...body }
+    return didChange
   }
 
   private _forwardTunnelRequest = async (baseUrl: string, request: TunnelRequest): Promise<TunnelResponse> => {
