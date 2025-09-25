@@ -4,6 +4,7 @@ on:
   schedule:
     # Run at 10:00 AM EST (15:00 UTC) on the first Tuesday of every month
     - cron: '0 15 1-7 * 2'
+  workflow_dispatch:
 
 jobs:
   refresh-tokens:
@@ -14,12 +15,14 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F instagram'
+          extra_filters: '-F @botpresshub/instagram'
       - name: Refresh Instagram Access Tokens
-        uses: ./.github/actions/refresh-instagram-access-tokens
+        uses: ./.github/actions/refresh-instagram-tokens
         with:
-          environment: staging
-          item_name: 'Secrets - Instagram'
-          field_name: 'Sandbox Access Token - Instagram User - Botpress Sandbox (Staging)'
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
+          api_url: https://api.botpress.dev
+          current_token: ${{ secrets.STAGING_INSTAGRAM_ACCESS_TOKEN }}
+          secret_name: STAGING_INSTAGRAM_ACCESS_TOKEN
+          sync_secret_app_id: ${{ vars.SYNC_SECRET_APP_ID }}
+          sync_secret_app_private_key: ${{ secrets.SYNC_SECRET_APP_PRIVATE_KEY }}
