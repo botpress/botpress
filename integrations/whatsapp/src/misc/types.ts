@@ -164,41 +164,6 @@ const WhatsAppMessageValueSchema = z.object({
 })
 export type WhatsAppMessageValue = z.infer<typeof WhatsAppMessageValueSchema>
 
-export const WhatsAppMessageTemplateStatusUpdateValueSchema = z.object({
-  message_template_id: z.number(),
-  message_template_name: z.string(),
-  message_template_language: z.string(),
-  message_template_element: z.string(),
-  message_template_title: z.string().optional(),
-  message_template_footer: z.string().optional(),
-  message_template_buttons: z
-    .array(
-      z.object({
-        message_template_button_type: z.enum([
-          'CATALOG',
-          'COPY_CODE',
-          'EXTENSION',
-          'FLOW',
-          'MPM',
-          'ORDER_DETAILS',
-          'OTP',
-          'PHONE_NUMBER',
-          'POSTBACK',
-          'REMINDER',
-          'SEND_LOCATION',
-          'SPM',
-          'QUICK_REPLY',
-          'URL',
-          'VOICE_CALL',
-        ]),
-        message_template_button_text: z.string(),
-        message_template_button_url: z.string().optional(),
-        message_template_button_phone_number: z.string().optional(),
-      })
-    )
-    .optional(),
-})
-
 export const WhatsAppMessageTemplateComponentsUpdateValueSchema = z.object({
   message_template_id: z.number(),
   message_template_name: z.string(),
@@ -242,6 +207,41 @@ export const WhatsAppMessageTemplateQualityUpdateValueSchema = z.object({
   message_template_language: z.string(),
 })
 
+export const WhatsAppMessageTemplateStatusUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  message_template_element: z.string(),
+  message_template_title: z.string().optional(),
+  message_template_footer: z.string().optional(),
+  message_template_buttons: z
+    .array(
+      z.object({
+        message_template_button_type: z.enum([
+          'CATALOG',
+          'COPY_CODE',
+          'EXTENSION',
+          'FLOW',
+          'MPM',
+          'ORDER_DETAILS',
+          'OTP',
+          'PHONE_NUMBER',
+          'POSTBACK',
+          'REMINDER',
+          'SEND_LOCATION',
+          'SPM',
+          'QUICK_REPLY',
+          'URL',
+          'VOICE_CALL',
+        ]),
+        message_template_button_text: z.string(),
+        message_template_button_url: z.string().optional(),
+        message_template_button_phone_number: z.string().optional(),
+      })
+    )
+    .optional(),
+})
+
 export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
   message_template_id: z.number(),
   message_template_name: z.string(),
@@ -257,16 +257,16 @@ const WhatsAppChangesSchema = z.discriminatedUnion('field', [
     value: WhatsAppMessageValueSchema,
   }),
   z.object({
-    field: z.literal('message_template_status_update'),
-    value: WhatsAppMessageTemplateStatusUpdateValueSchema,
-  }),
-  z.object({
     field: z.literal('message_template_components_update'),
     value: WhatsAppMessageTemplateComponentsUpdateValueSchema,
   }),
   z.object({
     field: z.literal('message_template_quality_update'),
     value: WhatsAppMessageTemplateQualityUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_status_update'),
+    value: WhatsAppMessageTemplateStatusUpdateValueSchema,
   }),
   z.object({
     field: z.literal('template_category_update'),
