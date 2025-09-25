@@ -38,7 +38,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
 
   private async _bundle(outfile: string, props: Partial<utils.esbuild.BuildOptions> = {}) {
     const abs = this.projectPaths.abs
-    await utils.esbuild.buildCode(
+    await utils.esbuild.context.rebuild(
       {
         outfile,
         absWorkingDir: abs.workDir,
