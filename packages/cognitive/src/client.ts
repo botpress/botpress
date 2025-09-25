@@ -47,7 +47,7 @@ export class Cognitive {
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
     this._timeoutMs = props.timeout ?? this._timeoutMs
     this._maxRetries = props.maxRetries ?? this._maxRetries
-    this._useBeta = props.useBeta ?? false
+    this._useBeta = props.__experimental_beta ?? false
   }
 
   public get client(): ExtendedClient {
