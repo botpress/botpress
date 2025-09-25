@@ -208,37 +208,42 @@ export const WhatsAppMessageTemplateQualityUpdateValueSchema = z.object({
 })
 
 export const WhatsAppMessageTemplateStatusUpdateValueSchema = z.object({
+  event: z.enum([
+    'APPROVED',
+    'ARCHIVED',
+    'DELETED',
+    'DISABLED',
+    'FLAGGED',
+    'IN_APPEAL',
+    'LIMIT_EXCEEDED',
+    'LOCKED',
+    'PAUSED',
+    'PENDING',
+    'REINSTATED',
+    'PENDING_DELETION',
+    'REJECTED',
+  ]),
   message_template_id: z.number(),
   message_template_name: z.string(),
   message_template_language: z.string(),
-  message_template_element: z.string(),
-  message_template_title: z.string().optional(),
-  message_template_footer: z.string().optional(),
-  message_template_buttons: z
-    .array(
-      z.object({
-        message_template_button_type: z.enum([
-          'CATALOG',
-          'COPY_CODE',
-          'EXTENSION',
-          'FLOW',
-          'MPM',
-          'ORDER_DETAILS',
-          'OTP',
-          'PHONE_NUMBER',
-          'POSTBACK',
-          'REMINDER',
-          'SEND_LOCATION',
-          'SPM',
-          'QUICK_REPLY',
-          'URL',
-          'VOICE_CALL',
-        ]),
-        message_template_button_text: z.string(),
-        message_template_button_url: z.string().optional(),
-        message_template_button_phone_number: z.string().optional(),
-      })
-    )
+  reason: z
+    .enum([
+      'ABUSIVE_CONTENT',
+      'CATEGORY_NOT_AVAILABLE',
+      'INCORRECT_CATEGORY',
+      'INVALID_FORMAT',
+      'NONE',
+      'PROMOTIONAL',
+      'SCAM',
+      'TAG_CONTENT_MISMATCH',
+    ])
+    .nullable(),
+  disable_info: z.object({ disable_date: z.number() }).optional(),
+  other_info: z
+    .object({
+      title: z.enum(['FIRST_PAUSE', 'SECOND_PAUSE', 'RATE_LIMITING_PAUSE', 'UNPAUSE', 'DISABLED']),
+      description: z.string(),
+    })
     .optional(),
 })
 
