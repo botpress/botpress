@@ -7,6 +7,8 @@ const WhatsAppContactSchema = z.object({
   }),
 })
 
+const qualityScoreSchema = z.enum(['GREEN', 'RED', 'YELLOW', 'UNKNOWN'])
+
 const WhatsAppBaseMessageSchema = z.object({
   from: z.string(),
   id: z.string(),
@@ -151,7 +153,7 @@ export type WhatsAppReactionMessage = WhatsAppMessage & {
   type: 'reaction'
 }
 
-const WhatsAppValueSchema = z.object({
+const WhatsAppMessageValueSchema = z.object({
   messaging_product: z.literal('whatsapp'),
   metadata: z.object({
     display_phone_number: z.string(),
@@ -160,12 +162,117 @@ const WhatsAppValueSchema = z.object({
   contacts: z.array(WhatsAppContactSchema).optional(),
   messages: z.array(WhatsAppMessageSchema).optional(),
 })
-export type WhatsAppValue = z.infer<typeof WhatsAppValueSchema>
+export type WhatsAppMessageValue = z.infer<typeof WhatsAppMessageValueSchema>
 
-const WhatsAppChangesSchema = z.object({
-  value: WhatsAppValueSchema,
-  field: z.literal('messages'),
+export const WhatsAppMessageTemplateStatusUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  message_template_element: z.string(),
+  message_template_title: z.string().optional(),
+  message_template_footer: z.string().optional(),
+  message_template_buttons: z
+    .array(
+      z.object({
+        message_template_button_type: z.enum([
+          'CATALOG',
+          'COPY_CODE',
+          'EXTENSION',
+          'FLOW',
+          'MPM',
+          'ORDER_DETAILS',
+          'OTP',
+          'PHONE_NUMBER',
+          'POSTBACK',
+          'REMINDER',
+          'SEND_LOCATION',
+          'SPM',
+          'QUICK_REPLY',
+          'URL',
+          'VOICE_CALL',
+        ]),
+        message_template_button_text: z.string(),
+        message_template_button_url: z.string().optional(),
+        message_template_button_phone_number: z.string().optional(),
+      })
+    )
+    .optional(),
 })
+
+export const WhatsAppMessageTemplateComponentsUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  message_template_element: z.string(),
+  message_template_title: z.string().optional(),
+  message_template_footer: z.string().optional(),
+  message_template_buttons: z
+    .array(
+      z.object({
+        message_template_button_type: z.enum([
+          'CATALOG',
+          'COPY_CODE',
+          'EXTENSION',
+          'FLOW',
+          'MPM',
+          'ORDER_DETAILS',
+          'OTP',
+          'PHONE_NUMBER',
+          'POSTBACK',
+          'REMINDER',
+          'SEND_LOCATION',
+          'SPM',
+          'QUICK_REPLY',
+          'URL',
+          'VOICE_CALL',
+        ]),
+        message_template_button_text: z.string(),
+        message_template_button_url: z.string().optional(),
+        message_template_button_phone_number: z.string().optional(),
+      })
+    )
+    .optional(),
+})
+
+export const WhatsAppMessageTemplateQualityUpdateValueSchema = z.object({
+  previous_quality_score: qualityScoreSchema,
+  new_quality_score: qualityScoreSchema,
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+})
+
+export const WhatsAppTemplateCategoryUpdateValueSchema = z.object({
+  message_template_id: z.number(),
+  message_template_name: z.string(),
+  message_template_language: z.string(),
+  correct_category: z.string().optional(),
+  previous_category: z.string().optional(),
+  new_category: z.string().optional(),
+})
+
+const WhatsAppChangesSchema = z.discriminatedUnion('field', [
+  z.object({
+    field: z.literal('messages'),
+    value: WhatsAppMessageValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_status_update'),
+    value: WhatsAppMessageTemplateStatusUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_components_update'),
+    value: WhatsAppMessageTemplateComponentsUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('message_template_quality_update'),
+    value: WhatsAppMessageTemplateQualityUpdateValueSchema,
+  }),
+  z.object({
+    field: z.literal('template_category_update'),
+    value: WhatsAppTemplateCategoryUpdateValueSchema,
+  }),
+])
 
 const WhatsAppEntrySchema = z.object({
   id: z.string(),
