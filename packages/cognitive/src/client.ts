@@ -168,9 +168,9 @@ export class Cognitive {
 
     const betaClient = new CognitiveBeta({
       headers: this._client.config.headers as Record<string, string>,
-      baseUrl: this._client.config.apiUrl.includes('.cloud')
-        ? 'https://cognitive.botpress.cloud'
-        : 'https://cognitive.botpress.dev',
+      baseUrl: this._client.config.apiUrl.includes('.dev')
+        ? 'https://cognitive.botpress.dev'
+        : 'https://cognitive.botpress.cloud',
     })
 
     const response = await betaClient.generateText(input as any)
