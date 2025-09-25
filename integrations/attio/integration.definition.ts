@@ -1,9 +1,10 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { actions } from './definitions'
+import { actions, states, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'attio',
-  version: '0.1.0',
+  version: '1.0.0',
+
   title: 'Attio',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -14,4 +15,6 @@ export default new IntegrationDefinition({
     }),
   },
   actions,
+  states,
+  events,
 })

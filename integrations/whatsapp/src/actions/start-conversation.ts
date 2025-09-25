@@ -6,6 +6,13 @@ import * as bp from '.botpress'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 
+export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
+  return startConversation({
+    ...props,
+    type: 'startConversation',
+  })
+}
+
 export const startConversation: bp.IntegrationProps['actions']['startConversation'] = async ({
   ctx,
   input,

@@ -2,6 +2,7 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
+import { CognitiveBeta } from './cognitive_beta'
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
 import {
@@ -37,6 +38,7 @@ export class Cognitive {
   protected _preferences: ModelPreferences | null = null
   protected _provider: ModelProvider
   protected _downtimes: ModelPreferences['downtimes'] = []
+  protected _useBeta: boolean = false
 
   private _events = createNanoEvents<Events>()
 
@@ -45,6 +47,7 @@ export class Cognitive {
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
     this._timeoutMs = props.timeout ?? this._timeoutMs
     this._maxRetries = props.maxRetries ?? this._maxRetries
+    this._useBeta = props.__experimental_beta ?? false
   }
 
   public get client(): ExtendedClient {
@@ -159,6 +162,59 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
+    if (!this._useBeta) {
+      return this._generateContent(input)
+    }
+
+    const betaClient = new CognitiveBeta({
+      headers: this._client.config.headers as Record<string, string>,
+      baseUrl: this._client.config.apiUrl.includes('.cloud')
+        ? 'https://cognitive.botpress.cloud'
+        : 'https://cognitive.botpress.dev',
+    })
+
+    const response = await betaClient.generateText(input as any)
+    return {
+      output: {
+        id: 'beta-output',
+        provider: response.metadata.provider,
+        model: response.metadata.model!,
+        choices: [
+          {
+            type: 'text',
+            content: response.output,
+            role: 'assistant',
+            index: 0,
+            stopReason: response.metadata.stopReason! as any,
+          },
+        ],
+        usage: {
+          inputTokens: response.metadata.usage.inputTokens,
+          inputCost: 0,
+          outputTokens: response.metadata.usage.outputTokens,
+          outputCost: response.metadata.cost ?? 0,
+        },
+        botpress: {
+          cost: response.metadata.cost ?? 0,
+        },
+      },
+      meta: {
+        cached: response.metadata.cached,
+        model: { integration: response.metadata.provider, model: response.metadata.model! },
+        latency: response.metadata.latency!,
+        cost: {
+          input: 0,
+          output: response.metadata.cost || 0,
+        },
+        tokens: {
+          input: response.metadata.usage.inputTokens,
+          output: response.metadata.usage.outputTokens,
+        },
+      },
+    }
+  }
+
+  private async _generateContent(input: InputProps): Promise<Response> {
     const start = Date.now()
 
     const signal = input.signal ?? AbortSignal.timeout(this._timeoutMs)

@@ -47,6 +47,8 @@ export type CognitiveProps = {
   timeout?: number
   /** Max retry attempts */
   maxRetries?: number
+  /** Whether to use the beta client. Restricted to authorized users. */
+  __experimental_beta?: boolean
 }
 
 export type Events = {
