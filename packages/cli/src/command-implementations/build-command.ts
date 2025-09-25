@@ -5,6 +5,13 @@ import { ProjectCommand } from './project-command'
 
 export type BuildCommandDefinition = typeof commandDefinitions.build
 export class BuildCommand extends ProjectCommand<BuildCommandDefinition> {
+  private _bundleCommand: BundleCommand
+
+  public constructor(...args: ConstructorParameters<typeof ProjectCommand<BuildCommandDefinition>>) {
+    super(...args)
+    this._bundleCommand = new BundleCommand(this.api, this.prompt, this.logger, this.argv)
+  }
+
   public async run(): Promise<void> {
     const t0 = Date.now()
     const { type: projectType, definition: integrationDef } = await this.readProjectDefinitionFromFS()
@@ -28,6 +35,6 @@ export class BuildCommand extends ProjectCommand<BuildCommandDefinition> {
   }
 
   private _runBundle() {
-    return new BundleCommand(this.api, this.prompt, this.logger, this.argv).run()
+    return this._bundleCommand.run()
   }
 }

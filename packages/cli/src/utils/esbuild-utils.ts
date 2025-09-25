@@ -1,5 +1,5 @@
 import * as esb from 'esbuild'
-import { isEqual } from 'lodash'
+import _ from 'lodash'
 
 export * from 'esbuild'
 
@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS: esb.BuildOptions = {
   minify: false,
 }
 
-class IncrementalBuildContext {
+export class IncrementalBuildContext {
   private _context: esb.BuildContext | undefined
   private _previousProps: BuildCodeProps | undefined
   private _previousOpts: esb.BuildOptions = {}
@@ -46,7 +46,7 @@ class IncrementalBuildContext {
   }
 
   public async rebuild(props: BuildCodeProps, opts: esb.BuildOptions = {}) {
-    if (!this._context || !isEqual(props, this._previousProps) || !isEqual(opts, this._previousOpts)) {
+    if (!this._context || !_.isEqual(props, this._previousProps) || !_.isEqual(opts, this._previousOpts)) {
       if (this._context) {
         await this._context.dispose()
       }
@@ -57,8 +57,6 @@ class IncrementalBuildContext {
     await this._context?.rebuild()
   }
 }
-
-export const context = new IncrementalBuildContext()
 
 /**
  * Bundles a string of typescript code and writes the output to a file

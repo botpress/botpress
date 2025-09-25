@@ -24,6 +24,12 @@ export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
+  private _buildCommand: BuildCommand
+
+  public constructor(...args: ConstructorParameters<typeof ProjectCommand<DevCommandDefinition>>) {
+    super(...args)
+    this._buildCommand = new BuildCommand(this.api, this.prompt, this.logger, this.argv)
+  }
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -229,7 +235,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _runBuild() {
-    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
+    return this._buildCommand.run()
   }
 
   private async _deployDevIntegration(
