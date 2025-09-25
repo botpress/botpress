@@ -24,11 +24,11 @@ export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
-  private _buildCommand: BuildCommand
+  private _buildContext: utils.esbuild.IncrementalBuildContext
 
   public constructor(...args: ConstructorParameters<typeof ProjectCommand<DevCommandDefinition>>) {
     super(...args)
-    this._buildCommand = new BuildCommand(this.api, this.prompt, this.logger, this.argv)
+    this._buildContext = new utils.esbuild.IncrementalBuildContext()
   }
 
   public async run(): Promise<void> {
@@ -235,7 +235,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _runBuild() {
-    return this._buildCommand.run()
+    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run(this._buildContext)
   }
 
   private async _deployDevIntegration(

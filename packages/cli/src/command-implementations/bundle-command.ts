@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { IncrementalBuildContext } from 'src/utils/esbuild-utils'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -6,9 +7,7 @@ import { ProjectCommand } from './project-command'
 
 export type BundleCommandDefinition = typeof commandDefinitions.bundle
 export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
-  private _context: utils.esbuild.IncrementalBuildContext = new utils.esbuild.IncrementalBuildContext()
-
-  public async run(): Promise<void> {
+  public async run(buildContext?: utils.esbuild.IncrementalBuildContext): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
 
     const abs = this.projectPaths.abs
@@ -20,16 +19,16 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     } else if (projectDef.type === 'integration') {
       const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
-      await this._bundle(abs.outFileCJS, __advanced?.esbuild ?? {})
+      await this._bundle(abs.outFileCJS, buildContext, __advanced?.esbuild ?? {})
     } else if (projectDef.type === 'bot') {
       line.started('Bundling bot...')
-      await this._bundle(abs.outFileCJS)
+      await this._bundle(abs.outFileCJS, buildContext)
     } else if (projectDef.type === 'plugin') {
       line.started('Bundling plugin with platform node...')
-      await this._bundle(abs.outFileCJS)
+      await this._bundle(abs.outFileCJS, buildContext)
 
       line.started('Bundling plugin with platform browser...')
-      await this._bundle(abs.outFileESM, { platform: 'browser', format: 'esm' })
+      await this._bundle(abs.outFileESM, buildContext, { platform: 'browser', format: 'esm' })
     } else {
       type _assertion = utils.types.AssertNever<typeof projectDef>
       throw new errors.UnsupportedProjectType()
@@ -38,9 +37,14 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
   }
 
-  private async _bundle(outfile: string, props: Partial<utils.esbuild.BuildOptions> = {}) {
+  private async _bundle(
+    outfile: string,
+    buildContext?: utils.esbuild.IncrementalBuildContext,
+    props: Partial<utils.esbuild.BuildOptions> = {}
+  ) {
     const abs = this.projectPaths.abs
-    await this._context.rebuild(
+    const context = buildContext ?? new IncrementalBuildContext()
+    await context.rebuild(
       {
         outfile,
         absWorkingDir: abs.workDir,
