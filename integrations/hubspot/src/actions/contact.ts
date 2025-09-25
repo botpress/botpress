@@ -63,9 +63,13 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
+
+  const properties = await hsClient.getContactProperties()
+  const propertyKeys = properties.results.map((property) => property.name)
+
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
-    propertiesToReturn: input.properties,
+    propertiesToReturn: propertyKeys,
   })
   return {
     contact: _mapHsContactToBpContact(contact),

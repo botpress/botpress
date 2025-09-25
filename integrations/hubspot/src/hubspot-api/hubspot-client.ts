@@ -262,6 +262,10 @@ export class HubspotClient {
     return newContact
   }
 
+  public getContactProperties() {
+    return this._hsClient.crm.properties.coreApi.getAll('contacts')
+  }
+
   @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]

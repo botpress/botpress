@@ -85,11 +85,6 @@ const getContact: ActionDefinition = {
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to get'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
