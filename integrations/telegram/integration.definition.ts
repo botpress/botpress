@@ -6,7 +6,7 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.0',
+  version: '1.0.1',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
