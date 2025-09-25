@@ -43,37 +43,39 @@ const startConversationProps = {
     'Proactively starts a conversation with a WhatsApp user by sending them a message using a WhatsApp Message Template',
   input: {
     schema: z.object({
-      conversation: z.object({
-        userPhone: z
-          .string()
-          .min(1)
-          .title('User Phone Number')
-          .describe('Phone number of the WhatsApp user to start a conversation with'),
-        templateName: z
-          .string()
-          .min(1)
-          .title('Message Template name')
-          .describe('Name of the WhatsApp Message Template to start the conversation with'),
-        templateLanguage: z
-          .string()
-          .optional()
-          .title('Message Template language')
-          .describe(
-            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
-          ),
-        templateVariablesJson: z
-          .string()
-          .optional()
-          .title('Message Template variables')
-          .describe(
-            'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
-          ),
-        botPhoneNumberId: z
-          .string()
-          .optional()
-          .title('Bot Phone Number ID')
-          .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
-      }),
+      conversation: z
+        .object({
+          userPhone: z
+            .string()
+            .min(1)
+            .title('User Phone Number')
+            .describe('Phone number of the WhatsApp user to start a conversation with'),
+          templateName: z
+            .string()
+            .min(1)
+            .title('Message Template name')
+            .describe('Name of the WhatsApp Message Template to start the conversation with'),
+          templateLanguage: z
+            .string()
+            .optional()
+            .title('Message Template language')
+            .describe(
+              'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
+            ),
+          templateVariablesJson: z
+            .string()
+            .optional()
+            .title('Message Template variables')
+            .describe(
+              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+            ),
+          botPhoneNumberId: z
+            .string()
+            .optional()
+            .title('Bot Phone Number ID')
+            .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
+        })
+        .describe('Details of the conversation'),
     }),
   },
 }
