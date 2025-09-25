@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages, object } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -84,6 +84,8 @@ const defaultBotPhoneNumberId = {
   title: 'Default Bot Phone Number ID',
   description: 'Default Phone ID used by the bot for starting conversations',
 }
+
+const qualityScoreSchema = z.enum(['GREEN', 'RED', 'YELLOW', 'UNKNOWN'])
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -258,6 +260,165 @@ export default new IntegrationDefinition({
         messageId: z.string().title('Message ID').describe('ID of the message that was reacted to'),
         userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
         conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
+      }),
+    },
+    messageTemplateComponentsUpdate: {
+      title: 'Message Template Components Update',
+      description: 'Triggered when a template is edited',
+      schema: z.object({
+        object: z.string(),
+        entry: z.array(
+          z.object({
+            id: z.string(),
+            time: z.number(),
+            changes: z.array(
+              z.object({
+                field: z.string(),
+                value: z.object({
+                  message_template_id: z.number(),
+                  message_template_name: z.string(),
+                  message_template_language: z.string(),
+                  message_template_element: z.string(),
+                  message_template_title: z.string().optional(),
+                  message_template_footer: z.string().optional(),
+                  message_template_buttons: z
+                    .array(
+                      z.object({
+                        message_template_button_type: z.enum([
+                          'CATALOG',
+                          'COPY_CODE',
+                          'EXTENSION',
+                          'FLOW',
+                          'MPM',
+                          'ORDER_DETAILS',
+                          'OTP',
+                          'PHONE_NUMBER',
+                          'POSTBACK',
+                          'REMINDER',
+                          'SEND_LOCATION',
+                          'SPM',
+                          'QUICK_REPLY',
+                          'URL',
+                          'VOICE_CALL',
+                        ]),
+                        message_template_button_text: z.string(),
+                        message_template_button_url: z.string().optional(),
+                        message_template_button_phone_number: z.string().optional(),
+                      })
+                    )
+                    .optional(),
+                }),
+              })
+            ),
+          })
+        ),
+      }),
+    },
+    messageTemplateQualityUpdate: {
+      title: 'Message Template Quality Update',
+      description: "Triggered when a template's quality score changes",
+      schema: z.object({
+        object: z.string(),
+        entry: z.array(
+          z.object({
+            id: z.string(),
+            time: z.number(),
+            changes: z.array(
+              z.object({
+                field: z.string(),
+                value: z.object({
+                  previous_quality_score: qualityScoreSchema,
+                  new_quality_score: qualityScoreSchema,
+                  message_template_id: z.number(),
+                  message_template_name: z.string(),
+                  message_template_language: z.string(),
+                }),
+              })
+            ),
+          })
+        ),
+      }),
+    },
+    messageTemplateStatusUpdate: {
+      title: 'Message Template Status Update',
+      description: 'Triggered when a template is approved, rejected or disabled',
+      schema: z.object({
+        object: z.string(),
+        entry: z.array(
+          z.object({
+            id: z.string(),
+            time: z.number(),
+            changes: z.array(
+              z.object({
+                field: z.string(),
+                value: z.object({
+                  event: z.enum([
+                    'APPROVED',
+                    'ARCHIVED',
+                    'DELETED',
+                    'DISABLED',
+                    'FLAGGED',
+                    'IN_APPEAL',
+                    'LIMIT_EXCEEDED',
+                    'LOCKED',
+                    'PAUSED',
+                    'PENDING',
+                    'REINSTATED',
+                    'PENDING_DELETION',
+                    'REJECTED',
+                  ]),
+                  message_template_id: z.number(),
+                  message_template_name: z.string(),
+                  message_template_language: z.string(),
+                  reason: z.enum([
+                    'ABUSIVE_CONTENT',
+                    'CATEGORY_NOT_AVAILABLE',
+                    'INCORRECT_CATEGORY',
+                    'INVALID_FORMAT',
+                    'NONE',
+                    'PROMOTIONAL',
+                    'SCAM',
+                    'TAG_CONTENT_MISMATCH',
+                  ]),
+                  disable_info: z.object({ disable_date: z.number() }).optional(),
+                  other_info: z
+                    .object({
+                      title: z.enum(['FIRST_PAUSE', 'SECOND_PAUSE', 'RATE_LIMITING_PAUSE', 'UNPAUSE', 'DISABLED']),
+                      description: z.string(),
+                    })
+                    .optional(),
+                }),
+              })
+            ),
+          })
+        ),
+      }),
+    },
+    templateCategoryUpdate: {
+      title: 'Template Category Update',
+      description:
+        'Triggered when the category of a WhatsApp template is changed — whether manually or by an automated process, or when such a change is about to occur.',
+      schema: z.object({
+        object: z.string(),
+        entry: z.array(
+          z.object({
+            id: z.string(),
+            time: z.number(),
+            changes: z.array(
+              z.object({
+                field: z.string(),
+                value: z.object({
+                  message_template_id: z.number(),
+                  message_template_name: z.string(),
+                  message_template_language: z.string(),
+                  correct_category: z.string().optional(),
+                  previous_category: z.string().optional(),
+                  new_category: z.string().optional(),
+                }),
+              })
+            ),
+          })
+        ),
       }),
     },
   },
