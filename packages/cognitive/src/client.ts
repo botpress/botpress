@@ -168,6 +168,9 @@ export class Cognitive {
 
     const betaClient = new CognitiveBeta({
       headers: this._client.config.headers as Record<string, string>,
+      baseUrl: this._client.config.apiUrl.includes('.cloud')
+        ? 'https://cognitive.botpress.cloud'
+        : 'https://cognitive.botpress.dev',
     })
 
     const response = await betaClient.generateText(input as any)
@@ -177,11 +180,17 @@ export class Cognitive {
         provider: response.metadata.provider,
         model: response.metadata.model!,
         choices: [
-          { content: response.output, role: 'assistant', index: 0, stopReason: response.metadata.stopReason! as any },
+          {
+            type: 'text',
+            content: response.output,
+            role: 'assistant',
+            index: 0,
+            stopReason: response.metadata.stopReason! as any,
+          },
         ],
         usage: {
           inputTokens: response.metadata.usage.inputTokens,
-          inputCost: response.metadata.cost ?? 0,
+          inputCost: 0,
           outputTokens: response.metadata.usage.outputTokens,
           outputCost: response.metadata.cost ?? 0,
         },
@@ -194,7 +203,7 @@ export class Cognitive {
         model: { integration: response.metadata.provider, model: response.metadata.model! },
         latency: response.metadata.latency!,
         cost: {
-          input: response.metadata.cost || 0,
+          input: 0,
           output: response.metadata.cost || 0,
         },
         tokens: {
