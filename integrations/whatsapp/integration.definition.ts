@@ -227,8 +227,9 @@ export default new IntegrationDefinition({
       },
     },
     sendTemplateMessage: {
-      ...startConversationProps,
       title: 'Send Template Message',
+      description: 'Sends a WhatsApp Message Template to a user in an existing conversation',
+      input: startConversationProps.input,
       output: {
         schema: z.object({
           conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
