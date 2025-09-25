@@ -1,0 +1,53 @@
+name: 'Refresh Instagram Access Tokens'
+description: 'Refreshes Instagram access token, updates the integrations secrets and update the token GitHub secrets'
+
+inputs:
+  token_cloud_ops_account:
+    description: 'Cloud Ops account token'
+    required: true
+  cloud_ops_workspace_id:
+    description: 'Cloud Ops workspace id'
+    required: true
+  api_url:
+    description: 'API URL'
+    required: true
+  current_token:
+    description: 'Current token'
+    required: true
+  secret_name:
+    description: 'Secret name'
+    required: true
+  sync_secret_app_id:
+    description: 'Create or update secret app id'
+    required: true
+  sync_secret_app_private_key:
+    description: 'Create or update secret app private key'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Refresh Access Tokens
+      id: refresh_tokens
+      shell: bash
+      env:
+        BP_API_URL: ${{ inputs.api_url }}
+        BP_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
+        BP_TOKEN: ${{ inputs.token_cloud_ops_account }}
+      run: |
+        refresh_result=$(pnpm -F 'instagram' exec -- pnpm run --silent refreshTokens --json --refreshToken "${{ inputs.current_token }}")
+        new_token=$(echo "$refresh_result" | jq -r '.refreshedToken')
+        if [ -z "$new_token" ]; then
+          echo "❌ Error: Failed to refresh token" >&2
+          exit 1
+        fi
+
+        echo "$refresh_result" | jq -r '.message'
+        echo "✅ Tokens refreshed successfully"
+        echo "::add-mask::$new_token"
+        echo "new_token=$new_token" >> "$GITHUB_OUTPUT"
+    - uses: ./.github/actions/create-or-update-secret
+      with:
+        secret_name: ${{ inputs.secret_name }}
+        secret_value: ${{ steps.refresh_tokens.outputs.new_token }}
+        sync_secret_app_id: ${{ inputs.sync_secret_app_id }}
+        sync_secret_app_private_key: ${{ inputs.sync_secret_app_private_key }}

@@ -1,0 +1,31 @@
+name: 'Create or Update Secret'
+description: 'Creates or updates a secret in the repository'
+
+inputs:
+  secret_name:
+    description: 'Secret name'
+    required: true
+  secret_value:
+    description: 'Secret value'
+    required: true
+  sync_secret_app_id:
+    description: 'Sync secret app id'
+    required: true
+  sync_secret_app_private_key:
+    description: 'Sync secret app private key'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate a token
+      id: generate-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.sync_secret_app_id }}
+        private-key: ${{ inputs.sync_secret_app_private_key }}
+    - name: Set secret
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+      run: |
+        gh secret set ${{ inputs.secret_name }} --body "${{ inputs.secret_value }}"
