@@ -3,9 +3,9 @@ import yargs from '@bpinternal/yargs-extra'
 import commandDefinitions from './command-definitions'
 import commandImplementations from './command-implementations'
 import * as tree from './command-tree'
+import * as commands from './commands'
 import * as errors from './errors'
 import { Logger } from './logger'
-import * as commands from './commands'
 import { registerYargs } from './register-yargs'
 
 export const login = commands.login
