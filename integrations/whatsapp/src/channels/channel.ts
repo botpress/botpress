@@ -101,7 +101,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       }
     },
-    bloc: () => {
+    bloc: ({ payload, logger }) => {
+      logger.forBot().warn(payload) // faucon remove
       throw new RuntimeError('Not implemented')
     },
   },

@@ -9,7 +9,7 @@ import {
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from 'definitions/events'
 
-export const INTEGRATION_NAME = 'whatsapp'
+export const INTEGRATION_NAME = 'faucon-whatsapp'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
@@ -95,7 +95,7 @@ const defaultBotPhoneNumberId = {
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '4.4.0',
-  title: 'WhatsApp',
+  title: 'faucon-WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
