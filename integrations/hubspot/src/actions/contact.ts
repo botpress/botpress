@@ -16,6 +16,11 @@ const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
   updatedAt: hsContact.updatedAt.toISOString(),
 })
 
+const _getContactPropertyKeys = async (hsClient: HubspotClient) => {
+  const properties = await hsClient.getContactProperties()
+  return properties.results.map((property) => property.name)
+}
+
 export const searchContact: bp.IntegrationProps['actions']['searchContact'] = async ({
   client,
   ctx,
@@ -64,9 +69,7 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
 
-  const properties = await hsClient.getContactProperties()
-  const propertyKeys = properties.results.map((property) => property.name)
-
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
     propertiesToReturn: propertyKeys,
