@@ -57,11 +57,6 @@ const getLead: ActionDefinition = {
   input: {
     schema: z.object({
       leadId: z.string().title('Lead ID').describe('The ID of the lead to get'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
