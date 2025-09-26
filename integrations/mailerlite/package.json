@@ -1,0 +1,19 @@
+{
+  "name": "@bp-templates/mailerlite",
+  "integrationName": "mailerlite",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@mailerlite/mailerlite-nodejs": "^1.4.1",
+    "botpress": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*"
+  }
+}
