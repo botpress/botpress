@@ -15,10 +15,16 @@ const _mapHsDealToBpDeal = (hsDeal: HsDeal): BpDeal => ({
   properties: hsDeal.properties,
 })
 
+const _getDealPropertyKeys = async (hsClient: HubspotClient) => {
+  const properties = await hsClient.getAllObjectProperties('deals')
+  return properties.results.map((property) => property.name)
+}
+
 export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+  const propertyKeys = await _getDealPropertyKeys(hsClient)
 
-  const deal = await hsClient.searchDeal({ name: input.name, propertiesToReturn: input.properties })
+  const deal = await hsClient.searchDeal({ name: input.name, propertiesToReturn: propertyKeys })
 
   return {
     deal: _mapHsDealToBpDeal(deal),
