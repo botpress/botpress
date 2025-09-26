@@ -14,11 +14,6 @@ const searchLead: ActionDefinition = {
   input: {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the lead to search for'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
