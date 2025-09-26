@@ -37,7 +37,7 @@
     "@types/verror": "^1.10.6",
     "@types/web": "^0.0.115",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"
