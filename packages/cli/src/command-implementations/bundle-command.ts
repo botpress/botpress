@@ -1,5 +1,4 @@
 import chalk from 'chalk'
-import { IncrementalBuildContext } from 'src/utils/esbuild-utils'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -43,7 +42,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
     props: Partial<utils.esbuild.BuildOptions> = {}
   ) {
     const abs = this.projectPaths.abs
-    const context = buildContext ?? new IncrementalBuildContext()
+    const context = buildContext ?? new utils.esbuild.IncrementalBuildContext()
     await context.rebuild(
       {
         outfile,
