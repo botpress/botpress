@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.1.37",
+  "version": "0.1.38",
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -36,7 +36,7 @@
     "@types/debug": "^4.1.12",
     "axios": "^1.7.9",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
   },

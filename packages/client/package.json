@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/qs": "^6.9.7",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "lodash": "^4.17.21",
     "tsup": "^8.0.2"
   },

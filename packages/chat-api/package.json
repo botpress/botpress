@@ -10,7 +10,7 @@
     "@types/json-schema": "^7.0.12",
     "@types/lodash": "^4.14.191",
     "@types/tmp": "^0.2.3",
-    "esbuild": "^0.16.12"
+    "esbuild": "^0.25.10"
   },
   "dependencies": {
     "@bpinternal/opapi": "0.12.1",
