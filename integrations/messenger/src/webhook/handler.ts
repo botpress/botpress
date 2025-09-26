@@ -1,12 +1,13 @@
 import { isSandboxCommand, meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { messengerPayloadSchema } from '../misc/types'
+import { messengerPayloadSchema, feedEventPayloadSchema } from '../misc/types'
 import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
+import { oauthHandler, messageHandler, sandboxHandler, feedHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
+
   if (req.path.startsWith('/oauth')) {
     return oauthHandler({ req, client, ctx, logger })
   }
@@ -15,7 +16,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return await sandboxHandler(props)
   }
 
-  logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await meta.subscribeHandler({ ...props, verifyToken: getVerifyToken(ctx) })
@@ -37,17 +37,36 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  const parseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
-  if (!parseResult.success) {
-    logger.forBot().warn('Error while parsing body as Messenger payload:', parseResult.error.message)
+  logger.forBot().debug('Parsed body:', jsonParseResult.data)
+
+  // Try to parse as messenger payload first
+  const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
+  if (messengerParseResult.success) {
+    const data = messengerParseResult.data
+    for (const { messaging } of data.entry) {
+      const message = messaging[0]
+      await messageHandler(message, props)
+    }
     return
   }
-  const data = parseResult.data
 
-  for (const { messaging } of data.entry) {
-    const message = messaging[0]
-    await messageHandler(message, props)
+  // Try to parse as feed event payload
+  const feedParseResult = feedEventPayloadSchema.safeParse(jsonParseResult.data)
+  if (feedParseResult.success) {
+    const data = feedParseResult.data
+    for (const entry of data.entry) {
+      await feedHandler(entry, props)
+    }
+    return
   }
+
+  // Better log message
+  logger
+    .forBot()
+    .warn(
+      'Error while parsing body as Messenger or Feed event payload:',
+      messengerParseResult.success ? 'Unknown payload format' : messengerParseResult.error.message
+    )
 
   return
 }

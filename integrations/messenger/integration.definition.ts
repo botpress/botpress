@@ -103,6 +103,28 @@ export default new IntegrationDefinition({
         },
       },
     },
+    feed: {
+      title: 'Facebook Feed Events',
+      description: 'Channel for Facebook page feed events (posts, comments, reactions)',
+      messages: { ...messages.defaults, markdown: messages.markdown },
+      message: {
+        tags: {
+          id: { title: 'Event ID', description: 'The unique ID of the feed event' },
+          senderId: { title: 'Sender ID', description: 'The Facebook ID of the user who triggered the event' },
+          recipientId: { title: 'Recipient ID', description: 'The Facebook page ID' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID (for post and comment events)' },
+          commentId: { title: 'Comment ID', description: 'The Facebook comment ID (for comment events)' },
+          eventType: { title: 'Event Type', description: 'The type of feed event (post, comment, reaction)' },
+        },
+      },
+      conversation: {
+        tags: {
+          id: { title: 'Post ID', description: 'The Facebook post ID that serves as the conversation identifier' },
+          senderId: { title: 'Sender ID', description: 'The Facebook ID of the user who created the post' },
+          recipientId: { title: 'Recipient ID', description: 'The Facebook page ID' },
+        },
+      },
+    },
   },
   actions: {},
   events: {},

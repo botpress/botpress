@@ -77,6 +77,50 @@ const messengerEntrySchema = z.object({
   messaging: z.tuple([messengerMessagingEntrySchema]),
 })
 
+// Feed event schemas
+const feedChangeValueSchema = z.object({
+  item: z.string(),
+  verb: z.string(),
+  created_time: z.number(),
+  post_id: z.string(),
+  comment_id: z.string().optional(),
+  parent_id: z.string().optional(),
+  message: z.string().optional(),
+  from: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .optional(),
+  parent: z
+    .object({
+      id: z.string(),
+      message: z.string().optional(),
+    })
+    .optional(),
+})
+
+const feedChangeSchema = z.object({
+  field: z.string(),
+  value: feedChangeValueSchema,
+})
+
+const feedEventEntrySchema = z.object({
+  id: z.string(),
+  time: z.number(),
+  changes: z.array(feedChangeSchema),
+})
+
+export const feedEventPayloadSchema = z.object({
+  object: z.string(),
+  entry: z.array(feedEventEntrySchema),
+})
+
+export type FeedChangeValue = z.infer<typeof feedChangeValueSchema>
+export type FeedChange = z.infer<typeof feedChangeSchema>
+export type FeedEventEntry = z.infer<typeof feedEventEntrySchema>
+export type FeedEventPayload = z.infer<typeof feedEventPayloadSchema>
+
 export const messengerPayloadSchema = z.object({
   object: z.literal('page'),
   entry: z.array(messengerEntrySchema),
