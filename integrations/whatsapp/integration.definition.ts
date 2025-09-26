@@ -2,6 +2,12 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
+import {
+  WhatsAppMessageTemplateComponentsUpdateValueSchema,
+  WhatsAppMessageTemplateQualityUpdateValueSchema,
+  WhatsAppMessageTemplateStatusUpdateValueSchema,
+  WhatsAppTemplateCategoryUpdateValueSchema,
+} from 'definitions/events'
 
 export const INTEGRATION_NAME = 'whatsapp'
 
@@ -75,6 +81,7 @@ const startConversationProps = {
             .title('Bot Phone Number ID')
             .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
         })
+        .title('Conversation Details')
         .describe('Details of the conversation'),
     }),
   },
@@ -87,7 +94,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.3.0',
+  version: '4.4.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -259,6 +266,27 @@ export default new IntegrationDefinition({
         userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
         conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
       }),
+    },
+    messageTemplateComponentsUpdate: {
+      title: 'Message Template Components Update',
+      description: 'Triggered when a template is edited',
+      schema: WhatsAppMessageTemplateComponentsUpdateValueSchema,
+    },
+    messageTemplateQualityUpdate: {
+      title: 'Message Template Quality Update',
+      description: "Triggered when a template's quality score changes",
+      schema: WhatsAppMessageTemplateQualityUpdateValueSchema,
+    },
+    messageTemplateStatusUpdate: {
+      title: 'Message Template Status Update',
+      description: 'Triggered when a template is approved, rejected or disabled',
+      schema: WhatsAppMessageTemplateStatusUpdateValueSchema,
+    },
+    templateCategoryUpdate: {
+      title: 'Template Category Update',
+      description:
+        'Triggered when the category of a WhatsApp template is changed — whether manually or by an automated process, or when such a change is about to occur.',
+      schema: WhatsAppTemplateCategoryUpdateValueSchema,
     },
   },
   states: {

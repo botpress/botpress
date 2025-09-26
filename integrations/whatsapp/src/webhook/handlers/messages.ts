@@ -3,7 +3,7 @@ import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
-import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
+import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
@@ -15,8 +15,8 @@ type IncomingMessages = {
 }
 
 export const messagesHandler = async (
-  message: NonNullable<WhatsAppValue['messages']>[number],
-  value: WhatsAppValue,
+  message: NonNullable<WhatsAppMessageValue['messages']>[number],
+  value: WhatsAppMessageValue,
   props: bp.HandlerProps
 ) => {
   const { ctx, client, logger } = props
@@ -31,7 +31,7 @@ export const messagesHandler = async (
 
 async function _handleIncomingMessage(
   message: WhatsAppMessage,
-  value: WhatsAppValue,
+  value: WhatsAppMessageValue,
   ctx: bp.Context,
   client: bp.Client,
   logger: bp.Logger
