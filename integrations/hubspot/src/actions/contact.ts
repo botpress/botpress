@@ -17,7 +17,7 @@ const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
 })
 
 const _getContactPropertyKeys = async (hsClient: HubspotClient) => {
-  const properties = await hsClient.getContactProperties()
+  const properties = await hsClient.getAllObjectProperties('contacts')
   return properties.results.map((property) => property.name)
 }
 
