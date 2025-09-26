@@ -14,11 +14,6 @@ const searchDeal: ActionDefinition = {
   input: {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the deal to search for'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
@@ -59,11 +54,6 @@ const getDeal: ActionDefinition = {
   input: {
     schema: z.object({
       dealId: z.string().title('Deal ID').describe('The ID of the deal to get'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {

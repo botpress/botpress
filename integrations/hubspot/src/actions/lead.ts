@@ -15,10 +15,16 @@ const _mapHsLeadToBpLead = (hsLead: HsLead): BpLead => ({
   properties: hsLead.properties,
 })
 
+const _getLeadPropertyKeys = async (hsClient: HubspotClient) => {
+  const properties = await hsClient.getAllObjectProperties('leads')
+  return properties.results.map((property) => property.name)
+}
+
 export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+  const propertyKeys = await _getLeadPropertyKeys(hsClient)
 
-  const lead = await hsClient.searchLead({ name: input.name, propertiesToReturn: input.properties })
+  const lead = await hsClient.searchLead({ name: input.name, propertiesToReturn: propertyKeys })
 
   return {
     lead: _mapHsLeadToBpLead(lead),
@@ -41,8 +47,9 @@ export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
 
 export const getLead: bp.IntegrationProps['actions']['getLead'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+  const propertyKeys = await _getLeadPropertyKeys(hsClient)
 
-  const lead = await hsClient.getLeadById({ leadId: input.leadId, propertiesToReturn: input.properties })
+  const lead = await hsClient.getLeadById({ leadId: input.leadId, propertiesToReturn: propertyKeys })
 
   return {
     lead: _mapHsLeadToBpLead(lead),

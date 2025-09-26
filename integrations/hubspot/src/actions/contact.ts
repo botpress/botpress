@@ -16,6 +16,11 @@ const _mapHsContactToBpContact = (hsContact: HsContact): BpContact => ({
   updatedAt: hsContact.updatedAt.toISOString(),
 })
 
+const _getContactPropertyKeys = async (hsClient: HubspotClient) => {
+  const properties = await hsClient.getAllObjectProperties('contacts')
+  return properties.results.map((property) => property.name)
+}
+
 export const searchContact: bp.IntegrationProps['actions']['searchContact'] = async ({
   client,
   ctx,
@@ -27,16 +32,17 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
   const infosStr = `${phoneStr} and ${emailStr}`
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   logger
     .forBot()
     .debug(
-      `Searching for contact with ${infosStr} ${input.properties?.length ? `and properties ${input.properties?.join(', ')}` : ''}`
+      `Searching for contact with ${infosStr} ${propertyKeys?.length ? `and properties ${propertyKeys?.join(', ')}` : ''}`
     )
 
   const contact = await hsClient.searchContact({
     phone: input.phone,
     email: input.email,
-    propertiesToReturn: input.properties,
+    propertiesToReturn: propertyKeys,
   })
 
   return {
@@ -63,9 +69,11 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
+
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
-    propertiesToReturn: input.properties,
+    propertiesToReturn: propertyKeys,
   })
   return {
     contact: _mapHsContactToBpContact(contact),
@@ -101,8 +109,9 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const { contacts, nextToken } = await hsClient.listContacts({
-    properties: input.properties,
+    properties: propertyKeys,
     nextToken: input.meta.nextToken,
   })
   return {
