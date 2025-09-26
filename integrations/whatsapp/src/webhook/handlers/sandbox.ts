@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { getAuthenticatedWhatsappClient } from 'src/auth'
-import { WhatsAppPayloadSchema, WhatsAppValue } from 'src/misc/types'
+import { WhatsAppPayloadSchema, WhatsAppMessageValue } from 'src/misc/types'
 import { Text } from 'whatsapp-api-js/messages'
 import * as bp from '.botpress'
 
@@ -79,7 +79,7 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   return
 }
 
-const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppValue | undefined => {
+const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppMessageValue | undefined => {
   const { req, logger } = props
   if (!req.body) {
     return undefined
@@ -88,7 +88,7 @@ const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppValue | undef
   try {
     const data = JSON.parse(req.body)
     const payload = WhatsAppPayloadSchema.parse(data)
-    return payload.entry[0]?.changes[0]?.value
+    return payload.entry[0]?.changes[0]?.field === 'messages' ? payload.entry[0]?.changes[0]?.value : undefined
   } catch (e: any) {
     logger.error('Error while extracting message from request:', e?.message ?? '[unknown error]')
     return undefined
