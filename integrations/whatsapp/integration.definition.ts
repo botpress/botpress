@@ -81,6 +81,7 @@ const startConversationProps = {
             .title('Bot Phone Number ID')
             .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
         })
+        .title('Conversation Details')
         .describe('Details of the conversation'),
     }),
   },

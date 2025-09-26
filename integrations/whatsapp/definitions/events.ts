@@ -8,8 +8,8 @@ export const WhatsAppMessageTemplateComponentsUpdateValueSchema = z
     name: z.string().describe('Template name.').title('Template Name'),
     language: z.string().describe('Template language and locale code.').title('Template Language'),
     element: z.string().describe('Template body text.').title('Template Body Text'),
-    title: z.string().optional().describe('Template Header Text.').title('Template Header Text'),
-    footer: z.string().optional().describe('Template Footer Text.').title('Template Footer Text'),
+    title: z.string().describe('Template Header Text.').title('Template Header Text').optional(),
+    footer: z.string().describe('Template Footer Text.').title('Template Footer Text').optional(),
     buttons: z
       .array(
         z.object({
@@ -34,13 +34,15 @@ export const WhatsAppMessageTemplateComponentsUpdateValueSchema = z
             .describe('Button type.')
             .title('Button Type'),
           button_text: z.string().describe('Button label text.').title('Button Label Text'),
-          button_url: z.string().optional().describe('Button URL.').title('Button URL'),
-          button_phone_number: z.string().optional().describe('Button phone number.').title('Button Phone Number'),
+          button_url: z.string().describe('Button URL.').title('Button URL').optional(),
+          button_phone_number: z.string().describe('Button phone number.').title('Button Phone Number').optional(),
         })
       )
-      .optional()
-      .describe('Array of button objects, if present.'),
+      .describe('Array of button objects, if present.')
+      .title('Buttons')
+      .optional(),
   })
+  .describe("The message_template_components_update webhook notifies you of changes to a template's components.")
   .title('Message Template Components Update')
   .describe("The message_template_components_update webhook notifies you of changes to a template's components.")
 
@@ -54,8 +56,8 @@ export const WhatsAppMessageTemplateQualityUpdateValueSchema = z
     name: z.string().describe('Template name.').title('Template Name'),
     language: z.string().describe('Template language and locale code.').title('Template Language'),
   })
-  .title('Message Template Quality Update')
   .describe("The message_template_quality_update webhook notifies you of changes to a template's quality score.")
+  .title('Message Template Quality Update')
 
 export const WhatsAppMessageTemplateStatusUpdateValueSchema = z
   .object({
@@ -91,9 +93,9 @@ export const WhatsAppMessageTemplateStatusUpdateValueSchema = z
         'SCAM',
         'TAG_CONTENT_MISMATCH',
       ])
-      .nullable()
       .describe('Template rejection reason, if rejected.')
-      .title('Rejection Reason'),
+      .title('Rejection Reason')
+      .nullable(),
     disable_info: z
       .object({
         disable_date: z
@@ -101,8 +103,9 @@ export const WhatsAppMessageTemplateStatusUpdateValueSchema = z
           .describe('Unix timestamp indicating when the template was disabled.')
           .title('Disable Timestamp'),
       })
-      .optional()
-      .describe('only included if template disabled'),
+      .describe('only included if template disabled')
+      .title('Disable Info')
+      .optional(),
     other_info: z
       .object({
         title: z
@@ -114,11 +117,12 @@ export const WhatsAppMessageTemplateStatusUpdateValueSchema = z
           .describe('String describing why the template was locked or unlocked.')
           .title('Description'),
       })
-      .optional()
-      .describe('only included if template locked or unlocked'),
+      .describe('only included if template locked or unlocked')
+      .title('Other Info')
+      .optional(),
   })
-  .title('Message Template Status Update')
   .describe('The message_template_status_update webhook notifies you of changes to the status of an existing template.')
+  .title('Message Template Status Update')
 
 export const WhatsAppTemplateCategoryUpdateValueSchema = z
   .object({
@@ -127,11 +131,11 @@ export const WhatsAppTemplateCategoryUpdateValueSchema = z
     language: z.string().describe('Template language and locale code.').title('Template Language'),
     correct_category: z
       .string()
-      .optional()
       .describe('The category that the template will be recategorized as in 24 hours.')
-      .title('Correct Category'),
-    previous_category: z.string().optional().describe("The template's previous category.").title('Previous Category'),
-    new_category: z.string().optional().describe("The template's new category.").title('New Category'),
+      .title('Correct Category')
+      .optional(),
+    previous_category: z.string().describe("The template's previous category.").title('Previous Category').optional(),
+    new_category: z.string().describe("The template's new category.").title('New Category').optional(),
   })
-  .title('Template Category Update')
   .describe("The template_category_update webhook notifies you of changes to template's category.")
+  .title('Template Category Update')
