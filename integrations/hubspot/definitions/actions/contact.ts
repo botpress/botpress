@@ -141,11 +141,6 @@ const listContacts: ActionDefinition = {
   description: 'List contacts in Hubspot',
   input: {
     schema: z.object({
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
       meta: z
         .object({
           nextToken: z

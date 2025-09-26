@@ -109,8 +109,9 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client })
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const { contacts, nextToken } = await hsClient.listContacts({
-    properties: input.properties,
+    properties: propertyKeys,
     nextToken: input.meta.nextToken,
   })
   return {
