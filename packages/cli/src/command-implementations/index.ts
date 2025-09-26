@@ -2,7 +2,7 @@ import { ApiClient } from '../api/client'
 import type commandDefinitions from '../command-definitions'
 import type { ImplementationTree } from '../command-tree'
 import { Logger } from '../logger'
-import type { CommandArgv } from '../typings'
+import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { AddCommand } from './add-command'
 import type { BaseCommand } from './base-command'
@@ -25,7 +25,7 @@ import * as profiles from './profile-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
 
-type GlobalCtor<C extends GlobalCommandDefinition> = new (
+export type GlobalCtor<C extends GlobalCommandDefinition> = new (
   ...args: ConstructorParameters<typeof GlobalCommand<C>>
 ) => BaseCommand<C>
 

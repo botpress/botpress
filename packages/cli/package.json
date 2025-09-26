@@ -3,7 +3,7 @@
   "version": "4.17.13",
   "description": "Botpress CLI",
   "scripts": {
-    "build": "pnpm run bundle && pnpm run template:gen",
+    "build": "tsc -p ./tsconfig.json --emitDeclarationOnly && pnpm run bundle && pnpm run template:gen",
     "dev": "ts-node -T src/index.ts",
     "start": "node dist/index.js",
     "check:type": "tsc --noEmit",
@@ -18,6 +18,7 @@
     "bp": "./bin.js"
   },
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/chat": "0.5.1",
