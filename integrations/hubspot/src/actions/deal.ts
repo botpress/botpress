@@ -46,8 +46,9 @@ export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({
 
 export const getDeal: bp.IntegrationProps['actions']['getDeal'] = async ({ client, ctx, input }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+  const propertyKeys = await _getDealPropertyKeys(hsClient)
 
-  const deal = await hsClient.getDealById({ dealId: input.dealId, propertiesToReturn: input.properties })
+  const deal = await hsClient.getDealById({ dealId: input.dealId, propertiesToReturn: propertyKeys })
 
   return {
     deal: _mapHsDealToBpDeal(deal),
