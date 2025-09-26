@@ -3,7 +3,7 @@
   "version": "4.17.14",
   "description": "Botpress CLI",
   "scripts": {
-    "build": "tsc -p ./tsconfig.json --emitDeclarationOnly && pnpm run bundle && pnpm run template:gen",
+    "build": "tsc -p ./tsconfig.build.json --emitDeclarationOnly && pnpm run bundle && pnpm run template:gen",
     "dev": "ts-node -T src/index.ts",
     "start": "node dist/index.js",
     "check:type": "tsc --noEmit",
