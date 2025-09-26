@@ -7,7 +7,7 @@ import {
   WhatsAppMessageTemplateQualityUpdateValueSchema,
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
-} from 'src/misc/types'
+} from 'definitions/events'
 
 export const INTEGRATION_NAME = 'whatsapp'
 

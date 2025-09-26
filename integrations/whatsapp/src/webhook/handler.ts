@@ -65,16 +65,56 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
       }
       break
     case 'message_template_components_update':
-      await client.createEvent({ type: 'messageTemplateComponentsUpdate', payload: changes.value })
+      await client.createEvent({
+        type: 'messageTemplateComponentsUpdate',
+        payload: {
+          id: changes.value.message_template_id,
+          name: changes.value.message_template_name,
+          language: changes.value.message_template_language,
+          element: changes.value.message_template_element,
+          title: changes.value.message_template_title,
+          footer: changes.value.message_template_footer,
+          buttons: changes.value.message_template_buttons?.map((button) => ({
+            button_type: button.message_template_button_type,
+            button_text: button.message_template_button_text,
+            button_url: button.message_template_button_url,
+            button_phone_number: button.message_template_button_phone_number,
+          })),
+        },
+      })
       break
     case 'message_template_quality_update':
-      await client.createEvent({ type: 'messageTemplateQualityUpdate', payload: changes.value })
+      await client.createEvent({
+        type: 'messageTemplateQualityUpdate',
+        payload: {
+          ...changes.value,
+          id: changes.value.message_template_id,
+          name: changes.value.message_template_name,
+          language: changes.value.message_template_language,
+        },
+      })
       break
     case 'message_template_status_update':
-      await client.createEvent({ type: 'messageTemplateStatusUpdate', payload: changes.value })
+      await client.createEvent({
+        type: 'messageTemplateStatusUpdate',
+        payload: {
+          ...changes.value,
+          id: changes.value.message_template_id,
+          name: changes.value.message_template_name,
+          language: changes.value.message_template_language,
+        },
+      })
       break
     case 'template_category_update':
-      await client.createEvent({ type: 'templateCategoryUpdate', payload: changes.value })
+      await client.createEvent({
+        type: 'templateCategoryUpdate',
+        payload: {
+          ...changes.value,
+          id: changes.value.message_template_id,
+          name: changes.value.message_template_name,
+          language: changes.value.message_template_language,
+        },
+      })
       break
     default:
       logger.forBot().info('The event sent to the bot is not yet handled by botpress.')

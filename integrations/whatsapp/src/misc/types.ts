@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { qualityScoreSchema } from 'definitions/events'
 
 const WhatsAppContactSchema = z.object({
   wa_id: z.string(),
@@ -6,8 +7,6 @@ const WhatsAppContactSchema = z.object({
     name: z.string(),
   }),
 })
-
-const qualityScoreSchema = z.enum(['GREEN', 'RED', 'YELLOW', 'UNKNOWN'])
 
 const WhatsAppBaseMessageSchema = z.object({
   from: z.string(),
