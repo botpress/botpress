@@ -16,11 +16,6 @@ const searchContact: ActionDefinition = {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact to search for'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact to search for'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Property Names')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
