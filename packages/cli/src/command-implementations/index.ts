@@ -25,7 +25,7 @@ import * as profiles from './profile-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
 
-type GlobalCtor<C extends GlobalCommandDefinition> = new (
+export type GlobalCtor<C extends GlobalCommandDefinition> = new (
   ...args: ConstructorParameters<typeof GlobalCommand<C>>
 ) => BaseCommand<C>
 
