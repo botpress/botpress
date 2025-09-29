@@ -9,7 +9,6 @@ import { Logger } from './logger'
 import { registerYargs } from './register-yargs'
 
 export const commands = exportedCommands
-export { defaultOptions } from './exports'
 
 const logError = (thrown: unknown) => {
   const error = errors.BotpressCLIError.map(thrown)

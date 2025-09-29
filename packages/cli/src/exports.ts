@@ -1,5 +1,6 @@
 import commandDefinitions from './command-definitions'
 import commands from './command-implementations'
+import { GlobalCommandDefinition } from './command-implementations/global-command'
 import { DefinitionSubTree, DefinitionTree, DefinitionTreeNode } from './command-tree'
 import * as consts from './consts'
 import type * as typings from './typings'
@@ -14,51 +15,63 @@ type ExportCommandTree<D extends DefinitionTree = DefinitionTree> = {
   [K in keyof D]: ExportCommandTreeNode<D[K]>
 }
 
-export const defaultOptions = () => ({
-  json: false,
-  verbose: false,
-  confirm: false,
-  botpressHome: consts.defaultBotpressHome,
-})
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+
+type ExportCommandArgv<C extends typings.CommandDefinition = typings.CommandDefinition> = Optional<
+  typings.CommandArgv<C>,
+  'botpressHome' | 'verbose' | 'confirm' | 'json'
+>
+
+const exportWrapper =
+  <C extends GlobalCommandDefinition>(handler: (argv: typings.CommandArgv<C>) => Promise<{ exitCode: number }>) =>
+  async (argv: ExportCommandArgv<C>) => {
+    return handler({
+      ...argv,
+      json: argv.json ?? false,
+      verbose: argv.verbose ?? false,
+      confirm: argv.confirm ?? false,
+      botpressHome: argv.botpressHome ?? consts.defaultBotpressHome,
+    } as typings.CommandArgv<C>)
+  }
 
 export default {
-  login: commands.login,
-  logout: commands.logout,
+  login: exportWrapper(commands.login),
+  logout: exportWrapper(commands.logout),
   bots: {
-    create: commands.bots.subcommands.create,
-    get: commands.bots.subcommands.get,
-    delete: commands.bots.subcommands.delete,
-    list: commands.bots.subcommands.list,
+    create: exportWrapper(commands.bots.subcommands.create),
+    get: exportWrapper(commands.bots.subcommands.get),
+    delete: exportWrapper(commands.bots.subcommands.delete),
+    list: exportWrapper(commands.bots.subcommands.list),
   },
   integrations: {
-    get: commands.integrations.subcommands.get,
-    list: commands.integrations.subcommands.list,
-    delete: commands.integrations.subcommands.delete,
+    get: exportWrapper(commands.integrations.subcommands.get),
+    list: exportWrapper(commands.integrations.subcommands.list),
+    delete: exportWrapper(commands.integrations.subcommands.delete),
   },
   interfaces: {
-    get: commands.interfaces.subcommands.get,
-    list: commands.interfaces.subcommands.list,
-    delete: commands.interfaces.subcommands.delete,
+    get: exportWrapper(commands.interfaces.subcommands.get),
+    list: exportWrapper(commands.interfaces.subcommands.list),
+    delete: exportWrapper(commands.interfaces.subcommands.delete),
   },
   plugins: {
-    get: commands.plugins.subcommands.get,
-    list: commands.plugins.subcommands.list,
-    delete: commands.plugins.subcommands.delete,
+    get: exportWrapper(commands.plugins.subcommands.get),
+    list: exportWrapper(commands.plugins.subcommands.list),
+    delete: exportWrapper(commands.plugins.subcommands.delete),
   },
-  init: commands.init,
-  generate: commands.generate,
-  bundle: commands.bundle,
-  build: commands.build,
-  read: commands.read,
-  serve: commands.serve,
-  deploy: commands.deploy,
-  add: commands.add,
-  dev: commands.dev,
-  lint: commands.lint,
-  chat: commands.chat,
+  init: exportWrapper(commands.init),
+  generate: exportWrapper(commands.generate),
+  bundle: exportWrapper(commands.bundle),
+  build: exportWrapper(commands.build),
+  read: exportWrapper(commands.read),
+  serve: exportWrapper(commands.serve),
+  deploy: exportWrapper(commands.deploy),
+  add: exportWrapper(commands.add),
+  dev: exportWrapper(commands.dev),
+  lint: exportWrapper(commands.lint),
+  chat: exportWrapper(commands.chat),
   profiles: {
-    list: commands.profiles.subcommands.list,
-    active: commands.profiles.subcommands.active,
-    use: commands.profiles.subcommands.use,
+    list: exportWrapper(commands.profiles.subcommands.list),
+    active: exportWrapper(commands.profiles.subcommands.active),
+    use: exportWrapper(commands.profiles.subcommands.use),
   },
 } satisfies ExportCommandTree<typeof commandDefinitions>
