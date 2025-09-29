@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "4.17.14",
+  "version": "4.17.15",
   "description": "Botpress CLI",
   "scripts": {
     "build": "tsc -p ./tsconfig.build.json --emitDeclarationOnly && pnpm run bundle && pnpm run template:gen",
