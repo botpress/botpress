@@ -127,7 +127,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
           case 'file':
             const title = item.payload.title?.trim()
             const url = item.payload.fileUrl.trim()
-            let filename = title || 'file'
+            const inputFilename = item.payload.filename?.trim()
+            let filename = inputFilename || title || 'file'
             const fileExtension = _extractFileExtension(filename)
             if (!fileExtension) {
               filename += _extractFileExtension(url) ?? ''
@@ -136,9 +137,6 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
             break
           case 'location':
             await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
-            break
-          case 'markdown':
-            await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.markdown)) })
             break
           default:
             props.logger.forBot().warn('The type passed in bloc is not supported')

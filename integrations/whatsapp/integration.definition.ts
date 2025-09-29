@@ -9,7 +9,7 @@ import {
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from 'definitions/events'
 
-export const INTEGRATION_NAME = 'whatsapp'
+export const INTEGRATION_NAME = 'faucon-whatsapp'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
@@ -95,7 +95,7 @@ const defaultBotPhoneNumberId = {
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '4.5.0',
-  title: 'WhatsApp',
+  title: 'faucon-WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
@@ -181,6 +181,55 @@ export default new IntegrationDefinition({
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),
+          }),
+        },
+        bloc: {
+          schema: z.object({
+            items: z.array(
+              z.discriminatedUnion('type', [
+                z.object({
+                  type: z.literal('text'),
+                  payload: z.object({
+                    text: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('image'),
+                  payload: z.object({
+                    imageUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('audio'),
+                  payload: z.object({
+                    audioUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('video'),
+                  payload: z.object({
+                    videoUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('file'),
+                  payload: z.object({
+                    fileUrl: z.string(),
+                    title: z.string().optional(),
+                    filename: z.string().optional(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('location'),
+                  payload: z.object({
+                    latitude: z.number(),
+                    longitude: z.number(),
+                    address: z.string().optional(),
+                    title: z.string().optional(),
+                  }),
+                }),
+              ])
+            ),
           }),
         },
       },
