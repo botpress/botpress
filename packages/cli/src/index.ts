@@ -3,29 +3,13 @@ import yargs from '@bpinternal/yargs-extra'
 import commandDefinitions from './command-definitions'
 import commandImplementations from './command-implementations'
 import * as tree from './command-tree'
-import * as commands from './commands'
 import * as errors from './errors'
+import exportedCommands from './exports'
 import { Logger } from './logger'
 import { registerYargs } from './register-yargs'
 
-export const login = commands.login
-export const logout = commands.logout
-export const bots = commands.bots
-export const integrations = commands.integrations
-export const interfaces = commands.interfaces
-export const plugins = commands.plugins
-export const init = commands.init
-export const generate = commands.generate
-export const bundle = commands.bundle
-export const build = commands.build
-export const read = commands.read
-export const serve = commands.serve
-export const deploy = commands.deploy
-export const add = commands.add
-export const dev = commands.dev
-export const lint = commands.lint
-export const chat = commands.chat
-export const profiles = commands.profiles
+export const commands = exportedCommands
+export { defaultOptions } from './exports'
 
 const logError = (thrown: unknown) => {
   const error = errors.BotpressCLIError.map(thrown)
