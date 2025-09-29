@@ -1,9 +1,10 @@
 {
   "name": "@botpresshub/feature-base",
   "scripts": {
-    "build": "bp add -y && bp build",
+    "build": "bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "version": "bp --version"
   },
   "private": true,
   "dependencies": {
