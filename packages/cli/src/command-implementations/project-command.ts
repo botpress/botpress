@@ -46,6 +46,12 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
 }
 
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
+  private _definitionBuildContext: utils.esbuild.BuildEntrypointContext
+
+  public constructor(...args: ConstructorParameters<typeof GlobalCommand<C>>) {
+    super(...args)
+    this._definitionBuildContext = new utils.esbuild.BuildEntrypointContext()
+  }
   protected override async bootstrap() {
     await super.bootstrap()
     await this._notifyUpdateSdk()
@@ -97,12 +103,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this._definitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
@@ -124,12 +130,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this._definitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
@@ -151,12 +157,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this._definitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
@@ -178,12 +184,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this._definitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read plugin definition')
     }

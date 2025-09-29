@@ -6,7 +6,7 @@ import { ProjectCommand } from './project-command'
 
 export type BuildCommandDefinition = typeof commandDefinitions.build
 export class BuildCommand extends ProjectCommand<BuildCommandDefinition> {
-  public async run(buildContext?: utils.esbuild.IncrementalBuildContext): Promise<void> {
+  public async run(buildContext?: utils.esbuild.BuildCodeContext): Promise<void> {
     const t0 = Date.now()
     const { type: projectType, definition: integrationDef } = await this.readProjectDefinitionFromFS()
 
@@ -28,7 +28,7 @@ export class BuildCommand extends ProjectCommand<BuildCommandDefinition> {
     return new GenerateCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
-  private _runBundle(buildContext?: utils.esbuild.IncrementalBuildContext) {
+  private _runBundle(buildContext?: utils.esbuild.BuildCodeContext) {
     return new BundleCommand(this.api, this.prompt, this.logger, this.argv).run(buildContext)
   }
 }
