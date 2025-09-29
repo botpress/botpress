@@ -19,19 +19,13 @@ type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 
 type ExportCommandArgv<C extends typings.CommandDefinition = typings.CommandDefinition> = Optional<
   typings.CommandArgv<C>,
-  'botpressHome' | 'verbose' | 'confirm' | 'json'
+  'botpressHome'
 >
 
 const exportWrapper =
   <C extends GlobalCommandDefinition>(handler: (argv: typings.CommandArgv<C>) => Promise<{ exitCode: number }>) =>
   async (argv: ExportCommandArgv<C>) => {
-    return handler({
-      ...argv,
-      json: argv.json ?? false,
-      verbose: argv.verbose ?? false,
-      confirm: argv.confirm ?? false,
-      botpressHome: argv.botpressHome ?? consts.defaultBotpressHome,
-    } as typings.CommandArgv<C>)
+    return handler({ ...argv, botpressHome: argv.botpressHome ?? consts.defaultBotpressHome } as typings.CommandArgv<C>)
   }
 
 export default {
