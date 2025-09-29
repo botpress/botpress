@@ -1,28 +1,7 @@
-import { ApiClient } from './api/client'
-import { GlobalCtor } from './command-implementations'
-import { AddCommand } from './command-implementations/add-command'
-import * as botsCommands from './command-implementations/bot-commands'
-import { BuildCommand } from './command-implementations/build-command'
-import { BundleCommand } from './command-implementations/bundle-command'
-import { ChatCommand } from './command-implementations/chat-command'
-import { DeployCommand } from './command-implementations/deploy-command'
-import { DevCommand } from './command-implementations/dev-command'
-import { GenerateCommand } from './command-implementations/gen-command'
+import commands from './command-implementations'
 import type { GlobalCommandDefinition } from './command-implementations/global-command'
-import { InitCommand } from './command-implementations/init-command'
-import * as integrationsCommands from './command-implementations/integration-commands'
-import * as interfacesCommands from './command-implementations/interface-commands'
-import { LintCommand } from './command-implementations/lint-command'
-import { LoginCommand } from './command-implementations/login-command'
-import { LogoutCommand } from './command-implementations/logout-command'
-import * as pluginsCommands from './command-implementations/plugin-commands'
-import * as profilesCommands from './command-implementations/profile-commands'
-import { ReadCommand } from './command-implementations/read-command'
-import { ServeCommand } from './command-implementations/serve-command'
 import * as consts from './consts'
-import { Logger } from './logger'
 import type { CommandArgv, CommandDefinition } from './typings'
-import * as utils from './utils'
 
 type CommandGlobalOptions = {
   confirm?: boolean
@@ -36,11 +15,9 @@ type CommandArgvParams<C extends CommandDefinition = CommandDefinition> = Omit<
   'verbose' | 'confirm' | 'botpressHome' | 'json'
 >
 
-const getHandler =
-  <C extends GlobalCommandDefinition>(cls: GlobalCtor<C>) =>
+const wrapCommandHandler =
+  <C extends GlobalCommandDefinition>(command: (argv: CommandArgv<C>) => Promise<{ exitCode: number }>) =>
   async (argv: CommandArgvParams<C>, opts: CommandGlobalOptions = {}) => {
-    const logger = new Logger(opts)
-    const prompt = new utils.prompt.CLIPrompt({ confirm: opts.confirm ?? false }, logger)
     const args = {
       ...argv,
       confirm: opts.confirm ?? false,
@@ -48,45 +25,75 @@ const getHandler =
       json: opts.json ?? false,
       botpressHome: opts.botpressHome ?? consts.defaultBotpressHome,
     } as CommandArgv<C>
-    return new cls(ApiClient, prompt, logger, args).handler()
+    return command(args)
   }
 
-export const login = getHandler(LoginCommand)
-export const logout = getHandler(LogoutCommand)
+// type StripSubcommands<T> = T extends (...args: any) => any
+//   ? T
+//   : T extends object
+//     ? 'subcommands' extends keyof T
+//       ? Exclude<keyof T, 'subcommands'> extends never
+//         ? StripSubcommands<T['subcommands']>
+//         : { [K in keyof T]: StripSubcommands<T[K]> } // fallback: regular object
+//       : { [K in keyof T]: StripSubcommands<T[K]> }
+//     : T
+//
+// // 2) Runtime helper that implements the same logic
+// function stripSubcommands<T>(obj: T): StripSubcommands<T> {
+//   if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+//     const keys = Object.keys(obj as object)
+//     // If the object is exactly { subcommands: ... }, collapse it
+//     if (keys.length === 1 && keys[0] === 'subcommands') {
+//       return stripSubcommands((obj as any).subcommands)
+//     }
+//     // Otherwise, map over properties
+//     const out: any = {}
+//     for (const k of keys) {
+//       out[k] = stripSubcommands((obj as any)[k])
+//     }
+//     return out
+//   }
+//   return obj as any
+// }
+//
+// const newCommands = stripSubcommands(commandImplementation)
+
+export const login = wrapCommandHandler(commands.login)
+export const logout = wrapCommandHandler(commands.logout)
 export const bots = {
-  create: getHandler(botsCommands.CreateBotCommand),
-  get: getHandler(botsCommands.GetBotCommand),
-  delete: getHandler(botsCommands.DeleteBotCommand),
-  list: getHandler(botsCommands.ListBotsCommand),
+  create: wrapCommandHandler(commands.bots.subcommands.create),
+  get: wrapCommandHandler(commands.bots.subcommands.get),
+  delete: wrapCommandHandler(commands.bots.subcommands.delete),
+  list: wrapCommandHandler(commands.bots.subcommands.list),
 }
 export const integrations = {
-  get: getHandler(integrationsCommands.GetIntegrationCommand),
-  list: getHandler(integrationsCommands.ListIntegrationsCommand),
-  delete: getHandler(integrationsCommands.DeleteIntegrationCommand),
+  get: wrapCommandHandler(commands.integrations.subcommands.get),
+  list: wrapCommandHandler(commands.integrations.subcommands.list),
+  delete: wrapCommandHandler(commands.integrations.subcommands.delete),
 }
 export const interfaces = {
-  get: getHandler(interfacesCommands.GetInterfaceCommand),
-  list: getHandler(interfacesCommands.ListInterfacesCommand),
-  delete: getHandler(interfacesCommands.DeleteInterfaceCommand),
+  get: wrapCommandHandler(commands.interfaces.subcommands.get),
+  list: wrapCommandHandler(commands.interfaces.subcommands.list),
+  delete: wrapCommandHandler(commands.interfaces.subcommands.delete),
 }
 export const plugins = {
-  get: getHandler(pluginsCommands.GetPluginCommand),
-  list: getHandler(pluginsCommands.ListPluginsCommand),
-  delete: getHandler(pluginsCommands.DeletePluginCommand),
+  get: wrapCommandHandler(commands.plugins.subcommands.get),
+  list: wrapCommandHandler(commands.plugins.subcommands.list),
+  delete: wrapCommandHandler(commands.plugins.subcommands.delete),
 }
-export const init = getHandler(InitCommand)
-export const generate = getHandler(GenerateCommand)
-export const bundle = getHandler(BundleCommand)
-export const build = getHandler(BuildCommand)
-export const read = getHandler(ReadCommand)
-export const serve = getHandler(ServeCommand)
-export const deploy = getHandler(DeployCommand)
-export const add = getHandler(AddCommand)
-export const dev = getHandler(DevCommand)
-export const lint = getHandler(LintCommand)
-export const chat = getHandler(ChatCommand)
+export const init = wrapCommandHandler(commands.init)
+export const generate = wrapCommandHandler(commands.generate)
+export const bundle = wrapCommandHandler(commands.bundle)
+export const build = wrapCommandHandler(commands.build)
+export const read = wrapCommandHandler(commands.read)
+export const serve = wrapCommandHandler(commands.serve)
+export const deploy = wrapCommandHandler(commands.deploy)
+export const add = wrapCommandHandler(commands.add)
+export const dev = wrapCommandHandler(commands.dev)
+export const lint = wrapCommandHandler(commands.lint)
+export const chat = wrapCommandHandler(commands.chat)
 export const profiles = {
-  list: getHandler(profilesCommands.ListProfilesCommand),
-  active: getHandler(profilesCommands.ActiveProfileCommand),
-  use: getHandler(profilesCommands.UseProfileCommand),
+  list: wrapCommandHandler(commands.profiles.subcommands.list),
+  active: wrapCommandHandler(commands.profiles.subcommands.active),
+  use: wrapCommandHandler(commands.profiles.subcommands.use),
 }
