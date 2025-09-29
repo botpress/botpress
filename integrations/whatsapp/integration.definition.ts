@@ -194,6 +194,12 @@ export default new IntegrationDefinition({
                   }),
                 }),
                 z.object({
+                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  payload: z.object({
+                    markdown: z.string(),
+                  }),
+                }),
+                z.object({
                   type: z.literal('image'),
                   payload: z.object({
                     imageUrl: z.string(),
