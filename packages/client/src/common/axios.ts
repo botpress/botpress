@@ -2,7 +2,21 @@ import * as axios from 'axios'
 import * as consts from './consts'
 import * as types from './types'
 
-const TIMING_HEADER = 'x-start-time'
+// const TIMING_HEADER = 'x-start-time'
+type AxiosRequestConfigWithMetadata<T = unknown> = {
+  headers: axios.AxiosRequestHeaders
+  metadata?: {
+    startTime?: number
+  }
+} & axios.AxiosRequestConfig<T>
+
+type AxiosResponseWithMetadata<T = unknown, D = unknown> = {
+  config: AxiosRequestConfigWithMetadata<D>
+} & axios.AxiosResponse<T, D>
+
+type AxiosErrorWithMetadata<T = unknown, D = unknown> = {
+  config: AxiosRequestConfigWithMetadata<D>
+} & axios.AxiosError<T, D>
 
 const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfig => ({
   baseURL: config.apiUrl,
@@ -18,39 +32,46 @@ const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfig => ({
 export const getAxiosInstance = (config: types.ClientConfig): axios.AxiosInstance => {
   const axiosConfig = createAxios(config)
   const axiosInstance = axios.default.create(axiosConfig)
+
   if (config.debug) {
-    //log: request body, headers and timings
-    //response body, headers and timings
-    axiosInstance.interceptors.request.use((config) => {
+    axiosInstance.interceptors.request.use((config: AxiosRequestConfigWithMetadata) => {
+      config.metadata = { startTime: new Date().getTime() }
       console.debug(formatRequestLog(config))
       return config
     })
-    axiosInstance.interceptors.response.use((response) => {
-      console.debug(formatResponseLog(response))
-      return response
-    })
+
+    axiosInstance.interceptors.response.use(
+      (response) => {
+        console.debug(formatResponseLog(response))
+        return response
+      },
+      (error) => {
+        console.debug(formatErrorLog(error))
+        return error
+      }
+    )
   }
+
   return axiosInstance
 }
 
-export const formatRequestLog = (config: axios.AxiosRequestConfig): string => {
+const formatRequestLog = (config: axios.AxiosRequestConfig): string => {
   const { method, url, headers, data } = config
-  return [
-    'Request:',
-    `  Method: ${method?.toUpperCase()}`,
-    `  URL: ${url}`,
-    `  Headers: ${JSON.stringify(headers, null, 2)}`,
-    `  Body: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`,
-    `  Timestamp: ${new Date().toISOString()}`,
-  ].join('\n')
+  return (
+    [
+      'Request:',
+      `  Method: ${method?.toUpperCase()}`,
+      `  URL: ${url}`,
+      `  Headers: ${JSON.stringify(headers, null, 2)}`,
+      `  Body: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`,
+      `  Timestamp: ${new Date().toISOString()}`,
+    ].join('\n') + '\n'
+  )
 }
 
-export const formatResponseLog = (response: axios.AxiosResponse): string => {
+const formatResponseLog = (response: AxiosResponseWithMetadata): string => {
   const { config, status, statusText, headers, data } = response
-  // Axios allows you to attach custom properties to config, so we can store start time
-  const startTime = response.data[TIMING_HEADER]
-  const endTime = new Date().getTime()
-  const duration = startTime ? `${endTime - startTime}ms` : 'N/A'
+  const duration = _formatDuration(response)
 
   return [
     'Response:',
@@ -61,4 +82,26 @@ export const formatResponseLog = (response: axios.AxiosResponse): string => {
     `  Body: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`,
     `  Timestamp: ${new Date().toISOString()}`,
   ].join('\n')
+}
+
+const formatErrorLog = (error: AxiosErrorWithMetadata): string => {
+  const config = error?.config ?? error.config
+  const status = error?.status ?? 'N/A'
+  const code = error?.code ?? 'N/A'
+  const duration = error ? _formatDuration(error) : 'N/A'
+
+  return [
+    'Error Response:',
+    `  Status: ${code} - ${status}`,
+    `  URL: ${config?.url ?? 'N/A'}`,
+    `  Duration: ${duration}`,
+    `  Timestamp: ${new Date().toISOString()}`,
+  ].join('\n')
+}
+
+const _formatDuration = (response: AxiosResponseWithMetadata | AxiosErrorWithMetadata) => {
+  const startTime = response.config.metadata?.startTime
+  const endTime = new Date().getTime()
+  const duration = startTime ? `${endTime - startTime}ms` : 'N/A'
+  return duration
 }
