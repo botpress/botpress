@@ -168,6 +168,7 @@ export class Cognitive {
 
     const betaClient = new CognitiveBeta({
       headers: this._client.config.headers as Record<string, string>,
+      withCredentials: this._client.config.withCredentials,
       baseUrl: this._client.config.apiUrl.includes('.cloud')
         ? 'https://cognitive.botpress.cloud'
         : 'https://cognitive.botpress.dev',
