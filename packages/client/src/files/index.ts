@@ -1,4 +1,3 @@
-import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as gen from '../gen/files'
