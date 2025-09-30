@@ -3,8 +3,8 @@ import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
+import impl from '../../src'
 import * as apiUtils from '../../src/api'
-import impl from '../../src/command-implementations'
 import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
@@ -160,7 +160,7 @@ export const addIntegration: Test = {
       await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)
       await utils.tscCheck({ workDir: botDir }).then(utils.handleExitCode)
     } finally {
-      await impl.integrations.subcommands
+      await impl.integrations
         .delete({
           ...argv,
           integrationRef: integration.id,
@@ -245,7 +245,7 @@ export const addPlugin: Test = {
       await utils.tscCheck({ workDir: botDir }).then(utils.handleExitCode)
 
       logger.info('Deploying bot')
-      await impl.bots.subcommands.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
+      await impl.bots.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
 
       bot = await fetchBot(bpClient, botName)
       if (!bot) {
@@ -266,7 +266,7 @@ export const addPlugin: Test = {
       }
     } finally {
       if (bot) {
-        await impl.bots.subcommands
+        await impl.bots
           .delete({
             ...argv,
             botRef: bot.id,
@@ -275,7 +275,7 @@ export const addPlugin: Test = {
             logger.warn(`Failed to delete bot ${bot!.id}`) // this is not the purpose of the test
           })
       }
-      await impl.plugins.subcommands
+      await impl.plugins
         .delete({
           ...argv,
           pluginRef: plugin.id,
