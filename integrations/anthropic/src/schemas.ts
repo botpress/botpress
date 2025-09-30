@@ -7,7 +7,7 @@ export const DefaultModel: ModelId = 'claude-sonnet-4-5-20250929'
 export const ModelId = z
   .enum([
     'claude-sonnet-4-5-20250929',
-    'claude-sonnet-4-5-20250929-reasoning',
+    'claude-sonnet-4-5-reasoning-20250929',
     'claude-sonnet-4-20250514',
     'claude-sonnet-4-reasoning-20250514',
     'claude-3-7-sonnet-20250219',

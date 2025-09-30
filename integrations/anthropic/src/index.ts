@@ -24,7 +24,7 @@ export const ThinkingModeBudgetTokens: Record<ReasoningEffort, number> = {
 
 export const ReasoningModelIdReplacements: Partial<Record<ModelId, ModelId>> = {
   // These "reasoning" model IDs didn't really exist in Anthropic, we used it as a simple way for users to switch between the reasoning mode and the standard mode, but this approach has been deprecated in favor of specifying a reasoning effort in the request to activate reasoning in the model.
-  'claude-sonnet-4-5-20250929-reasoning': 'claude-sonnet-4-5-20250929',
+  'claude-sonnet-4-5-reasoning-20250929': 'claude-sonnet-4-5-20250929',
   'claude-sonnet-4-reasoning-20250514': 'claude-sonnet-4-20250514',
   'claude-3-7-sonnet-reasoning-20250219': 'claude-3-7-sonnet-20250219',
 }
@@ -48,7 +48,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 64_000,
     },
   },
-  'claude-sonnet-4-5-20250929-reasoning': {
+  'claude-sonnet-4-5-reasoning-20250929': {
     name: 'Claude Sonnet 4.5 (Reasoning Mode)',
     description:
       'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Sonnet 4.5 is Anthropic\'s most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.',
