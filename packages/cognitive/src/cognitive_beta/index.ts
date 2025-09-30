@@ -44,7 +44,7 @@ export class CognitiveBeta {
     this._axiosClient = axios.create({
       headers: this._headers,
       withCredentials: this._withCredentials,
-      baseURL: this._baseUrl,
+      baseURL: this._apiUrl,
     })
   }
 
@@ -81,7 +81,7 @@ export class CognitiveBeta {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
 
     if (isBrowser()) {
-      const res = await fetch(`${this._baseUrl}/v2/cognitive/generate-text-stream`, {
+      const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-text-stream`, {
         method: 'POST',
         headers: {
           ...this._headers,
