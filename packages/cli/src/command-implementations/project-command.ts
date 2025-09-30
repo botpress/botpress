@@ -139,7 +139,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
+    const definition = projectDefinitionCodeCache.get<sdk.IntegrationDefinition>(artifact.text)
     validateIntegrationDefinition(definition)
     return { definition, bpLintDisabled }
   }
@@ -166,7 +166,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDefinition }>(artifact.text)
+    const definition = projectDefinitionCodeCache.get<sdk.InterfaceDefinition>(artifact.text)
 
     return { definition, bpLintDisabled }
   }
@@ -220,7 +220,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read plugin definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.PluginDefinition }>(artifact.text)
+    const definition = projectDefinitionCodeCache.get<sdk.PluginDefinition>(artifact.text)
     // TODO: validate plugin definition
     return { definition, bpLintDisabled }
   }
