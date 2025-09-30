@@ -9,6 +9,7 @@ type ClientProps = {
   timeout?: number
   botId?: string
   token?: string
+  withCredentials?: boolean
   headers?: Record<string, string>
 }
 
@@ -29,6 +30,7 @@ export class CognitiveBeta {
       timeout: props.timeout || 60_001,
       token: props.token || '',
       botId: props.botId || '',
+      withCredentials: props.withCredentials || false,
       headers: props.headers || {},
     }
 
@@ -38,6 +40,7 @@ export class CognitiveBeta {
         'X-Bot-Id': this._config.botId,
         ...this._config.headers,
       },
+      withCredentials: this._config.withCredentials,
       baseURL: this._config.baseUrl,
     })
   }
@@ -81,7 +84,9 @@ export class CognitiveBeta {
           Authorization: `Bearer ${this._config.token}`,
           'X-Bot-Id': this._config.botId,
           'Content-Type': 'application/json',
+          ...this._config.headers,
         },
+        credentials: this._config.withCredentials ? 'include' : 'omit',
         body: JSON.stringify({ ...request, stream: true }),
         signal,
       })
