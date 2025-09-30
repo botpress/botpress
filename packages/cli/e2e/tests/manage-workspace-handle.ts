@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import * as fs from 'fs'
 import pathlib from 'path'
-import impl from '../../src/command-implementations'
+import impl from '../../src'
 import { ApiIntegration, fetchAllIntegrations } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
@@ -72,7 +72,7 @@ export const prependWorkspaceHandle: Test = {
     }
 
     logger.debug(`Deleting integration "${integrationName}"`)
-    await impl.integrations.subcommands.delete({ ...argv, integrationRef: integration.id }).then(({ exitCode }) => {
+    await impl.integrations.delete({ ...argv, integrationRef: integration.id }).then(({ exitCode }) => {
       exitCode !== 0 && logger.warn(`Failed to delete integration "${integrationName}"`) // not enough to fail the test
     })
   },
