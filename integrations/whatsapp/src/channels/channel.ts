@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/sdk'
 import {
   Text,
   Audio,
@@ -101,8 +100,49 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       }
     },
-    bloc: () => {
-      throw new RuntimeError('Not implemented')
+    bloc: async ({ payload, ...props }) => {
+      if (!payload.items) {
+        return
+      }
+      for (const item of payload.items) {
+        switch (item.type) {
+          case 'text':
+            await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
+            break
+          case 'image':
+            await _send({
+              ...props,
+              message: await image.generateOutgoingMessage({ payload: item.payload, logger: props.logger }),
+            })
+            break
+          case 'audio':
+            await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
+            break
+          case 'video':
+            await _send({
+              ...props,
+              message: new Video(item.payload.videoUrl.trim(), false),
+            })
+            break
+          case 'file':
+            const title = item.payload.title?.trim()
+            const url = item.payload.fileUrl.trim()
+            const inputFilename = item.payload.filename?.trim()
+            let filename = inputFilename || title || 'file'
+            const fileExtension = _extractFileExtension(filename)
+            if (!fileExtension) {
+              filename += _extractFileExtension(url) ?? ''
+            }
+            await _send({ ...props, message: new Document(url, false, title, filename) })
+            break
+          case 'location':
+            await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
+            break
+          default:
+            props.logger.forBot().warn('The type passed in bloc is not supported')
+            continue
+        }
+      }
     },
   },
 }
