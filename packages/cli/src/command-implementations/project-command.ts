@@ -59,6 +59,7 @@ class ProjectDefinitionCodeCache {
   }
 }
 
+// Multiple commands inherit from `ProjectCommand`, therefore we can't store state in the command instance.
 const projectDefinitionBuildContext = new utils.esbuild.BuildEntrypointContext()
 const projectDefinitionCodeCache = new ProjectDefinitionCodeCache()
 
