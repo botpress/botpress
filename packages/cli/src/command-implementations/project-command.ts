@@ -16,7 +16,7 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string; tunnelId: string }
+export type ProjectCache = { botId: string; devId: string; tunnelId: string; projectType: ProjectDefinition['type'] }
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
@@ -45,13 +45,24 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   }
 }
 
-export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
-  private _definitionBuildContext: utils.esbuild.BuildEntrypointContext
+class ProjectDefinitionCodeCache {
+  private _cache: Map<string, object> = new Map()
 
-  public constructor(...args: ConstructorParameters<typeof GlobalCommand<C>>) {
-    super(...args)
-    this._definitionBuildContext = new utils.esbuild.BuildEntrypointContext()
+  public get<T extends object>(code: string): T {
+    const definition = this._cache.get(code)
+    if (definition) {
+      return definition as T
+    }
+    const result = utils.require.requireJsCode<{ default: object }>(code)
+    this._cache.set(code, result.default)
+    return result.default as T
   }
+}
+
+const projectDefinitionBuildContext = new utils.esbuild.BuildEntrypointContext()
+const projectDefinitionCodeCache = new ProjectDefinitionCodeCache()
+
+export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
   protected override async bootstrap() {
     await super.bootstrap()
     await this._notifyUpdateSdk()
@@ -65,23 +76,37 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
+  protected async readProjectType(): Promise<ProjectDefinition['type']> {
+    const cachedType = await this.projectCache.get('projectType')
+    if (cachedType) {
+      return cachedType
+    }
+    const { type } = await this.readProjectDefinitionFromFS()
+    await this.projectCache.set('projectType', type)
+    return type
+  }
+
   protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
     const projectPaths = this.projectPaths
     try {
       const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
       if (integrationDefinition) {
+        await this.projectCache.set('projectType', 'integration')
         return { type: 'integration', ...integrationDefinition }
       }
       const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
       if (interfaceDefinition) {
+        await this.projectCache.set('projectType', 'interface')
         return { type: 'interface', ...interfaceDefinition }
       }
       const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
       if (botDefinition) {
+        await this.projectCache.set('projectType', 'bot')
         return { type: 'bot', ...botDefinition }
       }
       const pluginDefinition = await this._readPluginDefinitionFromFS(projectPaths)
       if (pluginDefinition) {
+        await this.projectCache.set('projectType', 'plugin')
         return { type: 'plugin', ...pluginDefinition }
       }
     } catch (thrown: unknown) {
@@ -103,7 +128,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
-    const { outputFiles } = await this._definitionBuildContext.rebuild({
+    const { outputFiles } = await projectDefinitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
     })
@@ -130,7 +155,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
-    const { outputFiles } = await this._definitionBuildContext.rebuild({
+    const { outputFiles } = await projectDefinitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
     })
@@ -157,7 +182,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
-    const { outputFiles } = await this._definitionBuildContext.rebuild({
+    const { outputFiles } = await projectDefinitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
     })
@@ -167,7 +192,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
+    const definition = projectDefinitionCodeCache.get<sdk.BotDefinition>(artifact.text)
     validateBotDefinition(definition)
     return { definition, bpLintDisabled }
   }
@@ -184,7 +209,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
 
-    const { outputFiles } = await this._definitionBuildContext.rebuild({
+    const { outputFiles } = await projectDefinitionBuildContext.rebuild({
       absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
     })

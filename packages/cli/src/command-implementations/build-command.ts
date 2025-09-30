@@ -8,16 +8,14 @@ export type BuildCommandDefinition = typeof commandDefinitions.build
 export class BuildCommand extends ProjectCommand<BuildCommandDefinition> {
   public async run(buildContext?: utils.esbuild.BuildCodeContext): Promise<void> {
     const t0 = Date.now()
-    const { type: projectType, definition: integrationDef } = await this.readProjectDefinitionFromFS()
+    const projectType = await this.readProjectType()
 
     if (projectType === 'interface') {
       this.logger.success('Interface projects have nothing to build.')
       return
     }
 
-    if (integrationDef) {
-      await this._runGenerate()
-    }
+    await this._runGenerate()
 
     await this._runBundle(buildContext)
     const dt = Date.now() - t0
