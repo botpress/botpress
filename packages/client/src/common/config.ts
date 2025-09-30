@@ -3,6 +3,7 @@ import * as types from './types'
 
 const defaultApiUrl = 'https://api.botpress.cloud'
 const defaultTimeout = 60_000
+const defaultDebug = false
 
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
@@ -45,12 +46,14 @@ export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig
 
   const apiUrl = props.apiUrl ?? defaultApiUrl
   const timeout = props.timeout ?? defaultTimeout
+  const debug = props.debug ?? defaultDebug
 
   return {
     apiUrl,
     timeout,
     withCredentials: isBrowser,
     headers,
+    debug,
   }
 }
 
