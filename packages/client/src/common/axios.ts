@@ -2,6 +2,8 @@ import * as axios from 'axios'
 import * as consts from './consts'
 import * as types from './types'
 
+const TIMING_HEADER = 'x-start-time'
+
 const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfig => ({
   baseURL: config.apiUrl,
   headers: config.headers,
@@ -24,7 +26,7 @@ export const getAxiosInstance = (config: types.ClientConfig): axios.AxiosInstanc
       return config
     })
     axiosInstance.interceptors.response.use((response) => {
-      console.debug()
+      console.debug(formatResponseLog(response))
       return response
     })
   }
@@ -46,8 +48,8 @@ export const formatRequestLog = (config: axios.AxiosRequestConfig): string => {
 export const formatResponseLog = (response: axios.AxiosResponse): string => {
   const { config, status, statusText, headers, data } = response
   // Axios allows you to attach custom properties to config, so we can store start time
-  const startTime = (config as any).__startTime as number | undefined
-  const endTime = Date.now()
+  const startTime = response.data[TIMING_HEADER]
+  const endTime = new Date().getTime()
   const duration = startTime ? `${endTime - startTime}ms` : 'N/A'
 
   return [
