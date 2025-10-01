@@ -44,7 +44,7 @@ const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
       `  Method: ${method?.toUpperCase()}`,
       `  URL: ${url}`,
       `  Timestamp: ${new Date().toISOString()}`,
-      `  Id: ${config.metadata?.id}`,
+      `  Request Id: ${config.metadata?.id}`,
       `  Headers: \n${JSON.stringify(headers)}`,
       `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
     ].join('\n') + '\n'
@@ -60,7 +60,7 @@ const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
     `  Status: ${status} ${statusText}`,
     `  URL: ${config.url}`,
     `  Timestamp: ${new Date().toISOString()}`,
-    `  Id: ${config.metadata?.id}`,
+    `  Request Id: ${config.metadata?.id}`,
     `  Duration: ${duration}`,
     `  Headers: \n${JSON.stringify(headers)}`,
     `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
