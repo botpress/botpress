@@ -110,20 +110,15 @@ export default new IntegrationDefinition({
       message: {
         tags: {
           id: { title: 'Event ID', description: 'The unique ID of the feed event' },
-          senderId: { title: 'Sender ID', description: 'The Facebook ID of the user who triggered the event' },
-          recipientId: { title: 'Recipient ID', description: 'The Facebook page ID' },
           postId: { title: 'Post ID', description: 'The Facebook post ID (for post and comment events)' },
           commentId: { title: 'Comment ID', description: 'The Facebook comment ID (for comment events)' },
+          parentId: { title: 'Parent ID', description: 'The Facebook parent ID (for comment events)' },
           eventType: { title: 'Event Type', description: 'The type of feed event (post, comment, reaction)' },
         },
       },
       conversation: {
         tags: {
           id: { title: 'Post ID', description: 'The Facebook post ID that serves as the conversation identifier' },
-          threadId: {
-            title: 'Thread ID',
-            description: 'The Facebook thread ID that serves as the conversation identifier',
-          },
           commentId: {
             title: 'Comment ID',
             description: 'The Facebook comment ID that serves as the comment identifier',

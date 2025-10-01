@@ -21,8 +21,14 @@ const sendSenderActions = async ({
   actions: MessengerTypes.SenderAction[]
 }) => {
   const { conversationId } = input
-  const messengerClient = await createMessengerClient(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
+
+  // Skip typing indicators for feed channel as it uses Facebook Page IDs, not Messenger user IDs
+  if (conversation.channel === 'feed') {
+    return {}
+  }
+
+  const messengerClient = await createMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   for (const action of actions) {
     await messengerClient.sendSenderAction(recipientId, action)
