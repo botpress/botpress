@@ -151,11 +151,11 @@ export class Cognitive {
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
   }
 
-  public async getModelDetails(model: string) {
+  public async getModelDetails(model: string): Promise<Model> {
     if (this._useBeta) {
       const resolvedModel = getCognitiveV2Model(model)
       if (resolvedModel) {
-        return { ...resolvedModel, ref: resolvedModel.id, integration: 'cognitive-v2' }
+        return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
       }
     }
 

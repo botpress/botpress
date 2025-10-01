@@ -184,12 +184,11 @@ export type Model = {
   id: string
   name: string
   description: string
-  tags?: (
+  tags: (
     | 'recommended'
     | 'deprecated'
     | 'general-purpose'
     | 'low-cost'
-    | 'flagship'
     | 'vision'
     | 'coding'
     | 'agents'
