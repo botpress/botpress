@@ -16,11 +16,6 @@ const searchContact: ActionDefinition = {
     schema: z.object({
       email: z.string().optional().title('Email').describe('The email of the contact to search for'),
       phone: z.string().optional().title('Phone').describe('The phone number of the contact to search for'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Property Names')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
@@ -85,11 +80,6 @@ const getContact: ActionDefinition = {
   input: {
     schema: z.object({
       contactIdOrEmail: z.string().title('Contact ID or Email').describe('The ID or email of the contact to get'),
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
     }),
   },
   output: {
@@ -151,11 +141,6 @@ const listContacts: ActionDefinition = {
   description: 'List contacts in Hubspot',
   input: {
     schema: z.object({
-      properties: z
-        .array(z.string())
-        .optional()
-        .title('Properties')
-        .describe('The properties to include in the response'),
       meta: z
         .object({
           nextToken: z
