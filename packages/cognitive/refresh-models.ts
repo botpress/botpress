@@ -1,19 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
-
-interface Model {
-  id?: string
-  tags?: string[]
-  input: {
-    maxTokens: number
-    costPer1MTokens: number
-  }
-  output: {
-    maxTokens: number
-    costPer1MTokens: number
-  }
-}
+import { Model } from 'src/schemas.gen'
 
 interface ModelsResponse {
   models: Model[]
@@ -21,13 +9,16 @@ interface ModelsResponse {
 
 const builtInModels = ['auto', 'best', 'fast', 'reasoning', 'cheapest', 'balance']
 
+const modelsListPath = path.resolve(__dirname, 'src/cognitive-v2', 'models.ts')
+const typesPath = path.resolve(__dirname, 'src/cognitive-v2', 'types.ts')
+
 async function main(): Promise<void> {
   const server = 'https://api.botpress.cloud/v2/cognitive'
   const key = process.env.TOKEN
   const botId = process.env.BOT_ID
 
   console.log('Fetching models ...')
-  const response: AxiosResponse<ModelsResponse> = await axios.get(`${server}/models`, {
+  const response: AxiosResponse<ModelsResponse> = await axios.get(`${server}/models?includeDeprecated=true`, {
     headers: {
       Authorization: `Bearer ${key}`,
       'X-Bot-Id': botId,
@@ -37,23 +28,36 @@ async function main(): Promise<void> {
 
   const models: Model[] = response.data.models
   const uniqueTags = [...new Set(models.map((m) => m.tags).flat())]
-  console.log(`Unique tags: ${uniqueTags.join(', ')}`)
 
-  const jsonOutPath = path.resolve(__dirname, 'src/cognitive-v2', 'live-models.ts')
+  console.log(`Unique tags: ${uniqueTags.join(', ')}`)
 
   const modelsObj = models.reduce(
     (acc, m) => {
-      acc[m.id] = { input: m.input, output: m.output, tags: m.tags }
+      acc[m.id] = m
       return acc
     },
     {} as Record<string, Model>
   )
 
-  const modelsVar = `export const liveModels = ${JSON.stringify(modelsObj, null, 2)}`
-  const knownVar = `export const knownTags = [${[...builtInModels, ...uniqueTags].map((t) => `'${t}'`).join(', ')}]`
-  fs.writeFileSync(jsonOutPath, modelsVar + '\n' + knownVar, 'utf8')
+  const defaultModel: Model = {
+    id: '',
+    name: '',
+    description: '',
+    input: { costPer1MTokens: 0, maxTokens: 1_000_000 },
+    output: { costPer1MTokens: 0, maxTokens: 1_000_000 },
+    tags: [],
+  }
 
-  console.log(`Saved ${Array.isArray(models) ? models.length : 0} models to ${jsonOutPath}`)
+  const newFile = `import { Model } from 'src/schemas.gen'
+
+export const models: Record<string, Model & { aliases?: string[] }>  = ${JSON.stringify(modelsObj, null, 2)}
+export const knownTags = [${[...builtInModels, ...uniqueTags].map((t) => `'${t}'`).join(', ')}]
+export const defaultModel = ${JSON.stringify(defaultModel, undefined, 2)}
+`
+
+  fs.writeFileSync(modelsListPath, newFile, 'utf8')
+
+  console.log(`Saved ${Array.isArray(models) ? models.length : 0} models to ${modelsListPath}`)
 
   const toRef = (m: Model | string | null | undefined): string | null => {
     if (!m) return null
@@ -65,8 +69,7 @@ async function main(): Promise<void> {
 
   const refs = Array.from(new Set(models.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
 
-  const modelsTsPath = path.resolve(__dirname, 'src', 'cognitive-v2', 'models.ts')
-  const content = fs.readFileSync(modelsTsPath, 'utf8')
+  const content = fs.readFileSync(typesPath, 'utf8')
 
   const startMarker = 'type Models ='
   const endMarker = 'export type CognitiveRequest'
@@ -85,9 +88,9 @@ async function main(): Promise<void> {
   const unionBlock = ['type Models =', ...autoLines, ...tagLines, ...refLines, '  | ({} & string)', ''].join('\n')
 
   const nextContent = content.slice(0, startIdx) + unionBlock + content.slice(endIdx)
-  fs.writeFileSync(modelsTsPath, nextContent, 'utf8')
+  fs.writeFileSync(typesPath, nextContent, 'utf8')
 
-  console.log(`Updated Models union in ${modelsTsPath} with ${refs.length} entries`)
+  console.log(`Updated Models union in ${typesPath} with ${refs.length} entries`)
 }
 
 main().catch((err: unknown) => {

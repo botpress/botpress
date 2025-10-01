@@ -12,7 +12,7 @@
     "build:neutral": "ts-node -T ./build.ts --neutral",
     "build": "pnpm build:type && pnpm build:neutral && size-limit",
     "test:e2e": "vitest run --dir ./e2e",
-    "fetch:models": "ts-node -T ./fetch-models.ts && pnpm prettier src/cognitive-v2/live-models.ts --write"
+    "refreshfetch:models": "ts-node -T ./refresh-models.ts && pnpm prettier src/cognitive-v2/models.ts --write"
   },
   "size-limit": [
     {

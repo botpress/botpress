@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './models'
+import { defaultModel, knownTags, models } from './models'
+import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
 
@@ -208,4 +209,23 @@ export class CognitiveBeta {
       retry: (e) => this._isRetryableServerError(e),
     })
   }
+}
+
+export const getCognitiveV2Model = (model: string): Model => {
+  if (models[model]) {
+    return models[model]
+  }
+
+  // Some models (ex fireworks) have a long name (the internal id) so it is now an alias instead of the main id
+  const alias = Object.values(models).find((x) => x.aliases?.includes(model))
+  if (alias) {
+    return alias
+  }
+
+  // Special tags like auto, fast, coding don't have explicit limits so we give a default model
+  if (knownTags.includes(model)) {
+    return { ...defaultModel, id: model, name: model }
+  }
+
+  return undefined
 }

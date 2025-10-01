@@ -2,8 +2,7 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { CognitiveBeta } from './cognitive-v2'
-import { knownTags, liveModels } from './cognitive-v2/live-models'
+import { CognitiveBeta, getCognitiveV2Model } from './cognitive-v2'
 
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
@@ -153,6 +152,13 @@ export class Cognitive {
   }
 
   public async getModelDetails(model: string) {
+    if (this._useBeta) {
+      const resolvedModel = getCognitiveV2Model(model)
+      if (resolvedModel) {
+        return resolvedModel
+      }
+    }
+
     await this.fetchInstalledModels()
     const { integration, model: modelName } = await this._selectModel(model)
     const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
@@ -164,7 +170,7 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta || !liveModels[input.model] || !knownTags[input.model]) {
+    if (!this._useBeta || !getCognitiveV2Model(input.model)) {
       return this._generateContent(input)
     }
 
