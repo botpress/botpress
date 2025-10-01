@@ -17,7 +17,8 @@ import { ProjectCommand } from './project-command'
 export type LintCommandDefinition = typeof commandDefinitions.lint
 export class LintCommand extends ProjectCommand<LintCommandDefinition> {
   public async run(): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
+    const projectDef = await resolveProjectDefinition()
     if (projectDef.bpLintDisabled) {
       this.logger.warn(
         'Linting is disabled for this project because of a bplint directive. To enable linting, remove the "bplint-disable" directive from the project definition file'
@@ -25,13 +26,19 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
       return
     }
 
-    switch (projectDef.type) {
-      case 'integration':
+    switch (projectType) {
+      case 'integration': {
+        const projectDef = await resolveProjectDefinition()
         return this._runLintForIntegration(projectDef.definition)
-      case 'bot':
+      }
+      case 'bot': {
+        const projectDef = await resolveProjectDefinition()
         return this._runLintForBot(projectDef.definition)
-      case 'interface':
+      }
+      case 'interface': {
+        const projectDef = await resolveProjectDefinition()
         return this._runLintForInterface(projectDef.definition)
+      }
       default:
         throw new errors.UnsupportedProjectType()
     }

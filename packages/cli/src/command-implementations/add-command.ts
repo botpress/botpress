@@ -10,7 +10,13 @@ import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-import { ProjectCache, ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
+import {
+  ProjectCache,
+  ProjectCommand,
+  ProjectCommandDefinition,
+  ProjectDefinitionLazy,
+  ProjectDefinition,
+} from './project-command'
 
 type InstallablePackage =
   | {
@@ -291,7 +297,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }> {
     const cmd = this._getProjectCmd(workDir)
 
-    const definition = await cmd.readProjectDefinitionFromFS().catch((thrown) => {
+    const { resolveProjectDefinition } = cmd.readProjectDefinitionFromFS()
+    const definition = await resolveProjectDefinition().catch((thrown) => {
       if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
         return undefined
       }
@@ -334,7 +341,7 @@ class _AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
     throw new errors.BotpressCLIError('Not implemented')
   }
 
-  public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+  public readProjectDefinitionFromFS(): ProjectDefinitionLazy {
     return super.readProjectDefinitionFromFS()
   }
 
