@@ -51,45 +51,49 @@ export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
 const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
   const { method, url, headers, data } = config
   return (
-    [
-      'Request:',
-      `  Method: ${method?.toUpperCase()}`,
-      `  URL: ${url}`,
-      `  Timestamp: ${new Date().toISOString()}`,
-      `  Request Id: ${config.metadata?.id}`,
-      `  Headers: \n${JSON.stringify(headers)}`,
-      `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
-    ].join('\n') + '\n'
+    'REQUEST:\n' +
+    JSON.stringify({
+      method: method?.toUpperCase(),
+      url,
+      timestamp: new Date().toISOString(),
+      requestId: config.metadata?.id,
+      headers,
+      body: data,
+    }) +
+    '\n'
   )
 }
 
 const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
-  const { config, status, statusText, headers, data } = response
+  const { config, status, headers, data } = response
   const duration = _formatDuration(response)
 
-  return [
-    'Response:',
-    `  Status: ${status} ${statusText}`,
-    `  URL: ${config.url}`,
-    `  Timestamp: ${new Date().toISOString()}`,
-    `  Request Id: ${config.metadata?.id}`,
-    `  Duration: ${duration}`,
-    `  Headers: \n${JSON.stringify(headers)}`,
-    `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
-  ].join('\n')
+  return (
+    'RESPONSE:\n' +
+    JSON.stringify({
+      method: config.method?.toUpperCase(),
+      status,
+      url: config.url,
+      timestamp: new Date().toISOString(),
+      requestId: config.metadata?.id,
+      duration,
+      headers,
+      body: data,
+    })
+  )
 }
 
 const _formatErrorLog = (error: AxiosErrorWithMetadata): string => {
   const duration = error ? _formatDuration(error) : 'N/A'
 
   return (
-    [
-      'Error Response:',
-      `  Status: ${error.code}`,
-      `  URL: ${error.config.url ?? 'N/A'}`,
-      `  Timestamp: ${new Date().toISOString()}`,
-      `  Duration: ${duration}`,
-    ].join('\n') + '\n'
+    'ERROR:\n' +
+    JSON.stringify({
+      status: error.code,
+      url: error.config.url ?? 'N/A',
+      timestamp: new Date().toISOString(),
+      duration,
+    })
   )
 }
 
