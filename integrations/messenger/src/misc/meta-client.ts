@@ -93,7 +93,7 @@ export class MetaClient {
       .post(
         `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
         {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
+          subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
         },
         {
           headers: {
