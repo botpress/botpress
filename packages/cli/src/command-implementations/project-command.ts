@@ -33,6 +33,29 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
+type ProjectDefinitionResolver<T> = () => Promise<LintIgnoredConfig & T>
+
+export type ProjectDefinitionLazy =
+  | {
+      projectType: 'integration'
+      resolveProjectDefinition: ProjectDefinitionResolver<{
+        type: 'integration'
+        definition: sdk.IntegrationDefinition
+      }>
+    }
+  | {
+      projectType: 'bot'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'bot'; definition: sdk.BotDefinition }>
+    }
+  | {
+      projectType: 'interface'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'interface'; definition: sdk.InterfaceDefinition }>
+    }
+  | {
+      projectType: 'plugin'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'plugin'; definition: sdk.PluginDefinition }>
+    }
+
 type UpdatedBot = client.Bot
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
@@ -59,40 +82,76 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
-    const projectPaths = this.projectPaths
+  private _readProjectType(projectPaths: ProjectPaths): ProjectType {
+    const abs = projectPaths.abs
+    if (fs.existsSync(abs.integrationDefinition)) {
+      return 'integration'
+    }
+    if (fs.existsSync(abs.interfaceDefinition)) {
+      return 'interface'
+    }
+    if (fs.existsSync(abs.botDefinition)) {
+      return 'bot'
+    }
+    if (fs.existsSync(abs.pluginDefinition)) {
+      return 'plugin'
+    }
+    throw new errors.UnsupportedProjectType()
+  }
+
+  protected readProjectDefinitionFromFS(): ProjectDefinitionLazy {
     try {
-      const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
-      if (integrationDefinition) {
-        return { type: 'integration', ...integrationDefinition }
+      const type = this._readProjectType(this.projectPaths)
+      if (type === 'integration') {
+        return {
+          projectType: 'integration',
+          resolveProjectDefinition: async () => ({
+            type: 'integration',
+            ...(await this._readIntegrationDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
-      if (interfaceDefinition) {
-        return { type: 'interface', ...interfaceDefinition }
+      if (type === 'plugin') {
+        return {
+          projectType: 'plugin',
+          resolveProjectDefinition: async () => ({
+            type: 'plugin',
+            ...(await this._readPluginDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
-      if (botDefinition) {
-        return { type: 'bot', ...botDefinition }
+      if (type === 'interface') {
+        return {
+          projectType: 'interface',
+          resolveProjectDefinition: async () => ({
+            type: 'interface',
+            ...(await this._readInterfaceDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const pluginDefinition = await this._readPluginDefinitionFromFS(projectPaths)
-      if (pluginDefinition) {
-        return { type: 'plugin', ...pluginDefinition }
+      if (type === 'bot') {
+        return {
+          projectType: 'bot',
+          resolveProjectDefinition: async () => ({
+            type: 'bot',
+            ...(await this._readBotDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
     }
-
     throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
-  ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.IntegrationDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.integrationDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
@@ -114,12 +173,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
-  ): Promise<({ definition: sdk.InterfaceDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.InterfaceDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.interfaceDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
@@ -141,12 +200,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readBotDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'>
-  ): Promise<({ definition: sdk.BotDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.BotDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.botDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
@@ -168,12 +227,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readPluginDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'pluginDefinition'>
-  ): Promise<({ definition: sdk.PluginDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.PluginDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.pluginDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read plugin definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
