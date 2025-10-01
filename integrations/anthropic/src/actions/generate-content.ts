@@ -5,7 +5,7 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
-import { DeprecatedReasoningModelIdReplacements, ThinkingModeBudgetTokens } from 'src'
+import { ReasoningModelIdReplacements, ThinkingModeBudgetTokens } from 'src'
 import { ModelId } from 'src/schemas'
 
 // Reference: https://docs.anthropic.com/en/api/errors
@@ -25,8 +25,8 @@ export async function generateContent(
 ): Promise<llm.GenerateContentOutput> {
   let modelId = (input.model?.id || params.defaultModel) as ModelId
 
-  if (modelId in DeprecatedReasoningModelIdReplacements) {
-    const replacementModelId = DeprecatedReasoningModelIdReplacements[modelId]!
+  if (modelId in ReasoningModelIdReplacements) {
+    const replacementModelId = ReasoningModelIdReplacements[modelId]!
 
     if (input.reasoningEffort === undefined) {
       input.reasoningEffort = 'medium'
@@ -97,6 +97,13 @@ export async function generateContent(
     tools: mapToAnthropicTools(input),
     tool_choice: mapToAnthropicToolChoice(input.toolChoice),
     messages,
+  }
+
+  if (modelId === 'claude-sonnet-4-5-20250929') {
+    if (request.temperature && request.top_p) {
+      // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
+      request.top_p = undefined
+    }
   }
 
   const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning

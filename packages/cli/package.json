@@ -1,13 +1,14 @@
 {
   "name": "@botpress/cli",
-  "version": "4.17.14",
+  "version": "4.17.15",
   "description": "Botpress CLI",
   "scripts": {
-    "build": "pnpm run bundle && pnpm run template:gen",
-    "dev": "ts-node -T src/index.ts",
-    "start": "node dist/index.js",
+    "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
+    "dev": "ts-node -T src/cli.ts",
+    "start": "node dist/cli.js",
     "check:type": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
+    "build:types": "tsc -p ./tsconfig.build.json",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
     "test:e2e": "ts-node -T ./e2e"
   },
@@ -18,6 +19,7 @@
     "bp": "./bin.js"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/chat": "0.5.1",
