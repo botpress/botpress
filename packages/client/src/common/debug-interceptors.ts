@@ -1,5 +1,16 @@
 import * as axios from 'axios'
-import * as crypto from 'crypto'
+import { isNode } from 'browser-or-node'
+let randomUUID: () => string
+if (isNode) {
+  // Only import in Node.js
+  randomUUID = require('crypto').randomUUID
+} else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+  // Browser with Web Crypto API
+  randomUUID = () => crypto.randomUUID()
+} else {
+  // Fallback
+  randomUUID = () => Math.random().toString(36).substring(2, 15)
+}
 
 type AxiosRequestConfigWithMetadata<T = unknown> = {
   headers: axios.AxiosRequestHeaders
@@ -19,7 +30,7 @@ type AxiosErrorWithMetadata<T = unknown, D = unknown> = {
 
 export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
   axiosInstance.interceptors.request.use((config: AxiosRequestConfigWithMetadata) => {
-    config.metadata = { startTime: new Date().getTime(), id: crypto.randomUUID() }
+    config.metadata = { startTime: new Date().getTime(), id: randomUUID() }
     console.debug(_formatRequestLog(config))
     return config
   })
