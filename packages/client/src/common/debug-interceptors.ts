@@ -1,8 +1,10 @@
 import * as axios from 'axios'
+import * as crypto from 'crypto'
 
 type AxiosRequestConfigWithMetadata<T = unknown> = {
   headers: axios.AxiosRequestHeaders
   metadata?: {
+    id?: string
     startTime?: number
   }
 } & axios.AxiosRequestConfig<T>
@@ -17,7 +19,7 @@ type AxiosErrorWithMetadata<T = unknown, D = unknown> = {
 
 export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
   axiosInstance.interceptors.request.use((config: AxiosRequestConfigWithMetadata) => {
-    config.metadata = { startTime: new Date().getTime() }
+    config.metadata = { startTime: new Date().getTime(), id: crypto.randomUUID() }
     console.debug(_formatRequestLog(config))
     return config
   })
@@ -34,7 +36,7 @@ export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
   )
 }
 
-const _formatRequestLog = (config: axios.AxiosRequestConfig): string => {
+const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
   const { method, url, headers, data } = config
   return (
     [
@@ -42,8 +44,9 @@ const _formatRequestLog = (config: axios.AxiosRequestConfig): string => {
       `  Method: ${method?.toUpperCase()}`,
       `  URL: ${url}`,
       `  Timestamp: ${new Date().toISOString()}`,
-      `  Headers: ${JSON.stringify(headers, null, 2)}`,
-      `  Body: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`,
+      `  Id: ${config.metadata?.id}`,
+      `  Headers: \n${JSON.stringify(headers)}`,
+      `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
     ].join('\n') + '\n'
   )
 }
@@ -57,9 +60,10 @@ const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
     `  Status: ${status} ${statusText}`,
     `  URL: ${config.url}`,
     `  Timestamp: ${new Date().toISOString()}`,
+    `  Id: ${config.metadata?.id}`,
     `  Duration: ${duration}`,
-    `  Headers: ${JSON.stringify(headers, null, 2)}`,
-    `  Body: ${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`,
+    `  Headers: \n${JSON.stringify(headers)}`,
+    `  Body: \n${typeof data === 'string' ? data : JSON.stringify(data)}`,
   ].join('\n')
 }
 

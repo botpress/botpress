@@ -19,7 +19,7 @@ export class Client extends gen.Client {
 
   public constructor(clientProps: ClientProps) {
     const clientConfig = common.config.getClientConfig(clientProps)
-    const axiosInstance = common.axios.getAxiosInstance(clientConfig)
+    const axiosInstance = common.axios.createAxiosInstance(clientConfig)
 
     super(axiosInstance, {
       toApiError: common.errors.toApiError,
