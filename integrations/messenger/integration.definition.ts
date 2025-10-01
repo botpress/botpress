@@ -106,7 +106,7 @@ export default new IntegrationDefinition({
     feed: {
       title: 'Facebook Feed Events',
       description: 'Channel for Facebook page feed events (posts, comments, reactions)',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: messages.defaults,
       message: {
         tags: {
           id: { title: 'Event ID', description: 'The unique ID of the feed event' },
@@ -120,8 +120,18 @@ export default new IntegrationDefinition({
       conversation: {
         tags: {
           id: { title: 'Post ID', description: 'The Facebook post ID that serves as the conversation identifier' },
-          senderId: { title: 'Sender ID', description: 'The Facebook ID of the user who created the post' },
-          recipientId: { title: 'Recipient ID', description: 'The Facebook page ID' },
+          threadId: {
+            title: 'Thread ID',
+            description: 'The Facebook thread ID that serves as the conversation identifier',
+          },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Facebook comment ID that serves as the comment identifier',
+          },
+          parentId: {
+            title: 'Parent ID',
+            description: 'The Facebook parent ID that serves as the parent identifier',
+          },
         },
       },
     },
