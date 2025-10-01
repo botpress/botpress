@@ -241,6 +241,7 @@ describe.concurrent('ClientOperations', () => {
       direction: 'incoming' | 'outgoing'
       userId: string
       conversationId: string
+      origin?: 'synthetic'
     } & (
       | {
           type: 'messageFoo'
