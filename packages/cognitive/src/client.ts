@@ -170,12 +170,12 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta || !getCognitiveV2Model(input.model)) {
+    if (!this._useBeta || !getCognitiveV2Model(input.model!)) {
       return this._generateContent(input)
     }
 
     const betaClient = new CognitiveBeta(this._client.config as any)
-    const response = await betaClient.generateText(input)
+    const response = await betaClient.generateText(input as any)
 
     return {
       output: {

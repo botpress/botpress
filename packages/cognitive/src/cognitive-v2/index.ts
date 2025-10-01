@@ -211,7 +211,7 @@ export class CognitiveBeta {
   }
 }
 
-export const getCognitiveV2Model = (model: string): Model => {
+export const getCognitiveV2Model = (model: string): Model | undefined => {
   if (models[model]) {
     return models[model]
   }
@@ -226,6 +226,5 @@ export const getCognitiveV2Model = (model: string): Model => {
   if (knownTags.includes(model)) {
     return { ...defaultModel, id: model, name: model }
   }
-
   return undefined
 }
