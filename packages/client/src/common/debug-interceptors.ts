@@ -29,6 +29,7 @@ export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
       console.debug(_formatResponseLog(response))
       return response
     },
+
     (error) => {
       console.debug(_formatErrorLog(error))
       return Promise.reject(error)
