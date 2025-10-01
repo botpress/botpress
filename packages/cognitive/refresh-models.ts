@@ -1,11 +1,7 @@
-import axios, { AxiosResponse } from 'axios'
+import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Model } from 'src/schemas.gen'
-
-interface ModelsResponse {
-  models: Model[]
-}
 
 const builtInModels = ['auto', 'best', 'fast', 'reasoning', 'cheapest', 'balance']
 
@@ -18,7 +14,7 @@ async function main(): Promise<void> {
   const botId = process.env.BOT_ID
 
   console.log('Fetching models ...')
-  const response: AxiosResponse<ModelsResponse> = await axios.get(`${server}/models?includeDeprecated=true`, {
+  const response = await axios.get<{ models: Model[] }>(`${server}/models?includeDeprecated=true`, {
     headers: {
       Authorization: `Bearer ${key}`,
       'X-Bot-Id': botId,
