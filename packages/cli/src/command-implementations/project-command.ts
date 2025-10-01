@@ -14,7 +14,6 @@ import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-import { ArgumentsType } from 'vitest'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
 export type ProjectCache = { botId: string; devId: string; tunnelId: string }
