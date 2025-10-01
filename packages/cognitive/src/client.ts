@@ -2,7 +2,9 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { CognitiveBeta } from './cognitive_beta'
+import { CognitiveBeta } from './cognitive-v2'
+import { knownTags, liveModels } from './cognitive-v2/live-models'
+
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
 import {
@@ -162,13 +164,13 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta) {
+    if (!this._useBeta || !liveModels[input.model] || !knownTags[input.model]) {
       return this._generateContent(input)
     }
 
     const betaClient = new CognitiveBeta(this._client.config as any)
+    const response = await betaClient.generateText(input)
 
-    const response = await betaClient.generateText(input as any)
     return {
       output: {
         id: 'beta-output',
