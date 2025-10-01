@@ -66,12 +66,13 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
 
   await client
     .createMessage({
+      origin: 'synthetic',
       conversationId: conversation.id,
       userId: ctx.botId,
       tags: {},
       type: 'text',
       payload: {
-        text: `Started WhatsApp conversation with template "${templateName}""`,
+        text: `Started WhatsApp conversation with template "${templateName}"`,
       },
     })
     .catch((err: any) => {
