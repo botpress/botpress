@@ -78,7 +78,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     })
     .catch((err: any) => {
       _logForBotAndThrow(
-        `Failed to start WhatsApp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${err?.message ?? ''}`,
+        `Failed to Create synthetic message from template message - Error: ${err?.message ?? ''}`,
         logger
       )
     })
