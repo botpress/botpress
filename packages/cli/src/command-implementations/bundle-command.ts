@@ -7,29 +7,29 @@ import { ProjectCommand } from './project-command'
 export type BundleCommandDefinition = typeof commandDefinitions.bundle
 export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
   public async run(buildContext?: utils.esbuild.IncrementalBuildContext): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
     const line = this.logger.line()
 
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
       this.logger.success('Interface projects have no implementation to bundle.')
-    } else if (projectDef.type === 'integration') {
+    } else if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
       await this._bundle(abs.outFileCJS, buildContext, __advanced?.esbuild ?? {})
-    } else if (projectDef.type === 'bot') {
+    } else if (projectType === 'bot') {
       line.started('Bundling bot...')
       await this._bundle(abs.outFileCJS, buildContext)
-    } else if (projectDef.type === 'plugin') {
+    } else if (projectType === 'plugin') {
       line.started('Bundling plugin with platform node...')
       await this._bundle(abs.outFileCJS, buildContext)
 
       line.started('Bundling plugin with platform browser...')
       await this._bundle(abs.outFileESM, buildContext, { platform: 'browser', format: 'esm' })
     } else {
-      type _assertion = utils.types.AssertNever<typeof projectDef>
       throw new errors.UnsupportedProjectType()
     }
 

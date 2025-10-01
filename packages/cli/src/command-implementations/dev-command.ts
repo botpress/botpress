@@ -36,10 +36,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type === 'interface') {
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
+    if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
+    const projectDef = await resolveProjectDefinition()
     this._initialDef = projectDef
 
     let env: Record<string, string> = {
@@ -189,16 +190,18 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _deploy = async (api: apiUtils.ApiClient, tunnelUrl: string) => {
-    const projectDef = await this.readProjectDefinitionFromFS()
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-    if (projectDef.type === 'integration') {
+    if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
       return await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
     }
-    if (projectDef.type === 'bot') {
+    if (projectType === 'bot') {
+      const projectDef = await resolveProjectDefinition()
       return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()

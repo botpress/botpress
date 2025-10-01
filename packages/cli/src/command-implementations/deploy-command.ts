@@ -20,18 +20,22 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       await this._runBuild() // This ensures the bundle is always synced with source code
     }
 
-    const projectDef = await this.readProjectDefinitionFromFS()
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
-    if (projectDef.type === 'integration') {
+    if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       return this._deployIntegration(api, projectDef.definition)
     }
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
+      const projectDef = await resolveProjectDefinition()
       return this._deployInterface(api, projectDef.definition)
     }
-    if (projectDef.type === 'plugin') {
+    if (projectType === 'plugin') {
+      const projectDef = await resolveProjectDefinition()
       return this._deployPlugin(api, projectDef.definition)
     }
-    if (projectDef.type === 'bot') {
+    if (projectType === 'bot') {
+      const projectDef = await resolveProjectDefinition()
       return this._deployBot(api, projectDef.definition, this.argv.botId, this.argv.createNewBot)
     }
     throw new errors.UnsupportedProjectType()
