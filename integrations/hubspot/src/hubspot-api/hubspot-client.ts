@@ -262,6 +262,17 @@ export class HubspotClient {
     return newContact
   }
 
+  /** Gets the list of properties for a given object type.
+   *
+   * Object type examples:
+   * - 'contacts'
+   * - 'deals'
+   * - 'leads'
+   */
+  public getAllObjectProperties(objectType: string) {
+    return this._hsClient.crm.properties.coreApi.getAll(objectType)
+  }
+
   @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
