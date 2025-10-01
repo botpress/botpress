@@ -155,7 +155,7 @@ export class Cognitive {
     if (this._useBeta) {
       const resolvedModel = getCognitiveV2Model(model)
       if (resolvedModel) {
-        return resolvedModel
+        return { ...resolvedModel, ref: resolvedModel.id, integration: 'cognitive-v2' }
       }
     }
 
