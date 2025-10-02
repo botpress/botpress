@@ -330,4 +330,61 @@ describe.concurrent('GoogleDriveFileTree', () => {
       })
     })
   })
+
+  describe.concurrent('empty folder pruning', () => {
+    it('should remove nested empty folders when calling removeAllEmptyFoldersRecursively', () => {
+      // Arrange
+      const tree = _createMockTree()
+      const parentEmptyFolder = _createMockFolder({
+        parents: [DUMMY_ROOT_FOLDER_ID],
+        id: '1parentempty123',
+        name: 'Parent Empty Folder',
+      })
+      const nestedEmptyFolder = _createMockFolder({
+        parents: [parentEmptyFolder.id],
+        id: '1nestedempty123',
+        name: 'Nested Empty Folder',
+      })
+      const nonEmptyFolder = _createMockFolder({
+        parents: [DUMMY_ROOT_FOLDER_ID],
+        id: '1nonempty123',
+        name: 'Non-Empty Folder',
+      })
+      const fileInNonEmptyFolder = _createMockFile({
+        parents: [nonEmptyFolder.id],
+        id: '1file123',
+        name: 'file.txt',
+      })
+
+      // Act
+      tree.upsertNode(parentEmptyFolder)
+      tree.upsertNode(nestedEmptyFolder)
+      tree.upsertNode(nonEmptyFolder)
+      tree.upsertNode(fileInNonEmptyFolder)
+
+      // Pre-Assert
+      expect(tree.getRootNode().children).toHaveLength(2)
+
+      tree.removeAllEmptyFoldersRecursively()
+      const root = tree.getRootNode()
+
+      // Assert
+      expect(root.children).toHaveLength(1)
+      expect(root).toMatchObject({
+        children: [expect.objectContaining(nonEmptyFolder)],
+      })
+    })
+
+    it('should not remove the root folder when calling removeAllEmptyFoldersRecursively', () => {
+      // Arrange
+      const tree = _createMockTree()
+
+      // Act
+      tree.removeAllEmptyFoldersRecursively()
+      const root = tree.getRootNode()
+
+      // Assert
+      expect(root.id).toBe(DUMMY_ROOT_FOLDER_ID)
+    })
+  })
 })
