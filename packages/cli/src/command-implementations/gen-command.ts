@@ -11,18 +11,21 @@ import { ProjectCommand } from './project-command'
 export type GenerateCommandDefinition = typeof commandDefinitions.generate
 export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
   public async run(): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type === 'interface') {
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
+    if (projectType === 'interface') {
       this.logger.success('Interface projects have no code to generate since they have no implementation.')
       return
     }
-    if (projectDef.type === 'integration') {
+    if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       return await this._generateIntegration(projectDef.definition)
     }
-    if (projectDef.type === 'bot') {
+    if (projectType === 'bot') {
+      const projectDef = await resolveProjectDefinition()
       return await this._generateBot(projectDef.definition)
     }
-    if (projectDef.type === 'plugin') {
+    if (projectType === 'plugin') {
+      const projectDef = await resolveProjectDefinition()
       return await this._generatePlugin(projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()

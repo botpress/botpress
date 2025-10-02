@@ -270,7 +270,7 @@ describe.concurrent('ClientOperations', () => {
           }
         }
     )
-    type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+    type _assertion = utils.AssertTrue<utils.IsEquivalent<Actual, Expected>>
   })
 
   test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {

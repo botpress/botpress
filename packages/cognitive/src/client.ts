@@ -2,7 +2,8 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
-import { CognitiveBeta } from './cognitive_beta'
+import { CognitiveBeta, getCognitiveV2Model } from './cognitive-v2'
+
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
 import {
@@ -150,7 +151,14 @@ export class Cognitive {
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
   }
 
-  public async getModelDetails(model: string) {
+  public async getModelDetails(model: string): Promise<Model> {
+    if (this._useBeta) {
+      const resolvedModel = getCognitiveV2Model(model)
+      if (resolvedModel) {
+        return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
+      }
+    }
+
     await this.fetchInstalledModels()
     const { integration, model: modelName } = await this._selectModel(model)
     const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
@@ -162,19 +170,13 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta) {
+    if (!this._useBeta || !getCognitiveV2Model(input.model!)) {
       return this._generateContent(input)
     }
 
-    const betaClient = new CognitiveBeta({
-      headers: this._client.config.headers as Record<string, string>,
-      withCredentials: this._client.config.withCredentials,
-      baseUrl: this._client.config.apiUrl.includes('.cloud')
-        ? 'https://cognitive.botpress.cloud'
-        : 'https://cognitive.botpress.dev',
-    })
-
+    const betaClient = new CognitiveBeta(this._client.config as any)
     const response = await betaClient.generateText(input as any)
+
     return {
       output: {
         id: 'beta-output',

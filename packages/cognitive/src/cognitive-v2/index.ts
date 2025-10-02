@@ -1,11 +1,12 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './models'
+import { defaultModel, knownTags, models } from './models'
+import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
 
 type ClientProps = {
-  baseUrl?: string
+  apiUrl?: string
   timeout?: number
   botId?: string
   token?: string
@@ -22,36 +23,39 @@ const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch ===
 
 export class CognitiveBeta {
   private _axiosClient: AxiosInstance
-  private readonly _config: Required<ClientProps>
+  private readonly _apiUrl: string
+  private readonly _timeout: number
+  private readonly _withCredentials: boolean
+  private readonly _headers: Record<string, string>
 
   public constructor(props: ClientProps) {
-    this._config = {
-      baseUrl: props.baseUrl || 'https://cognitive.botpress.cloud',
-      timeout: props.timeout || 60_001,
-      token: props.token || '',
-      botId: props.botId || '',
-      withCredentials: props.withCredentials || false,
-      headers: props.headers || {},
+    this._apiUrl = props.apiUrl || 'https://api.botpress.cloud'
+    this._timeout = props.timeout || 60_001
+    this._withCredentials = props.withCredentials || false
+    this._headers = { ...props.headers }
+
+    if (props.botId) {
+      this._headers['X-Bot-Id'] = props.botId
+    }
+
+    if (props.token) {
+      this._headers['Authorization'] = `Bearer ${props.token}`
     }
 
     this._axiosClient = axios.create({
-      headers: {
-        Authorization: `Bearer ${this._config.token}`,
-        'X-Bot-Id': this._config.botId,
-        ...this._config.headers,
-      },
-      withCredentials: this._config.withCredentials,
-      baseURL: this._config.baseUrl,
+      headers: this._headers,
+      withCredentials: this._withCredentials,
+      baseURL: this._apiUrl,
     })
   }
 
   public async generateText(input: CognitiveRequest, options: RequestOptions = {}) {
-    const signal = options.signal ?? AbortSignal.timeout(this._config.timeout)
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
 
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<CognitiveResponse>('/v1/generate-text', input, {
+      this._axiosClient.post<CognitiveResponse>('/v2/cognitive/generate-text', input, {
         signal,
-        timeout: options.timeout ?? this._config.timeout,
+        timeout: options.timeout ?? this._timeout,
       })
     )
 
@@ -59,12 +63,12 @@ export class CognitiveBeta {
   }
 
   public async listModels(input: void, options: RequestOptions = {}) {
-    const signal = options.signal ?? AbortSignal.timeout(this._config.timeout)
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
 
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<Model[]>('/v1/models', input, {
+      this._axiosClient.post<Model[]>('/v2/cognitive/models', input, {
         signal,
-        timeout: options.timeout ?? this._config.timeout,
+        timeout: options.timeout ?? this._timeout,
       })
     )
 
@@ -75,18 +79,16 @@ export class CognitiveBeta {
     request: CognitiveRequest,
     options: RequestOptions = {}
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
-    const signal = options.signal ?? AbortSignal.timeout(this._config.timeout)
+    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
 
     if (isBrowser()) {
-      const res = await fetch(`${this._config.baseUrl}/v1/generate-text-stream`, {
+      const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-text-stream`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this._config.token}`,
-          'X-Bot-Id': this._config.botId,
+          ...this._headers,
           'Content-Type': 'application/json',
-          ...this._config.headers,
         },
-        credentials: this._config.withCredentials ? 'include' : 'omit',
+        credentials: this._withCredentials ? 'include' : 'omit',
         body: JSON.stringify({ ...request, stream: true }),
         signal,
       })
@@ -129,7 +131,7 @@ export class CognitiveBeta {
         {
           responseType: 'stream',
           signal,
-          timeout: options.timeout ?? this._config.timeout,
+          timeout: options.timeout ?? this._timeout,
         }
       )
     )
@@ -207,4 +209,22 @@ export class CognitiveBeta {
       retry: (e) => this._isRetryableServerError(e),
     })
   }
+}
+
+export const getCognitiveV2Model = (model: string): Model | undefined => {
+  if (models[model]) {
+    return models[model]
+  }
+
+  // Some models (ex fireworks) have a long name (the internal id) so it is now an alias instead of the main id
+  const alias = Object.values(models).find((x) => x.aliases?.includes(model))
+  if (alias) {
+    return alias
+  }
+
+  // Special tags like auto, fast, coding don't have explicit limits so we give a default model
+  if (knownTags.includes(model)) {
+    return { ...defaultModel, id: model, name: model }
+  }
+  return undefined
 }
