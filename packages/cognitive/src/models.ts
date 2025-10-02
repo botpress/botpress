@@ -42,7 +42,7 @@ const scoreModel = (model: Model, type: 'best' | 'fast', boosts: Record<ModelRef
   const scores: Array<[string, boolean, number]> = [
     ['input price penalty', model.input.costPer1MTokens > InputPricePenalty, -1],
     ['output price penalty', model.output.costPer1MTokens > OutputPricePenalty, -1],
-    ['low tokens penalty', (model.input.maxTokens ?? 0 + model.output.maxTokens ?? 0) < LowTokensPenalty, -1],
+    ['low tokens penalty', (model.input.maxTokens ?? 0) + (model.output.maxTokens ?? 0) < LowTokensPenalty, -1],
     ['recommended', isRecommended(model), 2],
     ['deprecated', isDeprecated(model), -2],
     ['vision support', hasVisionSupport(model), 1],
