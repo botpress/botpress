@@ -146,8 +146,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             return
           }
 
-          const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
-          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.outDir))
+          const typescriptEvents = events
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => pathlib.extname(e.path) === '.ts')
+
+          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
 
           if (typescriptEvents.length > 0) {
             this.logger.log('Changes detected, rebuilding')
