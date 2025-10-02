@@ -1,9 +1,10 @@
-import type { HandlerProps } from '.botpress'
 import { handleOauthRequest } from './api/auth'
 
-const _isOauthRequest = ({ req }: HandlerProps) => req.path === '/oauth'
+import * as bp from '.botpress'
 
-export const handler = async (props: HandlerProps) => {
+const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
+
+export const handler = async (props: bp.HandlerProps) => {
   if (_isOauthRequest(props)) {
     await handleOauthRequest(props)
     return

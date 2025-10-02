@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { BambooHRClient } from './api/bamboohr-client'
+import * as bp from '.botpress'
 
 export const register: bp.Integration['register'] = async (props) => {
   props.logger.forBot().info('Testing authorization to access BambooHR.')

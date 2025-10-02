@@ -1,7 +1,8 @@
-import { RuntimeError, type IntegrationDefinition, z } from '@botpress/sdk'
+import { RuntimeError } from '@botpress/sdk'
+import { getBambooHrAuthorization } from './auth'
 
 import * as bp from '.botpress'
-import { getBambooHrAuthorization } from './auth'
+
 const getHeaders = (authorization: string) => ({
   Authorization: authorization,
   'Content-Type': 'application/json',
@@ -12,8 +13,8 @@ type RestrictedHandlerProps = Pick<bp.HandlerProps, 'ctx' | 'client'>
 
 export class BambooHRClient {
   public baseUrl: string
-  private headers: Record<string, string>
-  private expiresAt: number
+  private _headers: Record<string, string>
+  private _expiresAt: number
 
   public static async create(props: RestrictedHandlerProps): Promise<BambooHRClient> {
     const { authorization, expiresAt } = await getBambooHrAuthorization(props)
@@ -26,8 +27,8 @@ export class BambooHRClient {
     expiresAt,
   }: Pick<bp.configuration.Configuration, 'subdomain'> & Awaited<ReturnType<typeof getBambooHrAuthorization>>) {
     this.baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
-    this.expiresAt = expiresAt
-    this.headers = getHeaders(authorization)
+    this._expiresAt = expiresAt
+    this._headers = getHeaders(authorization)
   }
 
   public async makeRequest(
@@ -35,13 +36,13 @@ export class BambooHRClient {
     { url, ...params }: Pick<RequestInit, 'method' | 'body'> & { url: URL }
   ): Promise<Response> {
     // Refresh token if too close to expiry
-    if (Date.now() >= this.expiresAt) {
+    if (Date.now() >= this._expiresAt) {
       const { authorization, expiresAt } = await getBambooHrAuthorization(props)
-      this.expiresAt = expiresAt
-      this.headers = getHeaders(authorization)
+      this._expiresAt = expiresAt
+      this._headers = getHeaders(authorization)
     }
 
-    const res = await fetch(url, { ...params, headers: this.headers })
+    const res = await fetch(url, { ...params, headers: this._headers })
     if (!res.ok) {
       // Custom error header from BambooHR with more details
       const additionalInfo = res.headers.get('x-bamboohr-error-message')

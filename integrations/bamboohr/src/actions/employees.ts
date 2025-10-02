@@ -1,13 +1,13 @@
-import * as bp from '.botpress'
 import {
   bambooHrEmployeeSensitiveInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
   bambooHrEmployeeBasicInfoResponse,
-  actions,
   bambooHrEmployeeDirectoryResponse,
 } from 'definitions'
 import { BambooHRClient } from 'src/api/bamboohr-client'
 import { parseResponseWithErrors } from 'src/api/utils'
+
+import * as bp from '.botpress'
 
 export const getEmployeeBasicInfo: bp.IntegrationProps['actions']['getEmployeeBasicInfo'] = async ({
   input,

@@ -13,33 +13,33 @@ export const bambooHrOauthTokenResponse = z.object({
 
 export const bambooHrEmployeeBasicInfoResponse = z.object({
   id: employeeId,
-  supervisorEid: z.string().optional().nullable().title('Supervisor ID').describe("Employee's supervisor's ID."),
+  supervisorEid: z.string().nullable().optional().title('Supervisor ID').describe("Employee's supervisor's ID."),
   lastChanged: z.string().title('Last Changed').describe('Timestamp of the last change to the employee record.'),
   firstName: z.string().title('First Name').describe("Employee's first name."),
   lastName: z.string().title('Last Name').describe("Employee's last name."),
   displayName: z.string().title('Display Name').describe("Employee's display name."),
-  preferredName: z.string().optional().nullable().title('Preferred Name').describe("Employee's preferred name."),
-  jobTitle: z.string().optional().nullable().title('Job Title').describe("Employee's job title."),
-  department: z.string().optional().nullable().title('Department').describe("Employee's department."),
-  division: z.string().optional().nullable().title('Division').describe("Employee's division."),
-  location: z.string().optional().nullable().title('Location').describe("Employee's work location."),
-  mobilePhone: z.string().optional().nullable().title('Mobile Phone').describe("Employee's mobile phone number."),
-  workPhone: z.string().optional().nullable().title('Work Phone').describe("Employee's work phone number."),
+  preferredName: z.string().nullable().optional().title('Preferred Name').describe("Employee's preferred name."),
+  jobTitle: z.string().nullable().optional().title('Job Title').describe("Employee's job title."),
+  department: z.string().nullable().optional().title('Department').describe("Employee's department."),
+  division: z.string().nullable().optional().title('Division').describe("Employee's division."),
+  location: z.string().nullable().optional().title('Location').describe("Employee's work location."),
+  mobilePhone: z.string().nullable().optional().title('Mobile Phone').describe("Employee's mobile phone number."),
+  workPhone: z.string().nullable().optional().title('Work Phone').describe("Employee's work phone number."),
   workPhoneExtension: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('Work Phone Extension')
     .describe("Employee's work phone extension."),
-  homePhone: z.string().optional().nullable().title('Home Phone').describe("Employee's home phone number."),
-  email: z.string().optional().nullable().title('Email').describe("Employee's email address."),
-  workEmail: z.string().optional().nullable().title('Work Email').describe("Employee's work email address."),
-  homeEmail: z.string().optional().nullable().title('Home Email').describe("Employee's home email address."),
-  hireDate: z.string().optional().nullable().title('Hire Date').describe("Employee's hire date (YYYY-MM-DD)."),
+  homePhone: z.string().nullable().optional().title('Home Phone').describe("Employee's home phone number."),
+  email: z.string().nullable().optional().title('Email').describe("Employee's email address."),
+  workEmail: z.string().nullable().optional().title('Work Email').describe("Employee's work email address."),
+  homeEmail: z.string().nullable().optional().title('Home Email').describe("Employee's home email address."),
+  hireDate: z.string().nullable().optional().title('Hire Date').describe("Employee's hire date (YYYY-MM-DD)."),
   terminationDate: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('Termination Date')
     .describe("Employee's termination date (YYYY-MM-DD)."),
   status: z.literal('Active').or(z.literal('Inactive')).title('Status').describe("Employee's status."),
@@ -49,33 +49,33 @@ export const bambooHrEmployeeSensitiveInfoResponse = z.object({
   id: employeeId,
   dateOfBirth: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('Date of Birth')
     .describe("Employee's date of birth (YYYY-MM-DD)."),
   sin: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('Social Insurance Number')
     .describe("Employee's Canadian Social Insurance Number."),
   ssn: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('Social Security Number')
     .describe("Employee's US Social Security Number."),
   nin: z
     .string()
-    .optional()
     .nullable()
+    .optional()
     .title('National Insurance Number')
     .describe("Employee's UK National Insurance Number."),
-  address1: z.string().optional().nullable().title('Address Line 1').describe("Employee's address line 1."),
-  address2: z.string().optional().nullable().title('Address Line 2').describe("Employee's address line 2."),
-  city: z.string().optional().nullable().title('City').describe("Employee's city of residence."),
-  state: z.string().optional().nullable().title('State').describe("Employee's state of residence."),
-  country: z.string().optional().nullable().title('Country').describe("Employee's country of residence."),
+  address1: z.string().nullable().optional().title('Address Line 1').describe("Employee's address line 1."),
+  address2: z.string().nullable().optional().title('Address Line 2').describe("Employee's address line 2."),
+  city: z.string().nullable().optional().title('City').describe("Employee's city of residence."),
+  state: z.string().nullable().optional().title('State').describe("Employee's state of residence."),
+  country: z.string().nullable().optional().title('Country').describe("Employee's country of residence."),
 })
 
 export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).catchall(z.string())
@@ -105,13 +105,16 @@ export const bambooHrEmployeeDirectoryResponse = z.object({
 export const bambooHrCompanyInfo = z.object({
   legalName: z.string().title('Legal Name').describe('Legal name of the company.'),
   displayName: z.string().title('Display Name').describe('Display name of the company.'),
-  address: z.object({
-    line1: z.string().title('Address Line 1').describe('First line of the address.'),
-    line2: z.string().title('Address Line 2').describe('Second line of the address.'),
-    city: z.string().title('City').describe('City of the address.'),
-    state: z.string().title('State').describe('State of the address.'),
-    country: z.string().optional().title('Country').describe('Country of the address.'),
-    zip: z.string().title('ZIP Code').describe('ZIP code of the address.'),
-  }),
-  phone: z.string().title('Phone Number').describe('Phone number of the company.'),
+  address: z
+    .object({
+      line1: z.string().nullable().optional().title('Address Line 1').describe('First line of the street.'),
+      line2: z.string().nullable().optional().title('Address Line 2').describe('Second line of the street.'),
+      city: z.string().nullable().optional().title('City').describe('City.'),
+      state: z.string().nullable().optional().title('State').describe('State or province.'),
+      country: z.string().nullable().optional().title('Country').describe('Country.'),
+      zip: z.string().nullable().optional().title('ZIP Code').describe('ZIP code.'),
+    })
+    .title('Address')
+    .describe('Address of the company.'),
+  phone: z.string().nullable().optional().title('Phone Number').describe('Phone number of the company.'),
 })

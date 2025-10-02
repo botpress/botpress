@@ -1,9 +1,9 @@
-import * as bp from '.botpress'
 import { RuntimeError } from '@botpress/client'
 import { bambooHrOauthTokenResponse } from 'definitions'
+import * as bp from '.botpress'
 
 class FetchTokenError extends RuntimeError {
-  constructor(message: string) {
+  public constructor(message: string) {
     super(`Failed to get OAuth token: ${message}`)
     this.name = 'FetchTokenError'
   }

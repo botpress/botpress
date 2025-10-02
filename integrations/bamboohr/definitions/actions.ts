@@ -61,7 +61,7 @@ const getEmployeePhoto: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      blob: z.instanceof(Blob).describe('Binary data of the employee photo.'),
+      blob: z.instanceof(Blob).title('Photo Blob').describe('Binary data of the employee photo.'),
     }),
   },
 }
@@ -75,12 +75,15 @@ const listEmployees: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      employees: z.array(
-        z.object({
-          id: employeeId,
-          displayName: z.string().title('Display Name').describe("Employee's display name."),
-        })
-      ),
+      employees: z
+        .array(
+          z.object({
+            id: employeeId,
+            displayName: z.string().title('Display Name').describe("Employee's display name."),
+          })
+        )
+        .title('Employees')
+        .describe('List of employees in the directory. Includes only ID and display name.'),
     }),
   },
 }
