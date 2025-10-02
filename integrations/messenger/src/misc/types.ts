@@ -17,6 +17,21 @@ export type SendMessageProps = Pick<
   'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
 >
 
+export type FacebookClientConfig = {
+  accessToken: string
+  pageId: string
+}
+
+export type CommentReply = {
+  message: string
+  commentId: string
+}
+
+export type PostReply = {
+  message: string
+  postId: string
+}
+
 type MessengerOutMessagePostbackAttachment = {
   type: 'postback'
   title: string

@@ -1,10 +1,10 @@
-import { createFacebookClient } from '../clients'
+import { createFacebookClient } from '../misc/facebook-client'
 import * as bp from '.botpress'
 
 const feed: bp.IntegrationProps['channels']['feed'] = {
   messages: {
     text: async (props) => {
-      const { logger, conversation, payload, ctx } = props
+      const { logger, conversation, payload, ctx, client } = props
       const { commentId } = conversation.tags
 
       if (!commentId) {
@@ -12,48 +12,51 @@ const feed: bp.IntegrationProps['channels']['feed'] = {
         return
       }
 
-      logger.forBot().debug(`Sending text message to Facebook feed: ${payload.text}`)
-      await _replyToComment(commentId, payload.text, ctx, logger)
+      await _replyToComment(commentId, payload.text, ctx, client, logger)
     },
-    image: async (_props) => {
+    image: async () => {
       // Empty implementation
     },
-    markdown: async (_props) => {
+    audio: async () => {
       // Empty implementation
     },
-    audio: async (_props) => {
+    video: async () => {
       // Empty implementation
     },
-    video: async (_props) => {
+    file: async () => {
       // Empty implementation
     },
-    file: async (_props) => {
+    location: async () => {
       // Empty implementation
     },
-    location: async (_props) => {
+    carousel: async () => {
       // Empty implementation
     },
-    carousel: async (_props) => {
+    card: async () => {
       // Empty implementation
     },
-    card: async (_props) => {
+    dropdown: async () => {
       // Empty implementation
     },
-    dropdown: async (_props) => {
+    choice: async () => {
       // Empty implementation
     },
-    choice: async (_props) => {
-      // Empty implementation
-    },
-    bloc: async (_props) => {
+    bloc: async () => {
       // Empty implementation
     },
   },
 }
 
-const _replyToComment = async (commentId: string, message: string, ctx: bp.Context, logger: bp.Logger) => {
-  const facebookClient = await createFacebookClient(ctx)
+const _replyToComment = async (
+  commentId: string,
+  message: string,
+  ctx: bp.Context,
+  client: bp.Client,
+  logger: bp.Logger
+) => {
+  const facebookClient = await createFacebookClient(ctx, client, logger)
   try {
+    logger.forBot().debug(`_replyToComment: Replying to comment ${commentId}: ${message}`)
     await facebookClient.replyToComment({
       commentId,
       message,
@@ -61,7 +64,6 @@ const _replyToComment = async (commentId: string, message: string, ctx: bp.Conte
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     logger.forBot().error(`Failed to reply to comment ${commentId}: ${error.message}`)
-    throw error
   }
 }
 

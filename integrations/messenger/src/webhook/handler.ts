@@ -36,6 +36,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.forBot().warn('Error while parsing body as JSON:', jsonParseResult.data)
     return
   }
+  logger.forBot().debug(`jsonParseResult`, JSON.stringify(jsonParseResult.data, null, 2))
 
   // Try to parse as messenger payload first
   const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
@@ -49,22 +50,19 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   // Try to parse as feed event payload
-  const feedParseResult = feedEventPayloadSchema.safeParse(jsonParseResult.data)
-  if (feedParseResult.success) {
-    const data = feedParseResult.data
-    for (const entry of data.entry) {
-      await feedHandler(entry, props)
+  if (props.ctx.configuration.replyToComments) {
+    const feedParseResult = feedEventPayloadSchema.safeParse(jsonParseResult.data)
+    if (feedParseResult.success) {
+      const data = feedParseResult.data
+      for (const entry of data.entry) {
+        await feedHandler(entry, props)
+      }
+      return
     }
-    return
   }
 
   // Better log message
-  logger
-    .forBot()
-    .warn(
-      'Error while parsing body as Messenger or Feed event payload:',
-      messengerParseResult.success ? 'Unknown payload format' : messengerParseResult.error.message
-    )
+  logger.forBot().warn('Error while parsing body as payload')
 
   return
 }

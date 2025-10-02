@@ -1,13 +1,20 @@
 import { getErrorFromUnknown } from '../../misc/utils'
 import { FeedEventEntry, CommentChangeValue, FeedChange } from '../../misc/types'
-import { createConversationAndThread } from '../../misc/thread-resolver'
-import { createFacebookClient } from '../../clients'
+import { getMetaClientCredentials } from '../../misc/auth'
 import * as bp from '.botpress'
 
 export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps) => {
   for (const change of feedEntry.changes) {
     await _handleFeedChange(change, props)
   }
+}
+
+const _getPageId = async (props: bp.HandlerProps) => {
+  if (props.ctx.configurationType !== 'manual') {
+    const credentials = await getMetaClientCredentials(props.client, props.ctx)
+    return credentials.pageId
+  }
+  return props.ctx.configuration.pageId
 }
 
 const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => {
@@ -24,98 +31,74 @@ const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => 
         logger.forBot().warn(`Unhandled event item: ${item}`)
     }
   } catch (error) {
-    logger.forBot().error(`Error processing feed change: ${getErrorFromUnknown(error).message}`)
+    const errorMsg = getErrorFromUnknown(error)
+    logger.forBot().error(`Error processing feed change: ${errorMsg.message}`)
   }
 }
 
 const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerProps) => {
   const { logger } = props
-  const { verb, comment_id, post_id, from } = value
+  const { from, comment_id, post_id, parent_id, verb } = value
+  const pageId = await _getPageId(props)
 
-  if (props.ctx.configurationType !== 'manual') {
-    logger.forBot().error('Manual configuration is required to reply to comments')
-    return
-  }
-
-  // Check if it is our comment
-  if (from?.id === props.ctx.configuration.pageId) {
+  if (from?.id === pageId) {
     logger.forBot().debug(`Comment is from our page, ignoring`)
     return
   }
 
-  logger.forBot().debug(`Processing comment event: verb=${verb}, comment_id=${comment_id}, post_id=${post_id}`)
+  logger
+    .forBot()
+    .debug(
+      `Processing comment event: verb=${verb}, comment_id=${comment_id}, parent_id=${parent_id}, post_id=${post_id}`
+    )
 
   switch (verb) {
     case 'add':
       await _handleCommentCreated(value, props)
       break
-    case 'remove':
-      await _handleCommentRemoved(value, props)
+    case 'remove': // For removed comments
       break
-    case 'edited':
-      await _handleCommentEdited(value, props)
+    case 'edited': // For edited comments
       break
     default:
-      logger.forBot().warn(`Unhandled comment event verb: ${verb}`)
   }
 }
 
-const _replyToComment = async (commentId: string, message: string, props: bp.HandlerProps) => {
-  const { logger } = props
-
-  try {
-    // Create Facebook client
-    const facebookClient = await createFacebookClient(props.ctx)
-
-    // Send reply to Facebook
-    const result = await facebookClient.replyToComment({
-      commentId,
-      message,
-    })
-
-    logger.forBot().info(`Successfully replied to comment ${commentId}: ${result.id}`)
-    return result
-  } catch (error) {
-    logger.forBot().error(`Failed to reply to comment ${commentId}: ${getErrorFromUnknown(error).message}`)
-    throw error
-  }
-}
-
-// Comment event handlers
 const _handleCommentCreated = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { client } = props
+  const { client, logger } = props
   const { comment_id, post_id, message, from, parent_id } = value
 
-  // Create conversation and thread for the comment
-  const effectiveCommentId = comment_id || post_id
-  const effectiveParentId = parent_id || post_id
-  const { conversation, threadId: _threadId } = await createConversationAndThread(
-    client,
-    post_id,
-    effectiveCommentId,
-    effectiveParentId,
-    'comment'
-  )
-
-  // Create or get the user who commented
-  if (!from) {
+  if (!message) {
+    logger.forBot().debug(`_handleCommentCreated: No message. Will not reply to this comment.`)
     return
   }
 
-  const { user } = await client.getOrCreateUser({
-    tags: { id: from.id },
+  if (post_id !== parent_id) {
+    logger.forBot().debug(`_handleCommentCreated: Non root comment. Will not reply to this comment.`)
+    return
+  }
+
+  logger
+    .forBot()
+    .debug(`_handleCommentCreated: Creating conversation and thread for comment: ${comment_id} on post ${post_id}`)
+
+  // Use the thread resolver to create conversation based on root thread ID
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'feed',
+    tags: { id: comment_id, postId: post_id, commentId: comment_id, parentId: parent_id },
   })
 
-  if (!message) {
-    return
-  }
+  logger.forBot().debug(`_handleCommentCreated: Creating user: ${from?.id}`)
+  const { user } = await client.getOrCreateUser({
+    tags: { id: from?.id },
+  })
+
   await client.getOrCreateMessage({
     tags: {
-      id: `comment_${comment_id}`,
-      senderId: from.id,
-      recipientId: 'page',
+      id: comment_id,
       postId: post_id,
       commentId: comment_id,
+      parentId: parent_id,
       eventType: 'comment',
     },
     type: 'text',
@@ -123,26 +106,4 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     userId: user.id,
     conversationId: conversation.id,
   })
-}
-
-const _handleCommentRemoved = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { logger } = props
-  const { comment_id, post_id } = value
-
-  logger.forBot().info(`Comment removed: ${comment_id} from post ${post_id}`)
-
-  // You might want to mark the message as deleted
-  // This depends on your business logic
-}
-
-const _handleCommentEdited = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { logger } = props
-  const { comment_id, post_id, message } = value
-
-  logger.forBot().info(`Comment edited: ${comment_id} on post ${post_id}`)
-
-  // Update the comment content if it exists
-  if (message) {
-    logger.forBot().debug(`Comment content updated: ${message}`)
-  }
 }

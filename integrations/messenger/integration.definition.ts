@@ -20,11 +20,16 @@ const commonConfigSchema = z.object({
     .describe(
       'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
     ),
+  replyToComments: z
+    .boolean()
+    .default(false)
+    .title('Reply to Comments')
+    .describe('Whether to reply to comments on Facebook posts'),
 })
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '4.1.0',
+  version: '4.1.1',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -118,15 +123,13 @@ export default new IntegrationDefinition({
       },
       conversation: {
         tags: {
-          id: { title: 'Post ID', description: 'The Facebook post ID that serves as the conversation identifier' },
+          id: { title: 'Thread ID', description: 'The Facebook post ID that serves as the conversation identifier' },
           commentId: {
             title: 'Comment ID',
             description: 'The Facebook comment ID that serves as the comment identifier',
           },
-          parentId: {
-            title: 'Parent ID',
-            description: 'The Facebook parent ID that serves as the parent identifier',
-          },
+          parentId: { title: 'Parent ID', description: 'The Facebook parent ID (for comment events)' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID that serves as the conversation identifier' },
         },
       },
     },
