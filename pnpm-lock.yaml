@@ -1792,6 +1792,9 @@ importers:
       '@segment/analytics-node':
         specifier: ^2.2.0
         version: 2.2.0
+      awesome-phonenumber:
+        specifier: ^7.5.0
+        version: 7.5.0
       axios:
         specifier: ^1.6.2
         version: 1.6.8
@@ -6155,6 +6158,10 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  awesome-phonenumber@7.5.0:
+    resolution: {integrity: sha512-qWQHCiMHMNVyUsICiCcaPJAYbGL4E4kGnIxnrwkS3YCwcPa8VtQCo11HGKY8AbUpXJloDG10c9Bulhw3xYkC/g==}
+    engines: {node: '>=18'}
+
   aws-sign2@0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
 
@@ -7741,6 +7748,10 @@ packages:
   google-auth-library@9.15.1:
     resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
     engines: {node: '>=14'}
+
+  google-libphonenumber@3.2.43:
+    resolution: {integrity: sha512-TbIX/UC3BFRJwCxbBeCPwuRC4Qws9Jz/CECmfTM1t9RFoI3X6eRThurv6AYr9wSrt640IA9KFIHuAD/vlyjqRw==}
+    engines: {node: '>=0.10'}
 
   google-logging-utils@0.0.2:
     resolution: {integrity: sha512-NEgUnEcBiP5HrPzufUkBzJOD/Sxsco3rLNo1F1TNf7ieU8ryUzBhqba8r756CjLX7rn3fHl6iLEwPYuqpoKgQQ==}
@@ -15418,6 +15429,8 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
+  awesome-phonenumber@7.5.0: {}
+
   aws-sign2@0.7.0: {}
 
   aws4@1.12.0: {}
@@ -17505,6 +17518,8 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
+
+  google-libphonenumber@3.2.43: {}
 
   google-logging-utils@0.0.2: {}
 
