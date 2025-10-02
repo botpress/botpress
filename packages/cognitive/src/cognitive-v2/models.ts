@@ -1,6 +1,9 @@
 import { Model } from 'src/schemas.gen'
 
-export const models: Record<string, Model & { aliases?: string[] }> = {
+export const models: Record<
+  string,
+  Model & { aliases?: string[]; lifecycle?: 'live' | 'beta' | 'deprecated' | 'discontinued' }
+> = {
   'openai:gpt-5-2025-08-07': {
     id: 'openai:gpt-5-2025-08-07',
     name: 'GPT-5',
@@ -15,6 +18,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:gpt-5-mini-2025-08-07': {
     id: 'openai:gpt-5-mini-2025-08-07',
@@ -30,6 +34,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 2,
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:gpt-5-nano-2025-08-07': {
     id: 'openai:gpt-5-nano-2025-08-07',
@@ -45,6 +50,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'reasoning', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:o4-mini-2025-04-16': {
     id: 'openai:o4-mini-2025-04-16',
@@ -60,6 +66,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'vision', 'coding'],
+    lifecycle: 'live',
   },
   'openai:o3-2025-04-16': {
     id: 'openai:o3-2025-04-16',
@@ -75,6 +82,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'vision', 'coding'],
+    lifecycle: 'live',
   },
   'openai:gpt-4.1-2025-04-14': {
     id: 'openai:gpt-4.1-2025-04-14',
@@ -90,6 +98,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 8,
     },
     tags: ['recommended', 'vision', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:gpt-4.1-mini-2025-04-14': {
     id: 'openai:gpt-4.1-mini-2025-04-14',
@@ -105,6 +114,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 1.6,
     },
     tags: ['recommended', 'vision', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:gpt-4.1-nano-2025-04-14': {
     id: 'openai:gpt-4.1-nano-2025-04-14',
@@ -119,6 +129,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:o3-mini-2025-01-31': {
     id: 'openai:o3-mini-2025-01-31',
@@ -134,6 +145,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'live',
   },
   'openai:o1-2024-12-17': {
     id: 'openai:o1-2024-12-17',
@@ -149,6 +161,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 60,
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:o1-mini-2024-09-12': {
     id: 'openai:o1-mini-2024-09-12',
@@ -164,6 +177,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openai:gpt-4o-mini-2024-07-18': {
     id: 'openai:gpt-4o-mini-2024-07-18',
@@ -179,6 +193,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.6,
     },
     tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
+    lifecycle: 'live',
   },
   'openai:gpt-4o-2024-11-20': {
     id: 'openai:gpt-4o-2024-11-20',
@@ -194,6 +209,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    lifecycle: 'live',
   },
   'openai:gpt-4o-2024-08-06': {
     id: 'openai:gpt-4o-2024-08-06',
@@ -209,6 +225,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 10,
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    lifecycle: 'deprecated',
   },
   'openai:gpt-4o-2024-05-13': {
     id: 'openai:gpt-4o-2024-05-13',
@@ -224,6 +241,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    lifecycle: 'deprecated',
   },
   'openai:gpt-4-turbo-2024-04-09': {
     id: 'openai:gpt-4-turbo-2024-04-09',
@@ -239,6 +257,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 30,
     },
     tags: ['deprecated', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    lifecycle: 'deprecated',
   },
   'openai:gpt-3.5-turbo-0125': {
     id: 'openai:gpt-3.5-turbo-0125',
@@ -254,6 +273,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 1.5,
     },
     tags: ['deprecated', 'general-purpose', 'low-cost'],
+    lifecycle: 'deprecated',
   },
   'anthropic:claude-sonnet-4-20250514': {
     id: 'anthropic:claude-sonnet-4-20250514',
@@ -269,6 +289,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'live',
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
     id: 'anthropic:claude-sonnet-4-reasoning-20250514',
@@ -284,6 +305,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
+    lifecycle: 'deprecated',
   },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
@@ -299,6 +321,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'live',
   },
   'anthropic:claude-3-7-sonnet-reasoning-20250219': {
     id: 'anthropic:claude-3-7-sonnet-reasoning-20250219',
@@ -314,6 +337,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
+    lifecycle: 'deprecated',
   },
   'anthropic:claude-3-5-haiku-20241022': {
     id: 'anthropic:claude-3-5-haiku-20241022',
@@ -329,6 +353,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 4,
     },
     tags: ['general-purpose', 'low-cost'],
+    lifecycle: 'live',
   },
   'anthropic:claude-3-5-sonnet-20241022': {
     id: 'anthropic:claude-3-5-sonnet-20241022',
@@ -344,6 +369,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
+    lifecycle: 'live',
   },
   'anthropic:claude-3-5-sonnet-20240620': {
     id: 'anthropic:claude-3-5-sonnet-20240620',
@@ -359,6 +385,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 15,
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
+    lifecycle: 'live',
   },
   'anthropic:claude-3-haiku-20240307': {
     id: 'anthropic:claude-3-haiku-20240307',
@@ -374,6 +401,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 1.25,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
   },
   'google-ai:gemini-2.5-flash': {
     id: 'google-ai:gemini-2.5-flash',
@@ -389,6 +417,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 2.5,
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'live',
   },
   'google-ai:gemini-2.5-pro': {
     id: 'google-ai:gemini-2.5-pro',
@@ -404,6 +433,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
+    lifecycle: 'live',
   },
   'google-ai:models/gemini-2.0-flash': {
     id: 'google-ai:models/gemini-2.0-flash',
@@ -419,6 +449,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
+    lifecycle: 'live',
   },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
@@ -434,6 +465,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'live',
   },
   'cerebras:qwen-3-32b': {
     id: 'cerebras:qwen-3-32b',
@@ -449,6 +481,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.8,
     },
     tags: ['general-purpose', 'reasoning'],
+    lifecycle: 'live',
   },
   'cerebras:llama-4-scout-17b-16e-instruct': {
     id: 'cerebras:llama-4-scout-17b-16e-instruct',
@@ -464,6 +497,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.85,
     },
     tags: ['general-purpose', 'vision'],
+    lifecycle: 'live',
   },
   'cerebras:llama3.1-8b': {
     id: 'cerebras:llama3.1-8b',
@@ -479,6 +513,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.1,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
   },
   'cerebras:llama3.3-70b': {
     id: 'cerebras:llama3.3-70b',
@@ -494,6 +529,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 1.2,
     },
     tags: ['general-purpose'],
+    lifecycle: 'live',
   },
   'groq:openai/gpt-oss-20b': {
     id: 'groq:openai/gpt-oss-20b',
@@ -509,6 +545,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.5,
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
+    lifecycle: 'live',
   },
   'groq:openai/gpt-oss-120b': {
     id: 'groq:openai/gpt-oss-120b',
@@ -524,6 +561,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'live',
   },
   'groq:deepseek-r1-distill-llama-70b': {
     id: 'groq:deepseek-r1-distill-llama-70b',
@@ -539,6 +577,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.99,
     },
     tags: ['general-purpose', 'reasoning', 'preview'],
+    lifecycle: 'live',
   },
   'groq:llama-3.3-70b-versatile': {
     id: 'groq:llama-3.3-70b-versatile',
@@ -554,6 +593,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.79,
     },
     tags: ['recommended', 'general-purpose', 'coding'],
+    lifecycle: 'live',
   },
   'groq:llama-3.2-1b-preview': {
     id: 'groq:llama-3.2-1b-preview',
@@ -569,6 +609,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.04,
     },
     tags: ['low-cost', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:llama-3.2-3b-preview': {
     id: 'groq:llama-3.2-3b-preview',
@@ -584,6 +625,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.06,
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:llama-3.2-11b-vision-preview': {
     id: 'groq:llama-3.2-11b-vision-preview',
@@ -599,6 +641,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.18,
     },
     tags: ['low-cost', 'vision', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:llama-3.2-90b-vision-preview': {
     id: 'groq:llama-3.2-90b-vision-preview',
@@ -614,6 +657,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.9,
     },
     tags: ['vision', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:llama-3.1-8b-instant': {
     id: 'groq:llama-3.1-8b-instant',
@@ -628,6 +672,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.08,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
   },
   'groq:llama3-8b-8192': {
     id: 'groq:llama3-8b-8192',
@@ -643,6 +688,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.08,
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:llama3-70b-8192': {
     id: 'groq:llama3-70b-8192',
@@ -658,6 +704,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.79,
     },
     tags: ['general-purpose', 'deprecated'],
+    lifecycle: 'discontinued',
   },
   'groq:gemma2-9b-it': {
     id: 'groq:gemma2-9b-it',
@@ -673,6 +720,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.2,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -688,6 +736,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
+    lifecycle: 'live',
   },
   'fireworks:gpt-oss-20b': {
     id: 'fireworks:gpt-oss-20b',
@@ -703,6 +752,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.3,
     },
     tags: ['general-purpose', 'reasoning', 'low-cost'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/gpt-oss-20b'],
   },
   'fireworks:gpt-oss-120b': {
@@ -719,6 +769,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.6,
     },
     tags: ['general-purpose', 'reasoning'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/gpt-oss-120b'],
   },
   'fireworks:deepseek-r1-0528': {
@@ -735,6 +786,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 8,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
   },
   'fireworks:deepseek-v3-0324': {
@@ -751,6 +803,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.9,
     },
     tags: ['recommended', 'general-purpose'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
   },
   'fireworks:llama4-maverick-instruct-basic': {
@@ -767,6 +820,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.88,
     },
     tags: ['general-purpose', 'vision'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
   },
   'fireworks:llama4-scout-instruct-basic': {
@@ -783,6 +837,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.6,
     },
     tags: ['general-purpose', 'vision'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
   },
   'fireworks:llama-v3p3-70b-instruct': {
@@ -799,6 +854,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.9,
     },
     tags: ['general-purpose'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
   },
   'fireworks:deepseek-r1': {
@@ -815,6 +871,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
   'fireworks:deepseek-r1-basic': {
@@ -831,6 +888,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 2.19,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
   'fireworks:deepseek-v3': {
@@ -847,6 +905,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.9,
     },
     tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-v3'],
   },
   'fireworks:llama-v3p1-405b-instruct': {
@@ -863,6 +922,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 3,
     },
     tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
   },
   'fireworks:llama-v3p1-70b-instruct': {
@@ -879,6 +939,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.9,
     },
     tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
   },
   'fireworks:llama-v3p1-8b-instruct': {
@@ -895,6 +956,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.2,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
   },
   'fireworks:mixtral-8x22b-instruct': {
@@ -911,6 +973,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 1.2,
     },
     tags: ['general-purpose'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
   'fireworks:mixtral-8x7b-instruct': {
@@ -927,6 +990,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.5,
     },
     tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
   'fireworks:mythomax-l2-13b': {
@@ -943,6 +1007,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.2,
     },
     tags: ['roleplay', 'storytelling', 'low-cost'],
+    lifecycle: 'live',
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
   'fireworks:gemma2-9b-it': {
@@ -959,6 +1024,7 @@ export const models: Record<string, Model & { aliases?: string[] }> = {
       costPer1MTokens: 0.2,
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }
@@ -977,14 +1043,13 @@ export const knownTags = [
   'coding',
   'function-calling',
   'agents',
-  'deprecated',
   'storytelling',
   'preview',
   'roleplay',
 ]
 export const defaultModel = {
-  id: 'none',
-  name: 'none',
+  id: '',
+  name: '',
   description: '',
   input: {
     costPer1MTokens: 0,
