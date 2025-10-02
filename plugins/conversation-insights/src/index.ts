@@ -69,11 +69,12 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
 })
 
 plugin.on.workflowTimeout('updateAllConversations', async (props) => {
-  props.logger.error('Workflow timed out')
+  await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 })
 
 type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
 const _updateAllConversations = async (props: WorkflowProps) => {
+  await props.workflow.acknowledgeStartOfProcessing()
   const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
 
   const promises: Promise<void>[] = []
