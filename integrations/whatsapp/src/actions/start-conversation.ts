@@ -64,23 +64,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
-  await client
-    .createMessage({
-      conversationId: conversation.id,
-      userId: ctx.botId,
-      tags: {},
-      type: 'text',
-      payload: {
-        text: `Started WhatsApp conversation with template "${templateName}""`,
-      },
-    })
-    .catch((err: any) => {
-      _logForBotAndThrow(
-        `Failed to start WhatsApp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${err?.message ?? ''}`,
-        logger
-      )
-    })
-
   logger
     .forBot()
     .info(
