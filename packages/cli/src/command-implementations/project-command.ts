@@ -68,7 +68,33 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   }
 }
 
+export class ProjectDefinitionContext {
+  private _codeCache: Map<string, object> = new Map()
+  private _buildContext: utils.esbuild.BuildEntrypointContext = new utils.esbuild.BuildEntrypointContext()
+
+  public getOrResolveDefinition<T extends object>(code: string): T {
+    const definition = this._codeCache.get(code)
+    if (definition) {
+      return definition as T
+    }
+    const result = utils.require.requireJsCode<{ default: object }>(code)
+    this._codeCache.set(code, result.default)
+    return result.default as T
+  }
+
+  public rebuildEntrypoint(...args: Parameters<utils.esbuild.BuildEntrypointContext['rebuild']>) {
+    return this._buildContext.rebuild(...args)
+  }
+}
+
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
+  protected projectContext: ProjectDefinitionContext = new ProjectDefinitionContext()
+
+  public setProjectContext(projectContext: ProjectDefinitionContext) {
+    this.projectContext = projectContext
+    return this
+  }
+
   protected override async bootstrap() {
     await super.bootstrap()
     await this._notifyUpdateSdk()
@@ -156,17 +182,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.IntegrationDefinition>(artifact.text)
     validateIntegrationDefinition(definition)
     return { definition, bpLintDisabled }
   }
@@ -183,17 +209,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.InterfaceDefinition>(artifact.text)
 
     return { definition, bpLintDisabled }
   }
@@ -210,17 +236,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.BotDefinition>(artifact.text)
     validateBotDefinition(definition)
     return { definition, bpLintDisabled }
   }
@@ -237,17 +263,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read plugin definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.PluginDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.PluginDefinition>(artifact.text)
     // TODO: validate plugin definition
     return { definition, bpLintDisabled }
   }

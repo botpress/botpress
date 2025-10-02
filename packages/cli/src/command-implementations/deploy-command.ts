@@ -42,7 +42,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _runBuild() {
-    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
+    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).setProjectContext(this.projectContext).run()
   }
 
   private get _visibility(): 'public' | 'private' | 'unlisted' {
