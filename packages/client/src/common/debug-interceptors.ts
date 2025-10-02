@@ -2,13 +2,10 @@ import * as axios from 'axios'
 import { isNode } from 'browser-or-node'
 let randomUUID: () => string
 if (isNode) {
-  // Only import in Node.js
   randomUUID = require('crypto').randomUUID
 } else if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-  // Browser with Web Crypto API
   randomUUID = () => crypto.randomUUID()
 } else {
-  // Fallback
   randomUUID = () => Math.random().toString(36).substring(2, 15)
 }
 
@@ -51,7 +48,7 @@ export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
 const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
   const { method, url, headers, data } = config
   return (
-    'REQUEST:\n' +
+    'REQUEST: ' +
     JSON.stringify({
       method: method?.toUpperCase(),
       url,
@@ -69,7 +66,7 @@ const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
   const duration = _formatDuration(response)
 
   return (
-    'RESPONSE:\n' +
+    'RESPONSE: ' +
     JSON.stringify({
       method: config.method?.toUpperCase(),
       status,
@@ -87,7 +84,7 @@ const _formatErrorLog = (error: AxiosErrorWithMetadata): string => {
   const duration = error ? _formatDuration(error) : 'N/A'
 
   return (
-    'ERROR:\n' +
+    'ERROR: ' +
     JSON.stringify({
       status: error.code,
       url: error.config.url ?? 'N/A',
