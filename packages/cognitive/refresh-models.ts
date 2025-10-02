@@ -21,7 +21,7 @@ const toRef = (m: RemoteModel | string | null | undefined): string | null => {
 }
 
 async function main(): Promise<void> {
-  const server = 'https://api.botpress.cloud/v2/cognitive'
+  const server = process.env.COGNITIVE_SERVER || 'https://api.botpress.cloud/v2/cognitive'
   const key = process.env.TOKEN
   const botId = process.env.BOT_ID
 
@@ -56,13 +56,14 @@ async function main(): Promise<void> {
     input: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     output: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     tags: [],
+    lifecycle: 'live',
   }
 
-  const newFile = `import { Model } from 'src/schemas.gen'
-
-export const models: Record<string, Model & { aliases?: string[], lifecycle?: 'live' | 'beta' | 'deprecated' | 'discontinued' }>  = ${JSON.stringify(modelsObj, null, 2)}
-export const knownTags = [${[...builtInModels, ...uniqueTags].map((t) => `'${t}'`).join(', ')}]
-export const defaultModel = ${JSON.stringify(defaultModel, undefined, 2)}
+  const newFile = `import { Model } from 'src/schemas.gen'\n
+export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued' }\n
+export const models: Record<string, RemoteModel>  = ${JSON.stringify(modelsObj, null, 2)}\n
+export const knownTags = [${[...builtInModels, ...uniqueTags].map((t) => `'${t}'`).join(', ')}]\n
+export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefined, 2)}
 `
 
   fs.writeFileSync(modelsListPath, newFile, 'utf8')

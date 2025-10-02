@@ -1,9 +1,8 @@
 import { Model } from 'src/schemas.gen'
 
-export const models: Record<
-  string,
-  Model & { aliases?: string[]; lifecycle?: 'live' | 'beta' | 'deprecated' | 'discontinued' }
-> = {
+export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued' }
+
+export const models: Record<string, RemoteModel> = {
   'openai:gpt-5-2025-08-07': {
     id: 'openai:gpt-5-2025-08-07',
     name: 'GPT-5',
@@ -1028,6 +1027,7 @@ export const models: Record<
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }
+
 export const knownTags = [
   'auto',
   'best',
@@ -1047,7 +1047,8 @@ export const knownTags = [
   'preview',
   'roleplay',
 ]
-export const defaultModel = {
+
+export const defaultModel: RemoteModel = {
   id: '',
   name: '',
   description: '',
@@ -1060,4 +1061,5 @@ export const defaultModel = {
     maxTokens: 1000000,
   },
   tags: [],
+  lifecycle: 'live',
 }
