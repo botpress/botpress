@@ -16,4 +16,7 @@ export default new IntegrationDefinition({
     FIRECRAWL_API_KEY: {},
     LOGO_API_KEY: {},
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

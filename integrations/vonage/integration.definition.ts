@@ -56,6 +56,9 @@ export default new IntegrationDefinition({
       schema: z.object({ channel: z.string(), userId: z.string() }),
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(proactiveConversation, ({ entities }) => ({
     entities: {

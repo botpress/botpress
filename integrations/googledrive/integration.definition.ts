@@ -216,4 +216,7 @@ export default new sdk.IntegrationDefinition({
     folderDeletedRecursive: { name: 'filesReadonlyFolderDeletedRecursive' },
     aggregateFileChanges: { name: 'filesReadonlyAggregateFileChanges' },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }))
