@@ -36,7 +36,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     logger.forBot().warn('Error while parsing body as JSON:', jsonParseResult.data)
     return
   }
-  logger.forBot().debug(`jsonParseResult`, JSON.stringify(jsonParseResult.data, null, 2))
 
   // Try to parse as messenger payload first
   const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)

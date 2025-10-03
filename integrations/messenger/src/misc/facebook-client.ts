@@ -1,21 +1,24 @@
 import { z, RuntimeError } from '@botpress/sdk'
-import { FacebookClientConfig, CommentReply, PostReply } from './types'
 import axios from 'axios'
+import { getMetaClientCredentials } from './auth'
+import { FacebookClientConfig, CommentReply, PostReply } from './types'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
 
 export class FacebookClient {
-  private _accessToken: string
+  private _userAccessToken: string
+  private _pageAccessToken: string
   private _pageId: string
   private _baseUrl = 'https://graph.facebook.com/v23.0'
   private _clientId: string
   private _clientSecret: string
   private _logger?: bp.Logger
 
-  constructor(config: FacebookClientConfig, logger?: bp.Logger) {
-    this._accessToken = config.accessToken
+  public constructor(config: FacebookClientConfig, logger?: bp.Logger) {
+    this._userAccessToken = config.accessToken
+    this._pageAccessToken = config.pageToken || ''
     this._pageId = config.pageId
     this._logger = logger
     this._clientId = bp.secrets.CLIENT_ID
@@ -32,7 +35,7 @@ export class FacebookClient {
     const url = endpoint.startsWith('http') ? endpoint : `${this._baseUrl}/${endpoint}`
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this._accessToken}`,
+      Authorization: `Bearer ${this._pageAccessToken ? this._pageAccessToken : this._userAccessToken}`,
       ...customHeaders,
     }
 
@@ -66,9 +69,9 @@ export class FacebookClient {
     return data.access_token
   }
 
-  public async getPageToken(accessToken: string, pageId: string) {
+  public async getPageToken(pageId: string) {
     const query = new URLSearchParams({
-      access_token: accessToken,
+      access_token: this._userAccessToken,
       fields: 'access_token,name',
     })
 
@@ -86,6 +89,10 @@ export class FacebookClient {
     }
 
     return data.access_token
+  }
+
+  public setPageAccessToken(pageAccessToken: string) {
+    this._pageAccessToken = pageAccessToken
   }
 
   public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
@@ -145,7 +152,7 @@ export class FacebookClient {
   public async subscribeToWebhooks(pageId: string) {
     try {
       const responseData = await this._makeRequest('POST', `${pageId}/subscribed_apps`, {
-        subscribed_fields: ['messages', 'messaging_postbacks', 'feed', 'mention'],
+        subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
       })
 
       if (!responseData.success) {
@@ -178,34 +185,34 @@ export class FacebookClient {
 
   // Post Methods
 
-  async replyToPost(reply: PostReply): Promise<{ id: string }> {
+  public async replyToPost(reply: PostReply): Promise<{ id: string }> {
     return this._makeRequest('POST', `${this._pageId}/comments`, {
       message: reply.message,
     })
   }
 
-  async getPost(postId: string): Promise<any> {
+  public async getPost(postId: string): Promise<any> {
     return this._makeRequest('GET', postId)
   }
 
   // Comment Methods
 
-  async replyToComment(reply: CommentReply): Promise<{ id: string }> {
+  public async replyToComment(reply: CommentReply): Promise<{ id: string }> {
     return this._makeRequest('POST', `${reply.commentId}/comments`, {
       message: reply.message,
     })
   }
 
-  async getComment(commentId: string): Promise<any> {
+  public async getComment(commentId: string): Promise<any> {
     return this._makeRequest('GET', commentId)
   }
 
-  async deleteComment(commentId: string): Promise<{ success: boolean }> {
+  public async deleteComment(commentId: string): Promise<{ success: boolean }> {
     await this._makeRequest('DELETE', commentId)
     return { success: true }
   }
 
-  async hideComment(commentId: string): Promise<{ success: boolean }> {
+  public async hideComment(commentId: string): Promise<{ success: boolean }> {
     await this._makeRequest('POST', commentId, {
       data: {
         is_hidden: true,
@@ -214,7 +221,7 @@ export class FacebookClient {
     return { success: true }
   }
 
-  async showComment(commentId: string): Promise<{ success: boolean }> {
+  public async showComment(commentId: string): Promise<{ success: boolean }> {
     await this._makeRequest('POST', commentId, {
       is_hidden: false,
     })
@@ -231,19 +238,21 @@ export async function createFacebookClient(
 ): Promise<FacebookClient> {
   let pageId: string
   let accessToken: string
+  let pageToken: string
 
   if (ctx.configurationType === 'manual') {
     pageId = ctx.configuration.pageId
     accessToken = ctx.configuration.accessToken
+    pageToken = ''
   } else {
     // For non-manual configurations, try to get OAuth credentials
     if (!client) {
       throw new Error('Client is required for OAuth configuration')
     }
-    const { getMetaClientCredentials } = await import('./auth')
     const credentials = await getMetaClientCredentials(client, ctx)
     pageId = credentials.pageId
-    accessToken = credentials.pageToken
+    accessToken = credentials.accessToken
+    pageToken = credentials.pageToken || ''
   }
 
   if (!accessToken) {
@@ -258,6 +267,7 @@ export async function createFacebookClient(
     {
       accessToken,
       pageId,
+      pageToken,
     },
     logger
   )
