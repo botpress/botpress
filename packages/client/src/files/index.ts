@@ -1,4 +1,3 @@
-import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as gen from '../gen/files'
@@ -26,8 +25,8 @@ export class Client extends gen.Client implements IClient {
 
   public constructor(clientProps: ClientProps) {
     const clientConfig = common.config.getClientConfig(clientProps)
-    const axiosConfig = common.axios.createAxios(clientConfig)
-    const axiosInstance = axios.create(axiosConfig)
+    const axiosInstance = common.axios.createAxiosInstance(clientConfig)
+
     super(axiosInstance, {
       toApiError: common.errors.toApiError,
     })

@@ -7,6 +7,7 @@ export type CommonClientProps = {
   timeout?: number
   headers?: types.Headers
   retry?: types.RetryConfig
+  debug?: boolean
 }
 
 export type Cast<T, U> = T extends U ? T : U
