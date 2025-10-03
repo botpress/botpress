@@ -15,10 +15,9 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
-    markdown: async (props) =>
-      _sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendText(recipientId, props.payload.markdown)
-      }),
+    markdown: async ({ logger }) => {
+      logger.forBot().error('Markdown is not implemented in Messenger')
+    },
     audio: async (props) =>
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendAudio(recipientId, props.payload.audioUrl)

@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getMetaClientCredentials } from './misc/auth'
-import { FacebookClient } from './misc/facebook-client'
+import { createFacebookClient } from './misc/facebook-client'
 
 import * as bp from '.botpress'
 import type { ManualConfig } from '.botpress/implementation/typings/configurations/manual'
@@ -21,7 +21,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
 export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 
 const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
-  const { client, logger } = props
+  const { client, logger, ctx } = props
   logger.forBot().debug('Registering manual')
 
   const { pageId, accessToken } = config
@@ -31,7 +31,7 @@ const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
   }
 
   try {
-    const facebookClient = new FacebookClient({ accessToken, pageId }, logger)
+    const facebookClient = await createFacebookClient(ctx, client, logger)
 
     await _clearAllIdentifiers(props)
     await facebookClient.subscribeToWebhooks(pageId)
@@ -65,8 +65,8 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
     return
   }
 
-  const { pageToken, pageId } = credentials
-  const facebookClient = new FacebookClient({ accessToken: pageToken, pageId }, logger)
+  const { pageId } = credentials
+  const facebookClient = await createFacebookClient(ctx, client, logger)
   if (await facebookClient.isSubscribedToWebhooks(pageId)) {
     await facebookClient.unsubscribeFromWebhooks(pageId)
   }
