@@ -1,6 +1,6 @@
-import { getErrorFromUnknown } from '../../misc/utils'
-import { FeedEventEntry, CommentChangeValue, FeedChange } from '../../misc/types'
 import { getMetaClientCredentials } from '../../misc/auth'
+import { FeedEventEntry, CommentChangeValue, FeedChange } from '../../misc/types'
+import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
 export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps) => {
@@ -38,19 +38,15 @@ const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => 
 
 const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerProps) => {
   const { logger } = props
-  const { from, comment_id, post_id, parent_id, verb } = value
+  const { from, verb } = value
   const pageId = await _getPageId(props)
 
   if (from?.id === pageId) {
-    logger.forBot().debug(`Comment is from our page, ignoring`)
+    logger.forBot().debug('Comment is from our page, ignoring')
     return
   }
 
-  logger
-    .forBot()
-    .debug(
-      `Processing comment event: verb=${verb}, comment_id=${comment_id}, parent_id=${parent_id}, post_id=${post_id}`
-    )
+  logger.forBot().debug(`Processing comment event: verb=${verb} `)
 
   switch (verb) {
     case 'add':
@@ -69,18 +65,14 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   const { comment_id, post_id, message, from, parent_id } = value
 
   if (!message) {
-    logger.forBot().debug(`_handleCommentCreated: No message. Will not reply to this comment.`)
+    logger.forBot().debug('_handleCommentCreated: No message. Will not reply to this comment.')
     return
   }
 
   if (post_id !== parent_id) {
-    logger.forBot().debug(`_handleCommentCreated: Non root comment. Will not reply to this comment.`)
+    logger.forBot().debug('_handleCommentCreated: Non root comment. Will not reply to this comment.')
     return
   }
-
-  logger
-    .forBot()
-    .debug(`_handleCommentCreated: Creating conversation and thread for comment: ${comment_id} on post ${post_id}`)
 
   // Use the thread resolver to create conversation based on root thread ID
   const { conversation } = await client.getOrCreateConversation({
@@ -88,7 +80,6 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     tags: { id: comment_id, postId: post_id, commentId: comment_id, parentId: parent_id },
   })
 
-  logger.forBot().debug(`_handleCommentCreated: Creating user: ${from?.id}`)
   const { user } = await client.getOrCreateUser({
     tags: { id: from?.id },
   })

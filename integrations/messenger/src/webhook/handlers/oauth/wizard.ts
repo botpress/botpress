@@ -131,11 +131,31 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   const pageId = selectedChoice
+  if (!pageId) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Page ID is not available, please try again',
+    })
+  }
+
   const facebookClient = new FacebookClient({ accessToken, pageId }, logger)
-  const pageToken = await facebookClient.getPageToken(accessToken, pageId)
+  const pageToken = await facebookClient.getPageToken(pageId)
+  if (!pageToken) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Page token is not available, please try again',
+    })
+  }
+
+  facebookClient.setPageAccessToken(pageToken)
   await patchMetaClientCredentials(client, ctx, { pageToken, pageId })
 
-  await facebookClient.subscribeToWebhooks(pageId)
+  if (!(await facebookClient.isSubscribedToWebhooks(pageId))) {
+    logger.forBot().info(`Subscribing to webhooks for OAuth page ${pageId}`)
+    await facebookClient.subscribeToWebhooks(pageId)
+  }
+
+  logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)
 
   await client.configureIntegration({
     identifier: pageId,
