@@ -8,7 +8,7 @@ import {
 import { employeeId, employeeIdObject } from './common'
 
 const getEmployeeBasicInfo: ActionDefinition = {
-  title: 'Get Employee Basic Info',
+  title: 'Get Basic Info',
   description: 'Retrieve basic information about an employee by their ID.',
   input: {
     schema: employeeIdObject,
@@ -19,7 +19,7 @@ const getEmployeeBasicInfo: ActionDefinition = {
 }
 
 const getEmployeeSensitiveInfo: ActionDefinition = {
-  title: 'Get Employee Sensitive Info',
+  title: 'Get Sensitive Info',
   description: 'Retrieve sensitive information about an employee by their ID.',
   input: {
     schema: employeeIdObject,
@@ -30,7 +30,7 @@ const getEmployeeSensitiveInfo: ActionDefinition = {
 }
 
 const getEmployeeCustomInfo: ActionDefinition = {
-  title: 'Get Employee Custom Info',
+  title: 'Get Custom Info',
   description: 'Retrieve custom information about an employee by their ID and specified fields.',
   input: {
     schema: z.object({

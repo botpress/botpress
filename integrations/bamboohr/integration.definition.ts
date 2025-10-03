@@ -4,22 +4,24 @@ import { actions, events, subdomain } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'bamboohr',
-  version: '0.1.0',
+  version: '1.0.0',
 
   title: 'BambooHR',
   description: 'Retrieve your BambooHR information',
   readme: 'hub.md',
   icon: 'icon.svg',
 
-  configuration: {
-    identifier: {
-      linkTemplateScript: 'linkTemplate.vrl',
-      required: true,
-    },
-    schema: z.object({
-      subdomain,
-    }),
-  },
+  // Disabled for now due to issues with OAuth link requiring subdomain
+  // TODO: Add separate page to allow users to enter subdomain
+  // configuration: {
+  //   identifier: {
+  //     linkTemplateScript: 'linkTemplate.vrl',
+  //     required: true,
+  //   },
+  //   schema: z.object({
+  //     subdomain,
+  //   }),
+  // },
   configurations: {
     apiKey: {
       title: 'API Key configuration',
@@ -61,12 +63,10 @@ export default new IntegrationDefinition({
       schema: z.object({
         privateKey: z
           .string()
-          .min(1)
           .title('Private Key')
           .describe('The private key provided by BambooHR to validate the webhook.'),
-        webhookId: z
+        id: z
           .string()
-          .min(1)
           .title('Webhook ID')
           .describe('The ID of the webhook as provided by BambooHR when the webhook was created.'),
       }),

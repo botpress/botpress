@@ -1,4 +1,5 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
+import jwt, { type JwtPayload } from 'jsonwebtoken'
 import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
@@ -9,16 +10,14 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  * Saves new token in state.
  * @returns `accessToken` and `idToken` to use in Authorization header and integration configuration respectively.
  */
-const fetchBambooHrOauthToken = async ({
-  ctx,
-  client,
-  ...props
-}: Pick<bp.HandlerProps, 'ctx' | 'client'> & ({ code: string } | { refreshToken: string })): Promise<{
+const fetchBambooHrOauthToken = async (
+  { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
+  oAuthInfo: { code: string } | { refreshToken: string }
+): Promise<{
   accessToken: string
   idToken: string
 }> => {
   const bambooHrOauthUrl = `https://${ctx.configuration.subdomain}.bamboohr.com/token.php?request=token`
-  const webhookUrl = `https://webhook.botpress.cloud/${ctx.webhookId}`
 
   const { OAUTH_CLIENT_SECRET, OAUTH_CLIENT_ID } = bp.secrets
 
@@ -29,19 +28,22 @@ const fetchBambooHrOauthToken = async ({
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      AcceptHeaderParameter: 'application/json',
     },
     body: JSON.stringify({
       client_id: OAUTH_CLIENT_ID,
       client_secret: OAUTH_CLIENT_SECRET,
-      redirect_uri: `${webhookUrl}/oauth`,
-      ...('code' in props
-        ? { grant_type: 'authorization_code', code: props.code }
-        : { grant_type: 'refresh_token', refresh_token: props.refreshToken }),
+      redirect_uri: 'https://webhook.botpress.cloud/oauth',
+      ...('code' in oAuthInfo
+        ? { grant_type: 'authorization_code', code: oAuthInfo.code }
+        : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
     }),
   })
 
   if (tokenResponse.status < 200 || tokenResponse.status >= 300) {
-    throw new Error(`Failed POST request for OAuth token: ${tokenResponse.status}`)
+    throw new Error(
+      `Failed POST request for OAuth token: ${tokenResponse.status} ${tokenResponse.statusText} at ${bambooHrOauthUrl} with ${'code' in oAuthInfo ? oAuthInfo.code : oAuthInfo.refreshToken}`
+    )
   }
   const tokenData = bambooHrOauthTokenResponse.safeParse(await tokenResponse.json())
   if (!tokenData.success) {
@@ -98,7 +100,7 @@ export const getBambooHrAuthorization = async ({
   const token =
     Date.now() < oauth.expiresAt
       ? oauth.accessToken
-      : (await fetchBambooHrOauthToken({ ctx, client, refreshToken: oauth.refreshToken })).accessToken
+      : (await fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
 
   return { authorization: `Bearer ${token}`, expiresAt: oauth.expiresAt }
 }
@@ -111,9 +113,11 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   const code = new URLSearchParams(req.query).get('code')
   if (!code) throw new Error('Missing authentication code')
 
-  const { idToken } = await fetchBambooHrOauthToken({ ctx, client, code })
+  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code })
 
-  await client.configureIntegration({ identifier: idToken })
+  await client.configureIntegration({
+    identifier: (jwt.decode(idToken) as JwtPayload).sub,
+  })
 
   logger.forBot().info('BambooHR OAuth authentication successfully set up.')
 }

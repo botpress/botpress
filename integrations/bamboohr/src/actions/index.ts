@@ -15,7 +15,7 @@ const actionErrorWrapper = <T extends (...args: any) => Promise<any>>(fn: T): T 
     try {
       return await fn(...args)
     } catch (err) {
-      throw new RuntimeError('Action failed.', err as Error)
+      throw new RuntimeError('Action failed: ' + (err as Error).message)
     }
   }) as T
 
