@@ -4,4 +4,7 @@ export default new sdk.PluginDefinition({
   name: 'logger',
   version: '0.0.1',
   configuration: { schema: sdk.z.object({}) },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
