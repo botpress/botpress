@@ -1,7 +1,8 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import axios from 'axios'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
-import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
+import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient, getAccessToken } from '../auth'
 import { getStrippedPhoneNumber } from '../misc/util'
 import * as bp from '.botpress'
 
@@ -65,6 +66,35 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
+  const url = `https://graph.facebook.com/v20.0/239721182547756/message_templates?name=${templateName}&language=${templateLanguage}`
+  const templateComponents: Component[] | undefined = await axios
+    .get(url, {
+      headers: {
+        Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
+      },
+    })
+    .then((res) => {
+      if (!res.data.data[0]) {
+        return undefined
+      }
+      return res.data.data[0].components
+    })
+    .catch((e) => _logForBotAndThrow(e.message, logger))
+
+  if (!templateComponents) {
+    _logForBotAndThrow(`error: ${JSON.stringify(templateComponents, null, 2)}`, logger)
+  }
+
+  let templateText = ''
+  for (const component of templateComponents) {
+    const componentText = _parseComponent(component)
+    if (!componentText) {
+      templateText = `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      break
+    }
+    templateText += componentText
+  }
+
   await client
     .createMessage({
       origin: 'synthetic',
@@ -73,7 +103,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: `Started WhatsApp conversation with template "${templateName}"`,
+        text: templateText,
       },
     })
     .catch((err: any) => {
@@ -129,4 +159,108 @@ function _parseTemplateVariablesJSON(
   }
 
   return validationResult.data
+}
+
+type Component =
+  | {
+      type: 'HEADER'
+      format: 'TEXT'
+      text?: string
+    }
+  | {
+      type: 'HEADER'
+      format: 'IMAGE' | 'VIDEO' | 'GIF' | 'DOCUMENT'
+      example: {
+        header_handle: string[]
+      }
+    }
+  | {
+      type: 'HEADER'
+      format: undefined
+      parameters: [
+        {
+          type: 'location'
+          location: {
+            latitude: string
+            longitude: string
+            name: string
+            address: string
+          }
+        },
+      ]
+    }
+  | {
+      type: 'BODY'
+      text?: string
+    }
+  | {
+      type: 'FOOTER'
+      text?: string
+    }
+  | {
+      type: 'BUTTONS'
+      buttons: { text?: string }[]
+    }
+  | {
+      type: 'FLOW'
+      text?: string
+    }
+  | {
+      type: 'PHONE_NUMBER'
+      text?: string
+    }
+  | {
+      type: 'QUICK_REPLY'
+      text?: string
+    }
+  | {
+      type: 'URL'
+      text?: string
+    }
+
+const _parseComponent = (component: Component): string | undefined => {
+  let compText
+  switch (component.type) {
+    case 'BODY':
+      compText = component.text ?? 'body has no text'
+      return `[BODY]\n${compText}\n`
+    case 'HEADER':
+      if (!component.format) {
+        compText = component.parameters.flatMap((parameter) => {
+          return `lat: ${parameter.location.latitude} long: ${parameter.location.longitude} address: ${parameter.location.address} name: ${parameter.location.name}\n`
+        })
+        return `[LOCATION]${compText}`
+      } else if (component.format === 'TEXT') {
+        compText = component.text ?? 'header has no text'
+        return `[HEADER TEXT]\n${component.text}\n`
+      } else {
+        compText = component.example.header_handle.flatMap((url) => `${url}\n`)
+        return `[HEADER MEDIA ${component.format}]\n${compText}\n`
+      }
+    case 'BUTTONS':
+      compText = component.buttons.flatMap((button) => {
+        if (button.text) {
+          return
+        }
+        return `${button.text}\n`
+      })
+      return `[buttons]\n${compText}`
+    case 'FOOTER':
+      compText = component.text ?? 'footer has no text'
+      return `[FOOTER]\n${compText}\n`
+    case 'FLOW':
+      compText = component.text ?? 'body has no text'
+      return `[FLOW]\n${compText}\n`
+    case 'QUICK_REPLY':
+      compText = component.text ?? 'body has no text'
+      return `[QUICK_REPLY]\n${compText}\n`
+    case 'PHONE_NUMBER':
+      compText = component.text ?? 'body has no text'
+      return `[PHONE_NUMBER]\n${compText}\n`
+    case 'URL':
+      compText = component.text ?? 'body has no text'
+      return `[URL]\n${compText}\n`
+    default:
+      return undefined
+  }
 }
