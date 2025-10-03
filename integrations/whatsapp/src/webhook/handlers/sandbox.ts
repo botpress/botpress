@@ -1,11 +1,12 @@
-import { z } from '@botpress/sdk'
+import {
+  CONVERSATION_CONNECTED_MESSAGE,
+  CONVERSATION_DISCONNECTED_MESSAGE,
+  extractSandboxCommand,
+} from '@botpress/common'
 import { getAuthenticatedWhatsappClient } from 'src/auth'
-import { WhatsAppPayloadSchema, WhatsAppValue } from 'src/misc/types'
+import { WhatsAppPayloadSchema, WhatsAppMessageValue } from 'src/misc/types'
 import { Text } from 'whatsapp-api-js/messages'
 import * as bp from '.botpress'
-
-const supportedDynamicLinkingCommandsSchema = z.enum(['join', 'leave'])
-type SupportedDynamicLinkingCommand = z.infer<typeof supportedDynamicLinkingCommandsSchema>
 
 export const isSandboxCommand = (props: bp.HandlerProps): boolean => {
   const { req } = props
@@ -13,18 +14,6 @@ export const isSandboxCommand = (props: bp.HandlerProps): boolean => {
 }
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
-
-const extractSandboxCommand = (req: bp.HandlerProps['req']): SupportedDynamicLinkingCommand | undefined => {
-  const operation = req.headers['x-bp-sandbox-operation']
-  if (!operation) {
-    return undefined
-  }
-  const operationParseResult = supportedDynamicLinkingCommandsSchema.safeParse(operation)
-  if (!operationParseResult.success) {
-    return undefined
-  }
-  return operationParseResult.data
-}
 
 export const sandboxHandler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
@@ -54,11 +43,7 @@ const _handleJoinCommand = async (props: bp.HandlerProps) => {
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 
   await whatsapp.markAsRead(botPhoneNumberId, message.id, 'text')
-  await whatsapp.sendMessage(
-    botPhoneNumberId,
-    userPhoneNumber,
-    new Text('Conversation connected to bot. You can now send messages. To disconnect, send this message: //leave')
-  )
+  await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text(CONVERSATION_CONNECTED_MESSAGE))
   return
 }
 
@@ -75,11 +60,11 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   const whatsapp = await getAuthenticatedWhatsappClient(client, ctx)
 
   await whatsapp.markAsRead(botPhoneNumberId, message.id, 'text')
-  await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text('Conversation disconnected from bot'))
+  await whatsapp.sendMessage(botPhoneNumberId, userPhoneNumber, new Text(CONVERSATION_DISCONNECTED_MESSAGE))
   return
 }
 
-const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppValue | undefined => {
+const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppMessageValue | undefined => {
   const { req, logger } = props
   if (!req.body) {
     return undefined
@@ -88,7 +73,7 @@ const _extractValueFromRequest = (props: bp.HandlerProps): WhatsAppValue | undef
   try {
     const data = JSON.parse(req.body)
     const payload = WhatsAppPayloadSchema.parse(data)
-    return payload.entry[0]?.changes[0]?.value
+    return payload.entry[0]?.changes[0]?.field === 'messages' ? payload.entry[0]?.changes[0]?.value : undefined
   } catch (e: any) {
     logger.error('Error while extracting message from request:', e?.message ?? '[unknown error]')
     return undefined

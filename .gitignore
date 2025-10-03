@@ -16,3 +16,4 @@ __snapshots__
 .genenv.*
 tilt_config.json
 /.idea
+hubspot.config.yml

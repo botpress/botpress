@@ -34,7 +34,13 @@ export type FileMessagePart = {
   }
 }
 
-type MessagePart = TextMessagePart | FileMessagePart
+export type ImageMessagePart = {
+  image: {
+    url: string
+  }
+}
+
+type MessagePart = TextMessagePart | FileMessagePart | ImageMessagePart
 
 type Message = {
   message_parts: MessagePart[]

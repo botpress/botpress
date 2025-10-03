@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "4.15.8",
+  "version": "4.15.10",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -16,11 +16,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "1.24.2",
+    "@botpress/client": "1.25.0",
     "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "tsup": "^8.0.2"
   },

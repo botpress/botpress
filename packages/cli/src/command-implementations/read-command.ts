@@ -8,29 +8,32 @@ import { ProjectCommand } from './project-command'
 export type ReadCommandDefinition = typeof commandDefinitions.read
 export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   public async run(): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type === 'integration') {
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
+    if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       const parsed = await this._parseIntegration(projectDef.definition)
       this.logger.json(parsed)
       return
     }
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
+      const projectDef = await resolveProjectDefinition()
       const parsed = await this._parseInterface(projectDef.definition)
       this.logger.json(parsed)
       return
     }
-    if (projectDef.type === 'bot') {
+    if (projectType === 'bot') {
+      const projectDef = await resolveProjectDefinition()
       const parsed = await this._parseBot(projectDef.definition)
       this.logger.json(parsed)
       return
     }
-    if (projectDef.type === 'plugin') {
+    if (projectType === 'plugin') {
+      const projectDef = await resolveProjectDefinition()
       const parsed = await this._parsePlugin(projectDef.definition)
       this.logger.json(parsed)
       return
     }
 
-    type _assertion = utils.types.AssertNever<typeof projectDef>
     throw new errors.BotpressCLIError('Unsupported project type')
   }
 

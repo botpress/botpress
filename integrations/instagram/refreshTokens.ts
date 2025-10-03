@@ -8,14 +8,12 @@ const argsSchema = z.object({
   apiUrl: z.string(),
   workspaceId: z.string(),
   token: z.string(),
-  instagramRefreshToken: z.string(),
+  refreshToken: z.string(),
   json: z.boolean(),
   useProvidedToken: z.boolean(),
 })
-type RefreshSecretArgs = {
-  instagramRefreshToken: string
+type RefreshSecretArgs = Pick<z.infer<typeof argsSchema>, 'refreshToken' | 'json'> & {
   client: Client
-  json: boolean
   useProvidedToken: boolean
   log: (message: string) => void
 }
@@ -25,7 +23,7 @@ const DEFAULT_API_URL = 'https://api.botpress.cloud'
 const INSTAGRAM_GRAPH_API_URL = 'https://graph.instagram.com'
 
 async function refreshSandboxAccessToken(args: RefreshSecretArgs) {
-  const { instagramRefreshToken, client, useProvidedToken, log } = args
+  const { refreshToken, client, useProvidedToken, log } = args
 
   const { integrations: integrationsList } = await client.listIntegrations({
     name: 'instagram',
@@ -57,14 +55,14 @@ async function refreshSandboxAccessToken(args: RefreshSecretArgs) {
   if (useProvidedToken) {
     log('Using provided token, skipping refresh on Instagram API')
     data = {
-      access_token: instagramRefreshToken,
+      access_token: refreshToken,
     }
   } else {
     log('Refreshing access token on Instagram API')
     const response = await axios.get(`${INSTAGRAM_GRAPH_API_URL}/refresh_access_token`, {
       params: {
         grant_type: 'ig_refresh_token',
-        access_token: instagramRefreshToken,
+        access_token: refreshToken,
       },
     })
     data = response.data
@@ -73,7 +71,7 @@ async function refreshSandboxAccessToken(args: RefreshSecretArgs) {
   for (const integration of integrations) {
     await client.updateIntegration({
       id: integration.id,
-      public: integration.public,
+      visibility: integration.visibility,
       secrets: {
         [INTEGRATION_SECRET_SANDBOX_ACCESS_TOKEN]: data.access_token,
       },
@@ -94,7 +92,7 @@ async function main() {
       apiUrl: { type: 'string', default: process.env.BP_API_URL || DEFAULT_API_URL },
       workspaceId: { type: 'string', default: process.env.BP_WORKSPACE_ID },
       token: { type: 'string', default: process.env.BP_TOKEN },
-      instagramRefreshToken: { type: 'string' },
+      refreshToken: { type: 'string' },
       json: { type: 'boolean', default: false },
       useProvidedToken: { type: 'boolean', default: false },
     },
@@ -102,7 +100,7 @@ async function main() {
 
   try {
     const args = argsSchema.parse(values)
-    const { apiUrl, token, workspaceId, instagramRefreshToken, json, useProvidedToken } = args
+    const { apiUrl, token, workspaceId, refreshToken, json, useProvidedToken } = args
     const messages: string[] = []
     const log = (message: string) => {
       if (!json) {
@@ -117,14 +115,14 @@ async function main() {
 
     const client = new Client({ apiUrl, token, workspaceId })
     const refreshResult = await refreshSandboxAccessToken({
-      instagramRefreshToken,
+      refreshToken,
       client,
       json,
       useProvidedToken,
       log,
     })
     const output = json
-      ? JSON.stringify({ message: messages.join('\\n'), messages, ...refreshResult }, null, 2)
+      ? JSON.stringify({ message: messages.join('\n'), messages, ...refreshResult }, null, 2)
       : `New token: ${refreshResult.refreshedToken}`
     console.info(output)
     process.exit(0)

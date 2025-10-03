@@ -2,7 +2,7 @@ import { Client } from '@botpress/client'
 import fs from 'fs/promises'
 import pathlib from 'path'
 import * as uuid from 'uuid'
-import impl from '../../src/command-implementations'
+import impl from '../../src'
 import { ApiBot, ApiIntegration, ApiInterface, ApiPlugin } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
@@ -199,7 +199,7 @@ const _deployBot = async ({
 }) => {
   await _editPackageJson({ workDir, botName })
   await _installAndBuild({ argv, workDir, dependencies })
-  await impl.bots.subcommands.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
+  await impl.bots.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
 
   const bot = await _fetchBotByName(client, botName)
   if (!bot) {

@@ -70,6 +70,20 @@ export type WorkflowWithUtilities<
     ): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
 
     /**
+     * Acknowledges the start of processing for a pending workflow instance.
+     * If the workflow is not in pending status or has already been
+     * acknowledged, this is a no-op.
+     *
+     * This method **should be called in every workflow handler** as soon as the
+     * workflow **starts doing work**. If no work needs to be done, setCompleted
+     * or setFailed should be called instead.
+     *
+     * Should a workflow not be acknowledged **in a timely fashion**, it will be
+     * retriggered 3 times before being marked as failed.
+     */
+    acknowledgeStartOfProcessing(): Promise<void>
+
+    /**
      * Marks the current workflow instance as failed and stops execution
      */
     setFailed(

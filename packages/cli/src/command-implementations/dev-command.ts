@@ -18,22 +18,29 @@ import { ProjectCommand, ProjectDefinition } from './project-command'
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
 const TUNNEL_HELLO_INTERVAL = 5000
-const FILEWATCHER_DEBOUNCE_MS = 2000
+const FILEWATCHER_DEBOUNCE_MS = 500
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
+  private _buildContext: utils.esbuild.BuildCodeContext
+
+  public constructor(...args: ConstructorParameters<typeof ProjectCommand<DevCommandDefinition>>) {
+    super(...args)
+    this._buildContext = new utils.esbuild.BuildCodeContext()
+  }
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
 
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type === 'interface') {
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
+    if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
+    const projectDef = await resolveProjectDefinition()
     this._initialDef = projectDef
 
     let env: Record<string, string> = {
@@ -139,16 +146,21 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             return
           }
 
-          const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
-          if (typescriptEvents.length === 0) {
-            return
-          }
+          const typescriptEvents = events
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => pathlib.extname(e.path) === '.ts')
 
-          this.logger.log('Changes detected, rebuilding')
-          await this._restart(api, worker, httpTunnelUrl)
+          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
+
+          if (typescriptEvents.length > 0) {
+            this.logger.log('Changes detected, rebuilding')
+            await this._restart(api, worker, httpTunnelUrl)
+          } else if (distEvents.length > 0) {
+            this.logger.log('Changes detected in output directory, reloading worker')
+            await worker.reload()
+          }
         },
         {
-          ignore: [this.projectPaths.abs.outDir],
           debounceMs: FILEWATCHER_DEBOUNCE_MS,
         }
       )
@@ -183,16 +195,18 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _deploy = async (api: apiUtils.ApiClient, tunnelUrl: string) => {
-    const projectDef = await this.readProjectDefinitionFromFS()
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-    if (projectDef.type === 'integration') {
+    if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       this._checkSecrets(projectDef.definition)
       return await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
     }
-    if (projectDef.type === 'bot') {
+    if (projectType === 'bot') {
+      const projectDef = await resolveProjectDefinition()
       return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()
@@ -229,7 +243,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _runBuild() {
-    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
+    return new BuildCommand(this.api, this.prompt, this.logger, this.argv)
+      .setProjectContext(this.projectContext)
+      .run(this._buildContext)
   }
 
   private async _deployDevIntegration(
