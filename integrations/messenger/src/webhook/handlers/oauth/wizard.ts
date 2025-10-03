@@ -1,6 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { getPartialMetaClientCredentials, patchMetaClientCredentials } from '../../../misc/auth'
-import { MetaClient } from '../../../misc/meta-client'
+import { FacebookClient } from '../../../misc/facebook-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -80,8 +80,8 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
     })
   }
 
-  const metaClient = new MetaClient(logger)
-  const accessToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
+  const facebookClient = new FacebookClient({ accessToken: '', pageId: '' }, logger)
+  const accessToken = await facebookClient.exchangeAuthorizationCodeForAccessToken(
     authorizationCode,
     _getOAuthRedirectUri(ctx)
   )
@@ -92,7 +92,6 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
 }
 
 const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logger }) => {
-  const metaClient = new MetaClient(logger)
   const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
   if (!accessToken) {
     return responses.endWizard({
@@ -101,7 +100,8 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
     })
   }
 
-  const pages = await metaClient.getFacebookPagesFromToken(accessToken)
+  const facebookClient = new FacebookClient({ accessToken, pageId: '' }, logger)
+  const pages = await facebookClient.getFacebookPagesFromToken(accessToken)
 
   return responses.displayChoices({
     choices: pages.map((page) => ({
@@ -115,7 +115,6 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
 }
 
 const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
-  const metaClient = new MetaClient(logger)
   const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
   if (!accessToken) {
     return responses.endWizard({
@@ -132,12 +131,31 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   const pageId = selectedChoice
-  await patchMetaClientCredentials(client, ctx, { pageId })
+  if (!pageId) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Page ID is not available, please try again',
+    })
+  }
 
-  const pageToken = await metaClient.getPageToken(accessToken, pageId)
-  await patchMetaClientCredentials(client, ctx, { pageToken })
+  const facebookClient = new FacebookClient({ accessToken, pageId }, logger)
+  const pageToken = await facebookClient.getPageToken(pageId)
+  if (!pageToken) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Page token is not available, please try again',
+    })
+  }
 
-  await metaClient.subscribeToWebhooks(pageToken, pageId)
+  facebookClient.setPageAccessToken(pageToken)
+  await patchMetaClientCredentials(client, ctx, { pageToken, pageId })
+
+  if (!(await facebookClient.isSubscribedToWebhooks(pageId))) {
+    logger.forBot().info(`Subscribing to webhooks for OAuth page ${pageId}`)
+    await facebookClient.subscribeToWebhooks(pageId)
+  }
+
+  logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)
 
   await client.configureIntegration({
     identifier: pageId,
@@ -171,7 +189,7 @@ const _endHandler: WizardHandler = ({ responses }) => {
 }
 
 const _getOAuthAuthorizationPromptUri = (ctx?: bp.Context) =>
-  'https://www.facebook.com/v19.0/dialog/oauth?' +
+  'https://www.facebook.com/v23.0/dialog/oauth?' +
   'client_id=' +
   bp.secrets.CLIENT_ID +
   '&redirect_uri=' +

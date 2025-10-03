@@ -1,13 +1,16 @@
+import { RuntimeError } from '@botpress/sdk'
 import { getMetaClientCredentials } from './misc/auth'
-import { MetaClient } from './misc/meta-client'
+import { createFacebookClient } from './misc/facebook-client'
+
 import * as bp from '.botpress'
+import type { ManualConfig } from '.botpress/implementation/typings/configurations/manual'
 
 type RegisterProps = Parameters<bp.IntegrationProps['register']>[0]
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
   const { ctx } = props
   if (ctx.configurationType === 'manual') {
-    await _registerManual(props)
+    await _registerManual(props, ctx.configuration)
   } else if (ctx.configurationType === 'sandbox') {
     await _registerSandbox(props)
   } else {
@@ -17,9 +20,31 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
 
 export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 
-const _registerManual = async (props: RegisterProps) => {
-  await _clearAllIdentifiers(props)
-  await _unsubscribeFromOAuthWebhooks(props)
+const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
+  const { client, logger, ctx } = props
+  logger.forBot().debug('Registering manual')
+
+  const { pageId, accessToken } = config
+
+  if (!accessToken || !pageId) {
+    throw new RuntimeError('Missing access token or page ID')
+  }
+
+  try {
+    const facebookClient = await createFacebookClient(ctx, client, logger)
+
+    await _clearAllIdentifiers(props)
+    await facebookClient.subscribeToWebhooks(pageId)
+
+    await client.configureIntegration({
+      identifier: pageId,
+    })
+
+    logger.forBot().info(`Successfully registered manual integration for page ${pageId}`)
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to register manual integration: ' + error.message, error)
+  }
 }
 
 const _registerSandbox = async (props: RegisterProps) => {
@@ -35,15 +60,15 @@ const _registerOAuth = async ({ client }: RegisterProps) => {
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
-  const metaClient = new MetaClient(logger)
   const credentials = await getMetaClientCredentials(client, ctx).catch(() => undefined)
   if (!credentials) {
     return
   }
 
-  const { pageToken, pageId } = credentials
-  if (await metaClient.isSubscribedToWebhooks(pageToken, pageId)) {
-    await metaClient.unsubscribeFromWebhooks(pageToken, pageId)
+  const { pageId } = credentials
+  const facebookClient = await createFacebookClient(ctx, client, logger)
+  if (await facebookClient.isSubscribedToWebhooks(pageId)) {
+    await facebookClient.unsubscribeFromWebhooks(pageId)
   }
 }
 
