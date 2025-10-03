@@ -9,3 +9,5 @@ export const subdomain = z
 
 export const employeeId = z.string().min(1).title('Employee ID').describe('Unique identifier for the employee.')
 export const employeeIdObject = z.object({ id: employeeId })
+
+export const timestamp = z.string().title('Timestamp').describe('Timestamp in ISO 8601 format.')

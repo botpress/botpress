@@ -1,6 +1,6 @@
 import { type z } from '@botpress/sdk'
 
-import { bambooHrEmployeeMonitorFields, bambooHrWebhookCreateResponse } from 'definitions'
+import { bambooHrEmployeeWebhookFields, bambooHrWebhookCreateResponse } from 'definitions'
 import { getBambooHrAuthorization } from './auth'
 import { parseResponseWithErrors } from './utils'
 
@@ -70,7 +70,7 @@ export class BambooHRClient {
   ): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
     const url = new URL(`${this.baseUrl}/webhooks`)
 
-    const fields = bambooHrEmployeeMonitorFields.keyof().options
+    const fields = bambooHrEmployeeWebhookFields.keyof().options
     const body = JSON.stringify({
       name: props.ctx.integrationId,
       monitorFields: fields.filter((field) => field !== 'terminationDate'), // terminationDate returns error on monitor

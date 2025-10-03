@@ -1,6 +1,9 @@
+import type { z } from '@botpress/sdk'
+import { bambooHrEmployeeWebhookEvent } from 'definitions'
 import { handleOauthRequest } from './api/auth'
 import { validateBambooHrSignature } from './api/signing'
-
+import { parseRequestWithErrors } from './api/utils'
+import { handleEmployeeCreatedEvent, handleEmployeeDeletedEvent, handleEmployeeUpdatedEvent } from './events'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
@@ -24,6 +27,34 @@ export const handler = async (props: bp.HandlerProps) => {
     return { status: 401, body: 'Invalid HMAC signature' }
   }
 
-  // TODO: Implement event handling
+  let event: z.output<typeof bambooHrEmployeeWebhookEvent>
+  try {
+    event = await parseRequestWithErrors(req, bambooHrEmployeeWebhookEvent)
+  } catch (err) {
+    logger.forBot().error((err as Error).message)
+    return { status: 400, body: 'Invalid request body' }
+  }
+
+  await Promise.all(
+    event.employees.map(async (employee) => {
+      const { action, id, timestamp } = employee
+      logger.forBot().info(`Sending employee ${action.toLowerCase()} event for ID ${id} at ${timestamp}`)
+
+      switch (action) {
+        case 'Created':
+          await handleEmployeeCreatedEvent(props, employee)
+          break
+        case 'Deleted':
+          await handleEmployeeDeletedEvent(props, employee)
+          break
+        case 'Updated':
+          await handleEmployeeUpdatedEvent(props, employee)
+          break
+        default:
+          logger.forBot().warn(`Unknown action type: ${action}`)
+      }
+    })
+  )
+
   return { status: 200 }
 }

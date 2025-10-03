@@ -92,7 +92,7 @@ export const getBambooHrAuthorization = async ({
     })
     oauth = state.payload
   } catch (err) {
-    throw new Error('OAuth token missing in state for OAuth-linked integration.')
+    throw new Error('OAuth token missing in state for OAuth-linked integration.', { cause: err })
   }
 
   const token =

@@ -1,10 +1,11 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
-import { actions, employeeId, subdomain } from './definitions'
+import { actions, events, subdomain } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'bamboohr',
   version: '0.1.0',
+
   title: 'BambooHR',
   description: 'Retrieve your BambooHR information',
   readme: 'hub.md',
@@ -30,6 +31,7 @@ export default new IntegrationDefinition({
     },
   },
   actions,
+  events,
   secrets: {
     OAUTH_CLIENT_SECRET: {
       description: 'The OAuth Client Secret provided by BambooHR from the developer portal.',
