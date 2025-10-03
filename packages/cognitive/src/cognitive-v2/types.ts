@@ -167,6 +167,10 @@ export type Model = {
   id: string
   name: string
   description: string
+  /**
+   * Aliases that are also resolving to this model
+   */
+  aliases?: string[]
   tags: (
     | 'recommended'
     | 'deprecated'

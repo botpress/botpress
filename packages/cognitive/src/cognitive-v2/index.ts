@@ -62,17 +62,12 @@ export class CognitiveBeta {
     return data
   }
 
-  public async listModels(input: void, options: RequestOptions = {}) {
-    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-
+  public async listModels() {
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<Model[]>('/v2/cognitive/models', input, {
-        signal,
-        timeout: options.timeout ?? this._timeout,
-      })
+      this._axiosClient.get<{ models: Model[] }>('/v2/cognitive/models')
     )
 
-    return data
+    return data.models
   }
 
   public async *generateTextStream(
