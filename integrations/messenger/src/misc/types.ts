@@ -19,6 +19,7 @@ export type SendMessageProps = Pick<
 
 export type FacebookClientConfig = {
   accessToken: string
+  pageToken?: string
   pageId: string
 }
 

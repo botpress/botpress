@@ -18,10 +18,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
-  await _clearAllIdentifiers(props)
-  await _unsubscribeFromOAuthWebhooks(props)
-}
+export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 
 const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
   const { client, logger } = props
@@ -55,33 +52,11 @@ const _registerSandbox = async (props: RegisterProps) => {
   await _unsubscribeFromOAuthWebhooks(props)
 }
 
-const _registerOAuth = async ({ client, ctx, logger }: RegisterProps) => {
+const _registerOAuth = async ({ client }: RegisterProps) => {
   // Only remove sandbox identifiers
   await client.configureIntegration({
     sandboxIdentifiers: null,
   })
-
-  // Subscribe to webhooks through OAuth configuration
-  try {
-    const credentials = await getMetaClientCredentials(client, ctx)
-
-    logger.forBot().debug(`Credentials: ${JSON.stringify(credentials, null, 2)}`)
-
-    if (credentials) {
-      const { pageToken, pageId } = credentials
-      const facebookClient = new FacebookClient({ accessToken: pageToken, pageId }, logger)
-
-      if (!(await facebookClient.isSubscribedToWebhooks(pageId))) {
-        await facebookClient.subscribeToWebhooks(pageId)
-        logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)
-      } else {
-        logger.forBot().info(`Already subscribed to webhooks for OAuth page ${pageId}`)
-      }
-    }
-  } catch (thrown) {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to subscribe to webhooks for OAuth: ' + error.message, error)
-  }
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
