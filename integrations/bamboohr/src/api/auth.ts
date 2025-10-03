@@ -1,13 +1,5 @@
-import { RuntimeError } from '@botpress/client'
 import { bambooHrOauthTokenResponse } from 'definitions'
 import * as bp from '.botpress'
-
-class FetchTokenError extends RuntimeError {
-  public constructor(message: string) {
-    super(`Failed to get OAuth token: ${message}`)
-    this.name = 'FetchTokenError'
-  }
-}
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
@@ -49,11 +41,11 @@ const fetchBambooHrOauthToken = async ({
   })
 
   if (tokenResponse.status < 200 || tokenResponse.status >= 300) {
-    throw new FetchTokenError(`Response status ${tokenResponse.status}`)
+    throw new Error(`Failed POST request for OAuth token: ${tokenResponse.status}`)
   }
   const tokenData = bambooHrOauthTokenResponse.safeParse(await tokenResponse.json())
   if (!tokenData.success) {
-    throw new FetchTokenError(`Parse failed with ${tokenData.error.message}`)
+    throw new Error(`Failed parse OAuth token response: ${tokenData.error.message}`)
   }
   const { access_token, refresh_token, expires_in, scope, id_token } = tokenData.data
 
@@ -91,16 +83,18 @@ export const getBambooHrAuthorization = async ({
     }
   }
 
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-  })
-  const oauth = state.payload
-
-  if (!oauth) {
-    throw new RuntimeError('OAuth token missing in state for OAuth-linked integration.')
+  let oauth: bp.states.States['oauth']['payload']
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'oauth',
+      id: ctx.integrationId,
+    })
+    oauth = state.payload
+  } catch (err) {
+    throw new Error('OAuth token missing in state for OAuth-linked integration.')
   }
+
   const token =
     Date.now() < oauth.expiresAt
       ? oauth.accessToken

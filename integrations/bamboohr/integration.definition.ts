@@ -1,6 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
-import { actions, subdomain } from './definitions'
+import { actions, employeeId, subdomain } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'bamboohr',
@@ -53,6 +53,21 @@ export default new IntegrationDefinition({
         })
         .title('OAuth Parameters')
         .describe('Parameters required to authenticate via OAuth. Not required if using API Key.'),
+    },
+    webhook: {
+      type: 'integration',
+      schema: z.object({
+        privateKey: z
+          .string()
+          .min(1)
+          .title('Private Key')
+          .describe('The private key provided by BambooHR to validate the webhook.'),
+        webhookId: z
+          .string()
+          .min(1)
+          .title('Webhook ID')
+          .describe('The ID of the webhook as provided by BambooHR when the webhook was created.'),
+      }),
     },
   },
 })

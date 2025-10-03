@@ -11,13 +11,16 @@ export const bambooHrOauthTokenResponse = z.object({
   companyDomain: z.string().title('Company Domain').describe('The company subdomain on BambooHR.'),
 })
 
-export const bambooHrEmployeeBasicInfoResponse = z.object({
-  id: employeeId,
-  supervisorEid: z.string().nullable().optional().title('Supervisor ID').describe("Employee's supervisor's ID."),
-  lastChanged: z.string().title('Last Changed').describe('Timestamp of the last change to the employee record.'),
+export const bambooHrWebhookPostResponse = z.object({
+  id: z.string().title('Webhook ID').describe('The unique identifier for the created webhook.'),
+  created: z.string().title('Created At').describe('The timestamp at which the webhook was created.'),
+  privateKey: z.string().title('Private Key').describe('The private key to validate incoming webhooks.'),
+})
+
+/** Fields that can be monitored for updates as a webhook event */
+export const bambooHrEmployeeMonitorFields = z.object({
   firstName: z.string().title('First Name').describe("Employee's first name."),
   lastName: z.string().title('Last Name').describe("Employee's last name."),
-  displayName: z.string().title('Display Name').describe("Employee's display name."),
   preferredName: z.string().nullable().optional().title('Preferred Name').describe("Employee's preferred name."),
   jobTitle: z.string().nullable().optional().title('Job Title').describe("Employee's job title."),
   department: z.string().nullable().optional().title('Department').describe("Employee's department."),
@@ -32,7 +35,6 @@ export const bambooHrEmployeeBasicInfoResponse = z.object({
     .title('Work Phone Extension')
     .describe("Employee's work phone extension."),
   homePhone: z.string().nullable().optional().title('Home Phone').describe("Employee's home phone number."),
-  email: z.string().nullable().optional().title('Email').describe("Employee's email address."),
   workEmail: z.string().nullable().optional().title('Work Email').describe("Employee's work email address."),
   homeEmail: z.string().nullable().optional().title('Home Email').describe("Employee's home email address."),
   hireDate: z.string().nullable().optional().title('Hire Date').describe("Employee's hire date (YYYY-MM-DD)."),
@@ -45,6 +47,15 @@ export const bambooHrEmployeeBasicInfoResponse = z.object({
   status: z.literal('Active').or(z.literal('Inactive')).title('Status').describe("Employee's status."),
 })
 
+/** All fields that can be queried on an employee as an action */
+export const bambooHrEmployeeBasicInfoResponse = bambooHrEmployeeMonitorFields.extend({
+  id: employeeId,
+  supervisorEid: z.string().nullable().optional().title('Supervisor ID').describe("Employee's supervisor's ID."),
+  lastChanged: z.string().title('Last Changed').describe('Full timestamp of the last change to the employee record.'),
+  displayName: z.string().title('Display Name').describe("Employee's display name."),
+})
+
+/** Sensitive employee fields that can be queried. Requires different webhook permissions */
 export const bambooHrEmployeeSensitiveInfoResponse = z.object({
   id: employeeId,
   dateOfBirth: z
