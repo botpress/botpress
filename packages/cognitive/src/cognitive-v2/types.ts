@@ -147,13 +147,17 @@ export type CognitiveResponse = {
     model?: string
     usage: {
       inputTokens: number
+      inputCost: number
       outputTokens: number
-      reasoningTokens?: number
+      outputCost: number
     }
     cost?: number
     cached?: boolean
+    /**
+     * Time it took for the provider to respond to the LLM query
+     */
     latency?: number
-    stopReason?: string
+    stopReason?: 'stop' | 'length' | 'content_filter' | 'error'
     reasoningEffort?: string
     warnings?: {
       type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'fallback_used'
