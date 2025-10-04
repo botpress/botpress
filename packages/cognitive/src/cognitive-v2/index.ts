@@ -121,7 +121,7 @@ export class CognitiveBeta {
 
     const res = await this._withServerRetry(() =>
       this._axiosClient.post(
-        '/v1/generate-text-stream',
+        '/v2/cognitive/generate-text-stream',
         { ...request, stream: true },
         {
           responseType: 'stream',
