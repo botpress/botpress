@@ -2,7 +2,7 @@ import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
-import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient, getAccessToken } from '../auth'
+import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient, getAccessToken, MetaOauthClient } from '../auth'
 import { getStrippedPhoneNumber } from '../misc/util'
 import * as bp from '.botpress'
 
@@ -66,35 +66,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
-  const url = `https://graph.facebook.com/v20.0/239721182547756/message_templates?name=${templateName}&language=${templateLanguage}`
-  const templateComponents: Component[] | undefined = await axios
-    .get(url, {
-      headers: {
-        Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
-      },
-    })
-    .then((res) => {
-      if (!res.data.data[0]) {
-        return undefined
-      }
-      return res.data.data[0].components
-    })
-    .catch((e) => _logForBotAndThrow(e.message, logger))
-
-  if (!templateComponents) {
-    _logForBotAndThrow(`error: ${JSON.stringify(templateComponents, null, 2)}`, logger)
-  }
-
-  let templateText = ''
-  for (const component of templateComponents) {
-    const componentText = _parseComponent(component)
-    if (!componentText) {
-      templateText = `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
-      break
-    }
-    templateText += componentText
-  }
-
   await client
     .createMessage({
       origin: 'synthetic',
@@ -103,14 +74,11 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: templateText,
+        text: await _getTemplateText(ctx, client, logger, templateName, templateLanguage),
       },
     })
     .catch((err: any) => {
-      _logForBotAndThrow(
-        `Failed to Create synthetic message from template message - Error: ${err?.message ?? ''}`,
-        logger
-      )
+      logger.forBot().error(`Failed to Create synthetic message from template message - Error: ${err?.message ?? ''}`)
     })
 
   logger
@@ -262,5 +230,60 @@ const _parseComponent = (component: Component): string | undefined => {
       return `[URL]\n${compText}\n`
     default:
       return undefined
+  }
+}
+
+const _getTemplateText = async (
+  ctx: bp.Context,
+  client: bp.Client,
+  logger: bp.Logger,
+  templateName: string,
+  templateLanguage: string
+): Promise<string> => {
+  if (ctx.configurationType === 'manual') {
+    return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+  } else {
+    let templateText = ''
+
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    const accessToken = state.payload.accessToken ?? ''
+
+    const metaOauthClient = new MetaOauthClient(logger)
+    const waba_id = await metaOauthClient.getWhatsappBusinessesFromToken(accessToken).catch((e) => {
+      logger.forBot().debug('Failed to fetch waba_id', e.response?.data || e.message || e)
+      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+    })
+
+    const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
+    const templateComponents: Component[] | undefined = await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
+        },
+      })
+      .then((res) => {
+        if (!res.data.data[0]) {
+          return undefined
+        }
+        return res.data.data[0].components
+      })
+      .catch((e) => {
+        logger.forBot().debug('Failed to fetch template components', e.response?.data || e.message || e)
+        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      })
+
+    if (!templateComponents) {
+      logger.forBot().debug('The template components are undefined')
+      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+    }
+
+    for (const component of templateComponents) {
+      const componentText = _parseComponent(component)
+      if (!componentText) {
+        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      }
+      templateText += componentText
+    }
+    return templateText
   }
 }
