@@ -2474,7 +2474,7 @@ importers:
         specifier: 1.25.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.43
+        specifier: 0.1.44
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2648,7 +2648,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.43
+        specifier: 0.1.44
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
