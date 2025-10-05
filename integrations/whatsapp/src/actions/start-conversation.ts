@@ -74,7 +74,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       tags: {},
       type: 'text',
       payload: {
-        text: await _getTemplateText(ctx, client, logger, templateName, templateLanguage),
+        text: await _getTemplateText(ctx, client, logger, templateName, templateLanguage, templateVariables),
       },
     })
     .catch((err: any) => {
@@ -186,12 +186,15 @@ type Component =
       text?: string
     }
 
-const _parseComponent = (component: Component): string | undefined => {
+const _parseComponent = (
+  component: Component,
+  bodyText: z.infer<typeof TemplateVariablesSchema>
+): string | undefined => {
   let compText
   switch (component.type) {
     case 'BODY':
       compText = component.text ?? 'body has no text'
-      return `[BODY]\n${compText}\n`
+      return `[BODY]\n${_getRenderedbodyText(compText, bodyText)}\n`
     case 'HEADER':
       if (!component.format) {
         compText = component.parameters.flatMap((parameter) => {
@@ -233,12 +236,22 @@ const _parseComponent = (component: Component): string | undefined => {
   }
 }
 
+const _getRenderedbodyText = (text: string, bodyText: z.infer<typeof TemplateVariablesSchema>): string => {
+  bodyText.forEach((value, index) => {
+    const placeholder = new RegExp(`{{${index + 1}}}`, 'g')
+    text = text.replace(placeholder, value.toString())
+  })
+
+  return text
+}
+
 const _getTemplateText = async (
   ctx: bp.Context,
   client: bp.Client,
   logger: bp.Logger,
   templateName: string,
-  templateLanguage: string
+  templateLanguage: string,
+  bodyText: z.infer<typeof TemplateVariablesSchema>
 ): Promise<string> => {
   if (ctx.configurationType === 'manual') {
     return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
@@ -278,7 +291,7 @@ const _getTemplateText = async (
     }
 
     for (const component of templateComponents) {
-      const componentText = _parseComponent(component)
+      const componentText = _parseComponent(component, bodyText)
       if (!componentText) {
         return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
       }
