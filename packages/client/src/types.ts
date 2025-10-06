@@ -9,4 +9,5 @@ export type ClientConfig = {
   headers: Headers
   withCredentials: boolean
   timeout: number
+  debug: boolean
 }
