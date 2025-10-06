@@ -1,3 +1,4 @@
+import * as cognitive from '@botpress/cognitive'
 import * as gen from './prompt/parse-content'
 import * as sentiment from './prompt/sentiment-prompt'
 import * as summarizer from './prompt/summary-prompt'
@@ -9,12 +10,12 @@ type CommonProps = types.CommonProps
 type UpdateTitleAndSummaryProps = CommonProps & {
   conversation: bp.MessageHandlerProps['conversation']
   messages: bp.MessageHandlerProps['message'][]
+  client: cognitive.BotpressClientLike
 }
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
   const summaryPrompt = summarizer.createPrompt({
     messages: props.messages,
     botId: props.ctx.botId,
-    model: { id: props.configuration.modelId },
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
 
@@ -22,19 +23,20 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     actions: props.actions,
     logger: props.logger,
     prompt: summaryPrompt,
+    client: props.client,
   })
 
   const sentimentPrompt = sentiment.createPrompt({
     messages: props.messages,
     botId: props.ctx.botId,
     context: { previousSentiment: props.conversation.tags.sentiment },
-    model: { id: props.configuration.modelId },
   })
 
   const parsedSentiment = await _generateContentWithRetries<sentiment.SentimentAnalysisOutput>({
     actions: props.actions,
     logger: props.logger,
     prompt: sentimentPrompt,
+    client: props.client,
   })
 
   await props.client.updateConversation({
@@ -53,18 +55,27 @@ type ParsePromptProps = {
   actions: UpdateTitleAndSummaryProps['actions']
   logger: UpdateTitleAndSummaryProps['logger']
   prompt: gen.LLMInput
+  client: cognitive.BotpressClientLike
 }
 const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
   let attemptCount = 0
   const maxRetries = 3
 
-  let llmOutput = await props.actions.llm.generateContent(props.prompt)
-  let parsed = gen.parseLLMOutput<T>(llmOutput)
+  const cognitiveClient = new cognitive.Cognitive({ client: props.client })
+  cognitiveClient.setPreferences({
+    fast: ['openai:gpt-4.1-nano-2025-04-14'],
+    best: [],
+    downtimes: [],
+  })
+  let llmOutput = await cognitiveClient.generateContent({ messages: props.prompt.messages, model: 'fast' })
+  let parsed = gen.parseLLMOutput<T>(llmOutput.output)
 
   while (!parsed.success && attemptCount < maxRetries) {
     props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
-    llmOutput = await props.actions.llm.generateContent(props.prompt)
-    parsed = gen.parseLLMOutput<T>(llmOutput)
+    llmOutput = await cognitiveClient.generateContent({
+      ...props.prompt,
+    })
+    parsed = gen.parseLLMOutput<T>(llmOutput.output)
     attemptCount++
   }
 

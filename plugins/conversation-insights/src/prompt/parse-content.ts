@@ -1,10 +1,10 @@
+import * as cognitive from '@botpress/cognitive'
 import * as sdk from '@botpress/sdk'
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
-import * as bp from '.botpress'
 
-export type LLMInput = bp.interfaces.llm.actions.generateContent.input.Input
-export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output
+export type LLMInput = cognitive.GenerateContentInput
+export type LLMOutput = cognitive.GenerateContentOutput
 
 export type LLMMessage = LLMInput['messages'][number]
 export type LLMChoice = LLMOutput['choices'][number]
