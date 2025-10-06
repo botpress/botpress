@@ -59,12 +59,14 @@ plugin.on.workflowStart('updateAllConversations', async (props) => {
   props.logger.info('Starting updateAllConversations workflow')
   await _updateAllConversations(props)
 
+  await props.workflow.setCompleted()
   return undefined
 })
 
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
   await _updateAllConversations(props)
 
+  await props.workflow.setCompleted()
   return undefined
 })
 
