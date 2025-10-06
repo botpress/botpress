@@ -11,8 +11,8 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      apiToken: z.string().min(1, 'API Token is required').describe('Your Webflow API Token').title('API Token'),
-      siteID: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site').title('Site ID'),
+      apiToken: z.string().min(1, 'API Token is required').describe('Your Webflow API Token'),
+      siteID: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site'),
     }),
   },
   actions: {

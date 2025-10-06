@@ -1,9 +1,8 @@
 {
   "name": "@botpresshub/webflow",
   "scripts": {
-    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
