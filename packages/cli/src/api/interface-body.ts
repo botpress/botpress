@@ -4,7 +4,7 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreateInterfaceBody = async (
-  intrface: sdk.InterfaceDefinition | sdk.InterfacePackage['definition']
+  intrface: sdk.InterfaceDefinition
 ): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
@@ -13,13 +13,17 @@ export const prepareCreateInterfaceBody = async (
   entities: intrface.entities
     ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,
-        schema: await utils.schema.mapZodToJsonSchema(entity),
+        schema: await utils.schema.mapZodToJsonSchema(entity, {
+          useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+        }),
       }))
     : {},
   events: intrface.events
     ? await utils.records.mapValuesAsync(intrface.events, async (event) => ({
         ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event),
+        schema: await utils.schema.mapZodToJsonSchema(event, {
+          useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+        }),
       }))
     : {},
   actions: intrface.actions
@@ -27,11 +31,15 @@ export const prepareCreateInterfaceBody = async (
         ...action,
         input: {
           ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input),
+          schema: await utils.schema.mapZodToJsonSchema(action.input, {
+            useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+          }),
         },
         output: {
           ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output),
+          schema: await utils.schema.mapZodToJsonSchema(action.output, {
+            useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+          }),
         },
       }))
     : {},
@@ -40,7 +48,9 @@ export const prepareCreateInterfaceBody = async (
         ...channel,
         messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
           ...message,
-          schema: await utils.schema.mapZodToJsonSchema(message),
+          schema: await utils.schema.mapZodToJsonSchema(message, {
+            useLegacyZuiTransformer: intrface.__advanced?.useLegacyZuiTransformer,
+          }),
         })),
       }))
     : {},

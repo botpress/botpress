@@ -13,31 +13,31 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<type
         ...action,
         input: {
           ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input),
+          schema: await utils.schema.mapZodToJsonSchema(action.input, { useLegacyZuiTransformer: false }),
         },
         output: {
           ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output),
+          schema: await utils.schema.mapZodToJsonSchema(action.output, { useLegacyZuiTransformer: false }),
         },
       }))
     : undefined,
   configuration: bot.configuration
     ? {
         ...bot.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(bot.configuration),
+        schema: await utils.schema.mapZodToJsonSchema(bot.configuration, { useLegacyZuiTransformer: false }),
       }
     : undefined,
   events: bot.events
     ? await utils.records.mapValuesAsync(bot.events, async (event) => ({
         ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event),
+        schema: await utils.schema.mapZodToJsonSchema(event, { useLegacyZuiTransformer: false }),
       }))
     : undefined,
   states: bot.states
     ? (utils.records.filterValues(
         await utils.records.mapValuesAsync(bot.states, async (state) => ({
           ...state,
-          schema: await utils.schema.mapZodToJsonSchema(state),
+          schema: await utils.schema.mapZodToJsonSchema(state, { useLegacyZuiTransformer: false }),
         })),
         ({ type }) => type !== 'workflow'
       ) as types.CreateBotRequestBody['states'])
