@@ -2,11 +2,11 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { parseForWhatsApp } from 'src/misc/phone-number-to-whatsapp'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
-import { parseForWhatsApp } from 'src/misc/phone-number-to-whatsapp'
 
 type IncomingMessages = {
   [TMessage in keyof bp.channels.channel.Messages]: {

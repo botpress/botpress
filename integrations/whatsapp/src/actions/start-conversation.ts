@@ -1,9 +1,9 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import { parseForWhatsApp } from 'src/misc/phone-number-to-whatsapp'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import * as bp from '.botpress'
-import { parseForWhatsApp } from 'src/misc/phone-number-to-whatsapp'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 
