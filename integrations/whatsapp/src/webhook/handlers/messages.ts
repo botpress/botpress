@@ -6,6 +6,7 @@ import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
+import { parseForWhatsApp } from 'src/misc/phone-number-to-whatsapp'
 
 type IncomingMessages = {
   [TMessage in keyof bp.channels.channel.Messages]: {
@@ -39,7 +40,7 @@ async function _handleIncomingMessage(
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: message.from,
+      userPhone: parseForWhatsApp(message.from),
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
