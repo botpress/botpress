@@ -18,17 +18,17 @@ import { ProjectCommand, ProjectDefinition } from './project-command'
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
 const TUNNEL_HELLO_INTERVAL = 5000
-const FILEWATCHER_DEBOUNCE_MS = 2000
+const FILEWATCHER_DEBOUNCE_MS = 500
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private _initialDef: ProjectDefinition | undefined = undefined
   private _cacheDevRequestBody: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody | undefined
-  private _buildContext: utils.esbuild.IncrementalBuildContext
+  private _buildContext: utils.esbuild.BuildCodeContext
 
   public constructor(...args: ConstructorParameters<typeof ProjectCommand<DevCommandDefinition>>) {
     super(...args)
-    this._buildContext = new utils.esbuild.IncrementalBuildContext()
+    this._buildContext = new utils.esbuild.BuildCodeContext()
   }
 
   public async run(): Promise<void> {
@@ -146,16 +146,21 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
             return
           }
 
-          const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
-          if (typescriptEvents.length === 0) {
-            return
-          }
+          const typescriptEvents = events
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => pathlib.extname(e.path) === '.ts')
 
-          this.logger.log('Changes detected, rebuilding')
-          await this._restart(api, worker, httpTunnelUrl)
+          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
+
+          if (typescriptEvents.length > 0) {
+            this.logger.log('Changes detected, rebuilding')
+            await this._restart(api, worker, httpTunnelUrl)
+          } else if (distEvents.length > 0) {
+            this.logger.log('Changes detected in output directory, reloading worker')
+            await worker.reload()
+          }
         },
         {
-          ignore: [this.projectPaths.abs.outDir],
           debounceMs: FILEWATCHER_DEBOUNCE_MS,
         }
       )
@@ -238,7 +243,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _runBuild() {
-    return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run(this._buildContext)
+    return new BuildCommand(this.api, this.prompt, this.logger, this.argv)
+      .setProjectContext(this.projectContext)
+      .run(this._buildContext)
   }
 
   private async _deployDevIntegration(

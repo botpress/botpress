@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
-import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './models'
+import { defaultModel, knownTags, models } from './models'
+import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
 
@@ -61,17 +62,12 @@ export class CognitiveBeta {
     return data
   }
 
-  public async listModels(input: void, options: RequestOptions = {}) {
-    const signal = options.signal ?? AbortSignal.timeout(this._timeout)
-
+  public async listModels() {
     const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<Model[]>('/v2/cognitive/models', input, {
-        signal,
-        timeout: options.timeout ?? this._timeout,
-      })
+      this._axiosClient.get<{ models: Model[] }>('/v2/cognitive/models')
     )
 
-    return data
+    return data.models
   }
 
   public async *generateTextStream(
@@ -125,7 +121,7 @@ export class CognitiveBeta {
 
     const res = await this._withServerRetry(() =>
       this._axiosClient.post(
-        '/v1/generate-text-stream',
+        '/v2/cognitive/generate-text-stream',
         { ...request, stream: true },
         {
           responseType: 'stream',
@@ -208,4 +204,22 @@ export class CognitiveBeta {
       retry: (e) => this._isRetryableServerError(e),
     })
   }
+}
+
+export const getCognitiveV2Model = (model: string): Model | undefined => {
+  if (models[model]) {
+    return models[model]
+  }
+
+  // Some models (ex fireworks) have a long name (the internal id) so it is now an alias instead of the main id
+  const alias = Object.values(models).find((x) => x.aliases?.includes(model))
+  if (alias) {
+    return alias
+  }
+
+  // Special tags like auto, fast, coding don't have explicit limits so we give a default model
+  if (knownTags.includes(model)) {
+    return { ...defaultModel, id: model, name: model }
+  }
+  return undefined
 }
