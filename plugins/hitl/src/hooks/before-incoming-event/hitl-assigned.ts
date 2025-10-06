@@ -8,7 +8,7 @@ import * as bp from '.botpress'
 export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAssigned'] = async (props) => {
   const { conversationId: downstreamConversationId, userId: humanAgentUserId } = props.data.payload
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.data.userId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.STOP_EVENT_HANDLING
@@ -23,7 +23,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,
     upstreamConversationId,

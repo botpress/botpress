@@ -27,7 +27,7 @@ const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   downstreamConversation: client.Conversation
 ) => {
-  const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
+  const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId, props.data.userId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
@@ -63,7 +63,7 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
 
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
@@ -81,7 +81,7 @@ const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   upstreamConversation: client.Conversation
 ) => {
-  const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
+  const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId, props.data.userId)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.LET_BOT_HANDLE_EVENT
@@ -125,7 +125,7 @@ const _handleUpstreamMessage = async (
     })
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.data.userId)
 
   if (_isHitlCloseCommand(props, sessionConfig)) {
     await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm, sessionConfig })

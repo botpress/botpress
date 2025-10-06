@@ -6,7 +6,7 @@ import * as bp from '.botpress'
 export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => {
   const { conversationId: upstreamConversationId } = props.input
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, undefined)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
     return {}
@@ -21,7 +21,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
     return {}
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, undefined)
 
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,
