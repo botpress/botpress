@@ -132,12 +132,9 @@ while (await chat.iterate()) {
     // Enable lightweight trace logging to see tool calls
     onTrace: ({ trace }) => lightToolTrace(trace),
 
-    // Configure execution options
-    options: {
-      // Use a smaller, faster model for cost-effective operations
-      // Smaller models work well with LLMz because TypeScript generation
-      // is easier than complex JSON tool calling
-      model: 'openai:gpt-4.1-mini-2025-04-14',
-    },
+    // Use a smaller, faster model for cost-effective operations
+    // Smaller models work well with LLMz because TypeScript generation
+    // is easier than complex JSON tool calling
+    model: 'openai:gpt-4.1-mini-2025-04-14',
   })
 }
