@@ -13,4 +13,7 @@ export default new IntegrationDefinition({
     syncProducts: actions.syncProducts,
   },
   states,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

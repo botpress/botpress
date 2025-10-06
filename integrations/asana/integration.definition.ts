@@ -18,4 +18,7 @@ export default new IntegrationDefinition({
   actions,
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
