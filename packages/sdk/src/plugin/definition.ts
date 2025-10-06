@@ -158,6 +158,10 @@ export type PluginDefinitionProps<
   workflows?: {
     [K in keyof TWorkflows]: WorkflowDefinition<TWorkflows[K]>
   }
+
+  __advanced?: {
+    useLegacyZuiTransformer?: boolean
+  }
 }
 
 export class PluginDefinition<
@@ -203,6 +207,7 @@ export class PluginDefinition<
     [K in keyof TTables]: TableDefinition<TTables[K]>
   }
   public readonly workflows: this['props']['workflows']
+  public readonly __advanced: this['props']['__advanced']
 
   public constructor(
     public readonly props: PluginDefinitionProps<
@@ -249,6 +254,7 @@ export class PluginDefinition<
     this.recurringEvents = props.recurringEvents
     this.workflows = props.workflows
     this.attributes = props.attributes
+    this.__advanced = props.__advanced
 
     this.configuration = props.configuration
       ? {

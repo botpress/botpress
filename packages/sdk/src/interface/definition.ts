@@ -72,6 +72,10 @@ export type InterfaceDefinitionProps<
   channels?: {
     [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
+
+  __advanced?: {
+    useLegacyZuiTransformer?: boolean
+  }
 }
 
 export class InterfaceDefinition<
@@ -96,6 +100,8 @@ export class InterfaceDefinition<
   public readonly actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   public readonly channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 
+  public readonly __advanced: this['props']['__advanced']
+
   public constructor(
     public readonly props: InterfaceDefinitionProps<TName, TVersion, TEntities, TActions, TEvents, TChannels>
   ) {
@@ -107,6 +113,7 @@ export class InterfaceDefinition<
     this.readme = props.readme
     this.entities = props.entities ?? ({} as this['entities'])
     this.attributes = props.attributes
+    this.__advanced = props.__advanced
 
     const entityReferences = this._getEntityReference(this.entities)
 

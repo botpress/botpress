@@ -79,4 +79,7 @@ export default new IntegrationDefinition({
       schema: clickedEmailLinkEventSchema,
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

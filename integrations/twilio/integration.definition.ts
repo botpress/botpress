@@ -56,4 +56,7 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['userPhone'] },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

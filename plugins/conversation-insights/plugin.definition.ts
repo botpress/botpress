@@ -40,4 +40,7 @@ export default new PluginDefinition({
     },
   },
   workflows: { updateAllConversations: { input: { schema: z.object({}) }, output: { schema: z.object({}) } } },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

@@ -84,6 +84,9 @@ export default new IntegrationDefinition({
       },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
   .extend(tti, ({ entities: { imageModelRef, imageGenerationParams } }) => ({

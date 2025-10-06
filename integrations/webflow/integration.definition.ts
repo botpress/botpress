@@ -48,4 +48,7 @@ export default new IntegrationDefinition({
     // ecomm not supported
     commentCreated: events.commentCreated,
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
