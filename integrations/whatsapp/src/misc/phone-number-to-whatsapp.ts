@@ -1,12 +1,10 @@
 import { RuntimeError } from '@botpress/client'
 import { parsePhoneNumber, ParsedPhoneNumber } from 'awesome-phonenumber'
 
-const WA_ARGENTINA_COUNTRY_CODE = 54
-const WA_ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
-const WA_ARGENTINA_COUNTRY_CODE_TO_REMOVE = 15
-
-const WA_MEXICO_COUNTRY_CODE = 52
-const WA_MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
+const ARGENTINA_COUNTRY_CODE = 54
+const ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
+const MEXICO_COUNTRY_CODE = 52
+const MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
 
 export function formatPhoneNumber(rawPhoneNumber: string, defaultRegion: string = 'CA') {
   let parsed: ParsedPhoneNumber
@@ -30,9 +28,9 @@ function _handleWhatsAppEdgeCases(phone: string, parsed: ParsedPhoneNumber): str
     return phone
   }
 
-  if (parsed.countryCode === WA_ARGENTINA_COUNTRY_CODE) {
+  if (parsed.countryCode === ARGENTINA_COUNTRY_CODE) {
     phone = _handleArgentinaEdgeCases(phone, parsed.countryCode)
-  } else if (parsed.countryCode === WA_MEXICO_COUNTRY_CODE) {
+  } else if (parsed.countryCode === MEXICO_COUNTRY_CODE) {
     phone = _handleMexicoEdgeCases(phone, parsed.countryCode)
   } else {
     let nationalNumber = _stripCountryCode(phone, parsed.countryCode)
@@ -43,21 +41,23 @@ function _handleWhatsAppEdgeCases(phone: string, parsed: ParsedPhoneNumber): str
   return phone
 }
 
+// This needs to remove leading zeros and make sure the number starts with +549
 const _handleArgentinaEdgeCases = (phone: string, countryCode: number): string => {
   let nationalNumber = _stripCountryCode(phone, countryCode)
+  nationalNumber = _stripLeadingZeros(nationalNumber)
 
-  if (nationalNumber.startsWith(WA_ARGENTINA_COUNTRY_CODE_TO_REMOVE.toString())) {
-    nationalNumber = nationalNumber.substring(WA_ARGENTINA_COUNTRY_CODE_TO_REMOVE.toString().length)
+  if (nationalNumber.startsWith(ARGENTINA_COUNTRY_CODE_AFTER_PREFIX.toString())) {
+    return `+${ARGENTINA_COUNTRY_CODE}${nationalNumber}`
   }
 
-  nationalNumber = _stripLeadingZeros(nationalNumber)
-  return `+${WA_ARGENTINA_COUNTRY_CODE}${WA_ARGENTINA_COUNTRY_CODE_AFTER_PREFIX}${nationalNumber}`
+  return `+${ARGENTINA_COUNTRY_CODE}${ARGENTINA_COUNTRY_CODE_AFTER_PREFIX}${nationalNumber}`
 }
 
+// This needs to remove leading zeros and make sure the number starts with +521
 const _handleMexicoEdgeCases = (phone: string, countryCode: number): string => {
   let nationalNumber = _stripCountryCode(phone, countryCode)
   nationalNumber = _stripLeadingZeros(nationalNumber)
-  return `+${WA_MEXICO_COUNTRY_CODE}${WA_MEXICO_COUNTRY_CODE_AFTER_PREFIX}${nationalNumber}`
+  return `+${MEXICO_COUNTRY_CODE}${MEXICO_COUNTRY_CODE_AFTER_PREFIX}${nationalNumber}`
 }
 
 const _stripLeadingZeros = (phone: string): string => {
