@@ -2,6 +2,12 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
+import {
+  WhatsAppMessageTemplateComponentsUpdateValueSchema,
+  WhatsAppMessageTemplateQualityUpdateValueSchema,
+  WhatsAppMessageTemplateStatusUpdateValueSchema,
+  WhatsAppTemplateCategoryUpdateValueSchema,
+} from 'definitions/events'
 
 export const INTEGRATION_NAME = 'whatsapp'
 
@@ -43,37 +49,40 @@ const startConversationProps = {
     'Proactively starts a conversation with a WhatsApp user by sending them a message using a WhatsApp Message Template',
   input: {
     schema: z.object({
-      conversation: z.object({
-        userPhone: z
-          .string()
-          .min(1)
-          .title('User Phone Number')
-          .describe('Phone number of the WhatsApp user to start a conversation with'),
-        templateName: z
-          .string()
-          .min(1)
-          .title('Message Template name')
-          .describe('Name of the WhatsApp Message Template to start the conversation with'),
-        templateLanguage: z
-          .string()
-          .optional()
-          .title('Message Template language')
-          .describe(
-            'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
-          ),
-        templateVariablesJson: z
-          .string()
-          .optional()
-          .title('Message Template variables')
-          .describe(
-            'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
-          ),
-        botPhoneNumberId: z
-          .string()
-          .optional()
-          .title('Bot Phone Number ID')
-          .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
-      }),
+      conversation: z
+        .object({
+          userPhone: z
+            .string()
+            .min(1)
+            .title('User Phone Number')
+            .describe('Phone number of the WhatsApp user to start a conversation with'),
+          templateName: z
+            .string()
+            .min(1)
+            .title('Message Template name')
+            .describe('Name of the WhatsApp Message Template to start the conversation with'),
+          templateLanguage: z
+            .string()
+            .optional()
+            .title('Message Template language')
+            .describe(
+              'Language of the WhatsApp Message Template to start the conversation with. Defaults to "en" (English)'
+            ),
+          templateVariablesJson: z
+            .string()
+            .optional()
+            .title('Message Template variables')
+            .describe(
+              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+            ),
+          botPhoneNumberId: z
+            .string()
+            .optional()
+            .title('Bot Phone Number ID')
+            .describe('Phone number ID to use as sender (uses the default phone number ID if not provided)'),
+        })
+        .title('Conversation Details')
+        .describe('Details of the conversation'),
     }),
   },
 }
@@ -85,7 +94,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.2.6',
+  version: '4.5.1',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -174,6 +183,61 @@ export default new IntegrationDefinition({
             filename: z.string().optional(),
           }),
         },
+        bloc: {
+          schema: z.object({
+            items: z.array(
+              z.discriminatedUnion('type', [
+                z.object({
+                  type: z.literal('text'),
+                  payload: z.object({
+                    text: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  payload: z.object({
+                    markdown: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('image'),
+                  payload: z.object({
+                    imageUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('audio'),
+                  payload: z.object({
+                    audioUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('video'),
+                  payload: z.object({
+                    videoUrl: z.string(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('file'),
+                  payload: z.object({
+                    fileUrl: z.string(),
+                    title: z.string().optional(),
+                    filename: z.string().optional(),
+                  }),
+                }),
+                z.object({
+                  type: z.literal('location'),
+                  payload: z.object({
+                    latitude: z.number(),
+                    longitude: z.number(),
+                    address: z.string().optional(),
+                    title: z.string().optional(),
+                  }),
+                }),
+              ])
+            ),
+          }),
+        },
       },
       message: {
         tags: {
@@ -226,6 +290,16 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    sendTemplateMessage: {
+      title: 'Send Template Message',
+      description: 'Sends a WhatsApp Message Template to a user in an existing conversation',
+      input: startConversationProps.input,
+      output: {
+        schema: z.object({
+          conversationId: z.string().title('Conversation ID').describe('ID of the conversation created'),
+        }),
+      },
+    },
   },
   events: {
     reactionAdded: {
@@ -247,6 +321,27 @@ export default new IntegrationDefinition({
         userId: z.string().optional().title('User ID').describe('ID of the user who removed the reaction'),
         conversationId: z.string().optional().title('Conversation ID').describe('ID of the conversation'),
       }),
+    },
+    messageTemplateComponentsUpdate: {
+      title: 'Message Template Components Update',
+      description: 'Triggered when a template is edited',
+      schema: WhatsAppMessageTemplateComponentsUpdateValueSchema,
+    },
+    messageTemplateQualityUpdate: {
+      title: 'Message Template Quality Update',
+      description: "Triggered when a template's quality score changes",
+      schema: WhatsAppMessageTemplateQualityUpdateValueSchema,
+    },
+    messageTemplateStatusUpdate: {
+      title: 'Message Template Status Update',
+      description: 'Triggered when a template is approved, rejected or disabled',
+      schema: WhatsAppMessageTemplateStatusUpdateValueSchema,
+    },
+    templateCategoryUpdate: {
+      title: 'Template Category Update',
+      description:
+        'Triggered when the category of a WhatsApp template is changed — whether manually or by an automated process, or when such a change is about to occur.',
+      schema: WhatsAppTemplateCategoryUpdateValueSchema,
     },
   },
   states: {

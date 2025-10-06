@@ -1,4 +1,5 @@
 import * as esb from 'esbuild'
+import _ from 'lodash'
 
 export * from 'esbuild'
 
@@ -25,6 +26,54 @@ const DEFAULT_OPTIONS: esb.BuildOptions = {
   logOverride: { 'equals-negative-zero': 'silent' },
   keepNames: true, // important : https://github.com/node-fetch/node-fetch/issues/784#issuecomment-1014768204
   minify: false,
+}
+
+export abstract class BuildContext<T> {
+  private _context: esb.BuildContext | undefined
+  private _previousProps: T | undefined
+  private _previousOpts: esb.BuildOptions = {}
+
+  protected abstract _createContext(props: T, opts: esb.BuildOptions): Promise<esb.BuildContext>
+
+  public async rebuild(props: T, opts: esb.BuildOptions = {}) {
+    if (!this._context || !_.isEqual(props, this._previousProps) || !_.isEqual(opts, this._previousOpts)) {
+      if (this._context) {
+        await this._context.dispose()
+      }
+      this._context = await this._createContext(props, opts)
+      this._previousOpts = opts
+      this._previousProps = props
+    }
+    return await this._context?.rebuild()
+  }
+}
+
+export class BuildCodeContext extends BuildContext<BuildCodeProps> {
+  protected _createContext(props: BuildCodeProps, opts: esb.BuildOptions = {}): Promise<esb.BuildContext> {
+    const { absWorkingDir, code, outfile } = props
+    return esb.context({
+      ...DEFAULT_OPTIONS,
+      ...opts,
+      absWorkingDir,
+      outfile,
+      stdin: { contents: code, resolveDir: absWorkingDir, loader: 'ts' },
+      write: true,
+    })
+  }
+}
+
+export class BuildEntrypointContext extends BuildContext<BuildEntrypointProps> {
+  protected _createContext(props: BuildEntrypointProps, opts: esb.BuildOptions = {}): Promise<esb.BuildContext> {
+    const { absWorkingDir, entrypoint } = props
+    return esb.context({
+      ...DEFAULT_OPTIONS,
+      ...opts,
+      absWorkingDir,
+      entryPoints: [entrypoint],
+      outfile: undefined,
+      write: false,
+    })
+  }
 }
 
 /**

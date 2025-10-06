@@ -1,6 +1,6 @@
 import { exchangeAuthCodeForRefreshToken } from './docusign-api/auth-utils'
 import { dispatchIntegrationEvent } from './webhooks/event-dispatcher'
-import { parseWebhookEvent } from './webhooks/utils'
+import { parseWebhookEvent, verifyWebhookSignature } from './webhooks/utils'
 import * as bp from '.botpress'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
@@ -11,6 +11,12 @@ export const handler = async (props: bp.HandlerProps) => {
     if (oAuthCode === null) throw new Error('Missing authentication code')
 
     await exchangeAuthCodeForRefreshToken(props, oAuthCode)
+    return
+  }
+
+  const signatureResult = verifyWebhookSignature(props)
+  if (!signatureResult.success) {
+    props.logger.forBot().error(signatureResult.error.message, signatureResult.error)
     return
   }
 
