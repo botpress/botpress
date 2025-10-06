@@ -1,4 +1,3 @@
-import { type Cognitive } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
@@ -17,7 +16,7 @@ import { Transcript, TranscriptArray } from './transcript.js'
 import { wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
 
-type Model = Parameters<InstanceType<typeof Cognitive>['generateContent']>[0]['model']
+export type Model = 'best' | 'fast' | `${string}:${string}` | (string & {})
 
 export type IterationParameters = {
   transcript: TranscriptArray
@@ -26,6 +25,8 @@ export type IterationParameters = {
   exits: Exit[]
   instructions?: string
   components: Component[]
+  model: Model
+  temperature: number
 }
 
 export type IterationStatus =
@@ -349,6 +350,8 @@ export namespace Iteration {
     messages: LLMzPrompts.Message[]
     code?: string
     traces: Trace[]
+    model: Model
+    temperature: number
     variables: Record<string, any>
     started_ts: number
     ended_ts?: number
@@ -408,6 +411,14 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   public get objects() {
     return this._parameters.objects
+  }
+
+  public get model() {
+    return this._parameters.model
+  }
+
+  public get temperature() {
+    return this._parameters.temperature
   }
 
   public get exits() {
@@ -532,6 +543,8 @@ export class Iteration implements Serializable<Iteration.JSON> {
       id: this.id,
       messages: [...this.messages],
       code: this.code,
+      model: this.model,
+      temperature: this.temperature,
       traces: [...this.traces],
       variables: this.variables,
       started_ts: this.started_ts,
@@ -558,8 +571,6 @@ export namespace Context {
     iteration: number
     timeout: number
     loop: number
-    temperature: number
-    model?: Model
     metadata: Record<string, any>
     snapshot?: Snapshot.JSON
   }
@@ -573,12 +584,12 @@ export class Context implements Serializable<Context.JSON> {
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
+  public model?: ValueOrGetter<Model, Context>
+  public temperature: ValueOrGetter<number, Context>
 
   public version: Prompt = DualModePrompt
   public timeout: number = 60_000 // Default timeout of 60 seconds
   public loop: number
-  public temperature: number
-  public model?: Model
   public metadata: Record<string, any>
 
   public snapshot?: Snapshot
@@ -773,6 +784,8 @@ export class Context implements Serializable<Context.JSON> {
     const objects = (await getValue(this.objects, this)) ?? []
     const exits = (await getValue(this.exits, this)) ?? []
     const components = await getValue(this.chat?.components ?? [], this)
+    const model = (await getValue(this.model, this)) ?? 'best'
+    const temperature = await getValue(this.temperature, this)
 
     if (objects && objects.length > 100) {
       throw new Error('Too many objects. Expected at most 100 objects.')
@@ -869,6 +882,14 @@ export class Context implements Serializable<Context.JSON> {
       exits.push(DefaultExit)
     }
 
+    if (typeof temperature !== 'number' || isNaN(temperature) || temperature < 0 || temperature > 2) {
+      throw new Error('Invalid temperature. Expected a number between 0 and 2.')
+    }
+
+    if (typeof model !== 'string' || model.length === 0) {
+      throw new Error('Invalid model. Expected a non-empty string.')
+    }
+
     return {
       transcript,
       tools: allTools,
@@ -876,6 +897,8 @@ export class Context implements Serializable<Context.JSON> {
       exits,
       instructions,
       components,
+      model,
+      temperature,
     }
   }
 
@@ -886,8 +909,8 @@ export class Context implements Serializable<Context.JSON> {
     tools?: ValueOrGetter<Tool[], Context>
     exits?: ValueOrGetter<Exit[], Context>
     loop?: number
-    temperature?: number
-    model?: Model
+    temperature?: ValueOrGetter<number, Context>
+    model?: ValueOrGetter<Model, Context>
     metadata?: Record<string, any>
     snapshot?: Snapshot
     timeout?: number
@@ -902,17 +925,13 @@ export class Context implements Serializable<Context.JSON> {
     this.timeout = Math.min(999_999_999, Math.max(0, props.timeout ?? 60_000)) // Default timeout of 60 seconds
     this.loop = props.loop ?? 3
     this.temperature = props.temperature ?? 0.7
-    this.model = props.model
+    this.model = props.model ?? 'best'
     this.iterations = []
     this.metadata = props.metadata ?? {}
     this.snapshot = props.snapshot
 
     if (this.loop < 1 || this.loop > 100) {
       throw new Error('Invalid loop. Expected a number between 1 and 100.')
-    }
-
-    if (this.temperature < 0 || this.temperature > 2) {
-      throw new Error('Invalid temperature. Expected a number between 0 and 2.')
     }
   }
 
@@ -923,8 +942,6 @@ export class Context implements Serializable<Context.JSON> {
       iteration: this.iteration,
       timeout: this.timeout,
       loop: this.loop,
-      temperature: this.temperature,
-      model: this.model,
       metadata: this.metadata,
       snapshot: this.snapshot?.toJSON(),
     } satisfies Context.JSON
