@@ -75,4 +75,7 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['usrId'] },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).extend(typingIndicator, ({}) => ({ entities: {} }))

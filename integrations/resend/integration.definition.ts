@@ -91,4 +91,7 @@ export default new IntegrationDefinition({
       schema: failedToSendEmailEventSchema,
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

@@ -37,4 +37,7 @@ export default new InterfaceDefinition({
       },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
