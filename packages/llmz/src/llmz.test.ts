@@ -913,4 +913,51 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       expect(messages.toLowerCase()).toContain('pricing')
     })
   })
+
+  describe('dynamic model and temperature', () => {
+    it('can change temperature and model dynamically across iterations', async () => {
+      let callCount = 0
+
+      const tRecursive = new Tool({
+        name: 'recurse',
+        description: 'A tool that forces the agent to think',
+        handler: async () => {
+          callCount++
+          if (callCount < 3) {
+            throw new ThinkSignal(`Called ${callCount} times. You need to call this tool again.`)
+          }
+          return 'Done'
+        },
+      })
+
+      const result = await llmz.executeContext({
+        options: { loop: 5 },
+        exits: [eDone],
+        instructions: 'Call the recurse tool until it returns "Done"',
+        tools: [tRecursive],
+        client,
+        model: (ctx) => {
+          // Use different models on different iterations
+          return ctx.iterations.length === 0 ? 'fast' : 'best'
+        },
+        temperature: (ctx) => {
+          // Use different temperatures on different iterations
+          return ctx.iterations.length === 0 ? 0.5 : 1.0
+        },
+      })
+
+      assertSuccess(result)
+      expect(result.iterations.length).toBeGreaterThanOrEqual(3)
+
+      // Verify first iteration uses fast model and 0.5 temperature
+      expect(result.iterations[0]!.model).toBe('fast')
+      expect(result.iterations[0]!.temperature).toBe(0.5)
+
+      // Verify subsequent iterations use best model and 1.0 temperature
+      for (let i = 1; i < result.iterations.length; i++) {
+        expect(result.iterations[i]!.model).toBe('best')
+        expect(result.iterations[i]!.temperature).toBe(1.0)
+      }
+    })
+  })
 })

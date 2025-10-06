@@ -7,7 +7,7 @@ import ms from 'ms'
 import { ulid } from 'ulid'
 import { createJoinedAbortController } from './abort-signal.js'
 import { Chat } from './chat.js'
-import { Context, Iteration } from './context.js'
+import { Context, Iteration, Model } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
@@ -132,7 +132,7 @@ export type ExecutionHooks = {
   }) => Promise<{ output?: any } | void>
 }
 
-type Options = Partial<Pick<Context, 'loop' | 'temperature' | 'model' | 'timeout'>>
+type Options = Partial<Pick<Context, 'loop' | 'timeout'>>
 
 export type ExecutionProps = {
   /**
@@ -219,6 +219,21 @@ export type ExecutionProps = {
    * Providing an unsettled snapshot will throw an error.
    */
   snapshot?: Snapshot
+
+  /**
+   * The model to use for the LLM.
+   * This can be a static model name or a function that returns a model name based on the current context.
+   */
+  model?: ValueOrGetter<Model, Context>
+
+  /**
+   * The temperature to use for the LLM.
+   * This can be a static temperature or a function that returns a temperature based on the current context.
+   * The temperature must be between 0 and 2.
+   * If the temperature is outside this range, it will be clamped to the nearest valid value.
+   * If no temperature is provided, the default temperature of 0.7 will be used.
+   */
+  temperature?: ValueOrGetter<number, Context>
 } & ExecutionHooks
 
 export const executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
@@ -242,11 +257,11 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
     objects: props.objects,
     tools: props.tools,
     loop: props.options?.loop,
-    temperature: props.options?.temperature,
-    model: props.options?.model,
     timeout: props.options?.timeout,
     exits: props.exits,
     snapshot: props.snapshot,
+    model: props.model,
+    temperature: props.temperature,
   })
 
   try {
@@ -363,7 +378,7 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const model = await cognitive.getModelDetails(ctx.model ?? 'best')
+  const model = await cognitive.getModelDetails(iteration.model ?? 'best')
   const modelLimit = model.input.maxTokens
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
@@ -389,7 +404,7 @@ const executeIteration = async ({
     signal: controller.signal,
     systemPrompt: messages.find((x) => x.role === 'system')?.content,
     model: model.ref,
-    temperature: ctx.temperature,
+    temperature: iteration.temperature,
     responseFormat: 'text',
     messages: messages.filter((x) => x.role !== 'system'),
     stopSequences: ctx.version.getStopTokens(),

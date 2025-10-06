@@ -56,7 +56,9 @@ export const utils = {
  * @param props.exits - Array of Exit definitions for structured completion (static or dynamic)
  * @param props.snapshot - Optional Snapshot to resume paused execution
  * @param props.signal - Optional AbortSignal to cancel execution
- * @param props.options - Optional execution options (loop limit, temperature, model, timeout)
+ * @param props.model - Optional model name (static or dynamic function)
+ * @param props.temperature - Optional temperature value (static or dynamic function)
+ * @param props.options - Optional execution options (loop limit, timeout)
  * @param props.onTrace - Optional non-blocking hook for monitoring traces during execution
  * @param props.onIterationEnd - Optional blocking hook called after each iteration
  * @param props.onExit - Optional blocking hook called when an exit is reached (can prevent exit)
@@ -97,7 +99,9 @@ export const utils = {
  *   client: cognitiveClient,
  *   instructions: (ctx) => `Process ${ctx.variables.dataCount} records`,
  *   tools: async (ctx) => await getContextualTools(ctx),
- *   options: { loop: 10, temperature: 0.1 },
+ *   model: 'best',
+ *   temperature: 0.1,
+ *   options: { loop: 10 },
  *   onTrace: ({ trace, iteration }) => console.log(trace),
  *   onExit: async (result) => await validateResult(result)
  * })

@@ -142,6 +142,7 @@ export class GoogleDriveNodeTree {
 
   private _removeEmptyFoldersFromTheirParents(emptyFolderIds: Set<string>): void {
     for (const emptyFolderId of emptyFolderIds) {
+      if (emptyFolderId === this._rootFolderId) continue
       const emptyFolderNode = this._nodeByIdMap.get(emptyFolderId)
       if (!emptyFolderNode) continue
 
@@ -152,6 +153,7 @@ export class GoogleDriveNodeTree {
 
   private _deleteEmptyFoldersFromMaps(emptyFolderIds: Set<string>): void {
     for (const emptyFolderId of emptyFolderIds) {
+      if (emptyFolderId === this._rootFolderId) continue
       const emptyFolderNode = this._nodeByIdMap.get(emptyFolderId)
       if (!emptyFolderNode) continue
 
