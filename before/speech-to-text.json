@@ -1,0 +1,243 @@
+{
+  "name": "speech-to-text",
+  "version": "2.0.1",
+  "entities": {
+    "speechToTextModelRef": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "transcribeAudio": {
+      "billable": true,
+      "cacheable": true,
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "$ref": "speechToTextModelRef",
+              "description": "Model to use for speech-to-text transcription (optional)",
+              "x-zui": {}
+            },
+            "fileUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm",
+              "x-zui": {}
+            },
+            "language": {
+              "type": "string",
+              "description": "The language of the input audio (optional). Supplying the input language in ISO-639-1 format will improve accuracy and latency.",
+              "x-zui": {}
+            },
+            "prompt": {
+              "type": "string",
+              "description": "An optional text to guide the model's style or continue a previous audio segment. The prompt should match the audio language.",
+              "x-zui": {}
+            },
+            "temperature": {
+              "type": "number",
+              "description": "The sampling temperature (optional), between 0 and 1. Defaults to 0 (automatic). Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+              "x-zui": {},
+              "default": 0
+            }
+          },
+          "required": ["fileUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string",
+              "description": "Detected language of the audio",
+              "x-zui": {}
+            },
+            "duration": {
+              "type": "number",
+              "description": "Duration of the audio file, in seconds",
+              "x-zui": {}
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "description": "Text content of the segment.",
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "number",
+                    "description": "Unique identifier of the segment",
+                    "x-zui": {}
+                  },
+                  "seek": {
+                    "type": "number",
+                    "description": "Seek offset of the segment",
+                    "x-zui": {}
+                  },
+                  "start": {
+                    "type": "number",
+                    "description": "Start time of the segment in seconds.",
+                    "x-zui": {}
+                  },
+                  "end": {
+                    "type": "number",
+                    "description": "End time of the segment in seconds.",
+                    "x-zui": {}
+                  },
+                  "tokens": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "x-zui": {}
+                    },
+                    "description": "Array of token IDs for the text content.",
+                    "x-zui": {}
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "description": "Temperature parameter used for generating the segment.",
+                    "x-zui": {}
+                  },
+                  "avg_logprob": {
+                    "type": "number",
+                    "description": "Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.",
+                    "x-zui": {}
+                  },
+                  "compression_ratio": {
+                    "type": "number",
+                    "description": "Compression ratio of the segment. If the value is greater than 2.4, consider the compression failed.",
+                    "x-zui": {}
+                  },
+                  "no_speech_prob": {
+                    "type": "number",
+                    "description": "Probability of no speech in the segment. If the value is higher than 1.0 and the avg_logprob is below -1, consider this segment silent.",
+                    "x-zui": {}
+                  }
+                },
+                "required": [
+                  "text",
+                  "id",
+                  "seek",
+                  "start",
+                  "end",
+                  "tokens",
+                  "temperature",
+                  "avg_logprob",
+                  "compression_ratio",
+                  "no_speech_prob"
+                ],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "model": {
+              "type": "string",
+              "description": "Model name used",
+              "x-zui": {}
+            },
+            "cost": {
+              "type": "number",
+              "description": "Total cost of the transcription, in U.S. dollars (DEPRECATED)",
+              "x-zui": {}
+            },
+            "botpress": {
+              "type": "object",
+              "properties": {
+                "cost": {
+                  "type": "number",
+                  "description": "Total cost of the transcription, in U.S. dollars",
+                  "x-zui": {}
+                }
+              },
+              "required": ["cost"],
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["language", "duration", "segments", "model", "cost", "botpress"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listSpeechToTextModels": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "costPerMinute": {
+                        "type": "number",
+                        "description": "Cost per minute of speech transcription, in U.S. dollars",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id", "name", "costPerMinute"],
+                    "x-zui": {}
+                  },
+                  {
+                    "$ref": "speechToTextModelRef",
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["models"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {}
+}

@@ -1,0 +1,108 @@
+{
+  "name": "pdf-generator",
+  "version": "0.0.2",
+  "description": "Converts markdown content to PDF using PDFShift",
+  "actions": {
+    "fromMarkdown": {
+      "title": "Markdown to PDF",
+      "description": "Converts a markdown content to a PDF file",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "markdown": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The markdown content to convert to PDF",
+              "x-zui": {}
+            },
+            "filename": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\.pdf$",
+              "description": "The filename of the PDF",
+              "x-zui": {},
+              "default": "generated.pdf"
+            }
+          },
+          "required": ["markdown"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "description": "The generated PDF file ID",
+              "x-zui": {}
+            },
+            "fileUrl": {
+              "type": "string",
+              "description": "The public URL to download the PDF",
+              "x-zui": {}
+            }
+          },
+          "required": ["fileId", "fileUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "fromHtml": {
+      "title": "HTML to PDF",
+      "description": "Converts an HTML document to a PDF file",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "html": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The HTML content to convert to PDF",
+              "x-zui": {}
+            },
+            "filename": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\.pdf$",
+              "description": "The filename of the PDF",
+              "x-zui": {},
+              "default": "generated.pdf"
+            }
+          },
+          "required": ["html"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "description": "The generated PDF file ID",
+              "x-zui": {}
+            },
+            "fileUrl": {
+              "type": "string",
+              "description": "The public URL to download the PDF",
+              "x-zui": {}
+            }
+          },
+          "required": ["fileId", "fileUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

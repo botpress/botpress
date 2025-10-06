@@ -14,6 +14,9 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets,
   states,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {
@@ -25,8 +28,5 @@ export default new sdk.IntegrationDefinition({
       name: 'filesReadonlyTransferFileToBotpress',
       attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 }))

@@ -1,0 +1,410 @@
+{
+  "name": "clickup",
+  "version": "0.0.1",
+  "title": "ClickUp",
+  "description": "Create and update tasks, and add comments from your chatbot.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "User ID",
+        "description": "User ID from ClickUp"
+      }
+    }
+  },
+  "events": {
+    "taskCreated": {
+      "title": "Task Created",
+      "description": "Triggered when a task is created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the created task",
+            "x-zui": {
+              "title": "Task ID"
+            }
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "taskUpdated": {
+      "title": "Task Updated",
+      "description": "Triggered when a task is updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the updated task",
+            "x-zui": {
+              "title": "Task ID"
+            }
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "taskDeleted": {
+      "title": "Task Deleted",
+      "description": "Triggered when a task is deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the deleted task",
+            "x-zui": {
+              "title": "Task ID"
+            }
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "createTask": {
+      "title": "Create a task",
+      "description": "Create a new task in a list",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "description": "ID of the list to create the task in",
+              "x-zui": {
+                "title": "List ID"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the task to be created",
+              "x-zui": {
+                "title": "Name"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "Description of the task to be created",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "status": {
+              "type": "string",
+              "description": "Status of the task to be created",
+              "x-zui": {
+                "title": "Status"
+              }
+            },
+            "assignees": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "description": "IDs of the assignees of the task to be created",
+              "x-zui": {
+                "title": "Assignees"
+              }
+            },
+            "dueDate": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Due date of the task to be created",
+              "x-zui": {
+                "title": "Due date"
+              }
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "description": "Tags of the task to be created",
+              "x-zui": {
+                "title": "Tags"
+              }
+            }
+          },
+          "required": ["listId", "name"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "description": "Id of the task created",
+              "x-zui": {
+                "title": "Task ID"
+              }
+            }
+          },
+          "required": ["taskId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateTask": {
+      "title": "Update a task",
+      "description": "Update the details of a task",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "description": "ID of the task to be updated",
+              "x-zui": {
+                "title": "Task ID"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "New name of the task",
+              "x-zui": {
+                "title": "Name"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "New description of the task",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "status": {
+              "type": "string",
+              "description": "New status of the task",
+              "x-zui": {
+                "title": "Status"
+              }
+            },
+            "archived": {
+              "type": "boolean",
+              "description": "New archived status of the task",
+              "x-zui": {
+                "title": "Archived"
+              }
+            },
+            "assigneesToAdd": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "description": "Members to add to the task",
+              "x-zui": {
+                "title": "Assignees to add"
+              }
+            },
+            "assigneesToRemove": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "description": "Members to remove from the task",
+              "x-zui": {
+                "title": "Assignees to remove"
+              }
+            },
+            "dueDate": {
+              "type": "string",
+              "format": "date-time",
+              "description": "New due date of the task",
+              "x-zui": {
+                "title": "Due date"
+              }
+            }
+          },
+          "required": ["taskId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "description": "Id of the task updated",
+              "x-zui": {
+                "title": "Task ID"
+              }
+            }
+          },
+          "required": ["taskId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "deleteTask": {
+      "title": "Delete a task",
+      "description": "Delete a task",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "taskId": {
+              "type": "string",
+              "description": "ID of the task to be deleted",
+              "x-zui": {
+                "title": "Task ID"
+              }
+            }
+          },
+          "required": ["taskId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getListMembers": {
+      "title": "Get members of a list",
+      "description": "Get all the members of a list",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "listId": {
+              "type": "string",
+              "description": "ID of the list to get the members of",
+              "x-zui": {
+                "title": "List ID"
+              }
+            }
+          },
+          "required": ["listId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "members": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number",
+                    "description": "ID of the member",
+                    "x-zui": {
+                      "title": "Member ID"
+                    }
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "Username of the member",
+                    "x-zui": {
+                      "title": "Username"
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Email of the member",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  }
+                },
+                "required": ["id", "username", "email"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "Members of the list",
+              "x-zui": {
+                "title": "Members"
+              }
+            }
+          },
+          "required": ["members"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {
+    "comment": {
+      "title": "Comment",
+      "description": "Comments on a task",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "Content of the comment",
+                "x-zui": {
+                  "title": "Text"
+                }
+              }
+            },
+            "required": ["text"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Message ID",
+            "description": "Message ID from ClickUp"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "taskId": {
+            "title": "Task ID",
+            "description": "Task ID from ClickUp"
+          }
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

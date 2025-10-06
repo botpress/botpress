@@ -1,0 +1,478 @@
+{
+  "name": "browser",
+  "version": "0.7.0",
+  "title": "Browser",
+  "description": "Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.",
+  "actions": {
+    "captureScreenshot": {
+      "title": "Capture Screenshot",
+      "description": "Capture a screenshot of the specified page.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "javascriptToInject": {
+              "type": "string",
+              "description": "JavaScript code to inject into the page before taking the screenshot",
+              "x-zui": {
+                "displayAs": [
+                  "text",
+                  {
+                    "multiLine": true,
+                    "growVertically": true
+                  }
+                ]
+              }
+            },
+            "cssToInject": {
+              "type": "string",
+              "description": "CSS code to inject into the page before taking the screenshot",
+              "x-zui": {
+                "displayAs": [
+                  "text",
+                  {
+                    "multiLine": true,
+                    "growVertically": true
+                  }
+                ]
+              }
+            },
+            "width": {
+              "type": "number",
+              "x-zui": {},
+              "default": 1080
+            },
+            "height": {
+              "type": "number",
+              "x-zui": {},
+              "default": 1920
+            },
+            "fullPage": {
+              "type": "boolean",
+              "x-zui": {},
+              "default": true
+            }
+          },
+          "required": ["url"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "description": "URL to the captured screenshot",
+              "x-zui": {}
+            },
+            "htmlUrl": {
+              "type": "string",
+              "description": "URL to the HTML page of the screenshot",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "cacheable": true,
+      "billable": true
+    },
+    "browsePages": {
+      "title": "Browse Pages",
+      "description": "Extract the full content & the metadata of the specified pages as markdown.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "urls": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "waitFor": {
+              "type": "number",
+              "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.",
+              "x-zui": {},
+              "default": 350
+            },
+            "timeout": {
+              "type": "number",
+              "description": "Timeout for the request (in milliseconds)",
+              "x-zui": {},
+              "default": 30000
+            },
+            "maxAge": {
+              "type": "number",
+              "description": "Maximum age of the cached page content (in seconds)",
+              "x-zui": {},
+              "default": 604800
+            }
+          },
+          "required": ["urls"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "favicon": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "description": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["url", "content"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["results"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "cacheable": true,
+      "billable": true
+    },
+    "webSearch": {
+      "title": "Web Search",
+      "description": "Search information on the web. You need to browse to that page to get the full content of the page.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "What are we searching for?",
+              "x-zui": {}
+            },
+            "includeSites": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "minLength": 3,
+                "maxLength": 50,
+                "x-zui": {}
+              },
+              "maxItems": 20,
+              "description": "Include only these domains in the search (max 20)",
+              "x-zui": {}
+            },
+            "excludeSites": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$",
+                "minLength": 3,
+                "maxLength": 50,
+                "x-zui": {}
+              },
+              "maxItems": 20,
+              "description": "Exclude these domains from the search (max 20)",
+              "x-zui": {}
+            },
+            "count": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "Number of search results to return (default: 10)",
+              "x-zui": {},
+              "default": 10
+            },
+            "freshness": {
+              "type": "string",
+              "enum": ["Day", "Week", "Month"],
+              "description": "Only consider results from the last day, week or month",
+              "x-zui": {}
+            },
+            "browsePages": {
+              "type": "boolean",
+              "description": "Whether to browse to the pages to get the full content",
+              "x-zui": {},
+              "default": false
+            }
+          },
+          "required": ["query"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Title of the page",
+                    "x-zui": {}
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "URL of the page",
+                    "x-zui": {}
+                  },
+                  "snippet": {
+                    "type": "string",
+                    "description": "A short summary of the page",
+                    "x-zui": {}
+                  },
+                  "links": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "url": {
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["name", "url"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "description": "Useful links on the page",
+                    "x-zui": {}
+                  },
+                  "page": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "content": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "favicon": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "title": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["url", "content"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  }
+                },
+                "required": ["name", "url", "snippet"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["results"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "billable": true,
+      "cacheable": true
+    },
+    "discoverUrls": {
+      "title": "Discover Website URLs",
+      "description": "Discovers the URLs of a website by finding links using sitemaps, robots.txt, and crawling.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The URL of the website to discover URLs from. Can be a domain like example.com or a full URL like sub.example.com/page",
+              "x-zui": {}
+            },
+            "onlyHttps": {
+              "type": "boolean",
+              "description": "Whether to only include HTTPS pages",
+              "x-zui": {},
+              "default": true
+            },
+            "count": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000,
+              "x-zui": {},
+              "default": 5000
+            },
+            "include": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255,
+                "description": "Glob pattern to match URLs. Use * for wildcard matching",
+                "x-zui": {}
+              },
+              "maxItems": 100,
+              "description": "List of glob patterns to include URLs from the discovery",
+              "x-zui": {}
+            },
+            "exclude": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 255,
+                "description": "Glob pattern to match URLs. Use * for wildcard matching",
+                "x-zui": {}
+              },
+              "maxItems": 100,
+              "description": "List of glob patterns to exclude URLs from the discovery. All URLs matching these patterns will be excluded from the results, even if they are included in the \"include\" patterns.",
+              "x-zui": {}
+            }
+          },
+          "required": ["url"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "urls": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "description": "List of discovered URLs",
+              "x-zui": {}
+            },
+            "excluded": {
+              "type": "number",
+              "description": "Number of URLs excluded due to robots.txt or filter",
+              "x-zui": {}
+            },
+            "stopReason": {
+              "type": "string",
+              "enum": ["urls_limit_reached", "end_of_results", "time_limit_reached"],
+              "description": "Reason for stopping the URLs discovery. ",
+              "x-zui": {}
+            }
+          },
+          "required": ["urls", "excluded", "stopReason"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "billable": true,
+      "cacheable": false
+    },
+    "getWebsiteLogo": {
+      "title": "Get Website Logo",
+      "description": "Get the logo of the specified website.",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "description": "The domain of the website to get the logo from (eg. \"example.com\")",
+              "x-zui": {}
+            },
+            "greyscale": {
+              "type": "boolean",
+              "description": "Whether to return the logo in grayscale (black & white)",
+              "x-zui": {},
+              "default": false
+            },
+            "size": {
+              "type": "string",
+              "enum": ["64", "128", "256", "512"],
+              "description": "Size of the logo to return (64, 128 or 256, 512 pixels)",
+              "x-zui": {},
+              "default": "128"
+            }
+          },
+          "required": ["domain"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "logoUrl": {
+              "type": "string",
+              "description": "URL to the website logo",
+              "x-zui": {}
+            }
+          },
+          "required": ["logoUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "cacheable": false,
+      "billable": true
+    }
+  },
+  "interfaces": {}
+}

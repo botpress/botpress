@@ -1,0 +1,452 @@
+{
+  "name": "docusign",
+  "version": "2.0.1",
+  "title": "Docusign",
+  "description": "Automate document workflows, generate intelligent insights, enhance security measures, and improve user experience.",
+  "events": {
+    "envelopeSent": {
+      "title": "Envelope Sent",
+      "description": "An event that triggers when an envelope is sent to the recipient(s) to be signed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The Docusign user's ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The docusign user's \"API Account ID\" (This is a GUID that is found in \"Apps & Keys\")",
+            "x-zui": {
+              "title": "API Account ID"
+            }
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "The id of the sent envelope",
+            "x-zui": {
+              "title": "Envelope ID"
+            }
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The datetime when the event was triggered",
+            "x-zui": {
+              "title": "Triggered At"
+            }
+          }
+        },
+        "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "envelopeResent": {
+      "title": "Envelope Resent",
+      "description": "An event that triggers when an envelope is resent to the recipient(s) via the dashboard",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The Docusign user's ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The docusign user's \"API Account ID\" (This is a GUID that is found in \"Apps & Keys\")",
+            "x-zui": {
+              "title": "API Account ID"
+            }
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "The id of the sent envelope",
+            "x-zui": {
+              "title": "Envelope ID"
+            }
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The datetime when the event was triggered",
+            "x-zui": {
+              "title": "Triggered At"
+            }
+          }
+        },
+        "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "envelopeCompleted": {
+      "title": "Envelope Completed",
+      "description": "An event that triggers when an envelope has been completed/signed by all recipient(s)",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The Docusign user's ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The docusign user's \"API Account ID\" (This is a GUID that is found in \"Apps & Keys\")",
+            "x-zui": {
+              "title": "API Account ID"
+            }
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "The id of the sent envelope",
+            "x-zui": {
+              "title": "Envelope ID"
+            }
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The datetime when the event was triggered",
+            "x-zui": {
+              "title": "Triggered At"
+            }
+          }
+        },
+        "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "envelopeDeclined": {
+      "title": "Envelope Declined",
+      "description": "An event that triggers when a recipient has declined to sign an envelope",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The Docusign user's ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The docusign user's \"API Account ID\" (This is a GUID that is found in \"Apps & Keys\")",
+            "x-zui": {
+              "title": "API Account ID"
+            }
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "The id of the sent envelope",
+            "x-zui": {
+              "title": "Envelope ID"
+            }
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The datetime when the event was triggered",
+            "x-zui": {
+              "title": "Triggered At"
+            }
+          }
+        },
+        "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "envelopeVoided": {
+      "title": "Envelope Voided",
+      "description": "An event that triggers when an envelope has been voided by the sender",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The Docusign user's ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "accountId": {
+            "type": "string",
+            "description": "The docusign user's \"API Account ID\" (This is a GUID that is found in \"Apps & Keys\")",
+            "x-zui": {
+              "title": "API Account ID"
+            }
+          },
+          "envelopeId": {
+            "type": "string",
+            "description": "The id of the sent envelope",
+            "x-zui": {
+              "title": "Envelope ID"
+            }
+          },
+          "triggeredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The datetime when the event was triggered",
+            "x-zui": {
+              "title": "Triggered At"
+            }
+          }
+        },
+        "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "sendEnvelope": {
+      "title": "Send Envelope",
+      "description": "Sends an envelope (document) to a recipient to sign it",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "templateId": {
+              "type": "string",
+              "description": "The id of the envelope template",
+              "x-zui": {
+                "title": "Template ID"
+              }
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "The recipient's full name",
+                    "x-zui": {
+                      "title": "Recipient Name"
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "The recipient's email address",
+                    "x-zui": {
+                      "title": "Recipient Email"
+                    }
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "The role keyword defined in the template",
+                    "x-zui": {
+                      "title": "Template Recipient Role"
+                    }
+                  },
+                  "accessCode": {
+                    "type": "string",
+                    "description": "An access code that is required to access the envelope",
+                    "x-zui": {
+                      "title": "Access Code"
+                    }
+                  }
+                },
+                "required": ["name", "email", "role"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "minItems": 1,
+              "description": "The recipients of the envelope to send as defined in the template (Note: adding additional recipients with roles not defined in the template will cause them to default as 'signers')",
+              "x-zui": {
+                "title": "Envelope Recipients"
+              }
+            },
+            "emailSubject": {
+              "type": "string",
+              "description": "Sets the subject field of the sent envelope email (Leaving this empty will fallback to the template default subject)",
+              "x-zui": {
+                "title": "Email Subject"
+              }
+            },
+            "conversationId": {
+              "type": "string",
+              "description": "The ID of the conversation",
+              "x-zui": {
+                "placeholder": "{{ event.conversationId }}",
+                "title": "Conversation ID"
+              }
+            }
+          },
+          "required": ["templateId", "recipients"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "envelopeId": {
+              "type": "string",
+              "description": "The id of the sent envelope",
+              "x-zui": {
+                "title": "Envelope ID"
+              }
+            }
+          },
+          "required": ["envelopeId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "states": {
+    "configuration": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "oauth": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "description": "The refresh token for the integration",
+                    "x-zui": {
+                      "title": "Refresh Token"
+                    }
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token for the integration",
+                    "x-zui": {
+                      "title": "Access Token"
+                    }
+                  },
+                  "tokenType": {
+                    "type": "string",
+                    "description": "The authentication header type for the access token (e.g. \"Bearer\")",
+                    "x-zui": {
+                      "title": "Token Type"
+                    }
+                  },
+                  "expiresAt": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "The expiry time of the access token represented as a Unix timestamp (milliseconds)",
+                    "x-zui": {
+                      "title": "Expires At"
+                    }
+                  }
+                },
+                "required": ["refreshToken", "accessToken", "tokenType", "expiresAt"],
+                "additionalProperties": false,
+                "description": "The parameters used for accessing the Docusign API and refreshing the access token",
+                "x-zui": {
+                  "title": "OAuth Parameters"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The parameters used for accessing the Docusign API and refreshing the access token",
+            "x-zui": {
+              "title": "OAuth Parameters"
+            }
+          }
+        },
+        "required": ["oauth"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "account": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The docusign user's api account id",
+                    "x-zui": {
+                      "title": "API Account ID"
+                    }
+                  },
+                  "baseUri": {
+                    "type": "string",
+                    "description": "The base URI for the Docusign API",
+                    "x-zui": {
+                      "title": "Base URI"
+                    }
+                  },
+                  "refreshAt": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "The unix timestamp (milliseconds) that the selected account will be refreshed (Only when not explicitly selected in the config)",
+                        "x-zui": {
+                          "title": "Refresh At"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "The unix timestamp (milliseconds) that the selected account will be refreshed (Only when not explicitly selected in the config)",
+                    "x-zui": {
+                      "title": "Refresh At"
+                    }
+                  }
+                },
+                "required": ["id", "baseUri", "refreshAt"],
+                "additionalProperties": false,
+                "description": "The docusign account's info",
+                "x-zui": {
+                  "title": "Account Info"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The docusign account's info",
+            "x-zui": {
+              "title": "Account Info"
+            }
+          }
+        },
+        "required": ["account"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {}
+}

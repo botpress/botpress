@@ -1,0 +1,109 @@
+{
+  "name": "updatable",
+  "version": "0.0.2",
+  "entities": {
+    "item": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "events": {
+    "updated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "$ref": "item",
+                "x-zui": {}
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id"],
+                "x-zui": {}
+              }
+            ],
+            "x-zui": {}
+          }
+        },
+        "required": ["item"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "update": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "item": {
+              "$ref": "item",
+              "x-zui": {}
+            }
+          },
+          "required": ["id", "item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "$ref": "item",
+                  "x-zui": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id"],
+                  "x-zui": {}
+                }
+              ],
+              "x-zui": {}
+            }
+          },
+          "required": ["item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {}
+}

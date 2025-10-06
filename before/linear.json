@@ -1,0 +1,2551 @@
+{
+  "name": "linear",
+  "version": "1.1.3",
+  "title": "Linear",
+  "description": "Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "User ID",
+        "description": "The ID of the user on Linear"
+      }
+    }
+  },
+  "events": {
+    "issueCreated": {
+      "title": "Issue Created",
+      "description": "Triggered when an issue is created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was created",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was last updated",
+            "x-zui": {
+              "title": "Updated At"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "teamName": {
+            "type": "string",
+            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\"",
+            "x-zui": {
+              "title": "Team Name"
+            }
+          },
+          "teamKey": {
+            "type": "string",
+            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123",
+            "x-zui": {
+              "title": "Team Key"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "The issue State name (such as \"In Progress\"",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "The name of the label",
+              "x-zui": {
+                "title": "Label Name"
+              }
+            },
+            "description": "Label names",
+            "x-zui": {
+              "title": "Applied Labels"
+            }
+          },
+          "linearIds": {
+            "type": "object",
+            "properties": {
+              "creatorId": {
+                "type": "string",
+                "description": "The internal Linear User ID of the user who created the issue",
+                "x-zui": {
+                  "title": "Creator's User ID"
+                }
+              },
+              "labelIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "description": "The internal Linear Label IDs associated with the issue",
+                "x-zui": {
+                  "title": "Label IDs"
+                }
+              },
+              "issueId": {
+                "type": "string",
+                "description": "The internal Linear Issue ID",
+                "x-zui": {
+                  "title": "Issue ID"
+                }
+              },
+              "teamId": {
+                "type": "string",
+                "description": "The internal Linear Team ID",
+                "x-zui": {
+                  "title": "Team ID"
+                }
+              },
+              "projectId": {
+                "type": "string",
+                "description": "The internal Linear Project ID",
+                "x-zui": {
+                  "title": "Project ID"
+                }
+              },
+              "assigneeId": {
+                "type": "string",
+                "description": "The internal Linear Assignee ID",
+                "x-zui": {
+                  "title": "Assignee User ID"
+                }
+              },
+              "subscriberIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "description": "The internal Linear Subscriber User IDs",
+                "x-zui": {
+                  "title": "Subscriber IDs"
+                }
+              }
+            },
+            "required": ["issueId"],
+            "additionalProperties": false,
+            "description": "The Linear IDs of the referenced entities",
+            "x-zui": {
+              "title": "Linear IDs"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot.",
+            "x-zui": {
+              "title": "Botpress User ID"
+            }
+          },
+          "conversationId": {
+            "type": "string",
+            "description": "Botpress Conversation ID of the issue",
+            "x-zui": {
+              "title": "Botpress Conversation ID"
+            }
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "description": "The issue",
+                  "x-zui": {
+                    "title": "Issue"
+                  }
+                },
+                "description": "The target issue on Linear",
+                "x-zui": {
+                  "title": "Target Issue"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "The issue that was created",
+            "x-zui": {
+              "title": "Created Issue"
+            }
+          }
+        },
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "issueUpdated": {
+      "title": "Issue Updated",
+      "description": "Triggered when an issue is updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was created",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was last updated",
+            "x-zui": {
+              "title": "Updated At"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "teamName": {
+            "type": "string",
+            "description": "The name of the Linear team the issue currently belongs to, such as \"Customer Support\"",
+            "x-zui": {
+              "title": "Team Name"
+            }
+          },
+          "teamKey": {
+            "type": "string",
+            "description": "The key of the Linear team the issue currently belongs to, such as \"XXX\" in XXX-123",
+            "x-zui": {
+              "title": "Team Key"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "The issue State name (such as \"In Progress\"",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "The name of the label",
+              "x-zui": {
+                "title": "Label Name"
+              }
+            },
+            "description": "Label names",
+            "x-zui": {
+              "title": "Applied Labels"
+            }
+          },
+          "linearIds": {
+            "type": "object",
+            "properties": {
+              "creatorId": {
+                "type": "string",
+                "description": "The internal Linear User ID of the user who created the issue",
+                "x-zui": {
+                  "title": "Creator's User ID"
+                }
+              },
+              "labelIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "description": "The internal Linear Label IDs associated with the issue",
+                "x-zui": {
+                  "title": "Label IDs"
+                }
+              },
+              "issueId": {
+                "type": "string",
+                "description": "The internal Linear Issue ID",
+                "x-zui": {
+                  "title": "Issue ID"
+                }
+              },
+              "teamId": {
+                "type": "string",
+                "description": "The internal Linear Team ID",
+                "x-zui": {
+                  "title": "Team ID"
+                }
+              },
+              "projectId": {
+                "type": "string",
+                "description": "The internal Linear Project ID",
+                "x-zui": {
+                  "title": "Project ID"
+                }
+              },
+              "assigneeId": {
+                "type": "string",
+                "description": "The internal Linear Assignee ID",
+                "x-zui": {
+                  "title": "Assignee User ID"
+                }
+              },
+              "subscriberIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "description": "The internal Linear Subscriber User IDs",
+                "x-zui": {
+                  "title": "Subscriber IDs"
+                }
+              }
+            },
+            "required": ["issueId"],
+            "additionalProperties": false,
+            "description": "The Linear IDs of the referenced entities",
+            "x-zui": {
+              "title": "Linear IDs"
+            }
+          },
+          "userId": {
+            "type": "string",
+            "description": "The Botpress User ID of the individual who initiated the issue. If not provided, it indicates the issue was generated by the bot.",
+            "x-zui": {
+              "title": "Botpress User ID"
+            }
+          },
+          "conversationId": {
+            "type": "string",
+            "description": "Botpress Conversation ID of the issue",
+            "x-zui": {
+              "title": "Botpress Conversation ID"
+            }
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "issue": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "description": "The issue",
+                  "x-zui": {
+                    "title": "Issue"
+                  }
+                },
+                "description": "The target issue on Linear",
+                "x-zui": {
+                  "title": "Target Issue"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "The issue that was updated",
+            "x-zui": {
+              "title": "Updated Issue"
+            }
+          }
+        },
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "status", "conversationId", "targets"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "issueDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "issueDeleted"
+    }
+  },
+  "actions": {
+    "findTarget": {
+      "title": "Find Target",
+      "description": "Find a target on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Issue title, description, or number",
+              "x-zui": {
+                "title": "Search query"
+              }
+            },
+            "channel": {
+              "type": "string",
+              "enum": ["issue"],
+              "description": "The channel to search in",
+              "x-zui": {
+                "title": "Channel"
+              }
+            }
+          },
+          "required": ["query", "channel"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "displayName": {
+                    "type": "string",
+                    "description": "The name of the issue",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "description": "The tags applied to the issue",
+                    "x-zui": {
+                      "title": "Tags"
+                    }
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": ["issue"],
+                    "description": "The channel of the search result",
+                    "x-zui": {
+                      "title": "Channel"
+                    }
+                  }
+                },
+                "required": ["displayName", "tags", "channel"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "The list of issues found",
+              "x-zui": {
+                "title": "Results"
+              }
+            }
+          },
+          "required": ["targets"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listIssues": {
+      "title": "List Issues",
+      "description": "List issues from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "number",
+              "description": "The number of issues to return",
+              "x-zui": {
+                "title": "Fetch Amount"
+              },
+              "default": 10
+            },
+            "startCursor": {
+              "type": "string",
+              "description": "The cursor to start from",
+              "x-zui": {
+                "title": "Start Cursor"
+              }
+            },
+            "teamId": {
+              "type": "string",
+              "description": "The team ID to filter by",
+              "x-zui": {
+                "title": "Team ID"
+              }
+            },
+            "startDate": {
+              "type": "string",
+              "description": "Ignore issues created before this date",
+              "x-zui": {
+                "title": "Start Date"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "The issue title on Linear, such as \"Fix the bug",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "number": {
+                    "type": "number",
+                    "description": "The issue number on Linear, such as \"123\" in XXX-123",
+                    "x-zui": {
+                      "title": "Number"
+                    }
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The ISO date the issue was created",
+                    "x-zui": {
+                      "title": "Created At"
+                    }
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The ISO date the issue was last updated",
+                    "x-zui": {
+                      "title": "Updated At"
+                    }
+                  },
+                  "priority": {
+                    "type": "number",
+                    "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+                    "x-zui": {
+                      "title": "Priority"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "The issue ID on Linear",
+                    "x-zui": {
+                      "title": "Issue ID"
+                    }
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "Issue's human readable identifier (e.g. XXX-123)",
+                    "x-zui": {
+                      "title": "Identifier"
+                    }
+                  },
+                  "estimate": {
+                    "type": "number",
+                    "description": "The estimate of the issue in points",
+                    "x-zui": {
+                      "title": "Points Estimate"
+                    }
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "The URL of the issue on Linear",
+                    "x-zui": {
+                      "title": "Issue URL"
+                    }
+                  },
+                  "linearIds": {
+                    "type": "object",
+                    "properties": {
+                      "creatorId": {
+                        "type": "string",
+                        "description": "The internal Linear User ID of the user who created the issue",
+                        "x-zui": {
+                          "title": "Creator's User ID"
+                        }
+                      },
+                      "labelIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "description": "The internal Linear Label IDs associated with the issue",
+                        "x-zui": {
+                          "title": "Label IDs"
+                        }
+                      },
+                      "issueId": {
+                        "type": "string",
+                        "description": "The internal Linear Issue ID",
+                        "x-zui": {
+                          "title": "Issue ID"
+                        }
+                      },
+                      "teamId": {
+                        "type": "string",
+                        "description": "The internal Linear Team ID",
+                        "x-zui": {
+                          "title": "Team ID"
+                        }
+                      },
+                      "projectId": {
+                        "type": "string",
+                        "description": "The internal Linear Project ID",
+                        "x-zui": {
+                          "title": "Project ID"
+                        }
+                      },
+                      "assigneeId": {
+                        "type": "string",
+                        "description": "The internal Linear Assignee ID",
+                        "x-zui": {
+                          "title": "Assignee User ID"
+                        }
+                      },
+                      "subscriberIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "description": "The internal Linear Subscriber User IDs",
+                        "x-zui": {
+                          "title": "Subscriber IDs"
+                        }
+                      }
+                    },
+                    "required": ["issueId"],
+                    "additionalProperties": false,
+                    "description": "The Linear IDs of the referenced entities",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "The list of matching issues",
+              "x-zui": {
+                "title": "Issues"
+              }
+            },
+            "nextCursor": {
+              "type": "string",
+              "description": "The cursor to fetch the next page",
+              "x-zui": {
+                "title": "Next Cursor"
+              }
+            }
+          },
+          "required": ["issues"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listTeams": {
+      "title": "List Teams",
+      "description": "List teams from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "teams": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The unique identifier of the entity",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The team's name",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The team's description",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "The icon of the team",
+                    "x-zui": {
+                      "title": "Icon"
+                    }
+                  }
+                },
+                "required": ["id", "name"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "The list of teams",
+              "x-zui": {
+                "title": "Teams"
+              }
+            }
+          },
+          "required": ["teams"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listUsers": {
+      "title": "List Users",
+      "description": "List users from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "number",
+              "description": "The number of users to return",
+              "x-zui": {
+                "title": "Fetch Amount"
+              },
+              "default": 10
+            },
+            "startCursor": {
+              "type": "string",
+              "description": "The cursor to start from",
+              "x-zui": {
+                "title": "Start Cursor"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "users": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The user ID on Linear",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "The user's email address",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The user's nickname",
+                    "x-zui": {
+                      "title": "Name"
+                    }
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "description": "The user's display name",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "description": "The URL of the user avatar",
+                    "x-zui": {
+                      "title": "Avatar URL"
+                    }
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The user's description, such as their title or bio",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "lastSeen": {
+                    "type": "string",
+                    "description": "The last time the user was seen",
+                    "x-zui": {
+                      "title": "Last Seen"
+                    }
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The last time the user was updated",
+                    "x-zui": {
+                      "title": "Updated At"
+                    }
+                  }
+                },
+                "required": ["id", "email", "name", "displayName", "updatedAt"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "The list of matching users",
+              "x-zui": {
+                "title": "Users"
+              }
+            },
+            "nextCursor": {
+              "type": "string",
+              "description": "The cursor to fetch the next page",
+              "x-zui": {
+                "title": "Next Cursor"
+              }
+            }
+          },
+          "required": ["users"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "markAsDuplicate": {
+      "title": "Mark Issue as Duplicate",
+      "description": "Mark an issue as a duplicate of another",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "relatedIssueId": {
+              "type": "string",
+              "description": "The ID of the existing issue on Linear",
+              "x-zui": {
+                "title": "Related Issue ID"
+              }
+            }
+          },
+          "required": ["issueId", "relatedIssueId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getIssue": {
+      "title": "Get Issue",
+      "description": "Get an issue by its ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            }
+          },
+          "required": ["issueId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "The issue title on Linear, such as \"Fix the bug",
+              "x-zui": {
+                "title": "Title"
+              }
+            },
+            "number": {
+              "type": "number",
+              "description": "The issue number on Linear, such as \"123\" in XXX-123",
+              "x-zui": {
+                "title": "Number"
+              }
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The ISO date the issue was created",
+              "x-zui": {
+                "title": "Created At"
+              }
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The ISO date the issue was last updated",
+              "x-zui": {
+                "title": "Updated At"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "id": {
+              "type": "string",
+              "description": "The issue ID on Linear",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "identifier": {
+              "type": "string",
+              "description": "Issue's human readable identifier (e.g. XXX-123)",
+              "x-zui": {
+                "title": "Identifier"
+              }
+            },
+            "estimate": {
+              "type": "number",
+              "description": "The estimate of the issue in points",
+              "x-zui": {
+                "title": "Points Estimate"
+              }
+            },
+            "url": {
+              "type": "string",
+              "description": "The URL of the issue on Linear",
+              "x-zui": {
+                "title": "Issue URL"
+              }
+            }
+          },
+          "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+          "additionalProperties": false,
+          "description": "The issue found",
+          "x-zui": {
+            "title": "Issue"
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getUser": {
+      "title": "Get User Profile",
+      "description": "Get a user profile from Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "linearUserId": {
+              "type": "string",
+              "description": "The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}",
+              "x-zui": {
+                "title": "User ID"
+              }
+            }
+          },
+          "required": ["linearUserId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "linearId": {
+              "type": "string",
+              "description": "Linear User ID",
+              "x-zui": {
+                "title": "User ID"
+              }
+            },
+            "admin": {
+              "type": "boolean",
+              "description": "Indicates if the user is an admin of the organization",
+              "x-zui": {
+                "title": "Is Admin?"
+              }
+            },
+            "archivedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Date when the user was archived",
+              "x-zui": {
+                "title": "Archival Date"
+              }
+            },
+            "avatarUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "The URL for the profile picture",
+              "x-zui": {
+                "title": "Avatar URL"
+              }
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Date when the user was created",
+              "x-zui": {
+                "title": "Creation Date"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "A short description of the user, either its title or bio",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "displayName": {
+              "type": "string",
+              "description": "The user's display (nick) name. Unique within each organization",
+              "x-zui": {
+                "title": "Display Name"
+              }
+            },
+            "guest": {
+              "type": "boolean",
+              "description": "Whether the user is a guest in the workspace and limited to accessing a subset of teams",
+              "x-zui": {
+                "title": "Is Guest?"
+              }
+            },
+            "email": {
+              "type": "string",
+              "description": "The user's email address",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "isMe": {
+              "type": "boolean",
+              "description": "Whether the user is the currently authenticated user",
+              "x-zui": {
+                "title": "Is Self?"
+              }
+            },
+            "url": {
+              "type": "string",
+              "description": "User's profile URL",
+              "x-zui": {
+                "title": "Profile URL"
+              }
+            },
+            "timezone": {
+              "type": "string",
+              "description": "The local timezone of the user",
+              "x-zui": {
+                "title": "Timezone"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "The user's full name",
+              "x-zui": {
+                "title": "Full Name"
+              }
+            }
+          },
+          "required": ["linearId", "admin", "createdAt", "displayName", "guest", "email", "isMe", "url", "name"],
+          "additionalProperties": false,
+          "description": "The user profile",
+          "x-zui": {
+            "title": "User"
+          },
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateIssue": {
+      "title": "Update Issue",
+      "description": "Update an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issueId": {
+              "type": "string",
+              "description": "The issue ID on Linear. Example: {{event.payload.id}}",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "teamName": {
+              "type": "string",
+              "description": "Type a name to change the assigned team of the issue",
+              "x-zui": {
+                "title": "Move to team..."
+              }
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "description": "One or multiple labels to assign to this issue",
+              "x-zui": {
+                "title": "Set labels"
+              }
+            },
+            "project": {
+              "type": "string",
+              "description": "A project to associate to this issue",
+              "x-zui": {
+                "title": "Associate to project..."
+              }
+            }
+          },
+          "required": ["issueId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issue": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "The issue title on Linear, such as \"Fix the bug",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "number": {
+                  "type": "number",
+                  "description": "The issue number on Linear, such as \"123\" in XXX-123",
+                  "x-zui": {
+                    "title": "Number"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The ISO date the issue was created",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The ISO date the issue was last updated",
+                  "x-zui": {
+                    "title": "Updated At"
+                  }
+                },
+                "priority": {
+                  "type": "number",
+                  "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+                  "x-zui": {
+                    "title": "Priority"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "id": {
+                  "type": "string",
+                  "description": "The issue ID on Linear",
+                  "x-zui": {
+                    "title": "Issue ID"
+                  }
+                },
+                "identifier": {
+                  "type": "string",
+                  "description": "Issue's human readable identifier (e.g. XXX-123)",
+                  "x-zui": {
+                    "title": "Identifier"
+                  }
+                },
+                "estimate": {
+                  "type": "number",
+                  "description": "The estimate of the issue in points",
+                  "x-zui": {
+                    "title": "Points Estimate"
+                  }
+                },
+                "url": {
+                  "type": "string",
+                  "description": "The URL of the issue on Linear",
+                  "x-zui": {
+                    "title": "Issue URL"
+                  }
+                }
+              },
+              "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+              "additionalProperties": false,
+              "description": "The updated issue",
+              "x-zui": {
+                "title": "Issue"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createIssue": {
+      "title": "Create Issue",
+      "description": "Create an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The issue's title",
+              "x-zui": {
+                "title": "Title"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "The content of the issue",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "priority": {
+              "type": "number",
+              "description": "0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low",
+              "x-zui": {
+                "title": "Priority"
+              }
+            },
+            "teamName": {
+              "type": "string",
+              "description": "Name of the team to assign the issue to",
+              "x-zui": {
+                "title": "Team Name"
+              }
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "description": "One or multiple labels to assign to this issue",
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "project": {
+              "type": "string",
+              "description": "A project to associate to this issue",
+              "x-zui": {
+                "title": "Project"
+              }
+            }
+          },
+          "required": ["title", "description", "teamName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "issue": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "The issue title on Linear, such as \"Fix the bug",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "number": {
+                  "type": "number",
+                  "description": "The issue number on Linear, such as \"123\" in XXX-123",
+                  "x-zui": {
+                    "title": "Number"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The ISO date the issue was created",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The ISO date the issue was last updated",
+                  "x-zui": {
+                    "title": "Updated At"
+                  }
+                },
+                "priority": {
+                  "type": "number",
+                  "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+                  "x-zui": {
+                    "title": "Priority"
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+                  "x-zui": {
+                    "title": "Description"
+                  }
+                },
+                "id": {
+                  "type": "string",
+                  "description": "The issue ID on Linear",
+                  "x-zui": {
+                    "title": "Issue ID"
+                  }
+                },
+                "identifier": {
+                  "type": "string",
+                  "description": "Issue's human readable identifier (e.g. XXX-123)",
+                  "x-zui": {
+                    "title": "Identifier"
+                  }
+                },
+                "estimate": {
+                  "type": "number",
+                  "description": "The estimate of the issue in points",
+                  "x-zui": {
+                    "title": "Points Estimate"
+                  }
+                },
+                "url": {
+                  "type": "string",
+                  "description": "The URL of the issue on Linear",
+                  "x-zui": {
+                    "title": "Issue URL"
+                  }
+                }
+              },
+              "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+              "additionalProperties": false,
+              "description": "The created issue",
+              "x-zui": {
+                "title": "Issue"
+              }
+            }
+          },
+          "required": ["issue"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "deleteIssue": {
+      "title": "Delete Issue",
+      "description": "Delete an issue on Linear",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}",
+              "x-zui": {
+                "title": "Issue ID"
+              }
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "issueList": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "description": "The issue title on Linear, such as \"Fix the bug",
+                        "x-zui": {
+                          "title": "Title"
+                        }
+                      },
+                      "number": {
+                        "type": "number",
+                        "description": "The issue number on Linear, such as \"123\" in XXX-123",
+                        "x-zui": {
+                          "title": "Number"
+                        }
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The ISO date the issue was created",
+                        "x-zui": {
+                          "title": "Created At"
+                        }
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The ISO date the issue was last updated",
+                        "x-zui": {
+                          "title": "Updated At"
+                        }
+                      },
+                      "priority": {
+                        "type": "number",
+                        "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+                        "x-zui": {
+                          "title": "Priority"
+                        }
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+                        "x-zui": {
+                          "title": "Description"
+                        }
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "The issue ID on Linear",
+                        "x-zui": {
+                          "title": "Issue ID"
+                        }
+                      },
+                      "identifier": {
+                        "type": "string",
+                        "description": "Issue's human readable identifier (e.g. XXX-123)",
+                        "x-zui": {
+                          "title": "Identifier"
+                        }
+                      },
+                      "estimate": {
+                        "type": "number",
+                        "description": "The estimate of the issue in points",
+                        "x-zui": {
+                          "title": "Points Estimate"
+                        }
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "The URL of the issue on Linear",
+                        "x-zui": {
+                          "title": "Issue URL"
+                        }
+                      }
+                    },
+                    "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string",
+                  "x-zui": {}
+                }
+              },
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["items", "meta"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "issueList"
+    },
+    "issueDelete": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "issueDelete"
+    }
+  },
+  "channels": {
+    "issue": {
+      "title": "Issue",
+      "description": "A linear issue",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "image": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["imageUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "audio": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "audioUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["audioUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "video": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "videoUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["videoUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "file": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "fileUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "title": {
+                "x-zui": {},
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["fileUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "location": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "longitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "address": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["latitude", "longitude"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "subtitle": {
+                      "x-zui": {},
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "imageUrl": {
+                      "x-zui": {},
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": ["postback", "url", "say"],
+                            "x-zui": {}
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "x-zui": {}
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "x-zui": {}
+                          }
+                        },
+                        "required": ["action", "label", "value"],
+                        "additionalProperties": false,
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["title", "actions"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "card": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "subtitle": {
+                "x-zui": {},
+                "type": "string",
+                "minLength": 1
+              },
+              "imageUrl": {
+                "x-zui": {},
+                "type": "string",
+                "minLength": 1
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": ["postback", "url", "say"],
+                      "x-zui": {}
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["action", "label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["title", "actions"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "choice": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "bloc": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "text",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["text"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "markdown",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "markdown": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["markdown"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "image",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["imageUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "audio",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["audioUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "video",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["videoUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "file",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["fileUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "location",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "address": {
+                              "type": "string",
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["latitude", "longitude"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "markdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "markdown": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["markdown"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Comment ID",
+            "description": "The ID of the comment on Linear"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Issue ID",
+            "description": "The ID of the issue on Linear"
+          },
+          "title": {
+            "title": "Issue Title",
+            "description": "The title of the issue"
+          },
+          "url": {
+            "title": "Issue URL",
+            "description": "The URL of the issue on Linear"
+          },
+          "parentId": {
+            "title": "Parent Issue ID",
+            "description": "The ID of the parent issue on Linear"
+          },
+          "parentTitle": {
+            "title": "Parent Issue Title",
+            "description": "The title of the parent issue"
+          },
+          "parentUrl": {
+            "title": "Parent Issue URL",
+            "description": "The URL of the parent issue on Linear"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "credentials": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The access token for Linear",
+            "x-zui": {
+              "title": "Access Token"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "The time when the access token expires",
+            "x-zui": {
+              "title": "Expires At"
+            }
+          }
+        },
+        "required": ["accessToken", "expiresAt"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "configuration": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "botUserId": {
+            "type": "string",
+            "description": "The ID of the bot user",
+            "x-zui": {
+              "title": "Bot User ID"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "profile": {
+      "type": "user",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "linearId": {
+            "type": "string",
+            "description": "Linear User ID",
+            "x-zui": {
+              "title": "User ID"
+            }
+          },
+          "admin": {
+            "type": "boolean",
+            "description": "Indicates if the user is an admin of the organization",
+            "x-zui": {
+              "title": "Is Admin?"
+            }
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the user was archived",
+            "x-zui": {
+              "title": "Archival Date"
+            }
+          },
+          "avatarUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL for the profile picture",
+            "x-zui": {
+              "title": "Avatar URL"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Date when the user was created",
+            "x-zui": {
+              "title": "Creation Date"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "A short description of the user, either its title or bio",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The user's display (nick) name. Unique within each organization",
+            "x-zui": {
+              "title": "Display Name"
+            }
+          },
+          "guest": {
+            "type": "boolean",
+            "description": "Whether the user is a guest in the workspace and limited to accessing a subset of teams",
+            "x-zui": {
+              "title": "Is Guest?"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "The user's email address",
+            "x-zui": {
+              "title": "Email"
+            }
+          },
+          "isMe": {
+            "type": "boolean",
+            "description": "Whether the user is the currently authenticated user",
+            "x-zui": {
+              "title": "Is Self?"
+            }
+          },
+          "url": {
+            "type": "string",
+            "description": "User's profile URL",
+            "x-zui": {
+              "title": "Profile URL"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "description": "The local timezone of the user",
+            "x-zui": {
+              "title": "Timezone"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "The user's full name",
+            "x-zui": {
+              "title": "Full Name"
+            }
+          }
+        },
+        "required": ["linearId", "admin", "createdAt", "displayName", "guest", "email", "isMe", "url", "name"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "entities": {
+    "issue": {
+      "title": "Issue",
+      "description": "A linear issue",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The issue title on Linear, such as \"Fix the bug",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "number": {
+            "type": "number",
+            "description": "The issue number on Linear, such as \"123\" in XXX-123",
+            "x-zui": {
+              "title": "Number"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was created",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The ISO date the issue was last updated",
+            "x-zui": {
+              "title": "Updated At"
+            }
+          },
+          "priority": {
+            "type": "number",
+            "description": "Priority of the issue, such as \"1\" for \"Urgent\", 0 for \"No Priority\"",
+            "x-zui": {
+              "title": "Priority"
+            }
+          },
+          "description": {
+            "type": "string",
+            "description": "A markdown description of the issue. Images and videos are inlined using markdown links.",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "The issue ID on Linear",
+            "x-zui": {
+              "title": "Issue ID"
+            }
+          },
+          "identifier": {
+            "type": "string",
+            "description": "Issue's human readable identifier (e.g. XXX-123)",
+            "x-zui": {
+              "title": "Identifier"
+            }
+          },
+          "estimate": {
+            "type": "number",
+            "description": "The estimate of the issue in points",
+            "x-zui": {
+              "title": "Points Estimate"
+            }
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL of the issue on Linear",
+            "x-zui": {
+              "title": "Issue URL"
+            }
+          }
+        },
+        "required": ["title", "number", "createdAt", "updatedAt", "priority", "id", "identifier", "url"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {
+    "listable<issue>": {
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "issue"
+        }
+      },
+      "actions": {
+        "list": {
+          "name": "issueList"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "deletable<issue>": {
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "issue"
+        }
+      },
+      "actions": {
+        "delete": {
+          "name": "issueDelete"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "issueDeleted"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

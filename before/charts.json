@@ -1,0 +1,448 @@
+{
+  "name": "charts",
+  "version": "0.2.3",
+  "description": "Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.",
+  "actions": {
+    "generateLinePlot": {
+      "title": "Line Plot",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateBarChart": {
+      "title": "Bar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generatePieChart": {
+      "title": "Pie Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateScatterPlot": {
+      "title": "Scatter Plot",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateDoughnutChart": {
+      "title": "Doughnut Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateRadarChart": {
+      "title": "Radar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "axisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateBubbleChart": {
+      "title": "Bubble Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "r": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["x", "y", "r"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "generateHorizontalBarChart": {
+      "title": "Horizontal Bar Chart",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "xData": {
+              "type": "array",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "yData": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "title": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "xAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "yAxisTitle": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "imageUrl": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["imageUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

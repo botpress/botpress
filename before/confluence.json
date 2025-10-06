@@ -1,0 +1,3005 @@
+{
+  "name": "confluence",
+  "version": "3.3.2",
+  "title": "Confluence",
+  "description": "Manage your files and folders effortlessly.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "User ID",
+        "description": "The ID of the user in confluence"
+      }
+    }
+  },
+  "events": {
+    "pageCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The ID of the page.",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The title of the page.",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                    "description": "The status of the page.",
+                    "x-zui": {
+                      "title": "Status"
+                    }
+                  },
+                  "spaceId": {
+                    "type": "string",
+                    "description": "The ID of the space the page is in.",
+                    "x-zui": {
+                      "title": "Space ID"
+                    }
+                  },
+                  "parentId": {
+                    "type": ["string", "null"],
+                    "description": "ID of the parent page, or null if there is no parent page.",
+                    "x-zui": {
+                      "title": "Parent ID"
+                    }
+                  },
+                  "parentType": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                        "description": "Content type of the parent, or null if there is no parent.",
+                        "x-zui": {
+                          "title": "Parent Type"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Content type of the parent, or null if there is no parent.",
+                    "x-zui": {
+                      "title": "Parent Type"
+                    }
+                  },
+                  "position": {
+                    "type": ["number", "null"],
+                    "description": "Position of child page within the given parent page tree.",
+                    "x-zui": {
+                      "title": "Position"
+                    }
+                  },
+                  "authorId": {
+                    "type": "string",
+                    "description": "The account ID of the user who created this page originally.",
+                    "x-zui": {
+                      "title": "Author ID"
+                    }
+                  },
+                  "ownerId": {
+                    "type": ["string", "null"],
+                    "description": "The account ID of the user who owns this page.",
+                    "x-zui": {
+                      "title": "Owner ID"
+                    }
+                  },
+                  "lastOwnerId": {
+                    "type": ["string", "null"],
+                    "description": "The account ID of the user who last edited this page.",
+                    "x-zui": {
+                      "title": "Last Owner ID"
+                    }
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                    "x-zui": {
+                      "title": "Created At"
+                    }
+                  },
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "atlas_doc_format": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "description": "The content of the page.",
+                            "x-zui": {
+                              "title": "Value"
+                            }
+                          },
+                          "representation": {
+                            "type": "string",
+                            "description": "The representation of the content.",
+                            "x-zui": {
+                              "title": "Representation"
+                            }
+                          }
+                        },
+                        "required": ["value", "representation"],
+                        "additionalProperties": false,
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["atlas_doc_format"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  },
+                  "version": {
+                    "type": "object",
+                    "properties": {
+                      "createdAt": {
+                        "type": "string",
+                        "description": "The creation date of the version.",
+                        "x-zui": {
+                          "title": "Created At"
+                        }
+                      },
+                      "number": {
+                        "type": "number",
+                        "description": "Represents the version number.",
+                        "x-zui": {
+                          "title": "number"
+                        }
+                      },
+                      "authorId": {
+                        "type": "string",
+                        "description": "The account ID of the user who created this version.",
+                        "x-zui": {
+                          "title": "Author ID"
+                        }
+                      },
+                      "minorEdit": {
+                        "type": "boolean",
+                        "description": "Indicates whether this version is a minor edit or not.",
+                        "x-zui": {
+                          "title": "Minor Edit"
+                        }
+                      }
+                    },
+                    "required": ["createdAt", "number", "authorId", "minorEdit"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  },
+                  "_links": {
+                    "type": "object",
+                    "properties": {
+                      "webui": {
+                        "type": "string",
+                        "description": "Web UI link of the content.",
+                        "x-zui": {
+                          "title": "Web UI"
+                        }
+                      },
+                      "editui": {
+                        "type": "string",
+                        "description": "Edit UI link of the content.",
+                        "x-zui": {
+                          "title": "Edit UI"
+                        }
+                      },
+                      "tinyui": {
+                        "type": "string",
+                        "description": "Web UI link of the content.",
+                        "x-zui": {
+                          "title": "Web UI"
+                        }
+                      }
+                    },
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+                "x-zui": {}
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id"],
+                "x-zui": {}
+              }
+            ],
+            "x-zui": {}
+          }
+        },
+        "required": ["item"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "pageCreated"
+    },
+    "pageUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The ID of the page.",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The title of the page.",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                    "description": "The status of the page.",
+                    "x-zui": {
+                      "title": "Status"
+                    }
+                  },
+                  "spaceId": {
+                    "type": "string",
+                    "description": "The ID of the space the page is in.",
+                    "x-zui": {
+                      "title": "Space ID"
+                    }
+                  },
+                  "parentId": {
+                    "type": ["string", "null"],
+                    "description": "ID of the parent page, or null if there is no parent page.",
+                    "x-zui": {
+                      "title": "Parent ID"
+                    }
+                  },
+                  "parentType": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                        "description": "Content type of the parent, or null if there is no parent.",
+                        "x-zui": {
+                          "title": "Parent Type"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Content type of the parent, or null if there is no parent.",
+                    "x-zui": {
+                      "title": "Parent Type"
+                    }
+                  },
+                  "position": {
+                    "type": ["number", "null"],
+                    "description": "Position of child page within the given parent page tree.",
+                    "x-zui": {
+                      "title": "Position"
+                    }
+                  },
+                  "authorId": {
+                    "type": "string",
+                    "description": "The account ID of the user who created this page originally.",
+                    "x-zui": {
+                      "title": "Author ID"
+                    }
+                  },
+                  "ownerId": {
+                    "type": ["string", "null"],
+                    "description": "The account ID of the user who owns this page.",
+                    "x-zui": {
+                      "title": "Owner ID"
+                    }
+                  },
+                  "lastOwnerId": {
+                    "type": ["string", "null"],
+                    "description": "The account ID of the user who last edited this page.",
+                    "x-zui": {
+                      "title": "Last Owner ID"
+                    }
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                    "x-zui": {
+                      "title": "Created At"
+                    }
+                  },
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "atlas_doc_format": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "description": "The content of the page.",
+                            "x-zui": {
+                              "title": "Value"
+                            }
+                          },
+                          "representation": {
+                            "type": "string",
+                            "description": "The representation of the content.",
+                            "x-zui": {
+                              "title": "Representation"
+                            }
+                          }
+                        },
+                        "required": ["value", "representation"],
+                        "additionalProperties": false,
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["atlas_doc_format"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  },
+                  "version": {
+                    "type": "object",
+                    "properties": {
+                      "createdAt": {
+                        "type": "string",
+                        "description": "The creation date of the version.",
+                        "x-zui": {
+                          "title": "Created At"
+                        }
+                      },
+                      "number": {
+                        "type": "number",
+                        "description": "Represents the version number.",
+                        "x-zui": {
+                          "title": "number"
+                        }
+                      },
+                      "authorId": {
+                        "type": "string",
+                        "description": "The account ID of the user who created this version.",
+                        "x-zui": {
+                          "title": "Author ID"
+                        }
+                      },
+                      "minorEdit": {
+                        "type": "boolean",
+                        "description": "Indicates whether this version is a minor edit or not.",
+                        "x-zui": {
+                          "title": "Minor Edit"
+                        }
+                      }
+                    },
+                    "required": ["createdAt", "number", "authorId", "minorEdit"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  },
+                  "_links": {
+                    "type": "object",
+                    "properties": {
+                      "webui": {
+                        "type": "string",
+                        "description": "Web UI link of the content.",
+                        "x-zui": {
+                          "title": "Web UI"
+                        }
+                      },
+                      "editui": {
+                        "type": "string",
+                        "description": "Edit UI link of the content.",
+                        "x-zui": {
+                          "title": "Edit UI"
+                        }
+                      },
+                      "tinyui": {
+                        "type": "string",
+                        "description": "Web UI link of the content.",
+                        "x-zui": {
+                          "title": "Web UI"
+                        }
+                      }
+                    },
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+                "x-zui": {}
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id"],
+                "x-zui": {}
+              }
+            ],
+            "x-zui": {}
+          }
+        },
+        "required": ["item"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "pageUpdated"
+    },
+    "pageDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "name": "pageDeleted"
+    },
+    "fileCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
+              },
+              "type": {
+                "type": "string",
+                "const": "file",
+                "x-zui": {}
+              },
+              "name": {
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
+              },
+              "parentId": {
+                "type": "string",
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "x-zui": {}
+              },
+              "absolutePath": {
+                "type": "string",
+                "description": "The full path of the file",
+                "x-zui": {}
+              },
+              "sizeInBytes": {
+                "type": "number",
+                "description": "The file size in bytes, if available",
+                "x-zui": {}
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The last modified date of the file, if available",
+                "x-zui": {}
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "The hash of the file content, or version/revision number, if available",
+                "x-zui": {}
+              }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "additionalProperties": false,
+            "description": "The created file",
+            "x-zui": {}
+          }
+        },
+        "required": ["file"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "fileUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
+              },
+              "type": {
+                "type": "string",
+                "const": "file",
+                "x-zui": {}
+              },
+              "name": {
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
+              },
+              "parentId": {
+                "type": "string",
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "x-zui": {}
+              },
+              "absolutePath": {
+                "type": "string",
+                "description": "The full path of the file",
+                "x-zui": {}
+              },
+              "sizeInBytes": {
+                "type": "number",
+                "description": "The file size in bytes, if available",
+                "x-zui": {}
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The last modified date of the file, if available",
+                "x-zui": {}
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "The hash of the file content, or version/revision number, if available",
+                "x-zui": {}
+              }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "additionalProperties": false,
+            "description": "The updated file",
+            "x-zui": {}
+          }
+        },
+        "required": ["file"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "fileDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
+              },
+              "type": {
+                "type": "string",
+                "const": "file",
+                "x-zui": {}
+              },
+              "name": {
+                "type": "string",
+                "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                "x-zui": {}
+              },
+              "parentId": {
+                "type": "string",
+                "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                "x-zui": {}
+              },
+              "absolutePath": {
+                "type": "string",
+                "description": "The full path of the file",
+                "x-zui": {}
+              },
+              "sizeInBytes": {
+                "type": "number",
+                "description": "The file size in bytes, if available",
+                "x-zui": {}
+              },
+              "lastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The last modified date of the file, if available",
+                "x-zui": {}
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "The hash of the file content, or version/revision number, if available",
+                "x-zui": {}
+              }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "additionalProperties": false,
+            "description": "The deleted file",
+            "x-zui": {}
+          }
+        },
+        "required": ["file"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "folderDeletedRecursive": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                "x-zui": {}
+              },
+              "type": {
+                "type": "string",
+                "const": "folder",
+                "x-zui": {}
+              },
+              "name": {
+                "type": "string",
+                "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                "x-zui": {}
+              },
+              "parentId": {
+                "type": "string",
+                "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                "x-zui": {}
+              },
+              "absolutePath": {
+                "type": "string",
+                "description": "The full path of the folder",
+                "x-zui": {}
+              }
+            },
+            "required": ["id", "type", "name", "absolutePath"],
+            "additionalProperties": false,
+            "description": "The deleted folder",
+            "x-zui": {}
+          }
+        },
+        "required": ["folder"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "aggregateFileChanges": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modifiedItems": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "x-zui": {}
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file",
+                      "x-zui": {}
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "x-zui": {}
+                    },
+                    "parentId": {
+                      "type": "string",
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                      "x-zui": {}
+                    },
+                    "absolutePath": {
+                      "type": "string",
+                      "description": "The full path of the file",
+                      "x-zui": {}
+                    },
+                    "sizeInBytes": {
+                      "type": "number",
+                      "description": "The file size in bytes, if available",
+                      "x-zui": {}
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The last modified date of the file, if available",
+                      "x-zui": {}
+                    },
+                    "contentHash": {
+                      "type": "string",
+                      "description": "The hash of the file content, or version/revision number, if available",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "description": "The files created",
+                "x-zui": {}
+              },
+              "updated": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                      "x-zui": {}
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "file",
+                      "x-zui": {}
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                      "x-zui": {}
+                    },
+                    "parentId": {
+                      "type": "string",
+                      "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                      "x-zui": {}
+                    },
+                    "absolutePath": {
+                      "type": "string",
+                      "description": "The full path of the file",
+                      "x-zui": {}
+                    },
+                    "sizeInBytes": {
+                      "type": "number",
+                      "description": "The file size in bytes, if available",
+                      "x-zui": {}
+                    },
+                    "lastModifiedDate": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The last modified date of the file, if available",
+                      "x-zui": {}
+                    },
+                    "contentHash": {
+                      "type": "string",
+                      "description": "The hash of the file content, or version/revision number, if available",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "type", "name", "absolutePath"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "description": "The files updated",
+                "x-zui": {}
+              },
+              "deleted": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "file",
+                          "x-zui": {}
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                          "x-zui": {}
+                        },
+                        "parentId": {
+                          "type": "string",
+                          "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                          "x-zui": {}
+                        },
+                        "absolutePath": {
+                          "type": "string",
+                          "description": "The full path of the file",
+                          "x-zui": {}
+                        },
+                        "sizeInBytes": {
+                          "type": "number",
+                          "description": "The file size in bytes, if available",
+                          "x-zui": {}
+                        },
+                        "lastModifiedDate": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "The last modified date of the file, if available",
+                          "x-zui": {}
+                        },
+                        "contentHash": {
+                          "type": "string",
+                          "description": "The hash of the file content, or version/revision number, if available",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "type": "string",
+                          "const": "folder",
+                          "x-zui": {}
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                          "x-zui": {}
+                        },
+                        "parentId": {
+                          "type": "string",
+                          "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                          "x-zui": {}
+                        },
+                        "absolutePath": {
+                          "type": "string",
+                          "description": "The full path of the folder",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["id", "type", "name", "absolutePath"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "description": "The files and folders deleted",
+                "x-zui": {}
+              }
+            },
+            "required": ["created", "updated", "deleted"],
+            "additionalProperties": false,
+            "description": "The modified items",
+            "x-zui": {}
+          }
+        },
+        "required": ["modifiedItems"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "getPage": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the page.",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "The title of the page.",
+                      "x-zui": {
+                        "title": "Title"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                      "description": "The status of the page.",
+                      "x-zui": {
+                        "title": "Status"
+                      }
+                    },
+                    "spaceId": {
+                      "type": "string",
+                      "description": "The ID of the space the page is in.",
+                      "x-zui": {
+                        "title": "Space ID"
+                      }
+                    },
+                    "parentId": {
+                      "type": ["string", "null"],
+                      "description": "ID of the parent page, or null if there is no parent page.",
+                      "x-zui": {
+                        "title": "Parent ID"
+                      }
+                    },
+                    "parentType": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                          "description": "Content type of the parent, or null if there is no parent.",
+                          "x-zui": {
+                            "title": "Parent Type"
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Content type of the parent, or null if there is no parent.",
+                      "x-zui": {
+                        "title": "Parent Type"
+                      }
+                    },
+                    "position": {
+                      "type": ["number", "null"],
+                      "description": "Position of child page within the given parent page tree.",
+                      "x-zui": {
+                        "title": "Position"
+                      }
+                    },
+                    "authorId": {
+                      "type": "string",
+                      "description": "The account ID of the user who created this page originally.",
+                      "x-zui": {
+                        "title": "Author ID"
+                      }
+                    },
+                    "ownerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who owns this page.",
+                      "x-zui": {
+                        "title": "Owner ID"
+                      }
+                    },
+                    "lastOwnerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who last edited this page.",
+                      "x-zui": {
+                        "title": "Last Owner ID"
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                      "x-zui": {
+                        "title": "Created At"
+                      }
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "atlas_doc_format": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "description": "The content of the page.",
+                              "x-zui": {
+                                "title": "Value"
+                              }
+                            },
+                            "representation": {
+                              "type": "string",
+                              "description": "The representation of the content.",
+                              "x-zui": {
+                                "title": "Representation"
+                              }
+                            }
+                          },
+                          "required": ["value", "representation"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["atlas_doc_format"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "type": "string",
+                          "description": "The creation date of the version.",
+                          "x-zui": {
+                            "title": "Created At"
+                          }
+                        },
+                        "number": {
+                          "type": "number",
+                          "description": "Represents the version number.",
+                          "x-zui": {
+                            "title": "number"
+                          }
+                        },
+                        "authorId": {
+                          "type": "string",
+                          "description": "The account ID of the user who created this version.",
+                          "x-zui": {
+                            "title": "Author ID"
+                          }
+                        },
+                        "minorEdit": {
+                          "type": "boolean",
+                          "description": "Indicates whether this version is a minor edit or not.",
+                          "x-zui": {
+                            "title": "Minor Edit"
+                          }
+                        }
+                      },
+                      "required": ["createdAt", "number", "authorId", "minorEdit"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "webui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        },
+                        "editui": {
+                          "type": "string",
+                          "description": "Edit UI link of the content.",
+                          "x-zui": {
+                            "title": "Edit UI"
+                          }
+                        },
+                        "tinyui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        }
+                      },
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+                  "x-zui": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id"],
+                  "x-zui": {}
+                }
+              ],
+              "x-zui": {}
+            }
+          },
+          "required": ["item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "getPage"
+    },
+    "createPage": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The ID of the page.",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                },
+                "title": {
+                  "type": "string",
+                  "description": "The title of the page.",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                  "description": "The status of the page.",
+                  "x-zui": {
+                    "title": "Status"
+                  }
+                },
+                "spaceId": {
+                  "type": "string",
+                  "description": "The ID of the space the page is in.",
+                  "x-zui": {
+                    "title": "Space ID"
+                  }
+                },
+                "parentId": {
+                  "type": ["string", "null"],
+                  "description": "ID of the parent page, or null if there is no parent page.",
+                  "x-zui": {
+                    "title": "Parent ID"
+                  }
+                },
+                "parentType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                      "description": "Content type of the parent, or null if there is no parent.",
+                      "x-zui": {
+                        "title": "Parent Type"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Content type of the parent, or null if there is no parent.",
+                  "x-zui": {
+                    "title": "Parent Type"
+                  }
+                },
+                "position": {
+                  "type": ["number", "null"],
+                  "description": "Position of child page within the given parent page tree.",
+                  "x-zui": {
+                    "title": "Position"
+                  }
+                },
+                "authorId": {
+                  "type": "string",
+                  "description": "The account ID of the user who created this page originally.",
+                  "x-zui": {
+                    "title": "Author ID"
+                  }
+                },
+                "ownerId": {
+                  "type": ["string", "null"],
+                  "description": "The account ID of the user who owns this page.",
+                  "x-zui": {
+                    "title": "Owner ID"
+                  }
+                },
+                "lastOwnerId": {
+                  "type": ["string", "null"],
+                  "description": "The account ID of the user who last edited this page.",
+                  "x-zui": {
+                    "title": "Last Owner ID"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "body": {
+                  "type": "object",
+                  "properties": {
+                    "atlas_doc_format": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "description": "The content of the page.",
+                          "x-zui": {
+                            "title": "Value"
+                          }
+                        },
+                        "representation": {
+                          "type": "string",
+                          "description": "The representation of the content.",
+                          "x-zui": {
+                            "title": "Representation"
+                          }
+                        }
+                      },
+                      "required": ["value", "representation"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["atlas_doc_format"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "type": "string",
+                      "description": "The creation date of the version.",
+                      "x-zui": {
+                        "title": "Created At"
+                      }
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "Represents the version number.",
+                      "x-zui": {
+                        "title": "number"
+                      }
+                    },
+                    "authorId": {
+                      "type": "string",
+                      "description": "The account ID of the user who created this version.",
+                      "x-zui": {
+                        "title": "Author ID"
+                      }
+                    },
+                    "minorEdit": {
+                      "type": "boolean",
+                      "description": "Indicates whether this version is a minor edit or not.",
+                      "x-zui": {
+                        "title": "Minor Edit"
+                      }
+                    }
+                  },
+                  "required": ["createdAt", "number", "authorId", "minorEdit"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "_links": {
+                  "type": "object",
+                  "properties": {
+                    "webui": {
+                      "type": "string",
+                      "description": "Web UI link of the content.",
+                      "x-zui": {
+                        "title": "Web UI"
+                      }
+                    },
+                    "editui": {
+                      "type": "string",
+                      "description": "Edit UI link of the content.",
+                      "x-zui": {
+                        "title": "Edit UI"
+                      }
+                    },
+                    "tinyui": {
+                      "type": "string",
+                      "description": "Web UI link of the content.",
+                      "x-zui": {
+                        "title": "Web UI"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "x-zui": {}
+                }
+              },
+              "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the page.",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "The title of the page.",
+                      "x-zui": {
+                        "title": "Title"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                      "description": "The status of the page.",
+                      "x-zui": {
+                        "title": "Status"
+                      }
+                    },
+                    "spaceId": {
+                      "type": "string",
+                      "description": "The ID of the space the page is in.",
+                      "x-zui": {
+                        "title": "Space ID"
+                      }
+                    },
+                    "parentId": {
+                      "type": ["string", "null"],
+                      "description": "ID of the parent page, or null if there is no parent page.",
+                      "x-zui": {
+                        "title": "Parent ID"
+                      }
+                    },
+                    "parentType": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                          "description": "Content type of the parent, or null if there is no parent.",
+                          "x-zui": {
+                            "title": "Parent Type"
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Content type of the parent, or null if there is no parent.",
+                      "x-zui": {
+                        "title": "Parent Type"
+                      }
+                    },
+                    "position": {
+                      "type": ["number", "null"],
+                      "description": "Position of child page within the given parent page tree.",
+                      "x-zui": {
+                        "title": "Position"
+                      }
+                    },
+                    "authorId": {
+                      "type": "string",
+                      "description": "The account ID of the user who created this page originally.",
+                      "x-zui": {
+                        "title": "Author ID"
+                      }
+                    },
+                    "ownerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who owns this page.",
+                      "x-zui": {
+                        "title": "Owner ID"
+                      }
+                    },
+                    "lastOwnerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who last edited this page.",
+                      "x-zui": {
+                        "title": "Last Owner ID"
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                      "x-zui": {
+                        "title": "Created At"
+                      }
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "atlas_doc_format": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "description": "The content of the page.",
+                              "x-zui": {
+                                "title": "Value"
+                              }
+                            },
+                            "representation": {
+                              "type": "string",
+                              "description": "The representation of the content.",
+                              "x-zui": {
+                                "title": "Representation"
+                              }
+                            }
+                          },
+                          "required": ["value", "representation"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["atlas_doc_format"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "type": "string",
+                          "description": "The creation date of the version.",
+                          "x-zui": {
+                            "title": "Created At"
+                          }
+                        },
+                        "number": {
+                          "type": "number",
+                          "description": "Represents the version number.",
+                          "x-zui": {
+                            "title": "number"
+                          }
+                        },
+                        "authorId": {
+                          "type": "string",
+                          "description": "The account ID of the user who created this version.",
+                          "x-zui": {
+                            "title": "Author ID"
+                          }
+                        },
+                        "minorEdit": {
+                          "type": "boolean",
+                          "description": "Indicates whether this version is a minor edit or not.",
+                          "x-zui": {
+                            "title": "Minor Edit"
+                          }
+                        }
+                      },
+                      "required": ["createdAt", "number", "authorId", "minorEdit"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "webui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        },
+                        "editui": {
+                          "type": "string",
+                          "description": "Edit UI link of the content.",
+                          "x-zui": {
+                            "title": "Edit UI"
+                          }
+                        },
+                        "tinyui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        }
+                      },
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+                  "x-zui": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id"],
+                  "x-zui": {}
+                }
+              ],
+              "x-zui": {}
+            }
+          },
+          "required": ["item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "createPage"
+    },
+    "updatePage": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "item": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The ID of the page.",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                },
+                "title": {
+                  "type": "string",
+                  "description": "The title of the page.",
+                  "x-zui": {
+                    "title": "Title"
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                  "description": "The status of the page.",
+                  "x-zui": {
+                    "title": "Status"
+                  }
+                },
+                "spaceId": {
+                  "type": "string",
+                  "description": "The ID of the space the page is in.",
+                  "x-zui": {
+                    "title": "Space ID"
+                  }
+                },
+                "parentId": {
+                  "type": ["string", "null"],
+                  "description": "ID of the parent page, or null if there is no parent page.",
+                  "x-zui": {
+                    "title": "Parent ID"
+                  }
+                },
+                "parentType": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                      "description": "Content type of the parent, or null if there is no parent.",
+                      "x-zui": {
+                        "title": "Parent Type"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Content type of the parent, or null if there is no parent.",
+                  "x-zui": {
+                    "title": "Parent Type"
+                  }
+                },
+                "position": {
+                  "type": ["number", "null"],
+                  "description": "Position of child page within the given parent page tree.",
+                  "x-zui": {
+                    "title": "Position"
+                  }
+                },
+                "authorId": {
+                  "type": "string",
+                  "description": "The account ID of the user who created this page originally.",
+                  "x-zui": {
+                    "title": "Author ID"
+                  }
+                },
+                "ownerId": {
+                  "type": ["string", "null"],
+                  "description": "The account ID of the user who owns this page.",
+                  "x-zui": {
+                    "title": "Owner ID"
+                  }
+                },
+                "lastOwnerId": {
+                  "type": ["string", "null"],
+                  "description": "The account ID of the user who last edited this page.",
+                  "x-zui": {
+                    "title": "Last Owner ID"
+                  }
+                },
+                "createdAt": {
+                  "type": "string",
+                  "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "body": {
+                  "type": "object",
+                  "properties": {
+                    "atlas_doc_format": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "description": "The content of the page.",
+                          "x-zui": {
+                            "title": "Value"
+                          }
+                        },
+                        "representation": {
+                          "type": "string",
+                          "description": "The representation of the content.",
+                          "x-zui": {
+                            "title": "Representation"
+                          }
+                        }
+                      },
+                      "required": ["value", "representation"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["atlas_doc_format"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "version": {
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "type": "string",
+                      "description": "The creation date of the version.",
+                      "x-zui": {
+                        "title": "Created At"
+                      }
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "Represents the version number.",
+                      "x-zui": {
+                        "title": "number"
+                      }
+                    },
+                    "authorId": {
+                      "type": "string",
+                      "description": "The account ID of the user who created this version.",
+                      "x-zui": {
+                        "title": "Author ID"
+                      }
+                    },
+                    "minorEdit": {
+                      "type": "boolean",
+                      "description": "Indicates whether this version is a minor edit or not.",
+                      "x-zui": {
+                        "title": "Minor Edit"
+                      }
+                    }
+                  },
+                  "required": ["createdAt", "number", "authorId", "minorEdit"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "_links": {
+                  "type": "object",
+                  "properties": {
+                    "webui": {
+                      "type": "string",
+                      "description": "Web UI link of the content.",
+                      "x-zui": {
+                        "title": "Web UI"
+                      }
+                    },
+                    "editui": {
+                      "type": "string",
+                      "description": "Edit UI link of the content.",
+                      "x-zui": {
+                        "title": "Edit UI"
+                      }
+                    },
+                    "tinyui": {
+                      "type": "string",
+                      "description": "Web UI link of the content.",
+                      "x-zui": {
+                        "title": "Web UI"
+                      }
+                    }
+                  },
+                  "additionalProperties": false,
+                  "x-zui": {}
+                }
+              },
+              "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["id", "item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the page.",
+                      "x-zui": {
+                        "title": "ID"
+                      }
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "The title of the page.",
+                      "x-zui": {
+                        "title": "Title"
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+                      "description": "The status of the page.",
+                      "x-zui": {
+                        "title": "Status"
+                      }
+                    },
+                    "spaceId": {
+                      "type": "string",
+                      "description": "The ID of the space the page is in.",
+                      "x-zui": {
+                        "title": "Space ID"
+                      }
+                    },
+                    "parentId": {
+                      "type": ["string", "null"],
+                      "description": "ID of the parent page, or null if there is no parent page.",
+                      "x-zui": {
+                        "title": "Parent ID"
+                      }
+                    },
+                    "parentType": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                          "description": "Content type of the parent, or null if there is no parent.",
+                          "x-zui": {
+                            "title": "Parent Type"
+                          }
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Content type of the parent, or null if there is no parent.",
+                      "x-zui": {
+                        "title": "Parent Type"
+                      }
+                    },
+                    "position": {
+                      "type": ["number", "null"],
+                      "description": "Position of child page within the given parent page tree.",
+                      "x-zui": {
+                        "title": "Position"
+                      }
+                    },
+                    "authorId": {
+                      "type": "string",
+                      "description": "The account ID of the user who created this page originally.",
+                      "x-zui": {
+                        "title": "Author ID"
+                      }
+                    },
+                    "ownerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who owns this page.",
+                      "x-zui": {
+                        "title": "Owner ID"
+                      }
+                    },
+                    "lastOwnerId": {
+                      "type": ["string", "null"],
+                      "description": "The account ID of the user who last edited this page.",
+                      "x-zui": {
+                        "title": "Last Owner ID"
+                      }
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+                      "x-zui": {
+                        "title": "Created At"
+                      }
+                    },
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "atlas_doc_format": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "description": "The content of the page.",
+                              "x-zui": {
+                                "title": "Value"
+                              }
+                            },
+                            "representation": {
+                              "type": "string",
+                              "description": "The representation of the content.",
+                              "x-zui": {
+                                "title": "Representation"
+                              }
+                            }
+                          },
+                          "required": ["value", "representation"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["atlas_doc_format"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "type": "string",
+                          "description": "The creation date of the version.",
+                          "x-zui": {
+                            "title": "Created At"
+                          }
+                        },
+                        "number": {
+                          "type": "number",
+                          "description": "Represents the version number.",
+                          "x-zui": {
+                            "title": "number"
+                          }
+                        },
+                        "authorId": {
+                          "type": "string",
+                          "description": "The account ID of the user who created this version.",
+                          "x-zui": {
+                            "title": "Author ID"
+                          }
+                        },
+                        "minorEdit": {
+                          "type": "boolean",
+                          "description": "Indicates whether this version is a minor edit or not.",
+                          "x-zui": {
+                            "title": "Minor Edit"
+                          }
+                        }
+                      },
+                      "required": ["createdAt", "number", "authorId", "minorEdit"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "_links": {
+                      "type": "object",
+                      "properties": {
+                        "webui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        },
+                        "editui": {
+                          "type": "string",
+                          "description": "Edit UI link of the content.",
+                          "x-zui": {
+                            "title": "Edit UI"
+                          }
+                        },
+                        "tinyui": {
+                          "type": "string",
+                          "description": "Web UI link of the content.",
+                          "x-zui": {
+                            "title": "Web UI"
+                          }
+                        }
+                      },
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+                  "x-zui": {}
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id"],
+                  "x-zui": {}
+                }
+              ],
+              "x-zui": {}
+            }
+          },
+          "required": ["item"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "updatePage"
+    },
+    "deletePage": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "name": "deletePage"
+    },
+    "filesReadonlyListItemsInFolder": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "folderId": {
+              "type": "string",
+              "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+              "x-zui": {}
+            },
+            "filters": {
+              "type": "object",
+              "properties": {
+                "itemType": {
+                  "type": "string",
+                  "enum": ["file", "folder"],
+                  "description": "The entity type",
+                  "x-zui": {}
+                },
+                "maxSizeInBytes": {
+                  "type": "number",
+                  "description": "Filter the items by maximum size (in bytes)",
+                  "x-zui": {}
+                },
+                "modifiedAfter": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Filter the items modified after the given date",
+                  "x-zui": {}
+                }
+              },
+              "additionalProperties": false,
+              "description": "Optional search filters",
+              "x-zui": {}
+            },
+            "nextToken": {
+              "type": "string",
+              "description": "The token to get the next page of items. Leave empty to get the first page.",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "x-zui": {}
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "file",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                        "x-zui": {}
+                      },
+                      "parentId": {
+                        "type": "string",
+                        "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                        "x-zui": {}
+                      },
+                      "absolutePath": {
+                        "type": "string",
+                        "description": "The absolute path of the file. Leave empty if not available.",
+                        "x-zui": {}
+                      },
+                      "sizeInBytes": {
+                        "type": "number",
+                        "description": "The file size in bytes, if available",
+                        "x-zui": {}
+                      },
+                      "lastModifiedDate": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The last modified date of the file, if available",
+                        "x-zui": {}
+                      },
+                      "contentHash": {
+                        "type": "string",
+                        "description": "The hash of the file content, or version/revision number, if available",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id", "type", "name"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                        "x-zui": {}
+                      },
+                      "type": {
+                        "type": "string",
+                        "const": "folder",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
+                        "x-zui": {}
+                      },
+                      "parentId": {
+                        "type": "string",
+                        "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
+                        "x-zui": {}
+                      },
+                      "absolutePath": {
+                        "type": "string",
+                        "description": "The absolute path of the folder. Leave empty if not available.",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id", "type", "name"],
+                    "additionalProperties": false,
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "description": "The files and folders in the folder",
+              "x-zui": {}
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string",
+                  "description": "The token to get the next page of items.",
+                  "x-zui": {}
+                }
+              },
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["items", "meta"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "title": "List items in folder",
+      "description": "List the files and folders in a folder",
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "name": "filesReadonlyListItemsInFolder"
+    },
+    "filesReadonlyTransferFileToBotpress": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
+                  "x-zui": {}
+                },
+                "type": {
+                  "type": "string",
+                  "const": "file",
+                  "x-zui": {}
+                },
+                "name": {
+                  "type": "string",
+                  "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
+                  "x-zui": {}
+                },
+                "parentId": {
+                  "type": "string",
+                  "description": "The parent folder ID. Leave empty if the file is in the root folder.",
+                  "x-zui": {}
+                },
+                "absolutePath": {
+                  "type": "string",
+                  "description": "The absolute path of the file. Leave empty if not available.",
+                  "x-zui": {}
+                },
+                "sizeInBytes": {
+                  "type": "number",
+                  "description": "The file size in bytes, if available",
+                  "x-zui": {}
+                },
+                "lastModifiedDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "The last modified date of the file, if available",
+                  "x-zui": {}
+                },
+                "contentHash": {
+                  "type": "string",
+                  "description": "The hash of the file content, or version/revision number, if available",
+                  "x-zui": {}
+                }
+              },
+              "required": ["id", "type", "name"],
+              "additionalProperties": false,
+              "description": "The file to transfer",
+              "x-zui": {
+                "title": "File to transfer"
+              }
+            },
+            "fileKey": {
+              "type": "string",
+              "description": "The file key to use in Botpress",
+              "x-zui": {
+                "title": "File key"
+              }
+            },
+            "shouldIndex": {
+              "type": "boolean",
+              "description": "Whether to index the file in vector storage",
+              "x-zui": {
+                "title": "Should index file?"
+              }
+            }
+          },
+          "required": ["file", "fileKey"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "botpressFileId": {
+              "type": "string",
+              "description": "The file ID of the uploaded file on Botpress",
+              "x-zui": {}
+            }
+          },
+          "required": ["botpressFileId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "title": "Transfer file to Botpress",
+      "description": "Transfer a file from an external service to Botpress",
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "name": "filesReadonlyTransferFileToBotpress"
+    }
+  },
+  "channels": {
+    "comment": {
+      "title": "Comments",
+      "description": "Comments on pages",
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Conversation ID",
+            "description": "The ID of the conversation in confluence"
+          }
+        }
+      },
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        }
+      }
+    }
+  },
+  "entities": {
+    "page": {
+      "title": "Page",
+      "description": "A page in confluence",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the page.",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the page.",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+            "description": "The status of the page.",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "The ID of the space the page is in.",
+            "x-zui": {
+              "title": "Space ID"
+            }
+          },
+          "parentId": {
+            "type": ["string", "null"],
+            "description": "ID of the parent page, or null if there is no parent page.",
+            "x-zui": {
+              "title": "Parent ID"
+            }
+          },
+          "parentType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                "description": "Content type of the parent, or null if there is no parent.",
+                "x-zui": {
+                  "title": "Parent Type"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Content type of the parent, or null if there is no parent.",
+            "x-zui": {
+              "title": "Parent Type"
+            }
+          },
+          "position": {
+            "type": ["number", "null"],
+            "description": "Position of child page within the given parent page tree.",
+            "x-zui": {
+              "title": "Position"
+            }
+          },
+          "authorId": {
+            "type": "string",
+            "description": "The account ID of the user who created this page originally.",
+            "x-zui": {
+              "title": "Author ID"
+            }
+          },
+          "ownerId": {
+            "type": ["string", "null"],
+            "description": "The account ID of the user who owns this page.",
+            "x-zui": {
+              "title": "Owner ID"
+            }
+          },
+          "lastOwnerId": {
+            "type": ["string", "null"],
+            "description": "The account ID of the user who last edited this page.",
+            "x-zui": {
+              "title": "Last Owner ID"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "atlas_doc_format": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "description": "The content of the page.",
+                    "x-zui": {
+                      "title": "Value"
+                    }
+                  },
+                  "representation": {
+                    "type": "string",
+                    "description": "The representation of the content.",
+                    "x-zui": {
+                      "title": "Representation"
+                    }
+                  }
+                },
+                "required": ["value", "representation"],
+                "additionalProperties": false,
+                "x-zui": {}
+              }
+            },
+            "required": ["atlas_doc_format"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "version": {
+            "type": "object",
+            "properties": {
+              "createdAt": {
+                "type": "string",
+                "description": "The creation date of the version.",
+                "x-zui": {
+                  "title": "Created At"
+                }
+              },
+              "number": {
+                "type": "number",
+                "description": "Represents the version number.",
+                "x-zui": {
+                  "title": "number"
+                }
+              },
+              "authorId": {
+                "type": "string",
+                "description": "The account ID of the user who created this version.",
+                "x-zui": {
+                  "title": "Author ID"
+                }
+              },
+              "minorEdit": {
+                "type": "boolean",
+                "description": "Indicates whether this version is a minor edit or not.",
+                "x-zui": {
+                  "title": "Minor Edit"
+                }
+              }
+            },
+            "required": ["createdAt", "number", "authorId", "minorEdit"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "webui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Web UI"
+                }
+              },
+              "editui": {
+                "type": "string",
+                "description": "Edit UI link of the content.",
+                "x-zui": {
+                  "title": "Edit UI"
+                }
+              },
+              "tinyui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Web UI"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "x-zui": {}
+          }
+        },
+        "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "pageToCreate": {
+      "title": "Page To Create",
+      "description": "A page in confluence",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": ["string", "null"],
+            "description": "The ID of the page.",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "title": {
+            "type": ["string", "null"],
+            "description": "The title of the page.",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+            "description": "The status of the page.",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "spaceId": {
+            "type": "string",
+            "description": "The ID of the space the page is in.",
+            "x-zui": {
+              "title": "Space ID"
+            }
+          },
+          "parentId": {
+            "type": ["string", "null"],
+            "description": "ID of the parent page, or null if there is no parent page.",
+            "x-zui": {
+              "title": "Parent ID"
+            }
+          },
+          "parentType": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["page", "whiteboard", "database", "embed", "folder"],
+                "description": "Content type of the parent, or null if there is no parent.",
+                "x-zui": {
+                  "title": "Parent Type"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Content type of the parent, or null if there is no parent.",
+            "x-zui": {
+              "title": "Parent Type"
+            }
+          },
+          "position": {
+            "type": ["number", "null"],
+            "description": "Position of child page within the given parent page tree.",
+            "x-zui": {
+              "title": "Position"
+            }
+          },
+          "authorId": {
+            "type": "string",
+            "description": "The account ID of the user who created this page originally.",
+            "x-zui": {
+              "title": "Author ID"
+            }
+          },
+          "ownerId": {
+            "type": ["string", "null"],
+            "description": "The account ID of the user who owns this page.",
+            "x-zui": {
+              "title": "Owner ID"
+            }
+          },
+          "lastOwnerId": {
+            "type": ["string", "null"],
+            "description": "The account ID of the user who last edited this page.",
+            "x-zui": {
+              "title": "Last Owner ID"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "atlas_doc_format": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "description": "The content of the page.",
+                    "x-zui": {
+                      "title": "Value"
+                    }
+                  },
+                  "representation": {
+                    "type": "string",
+                    "description": "The representation of the content.",
+                    "x-zui": {
+                      "title": "Representation"
+                    }
+                  }
+                },
+                "required": ["value", "representation"],
+                "additionalProperties": false,
+                "x-zui": {}
+              }
+            },
+            "required": ["atlas_doc_format"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "version": {
+            "type": "object",
+            "properties": {
+              "createdAt": {
+                "type": "string",
+                "description": "The creation date of the version.",
+                "x-zui": {
+                  "title": "Created At"
+                }
+              },
+              "number": {
+                "type": "number",
+                "description": "Represents the version number.",
+                "x-zui": {
+                  "title": "number"
+                }
+              },
+              "authorId": {
+                "type": "string",
+                "description": "The account ID of the user who created this version.",
+                "x-zui": {
+                  "title": "Author ID"
+                }
+              },
+              "minorEdit": {
+                "type": "boolean",
+                "description": "Indicates whether this version is a minor edit or not.",
+                "x-zui": {
+                  "title": "Minor Edit"
+                }
+              }
+            },
+            "required": ["createdAt", "number", "authorId", "minorEdit"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "webui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Web UI"
+                }
+              },
+              "editui": {
+                "type": "string",
+                "description": "Edit UI link of the content.",
+                "x-zui": {
+                  "title": "Self"
+                }
+              },
+              "tinyui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Self"
+                }
+              }
+            },
+            "required": ["webui", "editui", "tinyui"],
+            "additionalProperties": false,
+            "x-zui": {}
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "spaceId",
+          "parentId",
+          "parentType",
+          "position",
+          "authorId",
+          "ownerId",
+          "lastOwnerId",
+          "createdAt",
+          "body",
+          "version",
+          "_links"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "comment": {
+      "title": "Comment",
+      "description": "A comment on a page in confluence",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the page.",
+            "x-zui": {
+              "title": "ID"
+            }
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the page.",
+            "x-zui": {
+              "title": "Title"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["current", "draft", "archived", "historical", "trashed", "any", "deleted"],
+            "description": "The status of the page.",
+            "x-zui": {
+              "title": "Status"
+            }
+          },
+          "pageId": {
+            "type": "string",
+            "description": "The ID of the page.",
+            "x-zui": {
+              "title": "Page ID"
+            }
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "atlas_doc_format": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "description": "The content of the page.",
+                    "x-zui": {
+                      "title": "Value"
+                    }
+                  },
+                  "representation": {
+                    "type": "string",
+                    "description": "The representation of the content.",
+                    "x-zui": {
+                      "title": "Representation"
+                    }
+                  }
+                },
+                "required": ["value", "representation"],
+                "additionalProperties": false,
+                "x-zui": {}
+              }
+            },
+            "required": ["atlas_doc_format"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "version": {
+            "type": "object",
+            "properties": {
+              "createdAt": {
+                "type": "string",
+                "description": "The creation date of the version.",
+                "x-zui": {
+                  "title": "Created At"
+                }
+              },
+              "number": {
+                "type": "number",
+                "description": "Represents the version number.",
+                "x-zui": {
+                  "title": "number"
+                }
+              },
+              "authorId": {
+                "type": "string",
+                "description": "The account ID of the user who created this version.",
+                "x-zui": {
+                  "title": "Author ID"
+                }
+              },
+              "minorEdit": {
+                "type": "boolean",
+                "description": "Indicates whether this version is a minor edit or not.",
+                "x-zui": {
+                  "title": "Minor Edit"
+                }
+              },
+              "message": {
+                "type": "string",
+                "description": "The message associated with the current version.",
+                "x-zui": {
+                  "title": "Message"
+                }
+              }
+            },
+            "required": ["createdAt", "number", "authorId", "minorEdit", "message"],
+            "additionalProperties": false,
+            "x-zui": {}
+          },
+          "_links": {
+            "type": "object",
+            "properties": {
+              "webui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Web UI"
+                }
+              },
+              "editui": {
+                "type": "string",
+                "description": "Edit UI link of the content.",
+                "x-zui": {
+                  "title": "Edit UI"
+                }
+              },
+              "tinyui": {
+                "type": "string",
+                "description": "Web UI link of the content.",
+                "x-zui": {
+                  "title": "Web UI"
+                }
+              }
+            },
+            "required": ["webui", "editui", "tinyui"],
+            "additionalProperties": false,
+            "x-zui": {}
+          }
+        },
+        "required": ["id", "title", "status", "pageId", "body", "version", "_links"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {
+    "readable<page>": {
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "page"
+        }
+      },
+      "actions": {
+        "read": {
+          "name": "getPage"
+        }
+      },
+      "events": {},
+      "channels": {}
+    },
+    "creatable<page>": {
+      "id": "",
+      "name": "creatable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "page"
+        }
+      },
+      "actions": {
+        "create": {
+          "name": "createPage"
+        }
+      },
+      "events": {
+        "created": {
+          "name": "pageCreated"
+        }
+      },
+      "channels": {}
+    },
+    "updatable<page>": {
+      "id": "",
+      "name": "updatable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "page"
+        }
+      },
+      "actions": {
+        "update": {
+          "name": "updatePage"
+        }
+      },
+      "events": {
+        "updated": {
+          "name": "pageUpdated"
+        }
+      },
+      "channels": {}
+    },
+    "deletable<page>": {
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.2",
+      "entities": {
+        "item": {
+          "name": "page"
+        }
+      },
+      "actions": {
+        "delete": {
+          "name": "deletePage"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "pageDeleted"
+        }
+      },
+      "channels": {}
+    },
+    "files-readonly": {
+      "id": "",
+      "name": "files-readonly",
+      "version": "0.3.0",
+      "entities": {},
+      "actions": {
+        "listItemsInFolder": {
+          "name": "filesReadonlyListItemsInFolder"
+        },
+        "transferFileToBotpress": {
+          "name": "filesReadonlyTransferFileToBotpress"
+        }
+      },
+      "events": {
+        "fileCreated": {
+          "name": "fileCreated"
+        },
+        "fileUpdated": {
+          "name": "fileUpdated"
+        },
+        "fileDeleted": {
+          "name": "fileDeleted"
+        },
+        "folderDeletedRecursive": {
+          "name": "folderDeletedRecursive"
+        },
+        "aggregateFileChanges": {
+          "name": "aggregateFileChanges"
+        }
+      },
+      "channels": {}
+    }
+  }
+}

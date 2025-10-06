@@ -1,0 +1,429 @@
+{
+  "name": "airtable",
+  "version": "0.0.4",
+  "title": "Airtable",
+  "description": "Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.",
+  "user": {
+    "tags": {}
+  },
+  "events": {},
+  "actions": {
+    "getTableRecords": {
+      "title": "Get Records of the Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "x-zui": {}
+            }
+          },
+          "required": ["tableIdOrName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_rawJson": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true,
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["_rawJson", "id"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["records"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createTable": {
+      "title": "Create Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the Table (e.g. MyTable)",
+              "x-zui": {}
+            },
+            "fields": {
+              "type": "string",
+              "description": "The Table's fields, separated by commas. Each field should be in the format \"type_name\" (e.g. \"phoneNumber_Customer Phone, singleLineText_Address\").",
+              "x-zui": {}
+            },
+            "description": {
+              "type": "string",
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
+              "x-zui": {}
+            }
+          },
+          "required": ["name", "fields"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["name", "type"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "name": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "primaryFieldId": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "name", "type"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateTable": {
+      "title": "Update Table",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "x-zui": {}
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the Table (e.g. MyTable) (Optional)",
+              "x-zui": {}
+            },
+            "description": {
+              "type": "string",
+              "description": "Description of the Table (e.g. This is my table) (Optional)",
+              "x-zui": {}
+            }
+          },
+          "required": ["tableIdOrName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["name", "type"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "name": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "primaryFieldId": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "name", "type"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "required": ["fields", "id", "name", "primaryFieldId", "views"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createRecord": {
+      "title": "Create Record",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "x-zui": {}
+            },
+            "fields": {
+              "type": "string",
+              "description": "The fields and their values for the new record, in a JSON format (e.g. {\"Name\":\"John Doe\",\"City\":\"In the moon\",\"Verify\":true})",
+              "x-zui": {}
+            }
+          },
+          "required": ["tableIdOrName", "fields"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "_rawJson": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true,
+              "x-zui": {}
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["_rawJson", "id"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateRecord": {
+      "title": "Update Record",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "x-zui": {}
+            },
+            "recordId": {
+              "type": "string",
+              "description": "The ID of the Record to be updated",
+              "x-zui": {}
+            },
+            "fields": {
+              "type": "string",
+              "description": "The fields and their values for the record to be updated, in a JSON format (e.g. {\"Name\":\"John Doe\",\"Verify\":true})",
+              "x-zui": {}
+            }
+          },
+          "required": ["tableIdOrName", "recordId", "fields"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "_rawJson": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true,
+              "x-zui": {}
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["_rawJson", "id"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listRecords": {
+      "title": "List Records",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "tableIdOrName": {
+              "type": "string",
+              "description": "The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)",
+              "x-zui": {}
+            },
+            "nextToken": {
+              "type": "string",
+              "description": "The next page token (Optional)",
+              "x-zui": {}
+            },
+            "filterByFormula": {
+              "type": "string",
+              "description": "filter to apply to the list records (See https://support.airtable.com/docs/formula-field-reference)",
+              "x-zui": {}
+            }
+          },
+          "required": ["tableIdOrName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "_rawJson": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true,
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["_rawJson", "id"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "nextToken": {
+              "type": "string",
+              "description": "The next page token (Optional)",
+              "x-zui": {}
+            }
+          },
+          "required": ["records"],
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {},
+  "states": {},
+  "interfaces": {}
+}

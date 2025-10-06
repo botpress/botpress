@@ -1,0 +1,87 @@
+{
+  "name": "listable",
+  "version": "0.0.2",
+  "entities": {
+    "item": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["id"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "events": {},
+  "actions": {
+    "list": {
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "nextToken": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "item",
+                    "x-zui": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "x-zui": {}
+                  }
+                ],
+                "x-zui": {}
+              },
+              "x-zui": {}
+            },
+            "meta": {
+              "type": "object",
+              "properties": {
+                "nextToken": {
+                  "type": "string",
+                  "x-zui": {}
+                }
+              },
+              "additionalProperties": false,
+              "x-zui": {}
+            }
+          },
+          "required": ["items", "meta"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {}
+}

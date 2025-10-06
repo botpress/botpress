@@ -1,0 +1,685 @@
+{
+  "name": "gmail",
+  "version": "0.6.2",
+  "title": "Gmail",
+  "description": "Send, receive, and manage emails directly within your bot's workflow.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Email address",
+        "description": "The email address of the user"
+      }
+    }
+  },
+  "events": {},
+  "actions": {},
+  "channels": {
+    "channel": {
+      "title": "Email thread",
+      "description": "Messages in an email thread",
+      "messages": {
+        "text": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "image": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "imageUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "description": "Alt text for the image",
+                "x-zui": {
+                  "title": "Alt text"
+                }
+              }
+            },
+            "required": ["imageUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "audio": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "audioUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "description": "Title for the audio file",
+                "x-zui": {
+                  "title": "Title"
+                }
+              }
+            },
+            "required": ["audioUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "video": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "videoUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "description": "Title for the video file",
+                "x-zui": {
+                  "title": "Title"
+                }
+              }
+            },
+            "required": ["videoUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "file": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "fileUrl": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "description": "Title for the file",
+                "x-zui": {
+                  "title": "Title"
+                }
+              }
+            },
+            "required": ["fileUrl"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "location": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "longitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "address": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["latitude", "longitude"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "subtitle": {
+                      "x-zui": {},
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "imageUrl": {
+                      "x-zui": {},
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "actions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": ["postback", "url", "say"],
+                            "x-zui": {}
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "x-zui": {}
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "x-zui": {}
+                          }
+                        },
+                        "required": ["action", "label", "value"],
+                        "additionalProperties": false,
+                        "x-zui": {}
+                      },
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["title", "actions"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "card": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "subtitle": {
+                "x-zui": {},
+                "type": "string",
+                "minLength": 1
+              },
+              "imageUrl": {
+                "x-zui": {},
+                "type": "string",
+                "minLength": 1
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": ["postback", "url", "say"],
+                      "x-zui": {}
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["action", "label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["title", "actions"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "choice": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1,
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "bloc": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "text",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["text"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "markdown",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "markdown": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["markdown"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "image",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["imageUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "audio",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["audioUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "video",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["videoUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "file",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["fileUrl"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "location",
+                          "x-zui": {}
+                        },
+                        "payload": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "address": {
+                              "type": "string",
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["latitude", "longitude"],
+                          "additionalProperties": false,
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        },
+        "markdown": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "markdown": {
+                "type": "string",
+                "minLength": 1,
+                "x-zui": {}
+              }
+            },
+            "required": ["markdown"],
+            "additionalProperties": false,
+            "x-zui": {},
+            "$schema": "http://json-schema.org/draft-07/schema#"
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "title": "Gmail ID",
+            "description": "The unique identifier of the message on Gmail"
+          }
+        }
+      },
+      "conversation": {
+        "tags": {
+          "id": {
+            "title": "Gmail ID",
+            "description": "The unique identifier of the email thread on Gmail"
+          },
+          "email": {
+            "title": "Sender email",
+            "description": "The email address of the sender"
+          },
+          "subject": {
+            "title": "Subject",
+            "description": "The subject of the email"
+          },
+          "references": {
+            "title": "References",
+            "description": "The contents of the References header field"
+          },
+          "cc": {
+            "title": "CC",
+            "description": "Co-recipients"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "thread": {
+      "type": "conversation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "inReplyTo": {
+            "type": "string",
+            "description": "The ID of the message this message is a reply to",
+            "x-zui": {
+              "title": "In reply to"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "configuration": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token to use to authenticate with Gmail. It gets exchanged for a bearer token",
+            "x-zui": {
+              "title": "Refresh token"
+            }
+          },
+          "lastHistoryId": {
+            "type": "string",
+            "description": "The last history ID processed by the integration",
+            "x-zui": {
+              "title": "History cursor"
+            }
+          }
+        },
+        "required": ["refreshToken"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "googlePublicCertCache": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "certificates": {
+            "type": "string",
+            "description": "The certs used by Google for federated sign-on, stringified as JSON",
+            "x-zui": {
+              "title": "Certificates JSON"
+            }
+          }
+        },
+        "required": ["certificates"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {}
+}

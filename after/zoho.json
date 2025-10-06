@@ -1,0 +1,1019 @@
+{
+  "name": "zoho",
+  "version": "3.1.1",
+  "title": "Zoho",
+  "description": "Integrate your Botpress chatbot with Zoho CRM to manage customer interactions. Add, update, and retrieve contacts, deals, orders, and appointments directly through your chatbot.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Zoho Tokens",
+        "description": "Zoho CRM access and refresh tokens"
+      }
+    }
+  },
+  "actions": {
+    "makeApiCall": {
+      "title": "Make API Call",
+      "description": "Make a custom API call to the Zoho CRM API",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "description": "The API endpoint to call",
+              "x-zui": {
+                "title": "Endpoint"
+              }
+            },
+            "method": {
+              "type": "string",
+              "description": "The HTTP method to use ['GET', 'POST', 'PUT', 'DELETE']",
+              "x-zui": {
+                "title": "Method"
+              }
+            },
+            "data": {
+              "type": "string",
+              "description": "The data to send with the request as a string JSON object.",
+              "x-zui": {
+                "title": "Date"
+              }
+            },
+            "params": {
+              "type": "string",
+              "description": "The params to send with the request as a string JSON object if required.",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": ["endpoint", "method"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the API call was successful",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "The data returned from the API call",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "insertRecord": {
+      "title": "Insert Record",
+      "description": "Insert a new record into a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module to insert the records into (e.g., Leads, Contacts, Deals)",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "data": {
+              "type": "string",
+              "description": "The raw JSON string containing the records to insert",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["module", "data"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the records were inserted successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the inserted records",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateRecord": {
+      "title": "Update Record",
+      "description": "Update an existing record in a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module where the record exists",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "description": "The unique ID of the record to update",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "description": "The raw JSON string containing the updated data",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["module", "recordId", "data"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the record was updated successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the updated record",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "deleteRecord": {
+      "title": "Delete Record",
+      "description": "Delete a record from a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module where the record exists",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "description": "The unique ID of the record to delete",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            }
+          },
+          "required": ["module", "recordId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the record was deleted successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Response from Zoho confirming the record deletion",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "searchRecords": {
+      "title": "Search Records",
+      "description": "Search for records in a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module to search within",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "criteria": {
+              "type": "string",
+              "description": "The search criteria using Zoho CRM query syntax",
+              "x-zui": {
+                "title": "Criteria"
+              }
+            }
+          },
+          "required": ["module", "criteria"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the search was successful",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "List of records matching the search criteria",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getRecordById": {
+      "title": "Get Record By ID",
+      "description": "Retrieve a record from a Zoho CRM module by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module to retrieve the record from (e.g., Leads, Contacts, Deals)",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "description": "The unique ID of the record to retrieve",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            }
+          },
+          "required": ["module", "recordId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the record was retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "The retrieved record data from Zoho CRM",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getRecords": {
+      "title": "Get Records",
+      "description": "Retrieve records from a Zoho CRM module",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module to retrieve records from (e.g., Leads, Contacts, Deals)",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "params": {
+              "type": "string",
+              "description": "Optional query parameters as a JSON string (e.g., pagination, sorting)",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "required": ["module"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the records were retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "List of retrieved records",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getOrganizationDetails": {
+      "title": "Get Organization Details",
+      "description": "Retrieve details about the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the organization details were retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the organization retrieved from Zoho CRM",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getUsers": {
+      "title": "Get Users",
+      "description": "Retrieve a list of users from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "type": "string",
+              "description": "Optional query parameters as a JSON string for filtering users (e.g., role, status)",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the users were retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "List of users retrieved from Zoho CRM",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getAppointments": {
+      "title": "Get Appointments",
+      "description": "Retrieve a list of appointments from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "params": {
+              "type": "string",
+              "description": "Optional query parameters as a JSON string (e.g., date range, filters)",
+              "x-zui": {
+                "title": "Params"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the appointments were retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "List of retrieved appointments",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getAppointmentById": {
+      "title": "Get Appointment By ID",
+      "description": "Retrieve an appointment from the Zoho CRM organization by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "description": "The unique ID of the appointment to retrieve",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            }
+          },
+          "required": ["appointmentId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the appointment was retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "The retrieved appointment data from Zoho CRM",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createAppointment": {
+      "title": "Create Appointment",
+      "description": "Create a new appointment in the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "The raw JSON string containing the appointment details",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["data"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the appointment was created successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the created appointment",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "updateAppointment": {
+      "title": "Update Appointment",
+      "description": "Update an existing appointment in the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "description": "The unique ID of the appointment to update",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "description": "The raw JSON string containing the updated appointment details",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["appointmentId", "data"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the appointment was updated successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the updated appointment",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "deleteAppointment": {
+      "title": "Delete Appointment",
+      "description": "Delete an appointment from the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "appointmentId": {
+              "type": "string",
+              "description": "The unique ID of the appointment to delete",
+              "x-zui": {
+                "title": "Appointment ID"
+              }
+            }
+          },
+          "required": ["appointmentId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the appointment was deleted successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Response from Zoho confirming the appointment deletion",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "sendMail": {
+      "title": "Send Mail",
+      "description": "Send an email using the Zoho CRM Mail API",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "description": "The Zoho CRM module to send mail to",
+              "x-zui": {
+                "title": "Module"
+              }
+            },
+            "recordId": {
+              "type": "string",
+              "description": "The unique ID of the record to attach the file to",
+              "x-zui": {
+                "title": "Record ID"
+              }
+            },
+            "data": {
+              "type": "string",
+              "description": "The raw JSON string containing email details including recipient, subject, and body",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["module", "recordId", "data"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the email was sent successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Response from Zoho after sending the email",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "uploadFile": {
+      "title": "Upload File",
+      "description": "Upload a file to the Zoho CRM organization",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileUrl": {
+              "type": "string",
+              "description": "The url of the file being uploaded.",
+              "x-zui": {
+                "title": "File URL"
+              }
+            }
+          },
+          "required": ["fileUrl"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the file was uploaded successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "Details of the uploaded file, including its Zoho file ID.",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "getFile": {
+      "title": "Get File",
+      "description": "Retrieve a file from the Zoho CRM organization by its unique ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "description": "The encrypted ID of the file to retrieve",
+              "x-zui": {
+                "title": "File ID"
+              }
+            }
+          },
+          "required": ["fileId"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "description": "Whether the file was retrieved successfully",
+              "x-zui": {
+                "title": "Success"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message from the API call",
+              "x-zui": {
+                "title": "Message"
+              }
+            },
+            "data": {
+              "description": "The retrieved file data from Zoho",
+              "x-zui": {
+                "title": "Data"
+              }
+            }
+          },
+          "required": ["success", "message"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "states": {
+    "credentials": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Your Zoho Access Token",
+            "x-zui": {
+              "title": "Access Token"
+            }
+          }
+        },
+        "required": ["accessToken"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {}
+}

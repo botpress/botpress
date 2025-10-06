@@ -1,0 +1,35 @@
+{
+  "name": "personality",
+  "version": "1.0.0",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Model to use to handle bot personality",
+          "x-zui": {}
+        },
+        "personality": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Describe what your chatbot is meant to do and how it should behave. You can include some personality traits here as well to influence how the chatbot will respond. Expressions are supported.",
+          "x-zui": {}
+        }
+      },
+      "required": ["model", "personality"],
+      "additionalProperties": false,
+      "x-zui": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "events": {},
+  "actions": {},
+  "states": {}
+}

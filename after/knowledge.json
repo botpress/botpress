@@ -1,0 +1,22 @@
+{
+  "name": "knowledge",
+  "version": "1.0.0",
+  "user": {
+    "tags": {}
+  },
+  "conversation": {
+    "tags": {}
+  },
+  "configuration": {
+    "schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false,
+      "x-zui": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  "events": {},
+  "actions": {},
+  "states": {}
+}

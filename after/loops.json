@@ -1,0 +1,992 @@
+{
+  "name": "loops",
+  "version": "0.1.2",
+  "title": "Loops",
+  "description": "Handle transactional emails from your chatbot.",
+  "events": {
+    "emailDelivered": {
+      "title": "Email Delivered",
+      "description": "Sent when an email is delivered to its recipient.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop", "transactional"],
+            "description": "The type of email that triggered the event. One of campaign, loop, or transactional",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          },
+          "transactionalId": {
+            "type": "string",
+            "description": "The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.",
+            "x-zui": {
+              "title": "Transactional ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailSoftBounced": {
+      "title": "Email Soft Bounced",
+      "description": "Sent when an email soft bounces. Soft bounces are temporary email delivery failures, for example a connection timing out. Soft bounces are retried multiple times and some times the email is delivered.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop", "transactional"],
+            "description": "The type of email that triggered the event. One of campaign, loop, or transactional",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          },
+          "transactionalId": {
+            "type": "string",
+            "description": "The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.",
+            "x-zui": {
+              "title": "Transactional ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailHardBounced": {
+      "title": "Email Hard Bounced",
+      "description": "Sent when an email hard bounces. Hard bounces are persistent email delivery failures, for example a mailbox that doesn't exist. The email will not be delivered.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop", "transactional"],
+            "description": "The type of email that triggered the event. One of campaign, loop, or transactional",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          },
+          "transactionalId": {
+            "type": "string",
+            "description": "The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.",
+            "x-zui": {
+              "title": "Transactional ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailOpened": {
+      "title": "Email Opened",
+      "description": "Sent when a campaign or loop email is opened. This event is not available for transactional emails because email opens are not tracked for transactional emails.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop"],
+            "description": "The type of email that triggered the event. One of campaign or loop",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailClicked": {
+      "title": "Email Clicked",
+      "description": "Sent when a link in a campaign or loop email is clicked. This event is not available for transactional emails because link clicks are not tracked in transactional emails.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop"],
+            "description": "The type of email that triggered the event. One of campaign or loop",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailUnsubscribed": {
+      "title": "Email Unsubscribed",
+      "description": "Sent when a recipient unsubscribes via the unsubscribe link in an email. This event is not available for transactional emails because unsubscribe links are not included or required for transactional emails.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop"],
+            "description": "The type of email that triggered the event. One of campaign or loop",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "emailSpamReported": {
+      "title": "Email Spam Reported",
+      "description": "Sent when a recipient reports your email as spam.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "The type of event as defined by Loops",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "webhookSchemaVersion": {
+            "type": "string",
+            "description": "Will be 1.0.0 for all events",
+            "x-zui": {
+              "title": "Webhook Schema Version"
+            }
+          },
+          "eventTime": {
+            "type": "number",
+            "description": "The Unix timestamp of the time the event occurred",
+            "x-zui": {
+              "title": "Event Time"
+            }
+          },
+          "contactIdentity": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the contact assigned by Loops",
+                "x-zui": {
+                  "title": "Contact ID"
+                }
+              },
+              "email": {
+                "type": "string",
+                "description": "The email address of the contact",
+                "x-zui": {
+                  "title": "Contact Email"
+                }
+              },
+              "userId": {
+                "type": ["string", "null"],
+                "description": "The unique user ID created by the contact. May be null",
+                "x-zui": {
+                  "title": "Contact User ID"
+                }
+              }
+            },
+            "required": ["id", "email", "userId"],
+            "additionalProperties": false,
+            "description": "The identifiers of the contact. Includes the contact ID, email address, and user ID",
+            "x-zui": {
+              "title": "Contact Identity"
+            }
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ID of the email",
+                "x-zui": {
+                  "title": "Email ID"
+                }
+              },
+              "emailMessageId": {
+                "type": "string",
+                "description": "The ID of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Message ID"
+                }
+              },
+              "subject": {
+                "type": "string",
+                "description": "The subject of the sent version of the email",
+                "x-zui": {
+                  "title": "Email Subject"
+                }
+              }
+            },
+            "required": ["id", "emailMessageId", "subject"],
+            "additionalProperties": false,
+            "description": "The details about an individual email sent to a recipient. Includes the email ID, the ID of the sent version, and the subject",
+            "x-zui": {
+              "title": "Email Details"
+            }
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["campaign", "loop", "transactional"],
+            "description": "The type of email that triggered the event. One of campaign, loop, or transactional",
+            "x-zui": {
+              "title": "Source Type"
+            }
+          },
+          "campaignId": {
+            "type": "string",
+            "description": "The ID of the campaign email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Campaign ID"
+            }
+          },
+          "loopId": {
+            "type": "string",
+            "description": "The ID of the loop email. Only one of Campaign ID or Loop ID must exist.",
+            "x-zui": {
+              "title": "Loop ID"
+            }
+          },
+          "transactionalId": {
+            "type": "string",
+            "description": "The ID of the transactional email. Only one of Campaign ID, Loop ID, or Transactional ID must exist.",
+            "x-zui": {
+              "title": "Transactional ID"
+            }
+          }
+        },
+        "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "sendTransactionalEmail": {
+      "title": "Send Transactional Email",
+      "description": "Send a transactional email to a client",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "The email address of the recipient.",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "transactionalId": {
+              "type": "string",
+              "description": "The ID of the transactional email to send.",
+              "x-zui": {
+                "title": "Transactional ID"
+              }
+            },
+            "dataVariables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "value": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["key", "value"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "An object containing data as defined by the data variables added to the transactional email template.",
+              "x-zui": {
+                "title": "Data Variables"
+              }
+            },
+            "addToAudience": {
+              "type": "boolean",
+              "description": "If true, a contact will be created in your audience using the email value (if a matching contact doesn’t already exist).",
+              "x-zui": {
+                "title": "Add to Audience"
+              }
+            },
+            "idempotencyKey": {
+              "type": "string",
+              "description": "Optionally send an idempotency key to avoid duplicate requests. The value should be a string of up to 100 characters and should be unique for each request. We recommend using V4 UUIDs or some other method with enough guaranteed entropy to avoid collisions during a 24 hour window. The endpoint will return a 409 Conflict response if the idempotency key has been used in the previous 24 hours.",
+              "x-zui": {
+                "title": "Idempotency Key"
+              }
+            },
+            "fileIds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "description": "The Botpress client-generated IDs of the files to be attached to the email. They must have already been uploaded to your bot via the Files API. The name of the file will be used as the filename of the attachment. Use this for a list of templates the user can choose from.",
+              "x-zui": {
+                "title": "File IDs"
+              }
+            },
+            "fileData": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "contentType": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "data": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["filename", "contentType", "data"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "description": "The name, base64-encoded data, and MIME content type of custom files to be attached to the email.",
+              "x-zui": {
+                "title": "File Data"
+              }
+            }
+          },
+          "required": ["email", "transactionalId", "dataVariables"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}

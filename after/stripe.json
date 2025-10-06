@@ -1,0 +1,1294 @@
+{
+  "name": "stripe",
+  "version": "0.5.1",
+  "title": "Stripe",
+  "description": "Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.",
+  "user": {
+    "tags": {
+      "id": {
+        "title": "Stripe customer ID"
+      }
+    }
+  },
+  "events": {
+    "chargeFailed": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "charge.failed"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the failed charge",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Charge Failed",
+      "description": "This event occurs when a charge fails in Stripe."
+    },
+    "subscriptionDeleted": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "customer.subscription.deleted"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the deleted subscription",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Subscription Deleted",
+      "description": "This event occurs when a subscription is canceled/deleted in Stripe."
+    },
+    "subscriptionUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "customer.subscription.updated"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the updated subscription",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Subscription Updated",
+      "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
+    },
+    "subscriptionCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "customer.subscription.created"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the created subscription",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Subscription Created",
+      "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true."
+    },
+    "invoicePaymentFailed": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "invoice.payment_failed"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the invoice whose payment failed",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Invoice Payment Failed",
+      "description": "This event occurs when an invoice payment fails in Stripe."
+    },
+    "paymentIntentFailed": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "payment_intent.payment_failed"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the payment intent that failed",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Payment Intent Failed",
+      "description": "This event occurs when a payment intent fails in Stripe."
+    },
+    "subscriptionScheduleCreated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "subscription_schedule.created"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the created subscription schedule",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Subscription Schedule Created",
+      "description": "This event occurs when a subscription schedule is created in Stripe."
+    },
+    "subscriptionScheduleUpdated": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "const": "stripe",
+            "description": "The origin of the event trigger",
+            "x-zui": {}
+          },
+          "userId": {
+            "type": "string",
+            "description": "Botpress User ID",
+            "x-zui": {}
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "x-zui": {},
+                "default": "subscription_schedule.updated"
+              },
+              "object": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true,
+                "description": "The object of the updated subscription schedule",
+                "x-zui": {}
+              }
+            },
+            "required": ["object"],
+            "additionalProperties": false,
+            "description": "The data to send with the event",
+            "x-zui": {}
+          }
+        },
+        "required": ["origin", "userId", "data"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "title": "Subscription Schedule Updated",
+      "description": "This event occurs when a subscription schedule is updated in Stripe."
+    }
+  },
+  "actions": {
+    "createPaymentLink": {
+      "title": "Create Payment Link",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "productName": {
+              "type": "string",
+              "description": "The name of the product to be sold",
+              "x-zui": {
+                "placeholder": "ex: T-Shirt"
+              }
+            },
+            "unit_amount": {
+              "type": "number",
+              "minimum": 50,
+              "description": "The unit price in cents (minimum 50 cents for USD)",
+              "x-zui": {
+                "title": "Unit Price"
+              },
+              "default": 50
+            },
+            "currency": {
+              "type": "string",
+              "description": "The currency in which the price will be expressed",
+              "x-zui": {},
+              "default": "usd"
+            },
+            "quantity": {
+              "type": "number",
+              "description": "The quantity of the product being purchased",
+              "x-zui": {},
+              "default": 1
+            },
+            "adjustableQuantity": {
+              "type": "boolean",
+              "description": "Whether or not the quantity can be adjusted",
+              "x-zui": {},
+              "default": false
+            },
+            "adjustableQuantityMaximum": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 999,
+              "description": "The maximum quantity the customer can purchase, up to 999",
+              "x-zui": {
+                "title": "Max Quantity"
+              },
+              "default": 99
+            },
+            "adjustableQuantityMinimum": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 998,
+              "description": "The minimum quantity the customer can purchase",
+              "x-zui": {
+                "title": "Min Quantity"
+              },
+              "default": 1
+            }
+          },
+          "required": ["productName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "url": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listProductPrices": {
+      "title": "List Product Prices",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "products": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "prices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "unit_amount": {
+                          "type": ["number", "null"],
+                          "x-zui": {}
+                        },
+                        "currency": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "recurring": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {},
+                              "additionalProperties": true,
+                              "x-zui": {}
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["unit_amount", "currency"],
+                      "additionalProperties": false,
+                      "x-zui": {}
+                    },
+                    "x-zui": {}
+                  }
+                },
+                "required": ["name", "prices"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createSubsLink": {
+      "title": "Create Subscription Payment Link",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "productName": {
+              "type": "string",
+              "description": "The name of the subscription product",
+              "x-zui": {}
+            },
+            "unit_amount": {
+              "type": "number",
+              "description": "The unit price in cents",
+              "x-zui": {},
+              "default": 0
+            },
+            "currency": {
+              "type": "string",
+              "description": "The currency in which the price is expressed",
+              "x-zui": {},
+              "default": "usd"
+            },
+            "quantity": {
+              "type": "number",
+              "description": "The quantity of the subscription being purchased",
+              "x-zui": {},
+              "default": 1
+            },
+            "adjustableQuantity": {
+              "type": "boolean",
+              "description": "Whether or not the quantity can be adjusted",
+              "x-zui": {},
+              "default": false
+            },
+            "adjustableQuantityMaximum": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 999,
+              "description": "The maximum quantity the customer can purchase, up to 999",
+              "x-zui": {
+                "title": "Max Quantity"
+              },
+              "default": 99
+            },
+            "adjustableQuantityMinimum": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 998,
+              "description": "The minimum quantity the customer can purchase",
+              "x-zui": {
+                "title": "Min Quantity"
+              },
+              "default": 1
+            },
+            "chargingInterval": {
+              "type": "string",
+              "description": "The interval at which the customer will be charged",
+              "x-zui": {
+                "title": "Payment Interval"
+              },
+              "default": "month"
+            },
+            "trial_period_days": {
+              "type": "number",
+              "minimum": 1,
+              "description": "The number of free trial days for the subscription",
+              "x-zui": {}
+            },
+            "description": {
+              "type": "string",
+              "description": "A description of the subscription product",
+              "x-zui": {}
+            }
+          },
+          "required": ["productName"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "url": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listPaymentLinks": {
+      "title": "List Payment Links",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "paymentLinks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "url": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "url"],
+                "additionalProperties": false,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "findPaymentLink": {
+      "title": "Find Payment Link",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The URL of the payment link",
+              "x-zui": {
+                "title": "Payment link",
+                "placeholder": "ex: https://buy.stripe.com/test_b0tPr3sS5w3sOm3"
+              }
+            }
+          },
+          "required": ["url"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "deactivatePaymentLink": {
+      "title": "Deactivate Payment Link",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The payment link ID to deactivate",
+              "x-zui": {
+                "placeholder": "ex: test_aEUdTEdRP95RdvaaEJ"
+              }
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "url": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "active": {
+              "type": "boolean",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "listCustomers": {
+      "title": "List Customers By Email",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "maxLength": 512,
+              "description": "The e-mail of the customer to search for",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "customers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "email": {
+                      "type": ["string", "null"],
+                      "x-zui": {}
+                    },
+                    "name": {
+                      "type": ["string", "null"],
+                      "x-zui": {}
+                    },
+                    "description": {
+                      "type": ["string", "null"],
+                      "x-zui": {}
+                    },
+                    "phone": {
+                      "type": ["string", "null"],
+                      "x-zui": {}
+                    },
+                    "address": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {},
+                          "additionalProperties": true,
+                          "x-zui": {}
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "x-zui": {}
+                    },
+                    "created": {
+                      "type": "number",
+                      "x-zui": {}
+                    },
+                    "delinquent": {
+                      "type": ["boolean", "null"],
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["id", "email", "description", "created"],
+                  "additionalProperties": true,
+                  "x-zui": {}
+                },
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "searchCustomers": {
+      "title": "Search Customers By Fields",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "maxLength": 512,
+              "description": "Search by query on customer emails",
+              "x-zui": {}
+            },
+            "name": {
+              "type": "string",
+              "description": "Search by query on customer name",
+              "x-zui": {}
+            },
+            "phone": {
+              "type": "string",
+              "description": "Search by query on customer phone number",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "customers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "email": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "name": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "description": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "phone": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true,
+                        "x-zui": {}
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {}
+                  },
+                  "created": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "delinquent": {
+                    "type": ["boolean", "null"],
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "email", "description", "created"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createCustomer": {
+      "title": "Create Customer",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "maxLength": 512,
+              "description": "The email of the customer",
+              "x-zui": {
+                "placeholder": "johndoe@botpress.com"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the customer",
+              "x-zui": {
+                "placeholder": "John Doe"
+              }
+            },
+            "phone": {
+              "type": "string",
+              "description": "The phone number of the customer",
+              "x-zui": {
+                "placeholder": "+1234567890"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "A description for the customer",
+              "x-zui": {
+                "placeholder": "Customer Description"
+              }
+            },
+            "paymentMethodId": {
+              "type": "string",
+              "description": "The ID of the payment method to attach to the customer",
+              "x-zui": {
+                "placeholder": "payment-method-id"
+              }
+            },
+            "address": {
+              "type": "string",
+              "description": "The address of the customer",
+              "x-zui": {
+                "placeholder": "123 Bot Street, Bot City, Botland, 12345"
+              }
+            }
+          },
+          "required": ["email"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "customer": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "email": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "name": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "description": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "phone": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "address": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "created": {
+                  "type": "number",
+                  "x-zui": {}
+                },
+                "delinquent": {
+                  "type": ["boolean", "null"],
+                  "x-zui": {}
+                }
+              },
+              "required": ["id", "email", "description", "created"],
+              "additionalProperties": true,
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "createOrRetrieveCustomer": {
+      "title": "Create Or Retrieve Customer",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "maxLength": 512,
+              "description": "The email of the customer",
+              "x-zui": {
+                "placeholder": "johndoe@botpress.com"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the customer",
+              "x-zui": {
+                "placeholder": "John Doe"
+              }
+            },
+            "phone": {
+              "type": "string",
+              "description": "The phone number of the customer",
+              "x-zui": {
+                "placeholder": "+1234567890"
+              }
+            },
+            "description": {
+              "type": "string",
+              "description": "A description for the customer",
+              "x-zui": {
+                "placeholder": "Customer Description"
+              }
+            },
+            "paymentMethodId": {
+              "type": "string",
+              "description": "The ID of the payment method to attach to the customer",
+              "x-zui": {
+                "placeholder": "payment-method-id"
+              }
+            },
+            "address": {
+              "type": "string",
+              "description": "The address of the customer",
+              "x-zui": {
+                "placeholder": "123 Bot Street, Bot City, Botland, 12345"
+              }
+            }
+          },
+          "required": ["email"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "customer": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "email": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "name": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "description": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "phone": {
+                  "type": ["string", "null"],
+                  "x-zui": {}
+                },
+                "address": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "additionalProperties": true,
+                      "x-zui": {}
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "created": {
+                  "type": "number",
+                  "x-zui": {}
+                },
+                "delinquent": {
+                  "type": ["boolean", "null"],
+                  "x-zui": {}
+                }
+              },
+              "required": ["id", "email", "description", "created"],
+              "additionalProperties": true,
+              "x-zui": {}
+            },
+            "customers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "email": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "name": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "description": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "phone": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "address": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true,
+                        "x-zui": {}
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {}
+                  },
+                  "created": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "delinquent": {
+                    "type": ["boolean", "null"],
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "email", "description", "created"],
+                "additionalProperties": true,
+                "x-zui": {}
+              },
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    },
+    "retrieveCustomerById": {
+      "title": "Retrieve Customer By ID",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "The ID of the customer to retrieve",
+              "x-zui": {
+                "placeholder": "cus_1234567890"
+              }
+            }
+          },
+          "required": ["id"],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "email": {
+              "type": ["string", "null"],
+              "x-zui": {}
+            },
+            "description": {
+              "type": ["string", "null"],
+              "x-zui": {}
+            },
+            "created": {
+              "type": "number",
+              "x-zui": {}
+            }
+          },
+          "additionalProperties": true,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "channels": {},
+  "states": {
+    "stripeIntegrationInfo": {
+      "type": "integration",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "stripeWebhookId": {
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["stripeWebhookId"],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "interfaces": {}
+}

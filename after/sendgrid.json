@@ -1,0 +1,439 @@
+{
+  "name": "sendgrid",
+  "version": "0.1.7",
+  "title": "SendGrid",
+  "description": "Send markdown rich-text emails using the SendGrid email service.",
+  "events": {
+    "delivered": {
+      "title": "Email Delivered",
+      "description": "An event that triggers when the SendGrid API delivers a given email to the recipient's email server. (This can also trigger alongside email bounces among other events)",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "email": {
+            "type": "string",
+            "description": "The designated recipient of the email",
+            "x-zui": {
+              "title": "Email recipient"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "email"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "bounced": {
+      "title": "Email Bounced",
+      "description": "An event that triggers when an email sent via the SendGrid API bounces. (e.g. Invalid Address, blocked, etc)",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "description": "The reason this event was triggered",
+            "x-zui": {
+              "title": "Event reason"
+            }
+          },
+          "classification": {
+            "type": "string",
+            "description": "The SendGrid classification for the bounce",
+            "x-zui": {
+              "title": "Bounce classification"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "The SendGrid type for why the email bounced (e.g. \"bounce\", \"blocked\", etc.)",
+            "x-zui": {
+              "title": "Bounce type"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "classification",
+          "type"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "deferred": {
+      "title": "Email Deferred",
+      "description": "An event that triggers when the SendGrid API fails a delivery attempt to the recipient's email server. (This will often re-attempt a few times before stopping)",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "attempt": {
+            "type": "string",
+            "description": "The delivery attempts that have been made for the sent email",
+            "x-zui": {
+              "title": "Delivery attempts"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "attempt"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "processed": {
+      "title": "Email Processed",
+      "description": "An event that triggers when the SendGrid API has processed an outbound email.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "sendAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the email is scheduled to be sent at",
+            "x-zui": {
+              "title": "Scheduled send timestamp"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "sendAt"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "opened": {
+      "title": "Email Opened",
+      "description": "An event that triggers when the SendGrid API detects that an email has been opened by the recipient. (Must have 'Open Tracking' enabled)
+
+Note: This may be subject to privacy regulations of the email recipient's country",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "description": "The reason this event was triggered",
+            "x-zui": {
+              "title": "Event reason"
+            }
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "format": "email",
+            "description": "The designated recipient of the email",
+            "x-zui": {
+              "title": "Email recipient"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "email"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    "clicked": {
+      "title": "Email Link Clicked",
+      "description": "An event that triggers when the SendGrid API detects that a link in the email has been clicked on by the recipient.(Must have 'Click Tracking' enabled)
+
+Note: This may be subject to privacy regulations of the email recipient's country",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "description": "The ID for the webhook event",
+            "x-zui": {
+              "title": "Webhook event ID"
+            }
+          },
+          "messageId": {
+            "type": "string",
+            "description": "The ID for the sent email message",
+            "x-zui": {
+              "title": "Email message ID"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "A UTC datetime representing when the event was triggered",
+            "x-zui": {
+              "title": "Event timestamp"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "description": "The reason this event was triggered",
+            "x-zui": {
+              "title": "Event reason"
+            }
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "format": "email",
+            "description": "The designated recipient of the email",
+            "x-zui": {
+              "title": "Email recipient"
+            }
+          },
+          "url": {
+            "type": "string",
+            "description": "The destination URL of the link that was clicked",
+            "x-zui": {
+              "title": "Clicked URL"
+            }
+          },
+          "urlOffset": {
+            "type": "number",
+            "description": "A zero-based index, ordered by first appearance, of which link was clicked in an email when it shares a \"url\" with another link",
+            "x-zui": {
+              "title": "URL offset"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "timestamp",
+          "email",
+          "url",
+          "urlOffset"
+        ],
+        "additionalProperties": false,
+        "x-zui": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  },
+  "actions": {
+    "sendMail": {
+      "title": "Send Email",
+      "description": "Sends an email to the specified client",
+      "input": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "minLength": 1,
+              "format": "email",
+              "description": "The email address of the correspondent (e.g. example@example.com)",
+              "x-zui": {
+                "title": "Email Sender"
+              }
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "format": "email",
+              "description": "The email address of the correspondent (e.g. example@example.com)",
+              "x-zui": {
+                "title": "Email Recipient"
+              }
+            },
+            "cc": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "format": "email",
+                "x-zui": {}
+              },
+              "description": "List of carbon copy recipients",
+              "x-zui": {
+                "title": "Carbon Copy"
+              }
+            },
+            "bcc": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "format": "email",
+                "x-zui": {}
+              },
+              "description": "List of blind carbon copy recipients",
+              "x-zui": {
+                "title": "Blind Carbon Copy"
+              }
+            },
+            "subject": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The subject of the email (e.g. How to build a bot with Botpress!)",
+              "x-zui": {
+                "title": "Email Subject"
+              }
+            },
+            "body": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The markdown rich-text body of the email",
+              "x-zui": {
+                "title": "Email Body"
+              }
+            },
+            "replyTo": {
+              "type": "string",
+              "minLength": 1,
+              "format": "email",
+              "description": "The email address of the correspondent (e.g. example@example.com)",
+              "x-zui": {
+                "title": "Reply To"
+              }
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "subject",
+            "body"
+          ],
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      "output": {
+        "schema": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false,
+          "x-zui": {},
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    }
+  },
+  "interfaces": {}
+}
