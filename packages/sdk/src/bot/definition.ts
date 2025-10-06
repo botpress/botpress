@@ -142,6 +142,10 @@ export type BotDefinitionProps<
   }
 
   attributes?: Record<string, string>
+
+  __advanced?: {
+    useLegacyZuiTransformer?: boolean
+  }
 }
 
 export class BotDefinition<
@@ -164,6 +168,7 @@ export class BotDefinition<
   public readonly tables: this['props']['tables']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
+  public readonly __advanced: this['props']['__advanced']
 
   /** Bot definition with plugins merged into it */
   public readonly withPlugins: Pick<
@@ -185,6 +190,7 @@ export class BotDefinition<
     this.tables = props.tables
     this.workflows = props.workflows
     this.attributes = props.attributes
+    this.__advanced = props.__advanced
 
     this.withPlugins = {
       user: props.user,
