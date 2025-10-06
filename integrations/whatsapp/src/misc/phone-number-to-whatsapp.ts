@@ -9,7 +9,12 @@ const WA_MEXICO_COUNTRY_CODE = 52
 const WA_MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
 
 export function parseForWhatsApp(raw: string, defaultRegion: string = 'CA') {
-  const parsed: ParsedPhoneNumber = parsePhoneNumber(raw, { regionCode: defaultRegion })
+  let parsed: ParsedPhoneNumber
+  if (raw.startsWith('+')) {
+    parsed = parsePhoneNumber(raw)
+  } else {
+    parsed = parsePhoneNumber(raw, { regionCode: defaultRegion })
+  }
   if (!parsed?.valid) {
     throw new RuntimeError('Invalid phone number')
   }
