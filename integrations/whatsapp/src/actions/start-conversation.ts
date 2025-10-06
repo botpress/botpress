@@ -3,7 +3,6 @@ import axios from 'axios'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient, getAccessToken, MetaOauthClient } from '../auth'
-import { getStrippedPhoneNumber } from '../misc/util'
 import * as bp from '.botpress'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
@@ -43,7 +42,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: getStrippedPhoneNumber(userPhone),
+      userPhone,
     },
   })
 

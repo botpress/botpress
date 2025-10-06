@@ -50,7 +50,3 @@ export const getMessageFromWhatsappMessageId = async (
   })
   return messages[0]
 }
-
-export const getStrippedPhoneNumber = (phoneNumber: string) => {
-  return phoneNumber.replace(/\D/g, '')
-}
