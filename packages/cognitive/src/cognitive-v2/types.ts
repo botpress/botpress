@@ -1,21 +1,7 @@
-type Models =
+export type Models =
   | 'auto'
   | 'best'
   | 'fast'
-  | 'reasoning'
-  | 'cheapest'
-  | 'balance'
-  | 'recommended'
-  | 'reasoning'
-  | 'general-purpose'
-  | 'low-cost'
-  | 'vision'
-  | 'coding'
-  | 'function-calling'
-  | 'agents'
-  | 'storytelling'
-  | 'preview'
-  | 'roleplay'
   | 'anthropic:claude-3-5-haiku-20241022'
   | 'anthropic:claude-3-5-sonnet-20240620'
   | 'anthropic:claude-3-5-sonnet-20241022'
@@ -70,6 +56,7 @@ type Models =
   | 'xai:grok-4-fast-reasoning'
   | 'xai:grok-code-fast-1'
   | ({} & string)
+
 export type CognitiveRequest = {
   /**
    * @minItems 1

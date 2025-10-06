@@ -1,3 +1,4 @@
+import { Models } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 import { cloneDeep, isPlainObject } from 'lodash-es'
 import { ulid } from 'ulid'
@@ -16,8 +17,6 @@ import { Transcript, TranscriptArray } from './transcript.js'
 import { wrapContent } from './truncator.js'
 import { ObjectMutation, Serializable, Trace } from './types.js'
 
-export type Model = 'best' | 'fast' | `${string}:${string}` | (string & {})
-
 export type IterationParameters = {
   transcript: TranscriptArray
   tools: Tool[]
@@ -25,7 +24,7 @@ export type IterationParameters = {
   exits: Exit[]
   instructions?: string
   components: Component[]
-  model: Model
+  model: Models | Models[]
   temperature: number
 }
 
@@ -350,7 +349,7 @@ export namespace Iteration {
     messages: LLMzPrompts.Message[]
     code?: string
     traces: Trace[]
-    model: Model
+    model: Models | Models[]
     temperature: number
     variables: Record<string, any>
     started_ts: number
@@ -584,7 +583,7 @@ export class Context implements Serializable<Context.JSON> {
   public objects?: ValueOrGetter<ObjectInstance[], Context>
   public tools?: ValueOrGetter<Tool[], Context>
   public exits?: ValueOrGetter<Exit[], Context>
-  public model?: ValueOrGetter<Model, Context>
+  public model?: ValueOrGetter<Models | Models[], Context>
   public temperature: ValueOrGetter<number, Context>
 
   public version: Prompt = DualModePrompt
@@ -910,7 +909,7 @@ export class Context implements Serializable<Context.JSON> {
     exits?: ValueOrGetter<Exit[], Context>
     loop?: number
     temperature?: ValueOrGetter<number, Context>
-    model?: ValueOrGetter<Model, Context>
+    model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
     snapshot?: Snapshot
     timeout?: number

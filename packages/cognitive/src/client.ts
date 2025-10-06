@@ -40,6 +40,7 @@ export class Cognitive {
   protected _provider: ModelProvider
   protected _downtimes: ModelPreferences['downtimes'] = []
   protected _useBeta: boolean = false
+  protected _debug = false
 
   private _events = createNanoEvents<Events>()
 
@@ -61,11 +62,14 @@ export class Cognitive {
       provider: this._provider,
       timeout: this._timeoutMs,
       maxRetries: this._maxRetries,
+      __debug: this._debug,
+      __experimental_beta: this._useBeta,
     })
 
     copy._models = [...this._models]
     copy._preferences = this._preferences ? { ...this._preferences } : null
     copy._downtimes = [...this._downtimes]
+
     copy.interceptors.request = this.interceptors.request
     copy.interceptors.response = this.interceptors.response
 

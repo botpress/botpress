@@ -11,6 +11,7 @@ type ClientProps = {
   botId?: string
   token?: string
   withCredentials?: boolean
+  debug?: boolean
   headers?: Record<string, string>
 }
 
@@ -21,12 +22,15 @@ type RequestOptions = {
 
 const isBrowser = () => typeof window !== 'undefined' && typeof window.fetch === 'function'
 
+export { Models } from './types'
+
 export class CognitiveBeta {
   private _axiosClient: AxiosInstance
   private readonly _apiUrl: string
   private readonly _timeout: number
   private readonly _withCredentials: boolean
   private readonly _headers: Record<string, string>
+  private readonly _debug: boolean = false
 
   public constructor(props: ClientProps) {
     this._apiUrl = props.apiUrl || 'https://api.botpress.cloud'
@@ -42,10 +46,25 @@ export class CognitiveBeta {
       this._headers['Authorization'] = `Bearer ${props.token}`
     }
 
+    if (props.debug) {
+      this._debug = true
+      this._headers['X-Debug'] = '1'
+    }
+
     this._axiosClient = axios.create({
       headers: this._headers,
       withCredentials: this._withCredentials,
       baseURL: this._apiUrl,
+    })
+  }
+
+  public clone(): CognitiveBeta {
+    return new CognitiveBeta({
+      apiUrl: this._apiUrl,
+      timeout: this._timeout,
+      withCredentials: this._withCredentials,
+      headers: this._headers,
+      debug: this._debug,
     })
   }
 
