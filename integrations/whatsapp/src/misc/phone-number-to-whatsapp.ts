@@ -8,7 +8,7 @@ const WA_ARGENTINA_COUNTRY_CODE_TO_REMOVE = 15
 const WA_MEXICO_COUNTRY_CODE = 52
 const WA_MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
 
-export function parseForWhatsApp(raw: string, defaultRegion: string = 'CA') {
+export function formatPhoneNumber(raw: string, defaultRegion: string = 'CA') {
   let parsed: ParsedPhoneNumber
   if (raw.startsWith('+')) {
     parsed = parsePhoneNumber(raw)

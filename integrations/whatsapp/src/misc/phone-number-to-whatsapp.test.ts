@@ -7,7 +7,7 @@ vi.mock('awesome-phonenumber', () => {
 })
 
 import { parsePhoneNumber } from 'awesome-phonenumber'
-import { parseForWhatsApp } from './phone-number-to-whatsapp'
+import { formatPhoneNumber } from './phone-number-to-whatsapp'
 
 type MockPN = {
   valid: boolean
@@ -36,12 +36,12 @@ describe('parseForWhatsApp (edge cases)', () => {
 
   it('throws on invalid phone number', () => {
     ;(parsePhoneNumber as any).mockReturnValue(asPN({ valid: false }))
-    expect(() => parseForWhatsApp('garbage', 'US')).toThrow('Invalid phone number')
+    expect(() => formatPhoneNumber('garbage', 'US')).toThrow('Invalid phone number')
   })
 
   it('uses default region "CA" when none is provided', () => {
     ;(parsePhoneNumber as any).mockReturnValue(asPN({ valid: true }))
-    parseForWhatsApp('416-555-0123')
+    formatPhoneNumber('416-555-0123')
     expect(parsePhoneNumber).toHaveBeenCalledWith('416-555-0123', { regionCode: 'CA' })
   })
 
@@ -52,7 +52,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '+54150111234567' },
       })
     )
-    const out = parseForWhatsApp('15 011 1234 567', 'AR')
+    const out = formatPhoneNumber('15 011 1234 567', 'AR')
     expect(out).toBe('+549111234567')
   })
 
@@ -63,7 +63,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '+54001123456789' },
       })
     )
-    const out = parseForWhatsApp('011 2345 6789', 'AR')
+    const out = formatPhoneNumber('011 2345 6789', 'AR')
     expect(out).toBe('+5491123456789')
   })
 
@@ -74,7 +74,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '+5205574759563' },
       })
     )
-    const out = parseForWhatsApp('055-7475-9563', 'MX')
+    const out = formatPhoneNumber('055-7475-9563', 'MX')
     expect(out).toBe('+5215574759563')
   })
 
@@ -85,7 +85,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '+44001511234567' },
       })
     )
-    const out = parseForWhatsApp('(0151 12) 34 567', 'GB')
+    const out = formatPhoneNumber('(0151 12) 34 567', 'GB')
     expect(out).toBe('+441511234567')
   })
 
@@ -96,7 +96,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '+14155552671' },
       })
     )
-    const out = parseForWhatsApp('(415) 555-2671', 'US')
+    const out = formatPhoneNumber('(415) 555-2671', 'US')
     expect(out).toBe('+14155552671')
   })
 
@@ -107,7 +107,7 @@ describe('parseForWhatsApp (edge cases)', () => {
         number: { e164: '14165550123' as any },
       })
     )
-    const out = parseForWhatsApp('416-555-0123', 'CA')
+    const out = formatPhoneNumber('416-555-0123', 'CA')
     expect(out).toBe('+14165550123')
   })
 })
