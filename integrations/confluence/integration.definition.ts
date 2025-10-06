@@ -46,6 +46,9 @@ export default new sdk.IntegrationDefinition({
       id: { title: 'User ID', description: 'The ID of the user in confluence' },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(readable, ({ entities }) => ({
     entities: { item: entities.page },

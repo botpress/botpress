@@ -43,4 +43,7 @@ export default new IntegrationDefinition({
       },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
