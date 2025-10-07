@@ -8,14 +8,13 @@ export type Models =
   | 'anthropic:claude-3-7-sonnet-20250219'
   | 'anthropic:claude-3-haiku-20240307'
   | 'anthropic:claude-sonnet-4-20250514'
+  | 'anthropic:claude-sonnet-4-5-2025092'
   | 'cerebras:gpt-oss-120b'
   | 'cerebras:llama-4-scout-17b-16e-instruct'
   | 'cerebras:llama3.1-8b'
   | 'cerebras:llama3.3-70b'
   | 'cerebras:qwen-3-32b'
-  | 'fireworks-ai:deepseek-r1'
   | 'fireworks-ai:deepseek-r1-0528'
-  | 'fireworks-ai:deepseek-r1-basic'
   | 'fireworks-ai:deepseek-v3-0324'
   | 'fireworks-ai:gpt-oss-120b'
   | 'fireworks-ai:gpt-oss-20b'
@@ -23,7 +22,6 @@ export type Models =
   | 'fireworks-ai:llama-v3p3-70b-instruct'
   | 'fireworks-ai:llama4-maverick-instruct-basic'
   | 'fireworks-ai:llama4-scout-instruct-basic'
-  | 'fireworks-ai:mixtral-8x22b-instruct'
   | 'fireworks-ai:mixtral-8x7b-instruct'
   | 'fireworks-ai:mythomax-l2-13b'
   | 'google-ai:gemini-2.5-flash'
@@ -31,10 +29,10 @@ export type Models =
   | 'google-ai:models/gemini-2.0-flash'
   | 'groq:deepseek-r1-distill-llama-70b'
   | 'groq:gemma2-9b-it'
+  | 'groq:gpt-oss-120b'
+  | 'groq:gpt-oss-20b'
   | 'groq:llama-3.1-8b-instant'
   | 'groq:llama-3.3-70b-versatile'
-  | 'groq:openai/gpt-oss-120b'
-  | 'groq:openai/gpt-oss-20b'
   | 'openai:gpt-4.1-2025-04-14'
   | 'openai:gpt-4.1-mini-2025-04-14'
   | 'openai:gpt-4.1-nano-2025-04-14'
@@ -55,8 +53,41 @@ export type Models =
   | 'xai:grok-4-fast-non-reasoning'
   | 'xai:grok-4-fast-reasoning'
   | 'xai:grok-code-fast-1'
+  | 'openai:gpt-5'
+  | 'openai:gpt-5-mini'
+  | 'openai:gpt-5-nano'
+  | 'openai:o4-mini'
+  | 'openai:o3'
+  | 'openai:gpt-4.1'
+  | 'openai:gpt-4.1-mini'
+  | 'openai:gpt-4.1-nano'
+  | 'openai:o3-mini'
+  | 'openai:o1-mini'
+  | 'openai:gpt-4o-mini'
+  | 'openai:gpt-4o'
+  | 'anthropic:claude-sonnet-4-5'
+  | 'anthropic:claude-sonnet-4'
+  | 'anthropic:claude-sonnet-4-reasoning'
+  | 'groq:openai/gpt-oss-20b'
+  | 'groq:openai/gpt-oss-120b'
+  | 'fireworks-ai:accounts/fireworks/models/gpt-oss-20b'
+  | 'fireworks-ai:accounts/fireworks/models/gpt-oss-120b'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1-0528'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3-0324'
+  | 'fireworks-ai:accounts/fireworks/models/llama4-maverick-instruct-basic'
+  | 'fireworks-ai:accounts/fireworks/models/llama4-scout-instruct-basic'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p3-70b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-r1-basic'
+  | 'fireworks-ai:accounts/fireworks/models/deepseek-v3'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-405b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-70b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/llama-v3p1-8b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mixtral-8x22b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mixtral-8x7b-instruct'
+  | 'fireworks-ai:accounts/fireworks/models/mythomax-l2-13b'
+  | 'fireworks-ai:accounts/fireworks/models/gemma2-9b-it'
   | ({} & string)
-
 export type CognitiveRequest = {
   /**
    * @minItems 1
@@ -127,8 +158,10 @@ export type CognitiveStreamChunk = {
     }
   }
 }
+
 export type CognitiveResponse = {
   output: string
+  reasoning?: string
   metadata: {
     provider: string
     model?: string
@@ -147,7 +180,7 @@ export type CognitiveResponse = {
     stopReason?: 'stop' | 'length' | 'content_filter' | 'error'
     reasoningEffort?: string
     warnings?: {
-      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'fallback_used'
+      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'discontinued_model' | 'fallback_used'
       message: string
     }[]
     /**
@@ -160,6 +193,7 @@ export type CognitiveResponse = {
   }
   error?: string
 }
+
 export type Model = {
   id: string
   name: string
