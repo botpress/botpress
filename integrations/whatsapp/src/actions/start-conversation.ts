@@ -1,7 +1,8 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import axios from 'axios'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
-import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
+import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient, getAccessToken, MetaOauthClient } from '../auth'
 import * as bp from '.botpress'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
@@ -64,6 +65,21 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     )
   }
 
+  await client
+    .createMessage({
+      origin: 'synthetic',
+      conversationId: conversation.id,
+      userId: ctx.botId,
+      tags: {},
+      type: 'text',
+      payload: {
+        text: await _getTemplateText(ctx, client, logger, templateName, templateLanguage, templateVariables),
+      },
+    })
+    .catch((err: any) => {
+      logger.forBot().error(`Failed to Create synthetic message from template message - Error: ${err?.message ?? ''}`)
+    })
+
   logger
     .forBot()
     .info(
@@ -110,4 +126,176 @@ function _parseTemplateVariablesJSON(
   }
 
   return validationResult.data
+}
+
+type Component =
+  | {
+      type: 'HEADER'
+      format: 'TEXT'
+      text?: string
+    }
+  | {
+      type: 'HEADER'
+      format: 'IMAGE' | 'VIDEO' | 'GIF' | 'DOCUMENT'
+      example: {
+        header_handle: string[]
+      }
+    }
+  | {
+      type: 'HEADER'
+      format: undefined
+      parameters: [
+        {
+          type: 'location'
+          location: {
+            latitude: string
+            longitude: string
+            name: string
+            address: string
+          }
+        },
+      ]
+    }
+  | {
+      type: 'BODY'
+      text?: string
+    }
+  | {
+      type: 'FOOTER'
+      text?: string
+    }
+  | {
+      type: 'BUTTONS'
+      buttons: { text?: string }[]
+    }
+  | {
+      type: 'FLOW'
+      text?: string
+    }
+  | {
+      type: 'PHONE_NUMBER'
+      text?: string
+    }
+  | {
+      type: 'QUICK_REPLY'
+      text?: string
+    }
+  | {
+      type: 'URL'
+      text?: string
+    }
+
+const _parseComponent = (
+  component: Component,
+  bodyText: z.infer<typeof TemplateVariablesSchema>
+): string | undefined => {
+  let compText
+  switch (component.type) {
+    case 'BODY':
+      compText = component.text ?? 'body has no text'
+      return `[BODY]\n${_getRenderedbodyText(compText, bodyText)}\n`
+    case 'HEADER':
+      if (!component.format) {
+        compText = component.parameters.flatMap((parameter) => {
+          return `lat: ${parameter.location.latitude} long: ${parameter.location.longitude} address: ${parameter.location.address} name: ${parameter.location.name}\n`
+        })
+        return `[LOCATION]${compText}`
+      } else if (component.format === 'TEXT') {
+        compText = component.text ?? 'header has no text'
+        return `[HEADER TEXT]\n${component.text}\n`
+      } else {
+        compText = component.example.header_handle.flatMap((url) => `${url}\n`)
+        return `[HEADER MEDIA ${component.format}]\n${compText}\n`
+      }
+    case 'BUTTONS':
+      compText = component.buttons.flatMap((button) => {
+        if (button.text) {
+          return
+        }
+        return `${button.text}\n`
+      })
+      return `[buttons]\n${compText}`
+    case 'FOOTER':
+      compText = component.text ?? 'footer has no text'
+      return `[FOOTER]\n${compText}\n`
+    case 'FLOW':
+      compText = component.text ?? 'body has no text'
+      return `[FLOW]\n${compText}\n`
+    case 'QUICK_REPLY':
+      compText = component.text ?? 'body has no text'
+      return `[QUICK_REPLY]\n${compText}\n`
+    case 'PHONE_NUMBER':
+      compText = component.text ?? 'body has no text'
+      return `[PHONE_NUMBER]\n${compText}\n`
+    case 'URL':
+      compText = component.text ?? 'body has no text'
+      return `[URL]\n${compText}\n`
+    default:
+      return undefined
+  }
+}
+
+const _getRenderedbodyText = (text: string, bodyText: z.infer<typeof TemplateVariablesSchema>): string => {
+  bodyText.forEach((value, index) => {
+    const placeholder = new RegExp(`{{${index + 1}}}`, 'g')
+    text = text.replace(placeholder, value.toString())
+  })
+
+  return text
+}
+
+const _getTemplateText = async (
+  ctx: bp.Context,
+  client: bp.Client,
+  logger: bp.Logger,
+  templateName: string,
+  templateLanguage: string,
+  bodyText: z.infer<typeof TemplateVariablesSchema>
+): Promise<string> => {
+  if (ctx.configurationType === 'manual') {
+    return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+  } else {
+    let templateText = ''
+
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    const accessToken = state.payload.accessToken ?? ''
+
+    const metaOauthClient = new MetaOauthClient(logger)
+    const waba_id = await metaOauthClient.getWhatsappBusinessesFromToken(accessToken).catch((e) => {
+      logger.forBot().debug('Failed to fetch waba_id', e.response?.data || e.message || e)
+      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+    })
+
+    const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
+    const templateComponents: Component[] | undefined = await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
+        },
+      })
+      .then((res) => {
+        if (!res.data.data[0]) {
+          return undefined
+        }
+        return res.data.data[0].components
+      })
+      .catch((e) => {
+        logger.forBot().debug('Failed to fetch template components', e.response?.data || e.message || e)
+        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      })
+
+    if (!templateComponents) {
+      logger.forBot().debug('The template components are undefined')
+      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+    }
+
+    for (const component of templateComponents) {
+      const componentText = _parseComponent(component, bodyText)
+      if (!componentText) {
+        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      }
+      templateText += componentText
+    }
+    return templateText
+  }
 }
