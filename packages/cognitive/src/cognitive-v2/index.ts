@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
-import { defaultModel, knownTags, models } from './models'
+import { defaultModel, models } from './models'
 import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
@@ -236,8 +236,8 @@ export const getCognitiveV2Model = (model: string): Model | undefined => {
     return alias
   }
 
-  // Special tags like auto, fast, coding don't have explicit limits so we give a default model
-  if (knownTags.includes(model)) {
+  // Special tags like auto, fast dont have explicit limits so we give a default model
+  if (['auto', 'fast', 'best'].includes(model)) {
     return { ...defaultModel, id: model, name: model }
   }
   return undefined
