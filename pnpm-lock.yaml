@@ -2733,9 +2733,6 @@ importers:
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
       jsonrepair:
         specifier: ^3.10.0
         version: 3.10.0

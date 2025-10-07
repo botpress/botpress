@@ -19,13 +19,13 @@ const parseJson = <T>(expectedSchema: sdk.ZodSchema, str: string): T => {
   return expectedSchema.parse(parsed)
 }
 
-type ParseLLMOutputArgs = LLMOutput & { schema: sdk.ZodSchema }
-export const parseLLMOutput = <T>(args: ParseLLMOutputArgs): PredictResponse<T> => {
-  const mappedChoices: LLMChoice['content'][] = args.choices.map((choice) => choice.content)
+type ParseLLMOutputProps = LLMOutput & { schema: sdk.ZodSchema }
+export const parseLLMOutput = <T>(props: ParseLLMOutputProps): PredictResponse<T> => {
+  const mappedChoices: LLMChoice['content'][] = props.choices.map((choice) => choice.content)
   if (!mappedChoices[0]) throw new sdk.RuntimeError('Could not parse LLM output')
   const firstChoice = mappedChoices[0]
   return {
     success: true,
-    json: parseJson<T>(args.schema, firstChoice.toString()),
+    json: parseJson<T>(props.schema, firstChoice.toString()),
   }
 }
