@@ -21,6 +21,9 @@ export default new sdk.IntegrationDefinition({
   events,
   secrets,
   states,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(listable, ({ entities }) => ({
     entities: { item: entities.event },

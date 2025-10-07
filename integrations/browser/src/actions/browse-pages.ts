@@ -1,23 +1,7 @@
-import { IntegrationLogger } from '@botpress/sdk'
-import axios from 'axios'
+import { IntegrationLogger, RuntimeError } from '@botpress/sdk'
+import Firecrawl from '@mendable/firecrawl-js'
 import { FullPage } from 'src/definitions/actions'
 import * as bp from '.botpress'
-
-type FireCrawlResponse = {
-  success: boolean
-  data: {
-    markdown: string
-    metadata: {
-      ogLocaleAlternate: string[]
-      favicon?: string
-      title?: string | string[] | null
-      description?: string | string[] | null
-      sourceURL: string
-      error: string | null
-      statusCode: number
-    }
-  }
-}
 
 const COST_PER_PAGE = 0.0015
 
@@ -37,37 +21,35 @@ const getPageContent = async (props: {
   timeout?: number
   maxAge?: number
 }): Promise<FullPage> => {
+  const firecrawl = new Firecrawl({ apiKey: bp.secrets.FIRECRAWL_API_KEY })
+
   const startTime = Date.now()
-  const { data: result } = await axios.post<FireCrawlResponse>(
-    'https://api.firecrawl.dev/v1/scrape',
-    {
-      url: props.url,
+
+  try {
+    const result = await firecrawl.scrape(props.url, {
+      fastMode: true,
       onlyMainContent: true,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      removeBase64Images: true,
       waitFor: props.waitFor,
       timeout: props.timeout,
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${bp.secrets.FIRECRAWL_API_KEY}`,
-      },
+      formats: ['markdown', 'rawHtml'],
+      storeInCache: true,
+    })
+
+    props.logger.forBot().debug(`Firecrawl API call took ${Date.now() - startTime}ms for url: ${props.url}`)
+
+    return {
+      url: props.url,
+      content: result.markdown!,
+      raw: result.rawHtml!,
+      favicon: fixOutput(result.metadata?.favicon),
+      title: fixOutput(result.metadata?.title),
+      description: fixOutput(result.metadata?.description),
     }
-  )
-
-  const { metadata, markdown } = result.data
-
-  props.logger.forBot().info(`Browsing ${props.url} took ${Date.now() - startTime}ms`, {
-    size: markdown.length,
-    statusCode: metadata.statusCode,
-    error: metadata.error,
-  })
-
-  return {
-    url: props.url,
-    content: markdown,
-    favicon: fixOutput(metadata.favicon),
-    title: fixOutput(metadata.title),
-    description: fixOutput(metadata.description),
+  } catch (err) {
+    props.logger.error('There was an error while calling Firecrawl API.', err)
+    throw new RuntimeError(`There was an error while browsing the page: ${props.url}`)
   }
 }
 

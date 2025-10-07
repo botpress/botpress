@@ -58,4 +58,7 @@ export default new IntegrationDefinition({
       output: { schema: bookEventOutputSchema },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

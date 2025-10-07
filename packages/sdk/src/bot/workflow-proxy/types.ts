@@ -81,7 +81,7 @@ export type WorkflowWithUtilities<
      * Should a workflow not be acknowledged **in a timely fashion**, it will be
      * retriggered 3 times before being marked as failed.
      */
-    acknowledgeStartOfProcessing(): Promise<void>
+    acknowledgeStartOfProcessing(): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
 
     /**
      * Marks the current workflow instance as failed and stops execution

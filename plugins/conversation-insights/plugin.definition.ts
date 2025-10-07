@@ -45,4 +45,7 @@ export default new PluginDefinition({
   interfaces: {
     llm,
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
