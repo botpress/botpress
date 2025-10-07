@@ -30,6 +30,7 @@ const captureScreenshot: ActionDefinition = {
 const fullPage = z.object({
   url: z.string(),
   content: z.string(),
+  raw: z.string(),
   favicon: z.string().optional(),
   title: z.string().optional(),
   description: z.string().optional(),
