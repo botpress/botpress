@@ -1,6 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { getPartialMetaClientCredentials, patchMetaClientCredentials } from '../../../misc/auth'
-import { FacebookClient } from '../../../misc/facebook-client'
+import { createMetaClient } from '../../../misc/meta-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -80,8 +80,8 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
     })
   }
 
-  const facebookClient = new FacebookClient({ accessToken: '', pageId: '' }, logger)
-  const accessToken = await facebookClient.exchangeAuthorizationCodeForAccessToken(
+  const metaClient = await createMetaClient(ctx, client, logger)
+  const accessToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
     authorizationCode,
     _getOAuthRedirectUri(ctx)
   )
@@ -100,8 +100,8 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
     })
   }
 
-  const facebookClient = new FacebookClient({ accessToken, pageId: '' }, logger)
-  const pages = await facebookClient.getFacebookPagesFromToken(accessToken)
+  const metaClient = await createMetaClient(ctx, client, logger)
+  const pages = await metaClient.getFacebookPagesFromToken(accessToken)
 
   return responses.displayChoices({
     choices: pages.map((page) => ({
@@ -138,8 +138,8 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
     })
   }
 
-  const facebookClient = new FacebookClient({ accessToken, pageId }, logger)
-  const pageToken = await facebookClient.getPageToken(pageId)
+  const metaClient = await createMetaClient(ctx, client, logger)
+  const pageToken = await metaClient.getPageToken(pageId)
   if (!pageToken) {
     return responses.endWizard({
       success: false,
@@ -147,12 +147,11 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
     })
   }
 
-  facebookClient.setPageAccessToken(pageToken)
   await patchMetaClientCredentials(client, ctx, { pageToken, pageId })
 
-  if (!(await facebookClient.isSubscribedToWebhooks(pageId))) {
+  if (!(await metaClient.isSubscribedToWebhooks(pageId))) {
     logger.forBot().info(`Subscribing to webhooks for OAuth page ${pageId}`)
-    await facebookClient.subscribeToWebhooks(pageId)
+    await metaClient.subscribeToWebhooks(pageId)
   }
 
   logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)

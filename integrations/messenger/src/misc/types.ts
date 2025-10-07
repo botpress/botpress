@@ -17,10 +17,15 @@ export type SendMessageProps = Pick<
   'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
 >
 
-export type FacebookClientConfig = {
+export type MetaClientConfig = {
   accessToken: string
-  pageToken?: string
+  clientId: string
+  clientSecret: string
+}
+
+export type FacebookClientConfig = {
   pageId: string
+  pageAccessToken: string
 }
 
 export type CommentReply = {

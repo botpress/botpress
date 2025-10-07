@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getMetaClientCredentials } from './misc/auth'
-import { createFacebookClient } from './misc/facebook-client'
+import { createMetaClient } from './misc/meta-client'
 
 import * as bp from '.botpress'
 import type { ManualConfig } from '.botpress/implementation/typings/configurations/manual'
@@ -31,10 +31,10 @@ const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
   }
 
   try {
-    const facebookClient = await createFacebookClient(ctx, client, logger)
+    const metaClient = await createMetaClient(ctx, client, logger)
 
     await _clearAllIdentifiers(props)
-    await facebookClient.subscribeToWebhooks(pageId)
+    await metaClient.subscribeToWebhooks(pageId)
 
     await client.configureIntegration({
       identifier: pageId,
@@ -66,9 +66,9 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const { pageId } = credentials
-  const facebookClient = await createFacebookClient(ctx, client, logger)
-  if (await facebookClient.isSubscribedToWebhooks(pageId)) {
-    await facebookClient.unsubscribeFromWebhooks(pageId)
+  const metaClient = await createMetaClient(ctx, client, logger)
+  if (await metaClient.isSubscribedToWebhooks(pageId)) {
+    await metaClient.unsubscribeFromWebhooks(pageId)
   }
 }
 
