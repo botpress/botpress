@@ -61,7 +61,7 @@ export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefine
   const refs = Array.from(new Set(withoutDeprecated.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
   const aliases = models.flatMap((m) =>
     (m.aliases || []).map((a) => {
-      const [provider, model] = m.id.split(':')
+      const [provider] = m.id.split(':')
       return `${provider}:${a}`
     })
   )
