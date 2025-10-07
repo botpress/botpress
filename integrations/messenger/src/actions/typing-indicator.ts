@@ -24,7 +24,7 @@ const sendSenderActions = async ({
   const { conversation } = await client.getConversation({ id: conversationId })
 
   // Skip typing indicators for feed channel as it uses Facebook Page IDs, not Messenger user IDs
-  if (conversation.channel === 'feed') {
+  if (conversation.channel !== 'channel') {
     return {}
   }
 
