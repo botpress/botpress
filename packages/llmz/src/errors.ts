@@ -135,6 +135,7 @@ export class ThinkSignal extends VMLoopSignal {
   ) {
     super('Think signal received: ' + reason)
     this.message = Signals.serializeError(this)
+    this.stack = ''
   }
 
   public toString() {
@@ -164,6 +165,7 @@ export class InvalidCodeError extends Error {
   ) {
     super(message)
     this.message = Signals.serializeError(this)
+    this.stack = ''
   }
 }
 
@@ -171,6 +173,7 @@ export class LoopExceededError extends Error {
   public constructor() {
     super('Loop exceeded error')
     this.message = Signals.serializeError(this)
+    this.stack = ''
   }
 }
 
@@ -182,6 +185,7 @@ export class CodeFormattingError extends Error {
     super(message, {
       cause: 'Code formatting error',
     })
+    this.stack = ''
   }
 }
 
@@ -192,9 +196,18 @@ export class AssignmentError extends Error {
   }
 }
 
+export class CognitiveError extends Error {
+  public constructor(message: string) {
+    super(message)
+    this.message = Signals.serializeError(this)
+    this.stack = ''
+  }
+}
+
 registerErrorClass('VMSignal', VMSignal)
 registerErrorClass('SnapshotSignal', SnapshotSignal)
 registerErrorClass('VMLoopSignal', VMLoopSignal)
 registerErrorClass('ThinkSignal', ThinkSignal)
 registerErrorClass('CodeExecutionError', CodeExecutionError)
 registerErrorClass('AssignmentError', AssignmentError)
+registerErrorClass('CognitiveError', CognitiveError)
