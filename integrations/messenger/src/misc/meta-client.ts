@@ -65,18 +65,20 @@ export class MetaClient {
     return data.access_token
   }
 
+  public setPageToken(pageToken: string) {
+    this._userAccessToken = pageToken
+  }
+
   public async getPageToken(pageId: string) {
     const query = new URLSearchParams({
+      fields: 'access_token',
       access_token: this._userAccessToken,
-      fields: 'access_token,name',
     })
 
     const res = await axios.get(`${this._baseUrl}/${pageId}?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
-        name: z.string(),
-        id: z.string(),
       })
       .parse(res.data)
 
@@ -192,13 +194,10 @@ export async function createMetaClient(ctx: bp.Context, client?: bp.Client, logg
       throw new Error('Client is required for OAuth configuration')
     }
     const credentials = await getPartialMetaClientCredentials(client, ctx)
+
     accessToken = credentials.accessToken || ''
     clientId = bp.secrets.CLIENT_ID
     clientSecret = bp.secrets.CLIENT_SECRET
-  }
-
-  if (!accessToken) {
-    throw new Error('Meta access token is required')
   }
 
   return new MetaClient(

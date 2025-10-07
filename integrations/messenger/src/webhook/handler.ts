@@ -58,10 +58,8 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
       }
       return
     }
+    logger.forBot().warn('Error while parsing body as feed event payload')
   }
-
-  // Better log message
-  logger.forBot().warn('Error while parsing body as payload')
 
   return
 }

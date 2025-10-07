@@ -99,6 +99,9 @@ export async function createFacebookClient(
   if (ctx.configurationType === 'manual') {
     pageId = ctx.configuration.pageId
     pageAccessToken = ctx.configuration.accessToken
+  } else if (ctx.configurationType === 'sandbox') {
+    pageId = bp.secrets.SANDBOX_PAGE_ID
+    pageAccessToken = bp.secrets.SANDBOX_ACCESS_TOKEN
   } else {
     // For OAuth configurations, get credentials
     if (!client) {

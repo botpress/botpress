@@ -34,11 +34,8 @@ const _registerManual = async (props: RegisterProps, config: ManualConfig) => {
     const metaClient = await createMetaClient(ctx, client, logger)
 
     await _clearAllIdentifiers(props)
+    await _unsubscribeFromOAuthWebhooks(props)
     await metaClient.subscribeToWebhooks(pageId)
-
-    await client.configureIntegration({
-      identifier: pageId,
-    })
 
     logger.forBot().info(`Successfully registered manual integration for page ${pageId}`)
   } catch (thrown) {
