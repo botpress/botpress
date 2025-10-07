@@ -67,7 +67,7 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
     // only charging for successful pages
     const cost = results.length * COST_PER_PAGE
-    // metadata.setCost(cost)
+    metadata.setCost(cost)
 
     return {
       results,
