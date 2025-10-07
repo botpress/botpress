@@ -69,6 +69,7 @@ export const wrapWorkflowInstance = <
   client: BotSpecificClient<TBot> | client.Client
   workflow: client.Workflow
   event?: botServerTypes.WorkflowUpdateEvent
+  onWorkflowUpdate?: (newState: client.Workflow) => Promise<void> | void
 }): WorkflowWithUtilities<TBot, TWorkflowName> => {
   let isAcknowledged = false
 
@@ -77,16 +78,28 @@ export const wrapWorkflowInstance = <
 
     async update(x) {
       const { workflow } = await props.client.updateWorkflow({ id: props.workflow.id, ...x })
-      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow }) }
+      await props.onWorkflowUpdate?.(workflow)
+
+      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
     },
 
     async acknowledgeStartOfProcessing() {
       if (!props.event || props.workflow.status !== 'pending' || isAcknowledged) {
-        return
+        return {
+          workflow: wrapWorkflowInstance<TBot, TWorkflowName>(props),
+        }
       }
 
-      await props.client.updateWorkflow({ id: props.workflow.id, status: 'in_progress', eventId: props.event.id })
+      const { workflow } = await props.client.updateWorkflow({
+        id: props.workflow.id,
+        status: 'in_progress',
+        eventId: props.event.id,
+      })
       isAcknowledged = true
+
+      await props.onWorkflowUpdate?.(workflow)
+
+      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
     },
 
     async setFailed({ failureReason }) {
@@ -95,17 +108,24 @@ export const wrapWorkflowInstance = <
         status: 'failed',
         failureReason,
       })
-      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow }) }
+
+      await props.onWorkflowUpdate?.(workflow)
+
+      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
     },
 
     async setCompleted({ output } = {}) {
       const { workflow } = await props.client.updateWorkflow({ id: props.workflow.id, status: 'completed', output })
-      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow }) }
+      await props.onWorkflowUpdate?.(workflow)
+
+      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
     },
 
     async cancel() {
       const { workflow } = await props.client.updateWorkflow({ id: props.workflow.id, status: 'cancelled' })
-      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow }) }
+      await props.onWorkflowUpdate?.(workflow)
+
+      return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
     },
   }
 }
