@@ -1,4 +1,5 @@
 import * as cognitive from '@botpress/cognitive'
+import * as sdk from '@botpress/sdk'
 import * as gen from './prompt/parse-content'
 import * as sentiment from './prompt/sentiment-prompt'
 import * as summarizer from './prompt/summary-prompt'
@@ -19,11 +20,12 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     context: { previousTitle: props.conversation.tags.title, previousSummary: props.conversation.tags.summary },
   })
 
-  const parsedSummary = await _generateContentWithRetries<summarizer.OutputFormat>({
+  const parsedSummary = await _generateContentWithRetries<summarizer.SummaryOutput>({
     actions: props.actions,
     logger: props.logger,
     prompt: summaryPrompt,
     client: props.client,
+    schema: summarizer.SummaryOutput,
   })
 
   const sentimentPrompt = sentiment.createPrompt({
@@ -37,6 +39,7 @@ export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) =
     logger: props.logger,
     prompt: sentimentPrompt,
     client: props.client,
+    schema: sentiment.SentimentAnalysisOutput,
   })
 
   await props.client.updateConversation({
@@ -56,6 +59,7 @@ type ParsePromptProps = {
   logger: UpdateTitleAndSummaryProps['logger']
   prompt: gen.LLMInput
   client: cognitive.BotpressClientLike
+  schema: sdk.ZodSchema
 }
 const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<gen.PredictResponse<T>> => {
   let attemptCount = 0
@@ -63,12 +67,13 @@ const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<
 
   const cognitiveClient = new cognitive.Cognitive({ client: props.client, __experimental_beta: true })
   let llmOutput = await cognitiveClient.generateContent(props.prompt)
-  let parsed = gen.parseLLMOutput<T>(llmOutput.output)
+  let parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
 
+  //TODO: parser doesn not throw an error, so it fails silently. fix it
   while (!parsed.success && attemptCount < maxRetries) {
     props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
     llmOutput = await cognitiveClient.generateContent(props.prompt)
-    parsed = gen.parseLLMOutput<T>(llmOutput.output)
+    parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
     attemptCount++
   }
 
