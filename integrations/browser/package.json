@@ -8,6 +8,7 @@
   "private": true,
   "dependencies": {
     "@botpress/sdk": "workspace:*",
+    "@mendable/firecrawl-js": "^4.3.8",
     "axios": "^1.7.2"
   },
   "devDependencies": {
