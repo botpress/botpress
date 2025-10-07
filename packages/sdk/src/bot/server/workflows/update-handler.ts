@@ -68,9 +68,9 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
     return SUCCESS_RESPONSE
   }
 
-  const { workflowStatus } = await _dispatchToHandlers(props, event)
+  const { updatedWorkflow } = await _dispatchToHandlers(props, event)
 
-  if (workflowStatus === 'pending') {
+  if (updatedWorkflow.status === 'pending') {
     props.logger.warn(
       `Workflow "${event.payload.workflow.name}" is still in pending status after processing "${updateType}" event. ` +
         'This may indicate that the workflow was not properly acknowledged or terminated by the handler. '
@@ -80,16 +80,16 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
   return SUCCESS_RESPONSE
 }
 
-type WorkflowStatus = types.WorkflowUpdateEventPayload['workflow']['status']
+type WorkflowState = types.WorkflowUpdateEventPayload['workflow']
 
 const _dispatchToHandlers = async (
   props: types.ServerProps,
   event: types.WorkflowUpdateEvent
-): Promise<{ workflowStatus: WorkflowStatus }> => {
+): Promise<{ updatedWorkflow: WorkflowState }> => {
   const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
 
-  let workflowStatus: WorkflowStatus = event.payload.workflow.status
+  let currentWorkflowState: WorkflowState = structuredClone(event.payload.workflow)
 
   for (const handler of handlers!) {
     await handler({
@@ -99,15 +99,15 @@ const _dispatchToHandlers = async (
       user: event.payload.user,
       workflow: wrapWorkflowInstance({
         ...props,
-        workflow: { ...event.payload.workflow, status: workflowStatus },
+        workflow: currentWorkflowState,
         event,
-        onStatusChange(newStatus) {
-          workflowStatus = newStatus
+        onWorkflowUpdate(newState) {
+          currentWorkflowState = newState
         },
       }),
       workflows: proxyWorkflows(props.client),
     })
   }
 
-  return { workflowStatus }
+  return { updatedWorkflow: currentWorkflowState }
 }
