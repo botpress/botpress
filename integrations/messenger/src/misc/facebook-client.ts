@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { getMetaClientCredentials } from './auth'
+import { MetaClient } from './meta-client'
 import { FacebookClientConfig, CommentReply, PostReply } from './types'
 import * as bp from '.botpress'
-import { MetaClient } from './meta-client'
 
 export class FacebookClient {
   private _pageAccessToken: string
