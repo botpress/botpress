@@ -3,6 +3,18 @@ import { createTableInputSchema, getTableRecordsInputSchema, updateTableInputSch
 import type { IntegrationProps } from '../misc/types'
 import { fieldsStringToArray, getClient } from '../utils'
 
+export const listBases: IntegrationProps['actions']['listBases'] = async ({ ctx, logger }) => {
+  const AirtableClient = getClient(ctx.configuration)
+  try {
+    const bases = await AirtableClient.listBases()
+    logger.forBot().info(`Successful - List Bases - ${bases.length} bases`)
+    return { bases: bases }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to list bases', error)
+  }
+}
+
 export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = async ({ ctx, logger, input }) => {
   const validatedInput = getTableRecordsInputSchema.parse(input)
   const AirtableClient = getClient(ctx.configuration)

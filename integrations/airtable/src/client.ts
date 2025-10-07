@@ -24,6 +24,14 @@ export class AirtableApi {
     await this._axiosClient.get('/meta/whoami')
   }
 
+  public async listBases(): Promise<{ id: string; name: string; permissionLevel: string }[]> {
+    const response = await this._axiosClient.get('/meta/bases')
+    if (!response.data.bases) {
+      return []
+    }
+    return response.data.bases
+  }
+
   public async listRecords({
     tableIdOrName,
     filterByFormula,
@@ -47,6 +55,11 @@ export class AirtableApi {
       records,
       offset: response.data?.offset,
     }
+  }
+
+  public async listTables() {
+    const response = await this._axiosClient.get(`/meta/bases/${this._baseId}/tables`)
+    return response.data.tables
   }
 
   public async getTableRecords(tableIdOrName: string) {
