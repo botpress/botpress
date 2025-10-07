@@ -68,9 +68,9 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
     return SUCCESS_RESPONSE
   }
 
-  await _dispatchToHandlers(props, event)
+  const { updatedWorkflow } = await _dispatchToHandlers(props, event)
 
-  if (event.payload.workflow.status === 'pending') {
+  if (updatedWorkflow.status === 'pending') {
     props.logger.warn(
       `Workflow "${event.payload.workflow.name}" is still in pending status after processing "${updateType}" event. ` +
         'This may indicate that the workflow was not properly acknowledged or terminated by the handler. '
@@ -80,9 +80,16 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
   return SUCCESS_RESPONSE
 }
 
-const _dispatchToHandlers = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
+type WorkflowState = types.WorkflowUpdateEventPayload['workflow']
+
+const _dispatchToHandlers = async (
+  props: types.ServerProps,
+  event: types.WorkflowUpdateEvent
+): Promise<{ updatedWorkflow: WorkflowState }> => {
   const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
+
+  let currentWorkflowState: WorkflowState = structuredClone(event.payload.workflow)
 
   for (const handler of handlers!) {
     await handler({
@@ -90,8 +97,17 @@ const _dispatchToHandlers = async (props: types.ServerProps, event: types.Workfl
       event,
       conversation: event.payload.conversation,
       user: event.payload.user,
-      workflow: wrapWorkflowInstance({ ...props, workflow: event.payload.workflow, event }),
+      workflow: wrapWorkflowInstance({
+        ...props,
+        workflow: currentWorkflowState,
+        event,
+        onWorkflowUpdate(newState) {
+          currentWorkflowState = newState
+        },
+      }),
       workflows: proxyWorkflows(props.client),
     })
   }
+
+  return { updatedWorkflow: currentWorkflowState }
 }
