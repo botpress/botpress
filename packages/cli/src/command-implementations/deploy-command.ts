@@ -214,6 +214,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const icon = await this.readProjectFile(interfaceDeclaration.icon, 'base64')
     const readme = await this.readProjectFile(interfaceDeclaration.readme, 'base64')
 
+    if (this._visibility !== 'public') {
+      this.logger.warn(
+        'You are currently publishing a private interface, which cannot be used by integrations and plugins. To fix this, change the visibility to "public"'
+      )
+    }
+
     const createBody = {
       ...(await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)),
       public: this._visibility === 'public',

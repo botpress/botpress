@@ -47,4 +47,7 @@ export default new IntegrationDefinition({
       description: 'Whether to disable OAuth',
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

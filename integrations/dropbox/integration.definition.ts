@@ -26,4 +26,7 @@ export default new sdk.IntegrationDefinition({
       attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }))

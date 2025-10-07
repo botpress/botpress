@@ -1,4 +1,4 @@
-import { Cognitive, type BotpressClientLike } from '@botpress/cognitive'
+import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
 import { clamp, isEqual, isPlainObject, omit } from 'lodash-es'
@@ -7,10 +7,11 @@ import ms from 'ms'
 import { ulid } from 'ulid'
 import { createJoinedAbortController } from './abort-signal.js'
 import { Chat } from './chat.js'
-import { Context, Iteration, Model } from './context.js'
+import { Context, Iteration } from './context.js'
 import {
   AssignmentError,
   CodeExecutionError,
+  CognitiveError,
   InvalidCodeError,
   LoopExceededError,
   Signals,
@@ -224,7 +225,7 @@ export type ExecutionProps = {
    * The model to use for the LLM.
    * This can be a static model name or a function that returns a model name based on the current context.
    */
-  model?: ValueOrGetter<Model, Context>
+  model?: ValueOrGetter<Models | Models[], Context>
 
   /**
    * The temperature to use for the LLM.
@@ -378,8 +379,8 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const model = await cognitive.getModelDetails(iteration.model ?? 'best')
-  const modelLimit = model.input.maxTokens
+  const model = await cognitive.getModelDetails(Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model)
+  const modelLimit = Math.max(model.input.maxTokens, 8_000)
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
   const messages = truncateWrappedContent({
@@ -416,7 +417,7 @@ const executeIteration = async ({
       : null
 
   if (!out) {
-    throw new Error('No output from LLM')
+    throw new CognitiveError('LLM did not return any text output')
   }
 
   const assistantResponse = ctx.version.parseAssistantResponse(out)

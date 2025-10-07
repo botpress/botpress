@@ -12,4 +12,7 @@ export default new IntegrationDefinition({
   secrets: {
     QUICKCHARTS_API_KEY: {},
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

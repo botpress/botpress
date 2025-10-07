@@ -94,7 +94,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.1',
+  version: '4.5.2',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -409,6 +409,9 @@ export default new IntegrationDefinition({
       description: 'Proactive conversation with a WhatsApp user',
       schema: startConversationProps.input.schema.shape['conversation'],
     },
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
