@@ -1,5 +1,5 @@
 import * as chat from '@botpress/chat'
-import * as chalk from 'chalk'
+import chalk from 'chalk'
 import * as readline from 'readline'
 import * as uuid from 'uuid'
 import * as utils from '../utils'
