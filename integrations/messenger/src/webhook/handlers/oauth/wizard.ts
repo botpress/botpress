@@ -131,12 +131,7 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   const pageId = selectedChoice
-  if (!pageId) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: 'Page ID is not available, please try again',
-    })
-  }
+  await patchMetaClientCredentials(client, ctx, { pageId })
 
   const metaClient = await createMetaClient(ctx, client, logger)
   const pageToken = await metaClient.getPageToken(pageId)
@@ -148,6 +143,7 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   await patchMetaClientCredentials(client, ctx, { pageToken, pageId })
+  metaClient.setPageToken(pageToken)
 
   if (!(await metaClient.isSubscribedToWebhooks(pageId))) {
     logger.forBot().info(`Subscribing to webhooks for OAuth page ${pageId}`)
