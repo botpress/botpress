@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { createFacebookClient } from '../misc/facebook-client'
 import * as bp from '.botpress'
 
@@ -15,34 +16,34 @@ const feed: bp.IntegrationProps['channels']['feed'] = {
       await _replyToComment(commentId, payload.text, ctx, client, logger)
     },
     image: async () => {
-      // Empty implementation
+      throw new RuntimeError('Images are not supported for Feed. Use text instead.')
     },
     audio: async () => {
-      // Empty implementation
+      throw new RuntimeError('Audio messages are not supported for Feed. Use text instead.')
     },
     video: async () => {
-      // Empty implementation
+      throw new RuntimeError('Video messages are not supported for Feed. Use text instead.')
     },
     file: async () => {
-      // Empty implementation
+      throw new RuntimeError('File messages are not supported for Feed. Use text instead.')
     },
     location: async () => {
-      // Empty implementation
+      throw new RuntimeError('Location messages are not supported for Feed. Use text instead.')
     },
     carousel: async () => {
-      // Empty implementation
+      throw new RuntimeError('Carousel messages are not supported for Feed. Use text instead.')
     },
     card: async () => {
-      // Empty implementation
+      throw new RuntimeError('Card messages are not supported for Feed. Use text instead.')
     },
     dropdown: async () => {
-      // Empty implementation
+      throw new RuntimeError('Dropdown messages are not supported for Feed. Use text instead.')
     },
     choice: async () => {
-      // Empty implementation
+      throw new RuntimeError('Choice messages are not supported for Feed. Use text instead.')
     },
     bloc: async () => {
-      // Empty implementation
+      throw new RuntimeError('Bloc messages are not supported for Feed. Use text instead.')
     },
   },
 }
