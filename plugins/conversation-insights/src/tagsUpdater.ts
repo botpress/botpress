@@ -69,9 +69,11 @@ const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<
   let llmOutput = await cognitiveClient.generateContent(props.prompt)
   let parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
 
-  //TODO: parser doesn not throw an error, so it fails silently. fix it
   while (!parsed.success && attemptCount < maxRetries) {
-    props.logger.debug(`Attempt ${attemptCount + 1}: The LLM output did not respect the schema.`, parsed.json)
+    props.logger.debug(
+      `Attempt ${attemptCount + 1}: The LLM output did not respect the schema. It submitted: `,
+      parsed.json
+    )
     llmOutput = await cognitiveClient.generateContent(props.prompt)
     parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
     attemptCount++
