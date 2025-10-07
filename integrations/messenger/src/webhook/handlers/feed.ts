@@ -77,7 +77,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   // Use the thread resolver to create conversation based on root thread ID
   const { conversation } = await client.getOrCreateConversation({
     channel: 'feed',
-    tags: { id: comment_id, postId: post_id, commentId: comment_id, parentId: parent_id },
+    tags: { id: comment_id, postId: post_id },
   })
 
   const { user } = await client.getOrCreateUser({
@@ -88,9 +88,6 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     tags: {
       id: comment_id,
       postId: post_id,
-      commentId: comment_id,
-      parentId: parent_id,
-      eventType: 'comment',
     },
     type: 'text',
     payload: { text: message },

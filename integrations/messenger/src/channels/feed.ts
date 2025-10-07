@@ -5,15 +5,15 @@ import * as bp from '.botpress'
 const feed: bp.IntegrationProps['channels']['feed'] = {
   messages: {
     text: async (props) => {
-      const { logger, conversation, payload, ctx, client } = props
-      const { commentId } = conversation.tags
+      const { logger, conversation, payload, ctx, client, ack } = props
+      const { id } = conversation.tags
 
-      if (!commentId) {
+      if (!id) {
         logger.forBot().error('Comment ID is required to reply to comments')
         return
       }
 
-      await _replyToComment(commentId, payload.text, ctx, client, logger)
+      await _replyToComment(id, payload.text, ctx, client, logger, ack)
     },
     image: async () => {
       throw new RuntimeError('Images are not supported for Feed. Use text instead.')
@@ -49,22 +49,29 @@ const feed: bp.IntegrationProps['channels']['feed'] = {
 }
 
 const _replyToComment = async (
-  commentId: string,
+  id: string,
   message: string,
   ctx: bp.Context,
   client: bp.Client,
-  logger: bp.Logger
+  logger: bp.Logger,
+  ack: bp.AnyAckFunction
 ) => {
   const facebookClient = await createFacebookClient(ctx, client, logger)
   try {
-    logger.forBot().debug(`_replyToComment: Replying to comment ${commentId}: ${message}`)
-    await facebookClient.replyToComment({
-      commentId,
+    const response = await facebookClient.replyToComment({
+      commentId: id,
       message,
     })
+
+    // Update conversation tags with the new comment ID if ack is provided
+    if (response.id) {
+      await ack({ tags: { id: response.id } })
+    }
+
+    return response
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    logger.forBot().error(`Failed to reply to comment ${commentId}: ${error.message}`)
+    throw new RuntimeError(`Failed to reply to comment ${id}: ${error.message}`)
   }
 }
 
