@@ -2160,7 +2160,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.1
+        specifier: 0.5.2
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.25.0
