@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { parseLLMOutput, LLMOutput as COGNITIVE_OUTPUT } from './parse-content'
+import { parseLLMOutput } from './parse-content'
 import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
+import * as cognitive from '@botpress/cognitive'
 
-const COGNITIVE_OUTPUT = (content: string): COGNITIVE_OUTPUT => ({
+const COGNITIVE_OUTPUT = (content: string): cognitive.GenerateContentOutput => ({
   provider: 'test-provider',
   model: 'test-model',
   botpress: { cost: 0 },
