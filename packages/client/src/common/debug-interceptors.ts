@@ -76,7 +76,8 @@ const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
       duration,
       headers,
       body: data,
-    })
+    }) +
+    '\n'
   )
 }
 
