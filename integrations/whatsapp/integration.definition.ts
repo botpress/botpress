@@ -28,7 +28,7 @@ const commonConfigSchema = z.object({
     ),
   downloadedMediaExpiry: z
     .number()
-    .default(30 * 24)
+    .default(30 * 24) // 30 days
     .optional()
     .title('Downloaded Media Expiry')
     .describe(
