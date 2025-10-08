@@ -16,7 +16,7 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
         return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
     markdown: async () => {
-      throw new RuntimeError('Markdown messages are not supported for Messenger. Use text instead.')
+      throw new RuntimeError("The 'markdown' message type is deprecated, use 'text' instead to send markdown")
     },
     audio: async (props) =>
       _sendMessage(props, async (messenger, recipientId) => {

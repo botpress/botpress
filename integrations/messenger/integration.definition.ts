@@ -24,7 +24,7 @@ const commonConfigSchema = z.object({
     .boolean()
     .default(false)
     .title('Reply to Comments')
-    .describe('Whether to reply to comments on Facebook posts'),
+    .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
 })
 
 export default new IntegrationDefinition({
@@ -108,20 +108,20 @@ export default new IntegrationDefinition({
         },
       },
     },
-    feed: {
-      title: 'Facebook Feed Events',
-      description: 'Channel for Facebook page feed events (posts, comments, reactions)',
+    commentReplies: {
+      title: 'Comment Replies',
+      description: 'Channel for replies to comments on Facebook posts',
       messages: messages.defaults,
       message: {
         tags: {
-          id: { title: 'Event ID', description: 'The unique ID of the feed event' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID (for post and comment events)' },
+          id: { title: 'Comment ID', description: 'The unique ID of the comment' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
         },
       },
       conversation: {
         tags: {
-          id: { title: 'Comment ID', description: 'The Facebook comment ID that serves as the comment identifier' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID that serves as the post identifier' },
+          id: { title: 'Comment ID', description: 'The Facebook comment ID under which the reply was posted' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
         },
       },
     },

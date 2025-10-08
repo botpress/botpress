@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { createFacebookClient } from '../misc/facebook-client'
 import * as bp from '.botpress'
 
-const feed: bp.IntegrationProps['channels']['feed'] = {
+const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
   messages: {
     text: async (props) => {
       const { logger, conversation, payload, ctx, client, ack } = props
@@ -16,34 +16,34 @@ const feed: bp.IntegrationProps['channels']['feed'] = {
       await _replyToComment(id, payload.text, ctx, client, logger, ack)
     },
     image: async () => {
-      throw new RuntimeError('Images are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Images are not supported for Comment Replies. Use text instead.')
     },
     audio: async () => {
-      throw new RuntimeError('Audio messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Audio messages are not supported for Comment Replies. Use text instead.')
     },
     video: async () => {
-      throw new RuntimeError('Video messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Video messages are not supported for Comment Replies. Use text instead.')
     },
     file: async () => {
-      throw new RuntimeError('File messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('File messages are not supported for Comment Replies. Use text instead.')
     },
     location: async () => {
-      throw new RuntimeError('Location messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Location messages are not supported for Comment Replies. Use text instead.')
     },
     carousel: async () => {
-      throw new RuntimeError('Carousel messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Carousel messages are not supported for Comment Replies. Use text instead.')
     },
     card: async () => {
-      throw new RuntimeError('Card messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Card messages are not supported for Comment Replies. Use text instead.')
     },
     dropdown: async () => {
-      throw new RuntimeError('Dropdown messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Dropdown messages are not supported for Comment Replies. Use text instead.')
     },
     choice: async () => {
-      throw new RuntimeError('Choice messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Choice messages are not supported for Comment Replies. Use text instead.')
     },
     bloc: async () => {
-      throw new RuntimeError('Bloc messages are not supported for Feed. Use text instead.')
+      throw new RuntimeError('Bloc messages are not supported for Comment Replies. Use text instead.')
     },
   },
 }
@@ -75,4 +75,4 @@ const _replyToComment = async (
   }
 }
 
-export default feed
+export default commentReplies
