@@ -24,8 +24,8 @@ const PHONE_NUMBER_ID_UNAVAILABLE_ERROR = 'Phone number ID unavailable, please t
 export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({
-      id: 'start',
-      handler: _startHandler,
+      id: 'start-confirm',
+      handler: _startConfirmHandler,
     })
     .addStep({
       id: 'setup',
@@ -57,10 +57,9 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   return response
 }
 
-const _startHandler: WizardHandler = ({ responses }) => {
-  // const _startConfirm: WizardHandler = async (props) => {
-  //   const { responses, ctx } = props
-  //   await _trackWizardStep(ctx, 'start-confirm', 'started')
+const _startConfirmHandler: WizardHandler = async (props) => {
+  const { responses, ctx } = props
+  await _trackWizardStep(ctx, 'start-confirm', 'started')
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -267,10 +266,7 @@ const _getWizardStepUrl = (step: WizardStep, ctx?: bp.Context) => {
   return url
 }
 
-const _getOAuthRedirectUri = () => {
-  // Identifier (state) specified in the OAuth request instead of URI
-  return _getWizardStepUrl('get-access-token', undefined)
-}
+const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
 
 const _trackWizardStep = async (ctx: bp.Context, step: WizardStep, status?: string) => {
   await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
