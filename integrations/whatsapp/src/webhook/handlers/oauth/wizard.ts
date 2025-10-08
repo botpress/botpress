@@ -20,33 +20,32 @@ type WizardStep =
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
 const WABA_ID_UNAVAILABLE_ERROR = 'WhatsApp Business Account ID unavailable, please try again.'
 const PHONE_NUMBER_ID_UNAVAILABLE_ERROR = 'Phone number ID unavailable, please try again.'
-const INVALID_WIZARD_STEP_ERROR = 'Invalid wizard step'
 
-export const handleWizard = async (props: bp.HandlerProps): Promise<Response> => {
+export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({
-      id: 'start-confirm',
-      handler: _startConfirm,
+      id: 'start',
+      handler: _startHandler,
     })
     .addStep({
       id: 'setup',
-      handler: _setup,
+      handler: _setupHandler,
     })
     .addStep({
       id: 'get-access-token',
-      handler: _getAccessToken,
+      handler: _getAccessTokenHandler,
     })
     .addStep({
       id: 'verify-waba',
-      handler: _verifyWaba,
+      handler: _verifyWabaHandler,
     })
     .addStep({
       id: 'verify-number',
-      handler: _verifyNumber,
+      handler: _verifyNumberHandler,
     })
     .addStep({
       id: 'wrap-up',
-      handler: _doStepFinishWrapUp,
+      handler: _doStepWrapUp,
     })
     .addStep({
       id: 'verify-number',
@@ -54,18 +53,14 @@ export const handleWizard = async (props: bp.HandlerProps): Promise<Response> =>
     })
     .build()
 
-  const handlerResponse = await wizard.handleRequest()
-  return (
-    handlerResponse || {
-      status: 404,
-      body: INVALID_WIZARD_STEP_ERROR,
-    }
-  )
+  const response = await wizard.handleRequest()
+  return response
 }
 
-const _startConfirm: WizardHandler = async (props) => {
-  const { responses, ctx } = props
-  await _trackWizardStep(ctx, 'start-confirm', 'started')
+const _startHandler: WizardHandler = ({ responses }) => {
+  // const _startConfirm: WizardHandler = async (props) => {
+  //   const { responses, ctx } = props
+  //   await _trackWizardStep(ctx, 'start-confirm', 'started')
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -77,7 +72,7 @@ const _startConfirm: WizardHandler = async (props) => {
   })
 }
 
-const _setup: WizardHandler = async (props) => {
+const _setupHandler: WizardHandler = async (props) => {
   const { responses, client, ctx } = props
   await _trackWizardStep(ctx, 'setup', 'setup-started')
   // Clean current state to start a fresh wizard
@@ -98,7 +93,7 @@ const _setup: WizardHandler = async (props) => {
   )
 }
 
-const _getAccessToken: WizardHandler = async (props) => {
+const _getAccessTokenHandler: WizardHandler = async (props) => {
   const { req, client, ctx, logger } = props
   await _trackWizardStep(ctx, 'get-access-token', 'started')
   const params = new URLSearchParams(req.query)
@@ -118,7 +113,7 @@ const _getAccessToken: WizardHandler = async (props) => {
   return await _doStepVerifyWaba(props, newCredentials)
 }
 
-const _verifyWaba: WizardHandler = async (props) => {
+const _verifyWabaHandler: WizardHandler = async (props) => {
   const { req } = props
   const params = new URLSearchParams(req.query)
   const wabaId = z.string().safeParse(params.get('wabaId')).data
@@ -126,7 +121,7 @@ const _verifyWaba: WizardHandler = async (props) => {
   return await _doStepVerifyWaba(props, undefined, wabaId, force)
 }
 
-const _verifyNumber: WizardHandler = async (props) => {
+const _verifyNumberHandler: WizardHandler = async (props) => {
   const { req } = props
   const params = new URLSearchParams(req.query)
   const defaultBotPhoneNumberId = z.string().safeParse(params.get('defaultBotPhoneNumberId')).data
@@ -160,7 +155,7 @@ const _doStepVerifyWaba = async (
         pageTitle: 'Select Business',
         htmlOrMarkdownPageContents: 'Choose a WhatsApp Business Account to use in this bot:',
         choices: businesses.map((business) => ({ value: business.id, label: business.name })),
-        nextStepId: 'verify-number',
+        nextStepId: 'verify-waba',
       })
     }
   }
