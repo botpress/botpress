@@ -47,6 +47,7 @@ export class ApiClient {
       workspaceId,
       botId,
       retry: retry.config,
+      headers: { 'x-multiple-integrations': 'true' },
     })
     this.url = apiUrl
     this.token = token

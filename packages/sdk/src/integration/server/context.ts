@@ -27,8 +27,7 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
   botId: headers[BOT_ID_HEADER] || throwError('Missing bot header'),
   botUserId: headers[BOT_USER_ID_HEADER] || throwError('Missing bot user header'),
   integrationId: headers[INTEGRATION_ID_HEADER] || throwError('Missing integration header'),
-  // TODO: make this non-nullable once the backend sends this header
-  integrationAlias: headers[INTEGRATION_ALIAS_HEADER],
+  integrationAlias: headers[INTEGRATION_ALIAS_HEADER] || throwError('Missing integration alias header'),
   webhookId: headers[WEBHOOK_ID_HEADER] || throwError('Missing webhook header'),
   operation: headers[OPERATION_TYPE_HEADER] || throwError('Missing operation header'),
   configurationType: headers[CONFIGURATION_TYPE_HEADER] ?? null,

@@ -451,18 +451,17 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }))
 
     return {
-      integrations: _(integrations)
-        .keyBy((i) => i.id)
-        .mapValues(
-          ({ enabled, configurationType, configuration, disabledChannels }) =>
-            ({
-              enabled,
-              configurationType,
-              configuration,
-              disabledChannels,
-            }) satisfies NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]
-        )
-        .value(),
+      integrations: utils.records.mapValues(
+        integrations,
+        ({ enabled, configurationType, configuration, disabledChannels, id }) =>
+          ({
+            enabled,
+            configurationType,
+            configuration,
+            disabledChannels,
+            integrationId: id,
+          }) satisfies NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]
+      ),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
         interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
