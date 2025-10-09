@@ -58,22 +58,23 @@ const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerP
 
 const _handleCommentCreated = async (value: CommentChangeValue, props: bp.HandlerProps) => {
   const { client, logger } = props
-  const { comment_id, post_id, message, from, parent_id } = value
+  const { comment_id: commentId, post_id: postId, message, from, parent_id: parentId } = value
 
   if (!message) {
-    logger.forBot().debug('_handleCommentCreated: No message. Will not reply to this comment.')
+    logger.forBot().debug('Incoming comment has no message, will not reply')
     return
   }
 
-  if (post_id !== parent_id) {
-    logger.forBot().debug('_handleCommentCreated: Non root comment. Will not reply to this comment.')
+  if (postId !== parentId) {
+    logger.forBot().debug('Incoming comment is not a root comment, will not reply')
     return
   }
 
   // Use the thread resolver to create conversation based on root thread ID
   const { conversation } = await client.getOrCreateConversation({
     channel: 'commentReplies',
-    tags: { id: comment_id },
+    tags: { id: commentId, postId },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
@@ -82,9 +83,10 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
 
   await client.getOrCreateMessage({
     tags: {
-      id: comment_id,
-      postId: post_id,
+      id: commentId,
+      postId,
     },
+    discriminateByTags: ['id'],
     type: 'text',
     payload: { text: message },
     userId: user.id,
