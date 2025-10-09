@@ -2160,7 +2160,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.1
+        specifier: 0.5.2
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.25.0
@@ -2730,15 +2730,15 @@ importers:
 
   plugins/conversation-insights:
     dependencies:
+      '@botpress/cognitive':
+        specifier: workspace:*
+        version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
       jsonrepair:
         specifier: ^3.10.0
         version: 3.10.0
