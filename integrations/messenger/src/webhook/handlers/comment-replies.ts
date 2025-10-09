@@ -9,14 +9,6 @@ export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps)
   }
 }
 
-const _getPageId = async (props: bp.HandlerProps) => {
-  if (props.ctx.configurationType !== 'manual') {
-    const credentials = await getMetaClientCredentials(props.client, props.ctx)
-    return credentials.pageId
-  }
-  return props.ctx.configuration.pageId
-}
-
 const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => {
   const { logger } = props
   const { value } = change
@@ -37,9 +29,13 @@ const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => 
 }
 
 const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { logger } = props
+  const { logger, ctx, client } = props
   const { from, verb } = value
-  const pageId = await _getPageId(props)
+  const { pageId } = await getMetaClientCredentials(ctx.configurationType, client, ctx)
+  if (!pageId) {
+    logger.forBot().error('Page ID is not set, cannot process comment event. Please configure or reauthorize')
+    return
+  }
 
   if (from?.id === pageId) {
     logger.forBot().debug('Comment is from our page, ignoring')

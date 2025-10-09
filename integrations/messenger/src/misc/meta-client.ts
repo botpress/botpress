@@ -1,38 +1,71 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import { getPartialMetaClientCredentials } from './auth'
-import { MetaClientConfig } from './types'
+import { getMetaClientCredentials } from './auth'
+import { MetaClientConfigType, MetaClientCredentials } from './types'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
 
+const _isMetaError = (
+  error: unknown
+): error is { response: { data: { error: { message: string; error_user_msg: string } } } } => {
+  return (
+    axios.isAxiosError(error) &&
+    'error' in error.response?.data &&
+    'error_user_msg' in error.response?.data.error &&
+    'message' in error.response?.data.error &&
+    error.response?.data.error.message &&
+    error.response?.data.error.error_user_msg
+  )
+}
+
 export class MetaClient {
-  private _userAccessToken: string
+  private _userToken?: string
+  private _pageToken?: string
+  private _pageId?: string
   private _clientId: string
-  private _clientSecret: string
   private _baseUrl = 'https://graph.facebook.com/v23.0'
+  private _clientSecret?: string
   private _logger?: bp.Logger
 
-  public constructor(config: MetaClientConfig, logger?: bp.Logger) {
-    this._userAccessToken = config.accessToken
+  public constructor(config: MetaClientCredentials, logger?: bp.Logger) {
+    this._userToken = config.userToken
+    this._pageToken = config.pageToken
+    this._pageId = config.pageId
     this._clientId = config.clientId
     this._clientSecret = config.clientSecret
     this._logger = logger
   }
 
   // Helper method for making Facebook API requests
-  private async _makeRequest<T = any>(
-    method: 'GET' | 'POST' | 'DELETE',
-    endpoint: string,
-    data?: any,
-    customHeaders: Record<string, string> = {}
-  ): Promise<T> {
+  private async _makeRequest<T = any>({
+    method,
+    endpoint,
+    customHeaders,
+    data,
+    tokenType,
+  }: {
+    method: 'GET' | 'POST' | 'DELETE'
+    endpoint: string
+    customHeaders?: Record<string, string>
+    data?: any
+    tokenType?: 'user' | 'page' | 'none'
+  }): Promise<T> {
     const url = endpoint.startsWith('http') ? endpoint : `${this._baseUrl}/${endpoint}`
+    let authHeader
+    if (tokenType === 'page') {
+      authHeader = this._getPageTokenAuthorizationHeader()
+    } else if (tokenType === 'none') {
+      authHeader = {}
+    } else {
+      authHeader = this._getUserTokenAuthorizationHeader()
+    }
+
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this._userAccessToken}`,
-      ...customHeaders,
+      ...authHeader,
+      ...(customHeaders ?? {}),
     }
 
     const response = await axios({
@@ -40,53 +73,69 @@ export class MetaClient {
       url,
       data,
       headers,
+    }).catch((err: unknown) => {
+      if (_isMetaError(err)) {
+        const metaError = err.response.data.error
+        throw new RuntimeError(`${metaError.message}: ${metaError.error_user_msg}`)
+      } else if (err instanceof Error) {
+        throw new RuntimeError(err.message)
+      }
+      throw new RuntimeError(`Failed to make request to ${url}`)
     })
 
     return response.data
   }
 
   // OAuth Methods
-
   public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
       client_id: this._clientId,
-      client_secret: this._clientSecret,
+      client_secret: this._getClientSecret(),
       redirect_uri: redirectUri,
       code,
     })
 
-    const res = await axios.get(`${this._baseUrl}/oauth/access_token?${query.toString()}`)
-    const data = z
+    const data = await this._makeRequest({
+      method: 'GET',
+      endpoint: `oauth/access_token?${query.toString()}`,
+      tokenType: 'none',
+    })
+    const parsedData = z
       .object({
         access_token: z.string(),
       })
-      .parse(res.data)
+      .parse(data)
 
-    return data.access_token
+    return parsedData.access_token
   }
 
   public setPageToken(pageToken: string) {
-    this._userAccessToken = pageToken
+    this._pageToken = pageToken
   }
 
-  public async getPageToken(pageId: string) {
+  public async getPageToken(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
     const query = new URLSearchParams({
       fields: 'access_token',
-      access_token: this._userAccessToken,
+      access_token: this._getUserToken(),
     })
 
-    const res = await axios.get(`${this._baseUrl}/${pageId}?${query.toString()}`)
-    const data = z
+    const data = await this._makeRequest({
+      method: 'GET',
+      endpoint: `${pageId}?${query.toString()}`,
+      tokenType: 'none',
+    })
+    const parsedData = z
       .object({
         access_token: z.string(),
       })
-      .parse(res.data)
+      .parse(data)
 
-    if (!data.access_token) {
+    if (!parsedData.access_token) {
       throw new RuntimeError('Unable to find the page token for the specified page')
     }
 
-    return data.access_token
+    return parsedData.access_token
   }
 
   public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
@@ -95,7 +144,11 @@ export class MetaClient {
       access_token: bp.secrets.ACCESS_TOKEN,
     })
 
-    const { data: dataDebugToken } = await axios.get(`${this._baseUrl}/debug_token?${query.toString()}`)
+    const dataDebugToken = await this._makeRequest({
+      method: 'GET',
+      endpoint: `debug_token?${query.toString()}`,
+      tokenType: 'none',
+    })
 
     const scope = dataDebugToken.data.granular_scopes.find(
       (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
@@ -104,19 +157,22 @@ export class MetaClient {
     if (scope.target_ids) {
       const ids = scope.target_ids
 
-      const { data: dataBusinesses } = await axios.get(`${this._baseUrl}/?ids=${ids.join()}&fields=id,name`, {
-        headers: {
+      const dataBusinesses = await this._makeRequest({
+        method: 'GET',
+        endpoint: `?ids=${ids.join()}&fields=id,name`,
+        tokenType: 'none',
+        customHeaders: {
           Authorization: `Bearer ${inputToken}`,
         },
       })
 
       return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
     } else {
-      return this.getUserManagedPages(inputToken)
+      return this.getUserManagedPagesFromToken(inputToken)
     }
   }
 
-  public async getUserManagedPages(userToken: string) {
+  public async getUserManagedPagesFromToken(userToken: string) {
     let allPages: { id: string; name: string }[] = []
 
     const query = new URLSearchParams({
@@ -126,9 +182,10 @@ export class MetaClient {
     let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
-      const response = await axios.get(url).catch((err) => {
-        this._logger?.error(`Error fetching pages: ${err}`)
-        throw new RuntimeError('Error fetching pages')
+      const response = await this._makeRequest({
+        method: 'GET',
+        endpoint: url,
+        tokenType: 'none',
       })
 
       // Add the pages to the allPages array
@@ -142,11 +199,16 @@ export class MetaClient {
   }
 
   // Webhook Methods
-
-  public async subscribeToWebhooks(pageId: string) {
+  public async subscribeToWebhooks(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
     try {
-      const responseData = await this._makeRequest('POST', `${pageId}/subscribed_apps`, {
-        subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
+      const responseData = await this._makeRequest({
+        method: 'POST',
+        endpoint: `${pageId}/subscribed_apps`,
+        tokenType: 'page',
+        data: {
+          subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
+        },
       })
 
       if (!responseData.success) {
@@ -158,9 +220,14 @@ export class MetaClient {
     }
   }
 
-  public async unsubscribeFromWebhooks(pageId: string) {
+  public async unsubscribeFromWebhooks(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
     try {
-      const responseData = await this._makeRequest('DELETE', `${pageId}/subscribed_apps`, undefined)
+      const responseData = await this._makeRequest({
+        method: 'DELETE',
+        endpoint: `${pageId}/subscribed_apps`,
+        tokenType: 'page',
+      })
 
       if (!responseData || !responseData.success) {
         throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
@@ -171,41 +238,67 @@ export class MetaClient {
     }
   }
 
-  public async isSubscribedToWebhooks(pageId: string) {
-    const responseData = await this._makeRequest('GET', `${pageId}/subscribed_apps`, undefined)
+  public async isSubscribedToWebhooks(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
+    const responseData = await this._makeRequest({
+      method: 'GET',
+      endpoint: `${pageId}/subscribed_apps`,
+      tokenType: 'page',
+    })
     const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
     return applications?.some((app) => app.id === this._clientId) ?? false
+  }
+
+  // Helper Methods
+  private _getPageId(inputPageId?: string) {
+    const pageId = inputPageId ?? this._pageId
+    if (!pageId) {
+      throw new RuntimeError('Page ID is not set and no page ID was provided')
+    }
+    return pageId
+  }
+
+  private _getClientSecret() {
+    if (!this._clientSecret) {
+      throw new RuntimeError('Client secret is not set')
+    }
+    return this._clientSecret
+  }
+
+  private _getUserToken() {
+    if (!this._userToken) {
+      throw new RuntimeError('User token is not set')
+    }
+    return this._userToken
+  }
+
+  private _getPageToken() {
+    if (!this._pageToken) {
+      throw new RuntimeError('Page token is not set')
+    }
+    return this._pageToken
+  }
+
+  private _getPageTokenAuthorizationHeader() {
+    return {
+      Authorization: `Bearer ${this._getPageToken()}`,
+    }
+  }
+
+  private _getUserTokenAuthorizationHeader() {
+    return {
+      Authorization: `Bearer ${this._getUserToken()}`,
+    }
   }
 }
 
 // Factory Function
-export async function createMetaClient(ctx: bp.Context, client?: bp.Client, logger?: bp.Logger): Promise<MetaClient> {
-  let accessToken: string
-  let clientId: string
-  let clientSecret: string
-
-  if (ctx.configurationType === 'manual') {
-    accessToken = ctx.configuration.accessToken
-    clientId = ctx.configuration.clientId
-    clientSecret = ctx.configuration.clientSecret || ''
-  } else {
-    // For OAuth configurations
-    if (!client) {
-      throw new Error('Client is required for OAuth configuration')
-    }
-    const credentials = await getPartialMetaClientCredentials(client, ctx)
-
-    accessToken = credentials.accessToken || ''
-    clientId = bp.secrets.CLIENT_ID
-    clientSecret = bp.secrets.CLIENT_SECRET
-  }
-
-  return new MetaClient(
-    {
-      accessToken,
-      clientId,
-      clientSecret,
-    },
-    logger
-  )
+export async function createAuthenticatedMetaClient(
+  configType: MetaClientConfigType,
+  ctx: bp.Context,
+  client: bp.Client,
+  logger?: bp.Logger
+): Promise<MetaClient> {
+  const credentials = await getMetaClientCredentials(configType, client, ctx)
+  return new MetaClient(credentials, logger)
 }

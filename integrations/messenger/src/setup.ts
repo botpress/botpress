@@ -57,13 +57,14 @@ const _registerOAuth = async ({ client }: RegisterProps) => {
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
-  const credentials = await getMetaClientCredentials(client, ctx).catch(() => undefined)
+  const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
   if (!credentials) {
+    // No credentials means the OAuth flow hasn't been completed yet
     return
   }
 
   const { pageId } = credentials
-  const metaClient = await createMetaClient(ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
   if (await metaClient.isSubscribedToWebhooks(pageId)) {
     await metaClient.unsubscribeFromWebhooks(pageId)
   }
