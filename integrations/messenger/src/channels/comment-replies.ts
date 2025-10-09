@@ -64,9 +64,7 @@ const _replyToComment = async (
     })
 
     // Update conversation tags with the new comment ID if ack is provided
-    if (response.id) {
-      await ack({ tags: { id: response.id } })
-    }
+    await ack({ tags: { id: response.id } })
 
     return response
   } catch (thrown) {
