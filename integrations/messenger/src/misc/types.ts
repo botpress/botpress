@@ -24,6 +24,7 @@ export type MetaClientCredentials = {
   pageId?: string
   clientId: string
   clientSecret?: string
+  appToken?: string
 }
 
 export type MessengerClientCredentials = {

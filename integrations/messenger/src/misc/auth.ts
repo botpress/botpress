@@ -92,7 +92,14 @@ export async function getOAuthMetaClientCredentials(
   ctx: bp.Context
 ): Promise<MetaClientCredentials> {
   const { userToken, pageToken, pageId } = await _getWritableOAuthMetaClientCredentials(client, ctx)
-  return { userToken, pageToken, pageId, clientId: bp.secrets.CLIENT_ID, clientSecret: bp.secrets.CLIENT_SECRET }
+  return {
+    userToken,
+    pageToken,
+    pageId,
+    clientId: bp.secrets.CLIENT_ID,
+    clientSecret: bp.secrets.CLIENT_SECRET,
+    appToken: bp.secrets.ACCESS_TOKEN,
+  }
 }
 
 // `client.patchState` is not working correctly

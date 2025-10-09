@@ -27,6 +27,7 @@ export class MetaClient {
   private _clientId: string
   private _baseUrl = 'https://graph.facebook.com/v23.0'
   private _clientSecret?: string
+  private _appToken?: string
   private _logger?: bp.Logger
 
   public constructor(config: MetaClientCredentials, logger?: bp.Logger) {
@@ -35,6 +36,7 @@ export class MetaClient {
     this._pageId = config.pageId
     this._clientId = config.clientId
     this._clientSecret = config.clientSecret
+    this._appToken = config.appToken
     this._logger = logger
   }
 
@@ -141,7 +143,7 @@ export class MetaClient {
   public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
     const query = new URLSearchParams({
       input_token: inputToken,
-      access_token: bp.secrets.ACCESS_TOKEN,
+      access_token: this._getAppToken(),
     })
 
     const dataDebugToken = await this._makeRequest({
@@ -289,6 +291,13 @@ export class MetaClient {
     return {
       Authorization: `Bearer ${this._getUserToken()}`,
     }
+  }
+
+  private _getAppToken() {
+    if (!this._appToken) {
+      throw new RuntimeError('App token is not set')
+    }
+    return this._appToken
   }
 }
 
