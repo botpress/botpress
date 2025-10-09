@@ -8,7 +8,11 @@ import telegram from './bp_modules/telegram'
 type OpenAiModel = sdk.z.infer<typeof openai.definition.entities.modelRef.schema>
 const openAiLLM = openai.definition.interfaces['llm<modelRef>']
 
-export default new sdk.BotDefinition({})
+export default new sdk.BotDefinition({
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
+})
   .addIntegration(telegram, {
     enabled: true,
     configuration: {
