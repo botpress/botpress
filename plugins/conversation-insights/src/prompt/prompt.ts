@@ -34,7 +34,6 @@ const formatMessages = (
 export type PromptArgs = {
   systemPrompt: string
   messages: bp.MessageHandlerProps['message'][]
-  model: { id: string }
   context: object
   botId: string
 }
@@ -43,5 +42,4 @@ export const createPrompt = (args: PromptArgs): LLMInput => ({
   temperature: 0,
   systemPrompt: args.systemPrompt.trim(),
   messages: formatMessages(args.messages, args.context, args.botId),
-  model: args.model,
 })
