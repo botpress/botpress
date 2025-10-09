@@ -48,7 +48,7 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
       handler: _doStepWrapUp,
     })
     .addStep({
-      id: 'verify-number',
+      id: 'finish-wrap-up',
       handler: _doStepFinishWrapUp,
     })
     .build()
@@ -256,14 +256,6 @@ const _doStepFinishWrapUp: WizardHandler = async (props) => {
   const { responses, ctx } = props
   await _trackWizardStep(ctx, 'finish-wrap-up', 'completed')
   return responses.redirectToExternalUrl(getInterstitialUrl(true))
-}
-
-const _getWizardStepUrl = (step: WizardStep, ctx?: bp.Context) => {
-  let url = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/${step}`
-  if (ctx) {
-    url += `?state=${ctx.webhookId}`
-  }
-  return url
 }
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
