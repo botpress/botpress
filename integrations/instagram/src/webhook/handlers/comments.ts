@@ -41,7 +41,7 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
     channel: 'comment',
 
     tags: {
-      id: id, // Use comment ID as conversation identifier
+      id, // Use comment ID as conversation identifier
     },
   })
 
@@ -56,12 +56,12 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
   await client.getOrCreateMessage({
     type: 'text',
     tags: {
-      id: id,
+      id,
     },
     userId: user.id,
     conversationId: conversation.id,
     payload: {
-      text: text,
+      text,
     },
   })
 }
