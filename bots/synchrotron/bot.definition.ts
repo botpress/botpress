@@ -16,6 +16,9 @@ export default new sdk.BotDefinition({
   recurringEvents: {},
   user: {},
   conversation: {},
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .addIntegration(chat, {
     enabled: true,
