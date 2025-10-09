@@ -51,12 +51,45 @@ const InstagramEntrySchema = z.object({
   messaging: z.array(InstagramMessagingEntrySchema),
 })
 
+const InstagramCommentSchema = z.object({
+  id: z.string(),
+  parent_id: z.string().optional(),
+  text: z.string(),
+  from: z.object({
+    id: z.string(),
+    username: z.string(),
+  }),
+  media: z.object({
+    id: z.string(),
+    media_product_type: z.string(),
+  }),
+})
+
+const InstagramCommentEntrySchema = z.object({
+  id: z.string(),
+  time: z.number(),
+  changes: z.array(
+    z.object({
+      field: z.string(),
+      value: InstagramCommentSchema,
+    })
+  ),
+})
+
+export const InstagramCommentPayloadSchema = z.object({
+  object: z.string(),
+  entry: z.array(InstagramCommentEntrySchema),
+})
+
 export const InstagramPayloadSchema = z.object({
   object: z.string(),
   entry: z.array(InstagramEntrySchema),
 })
 
 export type InstagramPayload = z.infer<typeof InstagramPayloadSchema>
+export type InstagramCommentPayload = z.infer<typeof InstagramCommentPayloadSchema>
+export type InstagramComment = z.infer<typeof InstagramCommentSchema>
+export type InstagramCommentEntry = z.infer<typeof InstagramCommentEntrySchema>
 export type InstagramMessagingEntry = z.infer<typeof InstagramMessagingEntrySchema>
 export type InstagramMessagingEntryPostback = z.infer<typeof InstagramMessagingEntryPostbackSchema>
 export type InstagramMessagingEntryMessage = z.infer<typeof InstagramMessagingEntryMessageSchema>
