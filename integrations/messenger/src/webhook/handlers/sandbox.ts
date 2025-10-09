@@ -3,7 +3,7 @@ import {
   CONVERSATION_DISCONNECTED_MESSAGE,
   extractSandboxCommand,
 } from '@botpress/common'
-import { create as createMessengerClient } from '../../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../../misc/messenger-client'
 import { MessengerMessagingEntry, messengerPayloadSchema } from '../../misc/types'
 import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
@@ -39,7 +39,7 @@ const _sendConfirmationMessage = async (props: bp.HandlerProps, message: string)
   if (!messagingEntry) {
     return NO_MESSAGE_ERROR
   }
-  const messengerClient = await createMessengerClient(client, ctx)
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   for (const action of ['typing_on', 'mark_seen'] as const) {
     await messengerClient.sendSenderAction(messagingEntry.sender.id, action)
   }

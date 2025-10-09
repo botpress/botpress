@@ -107,7 +107,7 @@ export class FacebookClient {
 }
 
 // Factory Functions
-export async function createFacebookClient(
+export async function createAuthenticatedFacebookClient(
   ctx: bp.Context,
   client: bp.Client,
   logger?: bp.Logger

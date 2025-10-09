@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { createFacebookClient } from '../misc/facebook-client'
+import { createAuthenticatedFacebookClient } from '../misc/facebook-client'
 import * as bp from '.botpress'
 
 const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
@@ -56,7 +56,7 @@ const _replyToComment = async (
   logger: bp.Logger,
   ack: bp.AnyAckFunction
 ) => {
-  const facebookClient = await createFacebookClient(ctx, client, logger)
+  const facebookClient = await createAuthenticatedFacebookClient(ctx, client, logger)
   try {
     const response = await facebookClient.replyToComment({
       commentId: id,

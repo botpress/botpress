@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { MessengerTypes, MessengerClient } from 'messaging-api-messenger'
-import { create as createMessengerClient } from '../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../misc/messenger-client'
 import { Card, Carousel, Choice, Dropdown, MessengerOutMessageAttachment, SendMessageProps } from '../misc/types'
 import { getGoogleMapLinkFromLocation, getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
@@ -95,7 +95,7 @@ async function _sendMessage(
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
   logger.forBot().debug(`Sending ${type} message from bot to Messenger: ${_formatPayloadToStr(payload)}`)
-  const messengerClient = await createMessengerClient(client, ctx)
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
   await ack({ tags: { id: messageId } })
