@@ -3,30 +3,34 @@ const isInternalLine = (line: string) => {
 }
 
 export function cleanStackTrace(stack: string, cleanInternal = true) {
-  const lines = stack.split('\n')
+  let lines = stack.split('\n')
+  const until = lines.findIndex((line) => isInternalLine(line))
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!
-    let llmzIndex = line.indexOf('/llmz/')
+  if (cleanInternal && until >= 0) {
+    lines = lines.slice(0, until)
+  } else {
+    lines = lines.map((line) => {
+      let llmzIndex = line.indexOf('/llmz/')
 
-    if (llmzIndex === -1) {
-      llmzIndex = line.indexOf('\\llmz\\')
-    }
+      if (llmzIndex === -1) {
+        llmzIndex = line.indexOf('\\llmz\\')
+      }
 
-    if (llmzIndex === -1) {
-      continue
-    }
+      if (llmzIndex === -1) {
+        return line
+      }
 
-    let lastSpaceIndex = line.lastIndexOf(' ', llmzIndex)
+      let lastSpaceIndex = line.lastIndexOf(' ', llmzIndex)
 
-    if (lastSpaceIndex === -1) {
-      lastSpaceIndex = 0
-    }
+      if (lastSpaceIndex === -1) {
+        lastSpaceIndex = 0
+      }
 
-    const maybeParen = line[lastSpaceIndex + 1] === '(' ? '(' : ''
+      const maybeParen = line[lastSpaceIndex + 1] === '(' ? '(' : ''
 
-    lines[i] = line.slice(0, lastSpaceIndex + 1) + maybeParen + line.slice(llmzIndex)
+      return line.slice(0, lastSpaceIndex + 1) + maybeParen + line.slice(llmzIndex)
+    })
   }
 
-  return lines.filter((x) => !cleanInternal || !isInternalLine(x)).join('\n')
+  return lines.join('\n')
 }

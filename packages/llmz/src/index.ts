@@ -56,7 +56,7 @@ export const utils = {
  * @param props.exits - Array of Exit definitions for structured completion (static or dynamic)
  * @param props.snapshot - Optional Snapshot to resume paused execution
  * @param props.signal - Optional AbortSignal to cancel execution
- * @param props.model - Optional model name (static or dynamic function)
+ * @param props.model - Optional model name (or array or models to use as fallback) (static or dynamic function)
  * @param props.temperature - Optional temperature value (static or dynamic function)
  * @param props.options - Optional execution options (loop limit, timeout)
  * @param props.onTrace - Optional non-blocking hook for monitoring traces during execution

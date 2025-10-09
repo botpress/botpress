@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -39,7 +40,7 @@ async function _handleIncomingMessage(
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: message.from,
+      userPhone: formatPhoneNumber(message.from),
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
