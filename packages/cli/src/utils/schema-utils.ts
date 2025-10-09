@@ -23,9 +23,7 @@ const isObjectSchema = (schema: JsonSchema): boolean => schema.type === 'object'
 
 export async function mapZodToJsonSchema(
   definition: SchemaDefinition,
-  options: MapSchemaOptions = {
-    useLegacyZuiTransformer: true,
-  }
+  options: MapSchemaOptions
 ): Promise<ReturnType<typeof sdk.transforms.toJSONSchemaLegacy>> {
   let schema: JSONSchema7
   if (options.useLegacyZuiTransformer) {
