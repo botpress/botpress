@@ -79,6 +79,7 @@ export type IntegrationDefinitionProps<
   __advanced?: {
     esbuild?: Partial<esbuild.BuildOptions>
     extraOperations?: Record<string, { enabled: boolean }>
+    useLegacyZuiTransformer?: boolean
   }
 }
 

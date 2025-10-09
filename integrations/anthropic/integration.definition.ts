@@ -22,6 +22,9 @@ export default new IntegrationDefinition({
       description: 'Anthropic API key',
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).extend(llm, ({ entities }) => ({
   entities: { modelRef: entities.modelRef },
 }))

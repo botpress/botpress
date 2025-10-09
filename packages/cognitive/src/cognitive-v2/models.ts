@@ -18,6 +18,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5'],
   },
   'openai:gpt-5-mini-2025-08-07': {
     id: 'openai:gpt-5-mini-2025-08-07',
@@ -34,6 +35,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5-mini'],
   },
   'openai:gpt-5-nano-2025-08-07': {
     id: 'openai:gpt-5-nano-2025-08-07',
@@ -50,6 +52,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5-nano'],
   },
   'openai:o4-mini-2025-04-16': {
     id: 'openai:o4-mini-2025-04-16',
@@ -66,6 +69,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'live',
+    aliases: ['o4-mini'],
   },
   'openai:o3-2025-04-16': {
     id: 'openai:o3-2025-04-16',
@@ -82,6 +86,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'live',
+    aliases: ['o3'],
   },
   'openai:gpt-4.1-2025-04-14': {
     id: 'openai:gpt-4.1-2025-04-14',
@@ -98,6 +103,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1'],
   },
   'openai:gpt-4.1-mini-2025-04-14': {
     id: 'openai:gpt-4.1-mini-2025-04-14',
@@ -114,6 +120,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1-mini'],
   },
   'openai:gpt-4.1-nano-2025-04-14': {
     id: 'openai:gpt-4.1-nano-2025-04-14',
@@ -129,6 +136,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1-nano'],
   },
   'openai:o3-mini-2025-01-31': {
     id: 'openai:o3-mini-2025-01-31',
@@ -145,6 +153,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'live',
+    aliases: ['o3-mini'],
   },
   'openai:o1-2024-12-17': {
     id: 'openai:o1-2024-12-17',
@@ -177,6 +186,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['o1-mini'],
   },
   'openai:gpt-4o-mini-2024-07-18': {
     id: 'openai:gpt-4o-mini-2024-07-18',
@@ -193,6 +203,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
     lifecycle: 'live',
+    aliases: ['gpt-4o-mini'],
   },
   'openai:gpt-4o-2024-11-20': {
     id: 'openai:gpt-4o-2024-11-20',
@@ -209,6 +220,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
     lifecycle: 'live',
+    aliases: ['gpt-4o'],
   },
   'openai:gpt-4o-2024-08-06': {
     id: 'openai:gpt-4o-2024-08-06',
@@ -274,6 +286,23 @@ export const models: Record<string, RemoteModel> = {
     tags: ['deprecated', 'general-purpose', 'low-cost'],
     lifecycle: 'deprecated',
   },
+  'anthropic:claude-sonnet-4-5-2025092': {
+    id: 'anthropic:claude-sonnet-4-5-2025092',
+    name: 'Claude Sonnet 4.5',
+    description:
+      "Claude Sonnet 4.5 is Anthropic's most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'live',
+    aliases: ['claude-sonnet-4-5'],
+  },
   'anthropic:claude-sonnet-4-20250514': {
     id: 'anthropic:claude-sonnet-4-20250514',
     name: 'Claude Sonnet 4',
@@ -289,6 +318,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'live',
+    aliases: ['claude-sonnet-4'],
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
     id: 'anthropic:claude-sonnet-4-reasoning-20250514',
@@ -305,6 +335,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
     lifecycle: 'deprecated',
+    aliases: ['claude-sonnet-4-reasoning'],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
@@ -530,8 +561,8 @@ export const models: Record<string, RemoteModel> = {
     tags: ['general-purpose'],
     lifecycle: 'live',
   },
-  'groq:openai/gpt-oss-20b': {
-    id: 'groq:openai/gpt-oss-20b',
+  'groq:gpt-oss-20b': {
+    id: 'groq:gpt-oss-20b',
     name: 'GPT-OSS 20B (Preview)',
     description:
       'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
@@ -545,9 +576,10 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'live',
+    aliases: ['openai/gpt-oss-20b'],
   },
-  'groq:openai/gpt-oss-120b': {
-    id: 'groq:openai/gpt-oss-120b',
+  'groq:gpt-oss-120b': {
+    id: 'groq:gpt-oss-120b',
     name: 'GPT-OSS 120B (Preview)',
     description:
       'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
@@ -561,6 +593,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'live',
+    aliases: ['openai/gpt-oss-120b'],
   },
   'groq:deepseek-r1-distill-llama-70b': {
     id: 'groq:deepseek-r1-distill-llama-70b',
@@ -721,6 +754,96 @@ export const models: Record<string, RemoteModel> = {
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'live',
   },
+  'xai:grok-code-fast-1': {
+    id: 'xai:grok-code-fast-1',
+    name: 'Grok Code Fast 1',
+    description: 'Fast coding-optimized Grok model with large context window.',
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 1.5,
+    },
+    tags: ['coding', 'general-purpose', 'low-cost'],
+    lifecycle: 'live',
+  },
+  'xai:grok-4-fast-reasoning': {
+    id: 'xai:grok-4-fast-reasoning',
+    name: 'Grok 4 Fast (Reasoning)',
+    description: 'Advanced fast Grok model with reasoning and very large context.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['reasoning', 'recommended', 'general-purpose'],
+    lifecycle: 'live',
+  },
+  'xai:grok-4-fast-non-reasoning': {
+    id: 'xai:grok-4-fast-non-reasoning',
+    name: 'Grok 4 Fast (Non-Reasoning)',
+    description: 'Fast, cost-effective Grok model for non-reasoning tasks.',
+    input: {
+      maxTokens: 2000000,
+      costPer1MTokens: 0.2,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['low-cost', 'recommended', 'general-purpose'],
+    lifecycle: 'live',
+  },
+  'xai:grok-4-0709': {
+    id: 'xai:grok-4-0709',
+    name: 'Grok 4 (0709)',
+    description: 'Comprehensive Grok 4 model for general-purpose tasks.',
+    input: {
+      maxTokens: 256000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 32768,
+      costPer1MTokens: 15,
+    },
+    tags: ['reasoning', 'general-purpose'],
+    lifecycle: 'live',
+  },
+  'xai:grok-3-mini': {
+    id: 'xai:grok-3-mini',
+    name: 'Grok 3 Mini',
+    description: 'Lightweight Grok model for cost-sensitive workloads.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 0.3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 0.5,
+    },
+    tags: ['low-cost', 'general-purpose'],
+    lifecycle: 'live',
+  },
+  'xai:grok-3': {
+    id: 'xai:grok-3',
+    name: 'Grok 3',
+    description: 'Enterprise-grade Grok model for general-purpose tasks.',
+    input: {
+      maxTokens: 131072,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 16384,
+      costPer1MTokens: 15,
+    },
+    tags: ['general-purpose'],
+    lifecycle: 'live',
+  },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
     name: 'GPT-OSS 120B (Preview)',
@@ -737,8 +860,8 @@ export const models: Record<string, RemoteModel> = {
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'live',
   },
-  'fireworks:gpt-oss-20b': {
-    id: 'fireworks:gpt-oss-20b',
+  'fireworks-ai:gpt-oss-20b': {
+    id: 'fireworks-ai:gpt-oss-20b',
     name: 'GPT-OSS 20B',
     description:
       'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
@@ -754,8 +877,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/gpt-oss-20b'],
   },
-  'fireworks:gpt-oss-120b': {
-    id: 'fireworks:gpt-oss-120b',
+  'fireworks-ai:gpt-oss-120b': {
+    id: 'fireworks-ai:gpt-oss-120b',
     name: 'GPT-OSS 120B',
     description:
       'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
@@ -771,8 +894,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/gpt-oss-120b'],
   },
-  'fireworks:deepseek-r1-0528': {
-    id: 'fireworks:deepseek-r1-0528',
+  'fireworks-ai:deepseek-r1-0528': {
+    id: 'fireworks-ai:deepseek-r1-0528',
     name: 'DeepSeek R1 0528',
     description:
       'The updated DeepSeek R1 0528 model delivers major improvements in reasoning, inference, and accuracy through enhanced post-training optimization and greater computational resources. It now performs at a level approaching top-tier models like OpenAI o3 and Gemini 2.5 Pro, with notable gains in complex tasks such as math and programming. The update also reduces hallucinations, improves function calling, and enhances the coding experience.',
@@ -788,8 +911,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
   },
-  'fireworks:deepseek-v3-0324': {
-    id: 'fireworks:deepseek-v3-0324',
+  'fireworks-ai:deepseek-v3-0324': {
+    id: 'fireworks-ai:deepseek-v3-0324',
     name: 'DeepSeek V3 0324',
     description:
       'DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team. It succeeds the DeepSeek V3 model and performs really well on a variety of tasks.',
@@ -805,8 +928,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
   },
-  'fireworks:llama4-maverick-instruct-basic': {
-    id: 'fireworks:llama4-maverick-instruct-basic',
+  'fireworks-ai:llama4-maverick-instruct-basic': {
+    id: 'fireworks-ai:llama4-maverick-instruct-basic',
     name: 'Llama 4 Maverick Instruct (Basic)',
     description:
       'Llama 4 Maverick 17B Instruct (128E) is a high-capacity multimodal language model from Meta, built on a mixture-of-experts (MoE) architecture with 128 experts and 17 billion active parameters per forward pass (400B total). It supports multilingual text and image input, and produces multilingual text and code output across 12 supported languages. Optimized for vision-language tasks, Maverick is instruction-tuned for assistant-like behavior, image reasoning, and general-purpose multimodal interaction, and suited for research and commercial applications requiring advanced multimodal understanding and high model throughput.',
@@ -822,8 +945,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
   },
-  'fireworks:llama4-scout-instruct-basic': {
-    id: 'fireworks:llama4-scout-instruct-basic',
+  'fireworks-ai:llama4-scout-instruct-basic': {
+    id: 'fireworks-ai:llama4-scout-instruct-basic',
     name: 'Llama 4 Scout Instruct (Basic)',
     description:
       'Llama 4 Scout 17B Instruct (16E) is a mixture-of-experts (MoE) language model developed by Meta, uses 16 experts per forward pass, activating 17 billion parameters out of a total of 109B. It supports native multimodal input (text and image) and multilingual output (text and code) across 12 supported languages. Designed for assistant-style interaction and visual reasoning, it is instruction-tuned for use in multilingual chat, captioning, and image understanding tasks.',
@@ -839,8 +962,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
   },
-  'fireworks:llama-v3p3-70b-instruct': {
-    id: 'fireworks:llama-v3p3-70b-instruct',
+  'fireworks-ai:llama-v3p3-70b-instruct': {
+    id: 'fireworks-ai:llama-v3p3-70b-instruct',
     name: 'Llama 3.3 70B Instruct',
     description:
       'Llama 3.3 70B Instruct is the December update of Llama 3.1 70B. The model improves upon Llama 3.1 70B (released July 2024) with advances in tool calling, multilingual text support, math and coding. The model achieves industry leading results in reasoning, math and instruction following and provides similar performance as 3.1 405B but with significant speed and cost improvements.',
@@ -856,8 +979,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
   },
-  'fireworks:deepseek-r1': {
-    id: 'fireworks:deepseek-r1',
+  'fireworks-ai:deepseek-r1': {
+    id: 'fireworks-ai:deepseek-r1',
     name: 'DeepSeek R1 (Fast)',
     description:
       'This version of the R1 model has a perfect balance between speed and cost-efficiency for real-time interactive experiences, with speeds up to 90 tokens per second.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
@@ -870,11 +993,11 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
-  'fireworks:deepseek-r1-basic': {
-    id: 'fireworks:deepseek-r1-basic',
+  'fireworks-ai:deepseek-r1-basic': {
+    id: 'fireworks-ai:deepseek-r1-basic',
     name: 'DeepSeek R1 (Basic)',
     description:
       'This version of the R1 model is optimized for throughput and cost-effectiveness and has a lower cost but slightly higher latency than the "Fast" version of the model.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
@@ -886,12 +1009,12 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 32768,
       costPer1MTokens: 2.19,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
-  'fireworks:deepseek-v3': {
-    id: 'fireworks:deepseek-v3',
+  'fireworks-ai:deepseek-v3': {
+    id: 'fireworks-ai:deepseek-v3',
     name: 'DeepSeek V3',
     description:
       'A a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token from Deepseek.',
@@ -907,8 +1030,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-v3'],
   },
-  'fireworks:llama-v3p1-405b-instruct': {
-    id: 'fireworks:llama-v3p1-405b-instruct',
+  'fireworks-ai:llama-v3p1-405b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-405b-instruct',
     name: 'Llama 3.1 405B Instruct',
     description:
       'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
@@ -924,8 +1047,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
   },
-  'fireworks:llama-v3p1-70b-instruct': {
-    id: 'fireworks:llama-v3p1-70b-instruct',
+  'fireworks-ai:llama-v3p1-70b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-70b-instruct',
     name: 'Llama 3.1 70B Instruct',
     description:
       'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
@@ -941,8 +1064,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
   },
-  'fireworks:llama-v3p1-8b-instruct': {
-    id: 'fireworks:llama-v3p1-8b-instruct',
+  'fireworks-ai:llama-v3p1-8b-instruct': {
+    id: 'fireworks-ai:llama-v3p1-8b-instruct',
     name: 'Llama 3.1 8B Instruct',
     description:
       'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
@@ -958,8 +1081,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
   },
-  'fireworks:mixtral-8x22b-instruct': {
-    id: 'fireworks:mixtral-8x22b-instruct',
+  'fireworks-ai:mixtral-8x22b-instruct': {
+    id: 'fireworks-ai:mixtral-8x22b-instruct',
     name: 'Mixtral MoE 8x22B Instruct',
     description:
       'Mistral MoE 8x22B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following.',
@@ -971,12 +1094,12 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 65536,
       costPer1MTokens: 1.2,
     },
-    tags: ['general-purpose'],
-    lifecycle: 'live',
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
-  'fireworks:mixtral-8x7b-instruct': {
-    id: 'fireworks:mixtral-8x7b-instruct',
+  'fireworks-ai:mixtral-8x7b-instruct': {
+    id: 'fireworks-ai:mixtral-8x7b-instruct',
     name: 'Mixtral MoE 8x7B Instruct',
     description:
       'Mistral MoE 8x7B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following',
@@ -992,8 +1115,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
-  'fireworks:mythomax-l2-13b': {
-    id: 'fireworks:mythomax-l2-13b',
+  'fireworks-ai:mythomax-l2-13b': {
+    id: 'fireworks-ai:mythomax-l2-13b',
     name: 'MythoMax L2 13b',
     description:
       'MythoMax L2 is designed to excel at both roleplaying and storytelling, and is an improved variant of the previous MythoMix model, combining the MythoLogic-L2 and Huginn models.',
@@ -1009,8 +1132,8 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'live',
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
-  'fireworks:gemma2-9b-it': {
-    id: 'fireworks:gemma2-9b-it',
+  'fireworks-ai:gemma2-9b-it': {
+    id: 'fireworks-ai:gemma2-9b-it',
     name: 'Gemma 2 9B Instruct',
     description:
       'Redesigned for outsized performance and unmatched efficiency, Gemma 2 optimizes for blazing-fast inference on diverse hardware. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
@@ -1027,26 +1150,6 @@ export const models: Record<string, RemoteModel> = {
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }
-
-export const knownTags = [
-  'auto',
-  'best',
-  'fast',
-  'reasoning',
-  'cheapest',
-  'balance',
-  'recommended',
-  'reasoning',
-  'general-purpose',
-  'low-cost',
-  'vision',
-  'coding',
-  'function-calling',
-  'agents',
-  'storytelling',
-  'preview',
-  'roleplay',
-]
 
 export const defaultModel: RemoteModel = {
   id: '',

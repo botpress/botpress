@@ -28,12 +28,28 @@ const DEFAULT_OPTIONS: esb.BuildOptions = {
   minify: false,
 }
 
-export class IncrementalBuildContext {
+export abstract class BuildContext<T> {
   private _context: esb.BuildContext | undefined
-  private _previousProps: BuildCodeProps | undefined
+  private _previousProps: T | undefined
   private _previousOpts: esb.BuildOptions = {}
 
-  private _createContext(props: BuildCodeProps, opts: esb.BuildOptions = {}): Promise<esb.BuildContext> {
+  protected abstract _createContext(props: T, opts: esb.BuildOptions): Promise<esb.BuildContext>
+
+  public async rebuild(props: T, opts: esb.BuildOptions = {}) {
+    if (!this._context || !_.isEqual(props, this._previousProps) || !_.isEqual(opts, this._previousOpts)) {
+      if (this._context) {
+        await this._context.dispose()
+      }
+      this._context = await this._createContext(props, opts)
+      this._previousOpts = opts
+      this._previousProps = props
+    }
+    return await this._context?.rebuild()
+  }
+}
+
+export class BuildCodeContext extends BuildContext<BuildCodeProps> {
+  protected _createContext(props: BuildCodeProps, opts: esb.BuildOptions = {}): Promise<esb.BuildContext> {
     const { absWorkingDir, code, outfile } = props
     return esb.context({
       ...DEFAULT_OPTIONS,
@@ -44,17 +60,19 @@ export class IncrementalBuildContext {
       write: true,
     })
   }
+}
 
-  public async rebuild(props: BuildCodeProps, opts: esb.BuildOptions = {}) {
-    if (!this._context || !_.isEqual(props, this._previousProps) || !_.isEqual(opts, this._previousOpts)) {
-      if (this._context) {
-        await this._context.dispose()
-      }
-      this._context = await this._createContext(props, opts)
-      this._previousOpts = opts
-      this._previousProps = props
-    }
-    await this._context?.rebuild()
+export class BuildEntrypointContext extends BuildContext<BuildEntrypointProps> {
+  protected _createContext(props: BuildEntrypointProps, opts: esb.BuildOptions = {}): Promise<esb.BuildContext> {
+    const { absWorkingDir, entrypoint } = props
+    return esb.context({
+      ...DEFAULT_OPTIONS,
+      ...opts,
+      absWorkingDir,
+      entryPoints: [entrypoint],
+      outfile: undefined,
+      write: false,
+    })
   }
 }
 

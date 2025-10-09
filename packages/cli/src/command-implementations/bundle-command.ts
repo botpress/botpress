@@ -6,7 +6,7 @@ import { ProjectCommand } from './project-command'
 
 export type BundleCommandDefinition = typeof commandDefinitions.bundle
 export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
-  public async run(buildContext?: utils.esbuild.IncrementalBuildContext): Promise<void> {
+  public async run(buildContext?: utils.esbuild.BuildCodeContext): Promise<void> {
     const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
     const abs = this.projectPaths.abs
@@ -38,11 +38,11 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
 
   private async _bundle(
     outfile: string,
-    buildContext?: utils.esbuild.IncrementalBuildContext,
+    buildContext?: utils.esbuild.BuildCodeContext,
     props: Partial<utils.esbuild.BuildOptions> = {}
   ) {
     const abs = this.projectPaths.abs
-    const context = buildContext ?? new utils.esbuild.IncrementalBuildContext()
+    const context = buildContext ?? new utils.esbuild.BuildCodeContext()
     await context.rebuild(
       {
         outfile,
