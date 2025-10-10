@@ -8,7 +8,11 @@ import synchronizer from './bp_modules/synchronizer'
 const linearListableIssue = linear.definition.interfaces['listable<issue>']
 const linearDeletableIssue = linear.definition.interfaces['deletable<issue>']
 
-export default new sdk.BotDefinition({})
+export default new sdk.BotDefinition({
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
+})
   .addIntegration(linear, {
     enabled: true,
     configurationType: 'apiKey',

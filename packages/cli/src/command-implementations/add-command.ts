@@ -251,12 +251,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           plugin: {
             ...createPluginReqBody,
             dependencies: {
-              interfaces: await utils.promises.awaitRecord(
-                utils.records.mapValues(pluginDefinition.interfaces ?? {}, apiUtils.prepareCreateInterfaceBody)
-              ),
-              integrations: await utils.promises.awaitRecord(
-                utils.records.mapValues(pluginDefinition.integrations ?? {}, apiUtils.prepareCreateIntegrationBody)
-              ),
+              interfaces: pluginDefinition.interfaces,
+              integrations: pluginDefinition.integrations,
             },
             recurringEvents: pluginDefinition.recurringEvents,
           },
