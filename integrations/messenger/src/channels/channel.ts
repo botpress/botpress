@@ -15,10 +15,9 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
-    markdown: async (props) =>
-      _sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendText(recipientId, props.payload.markdown)
-      }),
+    markdown: async () => {
+      throw new RuntimeError('Markdown messages are not supported for Messenger. Use text instead.')
+    },
     audio: async (props) =>
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendAudio(recipientId, props.payload.audioUrl)
@@ -53,7 +52,7 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
         return messenger.sendMessage(recipientId, _getChoiceMessage(props.payload))
       }),
     bloc: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('This message type is not supported')
     },
   },
 }

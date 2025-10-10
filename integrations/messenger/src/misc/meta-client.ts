@@ -1,20 +1,51 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
+import { getPartialMetaClientCredentials } from './auth'
+import { MetaClientConfig } from './types'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
 
 export class MetaClient {
+  private _userAccessToken: string
   private _clientId: string
   private _clientSecret: string
-  private _version: string = 'v19.0'
-  private _baseGraphApiUrl = 'https://graph.facebook.com'
+  private _baseUrl = 'https://graph.facebook.com/v23.0'
+  private _logger?: bp.Logger
 
-  public constructor(private _logger: bp.Logger) {
-    this._clientId = bp.secrets.CLIENT_ID
-    this._clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor(config: MetaClientConfig, logger?: bp.Logger) {
+    this._userAccessToken = config.accessToken
+    this._clientId = config.clientId
+    this._clientSecret = config.clientSecret
+    this._logger = logger
   }
+
+  // Helper method for making Facebook API requests
+  private async _makeRequest<T = any>(
+    method: 'GET' | 'POST' | 'DELETE',
+    endpoint: string,
+    data?: any,
+    customHeaders: Record<string, string> = {}
+  ): Promise<T> {
+    const url = endpoint.startsWith('http') ? endpoint : `${this._baseUrl}/${endpoint}`
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this._userAccessToken}`,
+      ...customHeaders,
+    }
+
+    const response = await axios({
+      method,
+      url,
+      data,
+      headers,
+    })
+
+    return response.data
+  }
+
+  // OAuth Methods
 
   public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
@@ -24,7 +55,7 @@ export class MetaClient {
       code,
     })
 
-    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/oauth/access_token?${query.toString()}`)
+    const res = await axios.get(`${this._baseUrl}/oauth/access_token?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
@@ -34,50 +65,20 @@ export class MetaClient {
     return data.access_token
   }
 
-  public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
-    const query = new URLSearchParams({
-      input_token: inputToken,
-      access_token: bp.secrets.ACCESS_TOKEN,
-    })
-
-    const { data: dataDebugToken } = await axios.get(
-      `${this._baseGraphApiUrl}/${this._version}/debug_token?${query.toString()}`
-    )
-
-    const scope = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
-    )
-
-    if (scope.target_ids) {
-      const ids = scope.target_ids
-
-      const { data: dataBusinesses } = await axios.get(
-        `${this._baseGraphApiUrl}/${this._version}/?ids=${ids.join()}&fields=id,name`,
-        {
-          headers: {
-            Authorization: `Bearer ${inputToken}`,
-          },
-        }
-      )
-
-      return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
-    } else {
-      return this.getUserManagedPages(inputToken)
-    }
+  public setPageToken(pageToken: string) {
+    this._userAccessToken = pageToken
   }
 
-  public async getPageToken(accessToken: string, pageId: string) {
+  public async getPageToken(pageId: string) {
     const query = new URLSearchParams({
-      access_token: accessToken,
-      fields: 'access_token,name',
+      fields: 'access_token',
+      access_token: this._userAccessToken,
     })
 
-    const res = await axios.get(`${this._baseGraphApiUrl}/${pageId}?${query.toString()}`)
+    const res = await axios.get(`${this._baseUrl}/${pageId}?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
-        name: z.string(),
-        id: z.string(),
       })
       .parse(res.data)
 
@@ -88,57 +89,31 @@ export class MetaClient {
     return data.access_token
   }
 
-  public async subscribeToWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios
-      .post(
-        `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
-        {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
-        },
-        {
-          headers: {
-            Authorization: 'Bearer ' + pageToken,
-          },
-        }
-      )
-      .catch((err) => {
-        this._logger.error(`Error subscribing to webhooks for Page ${pageId}: ${err}`)
-        throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
-      })
+  public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
+    const query = new URLSearchParams({
+      input_token: inputToken,
+      access_token: bp.secrets.ACCESS_TOKEN,
+    })
 
-    if (!responseData.success) {
-      throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
-    }
-  }
+    const { data: dataDebugToken } = await axios.get(`${this._baseUrl}/debug_token?${query.toString()}`)
 
-  public async unsubscribeFromWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios
-      .delete(`${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`, {
-        headers: {
-          Authorization: 'Bearer ' + pageToken,
-        },
-      })
-      .catch((err) => {
-        this._logger.error(`Error unsubscribing from webhooks for Page ${pageId}: ${err}`)
-        throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
-      })
-
-    if (!responseData.success) {
-      throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
-    }
-  }
-
-  public async isSubscribedToWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios.get(
-      `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
-      {
-        headers: {
-          Authorization: 'Bearer ' + pageToken,
-        },
-      }
+    const scope = dataDebugToken.data.granular_scopes.find(
+      (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
     )
-    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
-    return applications?.some((app) => app.id === this._clientId) ?? false
+
+    if (scope.target_ids) {
+      const ids = scope.target_ids
+
+      const { data: dataBusinesses } = await axios.get(`${this._baseUrl}/?ids=${ids.join()}&fields=id,name`, {
+        headers: {
+          Authorization: `Bearer ${inputToken}`,
+        },
+      })
+
+      return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
+    } else {
+      return this.getUserManagedPages(inputToken)
+    }
   }
 
   public async getUserManagedPages(userToken: string) {
@@ -148,11 +123,11 @@ export class MetaClient {
       access_token: userToken,
       fields: 'id,name',
     })
-    let url = `${this._baseGraphApiUrl}/${this._version}/me/accounts?${query.toString()}`
+    let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
       const response = await axios.get(url).catch((err) => {
-        this._logger.error(`Error fetching pages: ${err}`)
+        this._logger?.error(`Error fetching pages: ${err}`)
         throw new RuntimeError('Error fetching pages')
       })
 
@@ -165,4 +140,72 @@ export class MetaClient {
 
     return allPages
   }
+
+  // Webhook Methods
+
+  public async subscribeToWebhooks(pageId: string) {
+    try {
+      const responseData = await this._makeRequest('POST', `${pageId}/subscribed_apps`, {
+        subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
+      })
+
+      if (!responseData.success) {
+        throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
+      }
+    } catch (error) {
+      this._logger?.error(`Error subscribing to webhooks for Page ${pageId}: ${error}`)
+      throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
+    }
+  }
+
+  public async unsubscribeFromWebhooks(pageId: string) {
+    try {
+      const responseData = await this._makeRequest('DELETE', `${pageId}/subscribed_apps`, undefined)
+
+      if (!responseData || !responseData.success) {
+        throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+      }
+    } catch (error) {
+      this._logger?.error(`Error unsubscribing from webhooks for Page ${pageId}: ${error}`)
+      throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+    }
+  }
+
+  public async isSubscribedToWebhooks(pageId: string) {
+    const responseData = await this._makeRequest('GET', `${pageId}/subscribed_apps`, undefined)
+    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
+    return applications?.some((app) => app.id === this._clientId) ?? false
+  }
+}
+
+// Factory Function
+export async function createMetaClient(ctx: bp.Context, client?: bp.Client, logger?: bp.Logger): Promise<MetaClient> {
+  let accessToken: string
+  let clientId: string
+  let clientSecret: string
+
+  if (ctx.configurationType === 'manual') {
+    accessToken = ctx.configuration.accessToken
+    clientId = ctx.configuration.clientId
+    clientSecret = ctx.configuration.clientSecret || ''
+  } else {
+    // For OAuth configurations
+    if (!client) {
+      throw new Error('Client is required for OAuth configuration')
+    }
+    const credentials = await getPartialMetaClientCredentials(client, ctx)
+
+    accessToken = credentials.accessToken || ''
+    clientId = bp.secrets.CLIENT_ID
+    clientSecret = bp.secrets.CLIENT_SECRET
+  }
+
+  return new MetaClient(
+    {
+      accessToken,
+      clientId,
+      clientSecret,
+    },
+    logger
+  )
 }
