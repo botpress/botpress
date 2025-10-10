@@ -33,16 +33,25 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: { ...messages.defaults },
+      messages: messages.defaults,
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'Message ID',
+            description: 'The Twilio message ID',
+          },
         },
       },
       conversation: {
         tags: {
-          userPhone: {},
-          activePhone: {},
+          userPhone: {
+            title: 'User Phone',
+            description: 'The phone number of the user',
+          },
+          activePhone: {
+            title: 'Active Phone',
+            description: 'The phone number of the active user',
+          },
         },
       },
     },
