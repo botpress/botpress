@@ -1,0 +1,55 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+# TODO: Needs to be based on configuration info (configuration.subdomain)
+# Either send user to internal BP endpoint for configuration, or change skynet to pass configuration
+# Set to "asdf" for testing account
+subdomain = "asdf"
+
+# TODO: Update with external-services developer account
+clientId = "developer_portal-17cafd58adbea444c0a80db7f996a6ddcf8b3ba3"
+
+if env == "production" {
+  clientId = "developer_portal-33ec7a1b727858a29321b932fd37f5a3a05ef58d"
+}
+
+scopes = [
+  # Required for base integration functionality
+  "email",
+  "openid",
+  # Required for events
+  "webhooks.write",
+  # Required for refresh token
+  "offline_access",
+  # Used for integration actions
+  # If adding new features, add new scopes at https://developers.bamboohr.com/applications/1093
+  "field",
+  "employee",
+  "employee:assets",
+  "employee:compensation",
+  "employee:contact",
+  "employee:custom_fields",
+  "employee:custom_fields_encrypted",
+  "employee:demographic",
+  "employee:dependent",
+  "employee:dependent:ssn",
+  "employee:education",
+  "employee:emergency_contacts",
+  "employee:file",
+  "employee:identification",
+  "employee:job",
+  "employee:management",
+  "employee:name",
+  "employee:payroll",
+  "employee:photo",
+  "employee_directory",
+  "sensitive_employee:address",
+  "sensitive_employee:creditcards",
+  "sensitive_employee:protected_info",
+  "company:info",
+  "company_file",
+]
+scopesStr = join!(scopes, "+")
+
+"https://{{ subdomain }}.bamboohr.com/authorize.php?request=authorize&response_type=code&scope={{ scopesStr }}&client_id={{ clientId }}&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth"
