@@ -1,15 +1,16 @@
+import { Workflow } from '@botpress/client'
 import type {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
   StateExpiredHandlersMap as BotStateExpiredHandlersMap,
   HookHandlersMap as BotHookHandlersMap,
   WorkflowHandlersMap as BotWorkflowHandlersMap,
-  ActionHandlers as BotActionHandlers,
+  ActionHandlersMap as BotActionHandlersMap,
   BotHandlers,
   BotSpecificClient,
   WorkflowUpdateType,
 } from '../bot'
-import { WorkflowProxy, proxyWorkflows } from '../bot/workflow-proxy'
+import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
@@ -32,13 +33,12 @@ import {
   OrderedStateExpiredHandlersMap,
   OrderedHookHandlersMap,
   OrderedWorkflowHandlersMap,
-  ActionHandlerPayloads,
-  MessagePayloads,
-  EventPayloads,
-  StateExpiredPayloads,
   HookInputs as HookPayloads,
-  WorkflowPayloads,
-  HookDefinitionType,
+  IncomingMessages,
+  InjectedHandlerProps,
+  IncomingEvents,
+  IncomingStates,
+  HookData,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
 
@@ -119,31 +119,35 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     }
   }
 
-  public get actionHandlers(): BotActionHandlers<TPlugin> {
+  public get actionHandlers(): BotActionHandlersMap<TPlugin> {
     return new Proxy(
       {},
       {
-        get: (_, actionName: string) => {
-          actionName = this._stripAliasPrefix(actionName)
+        get: <TActionName extends utils.types.StringKeys<TPlugin['actions']>>(_: unknown, actionName: TActionName) => {
+          actionName = this._stripAliasPrefix(actionName) as TActionName
           const handler = this._actionHandlers[actionName]
           if (!handler) {
             return undefined
           }
           return utils.functions.setName(
-            (input: ActionHandlerPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+            (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
+              handler({ ...input, ...this._getTools(input.client) }),
             handler.name
           )
         },
       }
-    ) as BotActionHandlers<TPlugin>
+    ) as BotActionHandlersMap<TPlugin>
   }
 
   public get messageHandlers(): BotMessageHandlersMap<TPlugin> {
     return new Proxy(
       {},
       {
-        get: (_, messageName: string) => {
-          messageName = this._stripAliasPrefix(messageName)
+        get: <TMessageName extends utils.types.StringKeys<IncomingMessages<TPlugin>>>(
+          _: unknown,
+          messageName: TMessageName
+        ) => {
+          messageName = this._stripAliasPrefix(messageName as string) as TMessageName
           const specificHandlers = this._messageHandlers[messageName] ?? []
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = utils.arrays
@@ -151,7 +155,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
+                handler({ ...input, message: input.message as any, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -164,8 +169,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, eventName: string) => {
-          eventName = this._stripAliasPrefix(eventName)
+        get: <TEventName extends utils.types.StringKeys<IncomingEvents<TPlugin>>>(
+          _: unknown,
+          eventName: TEventName
+        ) => {
+          eventName = this._stripAliasPrefix(eventName) as TEventName
 
           // if prop is "github:prOpened", include both "github:prOpened" and "creatable:itemCreated"
 
@@ -173,7 +181,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           const interfaceHandlers = Object.entries(this._eventHandlers)
             .filter(([e]) => this._eventResolvesTo(e, eventName))
-            .flatMap(([, handlers]) => handlers ?? [])
+            .flatMap(([, handlers]: [unknown, OrderedEventHandlersMap<any>[TEventName]]) => handlers ?? [])
 
           const globalHandlers = this._eventHandlers['*'] ?? []
           const allHandlers = utils.arrays
@@ -182,7 +190,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: EventPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
+                handler({ ...input, event: input.event as any, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -195,8 +204,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, stateName: string) => {
-          stateName = this._stripAliasPrefix(stateName)
+        get: <TStateName extends utils.types.StringKeys<IncomingStates<TPlugin>>>(
+          _: unknown,
+          stateName: TStateName
+        ) => {
+          stateName = this._stripAliasPrefix(stateName) as TStateName
 
           const specificHandlers = this._stateExpiredHandlers[stateName] ?? []
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
@@ -205,7 +217,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: StateExpiredPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
+                handler({ ...input, state: input.state as any, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -218,7 +231,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, hookType: utils.types.StringKeys<HookHandlersMap<TPlugin>>) => {
+        get: <THookType extends utils.types.StringKeys<HookHandlersMap<TPlugin>>>(_: unknown, hookType: THookType) => {
           const hooks = this._hookHandlers[hookType]
           if (!hooks) {
             return undefined
@@ -226,27 +239,32 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return new Proxy(
             {},
             {
-              get: (_, hookDataName: string) => {
-                hookDataName = this._stripAliasPrefix(hookDataName)
+              get: <THookDataName extends utils.types.StringKeys<HookData<TPlugin>[THookType]>>(
+                _: unknown,
+                hookDataName: THookDataName
+              ) => {
+                hookDataName = this._stripAliasPrefix(hookDataName) as THookDataName
 
                 const specificHandlers = hooks[hookDataName] ?? []
 
                 // for "before_incoming_event", "after_incoming_event" and other event related hooks
-                const interfaceHandlers = Object.entries(
-                  hooks as Record<string, { handler: Function; order: number }[]> // TODO: fix typing here
-                )
+                const interfaceHandlers = Object.entries(hooks)
                   .filter(([e]) => this._eventResolvesTo(e, hookDataName))
-                  .flatMap(([, handlers]) => handlers ?? [])
+                  .flatMap(([, handlers]) => handlers ?? []) as unknown as NonNullable<
+                  OrderedHookHandlersMap<TPlugin>[THookType][THookDataName]
+                >
 
-                const globalHandlers = hooks['*'] ?? []
+                const globalHandlers = (hooks['*' as THookDataName] ?? []) as NonNullable<
+                  OrderedHookHandlersMap<TPlugin>[THookType][THookDataName]
+                >
                 const handlers = utils.arrays
                   .unique([...specificHandlers, ...interfaceHandlers, ...globalHandlers])
                   .sort((a, b) => a.order - b.order)
 
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: HookPayloads<any>[HookDefinitionType][string]) =>
-                      handler({ ...input, ...this._getTools(input.client) }),
+                    (input: HookPayloads<TPlugin>[THookType][THookDataName]) =>
+                      handler({ ...input, data: input.data as any, ...this._getTools(input.client) }),
                     handler.name
                   )
                 )
@@ -276,7 +294,24 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return selfHandlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: WorkflowPayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) }),
+                    async (
+                      input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin> | 'workflow'> & {
+                        workflow: Workflow
+                      }
+                    ) => {
+                      let currentWorkflowState = input.workflow
+                      await handler({
+                        ...input,
+                        workflow: wrapWorkflowInstance({
+                          ...input,
+                          onWorkflowUpdate(newState) {
+                            currentWorkflowState = newState
+                          },
+                        }),
+                        ...this._getTools(input.client),
+                      })
+                      return currentWorkflowState
+                    },
                     handler.name
                   )
                 )

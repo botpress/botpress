@@ -5,7 +5,6 @@ import * as utils from '../../utils/type-utils'
 import { BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
 import * as common from '../common'
-import { proxyWorkflows } from '../workflow-proxy'
 import { extractContext } from './context'
 import { SUCCESS_RESPONSE } from './responses'
 import * as types from './types'
@@ -34,7 +33,6 @@ export const botHandler =
               ctx,
               logger: logger.with({ conversationId: req.conversationId, userId: req.userId }),
               data: req,
-              ..._getBotTools({ client }),
             })
             req = hookOutput?.data ?? req
           }
@@ -49,7 +47,6 @@ export const botHandler =
               ctx,
               logger,
               data: req,
-              ..._getBotTools({ client }),
             })
             req = hookOutput?.data ?? req
           }
@@ -70,7 +67,6 @@ export const botHandler =
                 userId: res.message.userId,
               }),
               data: res,
-              ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res
           }
@@ -89,7 +85,6 @@ export const botHandler =
                 type,
                 ...res,
               },
-              ..._getBotTools({ client }),
             })
             res = hookOutput?.data ?? res
           }
@@ -147,7 +142,7 @@ const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_
 
 const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
   const { ctx, logger, req, client, self } = serverProps
-  const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger, ..._getBotTools({ client }) }
+  const common: types.CommonHandlerProps<common.BaseBot> = { client, ctx, logger }
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
   const body = parseBody<AnyEventPayload>(req)
@@ -185,7 +180,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
       }
     }
 
-    const messagePayload: utils.ValueOf<types.MessagePayloads<common.BaseBot>> = {
+    const messagePayload: Parameters<(typeof messageHandlers)[number]>[0] = {
       ...common,
       user: event.payload.user,
       conversation: event.payload.conversation,
@@ -215,7 +210,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
   if (ctx.type === 'state_expired') {
     const event = body.event
     const state: State = event.payload.state
-    const statePayload: utils.ValueOf<types.StateExpiredPayloads<common.BaseBot>> = {
+    const statePayload: Parameters<(typeof stateHandlers)[number]>[0] = {
       ...common,
       state: state as types.IncomingStates<common.BaseBot>[string],
     }
@@ -241,7 +236,7 @@ const onEventReceived = async (serverProps: types.ServerProps): Promise<Response
     }
   }
 
-  const eventPayload: utils.ValueOf<types.EventPayloads<common.BaseBot>> = { ...common, event }
+  const eventPayload: Parameters<(typeof eventHandlers)[number]>[0] = { ...common, event }
   const eventHandlers = self.eventHandlers[event.type] ?? []
   for (const handler of eventHandlers) {
     await handler(eventPayload)
@@ -281,7 +276,6 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
         type,
         input,
       },
-      ..._getBotTools({ client }),
     })
     input = hookOutput?.data?.input ?? input
     type = hookOutput?.data?.type ?? type
@@ -292,7 +286,7 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
     throw new Error(`Action ${type} not found`)
   }
 
-  let output = await action({ ctx, logger, input, client, type, ..._getBotTools({ client }) })
+  let output = await action({ ctx, logger, input, client, type })
 
   const afterIncomingCallActionHooks = self.hookHandlers.after_incoming_call_action[type] ?? []
   for (const handler of afterIncomingCallActionHooks) {
@@ -304,7 +298,6 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
         type,
         output,
       },
-      ..._getBotTools({ client }),
     })
     type = hookOutput?.data?.type ?? type
     output = hookOutput?.data?.output ?? output
@@ -316,9 +309,3 @@ const onActionTriggered = async ({ ctx, logger, req, client, self }: types.Serve
     body: JSON.stringify(response),
   }
 }
-
-const _getBotTools = (
-  props: Pick<types.CommonHandlerProps<common.BaseBot>, 'client'>
-): Pick<types.CommonHandlerProps<common.BaseBot>, 'workflows'> => ({
-  workflows: proxyWorkflows(props.client),
-})

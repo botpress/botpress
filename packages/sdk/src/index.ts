@@ -44,7 +44,7 @@ export {
   BotImplementation as Bot,
   BotImplementationProps as BotProps,
   BotSpecificClient,
-  BotHandlers,
+  InjectedBotHandlers as BotHandlers,
   TagDefinition as BotTagDefinition,
   StateType as BotStateType,
   StateDefinition as BotStateDefinition,
@@ -74,7 +74,7 @@ export {
   PluginImplementation as Plugin,
   PluginImplementationProps as PluginProps,
   PluginRuntimeProps,
-  PluginHandlers,
+  InjectedPluginHandlers as PluginHandlers,
 } from './plugin'
 
 export {
