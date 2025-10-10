@@ -44,3 +44,10 @@ test('Insure this phone number typing works +1 xxx xxx xxxx', () => {
 test('Insure this phone number typing works +1xxxxxxxxxx', () => {
   expect(formatPhoneNumber('+15818491511')).toBe('+15818491511')
 })
+
+test('Broken 1', () => {
+  const input = '5521969853304'
+  const actual = formatPhoneNumber(input)
+  const expected = '+5521969853304'
+  expect(actual).toBe(expected)
+})
