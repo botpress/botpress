@@ -2,6 +2,7 @@ import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
+import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
@@ -10,6 +11,7 @@ import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
+
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
   }
@@ -18,7 +20,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return await sandboxHandler(props)
   }
 
-  props.logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)
@@ -28,7 +29,12 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 401, body: validationResult.message }
   }
-  return await messagingHandler(props)
+  const body = JSON.parse(req.body || '{}')
+  if (body.object === 'instagram' && body.entry?.[0]?.changes?.[0]?.field === 'comments') {
+    return await commentsHandler(props)
+  } else {
+    return await messagingHandler(props)
+  }
 }
 
 const _validateRequestAuthentication = (

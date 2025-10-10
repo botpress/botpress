@@ -106,6 +106,31 @@ export default new IntegrationDefinition({
         },
       },
     },
+    comment: {
+      title: 'Comment',
+      description: 'A comment on an Instagram post',
+      messages: messages.defaults,
+      message: {
+        tags: {
+          id: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID',
+          },
+        },
+      },
+      conversation: {
+        tags: {
+          id: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID',
+          },
+          postId: {
+            title: 'Post ID',
+            description: 'The Instagram post ID of the post where the comment was posted',
+          },
+        },
+      },
+    },
   },
   actions: {},
   events: {},
