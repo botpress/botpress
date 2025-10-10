@@ -1,5 +1,4 @@
 import { Response } from '../../../serve'
-import { proxyWorkflows, wrapWorkflowInstance } from '../../workflow-proxy'
 import { SUCCESS_RESPONSE } from '../responses'
 import * as types from '../types'
 import { bridgeUpdateTypeToSnakeCase } from './update-type-conv'
@@ -92,20 +91,12 @@ const _dispatchToHandlers = async (
   let currentWorkflowState: WorkflowState = structuredClone(event.payload.workflow)
 
   for (const handler of handlers!) {
-    await handler({
+    currentWorkflowState = await handler({
       ...props,
       event,
       conversation: event.payload.conversation,
       user: event.payload.user,
-      workflow: wrapWorkflowInstance({
-        ...props,
-        workflow: currentWorkflowState,
-        event,
-        onWorkflowUpdate(newState) {
-          currentWorkflowState = newState
-        },
-      }),
-      workflows: proxyWorkflows(props.client),
+      workflow: currentWorkflowState,
     })
   }
 
