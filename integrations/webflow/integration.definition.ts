@@ -4,15 +4,15 @@ import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '3.1.0',
+  version: '3.1.1',
   title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      apiToken: z.string().min(1, 'API Token is required').describe('Your Webflow API Token'),
-      siteID: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site'),
+      apiToken: z.string().min(1, 'API Token is required').describe('Your Webflow API Token').title('API Token'),
+      siteID: z.string().min(1, 'Site ID is required').describe('The ID of your Webflow site').title('Site ID'),
     }),
   },
   actions: {
