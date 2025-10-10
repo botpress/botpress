@@ -10,13 +10,11 @@ export const formSchema = z.object({
         fieldName: z.string().optional().describe('Form field name').title('Field Name'),
         fieldType: z
           .enum(['FormTextInput', 'FormTextarea', 'FormCheckboxInput', 'FormRadioInput', 'FormFileUploadInput'])
-          .optional()
           .describe('Form field type')
           .title('Field Type'),
         fieldElementId: z.string().describe('Element ID of the Form Field').title('Field Element ID'),
       })
     )
-    .optional()
     .describe('A list of fields from the submitted form')
     .title('Form Schema'),
   submittedAt: z.string().optional().describe('The timestamp the form was submitted').title('Submitted At'),
