@@ -1,6 +1,6 @@
 import { InstagramCommentPayloadSchema, InstagramComment } from 'src/misc/types'
 import * as bp from '.botpress'
-
+import { getCredentials } from 'src/misc/client'
 export const commentsHandler = async (props: bp.HandlerProps) => {
   const { logger, req } = props
   if (!req.body) {
@@ -25,7 +25,7 @@ export const commentsHandler = async (props: bp.HandlerProps) => {
 }
 
 const _commentHandler = async (comment: InstagramComment, handlerProps: bp.HandlerProps) => {
-  const { logger } = handlerProps
+  const { logger, client, ctx } = handlerProps
   logger.forBot().debug('Received comment from Instagram:', {
     id: comment.id,
     text: comment.text,
@@ -33,26 +33,30 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
     mediaId: comment.media.id,
   })
 
-  const { client } = handlerProps
   const { from, id, text } = comment
 
-  // Create or get conversation for the media post
+  // Get bot's Instagram ID to check if this is an echo (bot's own comment)
+  const { instagramId: botInstagramId } = await getCredentials(client, ctx)
+
+  if (from.id === botInstagramId) {
+    logger.forBot().debug('Ignoring echo comment from bot')
+    return
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'comment',
 
     tags: {
-      id, // Use comment ID as conversation identifier
+      id,
     },
   })
 
-  // Create or get user
   const { user } = await client.getOrCreateUser({
     tags: {
       id: from.id,
     },
   })
 
-  // Create the comment message
   await client.getOrCreateMessage({
     type: 'text',
     tags: {
