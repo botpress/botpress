@@ -1,6 +1,10 @@
 import { z } from '@botpress/sdk'
 import { tableSchema, recordSchema } from './sub-schemas'
 
+export const listBasesSchema = z.object({
+  bases: z.array(z.object({ id: z.string(), name: z.string(), permissionLevel: z.string() })),
+})
+
 export const getTableRecordsInputSchema = z.object({
   tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
 })

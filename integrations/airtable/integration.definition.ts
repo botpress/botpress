@@ -39,6 +39,34 @@ export default new IntegrationDefinition({
     tags: {},
   },
   actions: {
+    listBases: {
+      title: 'List Bases',
+      input: {
+        schema: z.object({
+          bases: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              permissionLevel: z.string(),
+            })
+          ),
+        }),
+      },
+      output: {
+        schema: z.object({
+          bases: z
+            .array(
+              z.object({
+                id: z.string(),
+                name: z.string(),
+                permissionLevel: z.string(),
+              })
+            )
+            .title('Bases')
+            .describe('Array of bases'),
+        }),
+      },
+    },
     getTableRecords: {
       title: 'Get Records of the Table',
       input: {
@@ -46,6 +74,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: getTableRecordsOutputSchema,
+      },
+    },
+    listTables: {
+      title: 'List Tables',
+      input: {
+        schema: z.object({
+          tables: z.array(z.object({ id: z.string(), name: z.string(), type: z.string(), primaryFieldId: z.string() })),
+        }),
+      },
+      output: {
+        schema: z.object({}),
       },
     },
     createTable: {

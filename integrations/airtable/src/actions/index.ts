@@ -1,15 +1,12 @@
-import { createRecord } from './create-record'
-import { createTable } from './create-table'
-import { getTableRecords } from './get-table-records'
-import { listRecords } from './list-records'
-import { updateRecord } from './update-record'
-import { updateTable } from './update-table'
+import { createTable, getTableRecords, updateTable, listBases } from './table'
+import { listRecords, createRecord, updateRecord } from './record'
 
 export default {
+  listBases,
   getTableRecords,
   createTable,
   updateTable,
+  listRecords,
   createRecord,
   updateRecord,
-  listRecords,
 }
