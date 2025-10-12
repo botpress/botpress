@@ -138,6 +138,31 @@ pnpm run build
 pnpm run check
 ```
 
+### Reviewing required build steps
+
+The automated tests rely on generated artifacts. If you prefer to build them manually instead of letting the pre-test hook run,
+you can review the required commands by running the helper in plan mode:
+
+```sh
+node ./scripts/ensure-test-artifacts.mjs --plan
+```
+
+Each section lists the commands you need to execute from the repository root so you can reproduce the process on your own clone.
+
+### Building and deploying integration artifacts
+
+When you are ready to publish the generated artifacts, you can ask the helper to execute any defined deployment steps right after
+it verifies or refreshes the outputs:
+
+```sh
+node ./scripts/ensure-test-artifacts.mjs --deploy
+```
+
+For example, the Chat integration task runs `pnpm --filter @botpresshub/chat deploy`, which translates to `bp add -y && bp deploy`
+inside the integration package. Make sure you have authenticated with the Botpress CLI (`bp login`) and selected the desired
+workspace before running the command. Combine `--plan` with `--deploy` if you want to review the deployment commands before
+executing them.
+
 ## Licensing
 
 All packages in this repository are open-source software and licensed under the [MIT License](LICENSE). By contributing in this repository, you agree to release your code under this license as well.

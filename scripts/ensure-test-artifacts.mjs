@@ -31,6 +31,8 @@ const baseOptions = {
   list: false,
   json: false,
   verbose: parseBoolean(process.env.BP_TEST_ARTIFACTS_VERBOSE),
+  plan: false,
+  deploy: parseBoolean(process.env.BP_TEST_ARTIFACTS_DEPLOY),
   help: false,
   only: new Set(),
   skip: new Set(),
@@ -71,6 +73,13 @@ for (let index = 0; index < rawArgs.length; index += 1) {
       break
     case '--json':
       options.json = true
+      break
+    case '--plan':
+      options.plan = true
+      break
+    case '--deploy':
+    case '-d':
+      options.deploy = true
       break
     case '--verbose':
     case '-v':
@@ -127,8 +136,13 @@ for (let index = 0; index < rawArgs.length; index += 1) {
   }
 }
 
+if (options.plan && options.check) {
+  console.error('❌ --plan cannot be used together with --check')
+  process.exit(1)
+}
+
 if (options.help) {
-  console.log(`Usage: node ./scripts/ensure-test-artifacts.mjs [options]\n\nOptions:\n  -f, --force            Force regeneration even if artifacts look fresh\n      --check            Only validate, do not run build steps\n      --list             List available artifact tasks\n      --json             Output JSON summary at the end\n  -v, --verbose          Print executed commands\n      --only <ids>       Comma or space separated task identifiers to run\n      --skip <ids>       Comma or space separated task identifiers to skip\n  -h, --help             Show this help message`)
+  console.log(`Usage: node ./scripts/ensure-test-artifacts.mjs [options]\n\nOptions:\n  -f, --force            Force regeneration even if artifacts look fresh\n      --check            Only validate, do not run build steps\n      --plan             Describe manual steps without executing them\n      --deploy           Run deployment steps after ensuring artifacts\n      --list             List available artifact tasks\n      --json             Output JSON summary at the end\n  -v, --verbose          Print executed commands\n      --only <ids>       Comma or space separated task identifiers to run\n      --skip <ids>       Comma or space separated task identifiers to skip\n  -h, --help             Show this help message`)
   process.exit(0)
 }
 
@@ -245,6 +259,13 @@ const tasks = [
       'integrations/chat/node_modules',
       'integrations/chat/src/gen',
     ],
+    ensureSteps: [['pnpm', '--filter', '@botpresshub/chat', 'generate']],
+    deploy: {
+      description: 'Deploy Chat integration',
+      steps: [
+        ['pnpm', '--filter', '@botpresshub/chat', 'deploy'],
+      ],
+    },
     steps: [['pnpm', '--filter', '@botpresshub/chat', 'generate']],
   },
   {
@@ -272,6 +293,7 @@ const tasks = [
       'packages/chat-client/src/gen',
       'packages/chat-client/dist',
     ],
+    ensureSteps: [
     steps: [
       ['pnpm', '--filter', '@botpress/chat', 'generate'],
       ['pnpm', '--filter', '@botpress/chat', 'build'],
@@ -298,6 +320,7 @@ const tasks = [
       'packages/client/node_modules',
       'packages/client/dist',
     ],
+    ensureSteps: [
     steps: [
       ['pnpm', '--filter', '@botpress/client', 'generate'],
       ['pnpm', '--filter', '@botpress/client', 'build'],
@@ -323,6 +346,7 @@ const tasks = [
       'packages/sdk/node_modules',
       'packages/sdk/dist',
     ],
+    ensureSteps: [['pnpm', '--filter', '@botpress/sdk', 'build']],
     steps: [['pnpm', '--filter', '@botpress/sdk', 'build']],
   },
 ]
@@ -484,6 +508,11 @@ const formatDuration = (milliseconds) => {
   return `${(milliseconds / 1000).toFixed(1)}s`
 }
 
+const safeCommandPart = (part) =>
+  /^[A-Za-z0-9@%_=+:,.\/\-]+$/.test(part) ? part : JSON.stringify(part)
+
+const formatCommand = (parts) => parts.map(safeCommandPart).join(' ')
+
 const runStep = (command, args) => {
   if (options.verbose) {
     console.log(`    ↳ ${command} ${args.join(' ')}`)
@@ -502,9 +531,86 @@ const results = []
 let encounteredFailure = false
 
 for (const task of selectedTasks) {
+  const ensureSteps = task.ensureSteps ?? []
+  const deployConfig = task.deploy ?? {}
+  const deployDescription = deployConfig.description ?? `Deploy ${task.description}`
+  const deploySteps = toArray(deployConfig.steps)
+
   const stateBefore = computeTaskState(task)
   const stateHasIssues = hasIssues(stateBefore)
   const reasons = buildReasons(stateBefore, options.force)
+
+  if (options.plan) {
+    const ensureRunnable = ensureSteps.length > 0
+    const needsEnsure = options.force || stateHasIssues
+    const describeEnsure = (needsEnsure || options.deploy) && ensureRunnable
+    const describeDeploy = options.deploy && deploySteps.length > 0
+
+    if (describeEnsure || describeDeploy || needsEnsure) {
+      const reasonText = describeEnsure ? formatParts(reasons) : needsEnsure ? formatParts(reasons) : ''
+      console.log(`\n🛠️  ${task.description}${reasonText ? ` (${reasonText})` : ''}`)
+      if (describeEnsure) {
+        console.log('    Prepare artifacts with:')
+        for (const step of ensureSteps) {
+          console.log(`      ${formatCommand(step)}`)
+        }
+      } else if (needsEnsure && !ensureRunnable) {
+        console.log('    ⚠️  No automated preparation steps are defined for this task')
+      } else {
+        console.log('    Artifacts are up to date')
+      }
+      if (describeDeploy) {
+        console.log(`    Deploy via ${deployDescription}:`)
+        for (const step of deploySteps) {
+          console.log(`      ${formatCommand(step)}`)
+        }
+      } else if (options.deploy && deploySteps.length === 0) {
+        console.log(`    ℹ️  ${deployDescription} has no deployment steps defined`)
+      }
+    } else {
+      console.log(`✅ ${task.description} is up to date`)
+    }
+    if (stateHasIssues) {
+      encounteredFailure = true
+    }
+    const planEntries = []
+    if (describeEnsure) {
+      planEntries.push(
+        ...ensureSteps.map((step) => ({
+          phase: 'ensure',
+          command: step[0],
+          args: step.slice(1),
+          formatted: formatCommand(step),
+        })),
+      )
+    }
+    if (describeDeploy) {
+      planEntries.push(
+        ...deploySteps.map((step) => ({
+          phase: 'deploy',
+          description: deployDescription,
+          command: step[0],
+          args: step.slice(1),
+          formatted: formatCommand(step),
+        })),
+      )
+    }
+    results.push({
+      id: task.id,
+      description: task.description,
+      status: stateHasIssues ? 'needs-update' : 'ready',
+      ranSteps: false,
+      reasons,
+      state: stateBefore,
+      plan: planEntries,
+      deploy: {
+        requested: options.deploy,
+        hasSteps: deploySteps.length > 0,
+        description: deployDescription,
+      },
+    })
+    continue
+  }
 
   if (options.check) {
     if (stateHasIssues) {
@@ -520,67 +626,115 @@ for (const task of selectedTasks) {
       ranSteps: false,
       reasons,
       state: stateBefore,
+      deploy: {
+        requested: options.deploy,
+        hasSteps: deploySteps.length > 0,
+        description: deployDescription,
+      },
     })
     continue
   }
+
+  let ranEnsureSteps = false
+  let ensureDuration
+  let stateAfter = stateBefore
 
   if (!options.force && !stateHasIssues) {
     console.log(`✅ ${task.description} is up to date`)
-    results.push({
-      id: task.id,
-      description: task.description,
-      status: 'up-to-date',
-      ranSteps: false,
-      reasons: [],
-      state: stateBefore,
-    })
-    continue
+  } else {
+    if (ensureSteps.length === 0) {
+      encounteredFailure = true
+      console.error(`❌ ${task.description} has no steps to resolve missing or stale artifacts`)
+      process.exit(1)
+    }
+
+    const reasonText = formatParts(reasons)
+    console.log(`\n⏳ ${task.description}${reasonText ? ` (${reasonText})` : ''}`)
+
+    const startTime = performance.now()
+
+    for (const [command, ...args] of ensureSteps) {
+      const status = runStep(command, args)
+      if (status !== 0) {
+        encounteredFailure = true
+        console.error(`❌ ${task.description} failed while running ${command}`)
+        process.exit(status)
+      }
+    }
+
+    ensureDuration = performance.now() - startTime
+    stateAfter = computeTaskState(task)
+
+    if (hasIssues(stateAfter)) {
+      encounteredFailure = true
+      const afterReasons = buildReasons(stateAfter, false)
+      console.error(
+        `❌ Generated artifacts appear incomplete for ${task.description}: ${formatParts(afterReasons)}`,
+      )
+      process.exit(1)
+    }
+
+    console.log(`✅ ${task.description} complete in ${formatDuration(ensureDuration)}`)
+    ranEnsureSteps = true
   }
 
-  const reasonText = formatParts(reasons)
-  console.log(`\n⏳ ${task.description}${reasonText ? ` (${reasonText})` : ''}`)
+  let ranDeploySteps = false
+  let deployDuration
 
-  const startTime = performance.now()
-
-  for (const [command, ...args] of task.steps) {
-    const status = runStep(command, args)
-    if (status !== 0) {
-      encounteredFailure = true
-      console.error(`❌ ${task.description} failed while running ${command}`)
-      process.exit(status)
+  if (options.deploy) {
+    if (deploySteps.length === 0) {
+      console.log(`ℹ️  ${deployDescription} has no deployment steps defined; skipping`)
+    } else {
+      console.log(`\n🚀 ${deployDescription}`)
+      const deployStart = performance.now()
+      for (const [command, ...args] of deploySteps) {
+        const status = runStep(command, args)
+        if (status !== 0) {
+          encounteredFailure = true
+          console.error(`❌ ${deployDescription} failed while running ${command}`)
+          process.exit(status)
+        }
+      }
+      deployDuration = performance.now() - deployStart
+      console.log(`✅ ${deployDescription} complete in ${formatDuration(deployDuration)}`)
+      ranDeploySteps = true
     }
   }
 
-  const duration = performance.now() - startTime
-  const stateAfter = computeTaskState(task)
-
-  if (hasIssues(stateAfter)) {
-    encounteredFailure = true
-    const afterReasons = buildReasons(stateAfter, false)
-    console.error(
-      `❌ Generated artifacts appear incomplete for ${task.description}: ${formatParts(afterReasons)}`,
-    )
-    process.exit(1)
-  }
-
-  console.log(`✅ ${task.description} complete in ${formatDuration(duration)}`)
   results.push({
     id: task.id,
     description: task.description,
-    status: 'updated',
-    ranSteps: true,
-    durationMs: duration,
-    reasons,
+    status: ranEnsureSteps ? 'updated' : 'up-to-date',
+    ranSteps: ranEnsureSteps,
+    durationMs: ensureDuration,
+    reasons: ranEnsureSteps ? reasons : [],
     state: stateAfter,
+    deploy: {
+      requested: options.deploy,
+      ran: ranDeploySteps,
+      description: deployDescription,
+      durationMs: deployDuration,
+      hasSteps: deploySteps.length > 0,
+    },
   })
 }
 
-if (options.check) {
+let exitCode = 0
+
+if (options.plan) {
+  if (encounteredFailure) {
+    console.error('\n❌ Some artifacts require manual preparation (see commands above)')
+    exitCode = 1
+  } else {
+    console.log('\n✅ All artifacts are up to date; no manual preparation required')
+  }
+} else if (options.check) {
   if (encounteredFailure) {
     console.error('\n❌ Some artifacts are missing or stale')
-    process.exit(1)
+    exitCode = 1
+  } else {
+    console.log('\n✅ Test artifacts verified')
   }
-  console.log('\n✅ Test artifacts verified')
 } else {
   console.log('\n✅ Test artifacts are ready')
 }
@@ -588,8 +742,12 @@ if (options.check) {
 if (options.json) {
   const summary = {
     ok: !encounteredFailure,
-    mode: options.check ? 'check' : 'ensure',
+    mode: options.plan ? 'plan' : options.check ? 'check' : 'ensure',
     results,
   }
   console.log(JSON.stringify(summary, null, 2))
+}
+
+if (exitCode !== 0) {
+  process.exit(exitCode)
 }
