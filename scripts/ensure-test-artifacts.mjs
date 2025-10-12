@@ -266,6 +266,7 @@ const tasks = [
         ['pnpm', '--filter', '@botpresshub/chat', 'deploy'],
       ],
     },
+    steps: [['pnpm', '--filter', '@botpresshub/chat', 'generate']],
   },
   {
     id: 'package-chat-client',
@@ -293,6 +294,7 @@ const tasks = [
       'packages/chat-client/dist',
     ],
     ensureSteps: [
+    steps: [
       ['pnpm', '--filter', '@botpress/chat', 'generate'],
       ['pnpm', '--filter', '@botpress/chat', 'build'],
     ],
@@ -319,6 +321,7 @@ const tasks = [
       'packages/client/dist',
     ],
     ensureSteps: [
+    steps: [
       ['pnpm', '--filter', '@botpress/client', 'generate'],
       ['pnpm', '--filter', '@botpress/client', 'build'],
     ],
@@ -344,6 +347,7 @@ const tasks = [
       'packages/sdk/dist',
     ],
     ensureSteps: [['pnpm', '--filter', '@botpress/sdk', 'build']],
+    steps: [['pnpm', '--filter', '@botpress/sdk', 'build']],
   },
 ]
 
