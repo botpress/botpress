@@ -6,7 +6,7 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "4.15.10"
+    "@botpress/sdk": "4.15.11"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",

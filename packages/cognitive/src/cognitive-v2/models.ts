@@ -18,6 +18,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5'],
   },
   'openai:gpt-5-mini-2025-08-07': {
     id: 'openai:gpt-5-mini-2025-08-07',
@@ -34,6 +35,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5-mini'],
   },
   'openai:gpt-5-nano-2025-08-07': {
     id: 'openai:gpt-5-nano-2025-08-07',
@@ -50,6 +52,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'reasoning', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-5-nano'],
   },
   'openai:o4-mini-2025-04-16': {
     id: 'openai:o4-mini-2025-04-16',
@@ -66,6 +69,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'live',
+    aliases: ['o4-mini'],
   },
   'openai:o3-2025-04-16': {
     id: 'openai:o3-2025-04-16',
@@ -82,6 +86,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'live',
+    aliases: ['o3'],
   },
   'openai:gpt-4.1-2025-04-14': {
     id: 'openai:gpt-4.1-2025-04-14',
@@ -98,6 +103,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1'],
   },
   'openai:gpt-4.1-mini-2025-04-14': {
     id: 'openai:gpt-4.1-mini-2025-04-14',
@@ -114,6 +120,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1-mini'],
   },
   'openai:gpt-4.1-nano-2025-04-14': {
     id: 'openai:gpt-4.1-nano-2025-04-14',
@@ -129,6 +136,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['gpt-4.1-nano'],
   },
   'openai:o3-mini-2025-01-31': {
     id: 'openai:o3-mini-2025-01-31',
@@ -145,6 +153,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'live',
+    aliases: ['o3-mini'],
   },
   'openai:o1-2024-12-17': {
     id: 'openai:o1-2024-12-17',
@@ -177,6 +186,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
     lifecycle: 'live',
+    aliases: ['o1-mini'],
   },
   'openai:gpt-4o-mini-2024-07-18': {
     id: 'openai:gpt-4o-mini-2024-07-18',
@@ -193,6 +203,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
     lifecycle: 'live',
+    aliases: ['gpt-4o-mini'],
   },
   'openai:gpt-4o-2024-11-20': {
     id: 'openai:gpt-4o-2024-11-20',
@@ -209,6 +220,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
     lifecycle: 'live',
+    aliases: ['gpt-4o'],
   },
   'openai:gpt-4o-2024-08-06': {
     id: 'openai:gpt-4o-2024-08-06',
@@ -274,6 +286,23 @@ export const models: Record<string, RemoteModel> = {
     tags: ['deprecated', 'general-purpose', 'low-cost'],
     lifecycle: 'deprecated',
   },
+  'anthropic:claude-sonnet-4-5-2025092': {
+    id: 'anthropic:claude-sonnet-4-5-2025092',
+    name: 'Claude Sonnet 4.5',
+    description:
+      "Claude Sonnet 4.5 is Anthropic's most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 3,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 15,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'live',
+    aliases: ['claude-sonnet-4-5'],
+  },
   'anthropic:claude-sonnet-4-20250514': {
     id: 'anthropic:claude-sonnet-4-20250514',
     name: 'Claude Sonnet 4',
@@ -289,6 +318,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'live',
+    aliases: ['claude-sonnet-4'],
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
     id: 'anthropic:claude-sonnet-4-reasoning-20250514',
@@ -305,6 +335,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
     lifecycle: 'deprecated',
+    aliases: ['claude-sonnet-4-reasoning'],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
@@ -530,8 +561,8 @@ export const models: Record<string, RemoteModel> = {
     tags: ['general-purpose'],
     lifecycle: 'live',
   },
-  'groq:openai/gpt-oss-20b': {
-    id: 'groq:openai/gpt-oss-20b',
+  'groq:gpt-oss-20b': {
+    id: 'groq:gpt-oss-20b',
     name: 'GPT-OSS 20B (Preview)',
     description:
       'gpt-oss-20b is a compact, open-weight language model optimized for low-latency. It shares the same training foundation and capabilities as the GPT-OSS 120B model, with faster responses and lower cost.',
@@ -545,9 +576,10 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'live',
+    aliases: ['openai/gpt-oss-20b'],
   },
-  'groq:openai/gpt-oss-120b': {
-    id: 'groq:openai/gpt-oss-120b',
+  'groq:gpt-oss-120b': {
+    id: 'groq:gpt-oss-120b',
     name: 'GPT-OSS 120B (Preview)',
     description:
       'gpt-oss-120b is a high-performance, open-weight language model designed for production-grade, general-purpose use cases. It excels at complex reasoning and supports configurable reasoning effort, full chain-of-thought transparency for easier debugging and trust, and native agentic capabilities for function calling, tool use, and structured outputs.',
@@ -561,6 +593,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'live',
+    aliases: ['openai/gpt-oss-120b'],
   },
   'groq:deepseek-r1-distill-llama-70b': {
     id: 'groq:deepseek-r1-distill-llama-70b',
@@ -960,7 +993,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
   'fireworks-ai:deepseek-r1-basic': {
@@ -976,8 +1009,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 32768,
       costPer1MTokens: 2.19,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    tags: ['reasoning', 'general-purpose', 'coding'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
   'fireworks-ai:deepseek-v3': {
@@ -1061,8 +1094,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 65536,
       costPer1MTokens: 1.2,
     },
-    tags: ['general-purpose'],
-    lifecycle: 'live',
+    tags: ['deprecated', 'general-purpose'],
+    lifecycle: 'deprecated',
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
   'fireworks-ai:mixtral-8x7b-instruct': {
@@ -1117,26 +1150,6 @@ export const models: Record<string, RemoteModel> = {
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }
-
-export const knownTags = [
-  'auto',
-  'best',
-  'fast',
-  'reasoning',
-  'cheapest',
-  'balance',
-  'recommended',
-  'reasoning',
-  'general-purpose',
-  'low-cost',
-  'vision',
-  'coding',
-  'function-calling',
-  'agents',
-  'storytelling',
-  'preview',
-  'roleplay',
-]
 
 export const defaultModel: RemoteModel = {
   id: '',

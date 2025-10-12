@@ -6,4 +6,7 @@ export default new sdk.BotDefinition({
   states: {},
   events: {},
   recurringEvents: {},
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).addIntegration(chat, { enabled: true, configuration: {} })

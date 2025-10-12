@@ -2,8 +2,8 @@ import { z } from '@botpress/sdk'
 import { LLMInput } from './parse-content'
 import * as prompt from './prompt'
 
-export type OutputFormat = z.infer<typeof OutputFormat>
-export const OutputFormat = z.object({
+export type SummaryOutput = z.infer<typeof SummaryOutput>
+export const SummaryOutput = z.object({
   title: z.string().describe('A fitting title for the conversation'),
   summary: z.string().describe('A short summary of the conversation'),
 })
