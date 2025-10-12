@@ -138,6 +138,17 @@ pnpm run build
 pnpm run check
 ```
 
+### Reviewing required build steps
+
+The automated tests rely on generated artifacts. If you prefer to build them manually instead of letting the pre-test hook run,
+you can review the required commands by running the helper in plan mode:
+
+```sh
+node ./scripts/ensure-test-artifacts.mjs --plan
+```
+
+Each section lists the commands you need to execute from the repository root so you can reproduce the process on your own clone.
+
 ## Licensing
 
 All packages in this repository are open-source software and licensed under the [MIT License](LICENSE). By contributing in this repository, you agree to release your code under this license as well.
