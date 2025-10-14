@@ -1,5 +1,4 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
@@ -42,7 +41,8 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: formatPhoneNumber(userPhone),
+      userPhone,
+      // userPhone: formatPhoneNumber(userPhone), // TODO: Uncomment when we have fixed the issue
     },
   })
 
