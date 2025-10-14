@@ -2480,7 +2480,7 @@ importers:
         specifier: ^1.25.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.46
+        specifier: 0.1.47
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2654,7 +2654,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.46
+        specifier: 0.1.47
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -7755,10 +7755,6 @@ packages:
   google-auth-library@9.15.1:
     resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
     engines: {node: '>=14'}
-
-  google-libphonenumber@3.2.43:
-    resolution: {integrity: sha512-TbIX/UC3BFRJwCxbBeCPwuRC4Qws9Jz/CECmfTM1t9RFoI3X6eRThurv6AYr9wSrt640IA9KFIHuAD/vlyjqRw==}
-    engines: {node: '>=0.10'}
 
   google-logging-utils@0.0.2:
     resolution: {integrity: sha512-NEgUnEcBiP5HrPzufUkBzJOD/Sxsco3rLNo1F1TNf7ieU8ryUzBhqba8r756CjLX7rn3fHl6iLEwPYuqpoKgQQ==}
@@ -17537,8 +17533,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  google-libphonenumber@3.2.43: {}
 
   google-logging-utils@0.0.2: {}
 
