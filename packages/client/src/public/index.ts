@@ -15,6 +15,7 @@ export type ClientOutputs = common.types.Outputs<IClient>
 
 export type ClientProps = common.types.CommonClientProps & {
   integrationId?: string
+  integrationAlias?: string
   workspaceId?: string
   botId?: string
   token?: string

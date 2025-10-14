@@ -8,11 +8,13 @@ const defaultDebug = false
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
 const integrationIdEnvName = 'BP_INTEGRATION_ID'
+const integrationAliasEnvName = 'BP_INTEGRATION_ALIAS'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
 type AnyClientProps = types.CommonClientProps & {
   integrationId?: string
+  integrationAlias?: string
   workspaceId?: string
   botId?: string
   token?: string
@@ -33,6 +35,10 @@ export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig
 
   if (props.integrationId) {
     headers['x-integration-id'] = props.integrationId
+  }
+
+  if (props.integrationAlias) {
+    headers['x-integration-alias'] = props.integrationAlias
   }
 
   if (props.token) {
@@ -75,6 +81,7 @@ function getNodeConfig(props: AnyClientProps): AnyClientProps {
     apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
     integrationId: props.integrationId ?? process.env[integrationIdEnvName],
+    integrationAlias: props.integrationAlias ?? process.env[integrationAliasEnvName],
     workspaceId: props.workspaceId ?? process.env[workspaceIdEnvName],
   }
 
