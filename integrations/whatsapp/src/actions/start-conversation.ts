@@ -43,6 +43,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     tags: {
       botPhoneNumberId,
       userPhone,
+      // userPhone: formatPhoneNumber(userPhone), // TODO: Uncomment when we have fixed the issue
     },
   })
 

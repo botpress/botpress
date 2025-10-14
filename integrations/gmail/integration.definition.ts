@@ -27,4 +27,7 @@ export default new sdk.IntegrationDefinition({
   events,
   states,
   secrets,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

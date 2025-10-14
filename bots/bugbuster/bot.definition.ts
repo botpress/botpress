@@ -21,6 +21,9 @@ export default new sdk.BotDefinition({
       }),
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .addIntegration(github, {
     enabled: true,

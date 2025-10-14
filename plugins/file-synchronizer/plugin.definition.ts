@@ -203,4 +203,7 @@ export default new sdk.PluginDefinition({
       version: `>=${semver.major(filesReadonly.version)}.0.0 <${semver.major(filesReadonly.version) + 1}.0.0`,
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

@@ -48,4 +48,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

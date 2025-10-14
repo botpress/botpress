@@ -157,4 +157,7 @@ export default new sdk.InterfaceDefinition({
         }),
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
