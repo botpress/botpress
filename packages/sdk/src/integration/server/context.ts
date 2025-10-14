@@ -32,7 +32,9 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
   webhookId: headers[WEBHOOK_ID_HEADER] || throwError('Missing webhook header'),
   operation: headers[OPERATION_TYPE_HEADER] || throwError('Missing operation header'),
   configurationType: headers[CONFIGURATION_TYPE_HEADER] ?? null,
-  configuration: headers[CONFIGURATION_PAYLOAD_HEADER]
-    ? JSON.parse(Buffer.from(headers[CONFIGURATION_PAYLOAD_HEADER], 'base64').toString('utf-8'))
-    : {},
+  configuration: JSON.parse(
+    Buffer.from(headers[CONFIGURATION_PAYLOAD_HEADER] || throwError('Missing configuration header'), 'base64').toString(
+      'utf-8'
+    )
+  ),
 })

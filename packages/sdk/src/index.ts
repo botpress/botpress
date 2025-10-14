@@ -3,26 +3,6 @@ export * from './public-consts'
 export * from './serve'
 export * from './zui'
 
-// Backward-compatibility for old constants that were not SCREAMING_SNAKE_CASE:
-export {
-  /** @deprecated please use `BOT_ID_HEADER` instead */
-  BOT_ID_HEADER as botIdHeader,
-  /** @deprecated please use `BOT_USER_ID_HEADER` instead */
-  BOT_USER_ID_HEADER as botUserIdHeader,
-  /** @deprecated please use `INTEGRATION_ID_HEADER` instead */
-  INTEGRATION_ID_HEADER as integrationIdHeader,
-  /** @deprecated please use `WEBHOOK_ID_HEADER` instead */
-  WEBHOOK_ID_HEADER as webhookIdHeader,
-  /** @deprecated please use `CONFIGURATION_TYPE_HEADER` instead */
-  CONFIGURATION_TYPE_HEADER as configurationTypeHeader,
-  /** @deprecated please use `CONFIGURATION_PAYLOAD_HEADER` instead */
-  CONFIGURATION_PAYLOAD_HEADER as configurationHeader,
-  /** @deprecated please use `OPERATION_TYPE_HEADER` instead */
-  OPERATION_TYPE_HEADER as operationHeader,
-  /** @deprecated please use `OPERATION_SUBTYPE_HEADER` instead */
-  OPERATION_SUBTYPE_HEADER as typeHeader,
-} from './public-consts'
-
 export {
   //
   isApiError,

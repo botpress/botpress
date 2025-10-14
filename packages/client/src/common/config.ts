@@ -8,7 +8,6 @@ const defaultDebug = false
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
 const integrationIdEnvName = 'BP_INTEGRATION_ID'
-const integrationAliasEnvName = 'BP_INTEGRATION_ALIAS'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
@@ -81,7 +80,7 @@ function getNodeConfig(props: AnyClientProps): AnyClientProps {
     apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
     integrationId: props.integrationId ?? process.env[integrationIdEnvName],
-    integrationAlias: props.integrationAlias ?? process.env[integrationAliasEnvName],
+    integrationAlias: props.integrationAlias,
     workspaceId: props.workspaceId ?? process.env[workspaceIdEnvName],
   }
 
