@@ -200,7 +200,7 @@ const _parseComponent = (
         compText = component.parameters.flatMap((parameter) => {
           return `lat: ${parameter.location.latitude} long: ${parameter.location.longitude} address: ${parameter.location.address} name: ${parameter.location.name}\n`
         })
-        return `[LOCATION]${compText}`
+        return `[HEADER LOCATION]\n${compText}`
       } else if (component.format === 'TEXT') {
         compText = component.text ?? 'header has no text'
         return `[HEADER TEXT]\n${component.text}\n`
