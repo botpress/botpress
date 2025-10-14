@@ -23,6 +23,9 @@ export default new sdk.BotDefinition({
     },
   },
   conversation: {},
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .addIntegration(chat, {
     enabled: true,

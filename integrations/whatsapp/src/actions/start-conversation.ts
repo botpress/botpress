@@ -42,7 +42,8 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: formatPhoneNumber(userPhone),
+      userPhone,
+      // userPhone: formatPhoneNumber(userPhone), // TODO: Uncomment when we have fixed the issue
     },
   })
 

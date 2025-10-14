@@ -18,6 +18,9 @@ export default new sdk.BotDefinition({
       },
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .addIntegration(gsheets, {
     enabled: true,

@@ -40,7 +40,8 @@ async function _handleIncomingMessage(
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: formatPhoneNumber(message.from),
+      userPhone: message.from,
+      // userPhone: formatPhoneNumber(message.from), // TODO: Uncomment when we have fixed the issue
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })
