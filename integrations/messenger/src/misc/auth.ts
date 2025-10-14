@@ -19,7 +19,7 @@ export async function getFacebookClientCredentials(
       pageToken: ctx.configuration.accessToken,
     }
   } else if (ctx.configurationType === 'sandbox') {
-    throw new RuntimeError('Facebook client credentials are not available for sandbox configurations')
+    throw new RuntimeError('Facebook client credentials are not available for sandbox configuration')
   } else {
     const {
       state: {
@@ -134,7 +134,7 @@ export async function getMetaClientCredentials(
 ): Promise<MetaClientCredentials> {
   let credentials: MetaClientCredentials | undefined
   if (configType === 'sandbox') {
-    throw new RuntimeError('Meta client credentials are not available for sandbox configurations')
+    throw new RuntimeError('Meta client credentials are not available for sandbox configuration')
   } else if (configType === 'manual') {
     if (ctx.configurationType !== configType) {
       throw new RuntimeError(
