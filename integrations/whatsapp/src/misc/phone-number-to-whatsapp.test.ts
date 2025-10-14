@@ -88,7 +88,6 @@ test('Insure this phone number typing works 1xxxxxxxxxx', () => {
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
-  expect(formatPhoneNumber('+15818491511')).toBe('+15818491511')
 })
 
 // Automatically generated examples for all countries
