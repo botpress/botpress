@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import axios from 'axios'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import { Location, SendMessageProps } from './types'
 import * as bp from '.botpress'
@@ -100,5 +101,31 @@ export const tryGetUserProfile = async (
     return await messengerClient.getUserProfile(userId, { fields })
   } catch {
     return undefined
+  }
+}
+
+const isMetaError = (
+  error: unknown
+): error is { response: { data: { error: { message: string; error_user_msg: string } } } } => {
+  return (
+    axios.isAxiosError(error) &&
+    'error' in error.response?.data &&
+    'error_user_msg' in error.response?.data.error &&
+    'message' in error.response?.data.error &&
+    error.response?.data.error.message &&
+    error.response?.data.error.error_user_msg
+  )
+}
+
+export const makeMetaErrorHandler = (url: string) => {
+  return (error: unknown) => {
+    const baseMessage = `Error calling Meta API with url ${url}`
+    if (isMetaError(error)) {
+      const metaError = error.response.data.error
+      throw new RuntimeError(`${baseMessage}: ${metaError.message}, ${metaError.error_user_msg}`)
+    } else if (error instanceof Error) {
+      throw new RuntimeError(`${baseMessage}: ${error.message}`)
+    }
+    throw new RuntimeError(`${baseMessage}: Unknown error`)
   }
 }

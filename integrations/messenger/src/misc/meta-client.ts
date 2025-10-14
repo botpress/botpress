@@ -2,6 +2,7 @@ import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getMetaClientCredentials } from './auth'
 import { MetaClientConfigType, MetaClientCredentials } from './types'
+import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
@@ -75,15 +76,7 @@ export class MetaClient {
       url,
       data,
       headers,
-    }).catch((err: unknown) => {
-      if (_isMetaError(err)) {
-        const metaError = err.response.data.error
-        throw new RuntimeError(`${metaError.message}: ${metaError.error_user_msg}`)
-      } else if (err instanceof Error) {
-        throw new RuntimeError(err.message)
-      }
-      throw new RuntimeError(`Failed to make request to ${url}`)
-    })
+    }).catch(makeMetaErrorHandler(url))
 
     return response.data
   }

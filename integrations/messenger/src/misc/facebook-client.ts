@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { getFacebookClientCredentials } from './auth'
 import { FacebookClientCredentials, CommentReply, PostReply } from './types'
+import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
 export class FacebookClient {
@@ -37,7 +38,7 @@ export class FacebookClient {
       url,
       data,
       headers,
-    })
+    }).catch(makeMetaErrorHandler(url))
 
     return response.data
   }
