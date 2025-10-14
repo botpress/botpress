@@ -234,7 +234,7 @@ export const getCognitiveV2Model = (model: string): Model | undefined => {
 
   // Some models (ex fireworks) have a long name (the internal id) so it is now an alias instead of the main id
   const alias = Object.values(models).find((x) =>
-    x.aliases ? x.aliases.includes(model) || x.aliases.includes(baseModel) : false
+    x.aliases ? x.aliases.includes(model) || (baseModel && x.aliases.includes(baseModel)) : false
   )
 
   if (alias) {
