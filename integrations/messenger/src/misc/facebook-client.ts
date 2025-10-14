@@ -7,12 +7,10 @@ export class FacebookClient {
   private _pageAccessToken: string
   private _pageId: string
   private _baseUrl = 'https://graph.facebook.com/v23.0'
-  private _logger?: bp.Logger
 
-  public constructor(config: FacebookClientCredentials, logger?: bp.Logger) {
+  public constructor(config: FacebookClientCredentials) {
     this._pageAccessToken = config.pageToken
     this._pageId = config.pageId
-    this._logger = logger
   }
 
   // Helper method for making Facebook API requests
@@ -107,11 +105,7 @@ export class FacebookClient {
 }
 
 // Factory Functions
-export async function createAuthenticatedFacebookClient(
-  ctx: bp.Context,
-  client: bp.Client,
-  logger?: bp.Logger
-): Promise<FacebookClient> {
+export async function createAuthenticatedFacebookClient(ctx: bp.Context, client: bp.Client): Promise<FacebookClient> {
   const credentials = await getFacebookClientCredentials(client, ctx)
-  return new FacebookClient(credentials, logger)
+  return new FacebookClient(credentials)
 }

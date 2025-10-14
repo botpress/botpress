@@ -13,7 +13,7 @@ const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
         return
       }
 
-      await _replyToComment(id, payload.text, ctx, client, logger, ack)
+      await _replyToComment({ id, message: payload.text, ctx, client, ack })
     },
     image: async () => {
       throw new RuntimeError('Images are not supported for Comment Replies. Use text instead.')
@@ -48,22 +48,27 @@ const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
   },
 }
 
-const _replyToComment = async (
-  id: string,
-  message: string,
-  ctx: bp.Context,
-  client: bp.Client,
-  logger: bp.Logger,
+const _replyToComment = async ({
+  id,
+  message,
+  ctx,
+  client,
+  ack,
+}: {
+  id: string
+  message: string
+  ctx: bp.Context
+  client: bp.Client
   ack: bp.AnyAckFunction
-) => {
-  const facebookClient = await createAuthenticatedFacebookClient(ctx, client, logger)
+}) => {
+  const facebookClient = await createAuthenticatedFacebookClient(ctx, client)
   try {
     const response = await facebookClient.replyToComment({
       commentId: id,
       message,
     })
 
-    // Update conversation tags with the new comment ID if ack is provided
+    // Update message tags with the new comment ID if ack is provided
     await ack({ tags: { id: response.id } })
 
     return response
