@@ -37,11 +37,18 @@ async function _handleIncomingMessage(
   client: bp.Client,
   logger: bp.Logger
 ) {
+  let userPhone = message.from
+  try {
+    userPhone = formatPhoneNumber(message.from)
+  } catch (thrown) {
+    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
+    logger.forBot().error(`Failed to parse phone number, errors ${errorMessage}`)
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: message.from,
-      // userPhone: formatPhoneNumber(message.from), // TODO: Uncomment when we have fixed the issue
+      userPhone,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })

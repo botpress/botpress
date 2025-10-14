@@ -8,6 +8,7 @@ import {
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from 'definitions/events'
+import { phoneNumberRefine } from 'src/misc/phone-number-to-whatsapp'
 
 export const INTEGRATION_NAME = 'whatsapp'
 
@@ -54,8 +55,11 @@ const startConversationProps = {
           userPhone: z
             .string()
             .min(1)
+            .refine(phoneNumberRefine, 'The phone number is invalid')
             .title('User Phone Number')
-            .describe('Phone number of the WhatsApp user to start a conversation with'),
+            .describe(
+              'Phone number of the WhatsApp user to start a conversation with. Add the country code (e.g. +81 for japan)'
+            ),
           templateName: z
             .string()
             .min(1)
