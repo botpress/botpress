@@ -31,6 +31,8 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
+  props.logger.debug(`Handler received body: ${req.body}`)
+
   const jsonParseResult = safeJsonParse(req.body)
   if (!jsonParseResult.success) {
     logger.forBot().warn('Error while parsing body as JSON:', jsonParseResult.data)
