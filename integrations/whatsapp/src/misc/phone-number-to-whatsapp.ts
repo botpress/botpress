@@ -6,13 +6,11 @@ const ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
 const MEXICO_COUNTRY_CODE = 52
 const MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
 
-export function formatPhoneNumber(rawPhoneNumber: string, defaultRegion: string = 'CA') {
-  let parsed: ParsedPhoneNumber
-  if (rawPhoneNumber.startsWith('+')) {
-    parsed = parsePhoneNumber(rawPhoneNumber)
-  } else {
-    parsed = parsePhoneNumber(rawPhoneNumber, { regionCode: defaultRegion })
-  }
+export function formatPhoneNumber(rawPhoneNumber: string) {
+  // if (!rawPhoneNumber.startsWith('+')) {
+  //   rawPhoneNumber = `+${rawPhoneNumber}`
+  // }
+  const parsed = parsePhoneNumber(rawPhoneNumber)
   if (!parsed?.valid) {
     throw new RuntimeError('Invalid phone number')
   }
