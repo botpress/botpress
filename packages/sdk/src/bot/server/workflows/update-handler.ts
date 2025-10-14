@@ -90,7 +90,7 @@ const _dispatchToHandlers = async (
 
   let currentWorkflowState: WorkflowState = structuredClone(event.payload.workflow)
 
-  for (const handler of handlers!) {
+  for (const handler of handlers ?? []) {
     currentWorkflowState = await handler({
       ...props,
       event,

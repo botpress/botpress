@@ -34,11 +34,7 @@ import {
   OrderedHookHandlersMap,
   OrderedWorkflowHandlersMap,
   HookInputs as HookPayloads,
-  IncomingMessages,
   InjectedHandlerProps,
-  IncomingEvents,
-  IncomingStates,
-  HookData,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
 
@@ -123,8 +119,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: <TActionName extends utils.types.StringKeys<TPlugin['actions']>>(_: unknown, actionName: TActionName) => {
-          actionName = this._stripAliasPrefix(actionName) as TActionName
+        get: (_: unknown, actionName: string) => {
+          actionName = this._stripAliasPrefix(actionName)
           const handler = this._actionHandlers[actionName]
           if (!handler) {
             return undefined
@@ -143,11 +139,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: <TMessageName extends utils.types.StringKeys<IncomingMessages<TPlugin>>>(
-          _: unknown,
-          messageName: TMessageName
-        ) => {
-          messageName = this._stripAliasPrefix(messageName as string) as TMessageName
+        get: (_: unknown, messageName: string) => {
+          messageName = this._stripAliasPrefix(messageName as string)
           const specificHandlers = this._messageHandlers[messageName] ?? []
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = utils.arrays
@@ -156,7 +149,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
               (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
-                handler({ ...input, message: input.message as any, ...this._getTools(input.client) }),
+                handler({ ...input, message: input.message, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -169,11 +162,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: <TEventName extends utils.types.StringKeys<IncomingEvents<TPlugin>>>(
-          _: unknown,
-          eventName: TEventName
-        ) => {
-          eventName = this._stripAliasPrefix(eventName) as TEventName
+        get: (_: unknown, eventName: string) => {
+          eventName = this._stripAliasPrefix(eventName)
 
           // if prop is "github:prOpened", include both "github:prOpened" and "creatable:itemCreated"
 
@@ -181,7 +171,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           const interfaceHandlers = Object.entries(this._eventHandlers)
             .filter(([e]) => this._eventResolvesTo(e, eventName))
-            .flatMap(([, handlers]: [unknown, OrderedEventHandlersMap<any>[TEventName]]) => handlers ?? [])
+            .flatMap(([, handlers]) => handlers ?? [])
 
           const globalHandlers = this._eventHandlers['*'] ?? []
           const allHandlers = utils.arrays
@@ -191,7 +181,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
               (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
-                handler({ ...input, event: input.event as any, ...this._getTools(input.client) }),
+                handler({ ...input, event: input.event, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -204,11 +194,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: <TStateName extends utils.types.StringKeys<IncomingStates<TPlugin>>>(
-          _: unknown,
-          stateName: TStateName
-        ) => {
-          stateName = this._stripAliasPrefix(stateName) as TStateName
+        get: (_: unknown, stateName: string) => {
+          stateName = this._stripAliasPrefix(stateName)
 
           const specificHandlers = this._stateExpiredHandlers[stateName] ?? []
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
@@ -231,7 +218,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: <THookType extends utils.types.StringKeys<HookHandlersMap<TPlugin>>>(_: unknown, hookType: THookType) => {
+        get: (_, hookType: utils.types.StringKeys<HookHandlersMap<TPlugin>>) => {
           const hooks = this._hookHandlers[hookType]
           if (!hooks) {
             return undefined
@@ -239,32 +226,25 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return new Proxy(
             {},
             {
-              get: <THookDataName extends utils.types.StringKeys<HookData<TPlugin>[THookType]>>(
-                _: unknown,
-                hookDataName: THookDataName
-              ) => {
-                hookDataName = this._stripAliasPrefix(hookDataName) as THookDataName
+              get: (_: unknown, hookDataName: string) => {
+                hookDataName = this._stripAliasPrefix(hookDataName)
 
                 const specificHandlers = hooks[hookDataName] ?? []
 
                 // for "before_incoming_event", "after_incoming_event" and other event related hooks
                 const interfaceHandlers = Object.entries(hooks)
                   .filter(([e]) => this._eventResolvesTo(e, hookDataName))
-                  .flatMap(([, handlers]) => handlers ?? []) as unknown as NonNullable<
-                  OrderedHookHandlersMap<TPlugin>[THookType][THookDataName]
-                >
+                  .flatMap(([, handlers]) => handlers ?? [])
 
-                const globalHandlers = (hooks['*' as THookDataName] ?? []) as NonNullable<
-                  OrderedHookHandlersMap<TPlugin>[THookType][THookDataName]
-                >
+                const globalHandlers = hooks['*'] ?? []
                 const handlers = utils.arrays
                   .unique([...specificHandlers, ...interfaceHandlers, ...globalHandlers])
                   .sort((a, b) => a.order - b.order)
 
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: HookPayloads<TPlugin>[THookType][THookDataName]) =>
-                      handler({ ...input, data: input.data as any, ...this._getTools(input.client) }),
+                    (input: HookPayloads<TPlugin>[utils.types.StringKeys<HookHandlersMap<TPlugin>>]['*']) =>
+                      handler({ ...input, data: input.data, ...this._getTools(input.client) }),
                     handler.name
                   )
                 )
