@@ -33,6 +33,8 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
+      title: 'Conversation Channel',
+      description: 'A channel for sending and receiving messages through Twilio Conversations',
       messages: messages.defaults,
       message: {
         tags: {
@@ -71,9 +73,6 @@ export default new IntegrationDefinition({
     conversation: {
       schema: z.object({ userPhone: z.string(), activePhone: z.string() }),
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(proactiveConversation, ({ entities }) => ({
