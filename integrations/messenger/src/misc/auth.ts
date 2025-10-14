@@ -108,8 +108,9 @@ export async function patchOAuthMetaClientCredentials(
   ctx: bp.Context,
   credentials: WritableOAuthMetaClientCredentials
 ) {
-  const currentState = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-
+  const {
+    state: { payload: currentState },
+  } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
   const { userToken, ...credentialsWithoutUserToken } = credentials
   const newState: OAuthState['payload'] = credentialsWithoutUserToken
   if (userToken) {
