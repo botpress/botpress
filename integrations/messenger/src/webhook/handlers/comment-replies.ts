@@ -61,7 +61,11 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   const { comment_id: commentId, post_id: postId, message, from, parent_id: parentId } = value
 
   if (!message) {
-    logger.forBot().debug('Incoming comment has no message, will not reply')
+    logger
+      .forBot()
+      .debug(
+        'Incoming comment has no message, will not reply. Make sure that your app has been granted the necessary permissions to access user data.'
+      )
     return
   }
 
