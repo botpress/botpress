@@ -1,20 +1,13 @@
 import { RuntimeError } from '@botpress/sdk'
-import {
-  createRecordInputSchema,
-  createRecordOutputSchema,
-  listRecordsOutputSchema,
-  updateRecordInputSchema,
-  updateRecordOutputSchema,
-} from '../misc/custom-schemas'
+import { createRecordOutputSchema, listRecordsOutputSchema, updateRecordOutputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 import { getClient } from '../utils'
 
 export const createRecord: IntegrationProps['actions']['createRecord'] = async ({ ctx, logger, input }) => {
-  const validatedInput = createRecordInputSchema.parse(input)
   const AirtableClient = getClient(ctx.configuration)
 
   try {
-    const record = await AirtableClient.createRecord(validatedInput.tableIdOrName, JSON.parse(validatedInput.fields))
+    const record = await AirtableClient.createRecord(input.tableIdOrName, JSON.parse(input.fields))
     const validatedRecord = createRecordOutputSchema.parse(record)
     logger.forBot().info(`Successful - Create Record - ${record.id}`)
     return validatedRecord
@@ -25,15 +18,10 @@ export const createRecord: IntegrationProps['actions']['createRecord'] = async (
 }
 
 export const updateRecord: IntegrationProps['actions']['updateRecord'] = async ({ ctx, logger, input }) => {
-  const validatedInput = updateRecordInputSchema.parse(input)
   const AirtableClient = getClient(ctx.configuration)
 
   try {
-    const output = await AirtableClient.updateRecord(
-      validatedInput.tableIdOrName,
-      validatedInput.recordId,
-      JSON.parse(validatedInput.fields)
-    )
+    const output = await AirtableClient.updateRecord(input.tableIdOrName, input.recordId, JSON.parse(input.fields))
     const validatedRecord = updateRecordOutputSchema.parse(output)
     logger.forBot().info(`Successful - Update Record - ${output.id}`)
     return validatedRecord
