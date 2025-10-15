@@ -286,8 +286,8 @@ export const models: Record<string, RemoteModel> = {
     tags: ['deprecated', 'general-purpose', 'low-cost'],
     lifecycle: 'deprecated',
   },
-  'anthropic:claude-sonnet-4-5-2025092': {
-    id: 'anthropic:claude-sonnet-4-5-2025092',
+  'anthropic:claude-sonnet-4-5-20250929': {
+    id: 'anthropic:claude-sonnet-4-5-20250929',
     name: 'Claude Sonnet 4.5',
     description:
       "Claude Sonnet 4.5 is Anthropic's most advanced Sonnet model to date, optimized for real-world agents and coding workflows. It delivers state-of-the-art performance on coding benchmarks, with improvements across system design, code security, and specification adherence.",
@@ -465,8 +465,8 @@ export const models: Record<string, RemoteModel> = {
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
     lifecycle: 'live',
   },
-  'google-ai:models/gemini-2.0-flash': {
-    id: 'google-ai:models/gemini-2.0-flash',
+  'google-ai:gemini-2.0-flash': {
+    id: 'google-ai:gemini-2.0-flash',
     name: 'Gemini 2.0 Flash',
     description:
       'Next-gen Gemini model with improved capabilities, superior speed, native tool use, multimodal generation, and 1M token context window.',
@@ -480,6 +480,7 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
     lifecycle: 'live',
+    aliases: ['models/gemini-2.0-flash'],
   },
   'cerebras:gpt-oss-120b': {
     id: 'cerebras:gpt-oss-120b',
@@ -993,7 +994,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
   'fireworks-ai:deepseek-r1-basic': {
@@ -1010,7 +1011,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 2.19,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
   'fireworks-ai:deepseek-v3': {
@@ -1027,7 +1028,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.9,
     },
     tags: ['deprecated', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/deepseek-v3'],
   },
   'fireworks-ai:llama-v3p1-405b-instruct': {
@@ -1044,7 +1045,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 3,
     },
     tags: ['deprecated', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
   },
   'fireworks-ai:llama-v3p1-70b-instruct': {
@@ -1061,7 +1062,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.9,
     },
     tags: ['deprecated', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
   },
   'fireworks-ai:llama-v3p1-8b-instruct': {
@@ -1095,7 +1096,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.2,
     },
     tags: ['deprecated', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
   'fireworks-ai:mixtral-8x7b-instruct': {
@@ -1146,7 +1147,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }

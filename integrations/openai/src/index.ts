@@ -352,10 +352,8 @@ export default new bp.Integration({
                 request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
               }
 
-              if (isGPT5) {
-                // GPT-5 doesn't support stop sequences
-                delete request.stop
-              }
+              // Reasoning models don't support stop sequences
+              delete request.stop
 
               // Reasoning models don't allow setting temperature
               delete request.temperature

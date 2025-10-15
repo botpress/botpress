@@ -77,6 +77,7 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
+  alias?: string
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
@@ -211,8 +212,15 @@ export class BotDefinition<
       self.integrations = {}
     }
 
-    self.integrations[integrationPkg.name] = {
+    const integrationAlias = config?.alias ?? integrationPkg.name.replace('/', '-')
+
+    if (self.integrations[integrationAlias]) {
+      throw new Error(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
+    }
+
+    self.integrations[integrationAlias] = {
       ...integrationPkg,
+      alias: integrationAlias,
       enabled: config?.enabled,
       configurationType: config?.configurationType,
       configuration: config?.configuration,
@@ -228,6 +236,11 @@ export class BotDefinition<
     }
 
     const pluginAlias = config.alias ?? pluginPkg.name.replace('/', '-')
+
+    if (self.plugins[pluginAlias]) {
+      throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
+    }
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
