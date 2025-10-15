@@ -6,15 +6,13 @@ const ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
 const MEXICO_COUNTRY_CODE = 52
 const MEXICO_COUNTRY_CODE_AFTER_PREFIX = 1
 
-export function formatPhoneNumber(rawPhoneNumber: string, defaultRegion: string = 'CA') {
-  let parsed: ParsedPhoneNumber
-  if (rawPhoneNumber.startsWith('+')) {
-    parsed = parsePhoneNumber(rawPhoneNumber)
-  } else {
-    parsed = parsePhoneNumber(rawPhoneNumber, { regionCode: defaultRegion })
+export function formatPhoneNumber(rawPhoneNumber: string) {
+  if (!rawPhoneNumber.startsWith('+')) {
+    rawPhoneNumber = `+${rawPhoneNumber}`
   }
+  const parsed = parsePhoneNumber(rawPhoneNumber)
   if (!parsed?.valid) {
-    throw new RuntimeError('Invalid phone number')
+    throw new RuntimeError('Invalid phone number, try adding the country code (e.g. +81 for Japan)')
   }
 
   let phone = parsed.number.e164
@@ -54,6 +52,7 @@ const _handleArgentinaEdgeCases = (phone: string, countryCode: number): string =
 }
 
 // This needs to remove leading zeros and make sure the number starts with +521
+// Note: Mexico phone number should never have leading zeros to begin with since they follow the E.164 recommendation
 const _handleMexicoEdgeCases = (phone: string, countryCode: number): string => {
   let nationalNumber = _stripCountryCode(phone, countryCode)
   nationalNumber = _stripLeadingZeros(nationalNumber)
