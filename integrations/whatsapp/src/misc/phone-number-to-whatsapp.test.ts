@@ -157,10 +157,8 @@ const samples: Record<string, string> = {
   ZA: '27821234567',
 }
 
-Object.entries(samples).forEach(([code, num]) => {
-  test(`Test ${code}`, () => {
-    const actual = formatPhoneNumber(num)
-    const expected = `+${num}`
-    expect(actual).toBe(expected)
-  })
+test.each(Object.entries(samples))('Test %s', (_countryCode, num) => {
+  const actual = formatPhoneNumber(num)
+  const expected = `+${num}`
+  expect(actual).toBe(expected)
 })
