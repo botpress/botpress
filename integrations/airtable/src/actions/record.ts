@@ -14,12 +14,9 @@ export const createRecord: IntegrationProps['actions']['createRecord'] = async (
       _rawJson: record.fields,
       id: record.id,
     }
-  } catch (error) {
-    logger.forBot().debug(`'Create Record' exception ${JSON.stringify(error)}`)
-    return {
-      _rawJson: {},
-      id: '',
-    }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to create record', error)
   }
 }
 
@@ -39,12 +36,9 @@ export const updateRecord: IntegrationProps['actions']['updateRecord'] = async (
     }
     logger.forBot().info(`Successful - Update Record - ${record.id}`)
     return record
-  } catch (error) {
-    logger.forBot().debug(`'Update Record' exception ${JSON.stringify(error)}`)
-    return {
-      _rawJson: {},
-      id: '',
-    }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to update record', error)
   }
 }
 
@@ -65,8 +59,8 @@ export const listRecords: IntegrationProps['actions']['listRecords'] = async ({ 
 
     logger.forBot().info(`Successful - List Records - ${input.tableIdOrName}`)
     return { records, nextToken: output.offset }
-  } catch (error) {
-    logger.forBot().debug(`'List Records' exception ${JSON.stringify(error)}`)
-    throw new RuntimeError(`'List Records' exception ${JSON.stringify(error)}`)
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to list records', error)
   }
 }

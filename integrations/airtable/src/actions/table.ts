@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { createTableInputSchema, getTableRecordsInputSchema, updateTableInputSchema } from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 import { fieldsStringToArray, getClient } from '../utils'
@@ -14,9 +15,9 @@ export const createTable: IntegrationProps['actions']['createTable'] = async ({ 
     )
     logger.forBot().info(`Successful - Create Table - ${table.id} - ${table.name}`)
     return table
-  } catch (error) {
-    logger.forBot().debug(`'Create Table' exception ${JSON.stringify(error)}`)
-    return {}
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to create table', error)
   }
 }
 
@@ -32,9 +33,9 @@ export const updateTable: IntegrationProps['actions']['updateTable'] = async ({ 
     )
     logger.forBot().info(`Successful - Update Table - ${table.id} - ${table.name}`)
     return table
-  } catch (error) {
-    logger.forBot().debug(`'Update Table' exception ${JSON.stringify(error)}`)
-    return {}
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to update table', error)
   }
 }
 
@@ -51,8 +52,8 @@ export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = a
     })
     logger.forBot().info(`Successful - Get Table Records - ${validatedInput.tableIdOrName}`)
     return { records }
-  } catch (error) {
-    logger.forBot().debug(`'Get Table Records' exception ${JSON.stringify(error)}`)
-    return { records: [] }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get table records', error)
   }
 }
