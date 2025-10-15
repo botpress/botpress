@@ -1,4 +1,4 @@
-// import * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -17,12 +17,9 @@ export default new bp.Integration({
     // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
-    getCandidate: async (props) => {
-      props.logger.forBot().info('Hello World!')
-
-      let { name, amount } = props.input
-      name = name || 'World'
-      return { message: `Hello "${name}"! Nice to meet you ;). Amount is ${amount}.` }
+    getCandidates: async (props) => {
+      const { email } = props.input;
+      throw new sdk.RuntimeError('Unimplemented ' + email)
     },
   },
   channels: {},
