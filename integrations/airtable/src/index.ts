@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/client'
 import actions from './actions'
 import { AirtableApi } from './client'
-import { RuntimeError } from '@botpress/client'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({

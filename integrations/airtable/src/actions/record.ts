@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
-import type { IntegrationProps } from '../misc/types'
 import { createRecordInputSchema, updateRecordInputSchema } from '../misc/custom-schemas'
+import type { IntegrationProps } from '../misc/types'
 import { getClient } from '../utils'
 
 export const listRecords: IntegrationProps['actions']['listRecords'] = async ({ ctx, logger, input }) => {

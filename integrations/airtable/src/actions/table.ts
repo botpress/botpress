@@ -8,10 +8,22 @@ export const listBases: IntegrationProps['actions']['listBases'] = async ({ ctx,
   try {
     const bases = await AirtableClient.listBases()
     logger.forBot().info(`Successful - List Bases - ${bases.length} bases`)
-    return { bases: bases }
+    return { bases }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError('Failed to list bases', error)
+  }
+}
+
+export const listTables: IntegrationProps['actions']['listTables'] = async ({ ctx, logger }) => {
+  const AirtableClient = getClient(ctx.configuration)
+  try {
+    const tables = await AirtableClient.listTables()
+    logger.forBot().info(`Successful - List Tables - ${tables.length} tables`)
+    return { tables }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to list tables', error)
   }
 }
 
