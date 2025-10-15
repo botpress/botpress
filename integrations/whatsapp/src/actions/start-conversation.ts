@@ -137,62 +137,65 @@ function _parseTemplateVariablesJSON(
   return validationResult.data
 }
 
-type Component =
-  | {
-      type: 'HEADER'
-      format: 'TEXT'
-      text?: string
-    }
-  | {
-      type: 'HEADER'
-      format: 'IMAGE' | 'VIDEO' | 'GIF' | 'DOCUMENT'
-      example: {
-        header_handle: string[]
-      }
-    }
-  | {
-      type: 'HEADER'
-      format: undefined
-      parameters: [
-        {
-          type: 'location'
-          location: {
-            latitude: string
-            longitude: string
-            name: string
-            address: string
-          }
-        },
-      ]
-    }
-  | {
-      type: 'BODY'
-      text?: string
-    }
-  | {
-      type: 'FOOTER'
-      text?: string
-    }
-  | {
-      type: 'BUTTONS'
-      buttons: { text?: string }[]
-    }
-  | {
-      type: 'FLOW'
-      text?: string
-    }
-  | {
-      type: 'PHONE_NUMBER'
-      text?: string
-    }
-  | {
-      type: 'QUICK_REPLY'
-      text?: string
-    }
-  | {
-      type: 'URL'
-      text?: string
-    }
+// Schema from https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates/components
+const componentSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.literal('TEXT'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.enum(['IMAGE', 'VIDEO', 'GIF', 'DOCUMENT']),
+    example: z.object({
+      header_handle: z.array(z.string()),
+    }),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.undefined(),
+    parameters: z.array(
+      z.object({
+        type: z.literal('location'),
+        location: z.object({
+          latitude: z.string(),
+          longitude: z.string(),
+          name: z.string(),
+          address: z.string(),
+        }),
+      })
+    ),
+  }),
+  z.object({
+    type: z.literal('BODY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('FOOTER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('BUTTONS'),
+    buttons: z.array(z.object({ text: z.string().optional() })),
+  }),
+  z.object({
+    type: z.literal('FLOW'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('PHONE_NUMBER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('QUICK_REPLY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('URL'),
+    text: z.string().optional(),
+  }),
+])
+type Component = z.infer<typeof componentSchema>
 
 const _parseComponent = (
   component: Component,
