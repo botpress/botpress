@@ -33,28 +33,28 @@ test('Generic leading-zero cleanup for countries other than AR/MX', () => {
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works +1 (xxx) xxx-xxxx', () => {
+test('Ensure this phone number typing works +1 (xxx) xxx-xxxx', () => {
   const input = '+1 (581) 849-1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works +1 xxx xxx-xxxx', () => {
+test('Ensure this phone number typing works +1 xxx xxx-xxxx', () => {
   const input = '+1 581 849-1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works +1 xxx xxx xxxx', () => {
+test('Ensure this phone number typing works +1 xxx xxx xxxx', () => {
   const input = '+1 581 849 1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works +1xxxxxxxxxx', () => {
+test('Ensure this phone number typing works +1xxxxxxxxxx', () => {
   const input = '+15818491511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
@@ -62,28 +62,28 @@ test('Insure this phone number typing works +1xxxxxxxxxx', () => {
   expect(formatPhoneNumber('+15818491511')).toBe('+15818491511')
 })
 
-test('Insure this phone number typing works 1 (xxx) xxx-xxxx', () => {
+test('Ensure this phone number typing works 1 (xxx) xxx-xxxx', () => {
   const input = '1 (581) 849-1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works 1 xxx xxx-xxxx', () => {
+test('Ensure this phone number typing works 1 xxx xxx-xxxx', () => {
   const input = '1 581 849-1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works 1 xxx xxx xxxx', () => {
+test('Ensure this phone number typing works 1 xxx xxx xxxx', () => {
   const input = '1 581 849 1511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
   expect(actual).toBe(expected)
 })
 
-test('Insure this phone number typing works 1xxxxxxxxxx', () => {
+test('Ensure this phone number typing works 1xxxxxxxxxx', () => {
   const input = '15818491511'
   const actual = formatPhoneNumber(input)
   const expected = '+15818491511'
