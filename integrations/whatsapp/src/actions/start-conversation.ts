@@ -23,7 +23,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
 }) => {
   // Prevent the use of billable resources through the sandbox account
   if (ctx.configurationType === 'sandbox') {
-    _logForBotAndThrow('Starting a conversation is not supported in sandbox mode', logger)
+    _logForBotAndThrow('Sending template is not supported in sandbox mode', logger)
   }
 
   const { userPhone, templateName, templateVariablesJson } = input.conversation
@@ -69,7 +69,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   if ('error' in response) {
     const errorJSON = JSON.stringify(response.error)
     _logForBotAndThrow(
-      `Failed to start WhatsApp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${errorJSON}`,
+      `Failed to send WhatsApp template "${templateName}" with language "${templateLanguage}" - Error: ${errorJSON}`,
       logger
     )
   }
@@ -92,7 +92,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   logger
     .forBot()
     .info(
-      `Successfully started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"${
+      `Successfully sent WhatsApp template "${templateName}" with language "${templateLanguage}"${
         templateVariables && templateVariables.length
           ? ` using template variables: ${JSON.stringify(templateVariables)}`
           : ' without template variables'
@@ -262,7 +262,7 @@ const _getTemplateText = async (
   bodyVariables: z.infer<typeof TemplateVariablesSchema>
 ): Promise<string> => {
   if (ctx.configurationType === 'manual') {
-    return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+    return `Sent template "${templateName}" with language "${templateLanguage}"`
   } else {
     let templateText = ''
 
@@ -272,7 +272,7 @@ const _getTemplateText = async (
     const metaOauthClient = new MetaOauthClient(logger)
     const waba_id = await metaOauthClient.getWhatsappBusinessesFromToken(accessToken).catch((e) => {
       logger.forBot().debug('Failed to fetch waba_id', e.response?.data || e.message || e)
-      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      return `Sent template "${templateName}" with language "${templateLanguage}"`
     })
 
     const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
@@ -290,18 +290,18 @@ const _getTemplateText = async (
       })
       .catch((e) => {
         logger.forBot().debug('Failed to fetch template components', e.response?.data || e.message || e)
-        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+        return `Sent template "${templateName}" with language "${templateLanguage}"`
       })
 
     if (!templateComponents) {
       logger.forBot().debug('The template components are undefined')
-      return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+      return `Sent template "${templateName}" with language "${templateLanguage}"`
     }
 
     for (const component of templateComponents) {
       const componentText = _parseComponent(component, bodyVariables)
       if (!componentText) {
-        return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
+        return `Sent template "${templateName}" with language "${templateLanguage}"`
       }
       templateText += componentText
     }
