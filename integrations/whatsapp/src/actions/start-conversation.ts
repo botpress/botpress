@@ -269,12 +269,14 @@ const _getTemplateText = async (
   } else {
     let templateText = ''
 
-    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-    const accessToken = state.payload.accessToken ?? ''
+    const accessToken = await getAccessToken(client, ctx).catch((e) => {
+      logger.forBot().debug('Failed to get access token - error:', e.response?.data || e.message || e)
+      return `Sent template "${templateName}" with language "${templateLanguage}"`
+    })
 
     const metaOauthClient = new MetaOauthClient(logger)
     const waba_id = await metaOauthClient.getWhatsappBusinessesFromToken(accessToken).catch((e) => {
-      logger.forBot().debug('Failed to fetch waba_id', e.response?.data || e.message || e)
+      logger.forBot().debug('Failed to fetch waba_id - error:', e.response?.data || e.message || e)
       return `Sent template "${templateName}" with language "${templateLanguage}"`
     })
 
@@ -282,7 +284,7 @@ const _getTemplateText = async (
     const templateComponents: Component[] | undefined = await axios
       .get(url, {
         headers: {
-          Authorization: `Bearer ${await getAccessToken(client, ctx)}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       })
       .then((res) => {
