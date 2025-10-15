@@ -1,18 +1,31 @@
 import { type z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
-export const parseResponseWithErrors = async <T>(res: Response, schema: z.ZodSchema<T>): Promise<T> => {
+export type ParseResult<T> = { success: true; data: T } | { success: false; error: string; details?: unknown }
+
+export const parseResponseWithErrors = async <T>(res: Response, schema: z.ZodSchema<T>): Promise<ParseResult<T>> => {
   let json: unknown
   try {
     json = await res.json()
-  } catch (err) {
-    throw new Error('BambooHR API response is not valid JSON', err as Error)
+  } catch (thrown) {
+    const err = thrown instanceof Error ? thrown : new Error(String(thrown))
+
+    return {
+      success: false,
+      error: 'BambooHR API response is not valid JSON',
+      details: err,
+    }
   }
 
   try {
-    return schema.parse(json)
+    const data = schema.parse(json)
+    return { success: true, data }
   } catch (err) {
-    throw new Error('BambooHR API response did not match expected format', err as Error)
+    return {
+      success: false,
+      error: 'BambooHR API response did not match expected format',
+      details: err,
+    }
   }
 }
 

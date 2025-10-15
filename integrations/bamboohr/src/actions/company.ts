@@ -1,14 +1,13 @@
-import { bambooHrCompanyInfo } from 'definitions'
+import { RuntimeError } from '@botpress/sdk'
 import { BambooHRClient } from 'src/api/bamboohr-client'
-import { parseResponseWithErrors } from 'src/api/utils'
-
 import * as bp from '.botpress'
 
-export const getCompanyInfo: bp.IntegrationProps['actions']['getCompanyInfo'] = async (props) => {
-  const client = await BambooHRClient.create(props)
-
-  const url = new URL(`${client.baseUrl}/company_information`)
-  const res = await client.makeRequest(props, { method: 'GET', url })
-
-  return parseResponseWithErrors(res, bambooHrCompanyInfo)
+export const getCompanyInfo: bp.IntegrationProps['actions']['getCompanyInfo'] = async ({ client, ctx, logger }) => {
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
+  try {
+    return await bambooHrClient.getCompanyInfo()
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get company info', error)
+  }
 }

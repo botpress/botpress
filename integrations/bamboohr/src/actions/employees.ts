@@ -1,71 +1,78 @@
-import {
-  bambooHrEmployeeSensitiveInfoResponse,
-  bambooHrEmployeeCustomInfoResponse,
-  bambooHrEmployeeBasicInfoResponse,
-  bambooHrEmployeeDirectoryResponse,
-} from 'definitions'
+import { RuntimeError } from '@botpress/sdk'
 import { BambooHRClient } from 'src/api/bamboohr-client'
-import { parseResponseWithErrors } from 'src/api/utils'
-
 import * as bp from '.botpress'
 
 export const getEmployeeBasicInfo: bp.IntegrationProps['actions']['getEmployeeBasicInfo'] = async ({
+  client,
+  ctx,
+  logger,
   input,
-  ...props
 }) => {
-  const client = await BambooHRClient.create(props)
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
 
-  const url = new URL(`${client.baseUrl}/employees/${input.id}`)
-  url.searchParams.append('fields', bambooHrEmployeeBasicInfoResponse.keyof().options.join(','))
-
-  const res = await client.makeRequest(props, { method: 'GET', url })
-
-  return parseResponseWithErrors(res, bambooHrEmployeeBasicInfoResponse)
+  try {
+    return await bambooHrClient.getEmployeeBasicInfo(input.id)
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get employee basic info', error)
+  }
 }
 
 export const getEmployeeSensitiveInfo: bp.IntegrationProps['actions']['getEmployeeSensitiveInfo'] = async ({
+  client,
+  ctx,
+  logger,
   input,
-  ...props
 }) => {
-  const client = await BambooHRClient.create(props)
-
-  const url = new URL(`${client.baseUrl}/employees/${input.id}`)
-  url.searchParams.append('fields', bambooHrEmployeeSensitiveInfoResponse.keyof().options.join(','))
-
-  const res = await client.makeRequest(props, { method: 'GET', url })
-  return parseResponseWithErrors(res, bambooHrEmployeeSensitiveInfoResponse)
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
+  try {
+    return await bambooHrClient.getEmployeeSensitiveInfo(input.id)
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get employee sensitive info', error)
+  }
 }
 
 export const getEmployeeCustomInfo: bp.IntegrationProps['actions']['getEmployeeCustomInfo'] = async ({
   input,
-  ...props
+  client,
+  ctx,
+  logger,
 }) => {
-  const client = await BambooHRClient.create(props)
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
 
-  const url = new URL(`${client.baseUrl}/employees/${input.id}`)
-  url.searchParams.append('fields', input.fields.join(','))
-
-  const res = await client.makeRequest(props, { method: 'GET', url })
-  return parseResponseWithErrors(res, bambooHrEmployeeCustomInfoResponse)
+  try {
+    return await bambooHrClient.getEmployeeCustomInfo(input.id, input.fields)
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get employee custom info', error)
+  }
 }
 
-export const getEmployeePhoto: bp.IntegrationProps['actions']['getEmployeePhoto'] = async ({ input, ...props }) => {
-  const client = await BambooHRClient.create(props)
+export const getEmployeePhoto: bp.IntegrationProps['actions']['getEmployeePhoto'] = async ({
+  input,
+  client,
+  ctx,
+  logger,
+}) => {
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
 
-  const url = new URL(`${client.baseUrl}/employees/${input.id}/photo/${input.size}`)
-  const res = await client.makeRequest(props, { method: 'GET', url })
-
-  // Endpoint directly returns bytes of image
-  return { blob: await res.blob() }
+  try {
+    const blob = await bambooHrClient.getEmployeePhoto(input.id, input.size)
+    return { blob }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to get employee photo', error)
+  }
 }
 
-export const listEmployees: bp.IntegrationProps['actions']['listEmployees'] = async (props) => {
-  const client = await BambooHRClient.create(props)
+export const listEmployees: bp.IntegrationProps['actions']['listEmployees'] = async ({ client, ctx, logger }) => {
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
 
-  const url = new URL(`${client.baseUrl}/employees/directory`)
-  const res = await client.makeRequest(props, { method: 'GET', url })
-
-  const parsed = await parseResponseWithErrors(res, bambooHrEmployeeDirectoryResponse)
-
-  return { employees: parsed.employees }
+  try {
+    return await bambooHrClient.listEmployees()
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError('Failed to list employees', error)
+  }
 }
