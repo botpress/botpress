@@ -14,7 +14,7 @@ export const oauthCallbackHandler: bp.IntegrationProps['handler'] = async (props
 
   try {
     return await wizard.handler(props)
-  } catch (thrown: any) {
+  } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : Error(String(thrown))
     const errorMessage = 'OAuth registration Error: ' + error.message
     logger.forBot().error(errorMessage)

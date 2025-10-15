@@ -136,11 +136,12 @@ const _doStepVerifyWaba = async (
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
   await _trackWizardStep(ctx, 'verify-waba')
-  if (!credentials) {
-    credentials = await _getCredentialsState(client, ctx)
+  let tmpCredentials = credentials
+  if (!tmpCredentials) {
+    tmpCredentials = await _getCredentialsState(client, ctx)
   }
-  let wabaId = inWabaId || credentials.wabaId
-  const { accessToken } = credentials
+  let wabaId = inWabaId || tmpCredentials.wabaId
+  const { accessToken } = tmpCredentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
@@ -163,7 +164,7 @@ const _doStepVerifyWaba = async (
     throw new Error(WABA_ID_UNAVAILABLE_ERROR)
   }
 
-  const newCredentials = { ...credentials, wabaId }
+  const newCredentials = { ...tmpCredentials, wabaId }
   await _patchCredentialsState(client, ctx, newCredentials)
   return await _doStepVerifyNumber(props, newCredentials)
 }
@@ -176,11 +177,12 @@ const _doStepVerifyNumber = async (
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
   await _trackWizardStep(ctx, 'verify-number')
-  if (!credentials) {
-    credentials = await _getCredentialsState(client, ctx)
+  let tmpCredentials = credentials
+  if (!tmpCredentials) {
+    tmpCredentials = await _getCredentialsState(client, ctx)
   }
-  let defaultBotPhoneNumberId = inDefaultBotPhoneNumberId || credentials.defaultBotPhoneNumberId
-  const { accessToken, wabaId } = credentials
+  let defaultBotPhoneNumberId = inDefaultBotPhoneNumberId || tmpCredentials.defaultBotPhoneNumberId
+  const { accessToken, wabaId } = tmpCredentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
@@ -211,7 +213,7 @@ const _doStepVerifyNumber = async (
     throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
 
-  const newCredentials = { ...credentials, defaultBotPhoneNumberId }
+  const newCredentials = { ...tmpCredentials, defaultBotPhoneNumberId }
   await _patchCredentialsState(client, ctx, newCredentials)
   return await _doStepWrapUp(props)
 }
