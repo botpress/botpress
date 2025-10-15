@@ -1,4 +1,5 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import axios from 'axios'
 import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
