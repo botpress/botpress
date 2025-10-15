@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { MessengerTypes, MessengerClient } from 'messaging-api-messenger'
-import { create as createMessengerClient } from '../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../misc/messenger-client'
 import { Card, Carousel, Choice, Dropdown, MessengerOutMessageAttachment, SendMessageProps } from '../misc/types'
 import { getGoogleMapLinkFromLocation, getRecipientId } from '../misc/utils'
 import * as bp from '.botpress'
@@ -15,10 +15,9 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendImage(recipientId, props.payload.imageUrl)
       }),
-    markdown: async (props) =>
-      _sendMessage(props, async (messenger, recipientId) => {
-        return messenger.sendText(recipientId, props.payload.markdown)
-      }),
+    markdown: async () => {
+      throw new RuntimeError("The 'markdown' message type is deprecated, use 'text' instead to send markdown")
+    },
     audio: async (props) =>
       _sendMessage(props, async (messenger, recipientId) => {
         return messenger.sendAudio(recipientId, props.payload.audioUrl)
@@ -53,7 +52,7 @@ const channel: bp.IntegrationProps['channels']['channel'] = {
         return messenger.sendMessage(recipientId, _getChoiceMessage(props.payload))
       }),
     bloc: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('This message type is not supported')
     },
   },
 }
@@ -96,7 +95,7 @@ async function _sendMessage(
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
   logger.forBot().debug(`Sending ${type} message from bot to Messenger: ${_formatPayloadToStr(payload)}`)
-  const messengerClient = await createMessengerClient(client, ctx)
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
   await ack({ tags: { id: messageId } })

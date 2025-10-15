@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { create as createMessengerClient } from '../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../misc/messenger-client'
 import { tryGetUserProfile } from '../misc/utils'
 import * as bp from '.botpress'
 
@@ -17,7 +17,7 @@ const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreateConver
     throw new RuntimeError('User ID is required')
   }
 
-  const messengerClient = await createMessengerClient(client, ctx)
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const profile = await tryGetUserProfile(messengerClient, ctx, userId)
   if (!profile) {
     throw new RuntimeError(

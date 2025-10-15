@@ -1,6 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { getPartialMetaClientCredentials, patchMetaClientCredentials } from '../../../misc/auth'
-import { MetaClient } from '../../../misc/meta-client'
+import { getMetaClientCredentials, patchOAuthMetaClientCredentials } from '../../../misc/auth'
+import { createAuthenticatedMetaClient } from '../../../misc/meta-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -80,28 +80,30 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
     })
   }
 
-  const metaClient = new MetaClient(logger)
-  const accessToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
+  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const userToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
     authorizationCode,
     _getOAuthRedirectUri(ctx)
   )
 
-  await patchMetaClientCredentials(client, ctx, { accessToken })
+  await patchOAuthMetaClientCredentials(client, ctx, { userToken })
 
   return responses.redirectToStep('select-page')
 }
 
 const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logger }) => {
-  const metaClient = new MetaClient(logger)
-  const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
-  if (!accessToken) {
+  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+    userToken: undefined,
+  }))
+  if (!userToken) {
     return responses.endWizard({
       success: false,
       errorMessage: ERROR_ACCESS_TOKEN_UNAVAILABLE,
     })
   }
 
-  const pages = await metaClient.getFacebookPagesFromToken(accessToken)
+  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const pages = await metaClient.getFacebookPagesFromToken(userToken)
 
   return responses.displayChoices({
     choices: pages.map((page) => ({
@@ -115,9 +117,10 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
 }
 
 const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
-  const metaClient = new MetaClient(logger)
-  const { accessToken } = await getPartialMetaClientCredentials(client, ctx).catch(() => ({ accessToken: undefined }))
-  if (!accessToken) {
+  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+    userToken: undefined,
+  }))
+  if (!userToken) {
     return responses.endWizard({
       success: false,
       errorMessage: ERROR_ACCESS_TOKEN_UNAVAILABLE,
@@ -132,12 +135,26 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   }
 
   const pageId = selectedChoice
-  await patchMetaClientCredentials(client, ctx, { pageId })
+  await patchOAuthMetaClientCredentials(client, ctx, { pageId })
 
-  const pageToken = await metaClient.getPageToken(accessToken, pageId)
-  await patchMetaClientCredentials(client, ctx, { pageToken })
+  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const pageToken = await metaClient.getPageToken(pageId)
+  if (!pageToken) {
+    return responses.endWizard({
+      success: false,
+      errorMessage: 'Page token is not available, please try again',
+    })
+  }
 
-  await metaClient.subscribeToWebhooks(pageToken, pageId)
+  await patchOAuthMetaClientCredentials(client, ctx, { pageToken })
+  metaClient.setPageToken(pageToken)
+
+  if (!(await metaClient.isSubscribedToWebhooks(pageId))) {
+    logger.forBot().info(`Subscribing to webhooks for OAuth page ${pageId}`)
+    await metaClient.subscribeToWebhooks(pageId)
+  }
+
+  logger.forBot().info(`Successfully subscribed to webhooks for OAuth page ${pageId}`)
 
   await client.configureIntegration({
     identifier: pageId,
@@ -171,7 +188,7 @@ const _endHandler: WizardHandler = ({ responses }) => {
 }
 
 const _getOAuthAuthorizationPromptUri = (ctx?: bp.Context) =>
-  'https://www.facebook.com/v19.0/dialog/oauth?' +
+  'https://www.facebook.com/v23.0/dialog/oauth?' +
   'client_id=' +
   bp.secrets.CLIENT_ID +
   '&redirect_uri=' +
