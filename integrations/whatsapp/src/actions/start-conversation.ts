@@ -196,13 +196,13 @@ type Component =
 
 const _parseComponent = (
   component: Component,
-  bodyText: z.infer<typeof TemplateVariablesSchema>
+  bodyVariables: z.infer<typeof TemplateVariablesSchema>
 ): string | undefined => {
   let compText
   switch (component.type) {
     case 'BODY':
       compText = component.text ?? 'body has no text'
-      return `[BODY]\n${_getRenderedbodyText(compText, bodyText)}\n`
+      return `[BODY]\n${_getRenderedbodyText(compText, bodyVariables)}\n`
     case 'HEADER':
       if (!component.format) {
         compText = component.parameters.flatMap((parameter) => {
@@ -244,8 +244,8 @@ const _parseComponent = (
   }
 }
 
-const _getRenderedbodyText = (text: string, bodyText: z.infer<typeof TemplateVariablesSchema>): string => {
-  bodyText.forEach((value, index) => {
+const _getRenderedbodyText = (text: string, bodyVariables: z.infer<typeof TemplateVariablesSchema>): string => {
+  bodyVariables.forEach((value, index) => {
     const placeholder = new RegExp(`{{${index + 1}}}`, 'g')
     text = text.replace(placeholder, value.toString())
   })
@@ -259,7 +259,7 @@ const _getTemplateText = async (
   logger: bp.Logger,
   templateName: string,
   templateLanguage: string,
-  bodyText: z.infer<typeof TemplateVariablesSchema>
+  bodyVariables: z.infer<typeof TemplateVariablesSchema>
 ): Promise<string> => {
   if (ctx.configurationType === 'manual') {
     return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
@@ -299,7 +299,7 @@ const _getTemplateText = async (
     }
 
     for (const component of templateComponents) {
-      const componentText = _parseComponent(component, bodyText)
+      const componentText = _parseComponent(component, bodyVariables)
       if (!componentText) {
         return `Started WhatsApp conversation with template "${templateName}" and language "${templateLanguage}"`
       }
