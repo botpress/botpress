@@ -8,19 +8,6 @@ import * as bp from '.botpress'
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
 
-const _isMetaError = (
-  error: unknown
-): error is { response: { data: { error: { message: string; error_user_msg: string } } } } => {
-  return (
-    axios.isAxiosError(error) &&
-    'error' in error.response?.data &&
-    'error_user_msg' in error.response?.data.error &&
-    'message' in error.response?.data.error &&
-    error.response?.data.error.message &&
-    error.response?.data.error.error_user_msg
-  )
-}
-
 export class MetaClient {
   private _userToken?: string
   private _pageToken?: string
