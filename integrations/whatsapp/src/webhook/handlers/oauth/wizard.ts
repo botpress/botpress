@@ -3,7 +3,6 @@ import { Response, z } from '@botpress/sdk'
 import { trackIntegrationEvent } from 'src/misc/tracking'
 import * as bp from '../../../../.botpress'
 import { MetaOauthClient } from '../../../auth'
-import { getInterstitialUrl } from './html-utils'
 
 export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -113,26 +112,19 @@ const _getAccessTokenHandler: WizardHandler = async (props) => {
 }
 
 const _verifyWabaHandler: WizardHandler = async (props) => {
-  const { req } = props
-  const params = new URLSearchParams(req.query)
-  const wabaId = z.string().safeParse(params.get('wabaId')).data
-  const force = !!params.get('force-step')
-  return await _doStepVerifyWaba(props, undefined, wabaId, force)
+  const { selectedChoice } = props
+  return await _doStepVerifyWaba(props, undefined, selectedChoice)
 }
 
 const _verifyNumberHandler: WizardHandler = async (props) => {
-  const { req } = props
-  const params = new URLSearchParams(req.query)
-  const defaultBotPhoneNumberId = z.string().safeParse(params.get('defaultBotPhoneNumberId')).data
-  const force = !!params.get('force-step')
-  return await _doStepVerifyNumber(props, undefined, defaultBotPhoneNumberId, force)
+  const { selectedChoice } = props
+  return await _doStepVerifyNumber(props, undefined, selectedChoice)
 }
 
 const _doStepVerifyWaba = async (
   props: Parameters<WizardHandler>[number],
   credentials?: Credentials,
-  inWabaId?: string,
-  force?: boolean
+  inWabaId?: string
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
   await _trackWizardStep(ctx, 'verify-waba')
@@ -146,7 +138,7 @@ const _doStepVerifyWaba = async (
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
   const oauthClient = new MetaOauthClient(logger)
-  if (!wabaId || force) {
+  if (!wabaId) {
     const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
     if (businesses.length === 1) {
       wabaId = businesses[0]?.id
@@ -172,8 +164,7 @@ const _doStepVerifyWaba = async (
 const _doStepVerifyNumber = async (
   props: Parameters<WizardHandler>[number],
   credentials?: Credentials,
-  inDefaultBotPhoneNumberId?: string,
-  force?: boolean
+  inDefaultBotPhoneNumberId?: string
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
   await _trackWizardStep(ctx, 'verify-number')
@@ -191,7 +182,7 @@ const _doStepVerifyNumber = async (
   }
 
   const oauthClient = new MetaOauthClient(logger)
-  if (!defaultBotPhoneNumberId || force) {
+  if (!defaultBotPhoneNumberId) {
     const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
     if (phoneNumbers.length === 1) {
       defaultBotPhoneNumberId = phoneNumbers[0]?.id
@@ -257,7 +248,7 @@ Your configuration is now complete and the selected WhatsApp number will start a
 const _doStepFinishWrapUp: WizardHandler = async (props) => {
   const { responses, ctx } = props
   await _trackWizardStep(ctx, 'finish-wrap-up', 'completed')
-  return responses.redirectToExternalUrl(getInterstitialUrl(true))
+  return responses.redirectToExternalUrl(oauthWizard.getInterstitialUrl(true).toString())
 }
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
