@@ -25,7 +25,10 @@ import {
   BotHandlers,
   UnimplementedActionHandlers,
   WorkflowUpdateType,
+  InjectedHandlerProps,
+  InjectedBotHandlers,
 } from './server'
+import { proxyWorkflows, wrapWorkflowInstance } from './workflow-proxy'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>
@@ -35,7 +38,7 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins exte
 }
 
 export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
-  implements BotHandlers<TBot>
+  implements InjectedBotHandlers<TBot>
 {
   private _actionHandlers: ActionHandlers<any>
   private _messageHandlers: OrderedMessageHandlersMap<any> = {}
@@ -68,7 +71,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     this._plugins = props.plugins
   }
 
-  public get actionHandlers(): ActionHandlers<TBot> {
+  public get actionHandlers(): InjectedBotHandlers<TBot>['actionHandlers'] {
     return new Proxy(
       {},
       {
@@ -85,17 +88,21 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             }
             action = plugin.actionHandlers[nameWithoutPrefix]
             if (action) {
-              return action
+              return utils.functions.setName(
+                (props: Omit<Parameters<NonNullable<typeof action>>[0], keyof InjectedHandlerProps<TBot>>) =>
+                  action!({ ...props, workflows: proxyWorkflows(props.client) }),
+                action.name
+              )
             }
           }
 
           return undefined
         },
       }
-    ) as ActionHandlers<TBot>
+    ) as InjectedBotHandlers<TBot>['actionHandlers']
   }
 
-  public get messageHandlers(): MessageHandlersMap<TBot> {
+  public get messageHandlers(): InjectedBotHandlers<TBot>['messageHandlers'] {
     return new Proxy(
       {},
       {
@@ -109,13 +116,21 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
             .map(({ handler }) => handler)
-          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
+          return utils.arrays
+            .unique([...pluginHandlers, ...selfHandlers])
+            .map((handler) =>
+              utils.functions.setName(
+                (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
+                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                handler.name
+              )
+            )
         },
       }
-    ) as MessageHandlersMap<TBot>
+    ) as InjectedBotHandlers<TBot>['messageHandlers']
   }
 
-  public get eventHandlers(): EventHandlersMap<TBot> {
+  public get eventHandlers(): InjectedBotHandlers<TBot>['eventHandlers'] {
     return new Proxy(
       {},
       {
@@ -127,13 +142,21 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
             .map(({ handler }) => handler)
-          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
+          return utils.arrays
+            .unique([...pluginHandlers, ...selfHandlers])
+            .map((handler) =>
+              utils.functions.setName(
+                (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
+                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                handler.name
+              )
+            )
         },
       }
-    ) as EventHandlersMap<TBot>
+    ) as InjectedBotHandlers<TBot>['eventHandlers']
   }
 
-  public get stateExpiredHandlers(): StateExpiredHandlersMap<TBot> {
+  public get stateExpiredHandlers(): InjectedBotHandlers<TBot>['stateExpiredHandlers'] {
     return new Proxy(
       {},
       {
@@ -148,13 +171,21 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
             .map(({ handler }) => handler)
-          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
+          return utils.arrays
+            .unique([...pluginHandlers, ...selfHandlers])
+            .map((handler) =>
+              utils.functions.setName(
+                (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
+                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                handler.name
+              )
+            )
         },
       }
-    ) as StateExpiredHandlersMap<TBot>
+    ) as InjectedBotHandlers<TBot>['stateExpiredHandlers']
   }
 
-  public get hookHandlers(): HookHandlersMap<TBot> {
+  public get hookHandlers(): InjectedBotHandlers<TBot>['hookHandlers'] {
     return new Proxy(
       {},
       {
@@ -169,7 +200,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             {
               get: (_, hookDataName: string) => {
                 const pluginHandlers = Object.values(this._plugins).flatMap(
-                  (plugin) => plugin.hookHandlers[hookType]?.[hookDataName] ?? ([] as Function[]) // FIXME: fix typings here
+                  (plugin) => plugin.hookHandlers[hookType]?.[hookDataName] ?? ([] as typeof selfHandlers)
                 )
 
                 const selfHooks = this._hookHandlers[hookType] ?? {}
@@ -179,16 +210,23 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                   .sort((a, b) => a.order - b.order)
                   .map(({ handler }) => handler)
 
-                return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
+                return utils.arrays
+                  .unique([...pluginHandlers, ...selfHandlers])
+                  .map((handler) =>
+                    utils.functions.setName(
+                      (props: any) => handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                      handler.name
+                    )
+                  )
               },
             }
           )
         },
       }
-    ) as HookHandlersMap<TBot>
+    ) as InjectedBotHandlers<TBot>['hookHandlers']
   }
 
-  public get workflowHandlers(): WorkflowHandlersMap<TBot> {
+  public get workflowHandlers(): InjectedBotHandlers<TBot>['workflowHandlers'] {
     return new Proxy(
       {},
       {
@@ -209,13 +247,31 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                   (plugin) => plugin.workflowHandlers[updateType]?.[workflowName] ?? []
                 )
 
-                return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
+                return utils.arrays.unique([...selfHandlers, ...pluginHandlers]).map((handler) =>
+                  utils.functions.setName(
+                    async (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) => {
+                      let currentWorkflowState = props.workflow
+                      await handler({
+                        ...props,
+                        workflow: wrapWorkflowInstance({
+                          ...props,
+                          onWorkflowUpdate(newState) {
+                            currentWorkflowState = newState
+                          },
+                        }),
+                        workflows: proxyWorkflows(props.client),
+                      })
+                      return currentWorkflowState
+                    },
+                    handler.name
+                  )
+                )
               },
             }
           )
         },
       }
-    ) as WorkflowHandlersMap<TBot>
+    ) as InjectedBotHandlers<TBot>['workflowHandlers']
   }
 
   public readonly on = {
@@ -390,7 +446,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     },
   }
 
-  public readonly handler = botHandler(this as BotHandlers<any>)
+  public readonly handler = botHandler(this as unknown as BotHandlers<any>)
 
   public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }
