@@ -38,11 +38,19 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     templateVariables = _parseTemplateVariablesJSON(templateVariablesJson, logger)
   }
 
+  let formattedUserPhone = userPhone
+  try {
+    formattedUserPhone = formatPhoneNumber(userPhone)
+  } catch (thrown) {
+    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
+    _logForBotAndThrow(`Failed to parse phone number (error: ${errorMessage}).`, logger)
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: formatPhoneNumber(userPhone),
+      userPhone: formattedUserPhone,
     },
   })
 

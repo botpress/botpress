@@ -129,7 +129,9 @@ export type CommonHandlerProps<TBot extends common.BaseBot> = {
   ctx: BotContext
   logger: BotLogger
   client: BotClient<TBot>
+}
 
+export type InjectedHandlerProps<TBot extends common.BaseBot> = {
   /**
    * # EXPERIMENTAL
    * This API is experimental and may change in the future.
@@ -137,8 +139,10 @@ export type CommonHandlerProps<TBot extends common.BaseBot> = {
   workflows: workflowProxy.WorkflowProxy<TBot>
 }
 
+export type ExtendedHandlerProps<TBot extends common.BaseBot> = CommonHandlerProps<TBot> & InjectedHandlerProps<TBot>
+
 export type MessagePayloads<TBot extends common.BaseBot> = {
-  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]: CommonHandlerProps<TBot> & {
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]: ExtendedHandlerProps<TBot> & {
     message: IncomingMessages<TBot>[TMessageName]
     user: client.User
     conversation: client.Conversation
@@ -153,7 +157,7 @@ export type MessageHandlers<TBot extends common.BaseBot> = {
 }
 
 export type EventPayloads<TBot extends common.BaseBot> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]: CommonHandlerProps<TBot> & {
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]: ExtendedHandlerProps<TBot> & {
     event: IncomingEvents<TBot>[TEventName]
   }
 }
@@ -163,7 +167,7 @@ export type EventHandlers<TBot extends common.BaseBot> = {
 }
 
 export type StateExpiredPayloads<TBot extends common.BaseBot> = {
-  [TSateName in utils.StringKeys<IncomingStates<TBot>>]: CommonHandlerProps<TBot> & {
+  [TSateName in utils.StringKeys<IncomingStates<TBot>>]: ExtendedHandlerProps<TBot> & {
     state: IncomingStates<TBot>[TSateName]
   }
 }
@@ -173,7 +177,7 @@ export type StateExpiredHandlers<TBot extends common.BaseBot> = {
 }
 
 export type ActionHandlerPayloads<TBot extends common.BaseBot> = {
-  [TActionName in utils.StringKeys<TBot['actions']>]: CommonHandlerProps<TBot> & {
+  [TActionName in utils.StringKeys<TBot['actions']>]: ExtendedHandlerProps<TBot> & {
     type?: TActionName
     input: TBot['actions'][TActionName]['input']
   }
@@ -183,6 +187,12 @@ export type ActionHandlers<TBot extends common.BaseBot> = {
   [TActionName in utils.StringKeys<TBot['actions']>]: (
     props: ActionHandlerPayloads<TBot>[TActionName]
   ) => Promise<TBot['actions'][TActionName]['output']>
+}
+
+export type ActionHandlersMap<TBot extends common.BaseBot> = {
+  [TActionName in utils.StringKeys<TBot['actions']>]?: (
+    props: Omit<Parameters<ActionHandlers<TBot>[TActionName]>[0], keyof InjectedHandlerProps<TBot>>
+  ) => Promise<Awaited<ReturnType<ActionHandlers<TBot>[TActionName]>>>
 }
 
 export type BridgeWorkflowUpdateType =
@@ -207,7 +217,7 @@ export type WorkflowUpdateEvent = utils.Merge<
 >
 
 export type WorkflowPayloads<TBot extends common.BaseBot> = {
-  [TWorkflowName in utils.StringKeys<TBot['workflows']>]: CommonHandlerProps<TBot> & {
+  [TWorkflowName in utils.StringKeys<TBot['workflows']>]: ExtendedHandlerProps<TBot> & {
     conversation?: client.Conversation
     user?: client.User
     event: WorkflowUpdateEvent
@@ -289,7 +299,7 @@ export type HookData<TBot extends common.BaseBot> = {
 
 export type HookInputs<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
-    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: CommonHandlerProps<TBot> & {
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]: ExtendedHandlerProps<TBot> & {
       data: HookData<TBot>[THookType][THookDataName]
     }
   }
@@ -312,27 +322,42 @@ export type HookHandlers<TBot extends common.BaseBot> = {
 }
 
 export type MessageHandlersMap<TBot extends common.BaseBot> = {
-  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: MessageHandlers<TBot>[TMessageName][]
+  [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: ((
+    props: Omit<Parameters<MessageHandlers<TBot>[TMessageName]>[0], keyof InjectedHandlerProps<TBot>>
+  ) => Promise<void>)[]
 }
 
 export type EventHandlersMap<TBot extends common.BaseBot> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]?: EventHandlers<TBot>[TEventName][]
+  [TEventName in utils.StringKeys<IncomingEvents<TBot>>]?: ((
+    props: Omit<Parameters<EventHandlers<TBot>[TEventName]>[0], keyof InjectedHandlerProps<TBot>>
+  ) => Promise<void>)[]
 }
 
 export type StateExpiredHandlersMap<TBot extends common.BaseBot> = {
-  [TStateName in utils.StringKeys<IncomingStates<TBot>>]?: StateExpiredHandlers<TBot>[TStateName][]
+  [TStateName in utils.StringKeys<IncomingStates<TBot>>]?: ((
+    props: Omit<Parameters<StateExpiredHandlers<TBot>[TStateName]>[0], keyof InjectedHandlerProps<TBot>>
+  ) => Promise<void>)[]
 }
 
 export type HookHandlersMap<TBot extends common.BaseBot> = {
   [THookType in utils.StringKeys<HookData<TBot>>]: {
-    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]?: HookHandlers<TBot>[THookType][THookDataName][]
+    [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]?: ((
+      props: Omit<Parameters<HookHandlers<TBot>[THookType][THookDataName]>[0], keyof InjectedHandlerProps<TBot>>
+    ) => Promise<Awaited<ReturnType<HookHandlers<TBot>[THookType][THookDataName]>>>)[]
   }
 }
 
 export type WorkflowUpdateType = 'started' | 'continued' | 'timed_out'
 export type WorkflowHandlersMap<TBot extends common.BaseBot> = {
   [TWorkflowUpdateType in WorkflowUpdateType]: {
-    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot>[TWorkflowName][]
+    [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: ((
+      props: Omit<
+        Parameters<WorkflowHandlers<TBot>[TWorkflowName]>[0],
+        keyof InjectedHandlerProps<TBot> | 'workflow'
+      > & {
+        workflow: client.Workflow
+      }
+    ) => Promise<client.Workflow>)[]
   }
 }
 
@@ -373,17 +398,45 @@ export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot> = {
 }
 
 /**
+ * Bot handlers without InjectedHandlerProps
+ *
  * TODO:
  * the consumer of this type shouldnt be able to access "*" directly;
  * "*" is meant the user who registers an handler, not for the user who calls the handler
  */
 export type BotHandlers<TBot extends common.BaseBot> = {
-  actionHandlers: ActionHandlers<TBot>
+  actionHandlers: ActionHandlersMap<TBot>
   messageHandlers: MessageHandlersMap<TBot>
   eventHandlers: EventHandlersMap<TBot>
   stateExpiredHandlers: StateExpiredHandlersMap<TBot>
   hookHandlers: HookHandlersMap<TBot>
   workflowHandlers: WorkflowHandlersMap<TBot>
+}
+/** identical to BotHandlers, but contains the injected properties */
+export type InjectedBotHandlers<TBot extends common.BaseBot> = {
+  actionHandlers: ActionHandlers<TBot>
+  messageHandlers: {
+    [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: MessageHandlers<TBot>[TMessageName][]
+  }
+  eventHandlers: {
+    [TEventName in utils.StringKeys<IncomingEvents<TBot>>]?: EventHandlers<TBot>[TEventName][]
+  }
+  stateExpiredHandlers: {
+    [TStateName in utils.StringKeys<IncomingStates<TBot>>]?: StateExpiredHandlers<TBot>[TStateName][]
+  }
+  hookHandlers: {
+    [THookType in utils.StringKeys<HookData<TBot>>]: {
+      [THookDataName in utils.StringKeys<HookData<TBot>[THookType]>]?: HookHandlers<TBot>[THookType][THookDataName][]
+    }
+  }
+  workflowHandlers: {
+    [TWorkflowUpdateType in WorkflowUpdateType]: {
+      [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: {
+        handler: WorkflowHandlers<TBot>[TWorkflowName]
+        order: number
+      }[]
+    }
+  }
 }
 
 // plugins
@@ -428,7 +481,7 @@ export type UnimplementedActionHandlers<
   >]
 }
 
-export type ServerProps = Omit<CommonHandlerProps<common.BaseBot>, 'workflows'> & {
+export type ServerProps = CommonHandlerProps<common.BaseBot> & {
   req: Request
   self: BotHandlers<common.BaseBot>
 }
