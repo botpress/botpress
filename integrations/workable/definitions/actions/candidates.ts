@@ -41,20 +41,13 @@ export const getCandidates = {
       limit: z.number().nullable().title('Limit').describe('Specifies the number of candidates to try and retrieve per page'),
       sinceId: z.string().nullable().title('Since Id').describe('Returns results with an ID greater than or equal to the specified ID'),
       maxId: z.string().nullable().title('Max Id').describe('Returns results with an ID less than or equal to the specified ID'),
-      createdAfter: z.string()
-        .refine(val => !isNaN(Date.parse(val)), {
-          message: "Invalid datetime format",
-        }).nullable().title('Created After').describe('Returns results created after the specified timestamp'),
-      updatedAfter: z.string()
-        .refine(val => !isNaN(Date.parse(val)), {
-          message: "Invalid datetime format",
-        }).nullable().title('Updated After').describe('Returns results updated after the specified timestamp'),
+      createdAfter: z.string().nullable().title('Created After').describe('Returns results created after the specified timestamp'),
+      updatedAfter: z.string().nullable().title('Updated After').describe('Returns results updated after the specified timestamp'),
     }),
   },
   output: {
     schema: z.object({
-      results: z.object({
         candidates: z.array(z.object(candidateModel)).title('Candidates').describe('The array of candidates.'),
-    })}),
+    }),
   },
 } satisfies ActionDefinition
