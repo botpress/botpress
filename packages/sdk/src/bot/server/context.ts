@@ -1,34 +1,22 @@
 import { z } from '@bpinternal/zui'
-import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../../consts'
+import {
+  BOT_ID_HEADER,
+  CONFIGURATION_PAYLOAD_HEADER,
+  OPERATION_TYPE_HEADER,
+  OPERATION_SUBTYPE_HEADER,
+} from '../../consts'
+import { throwError } from '../../utils/error-utils'
 import { BotContext } from './types'
 
 const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping', 'action_triggered'])
-export const extractContext = (headers: Record<string, string | undefined>): BotContext => {
-  const botId = headers[botIdHeader]
-  const base64Configuration = headers[configurationHeader]
-  const type = headers[typeHeader]
-  const operation = botOperationSchema.parse(headers[operationHeader])
 
-  if (!botId) {
-    throw new Error('Missing bot headers')
-  }
-
-  if (!type) {
-    throw new Error('Missing type headers')
-  }
-
-  if (!base64Configuration) {
-    throw new Error('Missing configuration headers')
-  }
-
-  if (!operation) {
-    throw new Error('Missing operation headers')
-  }
-
-  return {
-    botId,
-    operation,
-    type,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  }
-}
+export const extractContext = (headers: Record<string, string | undefined>): BotContext => ({
+  botId: headers[BOT_ID_HEADER] || throwError('Missing bot id header'),
+  operation: botOperationSchema.parse(headers[OPERATION_TYPE_HEADER]),
+  type: headers[OPERATION_SUBTYPE_HEADER] || throwError('Missing type header'),
+  configuration: JSON.parse(
+    Buffer.from(headers[CONFIGURATION_PAYLOAD_HEADER] || throwError('Missing configuration header'), 'base64').toString(
+      'utf-8'
+    )
+  ),
+})
