@@ -17,15 +17,25 @@ export type SendMessageProps = Pick<
   'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
 >
 
-export type MetaClientConfig = {
-  accessToken: string
+export type MetaClientConfigType = bp.Context['configurationType'] | 'oauth'
+export type MetaClientCredentials = {
+  userToken?: string
+  pageToken?: string
+  pageId?: string
   clientId: string
-  clientSecret: string
+  clientSecret?: string
+  appToken?: string
 }
 
-export type FacebookClientConfig = {
+export type MessengerClientCredentials = {
+  accessToken: string
+  clientSecret?: string
+  clientId: string
+}
+
+export type FacebookClientCredentials = {
   pageId: string
-  pageAccessToken: string
+  pageToken: string
 }
 
 export type CommentReply = {

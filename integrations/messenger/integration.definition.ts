@@ -24,7 +24,7 @@ const commonConfigSchema = z.object({
     .boolean()
     .default(false)
     .title('Reply to Comments')
-    .describe('Whether to reply to comments on Facebook posts'),
+    .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
 })
 
 export default new IntegrationDefinition({
@@ -64,7 +64,7 @@ export default new IntegrationDefinition({
             .string()
             .title('Access Token')
             .min(1)
-            .describe('Access Token from a System Account that has permission to the Meta app'),
+            .describe('Page access token that with permissions to access the Facebook page'),
           pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
           shouldGetUserProfile: z
             .boolean()
@@ -108,20 +108,20 @@ export default new IntegrationDefinition({
         },
       },
     },
-    feed: {
-      title: 'Facebook Feed Events',
-      description: 'Channel for Facebook page feed events (posts, comments, reactions)',
+    commentReplies: {
+      title: 'Comment Replies',
+      description: 'Channel for replies to comments on Facebook posts',
       messages: messages.defaults,
       message: {
         tags: {
-          id: { title: 'Event ID', description: 'The unique ID of the feed event' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID (for post and comment events)' },
+          id: { title: 'Comment ID', description: 'The unique ID of the comment' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
         },
       },
       conversation: {
         tags: {
-          id: { title: 'Comment ID', description: 'The Facebook comment ID that serves as the comment identifier' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID that serves as the post identifier' },
+          id: { title: 'Comment ID', description: 'The Facebook comment ID under which the reply was posted' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
         },
       },
     },
@@ -132,6 +132,7 @@ export default new IntegrationDefinition({
     oauth: {
       type: 'integration',
       schema: z.object({
+        // TODO: Rename to 'userToken' if we bump a major
         accessToken: z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
         pageToken: z
           .string()

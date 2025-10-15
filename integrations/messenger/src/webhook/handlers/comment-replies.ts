@@ -9,14 +9,6 @@ export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps)
   }
 }
 
-const _getPageId = async (props: bp.HandlerProps) => {
-  if (props.ctx.configurationType !== 'manual') {
-    const credentials = await getMetaClientCredentials(props.client, props.ctx)
-    return credentials.pageId
-  }
-  return props.ctx.configuration.pageId
-}
-
 const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => {
   const { logger } = props
   const { value } = change
@@ -37,9 +29,13 @@ const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => 
 }
 
 const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { logger } = props
+  const { logger, ctx, client } = props
   const { from, verb } = value
-  const pageId = await _getPageId(props)
+  const { pageId } = await getMetaClientCredentials(ctx.configurationType, client, ctx)
+  if (!pageId) {
+    logger.forBot().error('Page ID is not set, cannot process comment event. Please configure or reauthorize')
+    return
+  }
 
   if (from?.id === pageId) {
     logger.forBot().debug('Comment is from our page, ignoring')
@@ -62,22 +58,27 @@ const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerP
 
 const _handleCommentCreated = async (value: CommentChangeValue, props: bp.HandlerProps) => {
   const { client, logger } = props
-  const { comment_id, post_id, message, from, parent_id } = value
+  const { comment_id: commentId, post_id: postId, message, from, parent_id: parentId } = value
 
   if (!message) {
-    logger.forBot().debug('_handleCommentCreated: No message. Will not reply to this comment.')
+    logger
+      .forBot()
+      .debug(
+        'Incoming comment has no message, will not reply. Make sure that your app has been granted the necessary permissions to access user data.'
+      )
     return
   }
 
-  if (post_id !== parent_id) {
-    logger.forBot().debug('_handleCommentCreated: Non root comment. Will not reply to this comment.')
+  if (postId !== parentId) {
+    logger.forBot().debug('Incoming comment is not a root comment, will not reply')
     return
   }
 
   // Use the thread resolver to create conversation based on root thread ID
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'feed',
-    tags: { id: comment_id, postId: post_id },
+    channel: 'commentReplies',
+    tags: { id: commentId, postId },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
@@ -86,9 +87,10 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
 
   await client.getOrCreateMessage({
     tags: {
-      id: comment_id,
-      postId: post_id,
+      id: commentId,
+      postId,
     },
+    discriminateByTags: ['id'],
     type: 'text',
     payload: { text: message },
     userId: user.id,
