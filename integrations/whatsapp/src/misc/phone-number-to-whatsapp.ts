@@ -69,14 +69,3 @@ const _stripCountryCode = (phone: string, countryCode: number): string => {
   }
   return phone.slice(countryCode.toString().length)
 }
-
-export const phoneNumberRefine = (rawPhoneNumber: string): boolean => {
-  if (!rawPhoneNumber.startsWith('+')) {
-    rawPhoneNumber = `+${rawPhoneNumber}`
-  }
-  const parsed = parsePhoneNumber(rawPhoneNumber)
-  if (!parsed) {
-    throw new Error('Failed to parse phone number')
-  }
-  return parsed.valid
-}
