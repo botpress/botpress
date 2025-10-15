@@ -9,3 +9,11 @@ export type UnregisterFunction = IntegrationProps['unregister']
 export type Channels = IntegrationProps['channels']
 export type Handler = IntegrationProps['handler']
 export type TableFields = Array<{ name: string; type: string }>
+
+export type AirtableTable = {
+  id: string
+  name: string
+  description?: string
+  primaryFieldId: string
+  fields: Array<{ id: string; name: string; type: string }>
+}
