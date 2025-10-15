@@ -40,6 +40,7 @@ async function _handleIncomingMessage(
     channel: 'channel',
     tags: {
       userPhone: message.from,
+      // userPhone: formatPhoneNumber(message.from), // TODO: Uncomment when we have fixed the issue
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })

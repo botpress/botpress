@@ -22,4 +22,7 @@ export default new IntegrationDefinition({
       description: 'Google AI API key',
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

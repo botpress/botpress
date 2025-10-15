@@ -27,6 +27,9 @@ export default new sdk.IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(listable, ({ entities }) => ({
     entities: { item: entities.card },
