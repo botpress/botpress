@@ -1,5 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
-import { createRecordInputSchema, updateRecordInputSchema } from '../misc/custom-schemas'
+import {
+  createRecordInputSchema,
+  createRecordOutputSchema,
+  listRecordsOutputSchema,
+  updateRecordInputSchema,
+  updateRecordOutputSchema,
+} from '../misc/custom-schemas'
 import type { IntegrationProps } from '../misc/types'
 import { getClient } from '../utils'
 
@@ -9,11 +15,9 @@ export const createRecord: IntegrationProps['actions']['createRecord'] = async (
 
   try {
     const record = await AirtableClient.createRecord(validatedInput.tableIdOrName, JSON.parse(validatedInput.fields))
+    const validatedRecord = createRecordOutputSchema.parse(record)
     logger.forBot().info(`Successful - Create Record - ${record.id}`)
-    return {
-      _rawJson: record.fields,
-      id: record.id,
-    }
+    return validatedRecord
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError('Failed to create record', error)
@@ -30,12 +34,9 @@ export const updateRecord: IntegrationProps['actions']['updateRecord'] = async (
       validatedInput.recordId,
       JSON.parse(validatedInput.fields)
     )
-    const record = {
-      _rawJson: output.fields,
-      id: output.id,
-    }
-    logger.forBot().info(`Successful - Update Record - ${record.id}`)
-    return record
+    const validatedRecord = updateRecordOutputSchema.parse(output)
+    logger.forBot().info(`Successful - Update Record - ${output.id}`)
+    return validatedRecord
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError('Failed to update record', error)
@@ -52,13 +53,9 @@ export const listRecords: IntegrationProps['actions']['listRecords'] = async ({ 
       offset: input.nextToken,
     })
 
-    const records = output.records.map((record) => ({
-      _rawJson: record.fields,
-      id: record.id,
-    }))
-
+    const validatedRecords = listRecordsOutputSchema.parse(output)
     logger.forBot().info(`Successful - List Records - ${input.tableIdOrName}`)
-    return { records, nextToken: output.offset }
+    return validatedRecords
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError('Failed to list records', error)

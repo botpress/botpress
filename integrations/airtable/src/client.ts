@@ -3,6 +3,20 @@ import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'querystring'
 import { TableFields } from './misc/types'
 
+type TableResponse = {
+  id: string
+  name: string
+  description?: string
+  fields: Array<{ name: string; type: string }>
+  primaryFieldId: string
+  views: Array<{ id: string; name: string; type: string }>
+}
+
+type RecordResponse = {
+  id: string
+  fields: FieldSet
+}
+
 export class AirtableApi {
   private _base: Airtable.Base
   private _axiosClient: AxiosInstance
@@ -54,25 +68,23 @@ export class AirtableApi {
     return records
   }
 
-  public async createRecord(tableIdOrName: string, fields: object): Promise<{ id: string; fields: FieldSet }> {
+  public async createRecord(tableIdOrName: string, fields: object): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).create(fields)
-    return record
+    return {
+      id: record.id,
+      fields: record.fields,
+    }
   }
 
-  public async updateRecord(
-    tableIdOrName: string,
-    recordId: string,
-    fields: object
-  ): Promise<{ id: string; fields: FieldSet }> {
+  public async updateRecord(tableIdOrName: string, recordId: string, fields: object): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).update(recordId, fields)
-    return record
+    return {
+      id: record.id,
+      fields: record.fields,
+    }
   }
 
-  public async createTable(
-    name: string,
-    fields: TableFields,
-    description?: string
-  ): Promise<{ id: string; name: string; description?: string; fields: TableFields }> {
+  public async createTable(name: string, fields: TableFields, description?: string): Promise<TableResponse> {
     const descriptionLimit = 20000
     const validDescription = description?.slice(0, descriptionLimit)
     const payload = {
@@ -85,11 +97,7 @@ export class AirtableApi {
     return response.data
   }
 
-  public async updateTable(
-    tableIdOrName: string,
-    name?: string,
-    description?: string
-  ): Promise<{ id: string; name: string; description?: string; fields: TableFields }> {
+  public async updateTable(tableIdOrName: string, name?: string, description?: string): Promise<TableResponse> {
     const response = await this._axiosClient.patch(`/meta/bases/${this._baseId}/tables/${tableIdOrName}`, {
       name,
       description,
