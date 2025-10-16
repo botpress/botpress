@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -36,10 +37,18 @@ async function _handleIncomingMessage(
   client: bp.Client,
   logger: bp.Logger
 ) {
+  let userPhone = message.from
+  try {
+    userPhone = formatPhoneNumber(message.from)
+  } catch (thrown) {
+    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
+    logger.forBot().error(`Failed to parse phone number, errors ${errorMessage}`)
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: message.from,
+      userPhone,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })

@@ -184,6 +184,9 @@ export default new IntegrationDefinition({
       description: 'A conversation with a Messenger user',
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveUser, ({ entities }) => ({

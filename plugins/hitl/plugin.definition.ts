@@ -237,4 +237,7 @@ export default new sdk.PluginDefinition({
       }),
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

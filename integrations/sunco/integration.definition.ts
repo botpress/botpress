@@ -57,6 +57,9 @@ export default new IntegrationDefinition({
         .describe('The conversation object fields'),
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveUser, ({ entities }) => ({

@@ -402,7 +402,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       },
       configuration: integrationDef.configuration
         ? {
-            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration),
+            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
+              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+            }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(
@@ -415,7 +417,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
             title: configuration.title,
             description: configuration.description,
-            schema: await utils.schema.mapZodToJsonSchema(configuration),
+            schema: await utils.schema.mapZodToJsonSchema(configuration, {
+              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+            }),
             identifier: {
               required: configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),

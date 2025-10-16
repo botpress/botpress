@@ -21,6 +21,7 @@ export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegr
   botId: string
   botUserId: string
   integrationId: string
+  integrationAlias: string | undefined
   webhookId: string
   operation: string
 } & IntegrationContextConfig<TIntegration>

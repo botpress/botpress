@@ -47,10 +47,10 @@ export const INTEGRATION_RULESET = {
       description: 'All action input parameters SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].input..schema.properties[*].x-zui',
+      given: '$.actions[*].input..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage(({ path }) => `input parameter "${path.at(-3)}" of action "${path[1]}"`),
         },
       ],

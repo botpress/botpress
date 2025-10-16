@@ -3,6 +3,7 @@ import * as types from './types'
 
 const defaultApiUrl = 'https://api.botpress.cloud'
 const defaultTimeout = 60_000
+const defaultDebug = false
 
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
@@ -12,6 +13,7 @@ const tokenEnvName = 'BP_TOKEN'
 
 type AnyClientProps = types.CommonClientProps & {
   integrationId?: string
+  integrationAlias?: string
   workspaceId?: string
   botId?: string
   token?: string
@@ -34,6 +36,10 @@ export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig
     headers['x-integration-id'] = props.integrationId
   }
 
+  if (props.integrationAlias) {
+    headers['x-integration-alias'] = props.integrationAlias
+  }
+
   if (props.token) {
     headers.Authorization = `Bearer ${props.token}`
   }
@@ -45,12 +51,14 @@ export function getClientConfig(clientProps: AnyClientProps): types.ClientConfig
 
   const apiUrl = props.apiUrl ?? defaultApiUrl
   const timeout = props.timeout ?? defaultTimeout
+  const debug = props.debug ?? defaultDebug
 
   return {
     apiUrl,
     timeout,
     withCredentials: isBrowser,
     headers,
+    debug,
   }
 }
 
@@ -72,6 +80,7 @@ function getNodeConfig(props: AnyClientProps): AnyClientProps {
     apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
     integrationId: props.integrationId ?? process.env[integrationIdEnvName],
+    integrationAlias: props.integrationAlias,
     workspaceId: props.workspaceId ?? process.env[workspaceIdEnvName],
   }
 

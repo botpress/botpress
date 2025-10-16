@@ -77,6 +77,7 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
+  alias?: string
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
@@ -142,6 +143,10 @@ export type BotDefinitionProps<
   }
 
   attributes?: Record<string, string>
+
+  __advanced?: {
+    useLegacyZuiTransformer?: boolean
+  }
 }
 
 export class BotDefinition<
@@ -164,6 +169,7 @@ export class BotDefinition<
   public readonly tables: this['props']['tables']
   public readonly workflows: this['props']['workflows']
   public readonly attributes: this['props']['attributes']
+  public readonly __advanced: this['props']['__advanced']
 
   /** Bot definition with plugins merged into it */
   public readonly withPlugins: Pick<
@@ -185,6 +191,7 @@ export class BotDefinition<
     this.tables = props.tables
     this.workflows = props.workflows
     this.attributes = props.attributes
+    this.__advanced = props.__advanced
 
     this.withPlugins = {
       user: props.user,
@@ -205,8 +212,15 @@ export class BotDefinition<
       self.integrations = {}
     }
 
-    self.integrations[integrationPkg.name] = {
+    const integrationAlias = config?.alias ?? integrationPkg.name.replace('/', '-')
+
+    if (self.integrations[integrationAlias]) {
+      throw new Error(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
+    }
+
+    self.integrations[integrationAlias] = {
       ...integrationPkg,
+      alias: integrationAlias,
       enabled: config?.enabled,
       configurationType: config?.configurationType,
       configuration: config?.configuration,
@@ -222,6 +236,11 @@ export class BotDefinition<
     }
 
     const pluginAlias = config.alias ?? pluginPkg.name.replace('/', '-')
+
+    if (self.plugins[pluginAlias]) {
+      throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
+    }
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,

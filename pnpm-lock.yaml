@@ -498,6 +498,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@mendable/firecrawl-js':
+        specifier: ^4.3.8
+        version: 4.3.8
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -1820,6 +1823,9 @@ importers:
       '@segment/analytics-node':
         specifier: ^2.2.0
         version: 2.2.0
+      awesome-phonenumber:
+        specifier: ^7.5.0
+        version: 7.5.0
       axios:
         specifier: ^1.6.2
         version: 1.6.8
@@ -2182,13 +2188,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.1
+        specifier: 0.5.2
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2300,10 +2306,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2316,10 +2322,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2332,7 +2338,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2345,10 +2351,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2361,10 +2367,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.15.10
+        specifier: 4.16.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2499,10 +2505,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.41
+        specifier: 0.1.47
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2602,7 +2608,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../client
       '@bpinternal/zui':
         specifier: ^1.0.1
@@ -2633,7 +2639,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.25.0
+        specifier: 1.26.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2676,7 +2682,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.41
+        specifier: 0.1.47
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2752,15 +2758,15 @@ importers:
 
   plugins/conversation-insights:
     dependencies:
+      '@botpress/cognitive':
+        specifier: workspace:*
+        version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
       jsonrepair:
         specifier: ^3.10.0
         version: 3.10.0
@@ -4523,6 +4529,10 @@ packages:
     resolution: {integrity: sha512-Cgz0xPb+1DUjmrl5whAsmqfAChBko+Wf4/PLQE4RvwfPlcq2agfHr1QFiXEhZ8e+GQwQ3hZQn9iLGXwIXwxUCg==}
     engines: {node: '>=10.0.0'}
 
+  '@mendable/firecrawl-js@4.3.8':
+    resolution: {integrity: sha512-eVzpav78JQhv6YdQAngp4oVq6AzKtTVXdUj/F7YmPOK4TU3jEpDmwAX5P1L4Ijm/M6h/EM7OLW+rbocgCRgkAw==}
+    engines: {node: '>=22.0.0'}
+
   '@microsoft/api-extractor-model@7.30.1':
     resolution: {integrity: sha512-CTS2PlASJHxVY8hqHORVb1HdECWOEMcMnM6/kDkPr0RZapAFSIHhg9D4jxuE8g+OWYHtPc10LCpmde5pylTRlA==}
 
@@ -6182,6 +6192,10 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  awesome-phonenumber@7.5.0:
+    resolution: {integrity: sha512-qWQHCiMHMNVyUsICiCcaPJAYbGL4E4kGnIxnrwkS3YCwcPa8VtQCo11HGKY8AbUpXJloDG10c9Bulhw3xYkC/g==}
+    engines: {node: '>=18'}
 
   aws-sign2@0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
@@ -10603,6 +10617,9 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <6.0.0'
 
+  typescript-event-target@1.1.1:
+    resolution: {integrity: sha512-dFSOFBKV6uwaloBCCUhxlD3Pr/P1a/tJdcmPrTXCHlEFD3faj0mztjcGn6VBAhQ0/Bdy8K3VWrrqwbt/ffsYsg==}
+
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
@@ -13336,6 +13353,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@mendable/firecrawl-js@4.3.8':
+    dependencies:
+      axios: 1.12.2
+      typescript-event-target: 1.1.1
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.6(zod@3.24.2)
+    transitivePeerDependencies:
+      - debug
+
   '@microsoft/api-extractor-model@7.30.1(@types/node@22.16.4)':
     dependencies:
       '@microsoft/tsdoc': 0.15.1
@@ -15445,6 +15471,8 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.0.0
+
+  awesome-phonenumber@7.5.0: {}
 
   aws-sign2@0.7.0: {}
 
@@ -20938,6 +20966,8 @@ snapshots:
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
+
+  typescript-event-target@1.1.1: {}
 
   typescript@5.6.3: {}
 
