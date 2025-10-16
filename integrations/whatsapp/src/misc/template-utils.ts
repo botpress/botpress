@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Component, TemplateVariables, templateVariablesSchema } from 'src/misc/types'
-import { getAccessToken } from '../auth'
+import { getAccessToken, getWabaId } from '../auth'
 import { logForBotAndThrow } from './util'
 import * as bp from '.botpress'
 
@@ -39,11 +39,10 @@ export const getTemplateText = async (
 ): Promise<string> => {
   const earlyReturnString = `Sent template "${templateName}" with language "${templateLanguage}"`
 
-  const waba_id = await _getWabaId(ctx, client)
-  if (!waba_id) {
-    logger.forBot().debug("The configuration doesn't support having the full template in the Botpress' conversation")
+  const waba_id = await getWabaId(client, ctx).catch(() => {
+    logger.forBot().debug("The configuration doesn't support having the full template in the Botpress' conversation: ")
     return earlyReturnString
-  }
+  })
 
   const accessToken = await getAccessToken(client, ctx).catch((e) => {
     logger.forBot().debug('Failed to get access token - error:', e.response?.data || e.message || e)
@@ -74,15 +73,6 @@ export const getTemplateText = async (
   }
 
   return _getTemplateText(templateComponents, bodyVariables, earlyReturnString)
-}
-
-const _getWabaId = async (ctx: bp.Context, client: bp.Client) => {
-  if (ctx.configurationType === 'manual') {
-    return ctx.configuration.whatsappBusinessAccountId
-  } else {
-    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-    return state.payload.wabaId
-  }
 }
 
 const _getTemplateText = (
