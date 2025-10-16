@@ -1,5 +1,4 @@
 import { Response } from '../../../serve'
-import { proxyWorkflows, wrapWorkflowInstance } from '../../workflow-proxy'
 import { SUCCESS_RESPONSE } from '../responses'
 import * as types from '../types'
 import { bridgeUpdateTypeToSnakeCase } from './update-type-conv'
@@ -68,9 +67,9 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
     return SUCCESS_RESPONSE
   }
 
-  await _dispatchToHandlers(props, event)
+  const { updatedWorkflow } = await _dispatchToHandlers(props, event)
 
-  if (event.payload.workflow.status === 'pending') {
+  if (updatedWorkflow.status === 'pending') {
     props.logger.warn(
       `Workflow "${event.payload.workflow.name}" is still in pending status after processing "${updateType}" event. ` +
         'This may indicate that the workflow was not properly acknowledged or terminated by the handler. '
@@ -80,18 +79,26 @@ const _handleWorkflowUpdate = async (props: types.ServerProps, event: types.Work
   return SUCCESS_RESPONSE
 }
 
-const _dispatchToHandlers = async (props: types.ServerProps, event: types.WorkflowUpdateEvent): Promise<void> => {
+type WorkflowState = types.WorkflowUpdateEventPayload['workflow']
+
+const _dispatchToHandlers = async (
+  props: types.ServerProps,
+  event: types.WorkflowUpdateEvent
+): Promise<{ updatedWorkflow: WorkflowState }> => {
   const updateType = bridgeUpdateTypeToSnakeCase(event.payload.type)
   const handlers = props.self.workflowHandlers[updateType]?.[event.payload.workflow.name]
 
-  for (const handler of handlers!) {
-    await handler({
+  let currentWorkflowState: WorkflowState = structuredClone(event.payload.workflow)
+
+  for (const handler of handlers ?? []) {
+    currentWorkflowState = await handler({
       ...props,
       event,
       conversation: event.payload.conversation,
       user: event.payload.user,
-      workflow: wrapWorkflowInstance({ ...props, workflow: event.payload.workflow, event }),
-      workflows: proxyWorkflows(props.client),
+      workflow: currentWorkflowState,
     })
   }
+
+  return { updatedWorkflow: currentWorkflowState }
 }

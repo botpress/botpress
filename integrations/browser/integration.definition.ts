@@ -5,7 +5,7 @@ import { actionDefinitions } from 'src/definitions/actions'
 export default new IntegrationDefinition({
   name: 'browser',
   title: 'Browser',
-  version: '0.7.0',
+  version: '0.8.0',
   description:
     'Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.',
   readme: 'hub.md',
@@ -15,5 +15,8 @@ export default new IntegrationDefinition({
     SCREENSHOT_API_KEY: {},
     FIRECRAWL_API_KEY: {},
     LOGO_API_KEY: {},
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
