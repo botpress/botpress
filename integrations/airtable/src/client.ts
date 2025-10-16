@@ -1,4 +1,4 @@
-import Airtable, { type FieldSet, type Records } from 'airtable'
+import Airtable, { type FieldSet } from 'airtable'
 import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'querystring'
 import { TableFields } from './misc/types'
@@ -41,31 +41,26 @@ export class AirtableApi {
   public async listRecords({
     tableIdOrName,
     filterByFormula,
-    offset,
+    nextToken,
   }: {
     tableIdOrName: string
     filterByFormula?: string
-    offset?: string
-  }): Promise<{ records: Records<FieldSet>; offset?: string }> {
+    nextToken?: string
+  }): Promise<{ records: RecordResponse[]; nextToken?: string }> {
     const response = await this._axiosClient.get(
-      `${this._baseId}/${tableIdOrName}?${stringify({ offset, filterByFormula })}`
+      `${this._baseId}/${tableIdOrName}?${stringify({ nextToken, filterByFormula })}`
     )
 
     const records = response.data?.records
 
     if (!records) {
-      return { records: [], offset: undefined }
+      return { records: [], nextToken: undefined }
     }
 
     return {
       records,
-      offset: response.data?.offset,
+      nextToken: response.data?.offset,
     }
-  }
-
-  public async getTableRecords(tableIdOrName: string): Promise<Records<FieldSet>> {
-    const records = await this._base(tableIdOrName).select().all()
-    return records
   }
 
   public async createRecord(tableIdOrName: string, fields: object): Promise<RecordResponse> {

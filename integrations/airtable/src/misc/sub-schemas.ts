@@ -14,8 +14,8 @@ const tableSchema = z.object({
 })
 
 const recordSchema = z.object({
-  _rawJson: z.object({}).passthrough(),
-  id: z.string(),
+  fields: z.record(z.any()),
+  id: z.string().describe('The ID of the Record'),
 })
 
 export { tableSchema, recordSchema }
