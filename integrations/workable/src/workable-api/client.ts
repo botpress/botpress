@@ -18,13 +18,13 @@ type ApiOutput<K extends keyof Actions> = Output<K> | ErrorResponse
 //   | (Omit<ApiOutput<K>, 'paging'> & { nextUrl: string | undefined })
 
 export class WorkableClient {
-  private _client: Axios;
+  private _client: Axios
 
   public constructor(apiToken: string, subDomain: string) {
     this._client = axios.create({
       baseURL: `https://${subDomain}.workable.com/spi/v3`,
       headers: {
-        'Authorization': 'Bearer ' + apiToken,
+        Authorization: 'Bearer ' + apiToken,
         'Content-Type': 'application/json',
       },
     })
@@ -76,8 +76,8 @@ export class WorkableClient {
 
   public async getCandidates(params?: Input<'getCandidates'>): Promise<Output<'getCandidates'>> {
     const response: AxiosResponse<ApiOutput<'getCandidates'>> = await this._client
-      .get('/candidates', { params: params})
-      .catch(this._handleAxiosError)  
+      .get('/candidates', { params: params })
+      .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
 
