@@ -12,6 +12,9 @@
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
     "test:e2e": "ts-node -T ./e2e"
   },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
