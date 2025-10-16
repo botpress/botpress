@@ -1,7 +1,7 @@
-import actions from './actions'
-import * as botpress from '.botpress'
-import { AirtableApi } from './client'
 import { RuntimeError } from '@botpress/sdk'
+import actions from './actions'
+import { AirtableApi } from './client'
+import * as botpress from '.botpress'
 
 export default new botpress.Integration({
   register: async ({ ctx, logger }) => {

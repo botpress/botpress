@@ -35,7 +35,7 @@ export class AirtableApi {
   }
 
   public async testConnection(): Promise<void> {
-    return await this._axiosClient.get(`/meta/whoami`)
+    return await this._axiosClient.get('/meta/whoami')
   }
 
   public async listRecords({
