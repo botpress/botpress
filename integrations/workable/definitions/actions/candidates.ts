@@ -3,8 +3,8 @@ import { ActionDefinition, z } from '@botpress/sdk'
 const candidateModel = {
   id: z.string().optional().title('Id').describe('The candidate identifier'),
   name: z.string().optional().nullable().title('Name').describe("The candidate's full name"),
-  firstName: z.string().optional().nullable().title('First Name').describe("The candidate's first name"),
-  lastName: z.string().optional().nullable().title('Last Name').describe("The candidate's last name"),
+  firstname: z.string().optional().nullable().title('First Name').describe("The candidate's first name"),
+  lastname: z.string().optional().nullable().title('Last Name').describe("The candidate's last name"),
   headline: z.string().optional().nullable().title('Headline').describe("The candidate's headline"),
   account: z
     .object({
@@ -23,7 +23,7 @@ const candidateModel = {
     .nullable()
     .describe('The job details'),
   stage: z.string().optional().nullable().title('Stage').describe("The candidate's current stage slug"),
-  stageKind: z.string().optional().nullable().title('Stage').describe("The candidate's current stage kind"),
+  stage_kind: z.string().optional().nullable().title('Stage').describe("The candidate's current stage kind"),
   disqualified: z
     .boolean()
     .optional()
@@ -34,14 +34,12 @@ const candidateModel = {
     .boolean()
     .optional()
     .nullable()
-    .optional()
     .title('Withdrew')
     .describe('Flag indicating whether the candidate withdrew'),
-  disqualificationReason: z
+  disqualification_reason: z
     .string()
     .optional()
     .nullable()
-    .optional()
     .title('Disqualification Reason')
     .describe('Reason for disqualification, if applicable'),
   sourced: z
@@ -50,7 +48,7 @@ const candidateModel = {
     .nullable()
     .title('Sourced')
     .describe('Flag indicating whether the candidate has been sourced'),
-  profileUrl: z
+  profile_url: z
     .string()
     .optional()
     .nullable()
@@ -58,19 +56,19 @@ const candidateModel = {
     .describe("The URL to the candidate's profile in Workable"),
   email: z.string().optional().nullable().title('Email').describe("The candidate's email address"),
   domain: z.string().optional().nullable().title('Domain').describe('Where the candidate came from'),
-  createdAt: z
+  created_at: z
     .string()
     .optional()
     .nullable()
     .title('Created At')
     .describe('The creation timestamp of the candidate record'),
-  updatedAt: z
+  updated_at: z
     .string()
     .optional()
     .nullable()
     .title('Updated At')
     .describe('The last update timestamp of the candidate record'),
-  hiredAt: z
+  hired_at: z
     .string()
     .optional()
     .nullable()
@@ -84,9 +82,9 @@ const educationEntry = {
   id: z.string().optional().nullable().title('Id').describe('The education entry identifier'),
   degree: z.string().optional().nullable().title('Degree').describe('The graduation degree'),
   school: z.string().optional().nullable().title('School').describe('The name of the school graduated'),
-  fieldOfStudy: z.string().optional().nullable().title('Field Of Study').describe('The field of study'),
-  startDate: z.string().optional().nullable().title('Start Date').describe('The date started'),
-  endDate: z.string().optional().nullable().title('End Date').describe('The date ended'),
+  field_of_study: z.string().optional().nullable().title('Field Of Study').describe('The field of study'),
+  start_date: z.string().optional().nullable().title('Start Date').describe('The date started'),
+  end_date: z.string().optional().nullable().title('End Date').describe('The date ended'),
 }
 
 const socialProfile = {
@@ -100,8 +98,8 @@ const experienceEntry = {
   id: z.string().optional().nullable().title('Id').describe('The experience entry identifier'),
   title: z.string().optional().nullable().title('Title').describe('The title of the experience entry'),
   summary: z.string().optional().nullable().title('Summary').describe('The summary of the experience entry'),
-  startDate: z.string().optional().nullable().title('Start Date').describe('The date started'),
-  endDate: z.string().optional().nullable().title('End Date').describe('The date ended'),
+  start_date: z.string().optional().nullable().title('Start Date').describe('The date started'),
+  end_date: z.string().optional().nullable().title('End Date').describe('The date ended'),
   company: z.string().optional().nullable().title('Company').describe('The copmany name'),
   industry: z.string().optional().nullable().title('Industry').describe('The industry of the company'),
   current: z.boolean().optional().nullable().title('Current').describe('Indicates if currently works there'),
@@ -109,37 +107,46 @@ const experienceEntry = {
 
 const detailedCandidateModel = {
   ...candidateModel,
-  imageUrl: z
+  image_url: z
     .string()
+    .nullable()
     .optional()
     .title('Image Url')
     .describe("Url of candidate's avatar. Available only if provided by the candidate"),
-  disqualifiedAt: z
+  disqualified_at: z
     .string()
+    .nullable()
     .optional()
     .title('Disqualified At')
     .describe('The timestamp the candidate was disqualified'),
-  outboundMailbox: z
+  outbound_mailbox: z
     .string()
+    .nullable()
     .optional()
     .title('Outbound Mailbox')
     .describe(
       'Mailbox that can be used to communicate with the candidate and inform the recruitment team of the job as well'
     ),
-  uploaderId: z.string().optional().title('Uploader Id').describe('The ID of the member who uploaded the candidate'),
-  coverLetter: z
+  uploader_id: z
     .string()
+    .nullable()
+    .optional()
+    .title('Uploader Id')
+    .describe('The ID of the member who uploaded the candidate'),
+  cover_letter: z
+    .string()
+    .nullable()
     .optional()
     .title('Cover Letter')
     .describe('The cover letter provided when the candidate applied'),
-  summary: z.string().optional().title('Summary').describe('The summary of the candidate'),
-  educationEntries: z
+  summary: z.string().nullable().optional().title('Summary').describe('The summary of the candidate'),
+  education_entries: z
     .array(z.object(educationEntry).nullable())
     .optional()
     .nullable()
     .title('Education Entries')
     .describe('A collection with education entries'),
-  experienceEntries: z
+  experience_entries: z
     .array(z.object(experienceEntry).optional().nullable())
     .optional()
     .nullable()
@@ -151,9 +158,13 @@ const detailedCandidateModel = {
     .nullable()
     .title('Skills')
     .describe('A collection of skills with names'),
-  answers: z.array(z.string().optional().nullable()).title('Answers').describe('A collection with answers provided'),
-  resumeUrl: z.string().title('Resume Url').optional().nullable().describe('Url to the candidate resume'),
-  socialProfiles: z
+  answers: z
+    .array(z.string().optional().nullable())
+    .nullable()
+    .title('Answers')
+    .describe('A collection with answers provided'),
+  resume_url: z.string().title('Resume Url').optional().nullable().describe('Url to the candidate resume'),
+  social_profiles: z
     .array(z.object(socialProfile).optional().nullable())
     .optional()
     .nullable()
@@ -162,34 +173,34 @@ const detailedCandidateModel = {
   tags: z.array(z.string().nullable()).optional().nullable().title('Tags').describe('A collection of tags'),
   location: z
     .object({
-      locationString: z
+      location_str: z
         .string()
         .optional()
         .nullable()
         .title('Location String')
         .describe('The string representation of the location'),
       country: z.string().optional().nullable().title('Country').describe('The country full name'),
-      countryCode: z
+      country_code: z
         .string()
         .optional()
         .nullable()
         .title('CountryCode')
         .describe('The 2-letter ISO code of the country'),
       region: z.string().optional().nullable().title('Region').describe('The region of the candidate'),
-      regionCode: z
+      region_code: z
         .string()
         .optional()
         .nullable()
         .title('Region Code')
         .describe('The code of the region of the candidate'),
       city: z.string().optional().nullable().title('City').describe('The city of the candidate'),
-      zipCode: z.string().optional().nullable().title('Zip Code').describe('The ZIP code of the candidate'),
+      zip_code: z.string().optional().nullable().title('Zip Code').describe('The ZIP code of the candidate'),
     })
     .optional()
     .nullable()
     .title('Location')
     .describe('The location of the candidate'),
-  originatingCandidateId: z
+  originating_candidate_id: z
     .string()
     .optional()
     .nullable()
@@ -202,58 +213,40 @@ export const getCandidates = {
   description: 'Get the candidates for a job',
   input: {
     schema: z.object({
-      email: z
-        .string()
-        .optional()
-        .nullable()
-        .optional()
-        .title('Email')
-        .describe('The email of the candidate to filter by'),
-      shortCode: z
-        .string()
-        .optional()
-        .nullable()
-        .optional()
-        .title('Shortcode')
-        .describe("The job's system generated code"),
+      email: z.string().optional().nullable().title('Email').describe('The email of the candidate to filter by'),
+      short_code: z.string().optional().nullable().title('Shortcode').describe("The job's system generated code"),
       stage: z
         .string()
-        .optional()
         .nullable()
         .optional()
         .title('Stage')
         .describe("The job's stage slug, can be retrieved from the '/stages' endpoint"),
       limit: z
         .number()
-        .optional()
         .nullable()
         .optional()
         .title('Limit')
         .describe('Specifies the number of candidates to try and retrieve per page'),
-      sinceId: z
+      since_id: z
         .string()
-        .optional()
         .nullable()
         .optional()
         .title('Since Id')
         .describe('Returns results with an ID greater than or equal to the specified ID'),
-      maxId: z
+      max_id: z
         .string()
-        .optional()
         .nullable()
         .optional()
         .title('Max Id')
         .describe('Returns results with an ID less than or equal to the specified ID'),
-      createdAfter: z
+      created_after: z
         .string()
-        .optional()
         .nullable()
         .optional()
         .title('Created After')
         .describe('Returns results created after the specified timestamp'),
-      updatedAfter: z
+      updated_after: z
         .string()
-        .optional()
         .nullable()
         .optional()
         .title('Updated After')
