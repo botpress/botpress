@@ -1,25 +1,25 @@
-import * as sdk from '@botpress/sdk'
+import { RuntimeError } from '@botpress/client'
 import * as bp from '.botpress'
+import { WorkableClient } from './workable-api/client'
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
+  register: async (props) => {
+    const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain);
+    try {
+      await client.getCandidates();
+    } catch {
+      throw new RuntimeError('Failed to register the integration.')
+    }
   },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
+  unregister: async () => {},
   actions: {
     getCandidates: async (props) => {
-      const { email } = props.input;
-      throw new sdk.RuntimeError('Unimplemented ' + email)
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain);
+      return await client.getCandidates(props.input);
+    },
+    getCandidate: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain);
+      return await client.getCandidate(props.input);
     },
   },
   channels: {},
