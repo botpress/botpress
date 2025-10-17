@@ -1,20 +1,8 @@
 import { getCredentials } from 'src/misc/client'
-import { InstagramCommentPayloadSchema, InstagramComment } from 'src/misc/types'
+import { InstagramComment, InstagramCommentPayload } from 'src/misc/types'
 import * as bp from '.botpress'
-export const commentsHandler = async (props: bp.HandlerProps) => {
-  const { logger, req } = props
-  if (!req.body) {
-    logger.debug('Comments handler received an empty body, so the message was ignored')
-    return
-  }
-
-  const parseResult = InstagramCommentPayloadSchema.safeParse(JSON.parse(req.body))
-  if (!parseResult.success) {
-    logger.error('Received invalid or unsupported Instagram comment payload', parseResult.error.message)
-    return { status: 400, body: 'Invalid comment payload' }
-  }
-
-  for (const entry of parseResult.data.entry) {
+export const commentsHandler = async (data: InstagramCommentPayload, props: bp.HandlerProps) => {
+  for (const entry of data.entry) {
     for (const change of entry.changes) {
       if (change.field === 'comments') {
         await _commentHandler(change.value, props)

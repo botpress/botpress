@@ -3,7 +3,7 @@ import {
   InstagramMessagingEntry,
   InstagramMessagingEntryMessage,
   InstagramMessagingEntryPostback,
-  InstagramPayloadSchema,
+  InstagramMessagePayload,
 } from 'src/misc/types'
 import * as bp from '.botpress'
 
@@ -16,26 +16,14 @@ type IncomingMessages = {
 }
 type IncomingMessage = IncomingMessages[IncomingMessageTypes]
 
-export const messagingHandler = async (props: bp.HandlerProps) => {
-  const { logger, req } = props
-  if (!req.body) {
-    logger.debug('Handler received an empty body, so the message was ignored')
-    return
-  }
-
-  const parseResult = InstagramPayloadSchema.safeParse(JSON.parse(req.body))
-  if (!parseResult.success) {
-    logger.error('Received invalid or unsupported Instagram payload', parseResult.error.message)
-    return { status: 400, body: 'Invalid payload' }
-  }
-
-  for (const { messaging } of parseResult.data.entry) {
+export const messagingHandler = async (data: InstagramMessagePayload, props: bp.HandlerProps) => {
+  for (const { messaging } of data.entry) {
     for (const messagingEntry of messaging) {
       if ('message' in messagingEntry) {
-        await _messageHandler(messagingEntry, props)
+        await _messageHandler(messagingEntry as InstagramMessagingEntryMessage, props)
       }
       if ('postback' in messagingEntry) {
-        await _postbackHandler(messagingEntry, props)
+        await _postbackHandler(messagingEntry as InstagramMessagingEntryPostback, props)
       }
     }
   }

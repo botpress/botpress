@@ -8,6 +8,8 @@ import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
+import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
+import { safeJsonParse } from 'src/misc/utils'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
@@ -29,12 +31,25 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 401, body: validationResult.message }
   }
-  const body = JSON.parse(req.body || '{}')
-  if (body.object === 'instagram' && body.entry?.[0]?.changes?.[0]?.field === 'comments') {
-    return await commentsHandler(props)
-  } else {
-    return await messagingHandler(props)
+  const { data, success } = safeJsonParse(req.body)
+  if (!success) {
+    return { status: 400, body: 'Invalid payload' }
   }
+
+  let bodyResult = InstagramMessagePayloadSchema.safeParse(data)
+  if (bodyResult.success) {
+    return await messagingHandler(bodyResult.data, props)
+  }
+
+  if (props.ctx.configuration.replyToComments) {
+    const commentBodyResult = InstagramCommentPayloadSchema.safeParse(data)
+    if (commentBodyResult.success) {
+      return await commentsHandler(commentBodyResult.data, props)
+    }
+  }
+
+  props.logger.warn('Received unsupported Instagram payload')
+  return { status: 400, body: 'Unsupported payload' }
 }
 
 const _validateRequestAuthentication = (
