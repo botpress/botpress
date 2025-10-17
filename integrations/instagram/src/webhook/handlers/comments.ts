@@ -33,7 +33,8 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
     mediaId: comment.media.id,
   })
 
-  const { from, id, text } = comment
+  const { from, id, text, media } = comment
+  const postId = media.id
 
   // Get bot's Instagram ID to check if this is an echo (bot's own comment)
   const { instagramId: botInstagramId } = await getCredentials(client, ctx)
@@ -45,10 +46,11 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'comment',
-
     tags: {
       id,
+      postId,
     },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
@@ -61,6 +63,7 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
     type: 'text',
     tags: {
       id,
+      postId,
     },
     userId: user.id,
     conversationId: conversation.id,
