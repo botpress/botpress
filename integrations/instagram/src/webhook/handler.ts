@@ -45,6 +45,9 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     const commentBodyResult = InstagramCommentPayloadSchema.safeParse(data)
     if (commentBodyResult.success) {
       return await commentsHandler(commentBodyResult.data, props)
+    } else {
+      props.logger.warn('Received unsupported Comment payload.')
+      return { status: 400, body: 'Unsupported Comment payload' }
     }
   }
 
