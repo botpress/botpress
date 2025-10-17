@@ -6,16 +6,18 @@ export default new bp.Integration({
   register: async (props) => {
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
     try {
-      await client.getCandidates()
+      await client.listCandidates()
     } catch {
       throw new RuntimeError('Failed to register the integration.')
     }
   },
   unregister: async () => {},
   actions: {
-    getCandidates: async (props) => {
+    listCandidates: async (props) => {
       const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
-      return await client.getCandidates(props.input)
+      const result = await client.listCandidates(props.input)
+      console.log(result)
+      return result
     },
     getCandidate: async (props) => {
       const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
