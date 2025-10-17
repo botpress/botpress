@@ -4,7 +4,7 @@ import {
   extractSandboxCommand,
 } from '@botpress/common'
 import { getCredentials, InstagramClient } from 'src/misc/client'
-import { InstagramMessagingEntry, InstagramPayloadSchema } from 'src/misc/types'
+import { InstagramMessagingEntry, InstagramMessagePayloadSchema } from 'src/misc/types'
 import * as bp from '.botpress'
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
@@ -57,7 +57,7 @@ const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): InstagramMes
 
   try {
     const data = JSON.parse(req.body)
-    const payload = InstagramPayloadSchema.parse(data)
+    const payload = InstagramMessagePayloadSchema.parse(data)
     return payload.entry[0]?.messaging[0]
   } catch (e: any) {
     logger.error('Error while extracting message from request:', e?.message ?? '[unknown error]')
