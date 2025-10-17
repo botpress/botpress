@@ -1,6 +1,6 @@
+import { getCredentials } from 'src/misc/client'
 import { InstagramCommentPayloadSchema, InstagramComment } from 'src/misc/types'
 import * as bp from '.botpress'
-import { getCredentials } from 'src/misc/client'
 export const commentsHandler = async (props: bp.HandlerProps) => {
   const { logger, req } = props
   if (!req.body) {

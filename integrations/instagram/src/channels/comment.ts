@@ -15,34 +15,34 @@ export const comment: bp.IntegrationProps['channels']['comment'] = {
       await _sendCommentMessage(ack, ctx, client, logger, payload.text, id)
     },
     image: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Images are not supported for comments. Use the text message instead.')
     },
     audio: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Audio is not supported for comments. Use the text message instead.')
     },
     file: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Files are not supported for comments. Use the text message instead.')
     },
     video: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Videos are not supported for comments. Use the text message instead.')
     },
     location: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Locations are not supported for comments. Use the text message instead.')
     },
     carousel: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Carousels are not supported for comments. Use the text message instead.')
     },
     card: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Cards are not supported for comments. Use the text message instead.')
     },
     dropdown: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Dropdowns are not supported for comments. Use the text message instead.')
     },
     choice: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Choices are not supported for comments. Use the text message instead.')
     },
     bloc: () => {
-      throw new RuntimeError('Not implemented')
+      throw new RuntimeError('Blocs are not supported for comments. Use the text message instead.')
     },
   },
 }
