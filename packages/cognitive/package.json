@@ -1,11 +1,14 @@
 {
   "name": "@botpress/cognitive",
-  "version": "0.1.46",
+  "version": "0.1.47",
   "description": "Wrapper around the Botpress Client to call LLMs",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc --noEmit",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",

@@ -46,6 +46,7 @@ const getServerProps = (
   const vanillaClient = new Client({
     botId: ctx.botId,
     integrationId: ctx.integrationId,
+    integrationAlias: ctx.integrationAlias,
     retry: retryConfig,
     headers: extractTracingHeaders(req.headers),
   })

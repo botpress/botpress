@@ -18,6 +18,7 @@ export type ClientProps = common.types.CommonClientProps & {
   token: string
   botId: string
   integrationId?: string
+  integrationAlias?: string
 }
 
 export class Client extends gen.Client implements IClient {

@@ -55,7 +55,9 @@ const startConversationProps = {
             .string()
             .min(1)
             .title('User Phone Number')
-            .describe('Phone number of the WhatsApp user to start a conversation with'),
+            .describe(
+              'Phone number of the WhatsApp user to start a conversation with. Add the country code (e.g. +81 for japan)'
+            ),
           templateName: z
             .string()
             .min(1)
@@ -94,7 +96,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.3',
+  version: '4.5.5',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
