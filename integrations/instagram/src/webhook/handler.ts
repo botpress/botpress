@@ -1,14 +1,14 @@
 import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
+import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
+import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
+import { safeJsonParse } from 'src/misc/utils'
 import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
-import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
-import { safeJsonParse } from 'src/misc/utils'
-import * as crypto from 'crypto'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
@@ -36,9 +36,9 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return { status: 400, body: 'Invalid payload' }
   }
 
-  let bodyResult = InstagramMessagePayloadSchema.safeParse(data)
-  if (bodyResult.success) {
-    return await messagingHandler(bodyResult.data, props)
+  const messageBodyResult = InstagramMessagePayloadSchema.safeParse(data)
+  if (messageBodyResult.success) {
+    return await messagingHandler(messageBodyResult.data, props)
   }
 
   if (props.ctx.configuration.replyToComments) {
