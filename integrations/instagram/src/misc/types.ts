@@ -45,7 +45,7 @@ const InstagramMessagingEntrySchema = z.union([
   InstagramMessagingEntryOtherSchema,
 ])
 
-const InstagramEntrySchema = z.object({
+const InstagramMessageEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
   messaging: z.array(InstagramMessagingEntrySchema),
@@ -81,15 +81,15 @@ export const InstagramCommentPayloadSchema = z.object({
   entry: z.array(InstagramCommentEntrySchema),
 })
 
-export const InstagramPayloadSchema = z.object({
+export const InstagramMessagePayloadSchema = z.object({
   object: z.string(),
-  entry: z.array(InstagramEntrySchema),
+  entry: z.array(InstagramMessageEntrySchema),
 })
 
-export type InstagramPayload = z.infer<typeof InstagramPayloadSchema>
 export type InstagramCommentPayload = z.infer<typeof InstagramCommentPayloadSchema>
 export type InstagramComment = z.infer<typeof InstagramCommentSchema>
 export type InstagramCommentEntry = z.infer<typeof InstagramCommentEntrySchema>
+export type InstagramMessagePayload = z.infer<typeof InstagramMessagePayloadSchema>
 export type InstagramMessagingEntry = z.infer<typeof InstagramMessagingEntrySchema>
 export type InstagramMessagingEntryPostback = z.infer<typeof InstagramMessagingEntryPostbackSchema>
 export type InstagramMessagingEntryMessage = z.infer<typeof InstagramMessagingEntryMessageSchema>
