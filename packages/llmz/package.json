@@ -12,6 +12,9 @@
       "require": "./dist/index.cjs"
     }
   },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "generate": "pnpm build:markdown",
     "build": "tsup && pnpm tsc --emitDeclarationOnly",
