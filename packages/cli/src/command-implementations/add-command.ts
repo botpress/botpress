@@ -333,6 +333,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const packageJsonPath = `${this.argv.installPath}/package.json`
     const version = targetPackage.pkg.path ?? targetPackage.pkg.version
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
@@ -342,7 +343,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
-      await fs.promises.writeFile(this.argv.installPath, JSON.stringify(pkgJson, null, 2))
+      await fs.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
       return
     }
 
@@ -362,7 +363,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       ...Object.entries(bpDependencies),
       [packageName]: version,
     }
-    await fs.promises.writeFile(this.argv.installPath, JSON.stringify(pkgJson, null, 2))
+
+    await fs.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
   }
 }
 
