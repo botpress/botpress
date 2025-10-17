@@ -1,15 +1,15 @@
 import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
-import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
 import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
-import * as bp from '.botpress'
 import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
 import { safeJsonParse } from 'src/misc/utils'
+import * as crypto from 'crypto'
+import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
