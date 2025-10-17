@@ -1,7 +1,7 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getMetaClientCredentials } from './auth'
-import { MetaClientConfigType, MetaClientCredentials } from './types'
+import { MetaClientCredentials } from './types'
 import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
@@ -283,11 +283,10 @@ export class MetaClient {
 
 // Factory Function
 export async function createAuthenticatedMetaClient(
-  configType: MetaClientConfigType,
   ctx: bp.Context,
   client: bp.Client,
   logger?: bp.Logger
 ): Promise<MetaClient> {
-  const credentials = await getMetaClientCredentials(configType, client, ctx)
+  const credentials = await getMetaClientCredentials(client, ctx)
   return new MetaClient(credentials, logger)
 }

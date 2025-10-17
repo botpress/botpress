@@ -31,7 +31,7 @@ const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => 
 const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerProps) => {
   const { logger, ctx, client } = props
   const { from, verb } = value
-  const { pageId } = await getMetaClientCredentials(ctx.configurationType, client, ctx)
+  const { pageId } = await getMetaClientCredentials(client, ctx)
   if (!pageId) {
     logger.forBot().error('Page ID is not set, cannot process comment event. Please configure or reauthorize')
     return
