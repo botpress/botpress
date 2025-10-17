@@ -208,46 +208,35 @@ const detailedCandidateModel = {
     .describe('The ID this candidate originated from'),
 }
 
-export const getCandidates = {
+export const listCandidates = {
   title: 'Get candidates',
   description: 'Get the candidates for a job',
   input: {
     schema: z.object({
-      email: z.string().optional().nullable().title('Email').describe('The email of the candidate to filter by'),
+      email: z.string().optional().title('Email').describe('The email of the candidate to filter by'),
       short_code: z.string().optional().nullable().title('Shortcode').describe("The job's system generated code"),
       stage: z
         .string()
-        .nullable()
         .optional()
         .title('Stage')
         .describe("The job's stage slug, can be retrieved from the '/stages' endpoint"),
       limit: z
         .number()
-        .nullable()
         .optional()
         .title('Limit')
         .describe('Specifies the number of candidates to try and retrieve per page'),
       since_id: z
         .string()
-        .nullable()
         .optional()
         .title('Since Id')
         .describe('Returns results with an ID greater than or equal to the specified ID'),
-      max_id: z
-        .string()
-        .nullable()
-        .optional()
-        .title('Max Id')
-        .describe('Returns results with an ID less than or equal to the specified ID'),
       created_after: z
         .string()
-        .nullable()
         .optional()
         .title('Created After')
         .describe('Returns results created after the specified timestamp'),
       updated_after: z
         .string()
-        .nullable()
         .optional()
         .title('Updated After')
         .describe('Returns results updated after the specified timestamp'),
