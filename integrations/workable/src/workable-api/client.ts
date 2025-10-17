@@ -13,9 +13,7 @@ export type ErrorResponse = {
 type Output<K extends keyof Actions> = Actions[K]['output']
 type ApiOutput<K extends keyof Actions> = Output<K> | ErrorResponse
 
-// type PagedApiOutput<K extends keyof Actions> =
-//   | ErrorResponse
-//   | (Omit<ApiOutput<K>, 'paging'> & { nextUrl: string | undefined })
+type PagedApiOutput<K extends keyof Actions> = ErrorResponse | (ApiOutput<K> & { paging: { next: string | undefined } })
 
 export class WorkableClient {
   private _client: Axios
@@ -30,31 +28,26 @@ export class WorkableClient {
     })
   }
 
-  // private _unwrapPagedResponse<K extends keyof Actions>(response: PagedApiOutput<K>): Output<K> {
-  //   if ('message' in response) {
-  //     throw new RuntimeError(response.message)
-  //   }
-  //   const { nextUrl, ...result } = response
-  //   return {
-  //     ...result,
-  //     nextUrl,
-  //   }
-  // }
-
-  private _parsePagedParams<K extends keyof Actions>(
-    params: Input<K>
-  ): Omit<Input<K>, 'nextToken'> & { page?: number } {
-    if (!('nextToken' in params)) {
-      return params
+  private _unwrapPagedResponse<K extends keyof Actions>(response: PagedApiOutput<K>): Output<K> {
+    if ('message' in response) {
+      throw new RuntimeError(response.message)
     }
-    let page: number | undefined = undefined
-    if (params.nextToken && !isNaN(Number(params.nextToken))) {
-      page = Number(params.nextToken)
+    const { paging, ...result } = response
+    if (paging?.next) {
+      try {
+        const url: URL = new URL(paging.next)
+        return {
+          ...result,
+          nextId: url.searchParams.get('since_id'),
+          limit: url.searchParams.get('limit'),
+        }
+      } catch {
+        return {
+          ...result,
+        }
+      }
     }
-    return {
-      ...params,
-      page,
-    }
+    return response
   }
 
   private _unwrapResponse<K extends keyof Actions>(response: ApiOutput<K>): Output<K> {
@@ -74,11 +67,11 @@ export class WorkableClient {
     }
   }
 
-  public async getCandidates(params?: Input<'getCandidates'>): Promise<Output<'getCandidates'>> {
-    const response: AxiosResponse<ApiOutput<'getCandidates'>> = await this._client
+  public async listCandidates(params?: Input<'listCandidates'>): Promise<Output<'listCandidates'>> {
+    const response: AxiosResponse<PagedApiOutput<'listCandidates'>> = await this._client
       .get('/candidates', { params: params })
       .catch(this._handleAxiosError)
-    return this._unwrapResponse(response.data)
+    return this._unwrapPagedResponse(response.data)
   }
 
   public async getCandidate(params: Input<'getCandidate'>): Promise<Output<'getCandidate'>> {
