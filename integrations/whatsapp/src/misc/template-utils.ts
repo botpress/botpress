@@ -111,11 +111,11 @@ const _parseComponent = (component: Component, bodyVariables: TemplateVariables)
         return `[HEADER MEDIA ${component.format}]\n${compText}\n`
       }
     case 'BUTTONS':
-      compText = component.buttons.flatMap((button) => {
-        if (button.text) {
+      compText = component.buttons.flatMap((button, index) => {
+        if (!button.text) {
           return
         }
-        return `${button.text}\n`
+        return `button #${index + 1}: ${button.text}\n`
       })
       return `[buttons]\n${compText}`
     case 'FOOTER':
@@ -140,8 +140,7 @@ const _parseComponent = (component: Component, bodyVariables: TemplateVariables)
 
 const _getRenderedbodyText = (text: string, bodyVariables: TemplateVariables): string => {
   bodyVariables.forEach((value, index) => {
-    const placeholder = new RegExp(`{{${index + 1}}}`, 'g')
-    text = text.replace(placeholder, value.toString())
+    text = text.replace(`{{${index + 1}}}`, value.toString())
   })
 
   return text

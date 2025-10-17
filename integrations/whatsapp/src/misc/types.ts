@@ -290,7 +290,7 @@ export const WhatsAppPayloadSchema = z.object({
 export type WhatsAppPayload = z.infer<typeof WhatsAppPayloadSchema>
 
 // Schema from https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates/components
-const componentSchema = z.discriminatedUnion('type', [
+const componentSchema = z.union([
   z.object({
     type: z.literal('HEADER'),
     format: z.literal('TEXT'),
