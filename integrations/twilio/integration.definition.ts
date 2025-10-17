@@ -12,8 +12,8 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      accountSID: z.string().min(1),
-      authToken: z.string().min(1),
+      accountSID: z.string().min(1).describe('The account SID').title('Account SID'),
+      authToken: z.string().min(1).describe('The token for authentication').title('Authorization token'),
       downloadMedia: z
         .boolean()
         .default(true)
