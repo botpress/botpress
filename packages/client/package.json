@@ -1,11 +1,14 @@
 {
   "name": "@botpress/client",
-  "version": "1.25.0",
+  "version": "1.26.0",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "browser": {
     "crypto": false,
     "http": false,
