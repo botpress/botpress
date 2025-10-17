@@ -1,0 +1,40 @@
+secrets = .secrets
+q = parse_query_string!(.query)
+mode = q."hub.mode"
+challenge = q."hub.challenge"
+verifyTokenReceived = q."hub.verify_token"
+
+isSandbox = starts_with!(.path, "/sandbox")
+verifyToken = if isSandbox {
+  secrets.SANDBOX_VERIFY_TOKEN
+} else {
+  secrets.VERIFY_TOKEN
+}
+if mode == "subscribe" {
+  if verifyTokenReceived == verifyToken {
+    {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": challenge
+    }
+  } else {
+    {
+      "status": 403,
+      "body": "Invalid verify token"
+    }
+  }
+} else {
+  if isSandbox {
+    {
+      "status": 200, # Make sure unboud message requests are not retried
+      "body": "Conversation not linked to a bot"
+    }
+  } else {
+    {
+      "status": 403,
+      "body": "Invalid webhook request"
+    }
+  }
+}

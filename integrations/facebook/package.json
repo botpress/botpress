@@ -1,0 +1,23 @@
+{
+  "name": "@botpresshub/facebook",
+  "description": "Facebook integration for Botpress",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'"
+  },
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1"
+  }
+}
