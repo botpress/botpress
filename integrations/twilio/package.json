@@ -19,6 +19,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/proactive-conversation": "workspace:*",
+    "@botpresshub/proactive-user": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
