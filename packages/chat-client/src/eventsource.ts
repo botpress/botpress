@@ -46,7 +46,7 @@ export type Props = {
 
 type ServerEventsSource = EventSourceBrowser.EventSourcePolyfill | EventSourceNodeJs | WebSocket
 
-const makeServerEventsSource = (url: string, props: Props = {}) => {
+const makeEventSource = (url: string, props: Props = {}) => {
   let source: ServerEventsSource
   if (props.protocol === 'websocket') {
     if (props.headers?.['x-user-key']) {
@@ -71,13 +71,13 @@ const makeServerEventsSource = (url: string, props: Props = {}) => {
   }
 }
 
-export type ServerEventsEmitter = {
+export type EventSourceEmitter = {
   on: EventEmitter<Events>['on']
   close: () => void
 }
 
-export const listenServerEvents = async (url: string, props: Props = {}): Promise<ServerEventsEmitter> => {
-  const { emitter, source } = makeServerEventsSource(url, props)
+export const listenEventSource = async (url: string, props: Props = {}): Promise<EventSourceEmitter> => {
+  const { emitter, source } = makeEventSource(url, props)
 
   await new Promise<void>((resolve, reject) => {
     emitter.on('open', () => {
