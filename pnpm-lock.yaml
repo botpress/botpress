@@ -2163,8 +2163,8 @@ importers:
         specifier: 0.6.0
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.25.0
-        version: 1.25.0
+        specifier: 1.26.0
+        version: link:../client
       '@botpress/sdk':
         specifier: 4.16.0
         version: link:../sdk
@@ -3582,10 +3582,6 @@ packages:
 
   '@botpress/api@1.42.0':
     resolution: {integrity: sha512-I8wQ+BT5RI65xFvvKG3ynkRmbxDWD1Xkrp4hJ3sinF/x3mOVmCLubvRvWjwqGRfuCkciPLWbQ9JOD6RUutn7Uw==}
-
-  '@botpress/client@1.25.0':
-    resolution: {integrity: sha512-cQ4EY3WK/+oBE7vO6lR276lHLXoVB+1c6la+szcTgIz7sn9IMl9JtUbxgaGsQA+XVIpqPmw1UVsvferKWcMuEg==}
-    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12484,15 +12480,6 @@ snapshots:
       - openapi-types
       - supports-color
 
-  '@botpress/client@1.25.0':
-    dependencies:
-      axios: 1.12.2
-      axios-retry: 4.5.0(axios@1.12.2)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.2.0':
@@ -15481,11 +15468,6 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
-      is-retry-allowed: 2.2.0
-
-  axios-retry@4.5.0(axios@1.12.2):
-    dependencies:
-      axios: 1.12.2
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
