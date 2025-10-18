@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as crypto from 'crypto'
@@ -15,13 +16,48 @@ type MessageHandlerProps = Parameters<MessageHandler>[0]
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
+  actions: {
+    async getOrCreateUser(props) {
+      const { client, ctx, input } = props
+      const userPhone = input.user.userPhone
+      if (!userPhone) {
+        throw new sdk.RuntimeError('Could not create a user: missing channel or userId')
+      }
+
+      const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
+      const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
+
+      const { user } = await client.getOrCreateUser({ tags: { userPhone: phone.phoneNumber } })
+
+      return { userId: user.id }
+    },
+    async startConversation(props) {
+      const { client, ctx, input } = props
+      const userPhone = input.conversation.userPhone
+      const activePhone = input.conversation.activePhone
+
+      if (!activePhone || !activePhone) {
+        throw new sdk.RuntimeError('Could not create conversation: missing channel, channelId or userId')
+      }
+
+      const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
+      const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
+
+      const { conversation } = await client.getOrCreateConversation({
+        tags: { activePhone, userPhone: phone.phoneNumber },
+        channel: 'channel',
+      })
+
+      return {
+        conversationId: conversation.id,
+      }
+    },
+  },
   channels: {
     channel: {
       messages: {
         text: async (props) => void (await sendMessage({ ...props, text: props.payload.text })),
         image: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.imageUrl })),
-        markdown: async (props) => void (await sendMessage({ ...props, text: props.payload.markdown })),
         audio: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.audioUrl })),
         video: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.videoUrl })),
         file: async (props) => void (await sendMessage({ ...props, text: props.payload.fileUrl })),
@@ -158,48 +194,6 @@ const integration = new bp.Integration({
     }
 
     console.info('Handler received request', data)
-  },
-
-  createUser: async ({ client, tags, ctx }) => {
-    const userPhone = tags.userPhone
-    if (!userPhone) {
-      return
-    }
-
-    const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
-    const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
-
-    const { user } = await client.getOrCreateUser({
-      tags: { userPhone: `${phone.phoneNumber}` },
-    })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags.userPhone
-    const activePhone = tags.activePhone
-    if (!(userPhone && activePhone)) {
-      return
-    }
-
-    const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
-    const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { userPhone: `${phone.phoneNumber}`, activePhone },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 
