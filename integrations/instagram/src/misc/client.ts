@@ -82,7 +82,7 @@ export class InstagramClient {
   public async subscribeToWebhooks(accessToken: string) {
     try {
       const response = await axios.post(`${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`, {
-        subscribed_fields: ['messages', 'messaging_postbacks'],
+        subscribed_fields: ['messages', 'messaging_postbacks', 'comments'],
       })
 
       if (!response?.data?.success) {
@@ -197,6 +197,24 @@ export class InstagramClient {
         },
       },
     })
+  }
+
+  public async replyToComment(commentId: string, text: string) {
+    const fields = new URLSearchParams({
+      message: text,
+    })
+    const url = `${this._baseGraphApiUrl}/${this._version}/${commentId}/replies?${fields.toString()}`
+    const response = await axios.post<{ id: string }>(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: 'Bearer ' + this._getAccessToken(),
+        },
+      }
+    )
+
+    return { message_id: response.data.id }
   }
 }
 

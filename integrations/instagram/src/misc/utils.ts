@@ -84,3 +84,11 @@ export function getChoiceMessage(payload: Choice | Dropdown): TextMessageWithQui
     })),
   }
 }
+
+export function safeJsonParse(x: any) {
+  try {
+    return { data: JSON.parse(x), success: true }
+  } catch {
+    return { data: x, success: false }
+  }
+}

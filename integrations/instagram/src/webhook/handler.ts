@@ -2,6 +2,9 @@ import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
+import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
+import { safeJsonParse } from 'src/misc/utils'
+import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
@@ -10,6 +13,7 @@ import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
+
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
   }
@@ -18,7 +22,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     return await sandboxHandler(props)
   }
 
-  props.logger.debug('Received request with body:', req.body ?? '[empty]')
   const queryParams = new URLSearchParams(req.query)
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)
@@ -28,7 +31,28 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (validationResult.error) {
     return { status: 401, body: validationResult.message }
   }
-  return await messagingHandler(props)
+  const { data, success } = safeJsonParse(req.body)
+  if (!success) {
+    return { status: 400, body: 'Invalid payload' }
+  }
+
+  const messageBodyResult = InstagramMessagePayloadSchema.safeParse(data)
+  if (messageBodyResult.success) {
+    return await messagingHandler(messageBodyResult.data, props)
+  }
+
+  if (props.ctx.configuration.replyToComments) {
+    const commentBodyResult = InstagramCommentPayloadSchema.safeParse(data)
+    if (commentBodyResult.success) {
+      return await commentsHandler(commentBodyResult.data, props)
+    } else {
+      props.logger.warn('Received unsupported Comment payload.')
+      return { status: 400, body: 'Unsupported Comment payload' }
+    }
+  }
+
+  props.logger.warn('Received unsupported Instagram payload')
+  return { status: 400, body: 'Unsupported payload' }
 }
 
 const _validateRequestAuthentication = (
