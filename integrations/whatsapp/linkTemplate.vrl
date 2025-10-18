@@ -1,4 +1,4 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
 
-"{{ webhookUrl }}/oauth/wizard?state={{ webhookId }}"
+"{{ webhookUrl }}/oauth/wizard/start-confirm?state={{ webhookId }}"

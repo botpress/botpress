@@ -149,7 +149,9 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     }
     return response
   } catch (error: any) {
-    return { status: 500, body: error.message ?? 'Unknown error thrown' }
+    const errorMessage = `Webhook handler failed with error: ${error.message ?? 'Unknown error thrown'}`
+    props.logger.error(errorMessage)
+    return { status: 500, body: errorMessage }
   }
 }
 
