@@ -127,6 +127,21 @@ export class Client implements IClient {
       conversationId: id,
       userKey,
       debug: this.props.debug ?? false,
+      protocol: 'sse',
+    })
+    return signalListener
+  }
+
+  public readonly listenConversationOverWebSocket: IClient['listenConversationOverWebSocket'] = async ({
+    id,
+    'x-user-key': userKey,
+  }) => {
+    const signalListener = await SignalListener.listen({
+      url: this._apiUrl,
+      conversationId: id,
+      userKey,
+      debug: this.props.debug ?? false,
+      protocol: 'websocket',
     })
     return signalListener
   }
@@ -251,6 +266,8 @@ export class AuthenticatedClient implements IAuthenticatedClient {
     this._client.listMessages({ 'x-user-key': this.user.key, ...x })
   public readonly listenConversation: IAuthenticatedClient['listenConversation'] = (x) =>
     this._client.listenConversation({ 'x-user-key': this.user.key, ...x })
+  public readonly listenConversationOverWebSocket: IAuthenticatedClient['listenConversationOverWebSocket'] = (x) =>
+    this._client.listenConversationOverWebSocket({ 'x-user-key': this.user.key, ...x })
   public readonly addParticipant: IAuthenticatedClient['addParticipant'] = (x) =>
     this._client.addParticipant({ 'x-user-key': this.user.key, ...x })
   public readonly removeParticipant: IAuthenticatedClient['removeParticipant'] = (x) =>

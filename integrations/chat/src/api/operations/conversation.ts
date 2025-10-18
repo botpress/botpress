@@ -1,4 +1,5 @@
 import * as errors from '../../gen/errors'
+import * as grip from '../../grip'
 import { validateFid } from '../../id-store'
 import * as types from '../types'
 import * as fid from './fid'
@@ -167,6 +168,38 @@ export const listMessages: types.AuthenticatedOperations['listMessages'] = async
     body: {
       messages: messages.map((m) => model.mapMessage(m as types.Message)),
       meta,
+    },
+  })
+}
+
+export const listenConversationOverWebSocket: types.AuthenticatedOperations['listenConversationOverWebSocket'] = async (
+  props,
+  foreignReq
+) => {
+  const fidHandler = fid.handlers.listenConversationOverWebSocket(props, foreignReq)
+  const req = await fidHandler.mapRequest()
+
+  const userId = req.auth.userId
+  const conversationId = req.params.id
+
+  const { participant } = await props.apiUtils.findParticipant({ id: conversationId, userId })
+  if (!participant) {
+    throw new errors.ForbiddenError('You are not a participant in this conversation')
+  }
+
+  const channels = [conversationId, userId]
+  const body = grip.openAndSubscribeBody(channels).toString()
+
+  const keepAliveMessage = 'ping'
+  const b64KeepAlive = Buffer.from(keepAliveMessage, 'utf-8').toString('base64')
+  return fidHandler.mapResponse({
+    body,
+    headers: {
+      'Content-Type': 'application/websocket-events',
+      'Grip-Hold': 'stream',
+      'Grip-Channel': channels.join(','),
+      'Grip-Keep-Alive': `${b64KeepAlive}; format=base64; timeout=30;`,
+      'Sec-WebSocket-Extensions': 'grip',
     },
   })
 }

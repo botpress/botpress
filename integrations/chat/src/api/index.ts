@@ -36,6 +36,7 @@ export const operations: types.Operations = {
   listConversations: pipe(authenticate, ops.listConversations),
   listMessages: pipe(authenticate, ops.listMessages),
   listenConversation: pipe(authenticate, ops.listenConversation),
+  listenConversationOverWebSocket: pipe(authenticate, ops.listenConversationOverWebSocket),
   addParticipant: pipe(authenticate, ops.addParticipant),
   getParticipant: pipe(authenticate, ops.getParticipant),
   removeParticipant: pipe(authenticate, ops.removeParticipant),
