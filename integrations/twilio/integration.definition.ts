@@ -63,15 +63,21 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
-      userPhone: {},
+      userPhone: {
+        title: 'User Phone',
+        description: 'The phone number of the user',
+      },
     },
   },
   entities: {
     user: {
-      schema: z.object({ userPhone: z.string() }),
+      schema: z.object({ userPhone: z.string().describe('The phone number of the user').title('User Phone Number') }),
     },
     conversation: {
-      schema: z.object({ userPhone: z.string(), activePhone: z.string() }),
+      schema: z.object({
+        userPhone: z.string().describe('The phone number of the user').title('User Phone Number'),
+        activePhone: z.string().describe('The Phone number the message was sent from').title('Active Phone Number'),
+      }),
     },
   },
 })
