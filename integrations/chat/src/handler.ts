@@ -16,7 +16,7 @@ const isPushpinWebSocketRequest = (req: Request) => {
   if (parts.length !== 3) {
     return false
   }
-  return parts[0] === 'conversations' && parts[2] === 'listen' && parts[1]!.length > 0
+  return parts[0] === 'conversations' && parts[2] === 'listen'
 }
 
 const convertPushpinWebSocketRequest = (req: Request): Request => {
@@ -54,7 +54,14 @@ export const makeHandler =
     }
 
     if (isPushpinWebSocketRequest(args.req) && args.req.body) {
-      args.req = convertPushpinWebSocketRequest(args.req)
+      try {
+        args.req = convertPushpinWebSocketRequest(args.req)
+      } catch {
+        return {
+          status: 400,
+          body: JSON.stringify({ message: 'Malformed request payload' }),
+        }
+      }
     }
 
     const { auth, signals, convIdStore, userIdStore, apiUtils } = props
