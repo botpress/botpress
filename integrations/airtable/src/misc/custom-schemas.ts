@@ -3,13 +3,13 @@ import { tableSchema, recordSchema } from './sub-schemas'
 
 export const getTableRecordsInputSchema = z.object({
   tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
+  nextToken: z.string().optional().describe('The next page token (Optional)'),
 })
 
-export const getTableRecordsOutputSchema = z
-  .object({
-    records: z.array(recordSchema),
-  })
-  .passthrough()
+export const getTableRecordsOutputSchema = z.object({
+  records: z.array(recordSchema),
+  nextToken: z.string().optional().describe('The next page token (Optional)'),
+})
 
 export const listRecordsInputSchema = z.object({
   tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
