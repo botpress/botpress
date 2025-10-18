@@ -21,7 +21,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
 
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,

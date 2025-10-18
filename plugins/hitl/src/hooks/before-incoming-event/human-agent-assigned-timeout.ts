@@ -15,7 +15,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
   const isAgentAlreadyAssigned = await upstreamCm.isHumanAgentAssigned()
 
   if (isAgentAlreadyAssigned) {
@@ -23,7 +23,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.data.userId)
   const isHitlActive = (await upstreamCm.isHitlActive()) && (await downstreamCm.isHitlActive())
 
   if (!isHitlActive) {
