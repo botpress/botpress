@@ -82,13 +82,11 @@ export const parseWebSocketEvents = (body: Buffer): WebSocketEvent[] => {
         type: 'binary',
         content,
       })
-    } else if (type === 'CLOSE') {
-      if (length === 2) {
-        events.push({
-          type: 'close',
-          code: content.readUInt16BE(0),
-        })
-      }
+    } else if (type === 'CLOSE' && length === 2) {
+      events.push({
+        type: 'close',
+        code: content.readUInt16BE(0),
+      })
     }
     body = body.subarray(endLineIndex + 2 + length + 2)
   }
