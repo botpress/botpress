@@ -1,5 +1,5 @@
 import { EventEmitter } from './event-emitter'
-import { listenEventSource, MessageEvent, ErrorEvent, EventSourceEmitter, ServerEventsProtocol } from './eventsource'
+import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent, ServerEventsProtocol } from './eventsource'
 import { zod as signals, Types } from './gen/signals'
 import { WatchDog } from './watchdog'
 
