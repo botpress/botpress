@@ -226,3 +226,20 @@ export const getDefaultBotPhoneNumberId = async (client: bp.Client, ctx: bp.Cont
   }
   return defaultBotPhoneNumberId
 }
+
+export const getWabaId = async (client: bp.Client, ctx: bp.Context) => {
+  let businessAccountId: string | undefined
+  if (ctx.configurationType === 'manual') {
+    businessAccountId = ctx.configuration.whatsappBusinessAccountId
+  } else if (ctx.configurationType === 'sandbox') {
+    throw new RuntimeError('The WabaId should not be recovered from sandbox configuration type')
+  } else {
+    const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    businessAccountId = state.payload.wabaId
+  }
+
+  if (!businessAccountId) {
+    throw new RuntimeError('WhatsApp Business Account Id not found in saved credentials')
+  }
+  return businessAccountId
+}
