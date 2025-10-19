@@ -10,9 +10,11 @@ import { ChatCompletionReasoningEffort } from 'openai/resources/chat/completions
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
-const openAIClient = new OpenAI({
-  apiKey: bp.secrets.OPENAI_API_KEY,
-})
+const getOpenAIClient = ({ ctx }: { ctx: bp.Context }): OpenAI => {
+  return new OpenAI({
+    apiKey: ctx.configuration.apiKey,
+  })
+}
 
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
 const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
@@ -324,9 +326,11 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger, metadata }) => {
+    generateContent: async ({ input, logger, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient({ ctx })
       const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
+
         openAIClient,
         logger,
         {
@@ -365,75 +369,11 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    generateImage: async ({ input, client, metadata }) => {
-      const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
-      const imageModel = imageModels[imageModelId]
-      if (!imageModel) {
-        throw new InvalidPayloadError(
-          `Model ID "${imageModelId}" is not allowed by this integration, supported model IDs are: ${Object.keys(
-            imageModels
-          ).join(', ')}`
-        )
-      }
-
-      const size = (input.size || imageModel.defaultSize) as NonNullable<ImageGenerateParams['size']>
-
-      if (!imageModel.sizes.includes(size)) {
-        throw new InvalidPayloadError(
-          `Size "${
-            input.size
-          }" is not allowed by the "${imageModelId}" model, supported sizes are: ${imageModel.sizes.join(', ')}`
-        )
-      }
-
-      const { model, quality } = getOpenAIImageGenerationParams(imageModelId)
-
-      const result = await openAIClient.images.generate({
-        model,
-        size,
-        quality,
-        prompt: input.prompt,
-        style: input.params?.style,
-        user: input.params?.user,
-        response_format: 'url',
-      })
-
-      const temporaryImageUrl = result.data?.[0]?.url
-      if (!temporaryImageUrl) {
-        throw new Error('No image was returned by OpenAI')
-      }
-
-      const expiresAt: string | undefined = input.expiration
-        ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
-        : undefined
-
-      // File storage is billed to the workspace of the bot that called this action.
-      const { file } = await client.uploadFile({
-        key: generateFileKey('openai-generateImage-', input, '.png'),
-        url: temporaryImageUrl,
-        contentType: 'image/png',
-        accessPolicies: ['public_content'],
-        tags: {
-          source: 'integration',
-          integration: 'openai',
-          action: 'generateImage',
-        },
-        expiresAt,
-        publicContentImmediatelyAccessible: true,
-      })
-
-      const cost = imageModel.costPerImage
-      metadata.setCost(cost)
-      return {
-        model: imageModelId,
-        imageUrl: file.url,
-        cost, // DEPRECATED
-        botpress: {
-          cost, // DEPRECATED
-        },
-      }
+    generateImage: async ({}) => {
+      return { botpress: { cost: 0 }, cost: 0, imageUrl: '', model: '' } // NOT AVAILABLE FOR ENTERPRISE OPENAI
     },
-    transcribeAudio: async ({ input, logger, metadata }) => {
+    transcribeAudio: async ({ input, logger, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient({ ctx })
       const output = await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
@@ -443,7 +383,8 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    generateSpeech: async ({ input, client, metadata }) => {
+    generateSpeech: async ({ input, client, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient({ ctx })
       const model = input.model ?? 'tts-1'
 
       const params: SpeechCreateParams = {
