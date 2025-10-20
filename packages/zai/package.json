@@ -9,6 +9,9 @@
     "require": "./dist/index.js",
     "import": "./dist/index.js"
   },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && pnpm run build:types && pnpm run build:neutral && size-limit",

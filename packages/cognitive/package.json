@@ -6,6 +6,9 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc --noEmit",
     "build:type": "tsup --tsconfig tsconfig.build.json ./src/index.ts --dts-resolve --dts-only --clean",

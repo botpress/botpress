@@ -23,43 +23,39 @@ jobs:
         with:
           extra_filters: '-F @botpress/* -F llmz'
 
+      - name: update npm
+        shell: bash
+        run: npm install -g npm@^11.5.1 # Required for OIDC login
+
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/client'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish SDK
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/sdk'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish CLI
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/cli'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish Chat Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/chat-client'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish Cognitive Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/cognitive'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish Vai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/vai'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish Zai
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/zai'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish LLMz
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/llmz'
-          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
