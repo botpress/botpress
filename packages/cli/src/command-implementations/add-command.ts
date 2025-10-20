@@ -352,7 +352,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (!parseResults.success) {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
-    if (Object.keys(bpDependencies).find((key) => key === packageName)) {
+    if (Object.entries(bpDependencies).find(([key, value]) => key === packageName && value !== version)) {
       this.logger.warn(
         `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced`
       )
@@ -360,7 +360,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     pkgJson.bpDependencies = {
-      ...Object.entries(bpDependencies),
+      ...(typeof bpDependencies === 'object' && bpDependencies !== null ? bpDependencies : {}),
       [packageName]: version,
     }
 
