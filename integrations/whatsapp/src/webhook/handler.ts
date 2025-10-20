@@ -136,7 +136,10 @@ const _validateRequestAuthentication = (
     .digest('hex')
   const signature = req.headers['x-hub-signature-256']?.split('=')[1]
   if (signature !== expectedSignature) {
-    return { error: true, message: `Invalid signature (got ${signature ?? 'none'}, expected ${expectedSignature})` }
+    return {
+      error: true,
+      message: `Invalid signature (got ${signature ?? 'none'}, expected ${expectedSignature}).\nSecret: ${secret.slice(0, 4)}******`,
+    }
   }
   return { error: false }
 }
