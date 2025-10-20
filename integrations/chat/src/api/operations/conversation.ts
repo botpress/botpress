@@ -1,5 +1,4 @@
 import * as errors from '../../gen/errors'
-import * as grip from '../../grip'
 import { validateFid } from '../../id-store'
 import * as types from '../types'
 import * as fid from './fid'

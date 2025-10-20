@@ -2,7 +2,7 @@ import { Request } from '@botpress/sdk'
 import qs from 'qs'
 import * as api from '../api'
 import * as errors from '../gen/errors'
-import * as grip from '../grip'
+import * as grip from './grip'
 
 export const isPushpinWebSocketRequest = (req: Request) => {
   if (req.method.toLowerCase() !== 'post') {

@@ -17,18 +17,15 @@ const defaultTimeout = 60_000
 const _createAuthClient = Symbol('_createAuthClient')
 
 type Merge<A, B> = Omit<A, keyof B> & B
-type IClient = Omit<
-  Merge<
-    {
-      [K in types.ClientOperation]: (x: types.ClientRequests[K]) => Promise<types.ClientResponses[K]>
-    },
-    {
-      listenConversation: (
-        args: types.ClientRequests['listenConversation'] & { protocol?: ServerEventsProtocol }
-      ) => Promise<SignalListener>
-    }
-  >,
-  'listenConversationOverWebSocket'
+type IClient = Merge<
+  {
+    [K in types.ClientOperation]: (x: types.ClientRequests[K]) => Promise<types.ClientResponses[K]>
+  },
+  {
+    listenConversation: (
+      args: types.ClientRequests['listenConversation'] & { protocol?: ServerEventsProtocol }
+    ) => Promise<SignalListener>
+  }
 >
 
 type IAuthenticatedClient = Merge<
