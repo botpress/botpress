@@ -57,7 +57,7 @@ export default new IntegrationDefinition({
     sandbox: {
       title: 'Sandbox Configuration',
       description: 'Sandbox configuration, for testing purposes only',
-      schema: commonConfigSchema,
+      schema: z.object({}),
       identifier: {
         linkTemplateScript: 'sandboxLinkTemplate.vrl',
       },
