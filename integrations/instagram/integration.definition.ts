@@ -116,7 +116,7 @@ export default new IntegrationDefinition({
         },
       },
     },
-    comment: {
+    commentReplies: {
       title: 'Comment',
       description: 'A comment on an Instagram post',
       messages: messages.defaults,
