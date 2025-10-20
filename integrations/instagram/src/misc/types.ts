@@ -45,7 +45,7 @@ const InstagramMessagingEntrySchema = z.union([
   InstagramMessagingEntryOtherSchema,
 ])
 
-const InstagramMessageEntrySchema = z.object({
+export const InstagramMessageEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
   messaging: z.array(InstagramMessagingEntrySchema),
@@ -65,7 +65,7 @@ const InstagramCommentSchema = z.object({
   }),
 })
 
-const InstagramCommentEntrySchema = z.object({
+export const InstagramCommentEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
   changes: z.array(
@@ -76,6 +76,16 @@ const InstagramCommentEntrySchema = z.object({
   ),
 })
 
+// Entry-level union - allows mixed entry types in a single payload
+const InstagramEntrySchema = z.union([InstagramMessageEntrySchema, InstagramCommentEntrySchema])
+
+// Single payload schema with entry-level union
+export const InstagramPayloadSchema = z.object({
+  object: z.string(),
+  entry: z.array(InstagramEntrySchema),
+})
+
+// Legacy schemas for backward compatibility
 export const InstagramCommentPayloadSchema = z.object({
   object: z.string(),
   entry: z.array(InstagramCommentEntrySchema),
@@ -86,10 +96,13 @@ export const InstagramMessagePayloadSchema = z.object({
   entry: z.array(InstagramMessageEntrySchema),
 })
 
+export type InstagramEntry = z.infer<typeof InstagramEntrySchema>
+export type InstagramPayload = z.infer<typeof InstagramPayloadSchema>
 export type InstagramCommentPayload = z.infer<typeof InstagramCommentPayloadSchema>
+export type InstagramMessagePayload = z.infer<typeof InstagramMessagePayloadSchema>
 export type InstagramComment = z.infer<typeof InstagramCommentSchema>
 export type InstagramCommentEntry = z.infer<typeof InstagramCommentEntrySchema>
-export type InstagramMessagePayload = z.infer<typeof InstagramMessagePayloadSchema>
+export type InstagramMessageEntry = z.infer<typeof InstagramMessageEntrySchema>
 export type InstagramMessagingEntry = z.infer<typeof InstagramMessagingEntrySchema>
 export type InstagramMessagingEntryPostback = z.infer<typeof InstagramMessagingEntryPostbackSchema>
 export type InstagramMessagingEntryMessage = z.infer<typeof InstagramMessagingEntryMessageSchema>

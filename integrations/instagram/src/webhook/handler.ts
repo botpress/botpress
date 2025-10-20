@@ -2,14 +2,29 @@ import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
-import { InstagramCommentPayloadSchema, InstagramMessagePayloadSchema } from 'src/misc/types'
-import { safeJsonParse } from 'src/misc/utils'
-import { commentsHandler } from './handlers/comments'
-import { messagingHandler } from './handlers/messages'
+import { InstagramPayloadSchema, InstagramEntry } from 'src/misc/types'
+import { InstagramEntryType, safeJsonParse, getEntryType } from 'src/misc/utils'
+import { commentEntryHandler } from './handlers/comments'
+import { messageEntryHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
+
+// Entry handler type definition
+type EntryHandler = (entry: InstagramEntry, props: bp.HandlerProps) => Promise<void>
+
+// Handler registry mapping entry types to their handlers
+type HandlerRegistry = Partial<Record<InstagramEntryType, EntryHandler>>
+
+// Build handler registry based on configuration
+const _buildHandlerRegistry = (): HandlerRegistry => {
+  const registry: HandlerRegistry = {
+    message: messageEntryHandler as EntryHandler,
+    comment: commentEntryHandler as EntryHandler,
+  }
+  return registry
+}
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
   const { req } = props
@@ -33,26 +48,50 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
   const { data, success } = safeJsonParse(req.body)
   if (!success) {
+    return { status: 400, body: 'Invalid payload body' }
+  }
+
+  // Parse payload once with entry-level union schema
+  const payloadResult = InstagramPayloadSchema.safeParse(data)
+  if (!payloadResult.success) {
+    props.logger.warn('Received invalid Instagram payload:', payloadResult.error.message)
     return { status: 400, body: 'Invalid payload' }
   }
 
-  const messageBodyResult = InstagramMessagePayloadSchema.safeParse(data)
-  if (messageBodyResult.success) {
-    return await messagingHandler(messageBodyResult.data, props)
-  }
+  const payload = payloadResult.data
+  const handlerRegistry = _buildHandlerRegistry()
 
-  if (props.ctx.configuration.replyToComments) {
-    const commentBodyResult = InstagramCommentPayloadSchema.safeParse(data)
-    if (commentBodyResult.success) {
-      return await commentsHandler(commentBodyResult.data, props)
-    } else {
-      props.logger.warn('Received unsupported Comment payload.')
-      return { status: 400, body: 'Unsupported Comment payload' }
+  // Process each entry independently
+  for (const entry of payload.entry) {
+    try {
+      const entryType = getEntryType(entry)
+      const handler = handlerRegistry[entryType]
+
+      if (!handler) {
+        props.logger.forBot().warn(`No handler registered for entry type: ${entryType}`)
+        continue
+      }
+
+      if (entryType === 'comment') {
+        if (props.ctx.configurationType === 'sandbox') {
+          props.logger.forBot().debug('Skipping comment entry (replyToComments is disabled in sandbox mode)')
+          continue
+        }
+
+        if (!props.ctx.configuration.replyToComments) {
+          props.logger.forBot().debug('Skipping comment entry (replyToComments is disabled)')
+          continue
+        }
+      }
+
+      await handler(entry, props)
+    } catch (thrown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      props.logger.forBot().error(`Failed to process entry ${entry.id}:`, error.message)
     }
   }
 
-  props.logger.warn('Received unsupported Instagram payload')
-  return { status: 400, body: 'Unsupported payload' }
+  return { status: 200 }
 }
 
 const _validateRequestAuthentication = (

@@ -1,15 +1,14 @@
 import { getCredentials } from 'src/misc/client'
-import { InstagramComment, InstagramCommentPayload } from 'src/misc/types'
+import { InstagramComment, InstagramCommentEntry } from 'src/misc/types'
 import * as bp from '.botpress'
-export const commentsHandler = async (data: InstagramCommentPayload, props: bp.HandlerProps) => {
-  for (const entry of data.entry) {
-    for (const change of entry.changes) {
-      if (change.field === 'comments') {
-        await _commentHandler(change.value, props)
-      }
+
+// Entry-level handler for single comment entry
+export const commentEntryHandler = async (entry: InstagramCommentEntry, props: bp.HandlerProps) => {
+  for (const change of entry.changes) {
+    if (change.field === 'comments') {
+      await _commentHandler(change.value, props)
     }
   }
-  return { status: 200 }
 }
 
 const _commentHandler = async (comment: InstagramComment, handlerProps: bp.HandlerProps) => {
@@ -33,7 +32,7 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
   }
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'comment',
+    channel: 'commentReplies',
     tags: {
       id,
       postId,
@@ -53,6 +52,7 @@ const _commentHandler = async (comment: InstagramComment, handlerProps: bp.Handl
       id,
       postId,
     },
+    discriminateByTags: ['id'],
     userId: user.id,
     conversationId: conversation.id,
     payload: {

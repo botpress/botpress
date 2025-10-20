@@ -3,7 +3,7 @@ import {
   InstagramMessagingEntry,
   InstagramMessagingEntryMessage,
   InstagramMessagingEntryPostback,
-  InstagramMessagePayload,
+  InstagramMessageEntry,
 } from 'src/misc/types'
 import * as bp from '.botpress'
 
@@ -16,18 +16,16 @@ type IncomingMessages = {
 }
 type IncomingMessage = IncomingMessages[IncomingMessageTypes]
 
-export const messagingHandler = async (data: InstagramMessagePayload, props: bp.HandlerProps) => {
-  for (const { messaging } of data.entry) {
-    for (const messagingEntry of messaging) {
-      if ('message' in messagingEntry) {
-        await _messageHandler(messagingEntry as InstagramMessagingEntryMessage, props)
-      }
-      if ('postback' in messagingEntry) {
-        await _postbackHandler(messagingEntry as InstagramMessagingEntryPostback, props)
-      }
+// Entry-level handler for single message entry
+export const messageEntryHandler = async (entry: InstagramMessageEntry, props: bp.HandlerProps) => {
+  for (const messagingEntry of entry.messaging) {
+    if ('message' in messagingEntry) {
+      await _messageHandler(messagingEntry as InstagramMessagingEntryMessage, props)
+    }
+    if ('postback' in messagingEntry) {
+      await _postbackHandler(messagingEntry as InstagramMessagingEntryPostback, props)
     }
   }
-  return { status: 200 }
 }
 
 const _decodePostbackPayload = (payload: string): string => {
