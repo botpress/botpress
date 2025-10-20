@@ -56,8 +56,8 @@ async function _sendCommentMessage(
   id: string
 ) {
   const { accessToken, instagramId } = await getCredentials(client, ctx)
-  const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  const { message_id } = await metaClient.replyToComment(id, message)
+  const instagramClient = new InstagramClient(logger, { accessToken, instagramId })
+  const { message_id } = await instagramClient.replyToComment(id, message)
 
   await ack({
     tags: {
