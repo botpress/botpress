@@ -12,7 +12,6 @@ This integration enables your bot to interact with Facebook by responding to com
 ### Known Limitations:
 
 - Feed events only work with OAuth or manual configurations
-- Sandbox configuration does not support feed events
 - Thread resolver implementation is experimental
 
 ---

@@ -2,19 +2,6 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 const commonConfigSchema = z.object({
-  downloadMedia: z
-    .boolean()
-    .default(false)
-    .title('Download Media')
-    .describe('Automatically download media files using the Files API for content access.'),
-  downloadedMediaExpiry: z
-    .number()
-    .default(24)
-    .optional()
-    .title('Downloaded Media Expiry')
-    .describe(
-      'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
-    ),
   replyToComments: z
     .boolean()
     .default(false)
@@ -122,46 +109,9 @@ export default new IntegrationDefinition({
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
     },
-    SANDBOX_CLIENT_ID: {
-      description: 'The client ID of the Sandbox Meta app',
-    },
-    SANDBOX_CLIENT_SECRET: {
-      description: 'The client secret of the Sandbox Meta app',
-    },
-    SANDBOX_VERIFY_TOKEN: {
-      description: 'The verify token for the Sandbox Meta App Webhooks subscription',
-    },
-    SANDBOX_ACCESS_TOKEN: {
-      description: 'Access token for the Sandbox Meta App',
-    },
-    SANDBOX_PAGE_ID: {
-      description: 'Page ID for the Sandbox Facebook page',
-    },
   },
   user: {
     tags: { id: { title: 'User ID', description: 'The Facebook ID of the user' } },
-  },
-  entities: {
-    user: {
-      schema: z
-        .object({
-          id: z.string().title('User ID').describe('The Facebook ID of the user'),
-        })
-        .title('User')
-        .describe('The user object fields'),
-      title: 'User',
-      description: 'A Facebook user',
-    },
-    conversation: {
-      schema: z
-        .object({
-          id: z.string().title('User ID').describe('The Facebook ID of the user in the conversation'),
-        })
-        .title('Conversation')
-        .describe('The conversation object fields'),
-      title: 'Conversation',
-      description: 'A conversation with a Facebook user',
-    },
   },
   __advanced: {
     useLegacyZuiTransformer: true,

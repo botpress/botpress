@@ -13,8 +13,6 @@ export async function getFacebookClientCredentials(
       pageId: ctx.configuration.pageId,
       pageToken: ctx.configuration.accessToken,
     }
-  } else if (ctx.configurationType === 'sandbox') {
-    throw new RuntimeError('Facebook client credentials are not available for sandbox configuration')
   } else {
     const {
       state: {
@@ -106,7 +104,7 @@ export async function getMetaClientCredentials(client: bp.Client, ctx: bp.Contex
 }
 
 export function getVerifyToken(ctx: bp.Context): string {
-  // Should normally be verified in the fallbackHandler script with OAuth and Sandbox
+  // Should normally be verified in the fallbackHandler script with OAuth
   let verifyToken: string
   if (ctx.configurationType === 'manual') {
     verifyToken = ctx.configuration.verifyToken

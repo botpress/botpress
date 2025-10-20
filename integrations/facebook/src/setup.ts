@@ -9,8 +9,6 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   const { ctx } = props
   if (ctx.configurationType === 'manual') {
     await _registerManual(props)
-  } else if (ctx.configurationType === 'sandbox') {
-    await _registerSandbox(props)
   } else {
     await _registerOAuth(props)
   }
@@ -23,15 +21,10 @@ const _registerManual = async (props: RegisterProps) => {
   await _unsubscribeFromOAuthWebhooks(props)
 }
 
-const _registerSandbox = async (props: RegisterProps) => {
-  await _clearAllIdentifiers(props)
-  await _unsubscribeFromOAuthWebhooks(props)
-}
-
 const _registerOAuth = async ({ client }: RegisterProps) => {
-  // Only remove sandbox identifiers
+  // Clear identifiers if needed
   await client.configureIntegration({
-    sandboxIdentifiers: null,
+    identifier: null,
   })
 }
 
@@ -43,7 +36,7 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const { pageId } = credentials
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient(ctx, client, logger)
   if (await metaClient.isSubscribedToWebhooks(pageId)) {
     await metaClient.unsubscribeFromWebhooks(pageId)
   }
@@ -52,6 +45,5 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
 const _clearAllIdentifiers = async ({ client }: RegisterProps) => {
   await client.configureIntegration({
     identifier: null,
-    sandboxIdentifiers: null,
   })
 }

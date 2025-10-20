@@ -4,12 +4,8 @@ mode = q."hub.mode"
 challenge = q."hub.challenge"
 verifyTokenReceived = q."hub.verify_token"
 
-isSandbox = starts_with!(.path, "/sandbox")
-verifyToken = if isSandbox {
-  secrets.SANDBOX_VERIFY_TOKEN
-} else {
-  secrets.VERIFY_TOKEN
-}
+verifyToken = secrets.VERIFY_TOKEN
+
 if mode == "subscribe" {
   if verifyTokenReceived == verifyToken {
     {
@@ -26,15 +22,8 @@ if mode == "subscribe" {
     }
   }
 } else {
-  if isSandbox {
-    {
-      "status": 200, # Make sure unboud message requests are not retried
-      "body": "Conversation not linked to a bot"
-    }
-  } else {
-    {
-      "status": 403,
-      "body": "Invalid webhook request"
-    }
+  {
+    "status": 403,
+    "body": "Invalid webhook request"
   }
 }
