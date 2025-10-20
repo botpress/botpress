@@ -214,7 +214,13 @@ export class InstagramClient {
       }
     )
 
-    return { message_id: response.data.id }
+    const { id } = z
+      .object({
+        id: z.string(),
+      })
+      .parse(response.data)
+
+    return { message_id: id }
   }
 }
 
