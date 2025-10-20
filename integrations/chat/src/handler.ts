@@ -1,35 +1,11 @@
 import { Request } from '@botpress/sdk'
-import qs from 'qs'
 import * as api from './api'
 import { extraRoutes } from './extra-routes'
 import { handleRequest } from './gen/handler'
-import * as grip from './grip'
 import { Handler } from './types'
+import * as websocket from './websocket'
 
 const isPushpinRequest = (req: Request) => 'grip-sig' in req.headers
-
-const isPushpinWebSocketRequest = (req: Request) => {
-  if (req.method.toLowerCase() !== 'post') {
-    return false
-  }
-  const parts = req.path.split('/').splice(1)
-  if (parts.length !== 3) {
-    return false
-  }
-  return parts[0] === 'conversations' && parts[2] === 'listen'
-}
-
-const convertPushpinWebSocketRequest = (req: Request): Request => {
-  if (!req.body) {
-    return req
-  }
-  req.body = JSON.stringify({ events: grip.parseWebSocketEvents(Buffer.from(req.body)) })
-  const queries = qs.parse(req.query)
-  if (queries['x-user-key'] && typeof queries['x-user-key'] === 'string') {
-    req.headers['x-user-key'] = queries['x-user-key']
-  }
-  return req
-}
 
 export const makeHandler =
   (props: api.OperationTools): Handler =>
@@ -53,9 +29,9 @@ export const makeHandler =
       }
     }
 
-    if (isPushpinWebSocketRequest(args.req) && args.req.body) {
+    if (websocket.isPushpinWebSocketRequest(args.req) && args.req.body) {
       try {
-        args.req = convertPushpinWebSocketRequest(args.req)
+        return websocket.handlePushpinWebSocketRequest(props, args.req)
       } catch {
         return {
           status: 400,
@@ -65,6 +41,7 @@ export const makeHandler =
     }
 
     const { auth, signals, convIdStore, userIdStore, apiUtils } = props
+
     return handleRequest(routes, {
       ...args,
       auth,

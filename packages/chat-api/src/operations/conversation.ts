@@ -140,39 +140,6 @@ export const listenConversationOperation: OperationFunc = () => ({
   },
 })
 
-export const listenConversationOverWebSocketOperation: OperationFunc = () => ({
-  name: 'listenConversationOverWebSocket',
-  description: 'Creates a WebSocket to receive messages and events from a conversation',
-  method: 'post',
-  path: '/conversations/{id}/listen',
-  parameters: {
-    ...authHeaders,
-    id: {
-      in: 'path',
-      type: 'string',
-      description: 'Conversation id',
-    },
-  },
-  requestBody: {
-    description: 'A list of WebSocket-over-HTTP events',
-    schema: schema(
-      z.object({
-        events: z.array(
-          z.object({
-            type: z.enum(['open', 'close', 'disconnect', 'text', 'binary']),
-            content: z.string().optional(),
-          })
-        ),
-      })
-    ),
-  },
-  section,
-  response: {
-    description: 'Returns nothing but a WebSocket',
-    schema: schema(z.object({})),
-  },
-})
-
 export const listMessagesOperation: OperationFunc = (api) => ({
   name: 'listMessages',
   description: "Retrieves the conversation's [Messages](#schema_message)",

@@ -1,4 +1,4 @@
-type WebSocketEvent =
+export type WebSocketEvent =
   | {
       type: 'open'
     }

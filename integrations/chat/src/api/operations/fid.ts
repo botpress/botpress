@@ -256,27 +256,6 @@ export const handlers = {
     },
     mapResponse: async (res) => res,
   }),
-  listenConversationOverWebSocket: (
-    props: types.OperationProps,
-    req: types.AuthenticatedInputs['listenConversationOverWebSocket']
-  ) => ({
-    mapRequest: async () => {
-      const [userId, conversationId] = await Promise.all([
-        props.userIdStore.byFid.get(req.auth.userId),
-        props.convIdStore.byFid.get(req.params.id),
-      ])
-
-      return merge(req, {
-        auth: {
-          userId,
-        },
-        params: {
-          id: conversationId,
-        },
-      })
-    },
-    mapResponse: async (res) => res,
-  }),
   addParticipant: (props: types.OperationProps, req: types.AuthenticatedInputs['addParticipant']) => ({
     mapRequest: async () => {
       const [authUserId, userId, conversationId] = await Promise.all([
