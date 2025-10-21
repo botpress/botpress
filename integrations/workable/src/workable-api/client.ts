@@ -47,7 +47,7 @@ export class WorkableClient {
     params?: z.infer<typeof listCandidatesInputSchema>
   ): Promise<z.infer<typeof listCandidatesOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof listCandidatesOutputSchema>> = await this._client
-      .get('/candidates', { params: params })
+      .get('/candidates', { params })
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
