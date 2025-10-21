@@ -1,7 +1,8 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError } from '@botpress/sdk'
 import * as bp from '.botpress'
 import { WorkableClient } from './workable-api/client'
 import {
+  fromGetCandidateInputModel,
   fromListCandidatesInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
@@ -20,13 +21,29 @@ export default new bp.Integration({
   actions: {
     listCandidates: async (props) => {
       const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
-      const raw = await client.listCandidates(fromListCandidatesInputModel(props.input))
-      return toListCandidatesOutputModel(raw)
+
+      try {
+        const raw = await client.listCandidates(fromListCandidatesInputModel(props.input))
+        return toListCandidatesOutputModel(raw)
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          throw new RuntimeError(e.message)
+        }
+        throw new RuntimeError('Unknown error')
+      }
     },
     getCandidate: async (props) => {
       const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
-      const raw = await client.getCandidate(props.input)
-      return toGetCandidateModel(raw)
+
+      try {
+        const raw = await client.getCandidate(fromGetCandidateInputModel(props.input))
+        return toGetCandidateModel(raw)
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          throw new RuntimeError(e.message)
+        }
+        throw new RuntimeError('Unknown error')
+      }
     },
   },
   channels: {},
