@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as fs from 'fs'
+import * as fslib from 'fs'
 import * as pathlib from 'path'
 import semver from 'semver'
 import * as apiUtils from '../api'
@@ -108,7 +108,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
 
-    const alreadyInstalled = fs.existsSync(installPath)
+    const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
       this.logger.warn(`Package with name "${packageName}" already installed.`)
       const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
@@ -274,8 +274,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       for (const file of files) {
         const filePath = utils.path.absoluteFrom(installPath, file.path)
         const dirPath = pathlib.dirname(filePath)
-        await fs.promises.mkdir(dirPath, { recursive: true })
-        await fs.promises.writeFile(filePath, file.content)
+        await fslib.promises.mkdir(dirPath, { recursive: true })
+        await fslib.promises.writeFile(filePath, file.content)
       }
       line.success(`Installed ${files.length} files to "${installPath}"`)
     } finally {
@@ -284,7 +284,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _uninstall(installPath: utils.path.AbsolutePath): Promise<void> {
-    await fs.promises.rm(installPath, { recursive: true })
+    await fslib.promises.rm(installPath, { recursive: true })
   }
 
   private async _readProject(workDir: utils.path.AbsolutePath): Promise<{
@@ -305,11 +305,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const devId = await cmd.projectCache.get('devId')
 
     const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
-    if (!fs.existsSync(implementationAbsPath)) {
+    if (!fslib.existsSync(implementationAbsPath)) {
       return { definition, devId }
     }
 
-    const implementation = await fs.promises.readFile(implementationAbsPath, 'utf8')
+    const implementation = await fslib.promises.readFile(implementationAbsPath, 'utf8')
     return { definition, implementation, devId }
   }
 
@@ -343,7 +343,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
-      await fs.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
+      await fslib.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
       return
     }
 
@@ -368,7 +368,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       [packageName]: version,
     }
 
-    await fs.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
+    await fslib.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
   }
 }
 
