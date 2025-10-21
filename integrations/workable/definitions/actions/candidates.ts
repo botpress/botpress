@@ -7,8 +7,8 @@ import {
 } from 'definitions/models/candidates'
 
 export const listCandidates = {
-  title: 'Get candidates',
-  description: 'Get the candidates for a job',
+  title: 'List candidates',
+  description: 'List the candidates for a job',
   input: {
     schema: listCandidatesInputModel,
   },
