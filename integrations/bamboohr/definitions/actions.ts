@@ -47,25 +47,6 @@ const getEmployeeCustomInfo: ActionDefinition = {
   },
 }
 
-const getEmployeePhoto: ActionDefinition = {
-  title: 'Get Employee Photo',
-  description: 'Retrieve the photo of an employee by their ID and specified size.',
-  input: {
-    schema: z.object({
-      id: employeeId,
-      size: z
-        .enum(['original', 'large', 'medium', 'small', 'xs'])
-        .title('Photo Size')
-        .describe('Size of the photo to retrieve.'),
-    }),
-  },
-  output: {
-    schema: z.object({
-      blob: z.instanceof(Blob).title('Photo Blob').describe('Binary data of the employee photo.'),
-    }),
-  },
-}
-
 const listEmployees: ActionDefinition = {
   title: 'List Employees',
   description:
@@ -103,7 +84,6 @@ export const actions = {
   getEmployeeBasicInfo,
   getEmployeeSensitiveInfo,
   getEmployeeCustomInfo,
-  getEmployeePhoto,
   listEmployees,
   getCompanyInfo,
 } as const

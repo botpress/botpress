@@ -1,12 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getCompanyInfo } from './company'
-import {
-  getEmployeeBasicInfo,
-  getEmployeeSensitiveInfo,
-  getEmployeeCustomInfo,
-  getEmployeePhoto,
-  listEmployees,
-} from './employees'
+import { getEmployeeBasicInfo, getEmployeeSensitiveInfo, getEmployeeCustomInfo, listEmployees } from './employees'
 
 import * as bp from '.botpress'
 
@@ -23,7 +17,6 @@ export const actions = {
   getEmployeeBasicInfo: actionErrorWrapper(getEmployeeBasicInfo),
   getEmployeeSensitiveInfo: actionErrorWrapper(getEmployeeSensitiveInfo),
   getEmployeeCustomInfo: actionErrorWrapper(getEmployeeCustomInfo),
-  getEmployeePhoto: actionErrorWrapper(getEmployeePhoto),
   listEmployees: actionErrorWrapper(listEmployees),
   getCompanyInfo: actionErrorWrapper(getCompanyInfo),
 } satisfies bp.IntegrationProps['actions']

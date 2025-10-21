@@ -49,23 +49,6 @@ export const getEmployeeCustomInfo: bp.IntegrationProps['actions']['getEmployeeC
   }
 }
 
-export const getEmployeePhoto: bp.IntegrationProps['actions']['getEmployeePhoto'] = async ({
-  input,
-  client,
-  ctx,
-  logger,
-}) => {
-  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
-
-  try {
-    const blob = await bambooHrClient.getEmployeePhoto(input.id, input.size)
-    return { blob }
-  } catch (thrown) {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to get employee photo', error)
-  }
-}
-
 export const listEmployees: bp.IntegrationProps['actions']['listEmployees'] = async ({ client, ctx, logger }) => {
   const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
 

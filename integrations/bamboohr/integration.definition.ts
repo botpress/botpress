@@ -22,6 +22,7 @@ export default new IntegrationDefinition({
   //     subdomain,
   //   }),
   // },
+
   configurations: {
     apiKey: {
       title: 'API Key configuration',
