@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/hello-world",
+  "name": "@botpresshub/workable",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
