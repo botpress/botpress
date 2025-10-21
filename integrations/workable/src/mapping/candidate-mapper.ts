@@ -21,6 +21,7 @@ import {
   listCandidatesOutputModel,
   locationModel,
 } from 'definitions/models/candidates'
+import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
   model: z.infer<typeof listCandidatesInputModel>
@@ -40,7 +41,7 @@ export function toListCandidatesOutputModel(
   schema: z.infer<typeof listCandidatesOutputSchema>
 ): z.infer<typeof listCandidatesOutputModel> {
   return {
-    nextToken: schema.paging?.next,
+    nextToken: schema.paging?.next === undefined ? undefined : parseNextToken(schema.paging?.next),
     candidates: schema.candidates?.map(toCandidateModel),
   }
 }
