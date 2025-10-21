@@ -41,8 +41,8 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
-    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
-    logger.forBot().error(`Failed to parse phone number, errors ${errorMessage}`)
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
 
   const { conversation } = await client.getOrCreateConversation({
