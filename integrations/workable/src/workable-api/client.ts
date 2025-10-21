@@ -1,19 +1,18 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
-import * as bp from '.botpress'
+// import * as bp from '.botpress'
+import { listCandidatesInputSchema, listCandidatesOutputSchema } from 'src/workable-schemas/candidates'
+import { z } from '@botpress/sdk'
 
-type Actions = bp.actions.Actions
-type Input<K extends keyof Actions> = Actions[K]['input']
+// type Actions = bp.actions.Actions
+// type Input<K extends keyof Actions> = Actions[K]['input']
 
 export type ErrorResponse = {
   code: number
   message: string
 }
 
-type Output<K extends keyof Actions> = Actions[K]['output']
-type ApiOutput<K extends keyof Actions> = Output<K> | ErrorResponse
-
-type PagedApiOutput<K extends keyof Actions> = ErrorResponse | (ApiOutput<K> & { paging: { next: string | undefined } })
+type ApiOutput<K extends object> = K | ErrorResponse
 
 export class WorkableClient {
   private _client: Axios
@@ -28,33 +27,10 @@ export class WorkableClient {
     })
   }
 
-  private _unwrapPagedResponse<K extends keyof Actions>(response: PagedApiOutput<K>): Output<K> {
+  private _unwrapResponse<K extends object>(response: ApiOutput<K>): K {
     if ('message' in response) {
       throw new RuntimeError(response.message)
     }
-    const { paging, ...result } = response
-    if (paging?.next) {
-      try {
-        const url: URL = new URL(paging.next)
-        return {
-          ...result,
-          nextId: url.searchParams.get('since_id'),
-          limit: url.searchParams.get('limit'),
-        }
-      } catch {
-        return {
-          ...result,
-        }
-      }
-    }
-    return response
-  }
-
-  private _unwrapResponse<K extends keyof Actions>(response: ApiOutput<K>): Output<K> {
-    if ('message' in response) {
-      throw new RuntimeError(response.message)
-    }
-
     return response
   }
 
@@ -67,17 +43,19 @@ export class WorkableClient {
     }
   }
 
-  public async listCandidates(params?: Input<'listCandidates'>): Promise<Output<'listCandidates'>> {
-    const response: AxiosResponse<PagedApiOutput<'listCandidates'>> = await this._client
+  public async listCandidates(
+    params?: z.infer<typeof listCandidatesInputSchema>
+  ): Promise<z.infer<typeof listCandidatesOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof listCandidatesOutputSchema>> = await this._client
       .get('/candidates', { params: params })
-      .catch(this._handleAxiosError)
-    return this._unwrapPagedResponse(response.data)
-  }
-
-  public async getCandidate(params: Input<'getCandidate'>): Promise<Output<'getCandidate'>> {
-    const response: AxiosResponse<ApiOutput<'getCandidate'>> = await this._client
-      .get(`/candidates/${params.id}`)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
+
+  // public async getCandidate(params: Input<'getCandidate'>): Promise<Output<'getCandidate'>> {
+  //   const response: AxiosResponse<ApiOutput<'getCandidate'>> = await this._client
+  //     .get(`/candidates/${params.id}`)
+  //     .catch(this._handleAxiosError)
+  //   return this._unwrapResponse(response.data)
+  // }
 }
