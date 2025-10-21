@@ -3,9 +3,15 @@ import { InstagramComment, InstagramLegacyComment } from 'src/misc/types'
 import * as bp from '.botpress'
 
 export const commentsHandler = async (
-  comment: InstagramComment | InstagramLegacyComment,
+  comments: InstagramComment[] | InstagramLegacyComment[],
   handlerProps: bp.HandlerProps
 ) => {
+  for (const comment of comments) {
+    await _commentHandler(comment, handlerProps)
+  }
+}
+
+const _commentHandler = async (comment: InstagramComment | InstagramLegacyComment, handlerProps: bp.HandlerProps) => {
   const { logger, client, ctx } = handlerProps
   logger.forBot().debug('Received comment from Instagram:', {
     id: comment.id,

@@ -5,8 +5,8 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'instagram'
 
-// File message type unsupported both ways
-const { file: _file, ...channelMessages } = messages.defaults
+// File message type unsupported both ways in DM
+const { file: _file, ...dmChannelMessages } = messages.defaults
 
 const commonConfigSchema = z.object({
   replyToComments: z
@@ -90,7 +90,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Direct Message',
       description: 'Direct message conversation between an Instagram user and the bot',
-      messages: channelMessages,
+      messages: dmChannelMessages,
       message: {
         tags: {
           id: {
@@ -119,7 +119,9 @@ export default new IntegrationDefinition({
     commentReplies: {
       title: 'Comment Replies',
       description: 'Replies to comments on an Instagram post',
-      messages: messages.defaults,
+      messages: {
+        text: messages.defaults.text,
+      },
       message: {
         tags: {
           id: {

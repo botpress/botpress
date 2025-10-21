@@ -2,7 +2,13 @@ import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
-import { instagramPayloadSchema } from 'src/misc/types'
+import {
+  instagramPayloadSchema,
+  InstagramLegacyCommentEntry,
+  InstagramCommentEntry,
+  InstagramComment,
+  InstagramLegacyComment,
+} from 'src/misc/types'
 import { safeJsonParse } from 'src/misc/utils'
 import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
@@ -53,30 +59,34 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
 
   const payload = payloadResult.data
-  // Process each entry independently
   for (const entry of payload.entry) {
-    try {
-      if ('messaging' in entry) {
-        await messagingHandler(entry.messaging, props)
-      } else if ('field' in entry && entry.field === 'comments') {
-        if (!_canReplyToComments(props.ctx)) {
-          continue
-        }
-        await commentsHandler(entry.value, props)
-      } else if ('changes' in entry && entry.changes[0]?.field === 'comments') {
-        // Legacy "Facebook Login for Business" format
-        if (!_canReplyToComments(props.ctx)) {
-          continue
-        }
-        await commentsHandler(entry.changes[0].value, props)
-      }
-    } catch (thrown: unknown) {
-      const message = thrown instanceof Error ? thrown.message : String(thrown)
-      props.logger.forBot().error(`Failed to process entry ${entry.id}:`, message)
+    if ('messaging' in entry) {
+      await messagingHandler(entry.messaging, props)
+    } else {
+      await _commentEntryHandler(entry, props)
     }
   }
 
   return { status: 200 }
+}
+
+const _commentEntryHandler = async (
+  entry: InstagramCommentEntry | InstagramLegacyCommentEntry,
+  props: bp.HandlerProps
+) => {
+  if (!_canReplyToComments(props.ctx)) {
+    return
+  }
+
+  let comments: InstagramComment[] | InstagramLegacyComment[] = []
+  if ('value' in entry) {
+    comments = [entry.value]
+  } else {
+    // Legacy "Facebook Login for Business" format
+    comments = entry.changes.map((change) => change.value)
+  }
+
+  await commentsHandler(comments, props)
 }
 
 const _validateRequestAuthentication = (
@@ -106,10 +116,11 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
       props.logger.error(`Instagram handler failed with status ${response.status}: ${response.body}`)
     }
     return response
-  } catch (error: any) {
-    const errorMessage = `Instagram handler failed with error: ${error.message ?? 'Unknown error thrown'}`
-    props.logger.error(errorMessage)
-    return { status: 500, body: errorMessage }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const logMessage = `Instagram handler failed with error: ${errorMessage ?? 'Unknown error thrown'}`
+    props.logger.error(logMessage)
+    return { status: 500, body: logMessage }
   }
 }
 

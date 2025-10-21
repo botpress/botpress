@@ -1,5 +1,5 @@
 import { channel } from './channel'
-import { commentReplies } from './comment'
+import { commentReplies } from './comment-replies'
 import * as bp from '.botpress'
 
 export default {

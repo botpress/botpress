@@ -108,7 +108,9 @@ export type InstagramMessaging = z.infer<typeof instagramMessagingEntrySchema>['
 export type InstagramMessagingItemMessage = z.infer<typeof instagramMessagingItemMessageSchema>
 export type InstagramMessagingItemPostback = z.infer<typeof instagramMessagingItemPostbackSchema>
 export type InstagramMessagingItem = z.infer<typeof instagramMessagingItemSchema>
+export type InstagramCommentEntry = z.infer<typeof instagramCommentEntrySchema>
 export type InstagramComment = z.infer<typeof instagramCommentEntrySchema>['value']
+export type InstagramLegacyCommentEntry = z.infer<typeof instagramLegacyCommentEntrySchema>
 export type InstagramLegacyComment = z.infer<typeof instagramLegacyCommentEntrySchema>['changes'][number]['value']
 
 // Outgoing message types

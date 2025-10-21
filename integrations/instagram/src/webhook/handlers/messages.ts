@@ -134,8 +134,8 @@ const _commonMessagingHandler = async ({
   if (!user.name || !user.pictureUrl) {
     try {
       const { accessToken } = await getCredentials(client, ctx)
-      const metaClient = new InstagramClient(logger, { accessToken })
-      const userProfile = await metaClient.getUserProfile(sender.id, ['profile_pic'])
+      const instagramClient = new InstagramClient(logger, { accessToken })
+      const userProfile = await instagramClient.getUserProfile(sender.id, ['profile_pic'])
 
       logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
