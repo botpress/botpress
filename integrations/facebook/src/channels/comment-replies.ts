@@ -15,36 +15,6 @@ const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
 
       await _replyToComment({ id, message: payload.text, ctx, client, ack })
     },
-    image: async () => {
-      throw new RuntimeError('Images are not supported for Comment Replies. Use text instead.')
-    },
-    audio: async () => {
-      throw new RuntimeError('Audio messages are not supported for Comment Replies. Use text instead.')
-    },
-    video: async () => {
-      throw new RuntimeError('Video messages are not supported for Comment Replies. Use text instead.')
-    },
-    file: async () => {
-      throw new RuntimeError('File messages are not supported for Comment Replies. Use text instead.')
-    },
-    location: async () => {
-      throw new RuntimeError('Location messages are not supported for Comment Replies. Use text instead.')
-    },
-    carousel: async () => {
-      throw new RuntimeError('Carousel messages are not supported for Comment Replies. Use text instead.')
-    },
-    card: async () => {
-      throw new RuntimeError('Card messages are not supported for Comment Replies. Use text instead.')
-    },
-    dropdown: async () => {
-      throw new RuntimeError('Dropdown messages are not supported for Comment Replies. Use text instead.')
-    },
-    choice: async () => {
-      throw new RuntimeError('Choice messages are not supported for Comment Replies. Use text instead.')
-    },
-    bloc: async () => {
-      throw new RuntimeError('Bloc messages are not supported for Comment Replies. Use text instead.')
-    },
   },
 }
 

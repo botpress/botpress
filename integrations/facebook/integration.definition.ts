@@ -60,7 +60,7 @@ export default new IntegrationDefinition({
     commentReplies: {
       title: 'Comment Replies',
       description: 'Channel for replies to comments on Facebook posts',
-      messages: messages.defaults,
+      messages: { text: messages.defaults.text },
       message: {
         tags: {
           id: { title: 'Comment ID', description: 'The unique ID of the comment' },
