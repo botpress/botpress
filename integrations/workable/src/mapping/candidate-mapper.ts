@@ -29,7 +29,7 @@ export function fromListCandidatesInputModel(
   const { createdAfter, nextToken, shortCode, updatedAfter, ...rest } = model
   return {
     ...rest,
-    short_code: shortCode,
+    shortcode: shortCode,
     since_id: nextToken,
     created_after: createdAfter,
     updated_after: updatedAfter,

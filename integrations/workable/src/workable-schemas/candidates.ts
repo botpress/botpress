@@ -44,7 +44,7 @@ export const listCandidatesOutputSchema = z.object({
 export const listCandidatesInputSchema = z
   .object({
     email: z.string().nullable(),
-    short_code: z.string(),
+    shortcode: z.string(),
     stage: z.string(),
     limit: z.number(),
     since_id: z.string(),
