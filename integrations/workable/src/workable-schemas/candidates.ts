@@ -98,6 +98,13 @@ export const locationSchema = z
   })
   .partial()
 
+export const answerSchema = z.object({
+  question: z.object({
+    body: z.string(),
+  }),
+  answer: z.object({}).nullable(),
+})
+
 export const detailedCandidateSchema = candidateSchema
   .extend({
     image_url: z.string().nullable(),
@@ -106,10 +113,10 @@ export const detailedCandidateSchema = candidateSchema
     uploader_id: z.string().nullable(),
     cover_letter: z.string().nullable(),
     summary: z.string().nullable(),
-    education_entries: z.array(educationEntrySchema.optional()),
-    experience_entries: z.array(experienceEntrySchema.optional()),
+    education_entries: z.array(educationEntrySchema),
+    experience_entries: z.array(experienceEntrySchema),
     skills: z.array(z.object({ name: z.string() }).partial().optional()),
-    answers: z.array(z.string().optional()),
+    answers: z.array(answerSchema.optional()),
     resume_url: z.string().nullable(),
     social_profiles: z.array(socialProfileSchema.optional()),
     tags: z.array(z.string().optional()),

@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { listCandidates } from 'definitions/actions/candidates'
+import { getCandidate, listCandidates } from 'definitions/actions/candidates'
 
 export default new IntegrationDefinition({
   name: 'workable',
@@ -24,6 +24,6 @@ export default new IntegrationDefinition({
   },
   actions: {
     listCandidates,
-    // getCandidate,
+    getCandidate,
   },
 })

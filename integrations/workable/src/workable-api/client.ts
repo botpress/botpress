@@ -1,7 +1,12 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios, AxiosResponse } from 'axios'
 // import * as bp from '.botpress'
-import { listCandidatesInputSchema, listCandidatesOutputSchema } from 'src/workable-schemas/candidates'
+import {
+  getCandidateInputSchema,
+  getCandidateOutputSchema,
+  listCandidatesInputSchema,
+  listCandidatesOutputSchema,
+} from 'src/workable-schemas/candidates'
 import { z } from '@botpress/sdk'
 
 // type Actions = bp.actions.Actions
@@ -52,10 +57,12 @@ export class WorkableClient {
     return this._unwrapResponse(response.data)
   }
 
-  // public async getCandidate(params: Input<'getCandidate'>): Promise<Output<'getCandidate'>> {
-  //   const response: AxiosResponse<ApiOutput<'getCandidate'>> = await this._client
-  //     .get(`/candidates/${params.id}`)
-  //     .catch(this._handleAxiosError)
-  //   return this._unwrapResponse(response.data)
-  // }
+  public async getCandidate(
+    params: z.infer<typeof getCandidateInputSchema>
+  ): Promise<z.infer<typeof getCandidateOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof getCandidateOutputSchema>> = await this._client
+      .get(`/candidates/${params.id}`)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
 }
