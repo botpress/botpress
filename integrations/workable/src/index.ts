@@ -25,11 +25,9 @@ export default new bp.Integration({
       try {
         const raw = await client.listCandidates(fromListCandidatesInputModel(props.input))
         return toListCandidatesOutputModel(raw)
-      } catch (e: unknown) {
-        if (e instanceof Error) {
-          throw new RuntimeError(e.message)
-        }
-        throw new RuntimeError('Unknown error')
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(msg)
       }
     },
     getCandidate: async (props) => {
@@ -38,11 +36,9 @@ export default new bp.Integration({
       try {
         const raw = await client.getCandidate(fromGetCandidateInputModel(props.input))
         return toGetCandidateModel(raw)
-      } catch (e: unknown) {
-        if (e instanceof Error) {
-          throw new RuntimeError(e.message)
-        }
-        throw new RuntimeError('Unknown error')
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(msg)
       }
     },
   },
