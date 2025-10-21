@@ -1,8 +1,8 @@
 import { channel } from './channel'
-import { comment } from './comment'
+import { commentReplies } from './comment'
 import * as bp from '.botpress'
 
 export default {
   channel,
-  comment,
+  commentReplies,
 } satisfies bp.IntegrationProps['channels']

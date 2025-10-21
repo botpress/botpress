@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { getCredentials, InstagramClient } from 'src/misc/client'
 import * as bp from '.botpress'
 
-export const comment: bp.IntegrationProps['channels']['comment'] = {
+export const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
   messages: {
     text: async (props) => {
       const { ack, ctx, client, logger, payload, conversation } = props
