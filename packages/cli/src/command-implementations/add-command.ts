@@ -352,7 +352,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
-    const alreadyPresentDep = Object.entries(bpDependencies).find(([key]) => key === packageName)
+    const { data: validatedBpDeps } = parseResult
+
+    const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
     if (alreadyPresentDep) {
       if (alreadyPresentDep[1] !== version) {
         this.logger.warn(
@@ -363,7 +365,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     pkgJson.bpDependencies = {
-      ...parseResult.data,
+      ...validatedBpDeps,
       [packageName]: version,
     }
 
