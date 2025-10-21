@@ -333,7 +333,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
-    const packageJsonPath = `${this.argv.installPath}/package.json`
     const version = targetPackage.pkg.path ?? targetPackage.pkg.version
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
@@ -343,13 +342,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
-      await fslib.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
+      await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
       return
     }
 
     const bpDependenciesSchema = sdk.z.record(sdk.z.string())
-    const parseResults = bpDependenciesSchema.safeParse(bpDependencies)
-    if (!parseResults.success) {
+    const parseResult = bpDependenciesSchema.safeParse(bpDependencies)
+    if (!parseResult.success) {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
@@ -357,7 +356,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (alreadyPresentDep) {
       if (alreadyPresentDep[1] !== version) {
         this.logger.warn(
-          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced`
+          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
         )
       }
       return
@@ -368,7 +367,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       [packageName]: version,
     }
 
-    await fslib.promises.writeFile(packageJsonPath, JSON.stringify(pkgJson, null, 2))
+    await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
   }
 }
 
