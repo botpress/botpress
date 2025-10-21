@@ -1,4 +1,7 @@
 import { z } from '@botpress/sdk'
+import * as bp from '.botpress'
+
+export type MetaClientConfigType = bp.Context['configurationType'] | 'oauth'
 
 export type MetaClientCredentials = {
   userToken?: string

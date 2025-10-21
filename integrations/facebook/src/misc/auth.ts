@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { FacebookClientCredentials, MetaClientCredentials } from './types'
+import { FacebookClientCredentials, MetaClientCredentials, MetaClientConfigType } from './types'
 import * as bp from '.botpress'
 import { Oauth as OAuthState } from '.botpress/implementation/typings/states/oauth'
 
@@ -83,16 +83,31 @@ export async function patchOAuthMetaClientCredentials(
   })
 }
 
-export async function getMetaClientCredentials(client: bp.Client, ctx: bp.Context): Promise<MetaClientCredentials> {
+export async function getMetaClientCredentials({
+  configType: explicitConfigType,
+  client,
+  ctx,
+}: {
+  configType?: MetaClientConfigType
+  client: bp.Client
+  ctx: bp.Context
+}): Promise<MetaClientCredentials> {
+  const configType: MetaClientConfigType = explicitConfigType ?? ctx.configurationType
+
   let credentials: MetaClientCredentials | undefined
-  if (ctx.configurationType === 'manual') {
+  if (configType === 'manual') {
+    if (ctx.configurationType !== 'manual') {
+      throw new RuntimeError(
+        'Meta client credentials for manual configuration only available when configured with manual configuration'
+      )
+    }
     credentials = {
       pageToken: ctx.configuration.accessToken,
       pageId: ctx.configuration.pageId,
       clientId: ctx.configuration.clientId,
       clientSecret: ctx.configuration.clientSecret,
     }
-  } else {
+  } else if (configType === 'oauth') {
     credentials = await getOAuthMetaClientCredentials(client, ctx)
   }
 
