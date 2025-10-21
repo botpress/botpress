@@ -1,7 +1,11 @@
 import { RuntimeError } from '@botpress/client'
 import * as bp from '.botpress'
 import { WorkableClient } from './workable-api/client'
-import { fromListCandidatesInputModel, toListCandidatesOutputModel } from './mapping/candidate-mapper'
+import {
+  fromListCandidatesInputModel,
+  toGetCandidateModel,
+  toListCandidatesOutputModel,
+} from './mapping/candidate-mapper'
 
 export default new bp.Integration({
   register: async (props) => {
@@ -17,13 +21,13 @@ export default new bp.Integration({
     listCandidates: async (props) => {
       const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
       const raw = await client.listCandidates(fromListCandidatesInputModel(props.input))
-      const converted = toListCandidatesOutputModel(raw)
-      return converted
+      return toListCandidatesOutputModel(raw)
     },
-    // getCandidate: async (props) => {
-    //   const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
-    //   return await client.getCandidate(props.input)
-    // },
+    getCandidate: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+      const raw = await client.getCandidate(props.input)
+      return toGetCandidateModel(raw)
+    },
   },
   channels: {},
   handler: async () => {},
