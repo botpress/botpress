@@ -92,7 +92,7 @@ export async function getMetaClientCredentials(client: bp.Client, ctx: bp.Contex
       clientId: ctx.configuration.clientId,
       clientSecret: ctx.configuration.clientSecret,
     }
-  } else if (ctx.configurationType === 'oauth') {
+  } else {
     credentials = await getOAuthMetaClientCredentials(client, ctx)
   }
 
