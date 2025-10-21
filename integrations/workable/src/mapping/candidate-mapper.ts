@@ -1,16 +1,5 @@
 import { z } from '@botpress/sdk'
 import {
-  candidateSchema,
-  detailedCandidateSchema,
-  educationEntrySchema,
-  experienceEntrySchema,
-  getCandidateInputSchema,
-  getCandidateOutputSchema,
-  listCandidatesInputSchema,
-  listCandidatesOutputSchema,
-  locationSchema,
-} from 'src/workable-schemas/candidates'
-import {
   candidateModel,
   detailedCandidateModel,
   educationEntryModel,
@@ -21,6 +10,17 @@ import {
   listCandidatesOutputModel,
   locationModel,
 } from 'definitions/models/candidates'
+import {
+  candidateSchema,
+  detailedCandidateSchema,
+  educationEntrySchema,
+  experienceEntrySchema,
+  getCandidateInputSchema,
+  getCandidateOutputSchema,
+  listCandidatesInputSchema,
+  listCandidatesOutputSchema,
+  locationSchema,
+} from 'src/workable-schemas/candidates'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
