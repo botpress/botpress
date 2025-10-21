@@ -1,16 +1,11 @@
-import { RuntimeError } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import axios, { Axios, AxiosResponse } from 'axios'
-// import * as bp from '.botpress'
 import {
   getCandidateInputSchema,
   getCandidateOutputSchema,
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
 } from 'src/workable-schemas/candidates'
-import { z } from '@botpress/sdk'
-
-// type Actions = bp.actions.Actions
-// type Input<K extends keyof Actions> = Actions[K]['input']
 
 export type ErrorResponse = {
   code: number
@@ -34,17 +29,17 @@ export class WorkableClient {
 
   private _unwrapResponse<K extends object>(response: ApiOutput<K>): K {
     if ('message' in response) {
-      throw new RuntimeError(response.message)
+      throw new Error(response.message)
     }
     return response
   }
 
   private _handleAxiosError(thrown: unknown): never {
     if (axios.isAxiosError(thrown)) {
-      throw new RuntimeError(thrown.response?.data?.message || thrown.message)
+      throw new Error(thrown.response?.data?.message || thrown.message)
     } else {
       const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new RuntimeError(error.message)
+      throw new Error(error.message)
     }
   }
 
