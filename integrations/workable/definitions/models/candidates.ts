@@ -6,7 +6,7 @@ export const candidateModel = z
     name: z.string().title('Name').describe("The candidate's full name"),
     firstName: z.string().title('First Name').describe("The candidate's first name"),
     lastName: z.string().title('Last Name').describe("The candidate's last name"),
-    email: z.string().title('Email').describe("The candidate's email address"),
+    email: z.string().title('Email').nullable().describe("The candidate's email address"),
     headline: z.string().nullable().title('Headline').describe("The candidate's headline"),
     account: z
       .object({
@@ -50,7 +50,7 @@ export const listCandidatesOutputModel = z.object({
 
 export const listCandidatesInputModel = z
   .object({
-    email: z.string().title('Email').describe('The email of the candidate to filter by'),
+    email: z.string().title('Email').nullable().describe('The email of the candidate to filter by'),
     shortCode: z.string().title('Shortcode').describe("The job's system generated code"),
     stage: z.string().title('Stage').describe("The job's stage slug, can be retrieved from the '/stages' endpoint"),
     limit: z.number().title('Limit').describe('Specifies the number of candidates to try and retrieve per page'),
