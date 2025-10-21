@@ -1,12 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '.botpress'
-import { WorkableClient } from './workable-api/client'
 import {
   fromGetCandidateInputModel,
   fromListCandidatesInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
 } from './mapping/candidate-mapper'
+import { WorkableClient } from './workable-api/client'
+import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async (props) => {
