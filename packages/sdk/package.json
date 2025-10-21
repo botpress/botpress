@@ -5,6 +5,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc -p ./tsconfig.json --noEmit",
     "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
