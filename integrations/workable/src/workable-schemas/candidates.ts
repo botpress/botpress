@@ -26,7 +26,7 @@ export const candidateSchema = z
     disqualification_reason: z.string().nullable(),
     sourced: z.boolean(),
     profile_url: z.string().nullable(),
-    email: z.string(),
+    email: z.string().nullable(),
     domain: z.string().nullable(),
     created_at: z.string(),
     updated_at: z.string(),
@@ -43,7 +43,7 @@ export const listCandidatesOutputSchema = z.object({
 
 export const listCandidatesInputSchema = z
   .object({
-    email: z.string(),
+    email: z.string().nullable(),
     short_code: z.string(),
     stage: z.string(),
     limit: z.number(),
