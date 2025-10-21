@@ -1,42 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
-import {
-  FacebookClientCredentials,
-  MessengerClientCredentials,
-  MetaClientConfigType,
-  MetaClientCredentials,
-} from './types'
+import { MessengerClientCredentials, MetaClientCredentials, MetaClientConfigType } from './types'
 import * as bp from '.botpress'
 import { Oauth as OAuthState } from '.botpress/implementation/typings/states/oauth'
-
-export async function getFacebookClientCredentials(
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<FacebookClientCredentials> {
-  let credentials: FacebookClientCredentials
-  if (ctx.configurationType === 'manual') {
-    credentials = {
-      pageId: ctx.configuration.pageId,
-      pageToken: ctx.configuration.accessToken,
-    }
-  } else if (ctx.configurationType === 'sandbox') {
-    throw new RuntimeError('Facebook client credentials are not available for sandbox configuration')
-  } else {
-    const {
-      state: {
-        payload: { pageToken, pageId },
-      },
-    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-    if (!pageToken || !pageId) {
-      throw new RuntimeError('No page token or page id found, please reauthorize')
-    }
-    credentials = {
-      pageId,
-      pageToken,
-    }
-  }
-
-  return credentials
-}
 
 export async function getMessengerClientCredentials(
   client: bp.Client,

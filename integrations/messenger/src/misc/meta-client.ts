@@ -189,7 +189,7 @@ export class MetaClient {
         endpoint: `${pageId}/subscribed_apps`,
         tokenType: 'page',
         data: {
-          subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
+          subscribed_fields: ['messages', 'messaging_postbacks'],
         },
       })
 

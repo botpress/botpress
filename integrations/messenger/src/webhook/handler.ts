@@ -1,8 +1,8 @@
 import { isSandboxCommand, meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { messengerPayloadSchema, feedEventPayloadSchema } from '../misc/types'
+import { messengerPayloadSchema } from '../misc/types'
 import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler, sandboxHandler, feedHandler } from './handlers'
+import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -39,7 +39,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  // Try to parse as messenger payload first
+  // Parse as messenger payload
   const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
   if (messengerParseResult.success) {
     const data = messengerParseResult.data
@@ -50,19 +50,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  // Try to parse as feed event payload
-  if (props.ctx.configuration.replyToComments) {
-    const feedParseResult = feedEventPayloadSchema.safeParse(jsonParseResult.data)
-    if (feedParseResult.success) {
-      const data = feedParseResult.data
-      for (const entry of data.entry) {
-        await feedHandler(entry, props)
-      }
-      return
-    }
-    logger.forBot().warn('Error while parsing body as feed event payload')
-  }
-
+  logger.forBot().warn('Error while parsing body as messenger payload')
   return
 }
 
