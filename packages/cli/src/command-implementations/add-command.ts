@@ -363,7 +363,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     pkgJson.bpDependencies = {
-      ...(typeof bpDependencies === 'object' && bpDependencies !== null ? bpDependencies : {}),
+      ...parseResult.data,
       [packageName]: version,
     }
 
