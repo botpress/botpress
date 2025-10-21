@@ -117,18 +117,18 @@ export default new IntegrationDefinition({
       },
     },
     commentReplies: {
-      title: 'Comment',
-      description: 'A comment on an Instagram post',
+      title: 'Comment Replies',
+      description: 'Replies to comments on an Instagram post',
       messages: messages.defaults,
       message: {
         tags: {
           id: {
             title: 'Comment ID',
-            description: 'The Instagram comment ID',
+            description: 'The unique ID of the comment',
           },
           postId: {
             title: 'Post ID',
-            description: 'The Instagram post ID of the post where the comment was posted',
+            description: 'The Instagram post ID where the comment was posted',
           },
         },
       },
@@ -136,11 +136,11 @@ export default new IntegrationDefinition({
         tags: {
           id: {
             title: 'Comment ID',
-            description: 'The Instagram comment ID',
+            description: 'The Instagram comment ID under which the reply was posted',
           },
           postId: {
             title: 'Post ID',
-            description: 'The Instagram post ID of the post where the comment was posted',
+            description: 'The Instagram post ID where the comment was posted',
           },
         },
       },
