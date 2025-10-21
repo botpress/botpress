@@ -1,6 +1,6 @@
 import * as bp from '.botpress'
 import { WorkableClient } from './client'
-import { fromListCandidatesInputModel, toListCandidatesOutputModel } from 'src/candidate-mapper'
+import { fromListCandidatesInputModel, toListCandidatesOutputModel } from 'src/mapping/candidate-mapper'
 
 type Output<K extends keyof Actions> = Actions[K]['output']
 type Actions = bp.actions.Actions
