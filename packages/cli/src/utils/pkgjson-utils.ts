@@ -18,7 +18,7 @@ export type PackageJson = {
 const FILE_NAME = 'package.json'
 
 export const readPackageJson = async (path: string): Promise<PackageJson | undefined> => {
-  const filePath = pathlib.basename(path) === FILE_NAME ? path : pathlib.join(path, FILE_NAME)
+  const filePath = _resolveFilePath(path)
   if (!fs.existsSync(filePath)) {
     return undefined
   }
@@ -32,4 +32,13 @@ export const findDependency = (pkgJson: PackageJson, name: string): string | und
   const { dependencies, devDependencies, peerDependencies } = pkgJson
   const allDependencies = { ...(dependencies ?? {}), ...(devDependencies ?? {}), ...(peerDependencies ?? {}) }
   return allDependencies[name]
+}
+
+export const writePackageJson = async (path: string, pkgJson: PackageJson) => {
+  const filePath = _resolveFilePath(path)
+  await fs.promises.writeFile(filePath, JSON.stringify(pkgJson, null, 2))
+}
+
+function _resolveFilePath(path: string) {
+  return pathlib.basename(path) === FILE_NAME ? path : pathlib.join(path, FILE_NAME)
 }
