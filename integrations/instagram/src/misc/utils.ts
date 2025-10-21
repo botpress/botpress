@@ -6,8 +6,6 @@ import {
   GenericTemplateElement,
   GenericTemplateMessage,
   InstagramAction,
-  InstagramCommentEntry,
-  InstagramMessageEntry,
   Location,
   TextMessageWithQuickReplies,
 } from './types'
@@ -93,19 +91,4 @@ export function safeJsonParse(x: any) {
   } catch {
     return { data: x, success: false }
   }
-}
-// Union type for individual entries
-export type InstagramEntry = InstagramMessageEntry | InstagramCommentEntry
-
-// Entry type discriminator
-export type InstagramEntryType = 'message' | 'comment' | 'unknown'
-
-export function getEntryType(entry: InstagramEntry): InstagramEntryType {
-  if ('messaging' in entry) {
-    return 'message'
-  }
-  if ('changes' in entry) {
-    return 'comment'
-  }
-  return 'unknown'
 }

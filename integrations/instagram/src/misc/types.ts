@@ -1,13 +1,19 @@
 import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
-const InstagramMessageBaseSchema = z.object({
+// Incoming message types
+const instagramEntryBaseSchema = z.object({
+  id: z.string(),
+  time: z.number(),
+})
+
+const instagramMessagingItemBaseSchema = z.object({
   sender: z.object({ id: z.string() }),
   recipient: z.object({ id: z.string() }),
   timestamp: z.number(),
 })
 
-const InstagramMessagingEntryAttachmentTypeSchema = z.enum([
+const instagramMessagingItemAttachmentTypeSchema = z.enum([
   'audio',
   'file',
   'image',
@@ -17,11 +23,11 @@ const InstagramMessagingEntryAttachmentTypeSchema = z.enum([
   'ig_reel',
   'reel',
 ])
-export const InstagramMessagingEntryMessageSchema = InstagramMessageBaseSchema.extend({
+const instagramMessagingItemMessageSchema = instagramMessagingItemBaseSchema.extend({
   message: z.object({
     mid: z.string(),
     attachments: z
-      .array(z.object({ type: InstagramMessagingEntryAttachmentTypeSchema, payload: z.object({ url: z.string() }) }))
+      .array(z.object({ type: instagramMessagingItemAttachmentTypeSchema, payload: z.object({ url: z.string() }) }))
       .optional(),
     is_echo: z.boolean().optional(),
     quick_reply: z.object({ payload: z.string() }).optional(),
@@ -29,7 +35,7 @@ export const InstagramMessagingEntryMessageSchema = InstagramMessageBaseSchema.e
   }),
 })
 
-export const InstagramMessagingEntryPostbackSchema = InstagramMessageBaseSchema.extend({
+const instagramMessagingItemPostbackSchema = instagramMessagingItemBaseSchema.extend({
   postback: z.object({
     mid: z.string(),
     title: z.string(),
@@ -37,76 +43,75 @@ export const InstagramMessagingEntryPostbackSchema = InstagramMessageBaseSchema.
   }),
 })
 
-const InstagramMessagingEntryOtherSchema = InstagramMessageBaseSchema
+const instagramMessagingItemOtherSchema = instagramMessagingItemBaseSchema
 
-const InstagramMessagingEntrySchema = z.union([
-  InstagramMessagingEntryMessageSchema,
-  InstagramMessagingEntryPostbackSchema,
-  InstagramMessagingEntryOtherSchema,
+const instagramMessagingItemSchema = z.union([
+  instagramMessagingItemMessageSchema,
+  instagramMessagingItemPostbackSchema,
+  instagramMessagingItemOtherSchema,
 ])
 
-export const InstagramMessageEntrySchema = z.object({
-  id: z.string(),
-  time: z.number(),
-  messaging: z.array(InstagramMessagingEntrySchema),
+const instagramMessagingEntrySchema = instagramEntryBaseSchema.extend({
+  messaging: z.array(instagramMessagingItemSchema),
 })
 
-const InstagramCommentSchema = z.object({
-  id: z.string(),
-  parent_id: z.string().optional(),
-  text: z.string(),
-  from: z.object({
+const instagramCommentEntrySchema = instagramEntryBaseSchema.extend({
+  field: z.literal('comments'),
+  value: z.object({
     id: z.string(),
-    username: z.string(),
-  }),
-  media: z.object({
-    id: z.string(),
-    media_product_type: z.string(),
+    from: z.object({
+      id: z.string(),
+      username: z.string(),
+    }),
+    text: z.string(),
+    media: z.object({
+      id: z.string(),
+      media_product_type: z.string(),
+    }),
   }),
 })
 
-export const InstagramCommentEntrySchema = z.object({
-  id: z.string(),
-  time: z.number(),
+// For some reason, as of API version 24.0, the comment events received use the "Facebook Login for Business" format
+// See: https://developers.facebook.com/docs/instagram-platform/webhooks/examples#comments
+const instagramLegacyCommentEntrySchema = instagramEntryBaseSchema.extend({
   changes: z.array(
     z.object({
-      field: z.string(),
-      value: InstagramCommentSchema,
+      field: z.literal('comments'),
+      value: z.object({
+        from: z.object({
+          id: z.string(),
+          username: z.string(),
+        }),
+        id: z.string(),
+        text: z.string(),
+        media: z.object({
+          id: z.string(),
+          media_product_type: z.string(),
+        }),
+      }),
     })
   ),
 })
 
-// Entry-level union - allows mixed entry types in a single payload
-const InstagramEntrySchema = z.union([InstagramMessageEntrySchema, InstagramCommentEntrySchema])
+const instagramEntrySchema = z.union([
+  instagramMessagingEntrySchema,
+  instagramCommentEntrySchema,
+  instagramLegacyCommentEntrySchema,
+])
 
-// Single payload schema with entry-level union
-export const InstagramPayloadSchema = z.object({
-  object: z.string(),
-  entry: z.array(InstagramEntrySchema),
+export const instagramPayloadSchema = z.object({
+  object: z.literal('instagram'),
+  entry: z.array(instagramEntrySchema),
 })
 
-// Legacy schemas for backward compatibility
-export const InstagramCommentPayloadSchema = z.object({
-  object: z.string(),
-  entry: z.array(InstagramCommentEntrySchema),
-})
+export type InstagramMessaging = z.infer<typeof instagramMessagingEntrySchema>['messaging']
+export type InstagramMessagingItemMessage = z.infer<typeof instagramMessagingItemMessageSchema>
+export type InstagramMessagingItemPostback = z.infer<typeof instagramMessagingItemPostbackSchema>
+export type InstagramMessagingItem = z.infer<typeof instagramMessagingItemSchema>
+export type InstagramComment = z.infer<typeof instagramCommentEntrySchema>['value']
+export type InstagramLegacyComment = z.infer<typeof instagramLegacyCommentEntrySchema>['changes'][number]['value']
 
-export const InstagramMessagePayloadSchema = z.object({
-  object: z.string(),
-  entry: z.array(InstagramMessageEntrySchema),
-})
-
-export type InstagramEntry = z.infer<typeof InstagramEntrySchema>
-export type InstagramPayload = z.infer<typeof InstagramPayloadSchema>
-export type InstagramCommentPayload = z.infer<typeof InstagramCommentPayloadSchema>
-export type InstagramMessagePayload = z.infer<typeof InstagramMessagePayloadSchema>
-export type InstagramComment = z.infer<typeof InstagramCommentSchema>
-export type InstagramCommentEntry = z.infer<typeof InstagramCommentEntrySchema>
-export type InstagramMessageEntry = z.infer<typeof InstagramMessageEntrySchema>
-export type InstagramMessagingEntry = z.infer<typeof InstagramMessagingEntrySchema>
-export type InstagramMessagingEntryPostback = z.infer<typeof InstagramMessagingEntryPostbackSchema>
-export type InstagramMessagingEntryMessage = z.infer<typeof InstagramMessagingEntryMessageSchema>
-
+// Outgoing message types
 export type Carousel = bp.channels.channel.carousel.Carousel
 export type Card = bp.channels.channel.card.Card
 export type Choice = bp.channels.channel.choice.Choice

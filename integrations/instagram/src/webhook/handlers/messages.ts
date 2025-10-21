@@ -1,9 +1,9 @@
 import { getCredentials, InstagramClient } from 'src/misc/client'
 import {
-  InstagramMessagingEntry,
-  InstagramMessagingEntryMessage,
-  InstagramMessagingEntryPostback,
-  InstagramMessageEntry,
+  InstagramMessaging,
+  InstagramMessagingItem,
+  InstagramMessagingItemMessage,
+  InstagramMessagingItemPostback,
 } from 'src/misc/types'
 import * as bp from '.botpress'
 
@@ -17,13 +17,13 @@ type IncomingMessages = {
 type IncomingMessage = IncomingMessages[IncomingMessageTypes]
 
 // Entry-level handler for single message entry
-export const messageEntryHandler = async (entry: InstagramMessageEntry, props: bp.HandlerProps) => {
-  for (const messagingEntry of entry.messaging) {
-    if ('message' in messagingEntry) {
-      await _messageHandler(messagingEntry as InstagramMessagingEntryMessage, props)
+export const messagingHandler = async (messaging: InstagramMessaging, props: bp.HandlerProps) => {
+  for (const messagingItem of messaging) {
+    if ('message' in messagingItem) {
+      await _messageHandler(messagingItem, props)
     }
-    if ('postback' in messagingEntry) {
-      await _postbackHandler(messagingEntry as InstagramMessagingEntryPostback, props)
+    if ('postback' in messagingItem) {
+      await _postbackHandler(messagingItem, props)
     }
   }
 }
@@ -37,20 +37,20 @@ const _decodePostbackPayload = (payload: string): string => {
   return payload.slice(prefix.length + 1).trim()
 }
 
-const _postbackHandler = async (messagingEntry: InstagramMessagingEntryPostback, handlerProps: bp.HandlerProps) => {
-  const { postback } = messagingEntry
+const _postbackHandler = async (messagingItem: InstagramMessagingItemPostback, handlerProps: bp.HandlerProps) => {
+  const { postback } = messagingItem
   handlerProps.logger.forBot().debug('Received postback from Instagram:', postback.payload)
   const decodedPayload = _decodePostbackPayload(postback.payload)
   await _commonMessagingHandler({
     incomingMessage: { type: 'text', payload: { text: decodedPayload } },
     mid: postback.mid,
-    messagingEntry,
+    messagingItem,
     handlerProps,
   })
 }
 
-const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, handlerProps: bp.HandlerProps) => {
-  const { message } = messagingEntry
+const _messageHandler = async (messagingItem: InstagramMessagingItemMessage, handlerProps: bp.HandlerProps) => {
+  const { message } = messagingItem
   if (message.is_echo) {
     return
   }
@@ -99,7 +99,7 @@ const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, h
   await _commonMessagingHandler({
     incomingMessage,
     mid: message.mid,
-    messagingEntry,
+    messagingItem,
     handlerProps,
   })
 }
@@ -107,17 +107,17 @@ const _messageHandler = async (messagingEntry: InstagramMessagingEntryMessage, h
 const _commonMessagingHandler = async ({
   incomingMessage: { type, payload },
   mid,
-  messagingEntry,
+  messagingItem,
   handlerProps,
 }: {
   incomingMessage: IncomingMessage
   mid: string
-  messagingEntry: InstagramMessagingEntry
+  messagingItem: InstagramMessagingItem
   handlerProps: bp.HandlerProps
 }) => {
   const { client, ctx, logger } = handlerProps
 
-  const { sender, recipient } = messagingEntry
+  const { sender, recipient } = messagingItem
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
