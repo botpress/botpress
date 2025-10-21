@@ -107,7 +107,7 @@ export async function getMetaClientCredentials({
       clientId: ctx.configuration.clientId,
       clientSecret: ctx.configuration.clientSecret,
     }
-  } else if (configType === 'oauth') {
+  } else if (configType === 'oauth' || configType === null) {
     credentials = await getOAuthMetaClientCredentials(client, ctx)
   }
 

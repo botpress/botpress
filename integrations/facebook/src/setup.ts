@@ -9,8 +9,6 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   const { ctx } = props
   if (ctx.configurationType === 'manual') {
     await _registerManual(props)
-  } else {
-    await _registerOAuth(props)
   }
 }
 
@@ -19,13 +17,6 @@ export const unregister: bp.IntegrationProps['unregister'] = async () => {}
 const _registerManual = async (props: RegisterProps) => {
   await _clearAllIdentifiers(props)
   await _unsubscribeFromOAuthWebhooks(props)
-}
-
-const _registerOAuth = async ({ client }: RegisterProps) => {
-  // Clear identifiers if needed
-  await client.configureIntegration({
-    identifier: null,
-  })
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
