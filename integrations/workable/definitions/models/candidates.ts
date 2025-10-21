@@ -90,11 +90,18 @@ export const experienceEntryModel = z
     summary: z.string().nullable().title('Summary').describe('The summary of the experience entry'),
     startDate: z.string().nullable().title('Start Date').describe('The date started'),
     endDate: z.string().nullable().title('End Date').describe('The date ended'),
-    company: z.string().nullable().title('Company').describe('The copmany name'),
+    company: z.string().nullable().title('Company').describe('The company name'),
     industry: z.string().nullable().title('Industry').describe('The industry of the company'),
     current: z.boolean().nullable().title('Current').describe('Indicates if currently works there'),
   })
   .partial()
+
+export const answerModel = z.object({
+  question: z.object({
+    body: z.string().nullable().title('Question').describe('The question'),
+  }),
+  answer: z.unknown().nullable().title('Answer').describe('The answer'),
+})
 
 export const locationModel = z
   .object({
@@ -155,7 +162,7 @@ export const detailedCandidateModel = candidateModel
       )
       .title('Skills')
       .describe('A collection of skills with names'),
-    answers: z.array(z.string().optional()).title('Answers').describe('A collection with answers provided'),
+    answers: z.array(answerModel.optional()).title('Answers').describe('A collection with answers provided'),
     resumeUrl: z.string().nullable().title('Resume Url').describe('Url to the candidate resume'),
     socialProfiles: z
       .array(socialProfileModel.optional())
