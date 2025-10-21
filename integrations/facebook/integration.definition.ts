@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 const commonConfigSchema = z.object({
   replyToComments: z
     .boolean()
-    .default(false)
+    .default(true)
     .title('Reply to Comments')
     .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
 })
