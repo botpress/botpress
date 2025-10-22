@@ -149,6 +149,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await this._install(installPath, files)
+    await this._addDependencyToPackage(packageName, targetPackage)
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
@@ -328,6 +329,47 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       ...this.argv,
       workDir,
     })
+  }
+
+  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const version = targetPackage.pkg.path ?? targetPackage.pkg.version
+    if (!pkgJson) {
+      this.logger.warn('No package.json found in the install path')
+      return
+    }
+
+    const { bpDependencies } = pkgJson
+    if (!bpDependencies) {
+      pkgJson.bpDependencies = { [packageName]: version }
+      await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+      return
+    }
+
+    const bpDependenciesSchema = sdk.z.record(sdk.z.string())
+    const parseResult = bpDependenciesSchema.safeParse(bpDependencies)
+    if (!parseResult.success) {
+      throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
+    }
+
+    const { data: validatedBpDeps } = parseResult
+
+    const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
+    if (alreadyPresentDep) {
+      if (alreadyPresentDep[1] !== version) {
+        this.logger.warn(
+          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
+        )
+      }
+      return
+    }
+
+    pkgJson.bpDependencies = {
+      ...validatedBpDeps,
+      [packageName]: version,
+    }
+
+    await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
   }
 }
 

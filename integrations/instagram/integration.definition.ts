@@ -5,12 +5,20 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'instagram'
 
-// File message type unsupported both ways
-const { file: _file, ...channelMessages } = messages.defaults
+// File message type unsupported both ways in DM
+const { file: _file, ...dmChannelMessages } = messages.defaults
+
+const commonConfigSchema = z.object({
+  replyToComments: z
+    .boolean()
+    .default(false)
+    .title('Reply to Comments')
+    .describe('If enabled, the bot will reply to comments on posts.'),
+})
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '3.1.2',
+  version: '4.0.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -19,30 +27,32 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({}),
+    schema: commonConfigSchema,
   },
   configurations: {
     manual: {
       title: 'Manual Configuration',
       description: 'Configure by manually supplying the Meta app details',
-      schema: z.object({
-        clientSecret: z
-          .string()
-          .secret()
-          .title('Client Secret')
-          .describe('Instagram App secret from API setup View used for webhook signature check'),
-        verifyToken: z
-          .string()
-          .secret()
-          .title('Verify Token')
-          .describe('Token used for verifying the Callback URL at API setup View'),
-        accessToken: z
-          .string()
-          .secret()
-          .title('Access token')
-          .describe('Access Token for the Instagram Account from the API setup View'),
-        instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
-      }),
+      schema: z
+        .object({
+          clientSecret: z
+            .string()
+            .secret()
+            .title('Client Secret')
+            .describe('Instagram App secret from API setup View used for webhook signature check'),
+          verifyToken: z
+            .string()
+            .secret()
+            .title('Verify Token')
+            .describe('Token used for verifying the Callback URL at API setup View'),
+          accessToken: z
+            .string()
+            .secret()
+            .title('Access token')
+            .describe('Access Token for the Instagram Account from the API setup View'),
+          instagramId: z.string().title('Instagram account ID').describe('Instagram Account Id from API setup View'),
+        })
+        .merge(commonConfigSchema),
     },
     sandbox: {
       title: 'Sandbox Configuration',
@@ -80,7 +90,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Direct Message',
       description: 'Direct message conversation between an Instagram user and the bot',
-      messages: channelMessages,
+      messages: dmChannelMessages,
       message: {
         tags: {
           id: {
@@ -102,6 +112,37 @@ export default new IntegrationDefinition({
           id: {
             title: 'Conversation ID',
             description: 'The Instagram user ID of the user in the conversation',
+          },
+        },
+      },
+    },
+    commentReplies: {
+      title: 'Comment Replies',
+      description: 'Replies to comments on an Instagram post',
+      messages: {
+        text: messages.defaults.text,
+      },
+      message: {
+        tags: {
+          id: {
+            title: 'Comment ID',
+            description: 'The unique ID of the comment',
+          },
+          postId: {
+            title: 'Post ID',
+            description: 'The Instagram post ID where the comment was posted',
+          },
+        },
+      },
+      conversation: {
+        tags: {
+          id: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID under which the reply was posted',
+          },
+          postId: {
+            title: 'Post ID',
+            description: 'The Instagram post ID where the comment was posted',
           },
         },
       },
