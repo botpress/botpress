@@ -18,21 +18,6 @@ export const getEmployeeBasicInfo: bp.IntegrationProps['actions']['getEmployeeBa
   }
 }
 
-export const getEmployeeSensitiveInfo: bp.IntegrationProps['actions']['getEmployeeSensitiveInfo'] = async ({
-  client,
-  ctx,
-  logger,
-  input,
-}) => {
-  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
-  try {
-    return await bambooHrClient.getEmployeeSensitiveInfo(input.id)
-  } catch (thrown) {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to get employee sensitive info', error)
-  }
-}
-
 export const getEmployeeCustomInfo: bp.IntegrationProps['actions']['getEmployeeCustomInfo'] = async ({
   input,
   client,
