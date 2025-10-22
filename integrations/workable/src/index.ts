@@ -13,8 +13,9 @@ export default new bp.Integration({
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
     try {
       await client.listCandidates()
-    } catch {
-      throw new RuntimeError('Failed to register the integration.')
+    } catch (thrown) {
+      const msg = thrown instanceof Error ? thrown.message : String(thrown)
+      throw new RuntimeError(`Failed to register the integration: ${msg}`)
     }
   },
   unregister: async () => {},
@@ -27,7 +28,7 @@ export default new bp.Integration({
         return toListCandidatesOutputModel(raw)
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
-        throw new RuntimeError(msg)
+        throw new RuntimeError(`Failed to list candidates: ${msg}`)
       }
     },
     getCandidate: async (props) => {
@@ -38,7 +39,7 @@ export default new bp.Integration({
         return toGetCandidateModel(raw)
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
-        throw new RuntimeError(msg)
+        throw new RuntimeError(`Failed to get candidate with id ${props.input.id}: ${msg}`)
       }
     },
   },
