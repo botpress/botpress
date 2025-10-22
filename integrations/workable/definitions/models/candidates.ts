@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 
-export const candidateModel = z
+export const candidateSchema = z
   .object({
     id: z.string().title('Id').describe('The candidate identifier'),
     name: z.string().title('Name').describe("The candidate's full name"),
@@ -43,12 +43,12 @@ export const candidateModel = z
   })
   .partial()
 
-export const listCandidatesOutputModel = z.object({
-  candidates: z.array(candidateModel).title('Candidates').describe('The array of candidates'),
+export const listCandidatesOutputSchema = z.object({
+  candidates: z.array(candidateSchema).title('Candidates').describe('The array of candidates'),
   nextToken: z.string().optional().title('Next Token').describe('The token for the next page of results'),
 })
 
-export const listCandidatesInputModel = z
+export const listCandidatesInputSchema = z
   .object({
     email: z.string().title('Email').describe('The email of the candidate to filter by'),
     shortCode: z.string().title('Shortcode').describe("The job's system generated code"),
@@ -63,7 +63,7 @@ export const listCandidatesInputModel = z
   })
   .partial()
 
-export const educationEntryModel = z
+export const educationEntrySchema = z
   .object({
     id: z.string().title('Id').describe('The education entry identifier'),
     degree: z.string().nullable().title('Degree').describe('The graduation degree'),
@@ -74,7 +74,7 @@ export const educationEntryModel = z
   })
   .partial()
 
-export const socialProfileModel = z
+export const socialProfileSchema = z
   .object({
     type: z.string().title('Type').describe('The slug name of the social profile'),
     name: z.string().nullable().title('Name').describe('The full name of the social profile'),
@@ -83,7 +83,7 @@ export const socialProfileModel = z
   })
   .partial()
 
-export const experienceEntryModel = z
+export const experienceEntrySchema = z
   .object({
     id: z.string().title('Id').describe('The experience entry identifier'),
     title: z.string().title('Title').describe('The title of the experience entry'),
@@ -96,14 +96,14 @@ export const experienceEntryModel = z
   })
   .partial()
 
-export const answerModel = z.object({
+export const answerSchema = z.object({
   question: z.object({
     body: z.string().nullable().title('Question').describe('The question'),
   }),
   answer: z.unknown().nullable().title('Answer').describe('The answer'),
 })
 
-export const locationModel = z
+export const locationSchema = z
   .object({
     locationString: z
       .string()
@@ -119,7 +119,7 @@ export const locationModel = z
   })
   .partial()
 
-export const detailedCandidateModel = candidateModel
+export const detailedCandidateSchema = candidateSchema
   .extend({
     imageUrl: z
       .string()
@@ -146,25 +146,25 @@ export const detailedCandidateModel = candidateModel
       .describe('The cover letter provided when the candidate applied'),
     summary: z.string().nullable().title('Summary').describe('The summary of the candidate'),
     educationEntries: z
-      .array(educationEntryModel)
+      .array(educationEntrySchema)
       .title('Education Entries')
       .describe('A collection with education entries'),
     experienceEntries: z
-      .array(experienceEntryModel)
+      .array(experienceEntrySchema)
       .title('Experience Entries')
       .describe('A collection with experience entries'),
     skills: z
       .array(z.object({ name: z.string().title('Name') }).partial())
       .title('Skills')
       .describe('A collection of skills with names'),
-    answers: z.array(answerModel).title('Answers').describe('A collection with answers provided'),
+    answers: z.array(answerSchema).title('Answers').describe('A collection with answers provided'),
     resumeUrl: z.string().nullable().title('Resume Url').describe('Url to the candidate resume'),
     socialProfiles: z
-      .array(socialProfileModel)
+      .array(socialProfileSchema)
       .title('Social Profiles')
       .describe('A collection with social profiles of candidates'),
     tags: z.array(z.string()).title('Tags').describe('A collection of tags'),
-    location: locationModel.title('Location').nullable().describe('The location of the candidate'),
+    location: locationSchema.title('Location').nullable().describe('The location of the candidate'),
     originatingCandidateId: z
       .string()
       .nullable()
@@ -173,12 +173,12 @@ export const detailedCandidateModel = candidateModel
   })
   .partial()
 
-export const getCandidateOutputModel = z
+export const getCandidateOutputSchema = z
   .object({
-    candidate: detailedCandidateModel.title('Candidate').describe('The candidate found'),
+    candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
   })
   .partial()
 
-export const getCandidateInputModel = z.object({
+export const getCandidateInputSchema = z.object({
   id: z.string().title('ID').describe("The candidate's ID"),
 })
