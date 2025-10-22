@@ -24,7 +24,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '4.1.1',
+  version: '5.0.0',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -87,7 +87,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Messenger conversation',
       description: 'Channel for a Messenger conversation',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: messages.defaults,
       message: {
         tags: {
           id: { title: 'Message ID', description: 'The Messenger ID of the message' },
