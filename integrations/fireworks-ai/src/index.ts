@@ -208,7 +208,7 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
               // The DeepSeek R1 model card recommends using a fixed temperature of 0.6 and only using a user prompt rather than a system prompt. See: https://huggingface.co/deepseek-ai/DeepSeek-R1#usage-recommendations
               request.temperature = 0.6
               const systemPrompt = request.messages?.find((message) => message.role === 'system')
@@ -238,7 +238,7 @@ export default new bp.Integration({
             return request
           },
           overrideResponse: (response) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
               for (const choice of response.choices) {
                 if (choice.message.content) {
                   // DeepSeek R1 returns its CoT in its response between <think> tags so we remove it.
