@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "4.18.0",
+  "version": "4.19.0",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
@@ -11,6 +11,9 @@
     "build:types": "tsc -p ./tsconfig.build.json",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
     "test:e2e": "ts-node -T ./e2e"
+  },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
   },
   "keywords": [],
   "author": "",
