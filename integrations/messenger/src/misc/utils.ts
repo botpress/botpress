@@ -103,7 +103,6 @@ export const tryGetUserProfile = async (
     return undefined
   }
 }
-
 const isMetaError = (
   error: unknown
 ): error is { response: { data: { error: { message: string; error_user_msg: string } } } } => {

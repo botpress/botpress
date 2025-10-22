@@ -20,11 +20,6 @@ const commonConfigSchema = z.object({
     .describe(
       'Expiry time in hours for downloaded media files. An expiry time of 0 means the files will never expire.'
     ),
-  replyToComments: z
-    .boolean()
-    .default(false)
-    .title('Reply to Comments')
-    .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
 })
 
 export default new IntegrationDefinition({
@@ -105,23 +100,6 @@ export default new IntegrationDefinition({
           id: { title: 'Conversation ID', description: 'The Messenger ID of the conversation' },
           recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
           senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
-        },
-      },
-    },
-    commentReplies: {
-      title: 'Comment Replies',
-      description: 'Channel for replies to comments on Facebook posts',
-      messages: messages.defaults,
-      message: {
-        tags: {
-          id: { title: 'Comment ID', description: 'The unique ID of the comment' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
-        },
-      },
-      conversation: {
-        tags: {
-          id: { title: 'Comment ID', description: 'The Facebook comment ID under which the reply was posted' },
-          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
         },
       },
     },
