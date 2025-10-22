@@ -20,7 +20,7 @@ export default new IntegrationDefinition({
   title: 'Airtable',
   description:
     'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
-  version: '0.0.4',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
