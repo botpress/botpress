@@ -1,0 +1,21 @@
+{
+  "name": "@botpresshub/bamboohr",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
