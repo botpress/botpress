@@ -5,7 +5,6 @@ import {
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
   bambooHrEmployeeDirectoryResponse,
-  bambooHrEmployeeSensitiveInfoResponse,
   bambooHrEmployeeWebhookFields,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
@@ -134,22 +133,6 @@ export class BambooHRClient {
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrEmployeeBasicInfoResponse)
-
-    if (!result.success) {
-      this._props.logger.forBot().error(result.error, result.details)
-      throw new Error(result.error)
-    }
-
-    return result.data
-  }
-
-  public async getEmployeeSensitiveInfo(
-    employeeId: string
-  ): Promise<z.infer<typeof bambooHrEmployeeSensitiveInfoResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}`)
-
-    const res = await this._makeRequest({ method: 'GET', url })
-    const result = await parseResponseWithErrors(res, bambooHrEmployeeSensitiveInfoResponse)
 
     if (!result.success) {
       this._props.logger.forBot().error(result.error, result.details)

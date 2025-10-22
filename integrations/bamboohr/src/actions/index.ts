@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getCompanyInfo } from './company'
-import { getEmployeeBasicInfo, getEmployeeSensitiveInfo, getEmployeeCustomInfo, listEmployees } from './employees'
+import { getEmployeeBasicInfo, getEmployeeCustomInfo, listEmployees } from './employees'
 
 import * as bp from '.botpress'
 
@@ -15,7 +15,6 @@ const actionErrorWrapper = <T extends (...args: any) => Promise<any>>(fn: T): T 
 
 export const actions = {
   getEmployeeBasicInfo: actionErrorWrapper(getEmployeeBasicInfo),
-  getEmployeeSensitiveInfo: actionErrorWrapper(getEmployeeSensitiveInfo),
   getEmployeeCustomInfo: actionErrorWrapper(getEmployeeCustomInfo),
   listEmployees: actionErrorWrapper(listEmployees),
   getCompanyInfo: actionErrorWrapper(getCompanyInfo),

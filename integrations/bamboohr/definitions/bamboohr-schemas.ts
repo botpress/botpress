@@ -88,40 +88,6 @@ export const bambooHrEmployeeBasicInfoResponse = bambooHrEmployeeWebhookFields.e
   displayName: z.string().title('Display Name').describe("Employee's display name."),
 })
 
-/** Sensitive employee fields that can be queried. Requires different webhook permissions */
-export const bambooHrEmployeeSensitiveInfoResponse = z.object({
-  id: employeeId,
-  dateOfBirth: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Date of Birth')
-    .describe("Employee's date of birth (YYYY-MM-DD)."),
-  sin: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Social Insurance Number')
-    .describe("Employee's Canadian Social Insurance Number."),
-  ssn: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Social Security Number')
-    .describe("Employee's US Social Security Number."),
-  nin: z
-    .string()
-    .nullable()
-    .optional()
-    .title('National Insurance Number')
-    .describe("Employee's UK National Insurance Number."),
-  address1: z.string().nullable().optional().title('Address Line 1').describe("Employee's address line 1."),
-  address2: z.string().nullable().optional().title('Address Line 2').describe("Employee's address line 2."),
-  city: z.string().nullable().optional().title('City').describe("Employee's city of residence."),
-  state: z.string().nullable().optional().title('State').describe("Employee's state of residence."),
-  country: z.string().nullable().optional().title('Country').describe("Employee's country of residence."),
-})
-
 export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).catchall(z.string())
 
 export const bambooHrEmployeeDirectoryResponse = z.object({

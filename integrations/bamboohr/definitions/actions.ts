@@ -3,7 +3,6 @@ import {
   bambooHrCompanyInfo,
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
-  bambooHrEmployeeSensitiveInfoResponse,
 } from './bamboohr-schemas'
 import { employeeId, employeeIdObject } from './common'
 
@@ -15,17 +14,6 @@ const getEmployeeBasicInfo: ActionDefinition = {
   },
   output: {
     schema: bambooHrEmployeeBasicInfoResponse,
-  },
-}
-
-const getEmployeeSensitiveInfo: ActionDefinition = {
-  title: 'Get Sensitive Info',
-  description: 'Retrieve sensitive information about an employee by their ID.',
-  input: {
-    schema: employeeIdObject,
-  },
-  output: {
-    schema: bambooHrEmployeeSensitiveInfoResponse,
   },
 }
 
@@ -82,7 +70,6 @@ const getCompanyInfo: ActionDefinition = {
 
 export const actions = {
   getEmployeeBasicInfo,
-  getEmployeeSensitiveInfo,
   getEmployeeCustomInfo,
   listEmployees,
   getCompanyInfo,
