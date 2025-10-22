@@ -44,8 +44,10 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   if (messengerParseResult.success) {
     const data = messengerParseResult.data
     for (const { messaging } of data.entry) {
-      const message = messaging[0]
-      await messageHandler(message, props)
+      // Handle each messaging entry
+      for (const messagingEntry of messaging) {
+        await messageHandler(messagingEntry, props)
+      }
     }
     return
   }
