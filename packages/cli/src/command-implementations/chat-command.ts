@@ -138,7 +138,9 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
 
     const targetChatVersion = this._getChatApiTargetVersionRange()
     return integrationInstances.find(
-      (i) => i.instance.name === 'chat' && semver.satisfies(i.instance.version, targetChatVersion)
+      (i) =>
+        i.instance.name === 'chat' &&
+        (semver.satisfies(i.instance.version, targetChatVersion) || i.instance.version === 'dev')
     )
   }
 

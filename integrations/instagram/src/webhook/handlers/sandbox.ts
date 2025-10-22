@@ -4,7 +4,7 @@ import {
   extractSandboxCommand,
 } from '@botpress/common'
 import { getCredentials, InstagramClient } from 'src/misc/client'
-import { InstagramMessagingEntry, InstagramPayloadSchema } from 'src/misc/types'
+import { InstagramMessagingItem, instagramPayloadSchema } from 'src/misc/types'
 import * as bp from '.botpress'
 
 const NO_MESSAGE_ERROR = { status: 400, body: 'No message found in request' } as const
@@ -26,39 +26,49 @@ export const sandboxHandler: bp.IntegrationProps['handler'] = async (props: bp.H
 
 const _handleJoinCommand = async (props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
-  const messagingEntry = _extractMessagingEntryFromRequest(props)
-  if (!messagingEntry) {
+  const messagingItem = _extractMessagingItemFromRequest(props)
+  if (!messagingItem) {
     return NO_MESSAGE_ERROR
   }
 
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  await metaClient.sendTextMessage(messagingEntry.sender.id, CONVERSATION_CONNECTED_MESSAGE)
+  await metaClient.sendTextMessage(messagingItem.sender.id, CONVERSATION_CONNECTED_MESSAGE)
   return
 }
 
 const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
-  const messagingEntry = _extractMessagingEntryFromRequest(props)
-  if (!messagingEntry) {
+  const messagingItem = _extractMessagingItemFromRequest(props)
+  if (!messagingItem) {
     return NO_MESSAGE_ERROR
   }
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  await metaClient.sendTextMessage(messagingEntry.sender.id, CONVERSATION_DISCONNECTED_MESSAGE)
+  await metaClient.sendTextMessage(messagingItem.sender.id, CONVERSATION_DISCONNECTED_MESSAGE)
   return
 }
 
-const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): InstagramMessagingEntry | undefined => {
+const _extractMessagingItemFromRequest = (props: bp.HandlerProps): InstagramMessagingItem | undefined => {
   const { req, logger } = props
   if (!req.body) {
     return undefined
   }
-
   try {
     const data = JSON.parse(req.body)
-    const payload = InstagramPayloadSchema.parse(data)
-    return payload.entry[0]?.messaging[0]
+    const payload = instagramPayloadSchema.parse(data)
+    const entry = payload.entry[0]
+    if (!entry) {
+      logger.error('No entry found in payload')
+      return undefined
+    }
+
+    if (!('messaging' in entry)) {
+      logger.error('No messaging found in entry')
+      return undefined
+    }
+
+    return entry.messaging[0]
   } catch (e: any) {
     logger.error('Error while extracting message from request:', e?.message ?? '[unknown error]')
     return undefined
