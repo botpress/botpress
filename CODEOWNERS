@@ -31,7 +31,7 @@
 ## Others
 /integrations/airtable @botpress/squid
 /integrations/asana @botpress/squid
-/integrations/bigcommerce @botpress/squid
+/integrations/bigcommerce-sync @botpress/squid
 /integrations/calendly @botpress/squid
 /integrations/chat @botpress/squid
 /integrations/clickup @botpress/squid
