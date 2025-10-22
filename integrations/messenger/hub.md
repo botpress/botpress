@@ -6,7 +6,7 @@ The Messenger integration empowers your chatbot to seamlessly interact with Face
 
 ### Markdown message type
 
-The Markdown message type is deprecated. We removed it completely from the integration's channel in this version. You can use the text message type to send Markdown instead.
+The Markdown message type has been deprecated, so its support has been removed in this channel. You can use the text message type to send Markdown instead.
 
 ## Migrating from 3.x to 4.x
 
