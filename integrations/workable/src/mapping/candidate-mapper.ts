@@ -1,31 +1,11 @@
 import { z } from '@botpress/sdk'
-import {
-  candidateModel,
-  detailedCandidateModel,
-  educationEntryModel,
-  experienceEntryModel,
-  getCandidateInputModel,
-  getCandidateOutputModel,
-  listCandidatesInputModel,
-  listCandidatesOutputModel,
-  locationModel,
-} from 'definitions/models/candidates'
-import {
-  candidateSchema,
-  detailedCandidateSchema,
-  educationEntrySchema,
-  experienceEntrySchema,
-  getCandidateInputSchema,
-  getCandidateOutputSchema,
-  listCandidatesInputSchema,
-  listCandidatesOutputSchema,
-  locationSchema,
-} from 'src/workable-schemas/candidates'
+import * as def from 'definitions/models/candidates'
+import * as workable from 'src/workable-schemas/candidates'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
-  model: z.infer<typeof listCandidatesInputModel>
-): z.infer<typeof listCandidatesInputSchema> {
+  model: z.infer<typeof def.listCandidatesInputSchema>
+): z.infer<typeof workable.listCandidatesInputSchema> {
   const { createdAfter, nextToken, shortCode, updatedAfter, ...rest } = model
   return {
     ...rest,
@@ -37,15 +17,17 @@ export function fromListCandidatesInputModel(
 }
 
 export function toListCandidatesOutputModel(
-  schema: z.infer<typeof listCandidatesOutputSchema>
-): z.infer<typeof listCandidatesOutputModel> {
+  schema: z.infer<typeof workable.listCandidatesOutputSchema>
+): z.infer<typeof def.listCandidatesOutputSchema> {
   return {
     nextToken: schema.paging?.next === undefined ? undefined : parseNextToken(schema.paging?.next),
     candidates: schema.candidates?.map(toCandidateModel),
   }
 }
 
-export function toCandidateModel(schema: z.infer<typeof candidateSchema>): z.infer<typeof candidateModel> {
+export function toCandidateModel(
+  schema: z.infer<typeof workable.candidateSchema>
+): z.infer<typeof def.candidateSchema> {
   const {
     firstname,
     lastname,
@@ -77,14 +59,14 @@ export function toCandidateModel(schema: z.infer<typeof candidateSchema>): z.inf
 }
 
 export function fromGetCandidateInputModel(
-  model: z.infer<typeof getCandidateInputModel>
-): z.infer<typeof getCandidateInputSchema> {
+  model: z.infer<typeof def.getCandidateInputSchema>
+): z.infer<typeof workable.getCandidateInputSchema> {
   return model
 }
 
 export function toDetailedCandidateModel(
-  schema: z.infer<typeof detailedCandidateSchema>
-): z.infer<typeof detailedCandidateModel> {
+  schema: z.infer<typeof workable.detailedCandidateSchema>
+): z.infer<typeof def.detailedCandidateSchema> {
   const {
     firstname,
     lastname,
@@ -138,8 +120,8 @@ export function toDetailedCandidateModel(
 }
 
 export function toEducationEntryModel(
-  schema: z.infer<typeof educationEntrySchema>
-): z.infer<typeof educationEntryModel> {
+  schema: z.infer<typeof workable.educationEntrySchema>
+): z.infer<typeof def.educationEntrySchema> {
   const { end_date, field_of_study, start_date, ...rest } = schema
   return {
     ...rest,
@@ -150,8 +132,8 @@ export function toEducationEntryModel(
 }
 
 export function toExperienceEntryModel(
-  schema: z.infer<typeof experienceEntrySchema>
-): z.infer<typeof experienceEntryModel> {
+  schema: z.infer<typeof workable.experienceEntrySchema>
+): z.infer<typeof def.experienceEntrySchema> {
   const { start_date, end_date, ...rest } = schema
   return {
     ...rest,
@@ -160,7 +142,7 @@ export function toExperienceEntryModel(
   }
 }
 
-export function toLocationModel(schema: z.infer<typeof locationSchema>): z.infer<typeof locationModel> {
+export function toLocationModel(schema: z.infer<typeof workable.locationSchema>): z.infer<typeof def.locationSchema> {
   const { location_str, country_code, region_code, zip_code, ...rest } = schema
   return {
     ...rest,
@@ -172,8 +154,8 @@ export function toLocationModel(schema: z.infer<typeof locationSchema>): z.infer
 }
 
 export function toGetCandidateModel(
-  schema: z.infer<typeof getCandidateOutputSchema>
-): z.infer<typeof getCandidateOutputModel> {
+  schema: z.infer<typeof workable.getCandidateOutputSchema>
+): z.infer<typeof def.getCandidateOutputSchema> {
   return {
     candidate: schema.candidate === undefined ? undefined : toDetailedCandidateModel(schema.candidate),
   }
