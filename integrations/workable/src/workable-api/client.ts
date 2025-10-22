@@ -8,8 +8,7 @@ import {
 } from 'src/workable-schemas/candidates'
 
 export type ErrorResponse = {
-  code: number
-  message: string
+  error: string | undefined
 }
 
 type ApiOutput<K extends object> = K | ErrorResponse
@@ -28,8 +27,8 @@ export class WorkableClient {
   }
 
   private _unwrapResponse<K extends object>(response: ApiOutput<K>): K {
-    if ('message' in response) {
-      throw new Error(response.message)
+    if ('error' in response) {
+      throw new Error(response.error)
     }
     return response
   }
