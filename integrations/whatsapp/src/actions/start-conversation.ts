@@ -1,10 +1,18 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { hasAtleastOne } from 'src/misc/util'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import * as bp from '.botpress'
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
+
+export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
+  return startConversation({
+    ...props,
+    type: 'startConversation',
+  })
+}
 
 export const startConversation: bp.IntegrationProps['actions']['startConversation'] = async ({
   ctx,
@@ -30,11 +38,19 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     templateVariables = _parseTemplateVariablesJSON(templateVariablesJson, logger)
   }
 
+  let formattedUserPhone = userPhone
+  try {
+    formattedUserPhone = formatPhoneNumber(userPhone)
+  } catch (thrown) {
+    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
+    _logForBotAndThrow(`Failed to parse phone number (error: ${errorMessage}).`, logger)
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone,
+      userPhone: formattedUserPhone,
     },
   })
 

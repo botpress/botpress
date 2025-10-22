@@ -122,7 +122,12 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     line.success('Chat integration installed')
     line.commit()
 
-    return this._findChatInstance(bot)!
+    const inst = this._findChatInstance(bot)
+    if (!inst) {
+      throw new errors.BotpressCLIError('Chat integration was installed but could not be found')
+    }
+
+    return inst
   }
 
   private _findChatInstance = (bot: client.Bot): IntegrationInstance | undefined => {
@@ -133,7 +138,9 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
 
     const targetChatVersion = this._getChatApiTargetVersionRange()
     return integrationInstances.find(
-      (i) => i.instance.name === 'chat' && semver.satisfies(i.instance.version, targetChatVersion)
+      (i) =>
+        i.instance.name === 'chat' &&
+        (semver.satisfies(i.instance.version, targetChatVersion) || i.instance.version === 'dev')
     )
   }
 

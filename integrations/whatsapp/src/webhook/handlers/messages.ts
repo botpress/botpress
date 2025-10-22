@@ -2,8 +2,9 @@ import { RuntimeError } from '@botpress/client'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
+import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
-import { WhatsAppMessage, WhatsAppValue } from '../../misc/types'
+import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
@@ -15,8 +16,8 @@ type IncomingMessages = {
 }
 
 export const messagesHandler = async (
-  message: NonNullable<WhatsAppValue['messages']>[number],
-  value: WhatsAppValue,
+  message: NonNullable<WhatsAppMessageValue['messages']>[number],
+  value: WhatsAppMessageValue,
   props: bp.HandlerProps
 ) => {
   const { ctx, client, logger } = props
@@ -31,15 +32,23 @@ export const messagesHandler = async (
 
 async function _handleIncomingMessage(
   message: WhatsAppMessage,
-  value: WhatsAppValue,
+  value: WhatsAppMessageValue,
   ctx: bp.Context,
   client: bp.Client,
   logger: bp.Logger
 ) {
+  let userPhone = message.from
+  try {
+    userPhone = formatPhoneNumber(message.from)
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
+  }
+
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      userPhone: message.from,
+      userPhone,
       botPhoneNumberId: value.metadata.phone_number_id,
     },
   })

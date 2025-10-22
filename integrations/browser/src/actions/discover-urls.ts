@@ -1,34 +1,12 @@
 import { RuntimeError } from '@botpress/client'
 import { IntegrationLogger, z, ZodIssueCode } from '@botpress/sdk'
-import axios from 'axios'
+import Firecrawl from '@mendable/firecrawl-js'
 import { isValidGlob, matchGlob } from '../utils/globs'
 import * as bp from '.botpress'
 
 const LAMBDA_TIMEOUT = 55_000
 
 const COST_PER_FIRECRAWL_MAP = 0.001
-
-type FirecrawlMapInput = {
-  /** The base URL to start crawling from */
-  url: string
-  /** Search query to use for mapping. During the Alpha phase, the 'smart' part of the search functionality is limited to 1000 search results. However, if map finds more results, there is no limit applied. */
-  search?: string
-  /** Ignore the website sitemap when crawling */
-  ignoreSitemap?: boolean
-  /** Only return links found in the website sitemap */
-  sitemapOnly?: boolean
-  /** In milliseconds */
-  timeout?: number
-  /** Max 30_000 */
-  limit?: number
-  /** Defaults to true */
-  includeSubdomains?: boolean
-}
-
-type FireCrawlResponse = {
-  success: boolean
-  links: string[]
-}
 
 type StopReason = Awaited<ReturnType<bp.IntegrationProps['actions']['discoverUrls']>>['stopReason']
 
@@ -149,25 +127,16 @@ class Accumulator {
 }
 
 const firecrawlMap = async (props: { url: string; logger: IntegrationLogger; timeout: number }): Promise<string[]> => {
-  const { data: result } = await axios.post<FireCrawlResponse>(
-    'https://api.firecrawl.dev/v1/map',
-    {
-      url: props.url,
-      ignoreSitemap: false,
-      includeSubdomains: true,
-      sitemapOnly: false,
-      limit: 10_000,
-      timeout: Math.max(1000, props.timeout - 2000),
-    } satisfies FirecrawlMapInput,
-    {
-      signal: AbortSignal.timeout(Math.max(1000, props.timeout - 1000)),
-      headers: {
-        Authorization: `Bearer ${bp.secrets.FIRECRAWL_API_KEY}`,
-      },
-    }
-  )
+  const firecrawl = new Firecrawl({ apiKey: bp.secrets.FIRECRAWL_API_KEY })
 
-  return result.links
+  const result = await firecrawl.map(props.url, {
+    sitemap: 'include',
+    limit: 10_000,
+    timeout: Math.max(1000, props.timeout - 2000),
+    includeSubdomains: true,
+  })
+
+  return result.links.map((x) => x.url)
 }
 
 export const discoverUrls: bp.IntegrationProps['actions']['discoverUrls'] = async ({ input, logger, metadata }) => {

@@ -119,7 +119,6 @@ const _emailFailedToSendWebhookSchema = z.object({
   created_at: z.coerce.date(),
 })
 
-export type EmailWebhookEventPayloads = z.infer<typeof emailWebhookEventPayloadSchemas>
 export const emailWebhookEventPayloadSchemas = z.union([
   _emailSentWebhookSchema,
   _emailDeliveredWebhookSchema,

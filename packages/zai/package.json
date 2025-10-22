@@ -1,13 +1,16 @@
 {
   "name": "@botpress/zai",
   "description": "Zui AI (zai) – An LLM utility library written on top of Zui and the Botpress API",
-  "version": "2.1.2",
+  "version": "2.1.16",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     "types": "./dist/index.d.ts",
     "require": "./dist/index.js",
     "import": "./dist/index.js"
+  },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
   },
   "scripts": {
     "check:type": "tsc --noEmit",
@@ -29,7 +32,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@botpress/cognitive": "0.1.31",
+    "@botpress/cognitive": "0.1.47",
     "json5": "^2.2.3",
     "jsonrepair": "^3.10.0",
     "lodash-es": "^4.17.21"
@@ -42,7 +45,7 @@
     "@types/lodash-es": "^4.17.12",
     "diff": "^8.0.1",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "glob": "^9.3.4",
     "lodash": "^4.17.21",
     "size-limit": "^11.1.6",
@@ -55,5 +58,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

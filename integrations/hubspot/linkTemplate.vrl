@@ -1,0 +1,29 @@
+env = to_string!(.env)
+clientId = if env == "production" {
+  "5eec0a6a-5be0-482f-8c5d-8ee139bcba43"
+} else {
+  "eaebade6-ace5-452b-83ed-05418def8e5b"
+}
+
+webhookUrl = to_string!(.webhookUrl)
+redirectUri = "{{ webhookUrl }}/oauth"
+webhookId = to_string!(.webhookId)
+
+scopes = [
+  "oauth",
+  "crm.objects.contacts.read", # to retrieve contacts
+  "crm.objects.contacts.write", # to create and update contacts
+  "tickets", # to retrieve ticket properties and create tickets
+  #"tickets.sensitive", # to retrieve sensitive ticket properties
+  #"tickets.highly_sensitive", # to retrieve highly sensitive ticket properties
+  "crm.objects.owners.read", # to retrieve and assign owners to tickets
+  "crm.objects.companies.read", # to retrieve and assign companies to tickets
+  "crm.objects.companies.write", # to create and update companies
+  "crm.objects.leads.read", # to retrieve leads
+  "crm.objects.leads.write", # to create and update leads
+  "crm.objects.deals.read", # to retrieve deals
+  "crm.objects.deals.write", # to create and update deals
+]
+scopesStr = encode_percent(join!(scopes, " "))
+
+"https://app.hubspot.com/oauth/authorize?client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}&scope={{ scopesStr }}"

@@ -1,8 +1,8 @@
 import handlers from './handlers'
-import { SendGridWebhookEvent } from './sendgrid-webhook-schemas'
+import { WebhookEventPayloads } from './schemas'
 import * as bp from '.botpress'
 
-export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: SendGridWebhookEvent) => {
+export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: WebhookEventPayloads) => {
   switch (webhookEvent.event) {
     case 'delivered':
       return await handlers.handleDeliveredEvent(props, webhookEvent)
@@ -17,6 +17,7 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
     case 'click':
       return await handlers.handleClickedEvent(props, webhookEvent)
     default:
+      props.logger.warn(`Ignoring unsupported webhook type: '${webhookEvent.event}'`)
       return null
   }
 }

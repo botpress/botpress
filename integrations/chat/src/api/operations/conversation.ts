@@ -16,6 +16,7 @@ export const createConversation: types.AuthenticatedOperations['createConversati
     channel: 'channel',
     tags: {
       owner: userId,
+      fid: req.body.id, // Readonly copy of the conversation's foreign ID; useful for users of the Runtime API
     },
   })
 

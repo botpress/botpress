@@ -2,6 +2,8 @@ import { backOff } from 'exponential-backoff'
 import { createNanoEvents, Unsubscribe } from 'nanoevents'
 
 import { ExtendedClient, getExtendedClient } from './bp-client'
+import { CognitiveBeta, getCognitiveV2Model } from './cognitive-v2'
+
 import { getActionFromError } from './errors'
 import { InterceptorManager } from './interceptors'
 import {
@@ -37,6 +39,8 @@ export class Cognitive {
   protected _preferences: ModelPreferences | null = null
   protected _provider: ModelProvider
   protected _downtimes: ModelPreferences['downtimes'] = []
+  protected _useBeta: boolean = false
+  protected _debug = false
 
   private _events = createNanoEvents<Events>()
 
@@ -45,6 +49,7 @@ export class Cognitive {
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
     this._timeoutMs = props.timeout ?? this._timeoutMs
     this._maxRetries = props.maxRetries ?? this._maxRetries
+    this._useBeta = props.__experimental_beta ?? false
   }
 
   public get client(): ExtendedClient {
@@ -57,11 +62,14 @@ export class Cognitive {
       provider: this._provider,
       timeout: this._timeoutMs,
       maxRetries: this._maxRetries,
+      __debug: this._debug,
+      __experimental_beta: this._useBeta,
     })
 
     copy._models = [...this._models]
     copy._preferences = this._preferences ? { ...this._preferences } : null
     copy._downtimes = [...this._downtimes]
+
     copy.interceptors.request = this.interceptors.request
     copy.interceptors.response = this.interceptors.response
 
@@ -147,7 +155,14 @@ export class Cognitive {
     return parseRef(pickModel([ref as ModelRef, ...preferences.best, ...preferences.fast], downtimes))
   }
 
-  public async getModelDetails(model: string) {
+  public async getModelDetails(model: string): Promise<Model> {
+    if (this._useBeta) {
+      const resolvedModel = getCognitiveV2Model(model)
+      if (resolvedModel) {
+        return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
+      }
+    }
+
     await this.fetchInstalledModels()
     const { integration, model: modelName } = await this._selectModel(model)
     const def = this._models.find((m) => m.integration === integration && (m.name === modelName || m.id === modelName))
@@ -159,6 +174,54 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
+    if (!this._useBeta || !getCognitiveV2Model(input.model!)) {
+      return this._generateContent(input)
+    }
+
+    const betaClient = new CognitiveBeta(this._client.config as any)
+    const response = await betaClient.generateText(input as any)
+
+    return {
+      output: {
+        id: 'beta-output',
+        provider: response.metadata.provider,
+        model: response.metadata.model!,
+        choices: [
+          {
+            type: 'text',
+            content: response.output,
+            role: 'assistant',
+            index: 0,
+            stopReason: response.metadata.stopReason! as any,
+          },
+        ],
+        usage: {
+          inputTokens: response.metadata.usage.inputTokens,
+          inputCost: 0,
+          outputTokens: response.metadata.usage.outputTokens,
+          outputCost: response.metadata.cost ?? 0,
+        },
+        botpress: {
+          cost: response.metadata.cost ?? 0,
+        },
+      },
+      meta: {
+        cached: response.metadata.cached,
+        model: { integration: response.metadata.provider, model: response.metadata.model! },
+        latency: response.metadata.latency!,
+        cost: {
+          input: 0,
+          output: response.metadata.cost || 0,
+        },
+        tokens: {
+          input: response.metadata.usage.inputTokens,
+          output: response.metadata.usage.outputTokens,
+        },
+      },
+    }
+  }
+
+  private async _generateContent(input: InputProps): Promise<Response> {
     const start = Date.now()
 
     const signal = input.signal ?? AbortSignal.timeout(this._timeoutMs)

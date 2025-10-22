@@ -1,13 +1,16 @@
 {
   "name": "@botpress/sdk",
-  "version": "4.15.2",
+  "version": "4.16.0",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
-    "check:type": "tsc --noEmit",
-    "build:type": "tsc --emitDeclarationOnly --declaration",
+    "check:type": "tsc -p ./tsconfig.json --noEmit",
+    "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
@@ -16,11 +19,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "1.22.0",
+    "@botpress/client": "1.26.0",
     "browser-or-node": "^2.1.1"
   },
   "devDependencies": {
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "tsup": "^8.0.2"
   },
@@ -36,5 +39,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

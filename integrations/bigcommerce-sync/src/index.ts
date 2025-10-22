@@ -1,5 +1,6 @@
 import { Client } from '@botpress/client'
 import actions from './actions'
+import { executeBackgroundSync } from './actions/sync-products'
 import { getBigCommerceClient, BigCommerceClient } from './client'
 import { PRODUCT_TABLE_SCHEMA, PRODUCTS_TABLE_NAME as PRODUCT_TABLE } from './schemas/products'
 import * as bp from '.botpress'
@@ -232,7 +233,11 @@ const syncBigCommerceProducts = async (ctx: bp.Context, client: bp.Client, logge
       ctx,
       client,
       logger,
-      input: {},
+      input: {
+        batchSize: 25,
+        productsPerPage: 100,
+        clearExisting: true,
+      },
       type: 'syncProducts',
       metadata: { setCost: (_cost: number) => {} },
     })
@@ -352,6 +357,61 @@ export default new bp.Integration({
 
     try {
       const isBCWebhook = isBigCommerceWebhook(req.headers)
+      const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+
+      if (webhookData?.event === 'background-sync-triggered') {
+        logger.forBot().info('Processing internal background sync webhook')
+
+        const {
+          startPage,
+          totalPages,
+          tableName,
+          batchSize,
+          productsPerPage,
+          storeHash,
+          accessToken,
+          categoryById,
+          brandById,
+        } = webhookData.data
+
+        try {
+          const result = await executeBackgroundSync({
+            ctx: { configuration: { storeHash, accessToken } },
+            input: {
+              startPage,
+              totalPages,
+              tableName,
+              batchSize,
+              productsPerPage,
+              categoryById,
+              brandById,
+            },
+            logger,
+            client,
+          })
+
+          logger.forBot().info(`Background sync result: ${JSON.stringify(result)}`)
+
+          return {
+            status: 200,
+            body: JSON.stringify({
+              success: true,
+              message: 'Background processing completed successfully',
+              result,
+            }),
+          }
+        } catch (error) {
+          logger.forBot().error(`Error syncing products: ${error}`)
+          return {
+            status: 500,
+            body: JSON.stringify({
+              success: false,
+              message: `Background processing failed: ${error instanceof Error ? error.message : String(error)}`,
+            }),
+          }
+        }
+      }
+
       if (!isBCWebhook) {
         logger.forBot().warn('Rejecting request - not a BigCommerce webhook')
         return {
@@ -362,8 +422,6 @@ export default new bp.Integration({
           }),
         }
       }
-
-      const webhookData = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
 
       const botpressVanillaClient = getVanillaClient(client)
       const tableName = PRODUCT_TABLE

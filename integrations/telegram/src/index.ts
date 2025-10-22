@@ -32,11 +32,15 @@ import * as bp from '.botpress'
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
-    await telegraf.telegram.setWebhook(webhookUrl).catch(mapToRuntimeErrorAndThrow)
+    await telegraf.telegram
+      .setWebhook(webhookUrl)
+      .catch(mapToRuntimeErrorAndThrow('Fail to set webhook. Check your bot token'))
   },
   unregister: async ({ ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
-    await telegraf.telegram.deleteWebhook({ drop_pending_updates: true }).catch(mapToRuntimeErrorAndThrow)
+    await telegraf.telegram
+      .deleteWebhook({ drop_pending_updates: true })
+      .catch(mapToRuntimeErrorAndThrow('Fail to delete webhook'))
   },
   actions: {
     startTypingIndicator: async ({ input, ctx, client }) => {
@@ -47,10 +51,10 @@ const integration = new bp.Integration({
       const chat = getChat(conversation)
       const messageId = getMessageId(message)
 
-      await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow)
+      await telegraf.telegram.sendChatAction(chat, 'typing').catch(mapToRuntimeErrorAndThrow('Fail to start typing'))
       await telegraf.telegram
         .setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
-        .catch(mapToRuntimeErrorAndThrow)
+        .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
 
       return {}
     },
@@ -62,7 +66,9 @@ const integration = new bp.Integration({
       const chat = getChat(conversation)
       const messageId = getMessageId(message)
 
-      await telegraf.telegram.setMessageReaction(chat, messageId, []).catch(mapToRuntimeErrorAndThrow)
+      await telegraf.telegram
+        .setMessageReaction(chat, messageId, [])
+        .catch(mapToRuntimeErrorAndThrow('Fail to set message reaction'))
 
       return {}
     },

@@ -7,7 +7,7 @@ import { actions, channels, events, configuration, configurations, user, states,
 
 export default new IntegrationDefinition({
   name: 'linear',
-  version: '1.1.0',
+  version: '1.1.3',
   title: 'Linear',
   description:
     'Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.',
@@ -35,6 +35,9 @@ export default new IntegrationDefinition({
       description: 'The signing secret of your Linear webhook.',
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
   .extend(listable, ({ entities }) => ({

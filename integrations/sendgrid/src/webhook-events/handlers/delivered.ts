@@ -1,5 +1,5 @@
 import { unixTimestampToUtcDatetime } from '../../misc/utils'
-import { DeliveredEmailWebhook } from '../sendgrid-webhook-schemas'
+import { DeliveredEmailWebhook } from '../schemas/emails'
 import * as bp from '.botpress'
 
 export const handleDeliveredEvent = async ({ client }: bp.HandlerProps, event: DeliveredEmailWebhook) => {

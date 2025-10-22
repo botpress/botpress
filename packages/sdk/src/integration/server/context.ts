@@ -1,13 +1,15 @@
 import { z } from '@bpinternal/zui'
 import {
-  botIdHeader,
-  botUserIdHeader,
-  configurationHeader,
-  configurationTypeHeader,
-  integrationIdHeader,
-  operationHeader,
-  webhookIdHeader,
+  BOT_ID_HEADER,
+  BOT_USER_ID_HEADER,
+  CONFIGURATION_PAYLOAD_HEADER,
+  CONFIGURATION_TYPE_HEADER,
+  INTEGRATION_ALIAS_HEADER,
+  INTEGRATION_ID_HEADER,
+  OPERATION_TYPE_HEADER,
+  WEBHOOK_ID_HEADER,
 } from '../../consts'
+import { throwError } from '../../utils/error-utils'
 import { IntegrationContext } from './types'
 
 export const integrationOperationSchema = z.enum([
@@ -21,46 +23,18 @@ export const integrationOperationSchema = z.enum([
   'create_conversation',
 ])
 
-export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
-  const botId = headers[botIdHeader]
-  const botUserId = headers[botUserIdHeader]
-  const integrationId = headers[integrationIdHeader]
-  const webhookId = headers[webhookIdHeader]
-  const configurationType = headers[configurationTypeHeader]
-  const base64Configuration = headers[configurationHeader]
-  const operation = headers[operationHeader]
-
-  if (!botId) {
-    throw new Error('Missing bot headers')
-  }
-
-  if (!botUserId) {
-    throw new Error('Missing bot user headers')
-  }
-
-  if (!integrationId) {
-    throw new Error('Missing integration headers')
-  }
-
-  if (!webhookId) {
-    throw new Error('Missing webhook headers')
-  }
-
-  if (!base64Configuration) {
-    throw new Error('Missing configuration headers')
-  }
-
-  if (!operation) {
-    throw new Error('Missing operation headers')
-  }
-
-  return {
-    botId,
-    botUserId,
-    integrationId,
-    webhookId,
-    operation,
-    configurationType: configurationType ?? null,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  }
-}
+export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => ({
+  botId: headers[BOT_ID_HEADER] || throwError('Missing bot header'),
+  botUserId: headers[BOT_USER_ID_HEADER] || throwError('Missing bot user header'),
+  integrationId: headers[INTEGRATION_ID_HEADER] || throwError('Missing integration header'),
+  // TODO: make this non-nullable once the backend sends this header
+  integrationAlias: headers[INTEGRATION_ALIAS_HEADER],
+  webhookId: headers[WEBHOOK_ID_HEADER] || throwError('Missing webhook header'),
+  operation: headers[OPERATION_TYPE_HEADER] || throwError('Missing operation header'),
+  configurationType: headers[CONFIGURATION_TYPE_HEADER] ?? null,
+  configuration: JSON.parse(
+    Buffer.from(headers[CONFIGURATION_PAYLOAD_HEADER] || throwError('Missing configuration header'), 'base64').toString(
+      'utf-8'
+    )
+  ),
+})

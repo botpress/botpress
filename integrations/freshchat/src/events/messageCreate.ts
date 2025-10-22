@@ -86,6 +86,13 @@ export const executeMessageCreate = async ({
           },
         })
       }
+    } else if ('image' in messagePart) {
+      items.push({
+        type: 'image',
+        payload: {
+          imageUrl: messagePart.image.url,
+        },
+      })
     } else {
       logger.forBot().warn(`Unsupported message part type ${Object.keys(messagePart)[0]}`)
     }

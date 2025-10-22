@@ -1,4 +1,3 @@
-import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import * as common from '../common'
 import * as gen from '../gen/files'
@@ -19,6 +18,7 @@ export type ClientProps = common.types.CommonClientProps & {
   token: string
   botId: string
   integrationId?: string
+  integrationAlias?: string
 }
 
 export class Client extends gen.Client implements IClient {
@@ -26,8 +26,8 @@ export class Client extends gen.Client implements IClient {
 
   public constructor(clientProps: ClientProps) {
     const clientConfig = common.config.getClientConfig(clientProps)
-    const axiosConfig = common.axios.createAxios(clientConfig)
-    const axiosInstance = axios.create(axiosConfig)
+    const axiosInstance = common.axios.createAxiosInstance(clientConfig)
+
     super(axiosInstance, {
       toApiError: common.errors.toApiError,
     })
@@ -49,6 +49,18 @@ export class Client extends gen.Client implements IClient {
       filePassages: (props: ListInputs['listFilePassages']) =>
         new common.listing.AsyncCollection(({ nextToken }) =>
           this.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
+        ),
+      fileTags: (props: ListInputs['listFileTags']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFileTags({ nextToken, ...props }).then((r) => ({ ...r, items: r.tags }))
+        ),
+      fileTagValues: (props: ListInputs['listFileTagValues']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listFileTagValues({ nextToken, ...props }).then((r) => ({ ...r, items: r.values }))
+        ),
+      knowledgeBases: (props: ListInputs['listKnowledgeBases']) =>
+        new common.listing.AsyncCollection(({ nextToken }) =>
+          this.listKnowledgeBases({ nextToken, ...props }).then((r) => ({ ...r, items: r.knowledgeBases }))
         ),
     }
   }

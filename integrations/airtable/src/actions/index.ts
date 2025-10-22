@@ -1,9 +1,6 @@
-import { createRecord } from './create-record'
-import { createTable } from './create-table'
-import { getTableRecords } from './get-table-records'
-import { listRecords } from './list-records'
-import { updateRecord } from './update-record'
-import { updateTable } from './update-table'
+import { createRecord, listRecords, updateRecord } from './record'
+import { createTable, getTableRecords, updateTable } from './table'
+import * as bp from '.botpress'
 
 export default {
   getTableRecords,
@@ -12,4 +9,4 @@ export default {
   createRecord,
   updateRecord,
   listRecords,
-}
+} as const satisfies bp.IntegrationProps['actions']

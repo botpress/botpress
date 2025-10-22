@@ -16,7 +16,7 @@ const sendHtmlTextMessage = async (
     .sendMessage(chat, html, {
       parse_mode: 'HTML',
     })
-    .catch(mapToRuntimeErrorAndThrow)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send message'))
   await ackMessage(message, ack)
 }
 
@@ -52,7 +52,7 @@ export const handleImageMessage = async ({ payload, ctx, conversation, ack, logg
     .sendPhoto(chat, payload.imageUrl, {
       caption: payload.caption,
     })
-    .catch(mapToRuntimeErrorAndThrow)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send photo'))
   await ackMessage(message, ack)
 }
 
@@ -63,13 +63,13 @@ export const handleAudioMessage = async ({ payload, ctx, conversation, ack, logg
   try {
     const message = await client.telegram
       .sendVoice(chat, payload.audioUrl, { caption: payload.caption })
-      .catch(mapToRuntimeErrorAndThrow)
+      .catch(mapToRuntimeErrorAndThrow('Fail to send voice'))
     await ackMessage(message, ack)
   } catch {
     // If the audio file is too large to be voice, Telegram should send it as an audio file, but if for some reason it doesn't, we can send it as an audio file
     const message = await client.telegram
       .sendAudio(chat, payload.audioUrl, { caption: payload.caption })
-      .catch(mapToRuntimeErrorAndThrow)
+      .catch(mapToRuntimeErrorAndThrow('Fail to send audio'))
     await ackMessage(message, ack)
   }
 }
@@ -78,7 +78,9 @@ export const handleVideoMessage = async ({ payload, ctx, conversation, ack, logg
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending video message to Telegram chat ${chat}:`, payload.videoUrl)
-  const message = await client.telegram.sendVideo(chat, payload.videoUrl).catch(mapToRuntimeErrorAndThrow)
+  const message = await client.telegram
+    .sendVideo(chat, payload.videoUrl)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send video'))
   await ackMessage(message, ack)
 }
 
@@ -86,7 +88,9 @@ export const handleFileMessage = async ({ payload, ctx, conversation, ack, logge
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending file message to Telegram chat ${chat}:`, payload.fileUrl)
-  const message = await client.telegram.sendDocument(chat, payload.fileUrl).catch(mapToRuntimeErrorAndThrow)
+  const message = await client.telegram
+    .sendDocument(chat, payload.fileUrl)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send document'))
   await ackMessage(message, ack)
 }
 
@@ -105,7 +109,7 @@ export const handleLocationMessage = async ({
   })
   const message = await client.telegram
     .sendLocation(chat, payload.latitude, payload.longitude)
-    .catch(mapToRuntimeErrorAndThrow)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send location'))
   await ackMessage(message, ack)
 }
 
@@ -126,9 +130,9 @@ export const handleCarouselMessage = async ({
   const client = new Telegraf(ctx.configuration.botToken)
   const chat = getChat(conversation)
   logger.forBot().debug(`Sending carousel message to Telegram chat ${chat}:`, payload)
-  payload.items.forEach(async (item) => {
+  for (const item of payload.items) {
     await sendCard(item, client, chat, ack)
-  })
+  }
 }
 
 export const handleDropdownMessage = async ({
@@ -144,7 +148,7 @@ export const handleDropdownMessage = async ({
   logger.forBot().debug(`Sending dropdown message to Telegram chat ${chat}:`, payload)
   const message = await client.telegram
     .sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
-    .catch(mapToRuntimeErrorAndThrow)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send message'))
   await ackMessage(message, ack)
 }
 
@@ -161,7 +165,7 @@ export const handleChoiceMessage = async ({
   const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
   const message = await client.telegram
     .sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
-    .catch(mapToRuntimeErrorAndThrow)
+    .catch(mapToRuntimeErrorAndThrow('Fail to send message'))
   await ackMessage(message, ack)
 }
 

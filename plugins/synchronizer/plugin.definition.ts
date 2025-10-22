@@ -78,4 +78,7 @@ export default new sdk.PluginDefinition({
       version: `>=${semver.major(deletable.version)}.0.0 <${semver.major(deletable.version) + 1}.0.0`,
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })

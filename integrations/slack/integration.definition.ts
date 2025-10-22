@@ -17,7 +17,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '2.5.5',
+  version: '3.0.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,
@@ -29,6 +29,9 @@ export default new IntegrationDefinition({
   events,
   secrets,
   user,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 }).extend(typingIndicator, () => ({
   entities: {},
 }))

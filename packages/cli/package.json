@@ -1,15 +1,19 @@
 {
   "name": "@botpress/cli",
-  "version": "4.17.3",
+  "version": "4.19.0",
   "description": "Botpress CLI",
   "scripts": {
-    "build": "pnpm run bundle && pnpm run template:gen",
-    "dev": "ts-node -T src/index.ts",
-    "start": "node dist/index.js",
+    "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
+    "dev": "ts-node -T src/cli.ts",
+    "start": "node dist/cli.js",
     "check:type": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
+    "build:types": "tsc -p ./tsconfig.build.json",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
     "test:e2e": "ts-node -T ./e2e"
+  },
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
   },
   "keywords": [],
   "author": "",
@@ -18,11 +22,12 @@
     "bp": "./bin.js"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/chat": "0.5.1",
-    "@botpress/client": "1.22.0",
-    "@botpress/sdk": "4.15.2",
+    "@botpress/chat": "0.5.2",
+    "@botpress/client": "1.26.0",
+    "@botpress/sdk": "4.16.0",
     "@bpinternal/const": "^0.1.0",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
@@ -37,7 +42,7 @@
     "boxen": "5.1.2",
     "chalk": "^4.1.2",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "handlebars": "^4.7.8",
     "latest-version": "5.1.0",
     "lodash": "^4.17.21",
@@ -64,5 +69,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

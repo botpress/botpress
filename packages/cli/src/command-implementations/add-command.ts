@@ -10,7 +10,13 @@ import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-import { ProjectCache, ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
+import {
+  ProjectCache,
+  ProjectCommand,
+  ProjectCommandDefinition,
+  ProjectDefinitionLazy,
+  ProjectDefinition,
+} from './project-command'
 
 type InstallablePackage =
   | {
@@ -143,6 +149,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await this._install(installPath, files)
+    await this._addDependencyToPackage(packageName, targetPackage)
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
@@ -245,12 +252,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           plugin: {
             ...createPluginReqBody,
             dependencies: {
-              interfaces: await utils.promises.awaitRecord(
-                utils.records.mapValues(pluginDefinition.interfaces ?? {}, apiUtils.prepareCreateInterfaceBody)
-              ),
-              integrations: await utils.promises.awaitRecord(
-                utils.records.mapValues(pluginDefinition.integrations ?? {}, apiUtils.prepareCreateIntegrationBody)
-              ),
+              interfaces: pluginDefinition.interfaces,
+              integrations: pluginDefinition.integrations,
             },
             recurringEvents: pluginDefinition.recurringEvents,
           },
@@ -291,7 +294,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }> {
     const cmd = this._getProjectCmd(workDir)
 
-    const definition = await cmd.readProjectDefinitionFromFS().catch((thrown) => {
+    const { resolveProjectDefinition } = cmd.readProjectDefinitionFromFS()
+    const definition = await resolveProjectDefinition().catch((thrown) => {
       if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
         return undefined
       }
@@ -326,6 +330,47 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       workDir,
     })
   }
+
+  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const version = targetPackage.pkg.path ?? targetPackage.pkg.version
+    if (!pkgJson) {
+      this.logger.warn('No package.json found in the install path')
+      return
+    }
+
+    const { bpDependencies } = pkgJson
+    if (!bpDependencies) {
+      pkgJson.bpDependencies = { [packageName]: version }
+      await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+      return
+    }
+
+    const bpDependenciesSchema = sdk.z.record(sdk.z.string())
+    const parseResult = bpDependenciesSchema.safeParse(bpDependencies)
+    if (!parseResult.success) {
+      throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
+    }
+
+    const { data: validatedBpDeps } = parseResult
+
+    const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
+    if (alreadyPresentDep) {
+      if (alreadyPresentDep[1] !== version) {
+        this.logger.warn(
+          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
+        )
+      }
+      return
+    }
+
+    pkgJson.bpDependencies = {
+      ...validatedBpDeps,
+      [packageName]: version,
+    }
+
+    await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+  }
 }
 
 // this is a hack to avoid refactoring the project command class
@@ -334,7 +379,7 @@ class _AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
     throw new errors.BotpressCLIError('Not implemented')
   }
 
-  public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+  public readProjectDefinitionFromFS(): ProjectDefinitionLazy {
     return super.readProjectDefinitionFromFS()
   }
 

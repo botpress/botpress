@@ -23,6 +23,9 @@ export default new sdk.BotDefinition({
     },
   },
   conversation: {},
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .addIntegration(chat, {
     enabled: true,
@@ -37,7 +40,10 @@ export default new sdk.BotDefinition({
     },
   })
   .addPlugin(hitl, {
-    configuration: { flowOnHitlStopped: false },
+    configuration: {
+      flowOnHitlStopped: false,
+      useHumanAgentInfo: false,
+    },
     interfaces: {
       hitl: {
         id: zendesk.id,

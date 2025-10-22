@@ -6,39 +6,44 @@ import { ProjectCommand } from './project-command'
 
 export type BundleCommandDefinition = typeof commandDefinitions.bundle
 export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
-  public async run(): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
+  public async run(buildContext?: utils.esbuild.BuildCodeContext): Promise<void> {
+    const { projectType, resolveProjectDefinition } = this.readProjectDefinitionFromFS()
 
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
     const line = this.logger.line()
 
-    if (projectDef.type === 'interface') {
+    if (projectType === 'interface') {
       this.logger.success('Interface projects have no implementation to bundle.')
-    } else if (projectDef.type === 'integration') {
+    } else if (projectType === 'integration') {
+      const projectDef = await resolveProjectDefinition()
       const { name, __advanced } = projectDef.definition
       line.started(`Bundling integration ${chalk.bold(name)}...`)
-      await this._bundle(abs.outFileCJS, __advanced?.esbuild ?? {})
-    } else if (projectDef.type === 'bot') {
+      await this._bundle(abs.outFileCJS, buildContext, __advanced?.esbuild ?? {})
+    } else if (projectType === 'bot') {
       line.started('Bundling bot...')
-      await this._bundle(abs.outFileCJS)
-    } else if (projectDef.type === 'plugin') {
+      await this._bundle(abs.outFileCJS, buildContext)
+    } else if (projectType === 'plugin') {
       line.started('Bundling plugin with platform node...')
-      await this._bundle(abs.outFileCJS)
+      await this._bundle(abs.outFileCJS, buildContext)
 
       line.started('Bundling plugin with platform browser...')
-      await this._bundle(abs.outFileESM, { platform: 'browser', format: 'esm' })
+      await this._bundle(abs.outFileESM, buildContext, { platform: 'browser', format: 'esm' })
     } else {
-      type _assertion = utils.types.AssertNever<typeof projectDef>
       throw new errors.UnsupportedProjectType()
     }
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
   }
 
-  private async _bundle(outfile: string, props: Partial<utils.esbuild.BuildOptions> = {}) {
+  private async _bundle(
+    outfile: string,
+    buildContext?: utils.esbuild.BuildCodeContext,
+    props: Partial<utils.esbuild.BuildOptions> = {}
+  ) {
     const abs = this.projectPaths.abs
-    await utils.esbuild.buildCode(
+    const context = buildContext ?? new utils.esbuild.BuildCodeContext()
+    await context.rebuild(
       {
         outfile,
         absWorkingDir: abs.workDir,

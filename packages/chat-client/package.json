@@ -1,11 +1,14 @@
 {
   "name": "@botpress/chat",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Botpress Chat API Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc --noEmit",
     "generate": "ts-node -T ./openapi.ts ./src/gen",
@@ -37,7 +40,7 @@
     "@types/verror": "^1.10.6",
     "@types/web": "^0.0.115",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.16.12",
+    "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"
@@ -45,5 +48,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

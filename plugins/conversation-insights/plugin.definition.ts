@@ -1,11 +1,12 @@
 import { PluginDefinition, z } from '@botpress/sdk'
-import llm from './bp_modules/llm'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.2.2',
+  version: '0.4.0',
   configuration: {
-    schema: z.object({ modelId: z.string() }),
+    schema: z.object({
+      aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
+    }),
   },
   conversation: {
     tags: {
@@ -26,14 +27,20 @@ export default new PluginDefinition({
         title: 'Sentiment',
         description: 'The sentiment that best describes the conversation. Type: enum Sentiments',
       },
+      isDirty: {
+        title: 'Is Dirty',
+        description:
+          "Indicates whether a conversation's AI insight has been updated since the last message. Type: boolean",
+      },
     },
   },
   events: {
-    updateSummary: {
+    updateAiInsight: {
       schema: z.object({}),
     },
   },
-  interfaces: {
-    llm,
+  workflows: { updateAllConversations: { input: { schema: z.object({}) }, output: { schema: z.object({}) } } },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })

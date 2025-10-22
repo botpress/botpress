@@ -1,8 +1,9 @@
 import * as axios from 'axios'
 import * as consts from './consts'
+import * as interceptors from './debug-interceptors'
 import * as types from './types'
 
-export const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfig => ({
+const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfig => ({
   baseURL: config.apiUrl,
   headers: config.headers,
   withCredentials: config.withCredentials,
@@ -12,3 +13,14 @@ export const createAxios = (config: types.ClientConfig): axios.AxiosRequestConfi
   httpAgent: consts.httpAgent,
   httpsAgent: consts.httpsAgent,
 })
+
+export const createAxiosInstance = (config: types.ClientConfig): axios.AxiosInstance => {
+  const axiosConfig = createAxios(config)
+  const axiosInstance = axios.default.create(axiosConfig)
+
+  if (config.debug) {
+    interceptors.addDebugInterceptors(axiosInstance)
+  }
+
+  return axiosInstance
+}

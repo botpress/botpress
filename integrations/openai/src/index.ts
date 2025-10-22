@@ -317,6 +317,7 @@ const SECONDS_IN_A_DAY = 24 * 60 * 60
 
 const provider = 'OpenAI'
 
+// oxlint-disable-next-line no-unused-vars
 const SupportedReasoningEfforts = ['minimal', 'low', 'medium', 'high'] as ChatCompletionReasoningEffort[]
 
 export default new bp.Integration({
@@ -351,10 +352,8 @@ export default new bp.Integration({
                 request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
               }
 
-              if (isGPT5) {
-                // GPT-5 doesn't support stop sequences
-                delete request.stop
-              }
+              // Reasoning models don't support stop sequences
+              delete request.stop
 
               // Reasoning models don't allow setting temperature
               delete request.temperature

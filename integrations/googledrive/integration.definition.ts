@@ -24,7 +24,7 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.3.3',
+  version: '0.3.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -196,6 +196,9 @@ export default new sdk.IntegrationDefinition({
     FILE_PICKER_API_KEY: {
       description: 'The API key used to access the Google Picker API',
     },
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 }).extend(filesReadonly, ({}) => ({
   entities: {},

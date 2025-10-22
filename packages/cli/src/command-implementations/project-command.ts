@@ -16,7 +16,7 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string }
+export type ProjectCache = { botId: string; devId: string; tunnelId: string }
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
@@ -33,6 +33,31 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
+type ProjectDefinitionResolver<T> = () => Promise<LintIgnoredConfig & T>
+
+export type ProjectDefinitionLazy =
+  | {
+      projectType: 'integration'
+      resolveProjectDefinition: ProjectDefinitionResolver<{
+        type: 'integration'
+        definition: sdk.IntegrationDefinition
+      }>
+    }
+  | {
+      projectType: 'bot'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'bot'; definition: sdk.BotDefinition }>
+    }
+  | {
+      projectType: 'interface'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'interface'; definition: sdk.InterfaceDefinition }>
+    }
+  | {
+      projectType: 'plugin'
+      resolveProjectDefinition: ProjectDefinitionResolver<{ type: 'plugin'; definition: sdk.PluginDefinition }>
+    }
+
+type UpdatedBot = client.Bot
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -43,7 +68,33 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   }
 }
 
+export class ProjectDefinitionContext {
+  private _codeCache: Map<string, object> = new Map()
+  private _buildContext: utils.esbuild.BuildEntrypointContext = new utils.esbuild.BuildEntrypointContext()
+
+  public getOrResolveDefinition<T extends object>(code: string): T {
+    const definition = this._codeCache.get(code)
+    if (definition) {
+      return definition as T
+    }
+    const result = utils.require.requireJsCode<{ default: object }>(code)
+    this._codeCache.set(code, result.default)
+    return result.default as T
+  }
+
+  public rebuildEntrypoint(...args: Parameters<utils.esbuild.BuildEntrypointContext['rebuild']>) {
+    return this._buildContext.rebuild(...args)
+  }
+}
+
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
+  protected projectContext: ProjectDefinitionContext = new ProjectDefinitionContext()
+
+  public setProjectContext(projectContext: ProjectDefinitionContext) {
+    this.projectContext = projectContext
+    return this
+  }
+
   protected override async bootstrap() {
     await super.bootstrap()
     await this._notifyUpdateSdk()
@@ -57,136 +108,172 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
-    const projectPaths = this.projectPaths
+  private _readProjectType(projectPaths: ProjectPaths): ProjectType {
+    const abs = projectPaths.abs
+    if (fs.existsSync(abs.integrationDefinition)) {
+      return 'integration'
+    }
+    if (fs.existsSync(abs.interfaceDefinition)) {
+      return 'interface'
+    }
+    if (fs.existsSync(abs.botDefinition)) {
+      return 'bot'
+    }
+    if (fs.existsSync(abs.pluginDefinition)) {
+      return 'plugin'
+    }
+    throw new errors.UnsupportedProjectType()
+  }
+
+  protected readProjectDefinitionFromFS(): ProjectDefinitionLazy {
     try {
-      const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
-      if (integrationDefinition) {
-        return { type: 'integration', ...integrationDefinition }
+      const type = this._readProjectType(this.projectPaths)
+      if (type === 'integration') {
+        return {
+          projectType: 'integration',
+          resolveProjectDefinition: async () => ({
+            type: 'integration',
+            ...(await this._readIntegrationDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
-      if (interfaceDefinition) {
-        return { type: 'interface', ...interfaceDefinition }
+      if (type === 'plugin') {
+        return {
+          projectType: 'plugin',
+          resolveProjectDefinition: async () => ({
+            type: 'plugin',
+            ...(await this._readPluginDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
-      if (botDefinition) {
-        return { type: 'bot', ...botDefinition }
+      if (type === 'interface') {
+        return {
+          projectType: 'interface',
+          resolveProjectDefinition: async () => ({
+            type: 'interface',
+            ...(await this._readInterfaceDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
-      const pluginDefinition = await this._readPluginDefinitionFromFS(projectPaths)
-      if (pluginDefinition) {
-        return { type: 'plugin', ...pluginDefinition }
+      if (type === 'bot') {
+        return {
+          projectType: 'bot',
+          resolveProjectDefinition: async () => ({
+            type: 'bot',
+            ...(await this._readBotDefinitionFromFS(this.projectPaths)),
+          }),
+        }
       }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
     }
-
     throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
-  ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.IntegrationDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.integrationDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.integrationDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.IntegrationDefinition>(artifact.text)
     validateIntegrationDefinition(definition)
     return { definition, bpLintDisabled }
   }
 
   private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
-  ): Promise<({ definition: sdk.InterfaceDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.InterfaceDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.interfaceDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.interfaceDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.InterfaceDefinition>(artifact.text)
 
     return { definition, bpLintDisabled }
   }
 
   private async _readBotDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'>
-  ): Promise<({ definition: sdk.BotDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.BotDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.botDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.botDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.BotDefinition>(artifact.text)
     validateBotDefinition(definition)
     return { definition, bpLintDisabled }
   }
 
   private async _readPluginDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'pluginDefinition'>
-  ): Promise<({ definition: sdk.PluginDefinition } & LintIgnoredConfig) | undefined> {
+  ): Promise<{ definition: sdk.PluginDefinition } & LintIgnoredConfig> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.pluginDefinition)) {
-      return
+      throw new errors.BotpressCLIError('Could not read plugin definition')
     }
 
     const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
 
-    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+    const { outputFiles } = await this.projectContext.rebuildEntrypoint({
       absWorkingDir: abs.workDir,
       entrypoint: rel.pluginDefinition,
     })
 
-    const artifact = outputFiles[0]
+    const artifact = outputFiles?.[0]
     if (!artifact) {
       throw new errors.BotpressCLIError('Could not read plugin definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.PluginDefinition }>(artifact.text)
+    const definition = this.projectContext.getOrResolveDefinition<sdk.PluginDefinition>(artifact.text)
     // TODO: validate plugin definition
     return { definition, bpLintDisabled }
   }
@@ -315,7 +402,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       },
       configuration: integrationDef.configuration
         ? {
-            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration),
+            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
+              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+            }),
             identifier: {
               required: integrationDef.configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(
@@ -328,7 +417,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
             title: configuration.title,
             description: configuration.description,
-            schema: await utils.schema.mapZodToJsonSchema(configuration),
+            schema: await utils.schema.mapZodToJsonSchema(configuration, {
+              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
+            }),
             identifier: {
               required: configuration.identifier?.required,
               linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
@@ -513,6 +604,20 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     } catch (thrown) {
       const err = errors.BotpressCLIError.map(thrown)
       this.logger.debug(`Failed to check if sdk is up to date: ${err.message}`)
+    }
+  }
+  protected validateIntegrationRegistration(
+    updatedBot: UpdatedBot,
+    onFailCallback: (failedIntegrations: UpdatedBot['integrations']) => void
+  ) {
+    let failedIntegrations: UpdatedBot['integrations'] = {}
+    for (const [integrationName, integration] of Object.entries(updatedBot.integrations)) {
+      if (integration.status === 'registration_failed') {
+        failedIntegrations = { ...failedIntegrations, [integrationName]: integration }
+      }
+    }
+    if (Object.keys(failedIntegrations).length > 0) {
+      onFailCallback(failedIntegrations)
     }
   }
 }

@@ -1,25 +1,18 @@
-import sgClient from '@sendgrid/client'
-import sgMail from '@sendgrid/mail'
 import actions from './actions'
+import { SendGridClient } from './misc/sendgrid-api'
 import { parseError } from './misc/utils'
 import { parseWebhookData, verifyWebhookSignature } from './misc/webhook-utils'
 import { dispatchIntegrationEvent } from './webhook-events/event-dispatcher'
-import { sendGridWebhookEventSchema } from './webhook-events/sendgrid-webhook-schemas'
+import { webhookEventPayloadSchemas } from './webhook-events/schemas'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ ctx }) => {
-    sgClient.setApiKey(ctx.configuration.apiKey)
-    sgMail.setClient(sgClient)
-
     try {
-      const [response] = await sgClient.request({
-        method: 'GET',
-        url: '/v3/scopes',
-      })
+      const httpClient = new SendGridClient(ctx.configuration.apiKey)
+      const response = await httpClient.getPermissionScopes()
 
-      if (response && response.statusCode < 200 && response.statusCode >= 300) {
-        // noinspection ExceptionCaughtLocallyJS
+      if (response && (response.statusCode < 200 || response.statusCode >= 300)) {
         throw new Error(`The status code '${response.statusCode}' is not within the accepted bounds.`)
       }
     } catch (thrown: unknown) {
@@ -46,7 +39,7 @@ export default new bp.Integration({
       // This approach is a bit stinky. However, it's the only reliable way I could think of to not
       // have unhandled webhook events crash the handler when they can also come in with valid events
       // (Using ZodArray outside the loop can cause the aforementioned issue)
-      const result = sendGridWebhookEventSchema.safeParse(item)
+      const result = webhookEventPayloadSchemas.safeParse(item)
       if (!result.success) {
         props.logger.error('Unable to parse sendgrid webhook event', result.error, item)
         continue
