@@ -44,7 +44,7 @@ export const candidateModel = z
   .partial()
 
 export const listCandidatesOutputModel = z.object({
-  candidates: z.array(candidateModel.optional()).title('Candidates').describe('The array of candidates'),
+  candidates: z.array(candidateModel).title('Candidates').describe('The array of candidates'),
   nextToken: z.string().optional().title('Next Token').describe('The token for the next page of results'),
 })
 
@@ -146,29 +146,24 @@ export const detailedCandidateModel = candidateModel
       .describe('The cover letter provided when the candidate applied'),
     summary: z.string().nullable().title('Summary').describe('The summary of the candidate'),
     educationEntries: z
-      .array(educationEntryModel.optional())
+      .array(educationEntryModel)
       .title('Education Entries')
       .describe('A collection with education entries'),
     experienceEntries: z
-      .array(experienceEntryModel.optional())
+      .array(experienceEntryModel)
       .title('Experience Entries')
       .describe('A collection with experience entries'),
     skills: z
-      .array(
-        z
-          .object({ name: z.string().title('Name') })
-          .partial()
-          .optional()
-      )
+      .array(z.object({ name: z.string().title('Name') }).partial())
       .title('Skills')
       .describe('A collection of skills with names'),
-    answers: z.array(answerModel.optional()).title('Answers').describe('A collection with answers provided'),
+    answers: z.array(answerModel).title('Answers').describe('A collection with answers provided'),
     resumeUrl: z.string().nullable().title('Resume Url').describe('Url to the candidate resume'),
     socialProfiles: z
-      .array(socialProfileModel.optional())
+      .array(socialProfileModel)
       .title('Social Profiles')
       .describe('A collection with social profiles of candidates'),
-    tags: z.array(z.string().optional()).title('Tags').describe('A collection of tags'),
+    tags: z.array(z.string()).title('Tags').describe('A collection of tags'),
     location: locationModel.title('Location').nullable().describe('The location of the candidate'),
     originatingCandidateId: z
       .string()
