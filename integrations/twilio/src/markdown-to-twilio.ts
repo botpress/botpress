@@ -9,12 +9,12 @@ const md = MarkdownIt({
   xhtmlOut: false,
   breaks: false,
 })
-  .disable(['table', 'list', 'hr', 'link', 'blockquote'])
+  .disable(['table', 'list', 'hr', 'link'])
   .use(MarkdownItSub)
   .use(MarkdownItSup)
 
 export const markdownToTwilio = (markdown: string): string => {
-  return _removeHTMLTags(_extractImagesUrl(md.render(markdown))).trim()
+  return _removeEmptyLinesFromText(_removeHTMLTags(_extractImagesUrl(md.render(markdown))).trim())
 }
 
 const _removeHTMLTags = (input: string): string => {
@@ -23,4 +23,12 @@ const _removeHTMLTags = (input: string): string => {
 
 const _extractImagesUrl = (input: string): string => {
   return input.replace('<img src="', '').replace('" alt="image">', '')
+}
+
+function _isNonEmptyLine(line: string): boolean {
+  return line.trim() !== ''
+}
+
+function _removeEmptyLinesFromText(text: string): string {
+  return text.split('\n').filter(_isNonEmptyLine).join('\n')
 }

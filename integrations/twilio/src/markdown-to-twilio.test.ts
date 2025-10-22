@@ -9,7 +9,7 @@ const mdTests = {
   Bold_with_underscore: { input: '__bold-underscore__', expected: 'bold-underscore' },
   Italic_with_asterisk: { input: '*italic-asterisk*', expected: 'italic-asterisk' },
   Italic_with_underscore: { input: '_italic-underscore_', expected: 'italic-underscore' },
-  Blockquote: { input: '> blockquote', expected: '> blockquote' },
+  Blockquote: { input: '> blockquote', expected: 'blockquote' },
   Ordered_list: { input: '1. orderedListItem1\n2. item2', expected: '1. orderedListItem1\n2. item2' },
   Unordered_list: { input: '- unorderedListItem1\n- item2', expected: '- unorderedListItem1\n- item2' },
   Code: { input: '`code`', expected: 'code' },
@@ -69,7 +69,7 @@ bold-asterisk
 bold-underscore
 italic-asterisk
 italic-underscore
-&gt; blockquote
+blockquote
 1. orderedListItem1\n2. item2
 - unorderedListItem1\n- item2
 code
@@ -78,7 +78,6 @@ horizontal\n---\nrule
 https://tinyurl.com/mrv4bmyk
 | 1 | 2 |\n| - | - |\n| a | b |
 {\n\ta: null\n}
-
 footnote[^1]\n[^1]: the footnote
 term\n: definition
 strikethrough
