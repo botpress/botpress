@@ -5,6 +5,7 @@ import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
+import { markdownToTwilio } from './markdown-to-twilio'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -56,7 +57,7 @@ const integration = new bp.Integration({
   channels: {
     channel: {
       messages: {
-        text: async (props) => void (await sendMessage({ ...props, text: props.payload.text })),
+        text: async (props) => void (await sendMessage({ ...props, text: markdownToTwilio(props.payload.text) })),
         image: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.imageUrl })),
         audio: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.audioUrl })),
         video: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.videoUrl })),
