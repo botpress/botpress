@@ -14,7 +14,19 @@ const md = MarkdownIt({
   .use(MarkdownItSup)
 
 export const markdownToTwilio = (markdown: string): string => {
-  return _removeEmptyLinesFromText(_removeHTMLTags(_extractImagesUrl(md.render(markdown))).trim())
+  return _removeEmptyLinesFromText(_removeHTMLTags(_extractImagesUrl(md.render(markdown)))).trim()
+}
+
+export const markdownToMessenger = (markdown: string): string => {
+  const a = markdown
+  const b = md.render(a)
+  const c = _changeMessengerSpecificTags(b)
+  const d = _extractImagesUrl(c)
+  const e = _extractUrl(d)
+  const f = _removeHTMLTags(e)
+  const g = _removeEmptyLinesFromText(f)
+  const h = g.trim()
+  return h
 }
 
 const _removeHTMLTags = (input: string): string => {
@@ -25,10 +37,32 @@ const _extractImagesUrl = (input: string): string => {
   return input.replace('<img src="', '').replace('" alt="image">', '')
 }
 
-function _isNonEmptyLine(line: string): boolean {
+const _isNonEmptyLine = (line: string): boolean => {
   return line.trim() !== ''
 }
 
-function _removeEmptyLinesFromText(text: string): string {
-  return text.split('\n').filter(_isNonEmptyLine).join('\n')
+const _removeEmptyLinesFromText = (input: string): string => {
+  return input.split('\n').filter(_isNonEmptyLine).join('\n')
+}
+
+const _changeMessengerSpecificTags = (input: string): string => {
+  const replaceRecord: Record<string, string> = {
+    '<strong>': '*',
+    '</strong>': '*',
+    '<em>': '_',
+    '</em>': '_',
+    '<s>': '~',
+    '</s>': '~',
+  }
+  Object.keys(replaceRecord).forEach((replace) => {
+    if (!replaceRecord[replace]) {
+      return
+    }
+    input = input.replaceAll(replace, replaceRecord[replace])
+  })
+  return input
+}
+
+const _extractUrl = (input: string): string => {
+  return input.replace(/\[.*?\]\((https?:\/\/[^)]+)\)/g, '$1')
 }
