@@ -16,9 +16,9 @@
 /integrations @botpress/squid
 
 ## Utils
-/integrations/browser @allardy @botpress/engineering
-/integrations/charts @allardy @botpress/engineering
-/integrations/pdf-generator @allardy @botpress/engineering
+/integrations/browser @allardy @botpress/starfish
+/integrations/charts @allardy @botpress/starfish
+/integrations/pdf-generator @allardy @botpress/starfish
 
 ## LLM
 /integrations/anthropic @AbrahamLopez10 @botpress/shark
