@@ -36,10 +36,8 @@ export class WorkableClient {
   private _handleAxiosError(thrown: unknown): never {
     if (axios.isAxiosError(thrown)) {
       throw new Error(thrown.response?.data?.message || thrown.message)
-    } else {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new Error(error.message)
     }
+    throw thrown
   }
 
   public async listCandidates(
