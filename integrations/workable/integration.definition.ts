@@ -23,6 +23,14 @@ export default new IntegrationDefinition({
         .title('Account subdomain'),
     }),
   },
+  states: {
+    webhookIds: {
+      type: 'integration',
+      schema: z.object({
+        ids: z.array(z.number()),
+      }),
+    },
+  },
   actions: {
     listCandidates,
     getCandidate,

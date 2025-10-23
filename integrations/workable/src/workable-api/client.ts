@@ -6,6 +6,11 @@ import {
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
 } from 'src/workable-schemas/candidates'
+import {
+  getWebhooksOutputSchema,
+  registerWebhookInputSchema,
+  registerWebhookOutputSchema,
+} from 'src/workable-schemas/events'
 
 export type ErrorResponse = {
   error: string | undefined
@@ -38,6 +43,28 @@ export class WorkableClient {
       throw new Error(thrown.response?.data?.message || thrown.message)
     }
     throw thrown
+  }
+
+  public async unregisterWebhook(id: number): Promise<void> {
+    await this._client.delete(`/subscriptions/${id}`).catch(this._handleAxiosError)
+  }
+
+  public async registerWebhook(
+    params: z.infer<typeof registerWebhookInputSchema>
+  ): Promise<z.infer<typeof registerWebhookOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof registerWebhookOutputSchema>> = await this._client
+      // The query param is a workaround to enable registering the same url for each event.
+      // The Workable API will not allow registering the same url twice, even for different events.
+      .post(`/subscriptions?event_type=${params.event}`, params)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
+
+  public async getWebhooks(): Promise<z.infer<typeof getWebhooksOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof getWebhooksOutputSchema>> = await this._client
+      .get('/subscriptions')
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
   }
 
   public async listCandidates(
