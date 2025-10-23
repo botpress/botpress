@@ -3,6 +3,7 @@ import MarkdownIt from 'markdown-it'
 import MarkdownItSub from 'markdown-it-sub'
 // @ts-ignore
 import MarkdownItSup from 'markdown-it-sup'
+import { TwilioChannel } from './types'
 
 const md = MarkdownIt({
   html: false,
@@ -13,11 +14,27 @@ const md = MarkdownIt({
   .use(MarkdownItSub)
   .use(MarkdownItSup)
 
-export const markdownToTwilio = (markdown: string): string => {
+export const parseMarkdown = (markdown: string, channel: TwilioChannel): string => {
+  switch (channel) {
+    case 'messenger':
+      return markdownToMessenger(markdown)
+    case 'whatsapp':
+      return markdownToWhatsApp(markdown)
+    case 'rcs':
+      return downRenderMarkdown(markdown)
+    case 'sms/mms':
+      return downRenderMarkdown(markdown)
+    default:
+      channel satisfies never
+      return downRenderMarkdown(markdown)
+  }
+}
+
+const downRenderMarkdown = (markdown: string): string => {
   return _removeEmptyLinesFromText(_removeHTMLTags(_extractImagesUrl(md.render(markdown)))).trim()
 }
 
-export const markdownToMessenger = (markdown: string): string => {
+const markdownToMessenger = (markdown: string): string => {
   const a = markdown
   const b = md.render(a)
   const c = _changeMessengerSpecificTags(b)
@@ -29,7 +46,7 @@ export const markdownToMessenger = (markdown: string): string => {
   return h
 }
 
-export const markdownToWhatsApp = (markdown: string): string => {
+const markdownToWhatsApp = (markdown: string): string => {
   const a = markdown
   const b = md.render(a)
   const c = _changeWhatsAppSpecificTags(b)

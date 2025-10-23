@@ -5,7 +5,7 @@ import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
-import { markdownToTwilio } from './markdown-to-twilio'
+import { parseMarkdown } from './markdown-to-twilio'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -57,7 +57,7 @@ const integration = new bp.Integration({
   channels: {
     channel: {
       messages: {
-        text: async (props) => void (await sendMessage({ ...props, text: markdownToTwilio(props.payload.text) })),
+        text: async (props) => void (await sendMessage({ ...props, text: props.payload.text })),
         image: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.imageUrl })),
         audio: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.audioUrl })),
         video: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.videoUrl })),
@@ -395,6 +395,21 @@ function getMessageTypeAndPayload(
 async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessageProps) {
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
-  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
+  const twilioChannel = getTwilioChannelType(to)
+  const body = text === undefined ? text : parseMarkdown(text, twilioChannel)
+  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })
   await ack({ tags: { id: sid } })
+}
+
+function getTwilioChannelType(user: string): types.TwilioChannel {
+  if (user.startsWith('whatsapp')) {
+    return 'whatsapp'
+  }
+  if (user.startsWith('messenger')) {
+    return 'messenger'
+  }
+  if (user.startsWith('rcs')) {
+    return 'rcs'
+  }
+  return 'sms/mms'
 }

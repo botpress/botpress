@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { markdownToMessenger, markdownToTwilio, markdownToWhatsApp } from './markdown-to-twilio'
+import { parseMarkdown } from './markdown-to-twilio'
 
 const mdGenericTests = {
   Title_1: { input: '# H1', expected: 'H1' },
@@ -17,6 +17,7 @@ const mdGenericTests = {
   // Highlight: { input: '==Highlight==', expected: 'Highlight' }, // chatGPT does not seem to send these
   Subscript: { input: 'H~2~O', expected: 'H2O' },
   Superscript: { input: 'X^2^', expected: 'X2' },
+  Link_only: { input: 'https://www.example.com', expected: 'https://www.example.com' },
 }
 
 const smsSpecificTests = {
@@ -61,15 +62,17 @@ const whatsappTests = { ...mdGenericTests, ...whatsappSpecificTests }
 test.each(Object.entries(smsTests))(
   '[SMS, MMS, RCS] Test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = markdownToTwilio(testValues.input)
+    const actual = parseMarkdown(testValues.input, 'sms/mms')
+    const actualRcs = parseMarkdown(testValues.input, 'rcs')
     expect(actual).toBe(testValues.expected)
+    expect(actualRcs).toBe(testValues.expected)
   }
 )
 
 test.each(Object.entries(messengerTests))(
   '[Messenger] Test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = markdownToMessenger(testValues.input)
+    const actual = parseMarkdown(testValues.input, 'messenger')
     expect(actual).toBe(testValues.expected)
   }
 )
@@ -77,7 +80,7 @@ test.each(Object.entries(messengerTests))(
 test.each(Object.entries(whatsappTests))(
   '[WhatsApp] Test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = markdownToWhatsApp(testValues.input)
+    const actual = parseMarkdown(testValues.input, 'whatsapp')
     expect(actual).toBe(testValues.expected)
   }
 )
@@ -179,16 +182,18 @@ H20
 X2`
 
 test('[SMS, MMS, RCS] Multi-line multi markup test', () => {
-  const actual = markdownToTwilio(bigInput)
+  const actual = parseMarkdown(bigInput, 'sms/mms')
+  const actualRcs = parseMarkdown(bigInput, 'rcs')
   expect(actual).toBe(expectedForBigInputSMS)
+  expect(actualRcs).toBe(expectedForBigInputSMS)
 })
 
 test('[Messenger] Multi-line multi markup test', () => {
-  const actual = markdownToMessenger(bigInput)
+  const actual = parseMarkdown(bigInput, 'messenger')
   expect(actual).toBe(expectedForBigInputMessenger)
 })
 
 test('[WhatsApp] Multi-line multi markup test', () => {
-  const actual = markdownToWhatsApp(bigInput)
+  const actual = parseMarkdown(bigInput, 'whatsapp')
   expect(actual).toBe(expectedForBigInputWhatsApp)
 })
