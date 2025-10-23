@@ -418,6 +418,9 @@ export default new IntegrationDefinition({
       schema: startConversationProps.input.schema.shape['conversation'],
     },
   },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveConversation, ({ entities }) => ({
