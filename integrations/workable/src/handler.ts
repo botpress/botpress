@@ -1,4 +1,5 @@
-import { z } from '@botpress/sdk'
+import { Request, z } from '@botpress/sdk'
+import crypto from 'crypto'
 import { toCandidateCreatedEventModel, toCandidateMovedEventModel } from './mapping/candidate-mapper'
 import { webhookRequestSchema } from './workable-schemas/events'
 import * as bp from '.botpress'
@@ -8,7 +9,50 @@ const isEventTypeHandled = (request: z.infer<typeof webhookRequestSchema>) => {
   return topics.includes(request.event_type)
 }
 
+type VerifyWebhookSignatureReturn =
+  | {
+      isSignatureValid: true
+      signatureError: null
+    }
+  | {
+      isSignatureValid: false
+      signatureError: string
+    }
+
+const _verifyWebhookSignature = (encryptionKey: string, request: Request): VerifyWebhookSignatureReturn => {
+  const signature = request.headers['x-workable-signature']
+
+  if (!signature) {
+    return {
+      isSignatureValid: false,
+      signatureError: 'Missing signature headers',
+    }
+  }
+
+  const expected = crypto
+    .createHmac('sha256', encryptionKey)
+    .update(request.body ?? '')
+    .digest('hex')
+
+  if (!crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'))) {
+    return {
+      isSignatureValid: false,
+      signatureError: 'Signature invalid',
+    }
+  }
+  return {
+    isSignatureValid: true,
+    signatureError: null,
+  }
+}
+
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { isSignatureValid, signatureError } = _verifyWebhookSignature(props.ctx.configuration.apiToken, props.req)
+  if (!isSignatureValid) {
+    props.logger.error(`Webhook Signature Verification: ${signatureError}`)
+    return
+  }
+
   if (!props.req.body) {
     props.logger.error('Handler received an empty body')
     return
