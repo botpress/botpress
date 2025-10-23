@@ -25,7 +25,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
 
   const getUserPromise = new Promise<TeamsChannelAccount | undefined>((resolve, reject) => {
     void adapter
-      .continueConversation(convRef, async (tc) => {
+      .continueConversationAsync(ctx.configuration.appId, convRef, async (tc) => {
         const user = await TeamsInfo.getMember(tc, senderChannelAccount.id)
         resolve(user)
       })

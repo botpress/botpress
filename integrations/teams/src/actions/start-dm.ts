@@ -54,28 +54,35 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     }
   }
 
+  const { appId, tenantId } = ctx.configuration
   const conversationParameters = {
     isGroup: false,
-    members: [
-      {
-        id: teamsUserId,
-      },
-    ],
-  } as Partial<ConversationParameters>
+    members: [{ id: teamsUserId! }],
+    bot: { name: convRef.bot.name, id: appId },
+    tenantId,
+    channelData: { tenant: { id: tenantId } },
+  } as ConversationParameters
 
   let newConvRef: Partial<ConversationReference> | undefined
   let newConvMember: TeamsChannelAccount | undefined
   try {
-    await adapter.createConversation(convRef, conversationParameters, async (context) => {
-      newConvRef = TurnContext.getConversationReference(context.activity)
+    await adapter.createConversationAsync(
+      appId,
+      convRef.channelId,
+      convRef.serviceUrl,
+      'https://api.botframework.com',
+      conversationParameters,
+      async (context) => {
+        newConvRef = TurnContext.getConversationReference(context.activity)
 
-      //If the user already spoke to the bot on DM, the Teams user will be available
-      if (newConvRef.user?.id) {
-        try {
-          newConvMember = await TeamsInfo.getMember(context, newConvRef.user.id)
-        } catch {}
+        // If the user already spoke to the bot on DM, the Teams user will be available
+        if (newConvRef.user?.id) {
+          try {
+            newConvMember = await TeamsInfo.getMember(context, newConvRef.user.id)
+          } catch {}
+        }
       }
-    })
+    )
   } catch (thrown) {
     const err = getError(thrown)
     throw new RuntimeError(
