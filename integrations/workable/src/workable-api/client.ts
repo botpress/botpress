@@ -53,9 +53,7 @@ export class WorkableClient {
     params: z.infer<typeof registerWebhookInputSchema>
   ): Promise<z.infer<typeof registerWebhookOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof registerWebhookOutputSchema>> = await this._client
-      // The query param is a workaround to enable registering the same url for each event.
-      // The Workable API will not allow registering the same url twice, even for different events.
-      .post(`/subscriptions?event_type=${params.event}`, params)
+      .post('/subscriptions', params)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }

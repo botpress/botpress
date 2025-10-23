@@ -17,6 +17,8 @@ async function _registerWebhook(
   subDomain: string
 ): Promise<number> {
   const response = await client.registerWebhook({
+    // The query param is a workaround to enable registering the same url for each event.
+    // The Workable API will not allow registering the same url twice, even for different events.
     target: `${url}?event_type=${eventType}`,
     event: eventType,
     args: {
