@@ -811,6 +811,36 @@ describe.concurrent('objects', () => {
         `
     await expect(typings).toMatchWithoutFormatting(expected)
   })
+
+  it('should not treat default property as optional by default', async () => {
+    const schema = z.object({
+      foo: z.string().default('hello'),
+    })
+
+    const typings = toTypescript(schema)
+    const expected = `
+        declare const x: {
+          foo: string
+        }
+      `
+    await expect(typings).toMatchWithoutFormatting(expected)
+  })
+
+  it('should treat default property as optional when treatDefaultAsOptional is true', async () => {
+    const schema = z
+      .object({
+        foo: z.string().default('hello'),
+      })
+      .title('x')
+
+    const typings = toTs(schema, { declaration: true, treatDefaultAsOptional: true })
+    const expected = `
+        declare const x: {
+          foo?: string
+        }
+      `
+    await expect(typings).toMatchWithoutFormatting(expected)
+  })
 })
 
 describe.concurrent('generics', () => {
@@ -893,5 +923,29 @@ describe.concurrent('closing tags', () => {
     const typings = toTs(largeFn, { declaration: 'variable', includeClosingTags: true })
 
     expect(typings).toContain('// end of LargeFunction')
+  })
+})
+
+describe.concurrent('optional', () => {
+  it('should handle top level optional schemas as union with undefined', async () => {
+    const schema = z.string().optional().title('MyString')
+    const typings = toTs(schema, { declaration: true })
+    await expect(typings).toMatchWithoutFormatting('declare const MyString: string | undefined;')
+  })
+
+  it('should not treat default schema as optional', async () => {
+    const schema = z.string().default('hello')
+
+    const typings = toTypescript(schema)
+    const expected = `declare const x: string`
+    await expect(typings).toMatchWithoutFormatting(expected)
+  })
+
+  it('should treat default schema as optional when treatDefaultAsOptional is true', async () => {
+    const schema = z.string().default('hello').title('MyString')
+
+    const typings = toTs(schema, { declaration: true, treatDefaultAsOptional: true })
+    const expected = `declare const MyString: string | undefined;`
+    await expect(typings).toMatchWithoutFormatting(expected)
   })
 })

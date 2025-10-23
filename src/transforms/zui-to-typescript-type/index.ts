@@ -76,6 +76,7 @@ export type TypescriptGenerationOptions = {
    * This improves readability for large type declarations by adding comments like "// end of TypeName".
    */
   includeClosingTags?: boolean
+  treatDefaultAsOptional?: boolean
 }
 
 type SchemaTypes = z.Schema | KeyValue | FnParameters | Declaration | null
@@ -84,6 +85,7 @@ type InternalOptions = {
   parent?: SchemaTypes
   declaration?: boolean | TypescriptDeclarationType
   includeClosingTags?: boolean
+  treatDefaultAsOptional?: boolean
 }
 
 /**
@@ -120,10 +122,17 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
   }
 
   if (schema instanceof KeyValue) {
+    let optionalValue: z.ZodOptional | undefined = undefined
     if (schema.value instanceof z.ZodOptional) {
-      let innerType = schema.value._def.innerType as z.Schema
-      if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
-        innerType = innerType?.describe(schema.value.description)
+      optionalValue = schema.value
+    } else if (schema.value instanceof z.ZodDefault && config.treatDefaultAsOptional) {
+      optionalValue = schema.value._def.innerType.optional()
+    }
+
+    if (optionalValue) {
+      let innerType = optionalValue._def.innerType as z.Schema
+      if (innerType instanceof z.Schema && !innerType.description && optionalValue.description) {
+        innerType = innerType?.describe(optionalValue.description)
       }
 
       const optionalToken = schema.key.endsWith('?') ? '' : '?'
@@ -304,7 +313,8 @@ ${value}`.trim()
       return `${sUnwrapZod(def.innerType, newConfig)} | null`
 
     case z.ZodFirstPartyTypeKind.ZodDefault:
-      return sUnwrapZod(def.innerType, newConfig)
+      const defaultInnerType = config.treatDefaultAsOptional ? def.innerType.optional() : def.innerType
+      return sUnwrapZod(defaultInnerType, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodCatch:
       return sUnwrapZod(def.innerType, newConfig)
