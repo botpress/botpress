@@ -1,7 +1,6 @@
 import { z } from '@botpress/sdk'
+import { eventTypes } from 'definitions/events/candidates'
 import { candidateSchema } from './candidates'
-
-export const eventTypes = z.enum(['candidate_created', 'candidate_moved'])
 
 export const webhookEvent = z.object({
   fired_at: z.string(),

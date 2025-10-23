@@ -2,10 +2,12 @@ import { EventDefinition, z } from '@botpress/sdk'
 import { candidateSchema } from 'definitions/models/candidates'
 import { webhookEvent } from './common'
 
+export const eventTypes = z.enum(['candidate_created', 'candidate_moved'])
+
 export const candidateCreatedSchema = webhookEvent
   .extend({
     data: candidateSchema,
-    eventType: z.literal('candidate_created').title('Event Type').describe('The type of event'),
+    eventType: z.literal(eventTypes.Enum.candidate_created).title('Event Type').describe('The type of event'),
   })
   .title('Data')
   .describe('Event data')
@@ -13,7 +15,7 @@ export const candidateCreatedSchema = webhookEvent
 export const candidateMovedSchema = webhookEvent
   .extend({
     data: candidateSchema,
-    eventType: z.literal('candidate_moved').title('Event Type').describe('The type of event'),
+    eventType: z.literal(eventTypes.Enum.candidate_created).title('Event Type').describe('The type of event'),
   })
   .title('Data')
   .describe('Event data')

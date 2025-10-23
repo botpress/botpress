@@ -1,4 +1,5 @@
 import { RuntimeError, z } from '@botpress/sdk'
+import { eventTypes } from 'definitions/events/candidates'
 import { handler } from './handler'
 import {
   fromGetCandidateInputModel,
@@ -7,7 +8,6 @@ import {
   toListCandidatesOutputModel,
 } from './mapping/candidate-mapper'
 import { WorkableClient } from './workable-api/client'
-import { eventTypes } from './workable-schemas/events'
 import * as bp from '.botpress'
 
 async function _registerWebhook(
