@@ -75,14 +75,15 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   }
 
   // Use the thread resolver to create conversation based on root thread ID
+  const userId = from?.id
   const { conversation } = await client.getOrCreateConversation({
     channel: 'commentReplies',
-    tags: { id: commentId, postId },
+    tags: { id: commentId, postId, userId },
     discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
-    tags: { id: from?.id },
+    tags: { id: userId },
   })
 
   await client.getOrCreateMessage({
