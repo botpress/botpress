@@ -34,7 +34,6 @@ class KeyValue {
   constructor(
     public key: string,
     public value: z.Schema,
-    public optional: boolean = false,
   ) {}
 }
 
@@ -106,6 +105,8 @@ export function toTypescriptType(schema: z.Schema, options: TypescriptGeneration
   return dts
 }
 
+const _optionalKey = (key: string): string => (key.endsWith('?') ? key : `${key}?`)
+
 function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
   const newConfig: InternalOptions = {
     ...config,
@@ -135,15 +136,16 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
         innerType = innerType?.describe(optionalValue.description)
       }
 
-      const optionalToken = schema.key.endsWith('?') ? '' : '?'
-      return sUnwrapZod(new KeyValue(schema.key + optionalToken, innerType), newConfig)
+      return sUnwrapZod(new KeyValue(_optionalKey(schema.key), innerType), newConfig)
     }
 
     const description = getMultilineComment(schema.value._def.description || schema.value.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    return `${delimiter}${description}${delimiter}${schema.key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
+    const isOptional = schema.value instanceof z.ZodAny // any is treated as optional for backwards compatibility
+    const key = isOptional ? _optionalKey(schema.key) : schema.key
+    return `${delimiter}${description}${delimiter}${key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {

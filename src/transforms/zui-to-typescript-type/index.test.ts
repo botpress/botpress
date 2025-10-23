@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { toTypescriptType as toTs } from '.'
-import z, { ZodType } from '../../z'
+import z, { util, ZodType } from '../../z'
 import * as errors from '../common/errors'
 
 const toTypescript = (schema: ZodType): string => {
@@ -840,6 +840,39 @@ describe.concurrent('objects', () => {
         }
       `
     await expect(typings).toMatchWithoutFormatting(expected)
+  })
+
+  it('should treat an any key as optional for backward compatibility', async () => {
+    // this is super weird, but that was the behavior before v1.1.0 and is coherent with the type inference (see type assertion below)
+
+    const zSchema = z.object({
+      a: z.any(),
+    })
+
+    const actual = toTypescript(zSchema)
+    const expected = `
+        declare const x: {
+          a?: any
+        }
+      `
+    await expect(actual).toMatchWithoutFormatting(expected)
+
+    type S = z.infer<typeof zSchema>
+    util.assertEqual<S, { a?: any }>(true)
+  })
+
+  it('should treat an optional any key as optional with a single question mark', async () => {
+    const zSchema = z.object({
+      a: z.any().optional(),
+    })
+
+    const actual = toTypescript(zSchema)
+    const expected = `
+        declare const x: {
+          a?: any
+        }
+      `
+    await expect(actual).toMatchWithoutFormatting(expected)
   })
 })
 
