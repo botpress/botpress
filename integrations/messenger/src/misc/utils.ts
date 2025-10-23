@@ -8,14 +8,14 @@ export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function getRecipientId(conversation: SendMessageProps['conversation']): string {
-  const recipientId = conversation.tags.id
+export function getEndUserMessengerId(conversation: SendMessageProps['conversation']): string {
+  const id = conversation.tags.id
 
-  if (!recipientId) {
+  if (!id) {
     throw new RuntimeError(`No recipient id found for conversation ${conversation.id}`)
   }
 
-  return recipientId
+  return id
 }
 
 export function safeJsonParse(x: any) {

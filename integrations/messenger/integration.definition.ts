@@ -97,9 +97,11 @@ export default new IntegrationDefinition({
       },
       conversation: {
         tags: {
-          id: { title: 'Conversation ID', description: 'The Messenger ID of the conversation' },
-          recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
-          senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
+          id: { title: 'Conversation ID', description: 'The Messenger user ID of the user in the conversation' },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Messenger ID of the comment from which a private-reply discussion was initiated',
+          },
         },
       },
     },
@@ -118,6 +120,17 @@ export default new IntegrationDefinition({
           .title('Page token')
           .describe('The token used to authenticate API calls related to the page'),
         pageId: z.string().optional().title('Page ID').describe('The page ID'),
+      }),
+    },
+    privateReply: {
+      type: 'conversation',
+      schema: z.object({
+        initiateNew: z
+          .boolean()
+          .title('Initiate New Private Reply')
+          .describe(
+            'Whether the next message will be sent as a private reply to the comment referenced by the conversation'
+          ),
       }),
     },
   },
@@ -177,7 +190,12 @@ export default new IntegrationDefinition({
     conversation: {
       schema: z
         .object({
-          id: z.string().title('User ID').describe('The Messenger ID of the user in the conversation'),
+          userId: z.string().title('User ID').describe('The Messenger user ID of the user in the conversation'),
+          commentId: z
+            .string()
+            .optional()
+            .title('Comment ID')
+            .describe('The comment ID from which the private-reply discussion was initiated'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),
