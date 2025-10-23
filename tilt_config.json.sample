@@ -1,0 +1,7 @@
+{
+  "bp-api-url": "http://localhost:5986",
+  "bp-webhook-url": "http://localhost:5987",
+  "bp-tunnel-url":  "https://tunnel.botpress.cloud",
+  "bp-workspace-id": "11111111-1111-1111-aaaa-111111111111",
+  "bp-token": ""
+}
