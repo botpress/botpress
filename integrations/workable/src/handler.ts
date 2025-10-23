@@ -3,10 +3,10 @@ import crypto from 'crypto'
 import { toCandidateCreatedEventModel, toCandidateMovedEventModel } from './mapping/candidate-mapper'
 import { webhookRequestSchema } from './workable-schemas/events'
 import * as bp from '.botpress'
+import { eventTypes } from 'definitions/events/candidates'
 
 const isEventTypeHandled = (request: z.infer<typeof webhookRequestSchema>) => {
-  const topics: string[] = webhookRequestSchema.options.map((option) => option.shape.event_type.value)
-  return topics.includes(request.event_type)
+  return eventTypes.options.includes(request.event_type)
 }
 
 type VerifyWebhookSignatureReturn =
