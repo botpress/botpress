@@ -34,7 +34,9 @@ export const handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerP
 
   console.debug(req)
 
-  await _ensureWebhookIsAuthenticated(props)
+  if (props.ctx.configurationType !== 'apiToken') {
+    await _ensureWebhookIsAuthenticated(props)
+  }
   await _dispatchEvent(props)
 }
 

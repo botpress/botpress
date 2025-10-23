@@ -1,22 +1,9 @@
 import { z } from '@botpress/sdk'
 
 export const modelId = z
-  .enum([
-    'openai/gpt-oss-20b',
-    'openai/gpt-oss-120b',
-    'deepseek-r1-distill-llama-70b',
-    'llama-3.3-70b-versatile',
-    'llama-3.2-1b-preview',
-    'llama-3.2-3b-preview',
-    'llama-3.2-11b-vision-preview',
-    'llama-3.2-90b-vision-preview',
-    'llama-3.1-8b-instant',
-    'llama3-8b-8192',
-    'llama3-70b-8192',
-    'gemma2-9b-it',
-  ])
+  .enum(['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'])
   .describe('Model to use for content generation')
-  .placeholder('mixtral-8x7b-32768')
+  .placeholder('openai/gpt-oss-120b')
 
 export type ModelId = z.infer<typeof modelId>
 

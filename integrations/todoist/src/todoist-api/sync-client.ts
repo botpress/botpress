@@ -16,8 +16,8 @@ export class TodoistSyncClient {
       endpoint: 'user',
       responseSchema: {
         id: z.string(),
-        avatar_medium: z.string(),
-        full_name: z.string(),
+        avatar_medium: z.string().optional(),
+        full_name: z.string().optional(),
       },
     })
 

@@ -75,8 +75,8 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
   },
 }
 
-type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
+type Channel = bp.Integration['channels']['channel']
+type Messages = Channel['messages']
 type MessageHandler = Messages[keyof Messages]
 type SendMessageProps = Parameters<MessageHandler>[0]
 async function _sendMessage(
