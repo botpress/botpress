@@ -9,10 +9,11 @@ import * as bp from '.botpress'
 type TeamsConfig = bp.configuration.Configuration
 
 export const getAdapter = (config: TeamsConfig) => {
+  const hasTenantId = (config.tenantId?.trim().length ?? 0) > 0
   const credFactory = new ConfigurationServiceClientCredentialFactory({
     MicrosoftAppId: config.appId,
     MicrosoftAppPassword: config.appPassword,
-    MicrosoftAppType: 'SingleTenant',
+    MicrosoftAppType: hasTenantId ? 'MultiTenant' : 'SingleTenant',
     MicrosoftAppTenantId: config.tenantId,
   })
 
