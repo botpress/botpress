@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
+import { handler } from './handler'
 import {
   fromGetCandidateInputModel,
   fromListCandidatesInputModel,
@@ -44,5 +45,5 @@ export default new bp.Integration({
     },
   },
   channels: {},
-  handler: async () => {},
+  handler,
 })
