@@ -17,45 +17,33 @@ const md = MarkdownIt({
 export const parseMarkdown = (markdown: string, channel: TwilioChannel): string => {
   switch (channel) {
     case 'messenger':
-      return markdownToMessenger(markdown)
+      return _markdownToMessenger(markdown)
     case 'whatsapp':
-      return markdownToWhatsApp(markdown)
+      return _markdownToWhatsApp(markdown)
     case 'rcs':
-      return downRenderMarkdown(markdown)
+      return _markdownToPlainText(markdown)
     case 'sms/mms':
-      return downRenderMarkdown(markdown)
+      return _markdownToPlainText(markdown)
     default:
       channel satisfies never
-      return downRenderMarkdown(markdown)
+      return _markdownToPlainText(markdown)
   }
 }
 
-const downRenderMarkdown = (markdown: string): string => {
+const _markdownToPlainText = (markdown: string): string => {
   return _removeEmptyLinesFromText(_removeHTMLTags(_extractImagesUrl(md.render(markdown)))).trim()
 }
 
-const markdownToMessenger = (markdown: string): string => {
-  const a = markdown
-  const b = md.render(a)
-  const c = _changeMessengerSpecificTags(b)
-  const d = _extractImagesUrl(c)
-  const e = _extractUrl(d)
-  const f = _removeHTMLTags(e)
-  const g = _removeEmptyLinesFromText(f)
-  const h = g.trim()
-  return h
+const _markdownToMessenger = (markdown: string): string => {
+  return _removeEmptyLinesFromText(
+    _removeHTMLTags(_extractUrl(_extractImagesUrl(_changeMessengerSpecificTags(md.render(markdown)))))
+  ).trim()
 }
 
-const markdownToWhatsApp = (markdown: string): string => {
-  const a = markdown
-  const b = md.render(a)
-  const c = _changeWhatsAppSpecificTags(b)
-  const d = _extractImagesUrl(c)
-  const e = _extractUrl(d)
-  const f = _removeHTMLTags(e)
-  const g = _removeEmptyLinesFromText(f)
-  const h = g.trim()
-  return h
+const _markdownToWhatsApp = (markdown: string): string => {
+  return _removeEmptyLinesFromText(
+    _removeHTMLTags(_extractUrl(_extractImagesUrl(_changeWhatsAppSpecificTags(md.render(markdown)))))
+  ).trim()
 }
 
 const _removeHTMLTags = (input: string): string => {
