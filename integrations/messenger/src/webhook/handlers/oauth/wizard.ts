@@ -43,7 +43,7 @@ const _startHandler: WizardHandler = ({ responses }) => {
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents: `
-    This wizard will reset your configuration, so the bot will stop working on Messenger until a new configuration is put in place, continue?
+    This wizard will reset your configuration, so the bot will stop working on Facebook and Messenger until a new configuration is put in place, continue?
   `,
     buttons: [
       {
@@ -80,7 +80,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
     })
   }
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ ctx, client, logger })
   const userToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
     authorizationCode,
     _getOAuthRedirectUri(ctx)
@@ -92,7 +92,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
 }
 
 const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logger }) => {
-  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+  const { userToken } = await getMetaClientCredentials({ client, ctx }).catch(() => ({
     userToken: undefined,
   }))
   if (!userToken) {
@@ -102,7 +102,7 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
     })
   }
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ ctx, client, logger })
   const pages = await metaClient.getFacebookPagesFromToken(userToken)
 
   return responses.displayChoices({
@@ -117,7 +117,7 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
 }
 
 const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
-  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+  const { userToken } = await getMetaClientCredentials({ client, ctx }).catch(() => ({
     userToken: undefined,
   }))
   if (!userToken) {
@@ -137,7 +137,7 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   const pageId = selectedChoice
   await patchOAuthMetaClientCredentials(client, ctx, { pageId })
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ ctx, client, logger })
   const pageToken = await metaClient.getPageToken(pageId)
   if (!pageToken) {
     return responses.endWizard({
@@ -165,9 +165,10 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
     htmlOrMarkdownPageContents: `
 Your configuration is now complete, and this bot will begin responding for the selected Facebook page. You can open it on Messenger to test it.
 
-**Here are some things to verify if you are unable to communicate with your bot on Messenger**
+**Here are some things to verify if you are unable to communicate with your bot on Facebook andMessenger**
 
 -  Confirm that you are interacting with the page selected for this bot.
+-  Verify that have enabled "Reply to Comments" in the configuration if you are using the comment replies channel.
 -  Double-check that you have published this bot.
     `,
     buttons: [

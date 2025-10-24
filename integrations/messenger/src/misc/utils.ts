@@ -1,18 +1,19 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { Location, SendMessageProps } from './types'
+import { Location } from './types'
 import * as bp from '.botpress'
 
 export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function getEndUserMessengerId(conversation: SendMessageProps['conversation']): string {
-  const id = conversation.tags.id
+// TODO: Use `SendMessengerMessageProps['conversation']` type instead
+export function getEndUserMessengerId(messengerConversation: { id: string; tags: { id?: string } }): string {
+  const id = messengerConversation.tags.id
 
   if (!id) {
-    throw new RuntimeError(`No recipient id found for conversation ${conversation.id}`)
+    throw new RuntimeError(`No recipient id found for conversation ${messengerConversation.id}`)
   }
 
   return id

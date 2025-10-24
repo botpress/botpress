@@ -40,6 +40,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   // Parse as messenger payload
+  // TODO: Refactor handler to also handle feed entries
   const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
   if (messengerParseResult.success) {
     const data = messengerParseResult.data
@@ -60,7 +61,7 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
     if (response?.status && response.status >= 400) {
-      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+      props.logger.error(`Facebook/Messenger handler failed with status ${response.status}: ${response.body}`)
     }
     return response
   } catch (error) {
