@@ -6,7 +6,7 @@ export const eventTypes = z.enum(['candidate_created', 'candidate_moved'])
 
 export const candidateCreatedSchema = webhookEvent
   .extend({
-    data: candidateSchema,
+    data: candidateSchema.title('Data').describe('The candidate that was created'),
     eventType: z.literal(eventTypes.Enum.candidate_created).title('Event Type').describe('The type of event'),
   })
   .title('Data')
@@ -14,7 +14,7 @@ export const candidateCreatedSchema = webhookEvent
 
 export const candidateMovedSchema = webhookEvent
   .extend({
-    data: candidateSchema,
+    data: candidateSchema.title('Data').describe('The candidate that was moved'),
     eventType: z.literal(eventTypes.Enum.candidate_moved).title('Event Type').describe('The type of event'),
   })
   .title('Data')
