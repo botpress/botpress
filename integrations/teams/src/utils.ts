@@ -13,7 +13,7 @@ export const getAdapter = (config: TeamsConfig) => {
   const credFactory = new ConfigurationServiceClientCredentialFactory({
     MicrosoftAppId: config.appId,
     MicrosoftAppPassword: config.appPassword,
-    MicrosoftAppType: hasTenantId ? 'MultiTenant' : 'SingleTenant',
+    MicrosoftAppType: hasTenantId ? 'SingleTenant' : 'MultiTenant',
     MicrosoftAppTenantId: config.tenantId,
   })
 
