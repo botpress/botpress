@@ -71,6 +71,7 @@ export default new IntegrationDefinition({
         tags: {
           id: { title: 'Comment ID', description: 'The Facebook comment ID under which the reply was posted' },
           postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
+          userId: { title: 'User ID', description: 'The Facebook user ID of the user who posted the comment' },
         },
       },
     },
