@@ -132,6 +132,12 @@ export default new IntegrationDefinition({
             .min(1)
             .title(defaultBotPhoneNumberId.title)
             .describe(defaultBotPhoneNumberId.description),
+          whatsappBusinessAccountId: z
+            .string()
+            .secret()
+            .optional()
+            .title('WABA ID')
+            .describe('Your Whatsapp business Account ID'),
         })
         .merge(commonConfigSchema),
     },

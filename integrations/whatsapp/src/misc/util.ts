@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 import * as bp from '.botpress'
 
@@ -49,4 +50,9 @@ export const getMessageFromWhatsappMessageId = async (
     },
   })
   return messages[0]
+}
+
+export function logForBotAndThrow(message: string, logger: bp.Logger): never {
+  logger.forBot().error(message)
+  throw new sdk.RuntimeError(message)
 }
