@@ -1877,7 +1877,7 @@ importers:
   integrations/workable:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.16.0
+        specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
       '@types/node':

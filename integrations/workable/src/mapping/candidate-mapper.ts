@@ -1,6 +1,8 @@
 import { z } from '@botpress/sdk'
+import * as defEvents from 'definitions/events/candidates'
 import * as def from 'definitions/models/candidates'
 import * as workable from 'src/workable-schemas/candidates'
+import * as workableEvents from 'src/workable-schemas/events'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
@@ -158,5 +160,33 @@ export function toGetCandidateModel(
 ): z.infer<typeof def.getCandidateOutputSchema> {
   return {
     candidate: schema.candidate === undefined ? undefined : toDetailedCandidateModel(schema.candidate),
+  }
+}
+
+export function toCandidateCreatedEventModel(
+  schema: z.infer<typeof workableEvents.candidateCreatedSchema>
+): z.infer<typeof defEvents.candidateCreatedSchema> {
+  const candidateModel = toDetailedCandidateModel(schema.data)
+  const { event_type, fired_at, resource_type, ...rest } = schema
+  return {
+    ...rest,
+    eventType: event_type,
+    firedAt: fired_at,
+    resourceType: resource_type,
+    data: candidateModel,
+  }
+}
+
+export function toCandidateMovedEventModel(
+  schema: z.infer<typeof workableEvents.candidateMovedSchema>
+): z.infer<typeof defEvents.candidateMovedSchema> {
+  const candidateModel = toDetailedCandidateModel(schema.data)
+  const { event_type, fired_at, resource_type, ...rest } = schema
+  return {
+    ...rest,
+    eventType: event_type,
+    firedAt: fired_at,
+    resourceType: resource_type,
+    data: candidateModel,
   }
 }
