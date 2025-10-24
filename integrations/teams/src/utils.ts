@@ -1,14 +1,24 @@
-import { BotFrameworkAdapter, ConversationReference } from 'botbuilder'
+import {
+  CloudAdapter,
+  ConfigurationServiceClientCredentialFactory,
+  ConversationReference,
+  createBotFrameworkAuthenticationFromConfiguration,
+} from 'botbuilder'
 import * as bp from '.botpress'
 
 type TeamsConfig = bp.configuration.Configuration
 
 export const getAdapter = (config: TeamsConfig) => {
-  return new BotFrameworkAdapter({
-    channelAuthTenant: config.tenantId,
-    appId: config.appId,
-    appPassword: config.appPassword,
+  const hasTenantId = (config.tenantId?.trim().length ?? 0) > 0
+  const credFactory = new ConfigurationServiceClientCredentialFactory({
+    MicrosoftAppId: config.appId,
+    MicrosoftAppPassword: config.appPassword,
+    MicrosoftAppType: hasTenantId ? 'SingleTenant' : 'MultiTenant',
+    MicrosoftAppTenantId: config.tenantId,
   })
+
+  const bfa = createBotFrameworkAuthenticationFromConfiguration(null, credFactory)
+  return new CloudAdapter(bfa)
 }
 
 export const getConversationReference = async ({

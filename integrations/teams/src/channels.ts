@@ -30,7 +30,7 @@ const renderTeams = async ({ ctx, ack, conversation, client }: bp.AnyMessageProp
   const { state } = stateRes
   const convRef = state.payload as ConversationReference
 
-  await adapter.continueConversation(convRef, async (turnContext) => {
+  await adapter.continueConversationAsync(configuration.appId, convRef, async (turnContext) => {
     if (!turnContext.activity.id) {
       console.warn('No activity id found')
       return
