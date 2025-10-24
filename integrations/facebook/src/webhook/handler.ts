@@ -1,8 +1,8 @@
-import { isSandboxCommand, meta } from '@botpress/common'
+import { meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { messengerPayloadSchema } from '../misc/types'
+import { feedEventPayloadSchema } from '../misc/types'
 import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
+import { oauthHandler, feedHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -10,10 +10,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 
   if (req.path.startsWith('/oauth')) {
     return oauthHandler({ req, client, ctx, logger })
-  }
-
-  if (isSandboxCommand(props)) {
-    return await sandboxHandler(props)
   }
 
   const queryParams = new URLSearchParams(req.query)
@@ -39,20 +35,15 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  // Parse as messenger payload
-  const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
-  if (messengerParseResult.success) {
-    const data = messengerParseResult.data
-    for (const { messaging } of data.entry) {
-      // Handle each messaging entry
-      for (const messagingEntry of messaging) {
-        await messageHandler(messagingEntry, props)
-      }
+  const feedParseResult = feedEventPayloadSchema.safeParse(jsonParseResult.data)
+  if (feedParseResult.success) {
+    const data = feedParseResult.data
+    for (const entry of data.entry) {
+      await feedHandler(entry, props)
     }
     return
   }
-
-  logger.forBot().warn('Error while parsing body as messenger payload')
+  logger.forBot().warn('Error while parsing body as event payload')
   return
 }
 
@@ -60,7 +51,7 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
     if (response?.status && response.status >= 400) {
-      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+      props.logger.error(`Facebook handler failed with status ${response.status}: ${response.body}`)
     }
     return response
   } catch (error) {

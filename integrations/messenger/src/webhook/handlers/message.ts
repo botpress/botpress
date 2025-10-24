@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import { create as createMessengerClient } from '../../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../../misc/messenger-client'
 import {
   MessengerMessagingEntry,
   MessengerMessagingEntryMessage,
@@ -117,7 +117,7 @@ const _commonMessagingHandler = async ({
   const { sender, recipient } = messagingEntry
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
-    tags: { id: sender.id, senderId: sender.id, recipientId: recipient.id },
+    tags: { id: sender.id },
   })
 
   const { user } = await client.getOrCreateUser({
@@ -206,9 +206,10 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
 
 const _updateUserProfile = async (user: User, messengerUserId: string, props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
+
   if (shouldGetUserProfile(ctx) && (!user.name || !user.pictureUrl)) {
     try {
-      const messengerClient = await createMessengerClient(client, ctx)
+      const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
       const profile = await messengerClient.getUserProfile(messengerUserId, { fields: ['id', 'name', 'profile_pic'] })
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 

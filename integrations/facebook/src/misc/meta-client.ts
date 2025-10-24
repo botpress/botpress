@@ -1,7 +1,7 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getMetaClientCredentials } from './auth'
-import { MetaClientConfigType, MetaClientCredentials } from './types'
+import { MetaClientCredentials, MetaClientConfigType } from './types'
 import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
@@ -189,7 +189,7 @@ export class MetaClient {
         endpoint: `${pageId}/subscribed_apps`,
         tokenType: 'page',
         data: {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
+          subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
         },
       })
 
@@ -282,12 +282,17 @@ export class MetaClient {
 }
 
 // Factory Function
-export async function createAuthenticatedMetaClient(
-  configType: MetaClientConfigType,
-  ctx: bp.Context,
-  client: bp.Client,
+export async function createAuthenticatedMetaClient({
+  configType,
+  ctx,
+  client,
+  logger,
+}: {
+  configType?: MetaClientConfigType
+  ctx: bp.Context
+  client: bp.Client
   logger?: bp.Logger
-): Promise<MetaClient> {
-  const credentials = await getMetaClientCredentials(configType, client, ctx)
+}): Promise<MetaClient> {
+  const credentials = await getMetaClientCredentials({ configType, client, ctx })
   return new MetaClient(credentials, logger)
 }

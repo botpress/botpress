@@ -1,0 +1,1 @@
+This integration enables your bot to interact with Facebook by responding to comments on Facebook posts. The bot can receive comment notifications and reply to them, allowing for automated engagement with your Facebook audience.

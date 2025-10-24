@@ -17,6 +17,22 @@ export type SendMessageProps = Pick<
   'client' | 'ctx' | 'conversation' | 'ack' | 'logger' | 'type' | 'payload'
 >
 
+export type MetaClientConfigType = bp.Context['configurationType'] | 'oauth'
+export type MetaClientCredentials = {
+  userToken?: string
+  pageToken?: string
+  pageId?: string
+  clientId: string
+  clientSecret?: string
+  appToken?: string
+}
+
+export type MessengerClientCredentials = {
+  accessToken: string
+  clientSecret?: string
+  clientId: string
+}
+
 type MessengerOutMessagePostbackAttachment = {
   type: 'postback'
   title: string

@@ -1,8 +1,9 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
+import { messages } from './definitions/channels/channel/messages'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -24,7 +25,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '4.1.0',
+  version: '5.0.0',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -59,7 +60,7 @@ export default new IntegrationDefinition({
             .string()
             .title('Access Token')
             .min(1)
-            .describe('Access Token from a System Account that has permission to the Meta app'),
+            .describe('Page access token that with permissions to access the Facebook page'),
           pageId: z.string().min(1).describe('Id from the Facebook page').title('Page ID'),
           shouldGetUserProfile: z
             .boolean()
@@ -87,19 +88,29 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Messenger conversation',
       description: 'Channel for a Messenger conversation',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages,
       message: {
         tags: {
           id: { title: 'Message ID', description: 'The Messenger ID of the message' },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Messenger ID of the comment for which the message is a private-reply to',
+          },
           recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
           senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
         },
       },
       conversation: {
         tags: {
-          id: { title: 'Conversation ID', description: 'The Messenger ID of the conversation' },
-          recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
-          senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
+          id: { title: 'Conversation ID', description: 'The Messenger user ID of the user in the conversation' },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Messenger ID of the comment from which the private-reply conversation was created',
+          },
+          lastCommentId: {
+            title: 'Last Comment ID',
+            description: 'The Messenger ID of the comment from which a private-reply message was last sent',
+          },
         },
       },
     },
@@ -110,6 +121,7 @@ export default new IntegrationDefinition({
     oauth: {
       type: 'integration',
       schema: z.object({
+        // TODO: Rename to 'userToken' if we bump a major
         accessToken: z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
         pageToken: z
           .string()
@@ -176,7 +188,12 @@ export default new IntegrationDefinition({
     conversation: {
       schema: z
         .object({
-          id: z.string().title('User ID').describe('The Messenger ID of the user in the conversation'),
+          userId: z.string().title('User ID').describe('The Messenger user ID of the user in the conversation'),
+          commentId: z
+            .string()
+            .optional()
+            .title('Comment ID')
+            .describe('The Messenger ID of the comment for which the private-reply conversation should be created'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),
