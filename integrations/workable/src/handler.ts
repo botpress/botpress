@@ -1,9 +1,9 @@
 import { Request, z } from '@botpress/sdk'
 import crypto from 'crypto'
+import { eventTypes } from 'definitions/events/candidates'
 import { toCandidateCreatedEventModel, toCandidateMovedEventModel } from './mapping/candidate-mapper'
 import { webhookRequestSchema } from './workable-schemas/events'
 import * as bp from '.botpress'
-import { eventTypes } from 'definitions/events/candidates'
 
 const isEventTypeHandled = (request: z.infer<typeof webhookRequestSchema>) => {
   return eventTypes.options.includes(request.event_type)
