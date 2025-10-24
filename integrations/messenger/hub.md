@@ -13,7 +13,7 @@ The following changes have been implemented:
 
 ### Removal of `recipientId` and `senderId` conversation tags
 
-The `recipientId` and `senderId` conversation tags were removed because of their redundancy. The recipient ID, which corresponded to the Bot's Messenger ID, can still be found in the `recipientId` message tag of incoming message or in the `senderId` message tag of outgoing messages. The sender ID, which corresponded to the user's Messenger ID, can still be found in the `id` conversation tag.
+The `recipientId` and `senderId` conversation tags were removed because of their redundancy. The recipient ID, which corresponded to the Bot's Messenger ID, can still be found in the `recipientId` message tag of incoming messages or in the `senderId` message tag of outgoing messages. The sender ID, which corresponded to the user's Messenger ID, can still be found in the `id` conversation tag.
 
 ### Markdown message type
 
