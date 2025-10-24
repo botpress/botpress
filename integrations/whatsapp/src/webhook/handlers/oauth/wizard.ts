@@ -15,6 +15,7 @@ type WizardStep =
   | 'verify-number'
   | 'wrap-up'
   | 'finish-wrap-up'
+  | 'end'
 
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
 const WABA_ID_UNAVAILABLE_ERROR = 'WhatsApp Business Account ID unavailable, please try again.'
@@ -49,6 +50,10 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
     .addStep({
       id: 'finish-wrap-up',
       handler: _doStepFinishWrapUp,
+    })
+    .addStep({
+      id: 'end',
+      handler: _endHandler,
     })
     .build()
 
@@ -242,6 +247,12 @@ Your configuration is now complete and the selected WhatsApp number will start a
 - Wait a few hours (3-4) for Meta to process the Setup
 - Verify if your display name was not denied by Meta (you will get an email in the Facebook accounts email address)`,
     buttons: [{ label: 'Okay', buttonType: 'primary', action: 'navigate', navigateToStep: 'finish-wrap-up' }],
+  })
+}
+
+const _endHandler: WizardHandler = ({ responses }) => {
+  return responses.endWizard({
+    success: true,
   })
 }
 
