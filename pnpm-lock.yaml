@@ -2216,7 +2216,7 @@ importers:
         specifier: 1.26.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2331,7 +2331,7 @@ importers:
         specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2347,7 +2347,7 @@ importers:
         specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2360,7 +2360,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2376,7 +2376,7 @@ importers:
         specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2392,7 +2392,7 @@ importers:
         specifier: 1.26.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.0
+        specifier: 4.17.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2449,8 +2449,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: 1.2.1
+        version: 1.2.1
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2530,14 +2530,14 @@ importers:
         specifier: 1.26.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.47
+        specifier: 0.1.48
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: 1.2.1
+        version: 1.2.1
       bytes:
         specifier: ^3.1.2
         version: 3.1.2
@@ -2633,8 +2633,8 @@ importers:
         specifier: 1.26.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: 1.2.1
+        version: 1.2.1
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2667,8 +2667,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: 1.2.1
+        version: 1.2.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2704,14 +2704,14 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.47
+        specifier: 0.1.48
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: 1.2.1
+        version: 1.2.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -3686,8 +3686,8 @@ packages:
   '@bpinternal/yargs-extra@0.0.3':
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
 
-  '@bpinternal/zui@1.0.1':
-    resolution: {integrity: sha512-uIT0BwsPXkjP9PbBnN0i4Yvk5tKaR69U3yVDsTW0QwoUbNXKcLCGXGjffZWy+wZ2O1qOXBmdlgXUGUUIJkMgEg==}
+  '@bpinternal/zui@1.2.1':
+    resolution: {integrity: sha512-zx5/IXu6OBwDlAyfQcm2PctBweMxrKYhGZno/dh7hKinyKK8wJKNbOD/weDLG0RDpvffekv/Nxyx240wTLmY4Q==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -12558,7 +12558,7 @@ snapshots:
       yargs: 17.7.2
       yn: 4.0.0
 
-  '@bpinternal/zui@1.0.1': {}
+  '@bpinternal/zui@1.2.1': {}
 
   '@colors/colors@1.6.0': {}
 
