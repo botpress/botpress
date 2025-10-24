@@ -1674,6 +1674,15 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.8.4
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
+      markdown-it-sub:
+        specifier: ^2.0.0
+        version: 2.0.0
+      markdown-it-sup:
+        specifier: ^2.0.0
+        version: 2.0.0
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -1696,6 +1705,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
 
   integrations/viber:
     dependencies:
@@ -8749,6 +8761,12 @@ packages:
   map-obj@4.3.0:
     resolution: {integrity: sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==}
     engines: {node: '>=8'}
+
+  markdown-it-sub@2.0.0:
+    resolution: {integrity: sha512-iCBKgwCkfQBRg2vApy9vx1C1Tu6D8XYo8NvevI3OlwzBRmiMtsJ2sXupBgEA7PPxiDwNni3qIUkhZ6j5wofDUA==}
+
+  markdown-it-sup@2.0.0:
+    resolution: {integrity: sha512-5VgmdKlkBd8sgXuoDoxMpiU+BiEt3I49GItBzzw7Mxq9CxvnhE/k09HFli09zgfFDRixDQDfDxi0mgBCXtaTvA==}
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
@@ -18774,6 +18792,10 @@ snapshots:
       tmpl: 1.0.5
 
   map-obj@4.3.0: {}
+
+  markdown-it-sub@2.0.0: {}
+
+  markdown-it-sup@2.0.0: {}
 
   markdown-it@14.1.0:
     dependencies:
