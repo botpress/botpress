@@ -16,7 +16,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     sandboxIdentifiers: null,
   }
   // Ensure that requests sent to a profile associated with a bot via OAuth are not received by the bot
-  if (props.ctx.configurationType === 'sandbox') {
+  if (props.ctx.configurationType !== null) {
     configureIntegrationProps.identifier = null
   }
   await props.client.configureIntegration(configureIntegrationProps)
