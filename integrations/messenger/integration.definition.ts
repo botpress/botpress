@@ -96,7 +96,6 @@ export default new IntegrationDefinition({
             title: 'Comment ID',
             description: 'The Messenger ID of the comment for which the message is a private-reply to',
           },
-          // TODO: Remove if we bump a major, they are redundant and confusing
           recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
           senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
         },
