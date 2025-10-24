@@ -136,9 +136,23 @@ const _validateRequestAuthentication = (
     .digest('hex')
   const signature = req.headers['x-hub-signature-256']?.split('=')[1]
   if (signature !== expectedSignature) {
-    return { error: true, message: `Invalid signature (got ${signature ?? 'none'}, expected ${expectedSignature})` }
+    return {
+      error: true,
+      message: `Invalid signature (got ${signature ?? 'none'}, expected ${expectedSignature}).\n${_getSecretErrorText(secret)}`,
+    }
   }
   return { error: false }
+}
+
+const _getSecretErrorText = (secret: string): string => {
+  let bpClientSecretText = undefined
+  if (secret === bp.secrets.SANDBOX_CLIENT_SECRET) {
+    bpClientSecretText = 'The sandbox'
+  }
+  if (secret === bp.secrets.CLIENT_SECRET) {
+    bpClientSecretText = 'The OAuth'
+  }
+  return `${bpClientSecretText ? bpClientSecretText : 'A manual configured'} client secret was used to validate the signature`
 }
 
 const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {

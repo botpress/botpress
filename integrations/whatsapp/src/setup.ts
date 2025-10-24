@@ -4,6 +4,9 @@ import { identifyBot, trackIntegrationEvent } from './misc/tracking'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
+  const configTypeName = props.ctx.configurationType ? props.ctx.configurationType : 'OAuth'
+  props.logger.forBot().debug(`Whatsapp Registration with configurationType ${configTypeName}`)
+
   await identifyBot(props.ctx.botId, {
     [INTEGRATION_NAME + 'OauthType']: props.ctx.configurationType,
   })

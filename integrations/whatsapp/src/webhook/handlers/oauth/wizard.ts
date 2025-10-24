@@ -57,6 +57,7 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
     })
     .build()
 
+  props.logger.forBot().debug('The OAuth wizard was started.')
   const response = await wizard.handleRequest()
   return response
 }
