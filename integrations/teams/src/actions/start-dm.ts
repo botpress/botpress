@@ -33,13 +33,6 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   const { teamsUserEmail } = input
   let { teamsUserId } = input
 
-  if (!teamsUserId?.length && !teamsUserEmail?.length) {
-    throw new RuntimeError(
-      'You must provide either a valid Teams user Id or email to start a DM conversation. ' +
-        `Received: teamsUserId="${teamsUserId}", teamsUserEmail="${teamsUserEmail}"`
-    )
-  }
-
   // ── If we only have an email, call TeamsInfo.getMember to fetch the account ──
   if (!teamsUserId?.length && teamsUserEmail?.length) {
     try {
@@ -54,10 +47,17 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
     }
   }
 
+  if (!teamsUserId?.length) {
+    throw new RuntimeError(
+      'Failed to start a DM conversation: The teams user id was either not provided or could not be resolved from the email; ' +
+        `Received -> teamsUserId="${teamsUserId}", teamsUserEmail="${teamsUserEmail}"`
+    )
+  }
+
   const { appId, tenantId } = ctx.configuration
   const conversationParameters = {
     isGroup: false,
-    members: [{ id: teamsUserId! }],
+    members: [{ id: teamsUserId }],
     bot: { name: convRef.bot.name, id: appId },
     tenantId,
     channelData: { tenant: { id: tenantId } },
