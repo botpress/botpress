@@ -2,8 +2,9 @@
 
 ## Migrating from version 0.x.x to 1.0.0
 
-- The GetOrCreateUser and startConversation are now actions that you can use from the studio.
-- The markdown message type is replaced by markdown support in all texts
+- You can now proactively send a message to a user with the startConversation action.
+- You can now use the action card GetOrCreateUser to get or create a user.
+- The markdown message type is replaced by markdown support in all texts.
 
 ## Description
 
