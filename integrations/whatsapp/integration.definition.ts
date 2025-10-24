@@ -75,7 +75,7 @@ const startConversationProps = {
             .optional()
             .title('Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
             ),
           botPhoneNumberId: z
             .string()
