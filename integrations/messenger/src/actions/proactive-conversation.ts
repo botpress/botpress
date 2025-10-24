@@ -7,21 +7,12 @@ const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreateConver
     throw new RuntimeError('Starting a conversation is not supported in sandbox mode')
   }
 
-  const commentId = input.conversation.commentId
+  const { userId, commentId } = input.conversation
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
-    tags: { id: input.conversation.userId, commentId },
+    tags: { id: userId, commentId },
     discriminateByTags: ['id'],
   })
-
-  if (commentId) {
-    await client.getOrSetState({
-      type: 'conversation',
-      name: 'privateReply',
-      id: conversation.id,
-      payload: { initiateNew: true },
-    })
-  }
 
   return {
     conversationId: conversation.id,

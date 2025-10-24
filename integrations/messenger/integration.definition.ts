@@ -1,8 +1,9 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
+import { messages } from './definitions/channels/channel/messages'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -87,10 +88,15 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Messenger conversation',
       description: 'Channel for a Messenger conversation',
-      messages: messages.defaults,
+      messages,
       message: {
         tags: {
           id: { title: 'Message ID', description: 'The Messenger ID of the message' },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Messenger ID of the comment for which the message is a private-reply to',
+          },
+          // TODO: Remove if we bump a major, they are redundant and confusing
           recipientId: { title: 'Recipient ID', description: 'The Messenger ID of the recipient' },
           senderId: { title: 'Sender ID', description: 'The Messenger ID of the sender' },
         },
@@ -100,7 +106,11 @@ export default new IntegrationDefinition({
           id: { title: 'Conversation ID', description: 'The Messenger user ID of the user in the conversation' },
           commentId: {
             title: 'Comment ID',
-            description: 'The Messenger ID of the comment from which a private-reply discussion was initiated',
+            description: 'The Messenger ID of the comment from which the private-reply conversation was created',
+          },
+          lastCommentId: {
+            title: 'Last Comment ID',
+            description: 'The Messenger ID of the comment from which a private-reply message was last sent',
           },
         },
       },
@@ -120,17 +130,6 @@ export default new IntegrationDefinition({
           .title('Page token')
           .describe('The token used to authenticate API calls related to the page'),
         pageId: z.string().optional().title('Page ID').describe('The page ID'),
-      }),
-    },
-    privateReply: {
-      type: 'conversation',
-      schema: z.object({
-        initiateNew: z
-          .boolean()
-          .title('Initiate New Private Reply')
-          .describe(
-            'Whether the next message will be sent as a private reply to the comment referenced by the conversation'
-          ),
       }),
     },
   },
@@ -195,7 +194,7 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .title('Comment ID')
-            .describe('The comment ID from which the private-reply discussion was initiated'),
+            .describe('The Messenger ID of the comment for which the private-reply conversation should be created'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),

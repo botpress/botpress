@@ -93,11 +93,9 @@ async function _sendMessage(
 ) {
   logger.forBot().debug(`Sending ${type} message from bot to Messenger: ${_formatPayloadToStr(payload)}`)
 
-  const commentId = conversation.tags.commentId
-  const isPrivateReply = commentId !== undefined && (await _initiateNewPrivateReply({ client, conversation }))
-
+  const commentId = payload.commentId
   let recipient: MessengerTypes.PsidOrRecipient
-  if (isPrivateReply) {
+  if (commentId) {
     recipient = { commentId }
   } else {
     recipient = getEndUserMessengerId(conversation)
@@ -105,39 +103,17 @@ async function _sendMessage(
 
   const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const { messageId } = await send(messengerClient, recipient)
-  await ack({ tags: { id: messageId } })
+  await ack({ tags: { id: messageId, commentId } })
 
-  if (isPrivateReply) {
-    await client.setState({
-      type: 'conversation',
-      name: 'privateReply',
+  if (commentId && conversation.tags.lastCommentId !== commentId) {
+    await client.updateConversation({
       id: conversation.id,
-      payload: { initiateNew: false },
+      tags: {
+        lastCommentId: commentId,
+      },
     })
   }
 }
-
-const _initiateNewPrivateReply = async ({
-  client,
-  conversation,
-}: {
-  client: bp.Client
-  conversation: SendMessageProps['conversation']
-}) =>
-  client
-    .getState({
-      type: 'conversation',
-      name: 'privateReply',
-      id: conversation.id,
-    })
-    .then(
-      ({
-        state: {
-          payload: { initiateNew },
-        },
-      }) => initiateNew
-    )
-    .catch(() => false)
 
 function _formatPayloadToStr(payload: any): string {
   return Object.entries(payload)

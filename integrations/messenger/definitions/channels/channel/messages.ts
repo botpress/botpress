@@ -1,0 +1,32 @@
+import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+
+const commentIdSchema = z.object({
+  commentId: z
+    .string()
+    .optional()
+    .title('Comment ID')
+    .describe('The Messenger ID of the comment from which to initiate the next private-reply discussion'),
+})
+
+export const messages = {
+  text: { schema: sdk.messages.defaults.text.schema.merge(commentIdSchema) },
+  image: { schema: sdk.messages.defaults.image.schema.merge(commentIdSchema) },
+  audio: { schema: sdk.messages.defaults.audio.schema.merge(commentIdSchema) },
+  video: { schema: sdk.messages.defaults.video.schema.merge(commentIdSchema) },
+  file: { schema: sdk.messages.defaults.file.schema.merge(commentIdSchema) },
+  location: { schema: sdk.messages.defaults.location.schema.merge(commentIdSchema) },
+  carousel: { schema: sdk.messages.defaults.carousel.schema.merge(commentIdSchema) },
+  card: { schema: sdk.messages.defaults.card.schema.merge(commentIdSchema) },
+  dropdown: { schema: sdk.messages.defaults.dropdown.schema.merge(commentIdSchema) },
+  choice: { schema: sdk.messages.defaults.choice.schema.merge(commentIdSchema) },
+  bloc: { schema: sdk.messages.defaults.bloc.schema.merge(commentIdSchema) },
+} as const satisfies typeof sdk.messages.defaults
+
+type Assert<_T extends true> = true
+type MessageTypeHasCommentId<T extends (typeof messages)[keyof typeof messages]> = T extends {
+  schema: typeof commentIdSchema
+}
+  ? true
+  : false
+type _AssertMessageTypesHaveCommentId = Assert<MessageTypeHasCommentId<(typeof messages)[keyof typeof messages]>>
