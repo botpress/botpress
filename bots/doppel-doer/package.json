@@ -1,0 +1,23 @@
+{
+  "name": "@bp-bots/doppel-doer",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e TODOIST_SRC_API_TOKEN -e TODOIST_DST_API_TOKEN",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/todoist": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "todoist": "../../integrations/todoist"
+  }
+}

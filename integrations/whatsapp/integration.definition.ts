@@ -75,7 +75,7 @@ const startConversationProps = {
             .optional()
             .title('Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
             ),
           botPhoneNumberId: z
             .string()
@@ -96,7 +96,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.6',
+  version: '4.5.8',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
