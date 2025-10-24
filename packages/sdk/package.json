@@ -1,10 +1,13 @@
 {
   "name": "@botpress/sdk",
-  "version": "4.16.0",
+  "version": "4.17.1",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository": {
+    "url": "https://github.com/botpress/botpress"
+  },
   "scripts": {
     "check:type": "tsc -p ./tsconfig.json --noEmit",
     "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
@@ -25,7 +28,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "^1.0.1",
+    "@bpinternal/zui": "1.2.1",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {

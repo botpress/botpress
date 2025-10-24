@@ -2,71 +2,71 @@
 * @botpress/engineering
 
 # Client, SDK, CLI
-/packages @botpress/engineering
+/packages @botpress/squid
 
 # Bots
-/packages/bots @botpress/engineering
+/packages/bots @botpress/squid
 
 # Plugins
-/plugins @botpress/engineering
-/plugins/hitl @pascal-botpress @franklevasseur @botpress/engineering
-/plugins/file-synchronizer @pascal-botpress @botpress/engineering
+/plugins @botpress/squid
+/plugins/hitl @pascal-botpress @franklevasseur @botpress/squid
+/plugins/file-synchronizer @pascal-botpress @botpress/squid
 
 # Integrations
-/integrations @botpress/engineering
+/integrations @botpress/squid
 
 ## Utils
-/integrations/browser @allardy @botpress/engineering
-/integrations/charts @allardy @botpress/engineering
-/integrations/pdf-generator @allardy @botpress/engineering
+/integrations/browser @allardy @botpress/starfish
+/integrations/charts @allardy @botpress/starfish
+/integrations/pdf-generator @allardy @botpress/starfish
 
 ## LLM
-/integrations/anthropic @AbrahamLopez10 @botpress/engineering
-/integrations/cerebras @AbrahamLopez10 @botpress/engineering
-/integrations/fireworks-ai @AbrahamLopez10 @botpress/engineering
-/integrations/google-ai @AbrahamLopez10 @botpress/engineering
-/integrations/groq @AbrahamLopez10 @botpress/engineering
-/integrations/openai @AbrahamLopez10 @botpress/engineering
+/integrations/anthropic @AbrahamLopez10 @botpress/shark
+/integrations/cerebras @AbrahamLopez10 @botpress/shark
+/integrations/fireworks-ai @AbrahamLopez10 @botpress/shark
+/integrations/google-ai @AbrahamLopez10 @botpress/shark
+/integrations/groq @AbrahamLopez10 @botpress/shark
+/integrations/openai @AbrahamLopez10 @botpress/shark
 
 ## Others
-/integrations/airtable @JustinBordage @botpress/engineering
-/integrations/asana @JustinBordage @botpress/engineering
-/integrations/bigcommerce-sync @mpetruu @Nathaniel-Girard @botpress/engineering
-/integrations/calendly @JustinBordage @botpress/engineering
-/integrations/chat @franklevasseur @botpress/engineering
-/integrations/clickup @JustinBordage @botpress/engineering
-/integrations/confluence @Nathaniel-Girard @botpress/engineering
-/integrations/dropbox @pascal-botpress @botpress/engineering
-/integrations/docusign @JustinBordage @botpress/engineering
-/integrations/email @Nathaniel-Girard @botpress/engineering
-/integrations/freshchat @davidvitora @botpress/engineering
-/integrations/github @JustinBordage @pascal-botpress @botpress/engineering
-/integrations/gmail @pascal-botpress @botpress/engineering
-/integrations/googlecalendar @pascal-botpress @botpress/engineering
-/integrations/googledrive @pascal-botpress @botpress/engineering
-/integrations/gsheets @pascal-botpress @botpress/engineering
-/integrations/instagram @SebastienPoitras @botpress/engineering
-/integrations/intercom @Nathaniel-Girard @botpress/engineering
-/integrations/line @Nathaniel-Girard @botpress/engineering
-/integrations/linear @franklevasseur @botpress/engineering
-/integrations/mailchimp @JustinBordage @botpress/engineering
-/integrations/messenger @SebastienPoitras @botpress/engineering
-/integrations/monday @JustinBordage @botpress/engineering
-/integrations/notion @pascal-botpress @botpress/engineering
-/integrations/resend @JustinBordage @botpress/engineering
-/integrations/sendgrid @JustinBordage @botpress/engineering
-/integrations/slack @pascal-botpress @botpress/engineering
-/integrations/stripe @Nathaniel-Girard @botpress/engineering
-/integrations/sunco @SebastienPoitras @botpress/engineering
-/integrations/teams @JustinBordage @davidvitora @botpress/engineering
-/integrations/telegram @franklevasseur @JustinBordage @botpress/engineering
-/integrations/todoist @JustinBordage @botpress/engineering
-/integrations/trello @JustinBordage @botpress/engineering
-/integrations/twilio @SebastienPoitras @botpress/engineering
-/integrations/viber @Nathaniel-Girard @botpress/engineering
-/integrations/vonage @Nathaniel-Girard @botpress/engineering
-/integrations/webhook @franklevasseur @botpress/engineering
-/integrations/whatsapp @SebastienPoitras @botpress/engineering
-/integrations/zapier @Nathaniel-Girard @botpress/engineering
-/integrations/zendesk @pascal-botpress @franklevasseur @botpress/engineering
-/integrations/zoho @Nathaniel-Girard @botpress/engineering
+/integrations/airtable @botpress/squid
+/integrations/asana @botpress/squid
+/integrations/bigcommerce-sync @botpress/squid
+/integrations/calendly @botpress/squid
+/integrations/chat @botpress/squid
+/integrations/clickup @botpress/squid
+/integrations/confluence @botpress/squid
+/integrations/dropbox @botpress/squid
+/integrations/docusign @botpress/squid
+/integrations/email @botpress/squid
+/integrations/freshchat @botpress/squid
+/integrations/github @botpress/squid
+/integrations/gmail @botpress/squid
+/integrations/googlecalendar @botpress/squid
+/integrations/googledrive @botpress/squid
+/integrations/gsheets @botpress/squid
+/integrations/instagram @botpress/squid
+/integrations/intercom @botpress/squid
+/integrations/line @botpress/squid
+/integrations/linear @botpress/squid
+/integrations/mailchimp @botpress/squid
+/integrations/messenger @botpress/squid
+/integrations/monday @botpress/squid
+/integrations/notion @botpress/squid
+/integrations/resend @botpress/squid
+/integrations/sendgrid @botpress/squid
+/integrations/slack @botpress/squid
+/integrations/stripe @botpress/squid
+/integrations/sunco @botpress/squid
+/integrations/teams @botpress/squid
+/integrations/telegram @botpress/squid
+/integrations/todoist @botpress/squid
+/integrations/trello @botpress/squid
+/integrations/twilio @botpress/squid
+/integrations/viber @botpress/squid
+/integrations/vonage @botpress/squid
+/integrations/webhook @botpress/squid
+/integrations/whatsapp @botpress/squid
+/integrations/zapier @botpress/squid
+/integrations/zendesk @botpress/squid
+/integrations/zoho @botpress/squid
