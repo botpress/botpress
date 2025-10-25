@@ -27,7 +27,7 @@ const commonConfigSchema = z.object({
 const replyToCommentsSchema = z.object({
   replyToComments: z
     .boolean()
-    .default(true)
+    .default(false)
     .title('Reply to Comments')
     .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
 })
