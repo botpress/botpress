@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
-
+const FIELDS_TO_SUBSCRIBE = ['messages', 'messaging_postbacks', 'feed']
 export class MetaClient {
   private _userToken?: string
   private _pageToken?: string
@@ -189,7 +189,7 @@ export class MetaClient {
         endpoint: `${pageId}/subscribed_apps`,
         tokenType: 'page',
         data: {
-          subscribed_fields: ['messages', 'messaging_postbacks', 'feed'],
+          subscribed_fields: FIELDS_TO_SUBSCRIBE,
         },
       })
 
@@ -227,8 +227,22 @@ export class MetaClient {
       endpoint: `${pageId}/subscribed_apps`,
       tokenType: 'page',
     })
-    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
-    return applications?.some((app) => app.id === this._clientId) ?? false
+
+    const { data: applications } = z
+      .array(z.object({ id: z.string(), subscribed_fields: z.array(z.string()) }))
+      .safeParse(responseData.data)
+
+    const application = applications?.find((app) => app.id === this._clientId)
+    if (!application) {
+      return false
+    }
+
+    const subscribedFields = application.subscribed_fields
+    if (!FIELDS_TO_SUBSCRIBE.every((f) => subscribedFields.includes(f))) {
+      return false
+    }
+
+    return true
   }
 
   // Helper Methods
