@@ -1,10 +1,10 @@
 import { getMetaClientCredentials } from '../../misc/auth'
-import { FeedEventEntry, CommentChangeValue, FeedChange } from '../../misc/types'
+import { FeedChanges, FeedChange, CommentChangeValue } from '../../misc/types'
 import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
-export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps) => {
-  for (const change of feedEntry.changes) {
+export const handler = async (changes: FeedChanges, props: bp.HandlerProps) => {
+  for (const change of changes) {
     await _handleFeedChange(change, props)
   }
 }
@@ -12,15 +12,14 @@ export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps)
 const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => {
   const { logger } = props
   const { value } = change
-  const { item } = value
 
   try {
-    switch (item) {
+    switch (value.item) {
       case 'comment':
-        await _handleCommentEvent(value as CommentChangeValue, props)
+        await _handleCommentEvent(value, props)
         break
       default:
-        logger.forBot().warn(`Unhandled event item: ${item}`)
+        logger.forBot().warn(`Unhandled event item: ${value.item}`)
     }
   } catch (error) {
     const errorMsg = getErrorFromUnknown(error)

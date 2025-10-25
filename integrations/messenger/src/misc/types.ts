@@ -64,13 +64,13 @@ export type MessengerOutMessageAttachment =
   | MessengerOutMessageUrlAttachment
 
 // Messenger event schemas
-const baseMessengerMessagingEntrySchema = z.object({
+const baseMessengerMessagingItemSchema = z.object({
   sender: z.object({ id: z.string() }),
   recipient: z.object({ id: z.string() }),
   timestamp: z.number(),
 })
 
-const messengerMessagingEntryMessageSchema = baseMessengerMessagingEntrySchema.extend({
+const messengerMessagingItemMessageSchema = baseMessengerMessagingItemSchema.extend({
   message: z.object({
     mid: z.string(),
     text: z.string().optional(),
@@ -78,28 +78,25 @@ const messengerMessagingEntryMessageSchema = baseMessengerMessagingEntrySchema.e
     attachments: z.array(z.object({ type: z.string(), payload: z.object({ url: z.string() }) })).optional(),
   }),
 })
-export type MessengerMessagingEntryMessage = z.infer<typeof messengerMessagingEntryMessageSchema>
+export type MessengerMessagingItemMessage = z.infer<typeof messengerMessagingItemMessageSchema>
 
-const messengerMessagingEntryPostbackSchema = baseMessengerMessagingEntrySchema.extend({
+const messengerMessagingItemPostbackSchema = baseMessengerMessagingItemSchema.extend({
   postback: z.object({
     mid: z.string(),
     payload: z.string(),
     title: z.string(),
   }),
 })
-export type MessengerMessagingEntryPostback = z.infer<typeof messengerMessagingEntryPostbackSchema>
+export type MessengerMessagingItemPostback = z.infer<typeof messengerMessagingItemPostbackSchema>
 
-const messengerMessagingEntrySchema = z.union([
-  messengerMessagingEntryMessageSchema,
-  messengerMessagingEntryPostbackSchema,
+const messengerMessagingItemSchema = z.union([
+  messengerMessagingItemMessageSchema,
+  messengerMessagingItemPostbackSchema,
 ])
-export type MessengerMessagingEntry = z.infer<typeof messengerMessagingEntrySchema>
+export type MessengerMessagingItem = z.infer<typeof messengerMessagingItemSchema>
 
-const messengerEntrySchema = z.object({
-  id: z.string(),
-  time: z.number(),
-  messaging: z.tuple([messengerMessagingEntrySchema]),
-})
+const messengerMessagingSchema = z.tuple([messengerMessagingItemSchema])
+export type MessengerMessaging = z.infer<typeof messengerMessagingSchema>
 
 // Facebook channel types
 export type CommentReply = {
@@ -112,14 +109,45 @@ export type PostReply = {
   postId: string
 }
 
-// Comment event schemas
-const commentChangeValueSchema = z.object({
-  item: z.string(),
+// Feed event schemas
+const commentItemTypeSchema = z.literal('comment')
+const otherItemTypesSchema = z.enum([
+  'album',
+  'address',
+  'connection',
+  'coupon',
+  'event',
+  'experience',
+  'group',
+  'group_message',
+  'interest',
+  'link',
+  'mention',
+  'milestone',
+  'note',
+  'page',
+  'picture',
+  'platform-story',
+  'photo',
+  'photo-album',
+  'post',
+  'profile',
+  'question',
+  'rating',
+  'reaction',
+  'relationship-status',
+  'share',
+  'status',
+  'story',
+  'timeline cover',
+  'tag',
+  'video',
+])
+
+const baseFeedChangeValueSchema = z.object({
   verb: z.string(),
   created_time: z.number(),
-  comment_id: z.string(),
   post_id: z.string(),
-  parent_id: z.string(),
   message: z.string().optional(),
   from: z
     .object({
@@ -129,21 +157,17 @@ const commentChangeValueSchema = z.object({
     .optional(),
 })
 
-// Feed event schemas
-const feedChangeValueSchema = z.object({
-  item: z.string(),
-  verb: z.string(),
-  created_time: z.number(),
-  post_id: z.string(),
+const commentChangeValueSchema = baseFeedChangeValueSchema.extend({
+  item: commentItemTypeSchema,
+  comment_id: z.string(),
+  parent_id: z.string(),
+})
+export type CommentChangeValue = z.infer<typeof commentChangeValueSchema>
+
+const feedChangeValueSchema = baseFeedChangeValueSchema.extend({
+  item: otherItemTypesSchema,
   comment_id: z.string().optional(),
   parent_id: z.string().optional(),
-  message: z.string().optional(),
-  from: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-    })
-    .optional(),
   parent: z
     .object({
       id: z.string(),
@@ -154,27 +178,30 @@ const feedChangeValueSchema = z.object({
 
 const feedChangeSchema = z.object({
   field: z.string(),
-  value: z.union([feedChangeValueSchema, commentChangeValueSchema]),
+  value: z.discriminatedUnion('item', [commentChangeValueSchema, feedChangeValueSchema]),
 })
+export type FeedChange = z.infer<typeof feedChangeSchema>
 
-const feedEventEntrySchema = z.object({
+const feedChangesSchema = z.array(feedChangeSchema)
+export type FeedChanges = z.infer<typeof feedChangesSchema>
+
+// Common event schemas
+const baseEventEntrySchema = z.object({
   id: z.string(),
   time: z.number(),
-  changes: z.array(feedChangeSchema),
 })
 
-export const feedEventPayloadSchema = z.object({
+const messengerEntrySchema = baseEventEntrySchema.extend({
+  messaging: messengerMessagingSchema,
+})
+
+const feedEntrySchema = baseEventEntrySchema.extend({
+  changes: feedChangesSchema,
+})
+
+const eventEntrySchema = z.union([messengerEntrySchema, feedEntrySchema])
+
+export const eventPayloadSchema = z.object({
   object: z.string(),
-  entry: z.array(feedEventEntrySchema),
-})
-
-export type FeedChangeValue = z.infer<typeof feedChangeValueSchema>
-export type CommentChangeValue = z.infer<typeof commentChangeValueSchema>
-export type FeedChange = z.infer<typeof feedChangeSchema>
-export type FeedEventEntry = z.infer<typeof feedEventEntrySchema>
-export type FeedEventPayload = z.infer<typeof feedEventPayloadSchema>
-
-export const messengerPayloadSchema = z.object({
-  object: z.literal('page'),
-  entry: z.array(messengerEntrySchema),
+  entry: z.array(eventEntrySchema),
 })
