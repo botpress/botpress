@@ -4,6 +4,13 @@ import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
 export const handler = async (changes: FeedChanges, props: bp.HandlerProps) => {
+  if (props.ctx.configurationType === 'sandbox') {
+    props.logger.error(
+      'Feed changes are not supported in sandbox mode, turn off webhook subscriptions in the Sandbox Meta App'
+    )
+    return
+  }
+
   for (const change of changes) {
     await _handleFeedChange(change, props)
   }
