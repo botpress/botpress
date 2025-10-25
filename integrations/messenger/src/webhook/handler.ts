@@ -40,7 +40,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   // Parse as messenger payload
-  // TODO: Refactor handler to also handle feed entries
   const messengerParseResult = eventPayloadSchema.safeParse(jsonParseResult.data)
   if (!messengerParseResult.success) {
     logger.forBot().warn('Error while parsing body as event payload')
