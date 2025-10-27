@@ -122,16 +122,16 @@ const _parseComponent = (component: Component, bodyVariables: TemplateVariables)
       compText = component.text ?? 'footer has no text'
       return `[FOOTER]\n${compText}\n`
     case 'FLOW':
-      compText = component.text ?? 'body has no text'
+      compText = component.text ?? 'flow has no text'
       return `[FLOW]\n${compText}\n`
     case 'QUICK_REPLY':
-      compText = component.text ?? 'body has no text'
+      compText = component.text ?? 'quick reply has no text'
       return `[QUICK_REPLY]\n${compText}\n`
     case 'PHONE_NUMBER':
-      compText = component.text ?? 'body has no text'
+      compText = component.text ?? 'phone number has no text'
       return `[PHONE_NUMBER]\n${compText}\n`
     case 'URL':
-      compText = component.text ?? 'body has no text'
+      compText = component.text ?? 'url has no text'
       return `[URL]\n${compText}\n`
     default:
       return undefined
