@@ -13,7 +13,7 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const expiration = new Date(Date.now() + (timeout ?? DEFAULT_TIMEOUT))
   const adapter = getAdapter(ctx.configuration)
   const convRef = await getConversationReference({ conversationId, client })
-  await adapter.continueConversation(convRef, async (turnContext) => {
+  await adapter.continueConversationAsync(ctx.configuration.appId, convRef, async (turnContext) => {
     await turnContext.sendActivity({
       type: ActivityTypes.Typing,
       expiration,
