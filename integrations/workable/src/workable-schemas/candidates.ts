@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { socialProfileTypesSchema } from 'definitions/models/candidates'
 import { answerSchema } from './answers'
 
 export const candidateSchema = z
@@ -128,3 +129,63 @@ export const getCandidateOutputSchema = z
 export const getCandidateInputSchema = z.object({
   id: z.string(),
 })
+
+export const postEducationEntrySchema = z.object({
+  degree: z.string().optional(),
+  school: z.string(),
+  field_of_study: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+})
+
+export const postSocialProfileSchema = z.object({
+  type: socialProfileTypesSchema,
+  username: z.string().optional(),
+  url: z.string(),
+})
+
+export const postExperienceEntrySchema = z.object({
+  title: z.string(),
+  summary: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  company: z.string().optional(),
+  current: z.boolean().optional(),
+  industry: z.string().optional(),
+})
+
+export const postCandidateSchema = z.object({
+  firstname: z.string(),
+  lastname: z.string(),
+  email: z.string(),
+  headline: z.string().optional(),
+  summary: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  cover_letter: z.string().optional(),
+  education_entries: z.array(postEducationEntrySchema),
+  experience_entries: z.array(postExperienceEntrySchema),
+  skills: z.array(z.object({ name: z.string().title('Name') })).optional(),
+  answers: z.array(answerSchema).optional(),
+  tags: z.array(z.string()).optional(),
+  disqualified: z.boolean().optional(),
+  disqualification_reason: z.string().optional(),
+  disqualified_at: z.string().optional(),
+  social_profiles: z.array(postSocialProfileSchema),
+  domain: z.string().optional(),
+})
+
+export const postCandidateInJobInputSchema = z.object({
+  shortCode: z.string(),
+  body: z.object({
+    sourced: z.boolean().optional(),
+    candidate: postCandidateSchema,
+  }),
+})
+
+export const postCandidateInJobOutputSchema = z
+  .object({
+    status: z.string(),
+    candidate: detailedCandidateSchema,
+  })
+  .partial()

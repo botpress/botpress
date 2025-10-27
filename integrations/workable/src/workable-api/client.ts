@@ -5,6 +5,8 @@ import {
   getCandidateOutputSchema,
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
+  postCandidateInJobInputSchema,
+  postCandidateInJobOutputSchema,
 } from 'src/workable-schemas/candidates'
 import {
   getWebhooksOutputSchema,
@@ -79,6 +81,15 @@ export class WorkableClient {
   ): Promise<z.infer<typeof getCandidateOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof getCandidateOutputSchema>> = await this._client
       .get(`/candidates/${params.id}`)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
+
+  public async postCandidate(
+    params: z.infer<typeof postCandidateInJobInputSchema>
+  ): Promise<z.infer<typeof postCandidateInJobOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof postCandidateInJobOutputSchema>> = await this._client
+      .post(`/jobs/${params.shortCode}/candidates`, params.body)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }

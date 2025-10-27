@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { answerSchema } from './answers'
 
-const socialProfileTypesSchema = z.enum([
+export const socialProfileTypesSchema = z.enum([
   'academiaedu',
   'angellist',
   'behance',
@@ -299,14 +299,14 @@ export const postCandidateSchema = z.object({
   domain: z.string().optional().title('Domain').describe('Where the candidate came from'),
 })
 
-export const createCandidateInJobOutputSchema = z
+export const postCandidateInJobOutputSchema = z
   .object({
     status: z.string().title('Status').describe('The status of the candidate'),
     candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
   })
   .partial()
 
-export const createCandidateInJobInputSchema = z.object({
+export const postCandidateInJobInputSchema = z.object({
   sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
   candidate: postCandidateSchema.title('Candidate').describe('The candidate to create'),
 })
