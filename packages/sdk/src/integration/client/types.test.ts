@@ -273,6 +273,39 @@ describe.concurrent('ClientOperations', () => {
     type _assertion = utils.AssertTrue<utils.IsEquivalent<Actual, Expected>>
   })
 
+  test('getConversation response should include all possible conversation tags', () => {
+    type Expected =
+      | {
+          fooConversationTag1?: string | undefined
+          fooConversationTag2?: string | undefined
+          fooConversationTag3?: string | undefined
+        }
+      | {
+          barConversationTag1?: string | undefined
+          barConversationTag2?: string | undefined
+          barConversationTag3?: string | undefined
+        }
+      | {
+          bazConversationTag1?: string | undefined
+          bazConversationTag2?: string | undefined
+          bazConversationTag3?: string | undefined
+        }
+    type ActualGetConversation = types.ClientOutputs<FooBarBazIntegration>['getConversation']['conversation']['tags']
+    type _assertionGet = utils.AssertTrue<utils.IsEqual<ActualGetConversation, Expected>>
+
+    type ActualCreateConversation =
+      types.ClientOutputs<FooBarBazIntegration>['createConversation']['conversation']['tags']
+    type _assertionCreate = utils.AssertTrue<utils.IsEqual<ActualCreateConversation, Expected>>
+
+    type ActualGetOrCreateConversation =
+      types.ClientOutputs<FooBarBazIntegration>['getOrCreateConversation']['conversation']['tags']
+    type _assertionGetOrCreate = utils.AssertTrue<utils.IsEqual<ActualGetOrCreateConversation, Expected>>
+
+    type ActualUpdateConversation =
+      types.ClientOutputs<FooBarBazIntegration>['updateConversation']['conversation']['tags']
+    type _assertionUpdate = utils.AssertTrue<utils.IsEqual<ActualUpdateConversation, Expected>>
+  })
+
   test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
     const client = _mockClient<FooBarBazIntegration>()
 
