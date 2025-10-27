@@ -49,12 +49,12 @@ const _verifyWebhookSignature = (encryptionKey: string, request: Request): Verif
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { isSignatureValid, signatureError } = _verifyWebhookSignature(props.ctx.configuration.apiToken, props.req)
   if (!isSignatureValid) {
-    props.logger.error(`Webhook Signature Verification: ${signatureError}`)
+    props.logger.forBot().error(`Webhook Signature Verification: ${signatureError}`)
     return
   }
 
   if (!props.req.body) {
-    props.logger.error('Handler received an empty body')
+    props.logger.forBot().error('Handler received an empty body')
     return
   }
 
@@ -62,14 +62,14 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   try {
     json = JSON.parse(props.req.body)
   } catch {
-    props.logger.error('Failed to parse request body as JSON')
+    props.logger.forBot().error('Failed to parse request body as JSON')
     return
   }
 
   const webhookInfoResult = webhookRequestSchema.safeParse(json)
 
   if (!webhookInfoResult.success) {
-    props.logger.error(`Failed to validate request body: ${webhookInfoResult.error.message}`)
+    props.logger.forBot().error(`Failed to validate request body: ${webhookInfoResult.error.message}`)
     return
   }
 
@@ -81,7 +81,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { success, error, data: webhookRequestPayload } = webhookRequestSchema.safeParse(json)
 
   if (!success) {
-    props.logger.error(`Failed to validate request body: ${error.message}`)
+    props.logger.forBot().error(`Failed to validate request body: ${error.message}`)
     return
   }
 
