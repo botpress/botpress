@@ -17,6 +17,10 @@ function getGraphClient({ ctx }: { ctx: bp.Context }) {
   })
 }
 
+/** Requires the "User.Read.All" permission granted in the Azure Portal.
+ *
+ *  @see https://learn.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http
+ *  @remark The integration follows the "Application" permission type. */
 export async function getUserByEmail(ctx: bp.Context, email: string) {
   try {
     const graphClient = getGraphClient({ ctx })
