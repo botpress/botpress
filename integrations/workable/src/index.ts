@@ -34,7 +34,11 @@ export default new bp.Integration({
   register: async (props) => {
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
     try {
-      const webhooks = await props.client.getOrSetState({
+      const {
+        state: {
+          payload: { webhooks },
+        },
+      } = await props.client.getOrSetState({
         id: props.ctx.integrationId,
         name: 'webhooks',
         type: 'integration',
@@ -45,13 +49,13 @@ export default new bp.Integration({
 
       let eventsToRegister = Array.from(eventTypes.options)
 
-      for (const webhook of webhooks.state.payload.webhooks) {
+      for (const webhook of webhooks) {
         if (webhook.url.includes(props.webhookUrl) && eventsToRegister.includes(webhook.eventType)) {
           eventsToRegister = eventsToRegister.filter((event) => event !== webhook.eventType)
         }
       }
 
-      const newWebhooks = webhooks.state.payload.webhooks
+      const newWebhooks = webhooks
 
       for (const eventType of eventsToRegister) {
         const id = await _registerWebhook(client, props.webhookUrl, eventType, props.ctx.configuration.subDomain)
