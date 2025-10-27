@@ -48,7 +48,10 @@ export default new bp.Integration({
       })
 
       for (const id of ids) {
-        await client.unregisterWebhook(id)
+        await client.unregisterWebhook(id).catch((thrown) => {
+          const msg = thrown instanceof Error ? thrown.message : String(thrown)
+          props.logger.forBot().warn(`Failed to unregister webhook: ${msg}`)
+        })
       }
 
       const newIds: number[] = []
