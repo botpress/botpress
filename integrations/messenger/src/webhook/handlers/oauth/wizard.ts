@@ -43,7 +43,7 @@ const _startHandler: WizardHandler = ({ responses }) => {
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents: `
-    This wizard will reset your configuration, so the bot will stop working on Facebook and Messenger until a new configuration is put in place, continue?
+    This wizard will reset your configuration, so the bot will stop working on Messenger until a new configuration is put in place, continue?
   `,
     buttons: [
       {
@@ -165,10 +165,9 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
     htmlOrMarkdownPageContents: `
 Your configuration is now complete, and this bot will begin responding for the selected Facebook page. You can open it on Messenger to test it.
 
-**Here are some things to verify if you are unable to communicate with your bot on Facebook andMessenger**
+**Here are some things to verify if you are unable to communicate with your bot on Messenger**
 
 -  Confirm that you are interacting with the page selected for this bot.
--  Verify that have enabled "Reply to Comments" in the configuration if you are using the comment replies channel.
 -  Double-check that you have published this bot.
     `,
     buttons: [
