@@ -135,7 +135,7 @@ export default new IntegrationDefinition({
           whatsappBusinessAccountId: z
             .string()
             .secret()
-            .optional()
+            .optional() // TODO remove optional next major version
             .title('WABA ID')
             .describe('Your Whatsapp business Account ID'),
         })
