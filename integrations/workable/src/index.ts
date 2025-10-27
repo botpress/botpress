@@ -36,30 +36,26 @@ export default new bp.Integration({
     try {
       const {
         state: {
-          payload: { webhooks },
+          payload: { ids },
         },
       } = await props.client.getOrSetState({
         id: props.ctx.integrationId,
         name: 'webhooks',
         type: 'integration',
         payload: {
-          webhooks: [],
+          ids: [],
         },
       })
 
-      let eventsToRegister = Array.from(eventTypes.options)
-
-      for (const webhook of webhooks) {
-        if (webhook.url.includes(props.webhookUrl) && eventsToRegister.includes(webhook.eventType)) {
-          eventsToRegister = eventsToRegister.filter((event) => event !== webhook.eventType)
-        }
+      for (const id of ids) {
+        await client.unregisterWebhook(id)
       }
 
-      const newWebhooks = webhooks
+      const newIds: number[] = []
 
-      for (const eventType of eventsToRegister) {
+      for (const eventType of eventTypes.options) {
         const id = await _registerWebhook(client, props.webhookUrl, eventType, props.ctx.configuration.subDomain)
-        newWebhooks.push({ id, url: props.webhookUrl, eventType })
+        newIds.push(id)
       }
 
       await props.client.setState({
@@ -67,7 +63,7 @@ export default new bp.Integration({
         name: 'webhooks',
         type: 'integration',
         payload: {
-          webhooks: newWebhooks,
+          ids: newIds,
         },
       })
     } catch (thrown) {
@@ -76,7 +72,11 @@ export default new bp.Integration({
     }
   },
   unregister: async (props) => {
-    const webhooksIds = await props.client.getState({
+    const {
+      state: {
+        payload: { ids },
+      },
+    } = await props.client.getState({
       name: 'webhooks',
       id: props.ctx.integrationId,
       type: 'integration',
@@ -85,9 +85,9 @@ export default new bp.Integration({
 
     const errors: string[] = []
 
-    for (const webhook of webhooksIds.state.payload.webhooks) {
+    for (const id of ids) {
       try {
-        await client.unregisterWebhook(webhook.id)
+        await client.unregisterWebhook(id)
       } catch (thrown) {
         errors.push(thrown instanceof Error ? thrown.message : String(thrown))
       }
