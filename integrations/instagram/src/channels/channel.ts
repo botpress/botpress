@@ -83,9 +83,15 @@ async function _sendMessage(
   { ack, ctx, client, conversation, logger, payload, type }: SendMessageProps,
   sendTypeSpecificMessage: (client: InstagramClient, toInstagramId: string) => Promise<{ message_id: string }>
 ) {
+  const { commentId } = payload
+  let recipientId: string
+  if (commentId) {
+    recipientId = commentId
+  } else {
+    recipientId = getRecipientId(conversation)
+  }
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  const recipientId = getRecipientId(conversation)
 
   logger.forBot().debug(`Sending message of type ${type} from bot to Instagram user ${recipientId}:`, payload)
   const { message_id } = await sendTypeSpecificMessage(metaClient, recipientId)
@@ -93,10 +99,18 @@ async function _sendMessage(
   await ack({
     tags: {
       id: message_id,
-      senderId: instagramId,
-      recipientId,
+      commentId,
     },
   })
+
+  if (commentId && conversation.tags.lastCommentId !== commentId) {
+    await client.updateConversation({
+      id: conversation.id,
+      tags: {
+        lastCommentId: commentId,
+      },
+    })
+  }
 }
 
 function getRecipientId(conversation: SendMessageProps['conversation']): string {
