@@ -14,11 +14,11 @@ const common: esbuild.BuildOptions = {
 
 async function generateTypes() {
   const code =
-    `export type GenerateContentInput = ${llm.schemas.GenerateContentInputSchema(z.any()).toTypescriptType()};
+    `export type GenerateContentInput = ${llm.schemas.GenerateContentInputSchema(z.any()).toTypescriptType({ treatDefaultAsOptional: true })};
 
-export type GenerateContentOutput = ${llm.schemas.GenerateContentOutputSchema.toTypescriptType()};
+export type GenerateContentOutput = ${llm.schemas.GenerateContentOutputSchema.toTypescriptType({ treatDefaultAsOptional: true })};
 
-export type Model = ${llm.schemas.ModelSchema.toTypescriptType()};
+export type Model = ${llm.schemas.ModelSchema.toTypescriptType({ treatDefaultAsOptional: true })};
 `.trim()
 
   const filePath = './src/schemas.gen.ts'

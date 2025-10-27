@@ -113,62 +113,6 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
       maxTokens: 16_384,
     },
   },
-  'accounts/fireworks/models/deepseek-r1': {
-    name: 'DeepSeek R1 (Fast)',
-    description:
-      'This version of the R1 model has a perfect balance between speed and cost-efficiency for real-time interactive experiences, with speeds up to 90 tokens per second.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
-    tags: ['reasoning', 'general-purpose', 'coding'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 8,
-      maxTokens: 32_768,
-    },
-  },
-  'accounts/fireworks/models/deepseek-r1-basic': {
-    name: 'DeepSeek R1 (Basic)',
-    description:
-      'This version of the R1 model is optimized for throughput and cost-effectiveness and has a lower cost but slightly higher latency than the "Fast" version of the model.\n\nDeepSeek-R1 is a state-of-the-art large language model optimized with reinforcement learning and cold-start data for exceptional reasoning, math, and code performance. **Note**: This model will always use a temperature of 0.6 as recommended by DeepSeek.',
-    tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    input: {
-      costPer1MTokens: 0.55,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 2.19,
-      maxTokens: 32_768,
-    },
-  },
-  'accounts/fireworks/models/deepseek-v3': {
-    name: 'DeepSeek V3',
-    description:
-      'A a strong Mixture-of-Experts (MoE) language model with 671B total parameters with 37B activated for each token from Deepseek.',
-    tags: ['deprecated', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.9,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 0.9,
-      maxTokens: 8_000,
-    },
-  },
-  'accounts/fireworks/models/llama-v3p1-405b-instruct': {
-    name: 'Llama 3.1 405B Instruct',
-    description:
-      'The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models in 8B, 70B and 405B sizes. The Llama 3.1 instruction tuned text only models (8B, 70B, 405B) are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.',
-    tags: ['deprecated', 'general-purpose'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 131_072,
-    },
-    output: {
-      costPer1MTokens: 3,
-      maxTokens: 131_072,
-    },
-  },
   'accounts/fireworks/models/llama-v3p1-70b-instruct': {
     name: 'Llama 3.1 70B Instruct',
     description:
@@ -209,20 +153,6 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     output: {
       costPer1MTokens: 1.2,
       maxTokens: 65_536,
-    },
-  },
-  'accounts/fireworks/models/mixtral-8x7b-instruct': {
-    name: 'Mixtral MoE 8x7B Instruct',
-    description:
-      'Mistral MoE 8x7B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following',
-    tags: ['low-cost', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.5,
-      maxTokens: 32_768,
-    },
-    output: {
-      costPer1MTokens: 0.5,
-      maxTokens: 32_768,
     },
   },
   'accounts/fireworks/models/mythomax-l2-13b': {
@@ -278,7 +208,7 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
               // The DeepSeek R1 model card recommends using a fixed temperature of 0.6 and only using a user prompt rather than a system prompt. See: https://huggingface.co/deepseek-ai/DeepSeek-R1#usage-recommendations
               request.temperature = 0.6
               const systemPrompt = request.messages?.find((message) => message.role === 'system')
@@ -308,7 +238,7 @@ export default new bp.Integration({
             return request
           },
           overrideResponse: (response) => {
-            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1') {
+            if (input.model?.id === 'accounts/fireworks/models/deepseek-r1-0528') {
               for (const choice of response.choices) {
                 if (choice.message.content) {
                   // DeepSeek R1 returns its CoT in its response between <think> tags so we remove it.
