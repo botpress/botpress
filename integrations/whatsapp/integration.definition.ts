@@ -137,7 +137,7 @@ export default new IntegrationDefinition({
             .secret()
             .optional() // TODO remove optional next major version
             .title('WABA ID')
-            .describe('Your Whatsapp business Account ID'),
+            .describe('Your Whatsapp business Account ID (will be required on the next major update)'),
         })
         .merge(commonConfigSchema),
     },
