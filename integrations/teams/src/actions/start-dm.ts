@@ -12,7 +12,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
   const adapter = getAdapter(ctx.configuration)
 
   // We need an existing Botpress conversation on Teams because of the serviceUrl
-  let state
+  let state: bp.TIntegration['states']['conversation']
   try {
     const stateRes = await client.getState({
       id: input.conversationId,
