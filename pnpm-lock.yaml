@@ -2410,6 +2410,9 @@ importers:
       axios:
         specifier: ^1.6.1
         version: 1.6.1
+      axios-cache-interceptor:
+        specifier: ^1.8.3
+        version: 1.8.3(axios@1.6.1)
       axios-retry:
         specifier: ^4.5.0
         version: 4.5.0(axios@1.6.1)
@@ -6225,6 +6228,12 @@ packages:
   aws4@1.12.0:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
 
+  axios-cache-interceptor@1.8.3:
+    resolution: {integrity: sha512-ifuSBoCEkVaiugg1UTjVuTdK+SjSOJ35pdv2OrzhRT3wDMr52QiayQxUqs7jd7GDsfPOjMcw3T3ek0TysbyZZw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      axios: ^1
+
   axios-case-converter@1.1.1:
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
@@ -6495,6 +6504,9 @@ packages:
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
+
+  cache-parser@1.2.5:
+    resolution: {integrity: sha512-Md/4VhAHByQ9frQ15WD6LrMNiVw9AEl/J7vWIXw+sxT6fSOpbtt6LHTp76vy8+bOESPBO94117Hm2bIjlI7XjA==}
 
   cacheable-request@6.1.0:
     resolution: {integrity: sha512-Oj3cAGPCqOZX7Rz64Uny2GYAZNliQSqfbePrgAQ1wKAihYmCUnraBtJtKcGR4xz7wF+LoJC+ssFZvv5BgF9Igg==}
@@ -7420,6 +7432,9 @@ packages:
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  fast-defer@1.1.8:
+    resolution: {integrity: sha512-lEJeOH5VL5R09j6AA0D4Uvq7AgsHw0dAImQQ+F3iSyHZuAxyQfWobsagGpTcOPvJr3urmKRHrs+Gs9hV+/Qm/Q==}
 
   fast-diff@1.3.0:
     resolution: {integrity: sha512-VxPP4NqbUjj6MaAOafWeUn2cXWLcCtljklUtZf0Ind4XQ+QPtmA0b18zZy0jIQx+ExRVCR/ZQpBmik5lXshNsw==}
@@ -9210,6 +9225,9 @@ packages:
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
+
+  object-code@1.3.3:
+    resolution: {integrity: sha512-/Ds4Xd5xzrtUOJ+xJQ57iAy0BZsZltOHssnDgcZ8DOhgh41q1YJCnTPnWdWSLkNGNnxYzhYChjc5dgC9mEERCA==}
 
   object-inspect@1.13.3:
     resolution: {integrity: sha512-kDCGIbxkDSXE3euJZZXzc6to7fCrKHNI/hSRQnRuQ+BWjFNzZwiFF8fj/6o2t2G9/jTj8PSIYTfCLelLZEeRpA==}
@@ -15500,6 +15518,13 @@ snapshots:
 
   aws4@1.12.0: {}
 
+  axios-cache-interceptor@1.8.3(axios@1.6.1):
+    dependencies:
+      axios: 1.6.1
+      cache-parser: 1.2.5
+      fast-defer: 1.1.8
+      object-code: 1.3.3
+
   axios-case-converter@1.1.1(axios@1.11.0):
     dependencies:
       axios: 1.11.0
@@ -15972,6 +15997,8 @@ snapshots:
   bytes@3.1.2: {}
 
   cac@6.7.14: {}
+
+  cache-parser@1.2.5: {}
 
   cacheable-request@6.1.0:
     dependencies:
@@ -17140,6 +17167,8 @@ snapshots:
   fast-deep-equal@2.0.1: {}
 
   fast-deep-equal@3.1.3: {}
+
+  fast-defer@1.1.8: {}
 
   fast-diff@1.3.0: {}
 
@@ -19387,6 +19416,8 @@ snapshots:
   oauth@0.10.2: {}
 
   object-assign@4.1.1: {}
+
+  object-code@1.3.3: {}
 
   object-inspect@1.13.3: {}
 
