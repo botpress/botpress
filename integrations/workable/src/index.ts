@@ -79,13 +79,17 @@ export default new bp.Integration({
     })
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
 
-    try {
-      for (const webhook of webhooksIds.state.payload.webhooks) {
+    const errors: string[] = []
+
+    for (const webhook of webhooksIds.state.payload.webhooks) {
+      try {
         await client.unregisterWebhook(webhook.id)
+      } catch (thrown) {
+        errors.push(thrown instanceof Error ? thrown.message : String(thrown))
       }
-    } catch (thrown) {
-      const msg = thrown instanceof Error ? thrown.message : String(thrown)
-      throw new RuntimeError(`Failed to unregister the integration: ${msg}`)
+    }
+    if (errors.length > 0) {
+      throw new RuntimeError(`Failed to unregister the integration: ${errors.join(', ')}`)
     }
   },
   actions: {
