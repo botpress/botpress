@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { answerSchema } from './answers'
 
 export const candidateSchema = z
   .object({
@@ -97,13 +98,6 @@ export const locationSchema = z
     zip_code: z.string().nullable(),
   })
   .partial()
-
-export const answerSchema = z.object({
-  question: z.object({
-    body: z.string(),
-  }),
-  answer: z.object({}).nullable(),
-})
 
 export const detailedCandidateSchema = candidateSchema
   .extend({

@@ -1,4 +1,53 @@
 import { z } from '@botpress/sdk'
+import { answerSchema } from './answers'
+
+const socialProfileTypesSchema = z.enum([
+  'academiaedu',
+  'angellist',
+  'behance',
+  'bitbucket',
+  'blogger',
+  'crunchbase',
+  'dandyid',
+  'delicious',
+  'deviantart',
+  'digg',
+  'doyoubuzz',
+  'dribble',
+  'dribbble',
+  'econsultancy',
+  'facebook',
+  'flavorsme',
+  'flickr',
+  'fullcontact',
+  'getglue',
+  'gist',
+  'github',
+  'goodreads',
+  'googleplus',
+  'gravatar',
+  'hackernews',
+  'hiim',
+  'klout',
+  'lanyrd',
+  'linkedin',
+  'myspace',
+  'ohloh',
+  'orkut',
+  'pinterest',
+  'quora',
+  'reddit',
+  'scribd',
+  'slideshare',
+  'stackexchange',
+  'stackoverflow',
+  'tumblr',
+  'twitter',
+  'typepad',
+  'vk',
+  'wordpress',
+  'xing',
+])
 
 export const candidateSchema = z
   .object({
@@ -96,13 +145,6 @@ export const experienceEntrySchema = z
   })
   .partial()
 
-export const answerSchema = z.object({
-  question: z.object({
-    body: z.string().nullable().title('Question').describe('The question'),
-  }),
-  answer: z.unknown().nullable().title('Answer').describe('The answer'),
-})
-
 export const locationSchema = z
   .object({
     locationString: z
@@ -181,4 +223,90 @@ export const getCandidateOutputSchema = z
 
 export const getCandidateInputSchema = z.object({
   id: z.string().title('ID').describe("The candidate's ID"),
+})
+
+export const postEducationEntrySchema = z.object({
+  degree: z.string().optional().title('Degree').describe('The graduation degree'),
+  school: z.string().title('School').describe('The name of the school graduated'),
+  fieldOfStudy: z.string().optional().title('Field Of Study').describe('The field of study'),
+  startDate: z.string().optional().title('Start Date').describe('The date started'),
+  endDate: z.string().optional().title('End Date').describe('The date ended'),
+})
+
+export const postSocialProfileSchema = z.object({
+  type: socialProfileTypesSchema.title('Type').describe('The slug name of the social profile'),
+  username: z.string().optional().title('Username').describe('The username of the social profile'),
+  url: z.string().title('Url').describe("Url to the candidate's social profile page"),
+})
+
+export const postExperienceEntrySchema = z.object({
+  title: z.string().title('Title').describe('The title of the experience entry'),
+  summary: z.string().optional().title('Summary').describe('The summary of the experience entry'),
+  startDate: z.string().optional().title('Start Date').describe('The date started'),
+  endDate: z.string().optional().title('End Date').describe('The date ended'),
+  company: z.string().optional().title('Company').describe('The company name'),
+  current: z.boolean().optional().title('Current').describe('Indicates if currently works there'),
+  industry: z.string().optional().title('Industry').describe('The industry of the company'),
+})
+
+export const postCandidateSchema = z.object({
+  firstName: z.string().title('First Name').describe("The candidate's first name"),
+  lastName: z.string().title('Last Name').describe("The candidate's last name"),
+  email: z.string().title('Email').describe("The candidate's email address"),
+  headline: z.string().optional().title('Headline').describe("The candidate's headline"),
+  summary: z.string().optional().title('Summary').describe('The summary of the candidate'),
+  address: z.string().optional().title('Address').describe("The candidate's address"),
+  phone: z.string().optional().title('Phone Number').describe("The candidate's phone number"),
+  coverLetter: z
+    .string()
+    .optional()
+    .title('Cover Letter')
+    .describe('The cover letter provided when the candidate applied'),
+  educationEntries: z
+    .array(postEducationEntrySchema)
+    .title('Education Entries')
+    .describe('A collection with education entries'),
+  experienceEntries: z
+    .array(postExperienceEntrySchema)
+    .title('Experience Entries')
+    .describe('A collection with experience entries'),
+  skills: z
+    .array(z.object({ name: z.string().title('Name') }))
+    .optional()
+    .title('Skills')
+    .describe('A collection of skills with names'),
+  answers: z.array(answerSchema).optional().title('Answers').describe('A collection with answers provided'),
+  tags: z.array(z.string()).optional().title('Tags').describe('A collection of tags'),
+  disqualified: z
+    .boolean()
+    .optional()
+    .title('Disqualified')
+    .describe('Flag indicating whether the candidate is disqualified'),
+  disqualificationReason: z
+    .string()
+    .optional()
+    .title('Disqualification Reason')
+    .describe('Reason for disqualification, if applicable'),
+  disqualifiedAt: z
+    .string()
+    .optional()
+    .title('Disqualified At')
+    .describe('The timestamp the candidate was disqualified'),
+  socialProfiles: z
+    .array(postSocialProfileSchema)
+    .title('Social Profiles')
+    .describe('A collection with social profiles of candidates'),
+  domain: z.string().optional().title('Domain').describe('Where the candidate came from'),
+})
+
+export const createCandidateInJobOutputSchema = z
+  .object({
+    status: z.string().title('Status').describe('The status of the candidate'),
+    candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
+  })
+  .partial()
+
+export const createCandidateInJobInputSchema = z.object({
+  sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
+  candidate: postCandidateSchema.title('Candidate').describe('The candidate to create'),
 })

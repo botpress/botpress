@@ -3,6 +3,7 @@ import * as defEvents from 'definitions/events/candidates'
 import * as def from 'definitions/models/candidates'
 import * as workable from 'src/workable-schemas/candidates'
 import * as workableEvents from 'src/workable-schemas/events'
+import { toAnswerModel } from './answers-mapper'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
@@ -90,6 +91,7 @@ export function toDetailedCandidateModel(
     social_profiles,
     location,
     originating_candidate_id,
+    answers,
     ...rest
   } = schema
 
@@ -118,6 +120,7 @@ export function toDetailedCandidateModel(
     socialProfiles: social_profiles,
     location: location === null || location === undefined ? undefined : toLocationModel(location),
     originatingCandidateId: originating_candidate_id,
+    answers: answers?.map((answer) => toAnswerModel(answer)),
   }
 }
 
