@@ -2,11 +2,11 @@ import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
+import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
 
-// File message type unsupported both ways in DM
-const { file: _file, ...dmChannelMessages } = messages.defaults
+const { file: _file, ...channelMessages } = dmChannelMessages
 
 const commonConfigSchema = z.object({
   replyToComments: z
@@ -90,20 +90,16 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Direct Message',
       description: 'Direct message conversation between an Instagram user and the bot',
-      messages: dmChannelMessages,
+      messages: channelMessages,
       message: {
         tags: {
           id: {
             title: 'Message ID',
             description: 'The Instagram message ID',
           },
-          senderId: {
-            title: 'Sender ID',
-            description: 'The Instagram user ID of the message sender',
-          },
-          recipientId: {
-            title: 'Recipient ID',
-            description: 'The Instagram user ID of the message recipient',
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID under which the direct message conversation was started',
           },
         },
       },
@@ -112,6 +108,14 @@ export default new IntegrationDefinition({
           id: {
             title: 'Conversation ID',
             description: 'The Instagram user ID of the user in the conversation',
+          },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID under which the direct message conversation was started',
+          },
+          lastCommentId: {
+            title: 'Last Comment ID',
+            description: 'The Instagram comment ID of the last comment from which a direct message was sent',
           },
         },
       },
@@ -199,6 +203,11 @@ export default new IntegrationDefinition({
       schema: z
         .object({
           id: z.string().title('User ID').describe('The Instagram user ID of the user in the conversation'),
+          commentId: z
+            .string()
+            .optional()
+            .title('Comment ID')
+            .describe('The Instagram comment ID under which the direct message conversation was started'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),
