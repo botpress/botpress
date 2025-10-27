@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { answerSchema } from './answers'
+import { answerSchema, postAnswerSchema } from './answers'
 
 export const socialProfileTypesSchema = z.enum([
   'academiaedu',
@@ -275,7 +275,7 @@ export const postCandidateSchema = z.object({
     .optional()
     .title('Skills')
     .describe('A collection of skills with names'),
-  answers: z.array(answerSchema).optional().title('Answers').describe('A collection with answers provided'),
+  answers: z.array(postAnswerSchema).optional().title('Answers').describe('A collection with answers provided'),
   tags: z.array(z.string()).optional().title('Tags').describe('A collection of tags'),
   disqualified: z
     .boolean()
@@ -308,5 +308,6 @@ export const postCandidateInJobOutputSchema = z
 
 export const postCandidateInJobInputSchema = z.object({
   sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
+  shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
   candidate: postCandidateSchema.title('Candidate').describe('The candidate to create'),
 })

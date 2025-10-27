@@ -1,11 +1,11 @@
 import { ActionDefinition } from '@botpress/sdk'
 import {
-  createCandidateInJobInputSchema,
-  createCandidateInJobOutputSchema,
   getCandidateInputSchema,
   getCandidateOutputSchema,
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
+  postCandidateInJobInputSchema,
+  postCandidateInJobOutputSchema,
 } from 'definitions/models/candidates'
 
 export const listCandidates = {
@@ -34,9 +34,9 @@ export const createCandidateInJob = {
   title: 'Create candidate in job',
   description: 'Create a candidate in the specified job',
   input: {
-    schema: createCandidateInJobInputSchema,
+    schema: postCandidateInJobInputSchema,
   },
   output: {
-    schema: createCandidateInJobOutputSchema,
+    schema: postCandidateInJobOutputSchema,
   },
 } satisfies ActionDefinition

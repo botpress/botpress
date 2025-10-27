@@ -3,7 +3,7 @@ import * as defEvents from 'definitions/events/candidates'
 import * as def from 'definitions/models/candidates'
 import * as workable from 'src/workable-schemas/candidates'
 import * as workableEvents from 'src/workable-schemas/events'
-import { toAnswerModel } from './answers-mapper'
+import { fromPostAnswerModel, toAnswerModel } from './answers-mapper'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
@@ -191,5 +191,65 @@ export function toCandidateMovedEventModel(
     firedAt: fired_at,
     resourceType: resource_type,
     data: candidateModel,
+  }
+}
+
+export function fromPostEducationEntryModel(
+  schema: z.infer<typeof def.postEducationEntrySchema>
+): z.infer<typeof workable.postEducationEntrySchema> {
+  const { endDate, startDate, fieldOfStudy, ...rest } = schema
+  return {
+    ...rest,
+    end_date: endDate,
+    start_date: startDate,
+    field_of_study: fieldOfStudy,
+  }
+}
+
+export function fromPostExperienceEntryModel(
+  schema: z.infer<typeof workable.postExperienceEntrySchema>
+): z.infer<typeof def.postExperienceEntrySchema> {
+  const { start_date, end_date, ...rest } = schema
+  return {
+    ...rest,
+    startDate: start_date,
+    endDate: end_date,
+  }
+}
+
+export function fromPostCandidateInJobInputModel(
+  schema: z.infer<typeof def.postCandidateInJobInputSchema>
+): z.infer<typeof workable.postCandidateInJobInputSchema> {
+  const { candidate, ...rest } = schema
+
+  const {
+    educationEntries,
+    experienceEntries,
+    firstName,
+    lastName,
+    socialProfiles,
+    answers,
+    coverLetter,
+    disqualificationReason,
+    disqualifiedAt,
+    ...candidateRest
+  } = candidate
+
+  return {
+    ...rest,
+    body: {
+      candidate: {
+        ...candidateRest,
+        firstname: firstName,
+        lastname: lastName,
+        education_entries: educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
+        experience_entries: experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
+        social_profiles: socialProfiles,
+        answers: answers?.map((answer) => fromPostAnswerModel(answer)),
+        cover_letter: coverLetter,
+        disqualification_reason: disqualificationReason,
+        disqualified_at: disqualifiedAt,
+      },
+    },
   }
 }

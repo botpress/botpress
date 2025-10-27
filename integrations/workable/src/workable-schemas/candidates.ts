@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { socialProfileTypesSchema } from 'definitions/models/candidates'
-import { answerSchema } from './answers'
+import { answerSchema, postAnswerSchema } from './answers'
 
 export const candidateSchema = z
   .object({
@@ -166,7 +166,7 @@ export const postCandidateSchema = z.object({
   education_entries: z.array(postEducationEntrySchema),
   experience_entries: z.array(postExperienceEntrySchema),
   skills: z.array(z.object({ name: z.string().title('Name') })).optional(),
-  answers: z.array(answerSchema).optional(),
+  answers: z.array(postAnswerSchema).optional(),
   tags: z.array(z.string()).optional(),
   disqualified: z.boolean().optional(),
   disqualification_reason: z.string().optional(),
