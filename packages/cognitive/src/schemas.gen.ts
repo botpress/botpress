@@ -31,7 +31,7 @@ export type GenerateContentInput = {
           type: 'text' | 'image'
           /** Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL. */
           mimeType?: string
-          /** Required if part type is "text"  */
+          /** Required if part type is "text" */
           text?: string
           /** Required if part type is "image" */
           url?: string
@@ -103,7 +103,7 @@ export type GenerateContentOutput = {
           type: 'text' | 'image'
           /** Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL. */
           mimeType?: string
-          /** Required if part type is "text"  */
+          /** Required if part type is "text" */
           text?: string
           /** Required if part type is "image" */
           url?: string
