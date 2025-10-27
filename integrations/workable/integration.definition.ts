@@ -1,6 +1,6 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { getCandidate, listCandidates } from 'definitions/actions/candidates'
-import { candidateCreated, candidateMoved } from 'definitions/events/candidates'
+import { candidateCreated, candidateMoved, eventTypes } from 'definitions/events/candidates'
 
 export default new IntegrationDefinition({
   name: 'workable',
@@ -24,10 +24,19 @@ export default new IntegrationDefinition({
     }),
   },
   states: {
-    webhookIds: {
+    webhooks: {
       type: 'integration',
       schema: z.object({
-        ids: z.array(z.number()).title('IDs').describe('The IDs of the registered webhooks'),
+        webhooks: z
+          .array(
+            z.object({
+              id: z.number().title('ID').describe('The ID of the webhook'),
+              url: z.string().title('Url').describe('The url of the webhook'),
+              eventType: eventTypes.title('Event Type').describe('The event type of the webhook'),
+            })
+          )
+          .title('Webhooks')
+          .describe('The registered webhooks'),
       }),
     },
   },

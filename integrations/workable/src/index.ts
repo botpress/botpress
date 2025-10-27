@@ -34,26 +34,36 @@ export default new bp.Integration({
   register: async (props) => {
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
     try {
-      const webhooks = await client.getWebhooks()
-      for (const webhook of webhooks.subscriptions) {
-        if (webhook.target.includes(props.webhookUrl)) {
-          await client.unregisterWebhook(webhook.id)
+      const webhooks = await props.client.getOrSetState({
+        id: props.ctx.integrationId,
+        name: 'webhooks',
+        type: 'integration',
+        payload: {
+          webhooks: [],
+        },
+      })
+
+      let eventsToRegister = Array.from(eventTypes.options)
+
+      for (const webhook of webhooks.state.payload.webhooks) {
+        if (webhook.url.includes(props.webhookUrl) && eventsToRegister.includes(webhook.eventType)) {
+          eventsToRegister = eventsToRegister.filter((event) => event !== webhook.eventType)
         }
       }
 
-      const ids: number[] = []
+      const newWebhooks = webhooks.state.payload.webhooks
 
-      for (const eventType of eventTypes.options) {
+      for (const eventType of eventsToRegister) {
         const id = await _registerWebhook(client, props.webhookUrl, eventType, props.ctx.configuration.subDomain)
-        ids.push(id)
+        newWebhooks.push({ id, url: props.webhookUrl, eventType })
       }
 
       await props.client.setState({
         id: props.ctx.integrationId,
-        name: 'webhookIds',
+        name: 'webhooks',
         type: 'integration',
         payload: {
-          ids,
+          webhooks: newWebhooks,
         },
       })
     } catch (thrown) {
@@ -63,15 +73,15 @@ export default new bp.Integration({
   },
   unregister: async (props) => {
     const webhooksIds = await props.client.getState({
-      name: 'webhookIds',
+      name: 'webhooks',
       id: props.ctx.integrationId,
       type: 'integration',
     })
     const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
 
     try {
-      for (const id of webhooksIds.state.payload.ids) {
-        await client.unregisterWebhook(id)
+      for (const webhook of webhooksIds.state.payload.webhooks) {
+        await client.unregisterWebhook(webhook.id)
       }
     } catch (thrown) {
       const msg = thrown instanceof Error ? thrown.message : String(thrown)
