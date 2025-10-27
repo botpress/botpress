@@ -273,7 +273,7 @@ describe.concurrent('ClientOperations', () => {
     type _assertion = utils.AssertTrue<utils.IsEquivalent<Actual, Expected>>
   })
 
-  test('getConversation response should include all possible conversation tags', () => {
+  test('Conversation operations responses should include all possible conversation tags', () => {
     type Expected =
       | {
           fooConversationTag1?: string | undefined
@@ -304,6 +304,39 @@ describe.concurrent('ClientOperations', () => {
     type ActualUpdateConversation =
       types.ClientOutputs<FooBarBazIntegration>['updateConversation']['conversation']['tags']
     type _assertionUpdate = utils.AssertTrue<utils.IsEqual<ActualUpdateConversation, Expected>>
+  })
+
+  test('createConversation and getOrCreateConversation response should only include conversation tags for the provided channel', async () => {
+    type Expected = {
+      fooConversationTag1?: string | undefined
+      fooConversationTag2?: string | undefined
+      fooConversationTag3?: string | undefined
+    }
+
+    const client = _mockClient<FooBarBazIntegration>()
+    const _resultCreate = await client.createConversation({
+      channel: 'channelFoo',
+      tags: {
+        fooConversationTag1: '1',
+        fooConversationTag2: '2',
+        fooConversationTag3: '3',
+      },
+    })
+
+    type ActualCreateConversation = (typeof _resultCreate)['conversation']['tags']
+
+    const _resultGetOrCreate = await client.getOrCreateConversation({
+      channel: 'channelFoo',
+      tags: {
+        fooConversationTag1: '1',
+        fooConversationTag2: '2',
+        fooConversationTag3: '3',
+      },
+    })
+    type ActualGetOrCreateConversation = (typeof _resultGetOrCreate)['conversation']['tags']
+
+    type _assertionCreate = utils.AssertTrue<utils.IsEqual<ActualCreateConversation, Expected>>
+    type _assertionGetOrCreate = utils.AssertTrue<utils.IsEqual<ActualGetOrCreateConversation, Expected>>
   })
 
   test('getOrCreateConversation with FooBarBazIntegration stricly enforces allowed tags', () => {
