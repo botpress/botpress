@@ -346,7 +346,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
-    const version = targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg}@${targetPackage.pkg.version}`
+    const version =
+      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
