@@ -148,6 +148,10 @@ export default new IntegrationDefinition({
             title: 'Post ID',
             description: 'The Instagram post ID where the comment was posted',
           },
+          userId: {
+            title: 'User ID',
+            description: 'The Instagram user ID of the user who sent the comment',
+          },
         },
       },
     },
