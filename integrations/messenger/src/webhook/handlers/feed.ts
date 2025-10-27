@@ -69,7 +69,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   if (!message) {
     logger
       .forBot()
-      .debug(
+      .warn(
         'Incoming comment has no message, will not reply. Make sure that your app has been granted the necessary permissions to access user data.'
       )
     return
@@ -81,7 +81,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   }
 
   if (!from) {
-    logger.forBot().debug("Incoming comment doesn't contain 'from' information, will not reply")
+    logger.forBot().error("Incoming comment doesn't contain 'from' information, will not reply")
     return
   }
 
