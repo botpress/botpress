@@ -24,7 +24,6 @@ const sendSenderActions = async ({
   const { conversation } = await client.getConversation({ id: conversationId })
 
   // Skip typing indicators for comment replies channel as they aren't available in Facebook comments
-  // TODO: Why doesn't this discriminate channel tag types?
   if (conversation.channel !== 'channel') {
     return {}
   }
