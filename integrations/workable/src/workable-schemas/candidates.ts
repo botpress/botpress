@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { socialProfileTypesSchema } from 'definitions/models/candidates'
+import { imageSource, socialProfileTypesSchema } from 'definitions/models/candidates'
 import { answerSchema, postAnswerSchema } from './answers'
 
 export const baseCandidateSchema = z
@@ -216,4 +216,39 @@ export const postCandidateInTalentPoolOutputSchema = z.object({
 export const postCandidateInJobOutputSchema = z.object({
   status: z.string(),
   candidate: detailedCandidateSchema,
+})
+
+export const updateCandidateInputSchema = z.object({
+  id: z.string(),
+  body: z.object({
+    candidate: postCandidateInTalentPoolSchema
+      .extend({
+        texting_consent: z.enum(['forced', 'declined']),
+        image_url: z.string(),
+        image_source: imageSource,
+        image: z.object({
+          name: z.string(),
+          data: z.string(),
+          source: imageSource,
+          education_entries: z.array(
+            educationEntrySchema.extend({
+              id: z.string().optional(),
+            })
+          ),
+          experience_entries: z.array(
+            experienceEntrySchema.extend({
+              id: z.string().optional(),
+            })
+          ),
+        }),
+      })
+      .omit({
+        disqualified: true,
+        disqualification_reason: true,
+        disqualified_at: true,
+        domain: true,
+        recruiter_key: true,
+      })
+      .partial(),
+  }),
 })
