@@ -350,3 +350,98 @@ export const postCandidateInJobInputSchema = z.object({
   candidate: postCandidateInJobSchema.title('Candidate').describe('The candidate to create'),
   shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
 })
+
+export const imageSource = z.enum([
+  'academiaedu',
+  'angellist',
+  'behance',
+  'bitbucket',
+  'blogger',
+  'crunchbase',
+  'dandyid',
+  'delicious',
+  'deviantart',
+  'digg',
+  'doyoubuzz',
+  'dribble',
+  'dribbble',
+  'econsultancy',
+  'facebook',
+  'flavorsme',
+  'flickr',
+  'fullcontact',
+  'getglue',
+  'gist',
+  'github',
+  'goodreads',
+  'googleplus',
+  'gravatar',
+  'hackernews',
+  'hiim',
+  'klout',
+  'lanyrd',
+  'linkedin',
+  'myspace',
+  'ohloh',
+  'orkut',
+  'pinterest',
+  'quora',
+  'reddit',
+  'scribd',
+  'skype',
+  'slideshare',
+  'stackexchange',
+  'stackoverflow',
+  'tumblr',
+  'twitter',
+  'typepad',
+  'vk',
+  'wordpress',
+  'xing',
+])
+
+export const updateCandidateInputSchema = z.object({
+  id: z.string().title('ID').describe("The candidate to update's id"),
+  candidate: postCandidateInTalentPoolSchema
+    .extend({
+      textingConsent: z.enum(['forced', 'declined']).title('Texting Consent'),
+      imageUrl: z.string().title('Image Url').describe("A url pointing to the candidate's image"),
+      imageSource: imageSource
+        .title('Image Source')
+        .describe('The source of the image (if not provided by the candidate)'),
+      image: z.object({
+        name: z.string().title('Name').describe("The candidate's image name"),
+        data: z.string().title('data').describe("The candidate's image encodede in base64"),
+        source: imageSource.title('Image Source').describe('The image source'),
+        educationEntries: z.array(
+          educationEntrySchema.extend({
+            id: z
+              .string()
+              .optional()
+              .title('ID')
+              .describe('The education ID. If provided, updates the existing entry. If not, creates a new one.'),
+          })
+        ),
+        experienceEntries: z.array(
+          experienceEntrySchema.extend({
+            id: z
+              .string()
+              .optional()
+              .title('ID')
+              .describe('The experience ID. If provided, updates the existing entry. If not, creates a new one.'),
+          })
+        ),
+        socialProfiles: postCandidateInTalentPoolSchema.shape.socialProfiles.describe(
+          'Existing profiles will be deleted if not included in the new array.'
+        ),
+      }),
+    })
+    .omit({
+      disqualified: true,
+      disqualificationReason: true,
+      disqualifiedAt: true,
+      domain: true,
+      recruiterKey: true,
+    })
+    .partial(),
+})
