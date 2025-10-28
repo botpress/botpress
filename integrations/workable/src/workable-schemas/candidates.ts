@@ -175,17 +175,18 @@ export const postCandidateSchema = z.object({
   domain: z.string().optional(),
 })
 
-export const postCandidateInJobInputSchema = z.object({
-  shortCode: z.string(),
+export const postCandidateInTalentPoolInputSchema = z.object({
   body: z.object({
     sourced: z.boolean().optional(),
     candidate: postCandidateSchema,
   }),
 })
 
-export const postCandidateInJobOutputSchema = z
-  .object({
-    status: z.string(),
-    candidate: detailedCandidateSchema,
-  })
-  .partial()
+export const postCandidateInJobInputSchema = postCandidateInTalentPoolInputSchema.extend({
+  shortCode: z.string(),
+})
+
+export const postCandidateOutputSchema = z.object({
+  status: z.string(),
+  candidate: detailedCandidateSchema,
+})

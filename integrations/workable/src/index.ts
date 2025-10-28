@@ -4,8 +4,11 @@ import { handler } from './handler'
 import {
   fromGetCandidateInputModel,
   fromListCandidatesInputModel,
+  fromPostCandidateInJobInputModel,
+  fromPostCandidateInTalentPoolInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
+  toPostCandidateOutputModel,
 } from './mapping/candidate-mapper'
 import { WorkableClient } from './workable-api/client'
 import * as bp from '.botpress'
@@ -120,6 +123,28 @@ export default new bp.Integration({
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to get candidate with id ${props.input.id}: ${msg}`)
+      }
+    },
+    createCandidateInJob: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.postCandidateInJob(fromPostCandidateInJobInputModel(props.input))
+        return toPostCandidateOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to create candidate: ${msg}`)
+      }
+    },
+    createCandidateInTalentPool: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.postCandidateInTalentPool(fromPostCandidateInTalentPoolInputModel(props.input))
+        return toPostCandidateOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to create candidate: ${msg}`)
       }
     },
   },

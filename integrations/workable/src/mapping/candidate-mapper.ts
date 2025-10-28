@@ -217,9 +217,20 @@ export function fromPostExperienceEntryModel(
   }
 }
 
-export function fromPostCandidateInJobInputModel(
-  schema: z.infer<typeof def.postCandidateInJobInputSchema>
-): z.infer<typeof workable.postCandidateInJobInputSchema> {
+export function toPostCandidateOutputModel(
+  schema: z.infer<typeof workable.postCandidateOutputSchema>
+): z.infer<typeof def.postCandidateOutputSchema> {
+  const { candidate, ...rest } = schema
+
+  return {
+    candidate: toDetailedCandidateModel(candidate),
+    ...rest,
+  }
+}
+
+export function fromPostCandidateInTalentPoolInputModel(
+  schema: z.infer<typeof def.postCandidateInTalentPoolInputSchema>
+): z.infer<typeof workable.postCandidateInTalentPoolInputSchema> {
   const { candidate, ...rest } = schema
 
   const {
@@ -242,9 +253,11 @@ export function fromPostCandidateInJobInputModel(
         ...candidateRest,
         firstname: firstName,
         lastname: lastName,
-        education_entries: educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
-        experience_entries: experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
-        social_profiles: socialProfiles,
+        education_entries:
+          educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
+        experience_entries:
+          experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
+        social_profiles: socialProfiles === undefined ? [] : socialProfiles,
         answers: answers?.map((answer) => fromPostAnswerModel(answer)),
         cover_letter: coverLetter,
         disqualification_reason: disqualificationReason,
@@ -252,4 +265,12 @@ export function fromPostCandidateInJobInputModel(
       },
     },
   }
+}
+
+export function fromPostCandidateInJobInputModel(
+  schema: z.infer<typeof def.postCandidateInJobInputSchema>
+): z.infer<typeof workable.postCandidateInJobInputSchema> {
+  const { shortCode, ...rest } = schema
+
+  return { ...fromPostCandidateInTalentPoolInputModel({ ...rest }), shortCode }
 }

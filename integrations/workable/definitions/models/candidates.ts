@@ -264,10 +264,12 @@ export const postCandidateSchema = z.object({
     .describe('The cover letter provided when the candidate applied'),
   educationEntries: z
     .array(postEducationEntrySchema)
+    .optional()
     .title('Education Entries')
     .describe('A collection with education entries'),
   experienceEntries: z
     .array(postExperienceEntrySchema)
+    .optional()
     .title('Experience Entries')
     .describe('A collection with experience entries'),
   skills: z
@@ -294,20 +296,22 @@ export const postCandidateSchema = z.object({
     .describe('The timestamp the candidate was disqualified'),
   socialProfiles: z
     .array(postSocialProfileSchema)
+    .optional()
     .title('Social Profiles')
     .describe('A collection with social profiles of candidates'),
   domain: z.string().optional().title('Domain').describe('Where the candidate came from'),
 })
 
-export const postCandidateInJobOutputSchema = z
-  .object({
-    status: z.string().title('Status').describe('The status of the candidate'),
-    candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
-  })
-  .partial()
+export const postCandidateOutputSchema = z.object({
+  status: z.string().title('Status').describe('The status of the candidate'),
+  candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
+})
 
-export const postCandidateInJobInputSchema = z.object({
+export const postCandidateInTalentPoolInputSchema = z.object({
   sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
-  shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
   candidate: postCandidateSchema.title('Candidate').describe('The candidate to create'),
+})
+
+export const postCandidateInJobInputSchema = postCandidateInTalentPoolInputSchema.extend({
+  shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
 })
