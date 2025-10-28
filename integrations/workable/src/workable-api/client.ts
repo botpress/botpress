@@ -44,7 +44,7 @@ export class WorkableClient {
 
   private _handleAxiosError(thrown: unknown): never {
     if (axios.isAxiosError(thrown)) {
-      throw new Error(thrown.response?.data?.message || thrown.message)
+      throw new Error(thrown.response?.data?.error || thrown.message)
     }
     throw thrown
   }
@@ -99,8 +99,9 @@ export class WorkableClient {
   public async postCandidateInTalentPool(
     params: z.infer<typeof postCandidateInTalentPoolInputSchema>
   ): Promise<z.infer<typeof postCandidateInTalentPoolOutputSchema>> {
+    console.log(JSON.stringify(params, null, 2))
     const response: AxiosResponse<z.infer<typeof postCandidateInTalentPoolOutputSchema>> = await this._client
-      .post('/talent_pool/candidates', params.body)
+      .post('/talent_pool/candidates', params)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }

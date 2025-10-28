@@ -256,7 +256,7 @@ export const postExperienceEntrySchema = z.object({
   industry: z.string().optional().title('Industry').describe('The industry of the company'),
 })
 
-export const postCandidateSchema = z.object({
+export const postCandidateInTalentPoolSchema = z.object({
   firstName: z.string().title('First Name').describe("The candidate's first name"),
   lastName: z.string().title('Last Name').describe("The candidate's last name"),
   email: z.string().title('Email').describe("The candidate's email address"),
@@ -279,12 +279,7 @@ export const postCandidateSchema = z.object({
     .optional()
     .title('Experience Entries')
     .describe('A collection with experience entries'),
-  skills: z
-    .array(z.object({ name: z.string().title('Name') }))
-    .optional()
-    .title('Skills')
-    .describe('A collection of skills with names'),
-  answers: z.array(postAnswerSchema).optional().title('Answers').describe('A collection with answers provided'),
+  skills: z.array(z.string()).optional().title('Skills').describe('A collection of skills with names'),
   tags: z.array(z.string()).optional().title('Tags').describe('A collection of tags'),
   disqualified: z
     .boolean()
@@ -307,6 +302,15 @@ export const postCandidateSchema = z.object({
     .title('Social Profiles')
     .describe('A collection with social profiles of candidates'),
   domain: z.string().optional().title('Domain').describe('Where the candidate came from'),
+  recruiterKey: z
+    .string()
+    .optional()
+    .title('Recruiter Key')
+    .describe('The key corresponding to the recruiter who sourced the candidate'),
+})
+
+export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({
+  answers: z.array(postAnswerSchema).optional().title('Answers').describe('A collection with answers provided'),
 })
 
 export const postCandidateInJobOutputSchema = z.object({
@@ -331,9 +335,11 @@ export const postCandidateInTalentPoolOutputSchema = z.object({
 
 export const postCandidateInTalentPoolInputSchema = z.object({
   sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
-  candidate: postCandidateSchema.title('Candidate').describe('The candidate to create'),
+  candidate: postCandidateInTalentPoolSchema.title('Candidate').describe('The candidate to create'),
 })
 
-export const postCandidateInJobInputSchema = postCandidateInTalentPoolInputSchema.extend({
+export const postCandidateInJobInputSchema = z.object({
+  sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
+  candidate: postCandidateInJobSchema.title('Candidate').describe('The candidate to create'),
   shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
 })

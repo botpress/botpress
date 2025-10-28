@@ -216,13 +216,13 @@ export function fromPostEducationEntryModel(
 }
 
 export function fromPostExperienceEntryModel(
-  schema: z.infer<typeof workable.postExperienceEntrySchema>
-): z.infer<typeof def.postExperienceEntrySchema> {
-  const { start_date, end_date, ...rest } = schema
+  schema: z.infer<typeof def.postExperienceEntrySchema>
+): z.infer<typeof workable.postExperienceEntrySchema> {
+  const { startDate, endDate, ...rest } = schema
   return {
     ...rest,
-    startDate: start_date,
-    endDate: end_date,
+    start_date: startDate,
+    end_date: endDate,
   }
 }
 
@@ -254,49 +254,61 @@ export function toPostCandidateInTalentPoolOutputModel(
   }
 }
 
-export function fromPostCandidateInTalentPoolInputModel(
-  schema: z.infer<typeof def.postCandidateInTalentPoolInputSchema>
-): z.infer<typeof workable.postCandidateInTalentPoolInputSchema> {
-  const { candidate, ...rest } = schema
-
+export function fromPostCandidateInTalentPoolModel(
+  schema: z.infer<typeof def.postCandidateInTalentPoolSchema>
+): z.infer<typeof workable.postCandidateInTalentPoolSchema> {
   const {
     educationEntries,
     experienceEntries,
     firstName,
     lastName,
     socialProfiles,
-    answers,
     coverLetter,
     disqualificationReason,
     disqualifiedAt,
-    ...candidateRest
-  } = candidate
+    ...rest
+  } = schema
 
   return {
     ...rest,
-    body: {
-      candidate: {
-        ...candidateRest,
-        firstname: firstName,
-        lastname: lastName,
-        education_entries:
-          educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
-        experience_entries:
-          experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
-        social_profiles: socialProfiles === undefined ? [] : socialProfiles,
-        answers: answers?.map((answer) => fromPostAnswerModel(answer)),
-        cover_letter: coverLetter,
-        disqualification_reason: disqualificationReason,
-        disqualified_at: disqualifiedAt,
-      },
-    },
+    firstname: firstName,
+    lastname: lastName,
+    education_entries:
+      educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
+    experience_entries:
+      experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
+    social_profiles: socialProfiles === undefined ? [] : socialProfiles,
+    cover_letter: coverLetter,
+    disqualification_reason: disqualificationReason,
+    disqualified_at: disqualifiedAt,
+  }
+}
+
+export function fromPostCandidateInTalentPoolInputModel(
+  schema: z.infer<typeof def.postCandidateInTalentPoolInputSchema>
+): z.infer<typeof workable.postCandidateInTalentPoolInputSchema> {
+  const { candidate, ...rest } = schema
+
+  return {
+    ...rest,
+    candidate: fromPostCandidateInTalentPoolModel(candidate),
   }
 }
 
 export function fromPostCandidateInJobInputModel(
   schema: z.infer<typeof def.postCandidateInJobInputSchema>
 ): z.infer<typeof workable.postCandidateInJobInputSchema> {
-  const { shortCode, ...rest } = schema
+  const { shortCode, candidate, ...rest } = schema
+  const { answers, ...restCandidate } = candidate
 
-  return { ...fromPostCandidateInTalentPoolInputModel({ ...rest }), shortCode }
+  return {
+    body: {
+      ...rest,
+      candidate: {
+        ...fromPostCandidateInTalentPoolModel(restCandidate),
+        answers: answers?.map((answer) => fromPostAnswerModel(answer)),
+      },
+    },
+    shortCode,
+  }
 }

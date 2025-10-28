@@ -159,7 +159,7 @@ export const postExperienceEntrySchema = z.object({
   industry: z.string().optional(),
 })
 
-export const postCandidateSchema = z.object({
+export const postCandidateInTalentPoolSchema = z.object({
   firstname: z.string(),
   lastname: z.string(),
   email: z.string(),
@@ -170,24 +170,30 @@ export const postCandidateSchema = z.object({
   cover_letter: z.string().optional(),
   education_entries: z.array(postEducationEntrySchema),
   experience_entries: z.array(postExperienceEntrySchema),
-  skills: z.array(z.object({ name: z.string().title('Name') })).optional(),
-  answers: z.array(postAnswerSchema).optional(),
+  skills: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   disqualified: z.boolean().optional(),
   disqualification_reason: z.string().optional(),
   disqualified_at: z.string().optional(),
   social_profiles: z.array(postSocialProfileSchema),
   domain: z.string().optional(),
+  recruiter_key: z.string().optional(),
+})
+
+export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({
+  answers: z.array(postAnswerSchema).optional(),
 })
 
 export const postCandidateInTalentPoolInputSchema = z.object({
-  body: z.object({
-    sourced: z.boolean().optional(),
-    candidate: postCandidateSchema,
-  }),
+  sourced: z.boolean().optional(),
+  candidate: postCandidateInTalentPoolSchema,
 })
 
-export const postCandidateInJobInputSchema = postCandidateInTalentPoolInputSchema.extend({
+export const postCandidateInJobInputSchema = z.object({
+  body: z.object({
+    sourced: z.boolean().optional(),
+    candidate: postCandidateInJobSchema,
+  }),
   shortCode: z.string(),
 })
 
