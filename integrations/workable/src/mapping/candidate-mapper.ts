@@ -363,3 +363,16 @@ export function fromUpdateCandidateInputModel(
     },
   }
 }
+
+export function toUpdateCandidateOutputModel(
+  schema: z.infer<typeof workable.updateCandidateOutputSchema>
+): z.infer<typeof def.updateCandidateOutputSchema> {
+  const { candidate, ...rest } = schema
+
+  return {
+    ...rest,
+    candidate: {
+      ...toBaseDetailedCandidateModel(candidate),
+    },
+  }
+}

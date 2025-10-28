@@ -8,6 +8,8 @@ import {
   postCandidateInJobOutputSchema,
   postCandidateInTalentPoolInputSchema,
   postCandidateInTalentPoolOutputSchema,
+  updateCandidateInputSchema,
+  updateCandidateOutputSchema,
 } from 'definitions/models/candidates'
 
 export const listCandidates = {
@@ -51,5 +53,16 @@ export const createCandidateInTalentPool = {
   },
   output: {
     schema: postCandidateInTalentPoolOutputSchema,
+  },
+} satisfies ActionDefinition
+
+export const updateCandidate = {
+  title: 'Update candidate',
+  description: 'Update an existing candidate. Omitted fields will remain unchanged.',
+  input: {
+    schema: updateCandidateInputSchema,
+  },
+  output: {
+    schema: updateCandidateOutputSchema,
   },
 } satisfies ActionDefinition

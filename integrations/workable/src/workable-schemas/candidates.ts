@@ -252,3 +252,6 @@ export const updateCandidateInputSchema = z.object({
       .partial(),
   }),
 })
+export const updateCandidateOutputSchema = z.object({
+  candidate: detailedCandidateSchema,
+})
