@@ -3,14 +3,20 @@ import integrationDefinition from 'integration.definition'
 import * as bp from '.botpress'
 
 // safely initialize analytics instance
-let analytics: Analytics | undefined
-try {
-  if (!bp.secrets.SEGMENT_KEY) {
-    throw new Error('Missing Segment key')
+let analyticsInstance: Analytics | undefined
+const getOrCreateAnalytics = () => {
+  if (analyticsInstance === undefined) {
+    try {
+      if (!bp.secrets.SEGMENT_KEY) {
+        throw new Error('Missing Segment key')
+      }
+      analyticsInstance = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
+    } catch (thrown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      throw new Error(`Could not initialize Segment analytics instance. - ${errMsg}`)
+    }
   }
-  analytics = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
-} catch {
-  console.error('Could not initialize Segment analytics instance.')
+  return analyticsInstance
 }
 
 // Track event function
@@ -21,6 +27,7 @@ export const trackIntegrationEvent = async (
 ): Promise<void> => {
   await new Promise((resolve) => {
     try {
+      const analytics = getOrCreateAnalytics()
       if (analytics === undefined) {
         return
       }
@@ -54,6 +61,7 @@ export const trackIntegrationEvent = async (
 export const identifyBot = async (botId: string, traits: Record<string, any>): Promise<void> => {
   await new Promise((resolve) => {
     try {
+      const analytics = getOrCreateAnalytics()
       if (analytics === undefined) {
         return
       }
