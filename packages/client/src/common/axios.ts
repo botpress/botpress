@@ -1,4 +1,5 @@
 import * as axios from 'axios'
+import { setupCache } from 'axios-cache-interceptor/dev'
 import * as consts from './consts'
 import * as interceptors from './debug-interceptors'
 import * as types from './types'
@@ -21,6 +22,8 @@ export const createAxiosInstance = (config: types.ClientConfig): axios.AxiosInst
   if (config.debug) {
     interceptors.addDebugInterceptors(axiosInstance)
   }
+
+  setupCache(axiosInstance)
 
   return axiosInstance
 }
