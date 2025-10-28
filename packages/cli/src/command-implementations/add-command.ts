@@ -39,7 +39,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
-      return await this._addNewSinglePackage(ref)
+      return await this._addNewSinglePackage({ ...ref, alias: this.argv.alias })
     }
 
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
@@ -148,7 +148,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     return
   }
 
-  private async _addNewSinglePackage(ref: pkgRef.PackageRef) {
+  private async _addNewSinglePackage(ref: RefWithAlias) {
     await this._addSinglePackage(ref)
     const { packageName, targetPackage } = await this._findPackage(ref)
     await this._addDependencyToPackage(packageName, targetPackage)
