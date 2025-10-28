@@ -28,6 +28,10 @@ const dateAnswerSchema = z.object({
   date: z.string().title('Date').describe('The date in ISO 8601 format'),
 })
 
+const postNumericAnswerSchema = z.object({
+  value: z.number().title('Value').describe('The value may be an integer or a decimal number'),
+})
+
 const numericAnswerSchema = z.object({
   number: z.number().title('Number').describe('The value may be an integer or a decimal number'),
 })
@@ -46,7 +50,7 @@ export const postAnswerSchema = z.union([
   baseAnswerSchema.merge(multipleChoiceAnswerSchema),
   baseAnswerSchema.merge(dropdownAnswerSchema),
   baseAnswerSchema.merge(dateAnswerSchema),
-  baseAnswerSchema.merge(numericAnswerSchema),
+  baseAnswerSchema.merge(postNumericAnswerSchema),
   z.union([baseAnswerSchema.merge(fileAnswerUrlSchema), baseAnswerSchema.merge(fileAnswerBase64Schema)]),
 ])
 

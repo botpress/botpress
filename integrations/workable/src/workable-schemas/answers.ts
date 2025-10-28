@@ -32,6 +32,10 @@ const numericAnswerSchema = z.object({
   number: z.number(),
 })
 
+const postNumericAnswerSchema = z.object({
+  value: z.number(),
+})
+
 const fileAnswerUrlSchema = z.object({
   file_url: z.string(),
 })
@@ -45,7 +49,7 @@ export const postAnswerSchema = z.union([
   basePostAnswerSchema.merge(booleanAnswerSchema),
   basePostAnswerSchema.merge(postMultipleChoiceAnswerSchema),
   basePostAnswerSchema.merge(dateAnswerSchema),
-  basePostAnswerSchema.merge(numericAnswerSchema),
+  basePostAnswerSchema.merge(postNumericAnswerSchema),
   z.union([basePostAnswerSchema.merge(fileAnswerUrlSchema), basePostAnswerSchema.merge(fileAnswerBase64Schema)]),
 ])
 
