@@ -49,7 +49,7 @@ export const socialProfileTypesSchema = z.enum([
   'xing',
 ])
 
-export const candidateSchema = z
+export const baseCandidateSchema = z
   .object({
     id: z.string().title('Id').describe('The candidate identifier'),
     name: z.string().title('Name').describe("The candidate's full name"),
@@ -65,13 +65,6 @@ export const candidateSchema = z
       .partial()
       .nullable()
       .describe('The account details'),
-    job: z
-      .object({
-        shortCode: z.string().title('Shortcode').describe("The job's system generated code"),
-        title: z.string().title('Job Title').describe('The job title'),
-      })
-      .partial()
-      .describe('The job details'),
     stage: z.string().nullable().title('Stage').describe("The candidate's current stage slug"),
     stageKind: z.string().nullable().title('Stage').describe("The candidate's current stage kind"),
     disqualified: z.boolean().title('Disqualified').describe('Flag indicating whether the candidate is disqualified'),
@@ -89,6 +82,18 @@ export const candidateSchema = z
     hiredAt: z.string().nullable().title('Hired At').describe('The date the candidate was moved to the hired stage'),
     address: z.string().nullable().title('Address').describe("The candidate's address"),
     phone: z.string().nullable().title('Phone Number').describe("The candidate's phone number"),
+  })
+  .partial()
+
+export const candidateSchema = baseCandidateSchema
+  .extend({
+    job: z
+      .object({
+        shortCode: z.string().title('Shortcode').describe("The job's system generated code"),
+        title: z.string().title('Job Title').describe('The job title'),
+      })
+      .partial()
+      .describe('The job details'),
   })
   .partial()
 
@@ -161,59 +166,61 @@ export const locationSchema = z
   })
   .partial()
 
-export const detailedCandidateSchema = candidateSchema
-  .extend({
-    imageUrl: z
-      .string()
-      .nullable()
-      .title('Image Url')
-      .describe("Url of candidate's avatar. Available only if provided by the candidate"),
-    disqualifiedAt: z
-      .string()
-      .nullable()
-      .title('Disqualified At')
-      .describe('The timestamp the candidate was disqualified'),
-    outboundMailbox: z
-      .string()
-      .nullable()
-      .title('Outbound Mailbox')
-      .describe(
-        'Mailbox that can be used to communicate with the candidate and inform the recruitment team of the job as well'
-      ),
-    uploaderId: z.string().nullable().title('Uploader Id').describe('The ID of the member who uploaded the candidate'),
-    coverLetter: z
-      .string()
-      .nullable()
-      .title('Cover Letter')
-      .describe('The cover letter provided when the candidate applied'),
-    summary: z.string().nullable().title('Summary').describe('The summary of the candidate'),
-    educationEntries: z
-      .array(educationEntrySchema)
-      .title('Education Entries')
-      .describe('A collection with education entries'),
-    experienceEntries: z
-      .array(experienceEntrySchema)
-      .title('Experience Entries')
-      .describe('A collection with experience entries'),
-    skills: z
-      .array(z.object({ name: z.string().title('Name') }).partial())
-      .title('Skills')
-      .describe('A collection of skills with names'),
-    answers: z.array(answerSchema).title('Answers').describe('A collection with answers provided'),
-    resumeUrl: z.string().nullable().title('Resume Url').describe('Url to the candidate resume'),
-    socialProfiles: z
-      .array(socialProfileSchema)
-      .title('Social Profiles')
-      .describe('A collection with social profiles of candidates'),
-    tags: z.array(z.string()).title('Tags').describe('A collection of tags'),
-    location: locationSchema.title('Location').nullable().describe('The location of the candidate'),
-    originatingCandidateId: z
-      .string()
-      .nullable()
-      .title('Originating Candidate Id')
-      .describe('The ID this candidate originated from'),
-  })
-  .partial()
+const detailedCandidateSchemaExtraFields = {
+  imageUrl: z
+    .string()
+    .nullable()
+    .title('Image Url')
+    .describe("Url of candidate's avatar. Available only if provided by the candidate"),
+  disqualifiedAt: z
+    .string()
+    .nullable()
+    .title('Disqualified At')
+    .describe('The timestamp the candidate was disqualified'),
+  outboundMailbox: z
+    .string()
+    .nullable()
+    .title('Outbound Mailbox')
+    .describe(
+      'Mailbox that can be used to communicate with the candidate and inform the recruitment team of the job as well'
+    ),
+  uploaderId: z.string().nullable().title('Uploader Id').describe('The ID of the member who uploaded the candidate'),
+  coverLetter: z
+    .string()
+    .nullable()
+    .title('Cover Letter')
+    .describe('The cover letter provided when the candidate applied'),
+  summary: z.string().nullable().title('Summary').describe('The summary of the candidate'),
+  educationEntries: z
+    .array(educationEntrySchema)
+    .title('Education Entries')
+    .describe('A collection with education entries'),
+  experienceEntries: z
+    .array(experienceEntrySchema)
+    .title('Experience Entries')
+    .describe('A collection with experience entries'),
+  skills: z
+    .array(z.object({ name: z.string().title('Name') }).partial())
+    .title('Skills')
+    .describe('A collection of skills with names'),
+  answers: z.array(answerSchema).title('Answers').describe('A collection with answers provided'),
+  resumeUrl: z.string().nullable().title('Resume Url').describe('Url to the candidate resume'),
+  socialProfiles: z
+    .array(socialProfileSchema)
+    .title('Social Profiles')
+    .describe('A collection with social profiles of candidates'),
+  tags: z.array(z.string()).title('Tags').describe('A collection of tags'),
+  location: locationSchema.title('Location').nullable().describe('The location of the candidate'),
+  originatingCandidateId: z
+    .string()
+    .nullable()
+    .title('Originating Candidate Id')
+    .describe('The ID this candidate originated from'),
+}
+
+export const baseDetailedCandidateSchema = baseCandidateSchema.extend(detailedCandidateSchemaExtraFields).partial()
+
+export const detailedCandidateSchema = candidateSchema.extend(detailedCandidateSchemaExtraFields).partial()
 
 export const getCandidateOutputSchema = z
   .object({
@@ -302,9 +309,24 @@ export const postCandidateSchema = z.object({
   domain: z.string().optional().title('Domain').describe('Where the candidate came from'),
 })
 
-export const postCandidateOutputSchema = z.object({
+export const postCandidateInJobOutputSchema = z.object({
   status: z.string().title('Status').describe('The status of the candidate'),
   candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
+})
+
+export const postCandidateInTalentPoolOutputSchema = z.object({
+  status: z.string().title('Status').describe('The status of the candidate'),
+  candidate: baseDetailedCandidateSchema
+    .extend({
+      talentPool: z
+        .object({
+          talentPoolId: z.number().title('Talent Pool ID').describe('The ID of the candidate in the talent pool'),
+        })
+        .title('Talent Pool')
+        .describe('The talent pool fields'),
+    })
+    .title('Candidate')
+    .describe('The candidate found'),
 })
 
 export const postCandidateInTalentPoolInputSchema = z.object({

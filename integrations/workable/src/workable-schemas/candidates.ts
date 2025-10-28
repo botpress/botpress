@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 import { socialProfileTypesSchema } from 'definitions/models/candidates'
 import { answerSchema, postAnswerSchema } from './answers'
 
-export const candidateSchema = z
+export const baseCandidateSchema = z
   .object({
     id: z.string(),
     name: z.string(),
@@ -13,12 +13,6 @@ export const candidateSchema = z
       .object({
         subdomain: z.string().nullable(),
         name: z.string().nullable(),
-      })
-      .partial(),
-    job: z
-      .object({
-        shortcode: z.string(),
-        title: z.string(),
       })
       .partial(),
     stage: z.string().nullable(),
@@ -37,6 +31,15 @@ export const candidateSchema = z
     phone: z.string().nullable(),
   })
   .partial()
+
+export const candidateSchema = baseCandidateSchema.extend({
+  job: z
+    .object({
+      shortcode: z.string(),
+      title: z.string(),
+    })
+    .partial(),
+})
 
 export const listCandidatesOutputSchema = z.object({
   candidates: z.array(candidateSchema),
@@ -100,25 +103,27 @@ export const locationSchema = z
   })
   .partial()
 
-export const detailedCandidateSchema = candidateSchema
-  .extend({
-    image_url: z.string().nullable(),
-    disqualified_at: z.string().nullable(),
-    outbound_mailbox: z.string().nullable(),
-    uploader_id: z.string().nullable(),
-    cover_letter: z.string().nullable(),
-    summary: z.string().nullable(),
-    education_entries: z.array(educationEntrySchema),
-    experience_entries: z.array(experienceEntrySchema),
-    skills: z.array(z.object({ name: z.string() }).partial()),
-    answers: z.array(answerSchema),
-    resume_url: z.string().nullable(),
-    social_profiles: z.array(socialProfileSchema),
-    tags: z.array(z.string()),
-    location: locationSchema.nullable(),
-    originating_candidate_id: z.string().nullable(),
-  })
-  .partial()
+const detailedCandidateSchemaExtraFields = {
+  image_url: z.string().nullable(),
+  disqualified_at: z.string().nullable(),
+  outbound_mailbox: z.string().nullable(),
+  uploader_id: z.string().nullable(),
+  cover_letter: z.string().nullable(),
+  summary: z.string().nullable(),
+  education_entries: z.array(educationEntrySchema),
+  experience_entries: z.array(experienceEntrySchema),
+  skills: z.array(z.object({ name: z.string() }).partial()),
+  answers: z.array(answerSchema),
+  resume_url: z.string().nullable(),
+  social_profiles: z.array(socialProfileSchema),
+  tags: z.array(z.string()),
+  location: locationSchema.nullable(),
+  originating_candidate_id: z.string().nullable(),
+}
+
+export const baseDetailedCandidateSchema = baseCandidateSchema.extend(detailedCandidateSchemaExtraFields).partial()
+
+export const detailedCandidateSchema = candidateSchema.extend(detailedCandidateSchemaExtraFields).partial()
 
 export const getCandidateOutputSchema = z
   .object({
@@ -186,7 +191,16 @@ export const postCandidateInJobInputSchema = postCandidateInTalentPoolInputSchem
   shortCode: z.string(),
 })
 
-export const postCandidateOutputSchema = z.object({
+export const postCandidateInTalentPoolOutputSchema = z.object({
+  status: z.string(),
+  candidate: baseDetailedCandidateSchema.extend({
+    talent_pool: z.object({
+      talent_pool_id: z.number(),
+    }),
+  }),
+})
+
+export const postCandidateInJobOutputSchema = z.object({
   status: z.string(),
   candidate: detailedCandidateSchema,
 })

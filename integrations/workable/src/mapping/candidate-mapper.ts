@@ -67,13 +67,12 @@ export function fromGetCandidateInputModel(
   return model
 }
 
-export function toDetailedCandidateModel(
-  schema: z.infer<typeof workable.detailedCandidateSchema>
-): z.infer<typeof def.detailedCandidateSchema> {
+export function toBaseDetailedCandidateModel(
+  schema: z.infer<typeof workable.baseDetailedCandidateSchema>
+): z.infer<typeof def.baseDetailedCandidateSchema> {
   const {
     firstname,
     lastname,
-    job,
     stage_kind,
     disqualification_reason,
     profile_url,
@@ -99,10 +98,6 @@ export function toDetailedCandidateModel(
     ...rest,
     firstName: firstname,
     lastName: lastname,
-    job: {
-      title: job?.title,
-      shortCode: job?.shortcode,
-    },
     stageKind: stage_kind,
     disqualificationReason: disqualification_reason,
     profileUrl: profile_url,
@@ -121,6 +116,20 @@ export function toDetailedCandidateModel(
     location: location === null || location === undefined ? undefined : toLocationModel(location),
     originatingCandidateId: originating_candidate_id,
     answers: answers?.map((answer) => toAnswerModel(answer)),
+  }
+}
+
+export function toDetailedCandidateModel(
+  schema: z.infer<typeof workable.detailedCandidateSchema>
+): z.infer<typeof def.detailedCandidateSchema> {
+  const { job, ...rest } = schema
+
+  return {
+    ...toBaseDetailedCandidateModel(rest),
+    job: {
+      title: job?.title,
+      shortCode: job?.shortcode,
+    },
   }
 }
 
@@ -217,13 +226,30 @@ export function fromPostExperienceEntryModel(
   }
 }
 
-export function toPostCandidateOutputModel(
-  schema: z.infer<typeof workable.postCandidateOutputSchema>
-): z.infer<typeof def.postCandidateOutputSchema> {
+export function toPostCandidateInJobOutputModel(
+  schema: z.infer<typeof workable.postCandidateInJobOutputSchema>
+): z.infer<typeof def.postCandidateInJobOutputSchema> {
   const { candidate, ...rest } = schema
 
   return {
     candidate: toDetailedCandidateModel(candidate),
+    ...rest,
+  }
+}
+
+export function toPostCandidateInTalentPoolOutputModel(
+  schema: z.infer<typeof workable.postCandidateInTalentPoolOutputSchema>
+): z.infer<typeof def.postCandidateInTalentPoolOutputSchema> {
+  const { candidate, ...rest } = schema
+  const { talent_pool, ...candidateRest } = candidate
+
+  return {
+    candidate: {
+      ...toBaseDetailedCandidateModel(candidateRest),
+      talentPool: {
+        talentPoolId: talent_pool.talent_pool_id,
+      },
+    },
     ...rest,
   }
 }

@@ -8,7 +8,8 @@ import {
   fromPostCandidateInTalentPoolInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
-  toPostCandidateOutputModel,
+  toPostCandidateInJobOutputModel,
+  toPostCandidateInTalentPoolOutputModel,
 } from './mapping/candidate-mapper'
 import { WorkableClient } from './workable-api/client'
 import * as bp from '.botpress'
@@ -130,7 +131,7 @@ export default new bp.Integration({
 
       try {
         const raw = await client.postCandidateInJob(fromPostCandidateInJobInputModel(props.input))
-        return toPostCandidateOutputModel(raw)
+        return toPostCandidateInJobOutputModel(raw)
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to create candidate: ${msg}`)
@@ -141,7 +142,7 @@ export default new bp.Integration({
 
       try {
         const raw = await client.postCandidateInTalentPool(fromPostCandidateInTalentPoolInputModel(props.input))
-        return toPostCandidateOutputModel(raw)
+        return toPostCandidateInTalentPoolOutputModel(raw)
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to create candidate: ${msg}`)
