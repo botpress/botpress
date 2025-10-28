@@ -50,7 +50,8 @@ export const postAnswerSchema = z.union([
   basePostAnswerSchema.merge(postMultipleChoiceAnswerSchema),
   basePostAnswerSchema.merge(dateAnswerSchema),
   basePostAnswerSchema.merge(postNumericAnswerSchema),
-  z.union([basePostAnswerSchema.merge(fileAnswerUrlSchema), basePostAnswerSchema.merge(fileAnswerBase64Schema)]),
+  basePostAnswerSchema.merge(fileAnswerUrlSchema),
+  basePostAnswerSchema.merge(fileAnswerBase64Schema),
 ])
 
 export const answerSchema = z.object({
@@ -65,7 +66,8 @@ export const answerSchema = z.object({
       multipleChoiceAnswerSchema,
       dateAnswerSchema,
       numericAnswerSchema,
-      z.union([fileAnswerUrlSchema, fileAnswerBase64Schema]),
+      fileAnswerUrlSchema,
+      fileAnswerBase64Schema,
     ])
     .nullable(),
 })

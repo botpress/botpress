@@ -322,7 +322,7 @@ export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({
 
 export const postCandidateInJobOutputSchema = z.object({
   status: z.string().title('Status').describe('The status of the candidate'),
-  candidate: detailedCandidateSchema.title('Candidate').describe('The candidate found'),
+  candidate: detailedCandidateSchema.title('Candidate').describe('The candidate created'),
 })
 
 export const postCandidateInTalentPoolOutputSchema = z.object({
@@ -337,7 +337,7 @@ export const postCandidateInTalentPoolOutputSchema = z.object({
         .describe('The talent pool fields'),
     })
     .title('Candidate')
-    .describe('The candidate found'),
+    .describe('The candidate created'),
 })
 
 export const postCandidateInTalentPoolInputSchema = z.object({
