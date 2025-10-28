@@ -284,23 +284,66 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return regex.test(tsContent)
   }
 
-  protected displayWebhookUrls(bot: client.Bot) {
+  // TODO: Rename
+  // TODO: Handle sandbox
+  protected async displayWebhookUrls(api: apiUtils.ApiClient, bot: client.Bot) {
     if (!_.keys(bot.integrations).length) {
       this.logger.debug('No integrations in bot')
       return
     }
 
+    const linkTemplateScripts: Record<string, string> = {}
+    for (const integration of _.values(bot.integrations)) {
+      const integrationDef = await api.getPublicOrPrivateIntegration({
+        // TODO: See if this is the right way to get integration definition
+        type: 'id',
+        id: integration.id,
+      })
+      const config =
+        integration.configurationType === null
+          ? integrationDef.configuration
+          : integrationDef.configurations[integration.configurationType]
+      const linkTemplateScript = config?.identifier?.linkTemplateScript
+      if (linkTemplateScript) {
+        linkTemplateScripts[integration.id] = linkTemplateScript
+      }
+    }
+
     this.logger.log('Integrations:')
     for (const integration of Object.values(bot.integrations).filter(utils.guards.is.defined)) {
+      this.logger.log(`${integration.name}:`, { prefix: { symbol: '→', indent: 2 } })
       if (!integration.enabled) {
-        this.logger.log(`${chalk.grey(integration.name)} ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
-          prefix: { symbol: '○', indent: 2 },
+        this.logger.log(`Webhook ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
+          prefix: { symbol: '○', indent: 4 },
         })
       } else {
-        this.logger.log(`${chalk.bold(integration.name)} : ${integration.webhookUrl}`, {
-          prefix: { symbol: '●', indent: 2 },
+        this.logger.log(`${chalk.bold('Webhook')}: ${integration.webhookUrl}`, {
+          prefix: { symbol: '●', indent: 4 },
         })
       }
+
+      const linkTemplateScript = linkTemplateScripts[integration.id]
+      if (linkTemplateScript) {
+        const authorizationLink = await utils.vrl.getStringResult({
+          code: linkTemplateScript,
+          data: {
+            webhookId: integration.webhookId,
+            webhookUrl: integration.webhookUrl, // TODO: Pass additional data
+          },
+        })
+
+        if (integration.identifier) {
+          this.logger.log(`${chalk.bold('Authorization')} : ${authorizationLink}`, {
+            prefix: { symbol: '●', indent: 4 },
+          })
+        } else {
+          this.logger.log(`Authorization: ${authorizationLink}`, {
+            prefix: { symbol: '○', indent: 4 },
+          })
+        }
+      }
+
+      this.logger.line().commit()
     }
   }
 

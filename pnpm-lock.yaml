@@ -2224,6 +2224,9 @@ importers:
       '@bpinternal/tunnel':
         specifier: ^0.1.1
         version: 0.1.1
+      '@bpinternal/verel':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
@@ -3683,6 +3686,10 @@ packages:
 
   '@bpinternal/tunnel@0.1.1':
     resolution: {integrity: sha512-B1ryt5n3/PSMFuoOkW4h2zHNF9rcsOB5nDBcCPQtmO2Mrz7c6kAtMBHBMhBe8DWIvqeasZYhDgxYwDh8wivFsw==}
+
+  '@bpinternal/verel@0.2.0':
+    resolution: {integrity: sha512-Qwr/NAdDzAsUqG4/ywir2lCUG/GzCWFCfm2BYtYdA2QiEtUXTnh2jnlrXDFonfA8Qzno3xeQqAHA6CsfPSAxgg==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/yargs-extra@0.0.14':
     resolution: {integrity: sha512-CoxnHOLeE/fnoojsU610WmI9ice2m2LSSw1sk8fG396WKWRYwcRoj4yVVu9I1/zi0wWvdBau9Rj6y4DzBOJOhw==}
@@ -12648,6 +12655,10 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@bpinternal/verel@0.2.0':
+    dependencies:
+      browser-or-node: 2.1.1
 
   '@bpinternal/yargs-extra@0.0.14':
     dependencies:
