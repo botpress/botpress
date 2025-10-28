@@ -1,6 +1,0 @@
-body = parse_json!(.body)
-if body.object == "page"  {
-    body.entry[0].id
-} else {
-    null
-}
