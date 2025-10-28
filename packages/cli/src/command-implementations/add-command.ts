@@ -145,7 +145,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await this._install(installPath, files)
-    return
   }
 
   private async _addNewSinglePackage(ref: pkgRef.PackageRef) {
