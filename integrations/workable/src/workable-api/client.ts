@@ -99,7 +99,6 @@ export class WorkableClient {
   public async postCandidateInTalentPool(
     params: z.infer<typeof postCandidateInTalentPoolInputSchema>
   ): Promise<z.infer<typeof postCandidateInTalentPoolOutputSchema>> {
-    console.log(JSON.stringify(params, null, 2))
     const response: AxiosResponse<z.infer<typeof postCandidateInTalentPoolOutputSchema>> = await this._client
       .post('/talent_pool/candidates', params)
       .catch(this._handleAxiosError)
