@@ -39,7 +39,7 @@ export type PluginInterfaceExtensions<TPlugin extends BasePlugin = BasePlugin> =
 export type PluginConfiguration<TPlugin extends BasePlugin> = TPlugin['configuration']
 
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
-  alias?: string
+  alias: string
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
 }

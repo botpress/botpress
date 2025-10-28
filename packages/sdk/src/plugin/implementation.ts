@@ -49,7 +49,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   events: EventProxy<TPlugin>
   states: StateProxy<TPlugin>
   workflows: WorkflowProxy<TPlugin>
-  alias?: string
+  alias: string
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
