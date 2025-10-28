@@ -307,6 +307,13 @@ export const postCandidateInTalentPoolSchema = z.object({
     .optional()
     .title('Recruiter Key')
     .describe('The key corresponding to the recruiter who sourced the candidate'),
+  resumeUrl: z.string().optional().title('Resume Url').describe('Url to the candidate resume'),
+  resume: z
+    .object({
+      name: z.string().title('Name').describe('The name of the file'),
+      data: z.string().title('Data').describe('The base64 encoded data'),
+    })
+    .optional(),
 })
 
 export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({

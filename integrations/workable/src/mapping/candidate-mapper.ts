@@ -266,6 +266,8 @@ export function fromPostCandidateInTalentPoolModel(
     coverLetter,
     disqualificationReason,
     disqualifiedAt,
+    recruiterKey,
+    resumeUrl,
     ...rest
   } = schema
 
@@ -281,6 +283,8 @@ export function fromPostCandidateInTalentPoolModel(
     cover_letter: coverLetter,
     disqualification_reason: disqualificationReason,
     disqualified_at: disqualifiedAt,
+    recruiter_key: recruiterKey,
+    resume_url: resumeUrl,
   }
 }
 

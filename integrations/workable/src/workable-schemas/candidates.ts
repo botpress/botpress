@@ -178,6 +178,13 @@ export const postCandidateInTalentPoolSchema = z.object({
   social_profiles: z.array(postSocialProfileSchema),
   domain: z.string().optional(),
   recruiter_key: z.string().optional(),
+  resume_url: z.string().optional(),
+  resume: z
+    .object({
+      name: z.string(),
+      data: z.string(),
+    })
+    .optional(),
 })
 
 export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({
