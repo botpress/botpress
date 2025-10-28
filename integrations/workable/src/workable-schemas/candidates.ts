@@ -230,17 +230,17 @@ export const updateCandidateInputSchema = z.object({
           name: z.string(),
           data: z.string(),
           source: imageSource,
-          education_entries: z.array(
-            educationEntrySchema.extend({
-              id: z.string().optional(),
-            })
-          ),
-          experience_entries: z.array(
-            experienceEntrySchema.extend({
-              id: z.string().optional(),
-            })
-          ),
         }),
+        education_entries: z.array(
+          educationEntrySchema.extend({
+            id: z.string().optional(),
+          })
+        ),
+        experience_entries: z.array(
+          experienceEntrySchema.extend({
+            id: z.string().optional(),
+          })
+        ),
       })
       .omit({
         disqualified: true,

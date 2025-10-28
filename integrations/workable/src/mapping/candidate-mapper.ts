@@ -323,3 +323,43 @@ export function fromPostCandidateInJobInputModel(
     shortCode,
   }
 }
+
+export function fromUpdateCandidateInputModel(
+  schema: z.infer<typeof def.updateCandidateInputSchema>
+): z.infer<typeof workable.updateCandidateInputSchema> {
+  const { candidate, ...rest } = schema
+  const {
+    textingConsent,
+    imageUrl,
+    imageSource,
+    educationEntries,
+    experienceEntries,
+    firstName,
+    lastName,
+    socialProfiles,
+    coverLetter,
+    resumeUrl,
+    ...restCandidate
+  } = candidate
+
+  return {
+    ...rest,
+    body: {
+      candidate: {
+        ...restCandidate,
+        image_source: imageSource,
+        image_url: imageUrl,
+        texting_consent: textingConsent,
+        firstname: firstName,
+        lastname: lastName,
+        education_entries:
+          educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
+        experience_entries:
+          experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
+        social_profiles: socialProfiles === undefined ? [] : socialProfiles,
+        cover_letter: coverLetter,
+        resume_url: resumeUrl,
+      },
+    },
+  }
+}
