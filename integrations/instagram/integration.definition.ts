@@ -18,7 +18,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.0.0',
+  version: '4.1.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -96,6 +96,14 @@ export default new IntegrationDefinition({
           id: {
             title: 'Message ID',
             description: 'The Instagram message ID',
+          },
+          senderId: {
+            title: 'Sender ID',
+            description: 'The Instagram user ID of the message sender',
+          },
+          recipientId: {
+            title: 'Recipient ID',
+            description: 'The Instagram user ID of the message recipient',
           },
           commentId: {
             title: 'Comment ID',
