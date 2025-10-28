@@ -41,7 +41,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (ref) {
       return await this._addNewSinglePackage({ ...ref, alias: this.argv.alias })
     }
-
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
@@ -109,8 +108,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       this.logger.warn(`Package with name "${packageName}" already installed.`)
       const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
-        this.logger.log('Aborted')
-        return
+        throw new errors.AbortedOperationError()
       }
 
       await this._uninstall(installPath)
@@ -160,7 +158,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       const strRef = pkgRef.formatPackageRef(ref)
       throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
     }
-    const packageName = ref.alias ?? targetPackage.pkg.name
+    const packageName = ref.alias && ref.alias !== '' ? ref.alias : targetPackage.pkg.name
 
     return { packageName, targetPackage }
   }

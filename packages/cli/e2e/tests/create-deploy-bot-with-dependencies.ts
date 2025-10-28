@@ -229,7 +229,7 @@ const _installAndBuild = async ({
   const prevDir = process.cwd()
   process.chdir(workDir)
   await impl
-    .add({ ...argv, installPath: workDir, packageRef: undefined, packageType: undefined, useDev: false })
+    .add({ ...argv, installPath: workDir, packageRef: undefined, packageType: undefined, useDev: false, alias: '' })
     .then(utils.handleExitCode)
   process.chdir(prevDir)
 
