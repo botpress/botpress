@@ -473,7 +473,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
 
     line.success('Bot deployed')
-    this.displayWebhookUrls(api, updatedBot)
+    await this.displayIntegrationUrls({ api, bot: updatedBot })
   }
 
   private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {
