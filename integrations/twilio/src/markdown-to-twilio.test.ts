@@ -53,11 +53,15 @@ const stripAllTests: Test = {
   },
   Ordered_sub_sub_list: {
     input: '1. root\n\t1. sub-one\n\t\t1. sub-two\n',
-    expected: `- first\n- second\n${FIXED_SIZE_SPACE_CHAR}- sub-first\n${FIXED_SIZE_SPACE_CHAR.repeat(2)}- sub-second\n- third\n`,
+    expected: `1. root\n${FIXED_SIZE_SPACE_CHAR}1. sub-one\n${FIXED_SIZE_SPACE_CHAR.repeat(2)}1. sub-two\n`,
   },
   Mixed_sub_lists: {
     input: '- unordered\n\t1. ordered\n\t\t- [ ] task',
     expected: `- unordered\n${FIXED_SIZE_SPACE_CHAR}1. ordered\n${FIXED_SIZE_SPACE_CHAR.repeat(2)}☐ task\n`,
+  },
+  Complicated_lists: {
+    input: '- unordered\n\t1. ordered\n- unordered\n\t1. ordered\n\t\t- [ ] task\n- unordered\n',
+    expected: `- unordered\n${FIXED_SIZE_SPACE_CHAR}1. ordered\n- unordered\n${FIXED_SIZE_SPACE_CHAR}1. ordered\n${FIXED_SIZE_SPACE_CHAR.repeat(2)}☐ task\n- unordered\n`,
   },
   Emphasize_in_table: {
     input: '| 1 | 2 |\n| - | - |\n| a | _b_ |',
@@ -84,11 +88,11 @@ const messengerTests: Test = {
   Strong_emphasis: { input: '**_strong-emphasis_**', expected: '*_strong-emphasis_*\n' },
   Strong_delete: { input: '**~strong-delete~**', expected: '*~strong-delete~*\n' },
   Emphasis_delete: { input: '_~emphasis-delete~_', expected: '_~emphasis-delete~_\n' },
-  Strong_emphasis_delete: { input: '**_~strong-emphasis-delete~_**', expected: '*_~strong-emphasis-delete*_~\n' },
+  Strong_emphasis_delete: { input: '**_~strong-emphasis-delete~_**', expected: '*_~strong-emphasis-delete~_*\n' },
   Delete: { input: '~~strikethrough~~', expected: '~strikethrough~\n' },
   Strong_in_list: {
     input: '- first\n- **strong_second**',
-    expected: '- first\n- *strong_second*',
+    expected: '- first\n- *strong_second*\n',
   },
   Emphasize_in_table: {
     input: '| 1 | 2 |\n| - | - |\n| a | _b_ |',
@@ -101,11 +105,6 @@ const whatsappTests: Test = {
   Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '```{\n\ta: null\n}```\n' },
 }
 
-// test('1', () => {
-//   const actual = parseMarkdown(stripAllTests.Unordered_sub_list.input, 'sms/mms')
-//   expect(actual).toBe(stripAllTests.Unordered_sub_list.expected)
-// })
-
 test.each(Object.entries(stripAllTests))(
   '[SMS, MMS] Test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
@@ -114,29 +113,29 @@ test.each(Object.entries(stripAllTests))(
   }
 )
 
-// test.each(Object.entries(stripAllTests))(
-//   '[RCS] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actualRcs = parseMarkdown(testValues.input, 'rcs')
-//     expect(actualRcs).toBe(testValues.expected)
-//   }
-// )
-//
-// test.each(Object.entries(messengerTests))(
-//   '[Messenger] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actual = parseMarkdown(testValues.input, 'messenger')
-//     expect(actual).toBe(testValues.expected)
-//   }
-// )
-//
-// test.each(Object.entries(whatsappTests))(
-//   '[WhatsApp] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actual = parseMarkdown(testValues.input, 'whatsapp')
-//     expect(actual).toBe(testValues.expected)
-//   }
-// )
+test.each(Object.entries(stripAllTests))(
+  '[RCS] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actualRcs = parseMarkdown(testValues.input, 'rcs')
+    expect(actualRcs).toBe(testValues.expected)
+  }
+)
+
+test.each(Object.entries(messengerTests))(
+  '[Messenger] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actual = parseMarkdown(testValues.input, 'messenger')
+    expect(actual).toBe(testValues.expected)
+  }
+)
+
+test.each(Object.entries(whatsappTests))(
+  '[WhatsApp] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actual = parseMarkdown(testValues.input, 'whatsapp')
+    expect(actual).toBe(testValues.expected)
+  }
+)
 
 const bigInput = `# H1
 ## H2
@@ -285,22 +284,22 @@ emoji direct 😂
 [1] the footnote
 `
 
-// test('[SMS, MMS] Multi-line multi markup test', () => {
-//   const actual = parseMarkdown(bigInput, 'sms/mms')
-//   expect(actual).toBe(expectedForBigInputSMS)
-// })
-//
-// test('[RCS] Multi-line multi markup test', () => {
-//   const actualRcs = parseMarkdown(bigInput, 'rcs')
-//   expect(actualRcs).toBe(expectedForBigInputRCS)
-// })
-//
-// test('[Messenger] Multi-line multi markup test', () => {
-//   const actual = parseMarkdown(bigInput, 'messenger')
-//   expect(actual).toBe(expectedForBigInputMessenger)
-// })
-//
-// test('[WhatsApp] Multi-line multi markup test', () => {
-//   const actual = parseMarkdown(bigInput, 'whatsapp')
-//   expect(actual).toBe(expectedForBigInputWhatsApp)
-// })
+test('[SMS, MMS] Multi-line multi markup test', () => {
+  const actual = parseMarkdown(bigInput, 'sms/mms')
+  expect(actual).toBe(expectedForBigInputSMS)
+})
+
+test('[RCS] Multi-line multi markup test', () => {
+  const actualRcs = parseMarkdown(bigInput, 'rcs')
+  expect(actualRcs).toBe(expectedForBigInputRCS)
+})
+
+test('[Messenger] Multi-line multi markup test', () => {
+  const actual = parseMarkdown(bigInput, 'messenger')
+  expect(actual).toBe(expectedForBigInputMessenger)
+})
+
+test('[WhatsApp] Multi-line multi markup test', () => {
+  const actual = parseMarkdown(bigInput, 'whatsapp')
+  expect(actual).toBe(expectedForBigInputWhatsApp)
+})
