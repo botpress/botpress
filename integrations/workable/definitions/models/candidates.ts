@@ -411,30 +411,30 @@ export const updateCandidateInputSchema = z.object({
         .describe('The source of the image (if not provided by the candidate)'),
       image: z.object({
         name: z.string().title('Name').describe("The candidate's image name"),
-        data: z.string().title('data').describe("The candidate's image encodede in base64"),
+        data: z.string().title('Data').describe("The candidate's image encodede in base64"),
         source: imageSource.title('Image Source').describe('The image source'),
-        educationEntries: z.array(
-          educationEntrySchema.extend({
-            id: z
-              .string()
-              .optional()
-              .title('ID')
-              .describe('The education ID. If provided, updates the existing entry. If not, creates a new one.'),
-          })
-        ),
-        experienceEntries: z.array(
-          experienceEntrySchema.extend({
-            id: z
-              .string()
-              .optional()
-              .title('ID')
-              .describe('The experience ID. If provided, updates the existing entry. If not, creates a new one.'),
-          })
-        ),
-        socialProfiles: postCandidateInTalentPoolSchema.shape.socialProfiles.describe(
-          'Existing profiles will be deleted if not included in the new array.'
-        ),
       }),
+      educationEntries: z.array(
+        educationEntrySchema.extend({
+          id: z
+            .string()
+            .optional()
+            .title('ID')
+            .describe('The education ID. If provided, updates the existing entry. If not, creates a new one.'),
+        })
+      ),
+      experienceEntries: z.array(
+        experienceEntrySchema.extend({
+          id: z
+            .string()
+            .optional()
+            .title('ID')
+            .describe('The experience ID. If provided, updates the existing entry. If not, creates a new one.'),
+        })
+      ),
+      socialProfiles: postCandidateInTalentPoolSchema.shape.socialProfiles.describe(
+        'Existing profiles will be deleted if not included in the new array.'
+      ),
     })
     .omit({
       disqualified: true,
