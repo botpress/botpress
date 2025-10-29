@@ -304,7 +304,13 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     this.logger.log('Integrations:')
     for (const integration of Object.values(bot.integrations)) {
-      this.logger.log(`${integration.name}:`, { prefix: { symbol: '→', indent: 2 } })
+      if (integration.enabled) {
+        this.logger.log(`${integration.name}:`, { prefix: { symbol: '→', indent: 2 } })
+      } else {
+        this.logger.log(`${integration.name} ${chalk.italic('(disabled)')}:`, {
+          prefix: { symbol: '→', indent: 2 },
+        })
+      }
 
       const integrationDefinition = integrationDefinitions[integration.id]
       const linkTemplateScript = integrationDefinition
@@ -361,7 +367,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         prefix: { symbol: '●', indent: 4 },
       })
     } else {
-      logFn(`Webhook ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
+      logFn(`Webhook: ${integration.webhookUrl}`, {
         prefix: { symbol: '○', indent: 4 },
       })
     }
@@ -379,13 +385,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const authorizationLink = this._getAuthorizationLink({ integration, api, linkTemplateScript })
     const isAuthorized = !!integration.identifier
     const authorizationStatus = integration.identifier ? 'Authorized ✓' : 'Authorize'
-    const disabledStatus = integration.enabled ? '' : chalk.italic(' (disabled)')
     if (integration.enabled && isAuthorized) {
       this.logger.log(`${chalk.bold(authorizationStatus)} : ${authorizationLink}`, {
         prefix: { symbol: '●', indent: 4 },
       })
     } else {
-      this.logger.log(`${authorizationStatus}${disabledStatus}: ${authorizationLink}`, {
+      this.logger.log(`${authorizationStatus}: ${authorizationLink}`, {
         prefix: { symbol: '○', indent: 4 },
       })
     }
@@ -459,7 +464,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         prefix: { symbol: '●', indent: 4 },
       })
     } else {
-      this.logger.log(`Sandbox ${chalk.italic('(disabled)')}: ${sandboxInstruction}`, {
+      this.logger.log(`Sandbox: ${sandboxInstruction}`, {
         prefix: { symbol: '○', indent: 4 },
       })
     }
