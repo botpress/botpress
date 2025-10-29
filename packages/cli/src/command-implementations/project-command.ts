@@ -293,11 +293,13 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const integrationDefinitions = await utils.records.mapValuesAsync(bot.integrations, async (integration) =>
-      api.getPublicOrPrivateIntegration({
-        type: 'id',
-        id: integration.id,
-      })
+    const integrationDefinitions = await utils.records.mapValuesAsync(
+      _.keyBy(bot.integrations, 'id'),
+      async (integration) =>
+        api.getPublicOrPrivateIntegration({
+          type: 'id',
+          id: integration.id,
+        })
     )
 
     this.logger.log('Integrations:')
