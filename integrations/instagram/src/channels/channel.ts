@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getCredentials, InstagramClient } from 'src/misc/client'
-import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from 'src/misc/utils'
 import { InstagramRecipientId } from 'src/misc/types'
+import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from 'src/misc/utils'
 import * as bp from '.botpress'
 
 export const channel: bp.IntegrationProps['channels']['channel'] = {

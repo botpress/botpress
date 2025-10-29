@@ -9,9 +9,8 @@ export const getOrCreateConversationDm: bp.IntegrationProps['actions']['getOrCre
   }
 
   const { id: userId, commentId } = input.conversation
-
   if (commentId) {
-    let { conversation } = await client.getOrCreateConversation({
+    const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: { id: userId, commentId },
       discriminateByTags: ['id'],
@@ -22,6 +21,6 @@ export const getOrCreateConversationDm: bp.IntegrationProps['actions']['getOrCre
   const credentials = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, credentials)
   const profile = await metaClient.getUserProfile(input.conversation.id)
-  let { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
+  const { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
   return { conversationId: conversation.id }
 }
