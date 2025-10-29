@@ -1,108 +1,115 @@
 import {
   Blockquote,
+  Code,
   Delete,
   Emphasis,
   FootnoteDefinition,
+  FootnoteReference,
   Heading,
+  Image,
+  InlineCode,
+  Link,
   List,
   ListItem,
   Paragraph,
   Root,
+  RootContent,
   Strong,
   Table,
   TableCell,
+  Text,
 } from 'mdast'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { TwilioChannel } from './types'
 
-const _stripAllMarkdown = (markdown: string): string => {
-  const tree = remark().use(remarkGfm).parse(markdown)
-  console.log('tree:', tree, '\n=====================')
-  const ans = _visitTree(tree)
-  return ans
+type NodeHandler = (node: RootContent, visit: (node: RootNodes) => string, parentType?: string) => string
+
+type MarkdownHandlers = {
+  blockquote?: NodeHandler
+  break?: NodeHandler
+  code?: NodeHandler
+  delete?: NodeHandler
+  emphasis?: NodeHandler
+  footnoteDefinition?: NodeHandler
+  footnoteReference?: NodeHandler
+  heading?: NodeHandler
+  image?: NodeHandler
+  inlineCode?: NodeHandler
+  link?: NodeHandler
+  list?: NodeHandler
+  paragraph?: NodeHandler
+  strong?: NodeHandler
+  table?: NodeHandler
+  text?: NodeHandler
+  thematicBreak?: NodeHandler
+  // ...and so on for other types you want to customize
+}
+
+const stripAllHandlers: MarkdownHandlers = {
+  blockquote: (node, visit) => `Quote: “${visit(node as Blockquote)}”\n`,
+  break: (_node, _visit) => '\n',
+  code: (node, _visit) => `${(node as Code).value}\n`,
+  delete: (node, visit) => `${visit(node as Delete)}`,
+  emphasis: (node, visit) => visit(node as Emphasis),
+  footnoteDefinition: (node, visit) =>
+    `[${(node as FootnoteDefinition).identifier}] ${visit(node as FootnoteDefinition)}\n`, // not implemented
+  footnoteReference: (node, _visit) => `[${(node as FootnoteReference).identifier}]`,
+  heading: (node, visit) => `${visit(node as Heading)}\n`,
+  image: (node, _visit) => (node as Image).url,
+  inlineCode: (node, _visit) => (node as InlineCode).value,
+  link: (node, _visit) => (node as Link).url,
+  list: (node, _visit) => _handleList(node as List, stripAllHandlers), // handle handlers properly
+  paragraph: (node, visit, parentType) => `${visit(node as Paragraph)}${parentType === 'root' ? '\n' : ''}`, // handle isFromRoot crlf
+  strong: (node, visit) => visit(node as Strong),
+  table: (node, _visit) => _handleTable(node as Table, stripAllHandlers), // handle handlers properly
+  text: (node, _visit) => (node as Text).value,
+  thematicBreak: (_node, _visit) => '---\n',
+}
+
+const messengerHandlers: MarkdownHandlers = {
+  ...stripAllHandlers,
+  code: (node, _visit) => `\`\`\`\n${(node as Code).value}\n\`\`\`\n`,
+  delete: (node, visit) => `~${visit(node as Delete)}~`,
+  emphasis: (node, visit) => `_${visit(node as Emphasis)}_`,
+  inlineCode: (node, _visit) => `\`${(node as InlineCode).value}\``,
+  strong: (node, visit) => `*${visit(node as Strong)}*`,
 }
 
 type RootNodes =
-  | Root
-  | Heading
-  | Paragraph
-  | List
-  | ListItem
-  | Strong
-  | Emphasis
   | Blockquote
   | Delete
+  | Emphasis
+  | FootnoteDefinition
+  | Heading
+  | List
+  | ListItem
+  | Paragraph
+  | Root
+  | Strong
   | Table
   | TableCell
-  | FootnoteDefinition
 // const _visitTree = (tree: Parent): string => {
-const _visitTree = (tree: RootNodes): string => {
+const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers): string => {
   let tmp = ''
   let footnoteTmp = ''
-  const isRoot = tree.type === 'root'
+  const parentType = tree.type
   for (const node of tree.children) {
     console.log('node:', node, '\n=====================')
-    switch (node.type) {
-      case 'blockquote':
-        tmp = `${tmp}Quote: “${_visitTree(node)}”\n`
-        break
-      case 'break':
-        tmp = `${tmp}\n`
-        break
-      case 'code':
-        tmp = `${tmp}${node.value}\n`
-        break
-      case 'delete':
-        tmp = `${tmp}${_visitTree(node)}`
-        break
-      case 'emphasis':
-        tmp = `${tmp}${_visitTree(node)}`
-        break
-      case 'footnoteDefinition':
-        footnoteTmp = `${footnoteTmp}[${node.identifier}] ${_visitTree(node)}\n`
-        break
-      case 'footnoteReference':
-        tmp = `${tmp}[${node.identifier}]`
-        break
-      case 'heading':
-        tmp = `${tmp}${_visitTree(node)}\n`
-        break
-      case 'image':
-        tmp = `${tmp}${node.url}`
-        break
-      case 'inlineCode':
-        tmp = `${tmp}${node.value}`
-        break
-      case 'link':
-        tmp = `${tmp}${node.url}`
-        break
-      case 'list':
-        tmp = `${tmp}${_handleList(node)}`
-        break
-      case 'paragraph':
-        tmp = `${tmp}${_visitTree(node)}${isRoot ? '\n' : ''}`
-        break
-      case 'strong':
-        tmp = `${tmp}${_visitTree(node)}`
-        break
-      case 'table':
-        tmp = `${tmp}${_handleTable(node)}`
-        break
-      case 'text':
-        tmp = `${tmp}${node.value}`
-        break
-      case 'thematicBreak':
-        tmp = `${tmp}---\n`
-        break
-      default:
-        console.error('unhandledError')
+    const handler = handlers[node.type as keyof MarkdownHandlers]
+    if (handler === undefined) {
+      throw new Error('unhandledError')
     }
+    if (node.type === 'footnoteDefinition') {
+      footnoteTmp += handler(node, (n) => _visitTree(n, handlers), parentType)
+      continue
+    }
+    tmp += handler(node, (n) => _visitTree(n, handlers), parentType)
   }
   return `${tmp}${footnoteTmp}`
 }
 
-const _handleList = (listNode: List): string => {
+const _handleList = (listNode: List, handlers: MarkdownHandlers): string => {
   let listTmp = ''
   let itemCount = 0
   for (const listItemNode of listNode.children) {
@@ -113,12 +120,12 @@ const _handleList = (listNode: List): string => {
     } else {
       prefix = listNode.ordered ? `${++itemCount}. ` : '- '
     }
-    listTmp = `${listTmp}${prefix}${_visitTree(listItemNode)}\n`
+    listTmp = `${listTmp}${prefix}${_visitTree(listItemNode, handlers)}\n`
   }
   return listTmp
 }
 
-const _handleTable = (tableNode: Table): string => {
+const _handleTable = (tableNode: Table, handlers: MarkdownHandlers): string => {
   let tmpTable = ''
   for (const tableRow of tableNode.children) {
     console.log('tableRowNode:', tableRow, '\n=====================')
@@ -126,7 +133,7 @@ const _handleTable = (tableNode: Table): string => {
     let tmpRow = '| '
     for (const tableCell of tableRow.children) {
       console.log('tableCellNode:', tableCell, '\n=====================')
-      tmpRow = `${tmpRow}${_visitTree(tableCell)}${childrenCount + 1 === tableRow.children.length ? ' |' : ' | '}`
+      tmpRow = `${tmpRow}${_visitTree(tableCell, handlers)}${childrenCount + 1 === tableRow.children.length ? ' |' : ' | '}`
       childrenCount++
     }
     tmpTable = `${tmpTable}${tmpRow}\n`
@@ -135,17 +142,18 @@ const _handleTable = (tableNode: Table): string => {
 }
 
 export const parseMarkdown = (markdown: string, channel: TwilioChannel): string => {
+  const tree = remark().use(remarkGfm).parse(markdown)
   switch (channel) {
     case 'messenger':
-      throw new Error('not implemented yet')
+      return _visitTree(tree, messengerHandlers)
     case 'whatsapp':
       throw new Error('not implemented yet')
     case 'rcs':
-      return _stripAllMarkdown(markdown)
+      return _visitTree(tree, stripAllHandlers)
     case 'sms/mms':
-      return _stripAllMarkdown(markdown)
+      return _visitTree(tree, stripAllHandlers)
     default:
       channel satisfies never
-      return _stripAllMarkdown(markdown)
+      return _visitTree(tree, stripAllHandlers)
   }
 }

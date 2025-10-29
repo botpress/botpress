@@ -17,14 +17,10 @@ const mdGenericTests = {
   Emoji_direct: { input: 'emoji direct 😂', expected: 'emoji direct 😂\n' },
   Link: { input: '[title](https://www.example.com)', expected: 'https://www.example.com\n' },
   Link_only: { input: 'https://www.example.com', expected: 'https://www.example.com\n' },
-  italic_quote_list: {
-    input: `_underscore_\n> quote\n1. item1\n2. item2`,
-    expected: 'underscore\nQuote: “quote”\n1. item1\n2. item2\n',
-  },
+  Blockquote: { input: '> blockquote', expected: 'Quote: “blockquote”\n' },
 }
 
 const smsSpecificTests = {
-  Blockquote: { input: '> blockquote', expected: 'Quote: “blockquote”\n' },
   Code: { input: '`code`', expected: 'code\n' },
   Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '{\n\ta: null\n}\n' },
   Bold_with_asterisk: { input: '**bold-asterisk**', expected: 'bold-asterisk\n' },
@@ -37,26 +33,24 @@ const smsTests = { ...mdGenericTests, ...smsSpecificTests }
 const rcsTests = smsTests
 
 const messengerSpecificTests = {
-  Blockquote: { input: '> blockquote', expected: 'blockquote' },
-  Code: { input: '`code`', expected: '`code`' },
-  Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '```\n{\n\ta: null\n}\n```' },
-  Bold_with_asterisk: { input: '**bold-asterisk**', expected: '*bold-asterisk*' },
-  Bold_with_underscore: { input: '__bold-underscore__', expected: '*bold-underscore*' },
-  Italic_with_asterisk: { input: '*italic-asterisk*', expected: '_italic-asterisk_' },
-  Italic_with_underscore: { input: '_italic-underscore_', expected: '_italic-underscore_' },
-  Strikethrough: { input: '~~strikethrough~~', expected: '~strikethrough~' },
+  Code: { input: '`code`', expected: '`code`\n' },
+  Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '```\n{\n\ta: null\n}\n```\n' },
+  Bold_with_asterisk: { input: '**bold-asterisk**', expected: '*bold-asterisk*\n' },
+  Bold_with_underscore: { input: '__bold-underscore__', expected: '*bold-underscore*\n' },
+  Italic_with_asterisk: { input: '*italic-asterisk*', expected: '_italic-asterisk_\n' },
+  Italic_with_underscore: { input: '_italic-underscore_', expected: '_italic-underscore_\n' },
+  Strikethrough: { input: '~~strikethrough~~', expected: '~strikethrough~\n' },
 }
 const messengerTests = { ...mdGenericTests, ...messengerSpecificTests }
 
 const whatsappSpecificTests = {
-  Blockquote: { input: '> blockquote', expected: 'Quote: “blockquote”' },
-  Code: { input: '`code`', expected: '`code`' },
-  Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '```{\n\ta: null\n}```' },
-  Bold_with_asterisk: { input: '**bold-asterisk**', expected: '*bold-asterisk*' },
-  Bold_with_underscore: { input: '__bold-underscore__', expected: '*bold-underscore*' },
-  Italic_with_asterisk: { input: '*italic-asterisk*', expected: '_italic-asterisk_' },
-  Italic_with_underscore: { input: '_italic-underscore_', expected: '_italic-underscore_' },
-  Strikethrough: { input: '~~strikethrough~~', expected: '~strikethrough~' },
+  Code: { input: '`code`', expected: '`code`\n' },
+  Code_snippet: { input: '```\n{\n\ta: null\n}\n```', expected: '```{\n\ta: null\n}```\n' },
+  Bold_with_asterisk: { input: '**bold-asterisk**', expected: '*bold-asterisk*\n' },
+  Bold_with_underscore: { input: '__bold-underscore__', expected: '*bold-underscore*\n' },
+  Italic_with_asterisk: { input: '*italic-asterisk*', expected: '_italic-asterisk_\n' },
+  Italic_with_underscore: { input: '_italic-underscore_', expected: '_italic-underscore_\n' },
+  Strikethrough: { input: '~~strikethrough~~', expected: '~strikethrough~\n' },
 }
 const whatsappTests = { ...mdGenericTests, ...whatsappSpecificTests }
 
@@ -68,21 +62,21 @@ test.each(Object.entries(smsTests))(
   }
 )
 
-// test.each(Object.entries(rcsTests))(
-//   '[RCS] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actualRcs = parseMarkdown(testValues.input, 'rcs')
-//     expect(actualRcs).toBe(testValues.expected)
-//   }
-// )
+test.each(Object.entries(rcsTests))(
+  '[RCS] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actualRcs = parseMarkdown(testValues.input, 'rcs')
+    expect(actualRcs).toBe(testValues.expected)
+  }
+)
 
-// test.each(Object.entries(messengerTests))(
-//   '[Messenger] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actual = parseMarkdown(testValues.input, 'messenger')
-//     expect(actual).toBe(testValues.expected)
-//   }
-// )
+test.each(Object.entries(messengerTests))(
+  '[Messenger] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actual = parseMarkdown(testValues.input, 'messenger')
+    expect(actual).toBe(testValues.expected)
+  }
+)
 
 // test.each(Object.entries(whatsappTests))(
 //   '[WhatsApp] Test %s',
@@ -104,6 +98,7 @@ _italic-underscore_
 2. item2
 - unorderedListItem1
 - item2
+
 \`code\`
 horizontal
 
@@ -174,21 +169,34 @@ H3
 _italic-asterisk_
 *bold-underscore*
 _italic-underscore_
-blockquote
-1. orderedListItem1\n2. item2
-- unorderedListItem1\n- item2
+Quote: “blockquote”
+1. orderedListItem1
+2. item2
+- unorderedListItem1
+- item2
 \`code\`
-horizontal\n---\nrule
+horizontal
+---
+rule
 https://www.example.com
 https://tinyurl.com/mrv4bmyk
 https://tinyurl.com/mrv4bmyk
-| 1 | 2 |\n| - | - |\n| a | b |
-\`\`\`\n{\n\ta: null\n}\n\`\`\`
-footnote[^1]\n[^1]: the footnote
-term\n: definition
+| 1 | 2 |
+| a | b |
+\`\`\`
+{
+  a: null
+}
+\`\`\`
+footnote[1]
+term
+: definition
 ~strikethrough~
-- [x] taskListItem1\n- [ ] item2
-emoji direct 😂`
+☑︎ taskListItem1
+☐ item2
+emoji direct 😂
+[1] the footnote
+`
 
 const expectedForBigInputWhatsApp = `H1
 H2
@@ -218,15 +226,15 @@ test('[SMS, MMS] Multi-line multi markup test', () => {
   expect(actual).toBe(expectedForBigInputSMS)
 })
 
-// test('[RCS] Multi-line multi markup test', () => {
-//   const actualRcs = parseMarkdown(bigInput, 'rcs')
-//   expect(actualRcs).toBe(expectedForBigInputRCS)
-// })
+test('[RCS] Multi-line multi markup test', () => {
+  const actualRcs = parseMarkdown(bigInput, 'rcs')
+  expect(actualRcs).toBe(expectedForBigInputRCS)
+})
 
-// test('[Messenger] Multi-line multi markup test', () => {
-//   const actual = parseMarkdown(bigInput, 'messenger')
-//   expect(actual).toBe(expectedForBigInputMessenger)
-// })
+test('[Messenger] Multi-line multi markup test', () => {
+  const actual = parseMarkdown(bigInput, 'messenger')
+  expect(actual).toBe(expectedForBigInputMessenger)
+})
 
 // test('[WhatsApp] Multi-line multi markup test', () => {
 //   const actual = parseMarkdown(bigInput, 'whatsapp')
