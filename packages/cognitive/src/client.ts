@@ -184,7 +184,7 @@ export class Cognitive {
     }
 
     const betaClient = new CognitiveBeta(this._client.config)
-    const response = await betaClient.generateText(input)
+    const response = await betaClient.generateText(input as any)
 
     return {
       output: {
