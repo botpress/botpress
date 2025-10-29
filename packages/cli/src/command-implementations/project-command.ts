@@ -311,7 +311,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       this._displayWebhookUrl({ integration, integrationDefinition, linkTemplateScript })
       if (!integrationDefinition) {
         this.logger.debug(
-          `No integration definition for integration ${integration.id}, skipping OAuth or Sandbox authorization links`
+          `No integration definition for integration ${integration.id}, skipping OAuth or Sandbox links`
         )
         continue
       }
