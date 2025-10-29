@@ -215,9 +215,32 @@ export function fromPostEducationEntryModel(
   }
 }
 
+export function fromEducationEntryModel(
+  schema: z.infer<typeof def.educationEntrySchema>
+): z.infer<typeof workable.educationEntrySchema> {
+  const { endDate, startDate, fieldOfStudy, ...rest } = schema
+  return {
+    ...rest,
+    end_date: endDate,
+    start_date: startDate,
+    field_of_study: fieldOfStudy,
+  }
+}
+
 export function fromPostExperienceEntryModel(
   schema: z.infer<typeof def.postExperienceEntrySchema>
 ): z.infer<typeof workable.postExperienceEntrySchema> {
+  const { startDate, endDate, ...rest } = schema
+  return {
+    ...rest,
+    start_date: startDate,
+    end_date: endDate,
+  }
+}
+
+export function fromExperienceEntryModel(
+  schema: z.infer<typeof def.experienceEntrySchema>
+): z.infer<typeof workable.experienceEntrySchema> {
   const { startDate, endDate, ...rest } = schema
   return {
     ...rest,
@@ -347,20 +370,26 @@ export function fromUpdateCandidateInputModel(
     ...rest,
     body: {
       candidate: {
-        ...restCandidate,
-        image_source: imageSource,
-        image_url: imageUrl,
-        texting_consent: textingConsent,
-        firstname: firstName,
-        lastname: lastName,
-        education_entries:
-          educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
-        experience_entries:
-          experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
-        social_profiles: socialProfiles === undefined ? [] : socialProfiles,
-        cover_letter: coverLetter,
-        resume_url: resumeUrl,
-        ...(resume?.data && resume.name ? { resume } : {}),
+        ..._omitEmptyStrings({
+          ...restCandidate,
+          image_source: imageSource,
+          image_url: imageUrl,
+          texting_consent: textingConsent,
+          firstname: firstName,
+          lastname: lastName,
+          education_entries:
+            educationEntries === undefined
+              ? undefined
+              : educationEntries.map((entry) => fromEducationEntryModel(entry)),
+          experience_entries:
+            experienceEntries === undefined
+              ? undefined
+              : experienceEntries.map((entry) => fromExperienceEntryModel(entry)),
+          social_profiles: socialProfiles === undefined ? undefined : socialProfiles,
+          cover_letter: coverLetter,
+          resume_url: resumeUrl,
+          ...(resume?.data && resume.name ? { resume } : {}),
+        }),
       },
     },
   }
@@ -377,4 +406,10 @@ export function toUpdateCandidateOutputModel(
       ...toBaseDetailedCandidateModel(candidate),
     },
   }
+}
+
+function _omitEmptyStrings<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => !(typeof value === 'string' && value.trim() === ''))
+  ) as Partial<T>
 }
