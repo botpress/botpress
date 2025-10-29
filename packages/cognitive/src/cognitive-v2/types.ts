@@ -240,7 +240,6 @@ export type Model = {
     | 'deprecated'
     | 'general-purpose'
     | 'low-cost'
-    | 'flagship'
     | 'vision'
     | 'coding'
     | 'agents'
