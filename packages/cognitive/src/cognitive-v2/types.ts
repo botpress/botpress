@@ -235,7 +235,7 @@ export type Model = {
    * Aliases that are also resolving to this model
    */
   aliases?: string[]
-  tags?: (
+  tags: (
     | 'recommended'
     | 'deprecated'
     | 'general-purpose'
