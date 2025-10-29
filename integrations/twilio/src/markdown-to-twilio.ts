@@ -23,7 +23,12 @@ import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { TwilioChannel } from './types'
 
-type NodeHandler = (node: RootContent, visit: (node: RootNodes) => string, parentType?: string) => string
+type NodeHandler = (
+  node: RootContent,
+  visit: (node: RootNodes) => string,
+  parentType?: string,
+  handlers?: MarkdownHandlers
+) => string
 
 type MarkdownHandlers = {
   blockquote?: NodeHandler
@@ -58,12 +63,10 @@ const stripAllHandlers: MarkdownHandlers = {
   image: (node, _visit) => (node as Image).url,
   inlineCode: (node, _visit) => (node as InlineCode).value,
   link: (node, _visit) => (node as Link).url,
-  // TODO handle handlers properly
-  list: (node, _visit) => _handleList(node as List, stripAllHandlers),
+  list: (node, _visit, _parentType, handlers) => _handleList(node as List, handlers!),
   paragraph: (node, visit, parentType) => `${visit(node as Paragraph)}${parentType === 'root' ? '\n' : ''}`,
   strong: (node, visit) => visit(node as Strong),
-  // TODO handle handlers properly
-  table: (node, _visit) => _handleTable(node as Table, stripAllHandlers),
+  table: (node, _visit, _parentType, handlers) => _handleTable(node as Table, handlers!),
   text: (node, _visit) => (node as Text).value,
   thematicBreak: (_node, _visit) => '---\n',
 }
@@ -111,10 +114,10 @@ const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers): string => {
       throw new Error('unhandledError')
     }
     if (node.type === 'footnoteDefinition') {
-      footnoteTmp += handler(node, (n) => _visitTree(n, handlers), parentType)
+      footnoteTmp += handler(node, (n) => _visitTree(n, handlers), parentType, handlers)
       continue
     }
-    tmp += handler(node, (n) => _visitTree(n, handlers), parentType)
+    tmp += handler(node, (n) => _visitTree(n, handlers), parentType, handlers)
   }
   return `${tmp}${footnoteTmp}`
 }
