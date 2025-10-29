@@ -317,10 +317,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       }
       const isSandbox =
         integration.configurationType === 'sandbox' && !!integrationDefinition.sandbox?.identifierExtractScript
-      const displayLink = !!linkTemplateScript && (isSandbox || !!integrationDefinition.identifier?.extractScript)
-      if (displayLink && isSandbox) {
+      const showLink = !!linkTemplateScript && (isSandbox || !!integrationDefinition.identifier?.extractScript)
+      if (showLink && isSandbox) {
         await this._displaySandboxLinkAndCode({ integration, bot, api, linkTemplateScript })
-      } else if (displayLink) {
+      } else if (showLink) {
         this._displayAuthorizationLink({ integration, api, linkTemplateScript })
       }
       this.logger.line().commit()
