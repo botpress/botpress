@@ -1,55 +1,58 @@
 import {
   Blockquote,
+  Break,
   Code,
   Delete,
   Emphasis,
   FootnoteDefinition,
   FootnoteReference,
   Heading,
+  Html,
   Image,
   InlineCode,
   Link,
   List,
   ListItem,
+  Node,
   Paragraph,
   Root,
-  RootContent,
   Strong,
   Table,
   TableCell,
   Text,
+  ThematicBreak,
 } from 'mdast'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { TwilioChannel } from './types'
 
 const FIXED_SIZE_SPACE_CHAR = '\u2002' // 'En space' yields better results for identation in WhatsApp messages
-type NodeHandler = (
-  node: RootContent,
+type NodeHandler<N extends Node> = (
+  node: N,
   visit: (node: RootNodes) => string,
   parents: RootNodes[],
   handlers: MarkdownHandlers
 ) => string
 
 type MarkdownHandlers = {
-  blockquote?: NodeHandler
-  break?: NodeHandler
-  code?: NodeHandler
-  delete?: NodeHandler
-  emphasis?: NodeHandler
-  footnoteDefinition?: NodeHandler
-  footnoteReference?: NodeHandler
-  heading?: NodeHandler
-  html?: NodeHandler
-  image?: NodeHandler
-  inlineCode?: NodeHandler
-  link?: NodeHandler
-  list?: NodeHandler
-  paragraph?: NodeHandler
-  strong?: NodeHandler
-  table?: NodeHandler
-  text?: NodeHandler
-  thematicBreak?: NodeHandler
+  blockquote: NodeHandler<Blockquote>
+  break: NodeHandler<Break>
+  code: NodeHandler<Code>
+  delete: NodeHandler<Delete>
+  emphasis: NodeHandler<Emphasis>
+  footnoteDefinition: NodeHandler<FootnoteDefinition>
+  footnoteReference: NodeHandler<FootnoteReference>
+  heading: NodeHandler<Heading>
+  html: NodeHandler<Html>
+  image: NodeHandler<Image>
+  inlineCode: NodeHandler<InlineCode>
+  link: NodeHandler<Link>
+  list: NodeHandler<List>
+  paragraph: NodeHandler<Paragraph>
+  strong: NodeHandler<Strong>
+  table: NodeHandler<Table>
+  text: NodeHandler<Text>
+  thematicBreak: NodeHandler<ThematicBreak>
 }
 
 const stripAllHandlers: MarkdownHandlers = {
@@ -105,13 +108,13 @@ type RootNodes =
   | Strong
   | Table
   | TableCell
-// const _visitTree = (tree: Parent): string => {
 const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNodes[]): string => {
   let tmp = ''
   let footnoteTmp = ''
   parents.push(tree)
   for (const node of tree.children) {
-    const handler = handlers[node.type as keyof MarkdownHandlers]
+    const nodeHandler: Record<string, NodeHandler<Node>> = handlers
+    const handler = nodeHandler[node.type as keyof MarkdownHandlers]
     if (handler === undefined) {
       throw new Error('unhandledError')
     }
