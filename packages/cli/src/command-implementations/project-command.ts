@@ -379,7 +379,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }) {
     const authorizationLink = this._getAuthorizationLink({ integration, api, linkTemplateScript })
     if (integration.identifier) {
-      this.logger.log(`${chalk.bold('Authorization')} : ${authorizationLink}`, {
+      this.logger.log(`${chalk.bold('Authorized ✓')} : ${authorizationLink}`, {
         prefix: { symbol: '●', indent: 4 },
       })
     } else {
