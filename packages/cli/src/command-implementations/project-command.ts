@@ -320,8 +320,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         continue
       }
       const isSandbox =
-        integration.configurationType === 'sandbox' && integrationDefinition.sandbox?.identifierExtractScript
-      const displayLink = linkTemplateScript && (isSandbox || integrationDefinition.identifier?.extractScript)
+        integration.configurationType === 'sandbox' && !!integrationDefinition.sandbox?.identifierExtractScript
+      const displayLink = !!linkTemplateScript && (isSandbox || !!integrationDefinition.identifier?.extractScript)
       if (displayLink && isSandbox) {
         await this._displaySandboxLinkAndCode({ integration, bot, api, linkTemplateScript })
       } else if (displayLink) {
@@ -357,13 +357,13 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const needsWebhook = !(integrationDefinition?.identifier && linkTemplateScript)
     const logFn = (needsWebhook ? this.logger.log : this.logger.debug).bind(this.logger)
 
-    if (!integration.enabled) {
-      logFn(`Webhook ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
-        prefix: { symbol: '○', indent: 4 },
-      })
-    } else {
+    if (integration.enabled) {
       logFn(`${chalk.bold('Webhook')}: ${integration.webhookUrl}`, {
         prefix: { symbol: '●', indent: 4 },
+      })
+    } else {
+      logFn(`Webhook ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
+        prefix: { symbol: '○', indent: 4 },
       })
     }
   }
@@ -378,12 +378,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     linkTemplateScript: string
   }) {
     const authorizationLink = this._getAuthorizationLink({ integration, api, linkTemplateScript })
-    if (integration.identifier) {
-      this.logger.log(`${chalk.bold('Authorized ✓')} : ${authorizationLink}`, {
+    const isAuthorized = !!integration.identifier
+    const authorizationStatus = integration.identifier ? 'Authorized ✓' : 'Authorization ✗'
+    const disabledStatus = integration.enabled ? '' : chalk.italic(' (disabled)')
+    if (integration.enabled && isAuthorized) {
+      this.logger.log(`${chalk.bold(authorizationStatus)} : ${authorizationLink}`, {
         prefix: { symbol: '●', indent: 4 },
       })
     } else {
-      this.logger.log(`Authorization: ${authorizationLink}`, {
+      this.logger.log(`${authorizationStatus}${disabledStatus}: ${authorizationLink}`, {
         prefix: { symbol: '○', indent: 4 },
       })
     }
@@ -451,9 +454,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }) {
     const shareableId = await api.getOrGenerateShareableId(bot.id, integration.id)
     const sandboxLink = this._getSandboxLink({ shareableId, integration, api, linkTemplateScript })
-    this.logger.log(`${chalk.bold('Sandbox')}: Send '${shareableId}' to ${sandboxLink}`, {
-      prefix: { symbol: '●', indent: 4 },
-    })
+    const sandboxInstruction = `Send '${shareableId}' to ${sandboxLink}`
+    if (integration.enabled) {
+      this.logger.log(`${chalk.bold('Sandbox')}: ${sandboxInstruction}`, {
+        prefix: { symbol: '●', indent: 4 },
+      })
+    } else {
+      this.logger.log(`Sandbox ${chalk.italic('(disabled)')}: ${sandboxInstruction}`, {
+        prefix: { symbol: '○', indent: 4 },
+      })
+    }
   }
 
   protected async promptSecrets(
