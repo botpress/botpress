@@ -46,7 +46,7 @@ export class WorkableClient {
 
   private _handleAxiosError(thrown: unknown): never {
     if (axios.isAxiosError(thrown)) {
-      throw new Error(thrown.response?.data?.error || thrown.message)
+      throw new Error(JSON.stringify(thrown.response?.data?.error, null, 2) || thrown.message)
     }
     throw thrown
   }
@@ -111,7 +111,7 @@ export class WorkableClient {
     params: z.infer<typeof updateCandidateInputSchema>
   ): Promise<z.infer<typeof updateCandidateOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof updateCandidateOutputSchema>> = await this._client
-      .post(`/candidates/${params.id}`, params.body)
+      .patch(`/candidates/${params.id}`, params.body)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
