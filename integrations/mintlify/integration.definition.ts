@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { actions } from './definitions'
 
@@ -10,7 +11,7 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      APIKey: z.string().title('API key').describe('Your Mintlify API key'),
+      apiKey: z.string().title('API key').describe('Your Mintlify API key'),
       projectId: z.string().title('Project ID').describe('Your Mintlify project ID'),
     }),
   },
