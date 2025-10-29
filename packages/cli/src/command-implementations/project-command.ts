@@ -58,8 +58,8 @@ export type ProjectDefinitionLazy =
 
 type UpdatedBot = client.Bot
 
-type IntegrationDefinitions = Record<string, client.Integration>
-type Integration = client.Bot['integrations'][string]
+type ClientIntegrationDefinitions = Record<string, client.Integration>
+type ClientIntegration = client.Bot['integrations'][string]
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -293,7 +293,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const integrationDefinitions: IntegrationDefinitions = {}
+    const integrationDefinitions: ClientIntegrationDefinitions = {}
     for (const integration of _.values(bot.integrations)) {
       const integrationDef = await api.getPublicOrPrivateIntegration({
         // TODO: See if this is the right way to get integration definition
@@ -335,8 +335,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integration,
     integrationDefinition,
   }: {
-    integration: Integration
-    integrationDefinition?: IntegrationDefinitions[string]
+    integration: ClientIntegration
+    integrationDefinition?: ClientIntegrationDefinitions[string]
   }) {
     const config =
       integration.configurationType === null
@@ -350,8 +350,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDefinition,
     linkTemplateScript,
   }: {
-    integration: Integration
-    integrationDefinition?: IntegrationDefinitions[string]
+    integration: ClientIntegration
+    integrationDefinition?: ClientIntegrationDefinitions[string]
     linkTemplateScript?: string
   }) {
     const needsWebhook = !(integrationDefinition?.identifier && linkTemplateScript)
@@ -373,7 +373,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     api,
     linkTemplateScript,
   }: {
-    integration: Integration
+    integration: ClientIntegration
     api: apiUtils.ApiClient
     linkTemplateScript: string
   }) {
@@ -392,7 +392,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  private _getLinkTemplateArgs({ integration, api }: { integration: Integration; api: apiUtils.ApiClient }) {
+  private _getLinkTemplateArgs({ integration, api }: { integration: ClientIntegration; api: apiUtils.ApiClient }) {
     // These are the values used by the studio
     let env: 'development' | 'preview' | 'production'
     if (api.url.includes(consts.stagingBotpressDomain)) {
@@ -431,7 +431,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     linkTemplateScript,
   }: {
     shareableId: string
-    integration: Integration
+    integration: ClientIntegration
     api: apiUtils.ApiClient
     linkTemplateScript: string
   }) {
@@ -447,7 +447,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     api,
     linkTemplateScript,
   }: {
-    integration: Integration
+    integration: ClientIntegration
     bot: client.Bot
     api: apiUtils.ApiClient
     linkTemplateScript: string
