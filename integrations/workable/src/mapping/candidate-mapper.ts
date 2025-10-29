@@ -339,6 +339,7 @@ export function fromUpdateCandidateInputModel(
     socialProfiles,
     coverLetter,
     resumeUrl,
+    resume,
     ...restCandidate
   } = candidate
 
@@ -359,6 +360,7 @@ export function fromUpdateCandidateInputModel(
         social_profiles: socialProfiles === undefined ? [] : socialProfiles,
         cover_letter: coverLetter,
         resume_url: resumeUrl,
+        ...(resume?.data && resume.name ? { resume } : {}),
       },
     },
   }
