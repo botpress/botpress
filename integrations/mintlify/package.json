@@ -7,7 +7,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "workspace:*"
+    "axios": "^1.13.1"
   },
   "devDependencies": {
     "@types/node": "^22.16.4",
