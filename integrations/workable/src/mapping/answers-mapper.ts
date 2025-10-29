@@ -1,23 +1,33 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import * as defs from 'definitions/models/answers'
 import * as workable from 'src/workable-schemas/answers'
 
 export function fromPostAnswerModel(
   schema: z.infer<typeof defs.postAnswerSchema>
 ): z.infer<typeof workable.postAnswerSchema> {
-  const { questionKey, ...rest } = schema
-  if ('fileUrl' in rest) {
-    const { fileUrl, ...newRest } = rest
-    return { ...newRest, question_key: schema.questionKey, file_url: fileUrl }
-  } else if ('choice' in rest) {
-    const { choice, ...newRest } = rest
-    return {
-      ...newRest,
-      question_key: schema.questionKey,
-      choices: [choice],
+  const { questionKey, ...answers } = schema
+  console.log(JSON.stringify(answers, null, 2))
+  const definedValues = Object.entries(answers).filter(([, value]) => {
+    if (value === undefined) {
+      return false
     }
+    if (Array.isArray(value) || typeof value === 'string') {
+      return value.length > 0
+    }
+    return true
+  })
+
+  if (definedValues.length !== 1) {
+    throw new RuntimeError(
+      `One single answer must be provided for each question. Question '${questionKey}' has ${definedValues.length} answers.`
+    )
   }
-  return { ...rest, question_key: questionKey }
+
+  const [rawKey, value] = definedValues[0]!
+
+  const key = rawKey === 'fileUrl' ? 'file_url' : rawKey
+
+  return { question_key: questionKey, [key]: value } as unknown as z.infer<typeof workable.postAnswerSchema>
 }
 
 export function toAnswerModel(schema: z.infer<typeof workable.answerSchema>): z.infer<typeof defs.answerSchema> {
