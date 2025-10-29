@@ -43,7 +43,6 @@ type MarkdownHandlers = {
   table?: NodeHandler
   text?: NodeHandler
   thematicBreak?: NodeHandler
-  // ...and so on for other types you want to customize
 }
 
 const stripAllHandlers: MarkdownHandlers = {
@@ -53,16 +52,18 @@ const stripAllHandlers: MarkdownHandlers = {
   delete: (node, visit) => `${visit(node as Delete)}`,
   emphasis: (node, visit) => visit(node as Emphasis),
   footnoteDefinition: (node, visit) =>
-    `[${(node as FootnoteDefinition).identifier}] ${visit(node as FootnoteDefinition)}\n`, // not implemented
+    `[${(node as FootnoteDefinition).identifier}] ${visit(node as FootnoteDefinition)}\n`,
   footnoteReference: (node, _visit) => `[${(node as FootnoteReference).identifier}]`,
   heading: (node, visit) => `${visit(node as Heading)}\n`,
   image: (node, _visit) => (node as Image).url,
   inlineCode: (node, _visit) => (node as InlineCode).value,
   link: (node, _visit) => (node as Link).url,
-  list: (node, _visit) => _handleList(node as List, stripAllHandlers), // handle handlers properly
-  paragraph: (node, visit, parentType) => `${visit(node as Paragraph)}${parentType === 'root' ? '\n' : ''}`, // handle isFromRoot crlf
+  // TODO handle handlers properly
+  list: (node, _visit) => _handleList(node as List, stripAllHandlers),
+  paragraph: (node, visit, parentType) => `${visit(node as Paragraph)}${parentType === 'root' ? '\n' : ''}`,
   strong: (node, visit) => visit(node as Strong),
-  table: (node, _visit) => _handleTable(node as Table, stripAllHandlers), // handle handlers properly
+  // TODO handle handlers properly
+  table: (node, _visit) => _handleTable(node as Table, stripAllHandlers),
   text: (node, _visit) => (node as Text).value,
   thematicBreak: (_node, _visit) => '---\n',
 }
@@ -70,6 +71,15 @@ const stripAllHandlers: MarkdownHandlers = {
 const messengerHandlers: MarkdownHandlers = {
   ...stripAllHandlers,
   code: (node, _visit) => `\`\`\`\n${(node as Code).value}\n\`\`\`\n`,
+  delete: (node, visit) => `~${visit(node as Delete)}~`,
+  emphasis: (node, visit) => `_${visit(node as Emphasis)}_`,
+  inlineCode: (node, _visit) => `\`${(node as InlineCode).value}\``,
+  strong: (node, visit) => `*${visit(node as Strong)}*`,
+}
+
+const whatsappHandlers: MarkdownHandlers = {
+  ...stripAllHandlers,
+  code: (node, _visit) => `\`\`\`${(node as Code).value}\`\`\`\n`,
   delete: (node, visit) => `~${visit(node as Delete)}~`,
   emphasis: (node, visit) => `_${visit(node as Emphasis)}_`,
   inlineCode: (node, _visit) => `\`${(node as InlineCode).value}\``,
@@ -147,7 +157,7 @@ export const parseMarkdown = (markdown: string, channel: TwilioChannel): string 
     case 'messenger':
       return _visitTree(tree, messengerHandlers)
     case 'whatsapp':
-      throw new Error('not implemented yet')
+      return _visitTree(tree, whatsappHandlers)
     case 'rcs':
       return _visitTree(tree, stripAllHandlers)
     case 'sms/mms':

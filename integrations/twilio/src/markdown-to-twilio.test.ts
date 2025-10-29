@@ -78,13 +78,13 @@ test.each(Object.entries(messengerTests))(
   }
 )
 
-// test.each(Object.entries(whatsappTests))(
-//   '[WhatsApp] Test %s',
-//   (_testName: string, testValues: { input: string; expected: string }): void => {
-//     const actual = parseMarkdown(testValues.input, 'whatsapp')
-//     expect(actual).toBe(testValues.expected)
-//   }
-// )
+test.each(Object.entries(whatsappTests))(
+  '[WhatsApp] Test %s',
+  (_testName: string, testValues: { input: string; expected: string }): void => {
+    const actual = parseMarkdown(testValues.input, 'whatsapp')
+    expect(actual).toBe(testValues.expected)
+  }
+)
 
 const bigInput = `# H1
 ## H2
@@ -205,21 +205,31 @@ H3
 _italic-asterisk_
 *bold-underscore*
 _italic-underscore_
-> blockquote
-1. orderedListItem1\n2. item2
-- unorderedListItem1\n- item2
+Quote: “blockquote”
+1. orderedListItem1
+2. item2
+- unorderedListItem1
+- item2
 \`code\`
-horizontal\n---\nrule
+horizontal
+---
+rule
 https://www.example.com
 https://tinyurl.com/mrv4bmyk
 https://tinyurl.com/mrv4bmyk
-| 1 | 2 |\n| - | - |\n| a | b |
-\`\`\`{\n\ta: null\n}\`\`\`
-footnote[^1]\n[^1]: the footnote
+| 1 | 2 |
+| a | b |
+\`\`\`{
+  a: null
+}\`\`\`
+footnote[1]
 term\n: definition
 ~strikethrough~
-- [x] taskListItem1\n- [ ] item2
-emoji direct 😂`
+☑︎ taskListItem1
+☐ item2
+emoji direct 😂
+[1] the footnote
+`
 
 test('[SMS, MMS] Multi-line multi markup test', () => {
   const actual = parseMarkdown(bigInput, 'sms/mms')
@@ -236,7 +246,7 @@ test('[Messenger] Multi-line multi markup test', () => {
   expect(actual).toBe(expectedForBigInputMessenger)
 })
 
-// test('[WhatsApp] Multi-line multi markup test', () => {
-//   const actual = parseMarkdown(bigInput, 'whatsapp')
-//   expect(actual).toBe(expectedForBigInputWhatsApp)
-// })
+test('[WhatsApp] Multi-line multi markup test', () => {
+  const actual = parseMarkdown(bigInput, 'whatsapp')
+  expect(actual).toBe(expectedForBigInputWhatsApp)
+})
