@@ -108,16 +108,20 @@ type RootNodes =
   | Strong
   | Table
   | TableCell
+
+const isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
+
 const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNodes[]): string => {
   let tmp = ''
   let footnoteTmp = ''
   parents.push(tree)
   for (const node of tree.children) {
-    const nodeHandler: Record<string, NodeHandler<Node>> = handlers
-    const handler = nodeHandler[node.type as keyof MarkdownHandlers]
-    if (handler === undefined) {
+    if (!isNodeType(node.type, handlers)) {
       throw new Error('unhandledError')
     }
+
+    const handler = handlers[node.type] as NodeHandler<Node>
+
     if (node.type === 'footnoteDefinition') {
       footnoteTmp += handler(node, (n) => _visitTree(n, handlers, parents), parents, handlers)
       continue
