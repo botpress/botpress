@@ -1,0 +1,17 @@
+import { z, IntegrationDefinition } from '@botpress/sdk'
+import { actions } from './definitions'
+
+export default new IntegrationDefinition({
+  name: 'mintlify',
+  title: 'Mintlify',
+  version: '1.0.0',
+  readme: 'hub.md',
+  icon: 'icon.svg',
+  configuration: {
+    schema: z.object({
+      APIKey: z.string().title('API key').describe('Your Mintlify API key'),
+      projectId: z.string().title('Project ID').describe('Your Mintlify project ID'),
+    }),
+  },
+  actions,
+})
