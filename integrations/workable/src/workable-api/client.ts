@@ -5,6 +5,10 @@ import {
   getCandidateOutputSchema,
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
+  postCandidateInJobInputSchema,
+  postCandidateInJobOutputSchema,
+  postCandidateInTalentPoolInputSchema,
+  postCandidateInTalentPoolOutputSchema,
 } from 'src/workable-schemas/candidates'
 import {
   getWebhooksOutputSchema,
@@ -40,7 +44,7 @@ export class WorkableClient {
 
   private _handleAxiosError(thrown: unknown): never {
     if (axios.isAxiosError(thrown)) {
-      throw new Error(thrown.response?.data?.message || thrown.message)
+      throw new Error(thrown.response?.data?.error || thrown.message)
     }
     throw thrown
   }
@@ -79,6 +83,24 @@ export class WorkableClient {
   ): Promise<z.infer<typeof getCandidateOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof getCandidateOutputSchema>> = await this._client
       .get(`/candidates/${params.id}`)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
+
+  public async postCandidateInJob(
+    params: z.infer<typeof postCandidateInJobInputSchema>
+  ): Promise<z.infer<typeof postCandidateInJobOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof postCandidateInJobOutputSchema>> = await this._client
+      .post(`/jobs/${params.shortCode}/candidates`, params.body)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
+
+  public async postCandidateInTalentPool(
+    params: z.infer<typeof postCandidateInTalentPoolInputSchema>
+  ): Promise<z.infer<typeof postCandidateInTalentPoolOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof postCandidateInTalentPoolOutputSchema>> = await this._client
+      .post('/talent_pool/candidates', params)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }

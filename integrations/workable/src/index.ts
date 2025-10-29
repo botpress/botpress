@@ -4,8 +4,12 @@ import { handler } from './handler'
 import {
   fromGetCandidateInputModel,
   fromListCandidatesInputModel,
+  fromPostCandidateInJobInputModel,
+  fromPostCandidateInTalentPoolInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
+  toPostCandidateInJobOutputModel,
+  toPostCandidateInTalentPoolOutputModel,
 } from './mapping/candidate-mapper'
 import { WorkableClient } from './workable-api/client'
 import * as bp from '.botpress'
@@ -47,11 +51,13 @@ export default new bp.Integration({
         },
       })
 
-      for (const id of ids) {
-        await client.unregisterWebhook(id).catch((thrown) => {
-          const msg = thrown instanceof Error ? thrown.message : String(thrown)
-          props.logger.forBot().warn(`Failed to unregister webhook: ${msg}`)
-        })
+      if (ids !== undefined) {
+        for (const id of ids) {
+          await client.unregisterWebhook(id).catch((thrown) => {
+            const msg = thrown instanceof Error ? thrown.message : String(thrown)
+            props.logger.forBot().warn(`Failed to unregister webhook: ${msg}`)
+          })
+        }
       }
 
       const newIds: number[] = []
@@ -120,6 +126,28 @@ export default new bp.Integration({
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to get candidate with id ${props.input.id}: ${msg}`)
+      }
+    },
+    createCandidateInJob: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.postCandidateInJob(fromPostCandidateInJobInputModel(props.input))
+        return toPostCandidateInJobOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to create candidate: ${msg}`)
+      }
+    },
+    createCandidateInTalentPool: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.postCandidateInTalentPool(fromPostCandidateInTalentPoolInputModel(props.input))
+        return toPostCandidateInTalentPoolOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to create candidate: ${msg}`)
       }
     },
   },

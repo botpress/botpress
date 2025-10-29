@@ -1,5 +1,10 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { getCandidate, listCandidates } from 'definitions/actions/candidates'
+import {
+  createCandidateInJob,
+  createCandidateInTalentPool,
+  getCandidate,
+  listCandidates,
+} from 'definitions/actions/candidates'
 import { candidateCreated, candidateMoved } from 'definitions/events/candidates'
 
 export default new IntegrationDefinition({
@@ -34,6 +39,8 @@ export default new IntegrationDefinition({
   actions: {
     listCandidates,
     getCandidate,
+    createCandidateInJob,
+    createCandidateInTalentPool,
   },
   events: {
     candidateCreated,

@@ -3,6 +3,7 @@ import * as defEvents from 'definitions/events/candidates'
 import * as def from 'definitions/models/candidates'
 import * as workable from 'src/workable-schemas/candidates'
 import * as workableEvents from 'src/workable-schemas/events'
+import { fromPostAnswerModel, toAnswerModel } from './answers-mapper'
 import { parseNextToken } from './pagination'
 
 export function fromListCandidatesInputModel(
@@ -66,13 +67,12 @@ export function fromGetCandidateInputModel(
   return model
 }
 
-export function toDetailedCandidateModel(
-  schema: z.infer<typeof workable.detailedCandidateSchema>
-): z.infer<typeof def.detailedCandidateSchema> {
+export function toBaseDetailedCandidateModel(
+  schema: z.infer<typeof workable.baseDetailedCandidateSchema>
+): z.infer<typeof def.baseDetailedCandidateSchema> {
   const {
     firstname,
     lastname,
-    job,
     stage_kind,
     disqualification_reason,
     profile_url,
@@ -90,6 +90,7 @@ export function toDetailedCandidateModel(
     social_profiles,
     location,
     originating_candidate_id,
+    answers,
     ...rest
   } = schema
 
@@ -97,10 +98,6 @@ export function toDetailedCandidateModel(
     ...rest,
     firstName: firstname,
     lastName: lastname,
-    job: {
-      title: job?.title,
-      shortCode: job?.shortcode,
-    },
     stageKind: stage_kind,
     disqualificationReason: disqualification_reason,
     profileUrl: profile_url,
@@ -118,6 +115,21 @@ export function toDetailedCandidateModel(
     socialProfiles: social_profiles,
     location: location === null || location === undefined ? undefined : toLocationModel(location),
     originatingCandidateId: originating_candidate_id,
+    answers: answers?.map((answer) => toAnswerModel(answer)),
+  }
+}
+
+export function toDetailedCandidateModel(
+  schema: z.infer<typeof workable.detailedCandidateSchema>
+): z.infer<typeof def.detailedCandidateSchema> {
+  const { job, ...rest } = schema
+
+  return {
+    ...toBaseDetailedCandidateModel(rest),
+    job: {
+      title: job?.title,
+      shortCode: job?.shortcode,
+    },
   }
 }
 
@@ -188,5 +200,126 @@ export function toCandidateMovedEventModel(
     firedAt: fired_at,
     resourceType: resource_type,
     data: candidateModel,
+  }
+}
+
+export function fromPostEducationEntryModel(
+  schema: z.infer<typeof def.postEducationEntrySchema>
+): z.infer<typeof workable.postEducationEntrySchema> {
+  const { endDate, startDate, fieldOfStudy, ...rest } = schema
+  return {
+    ...rest,
+    end_date: endDate,
+    start_date: startDate,
+    field_of_study: fieldOfStudy,
+  }
+}
+
+export function fromPostExperienceEntryModel(
+  schema: z.infer<typeof def.postExperienceEntrySchema>
+): z.infer<typeof workable.postExperienceEntrySchema> {
+  const { startDate, endDate, ...rest } = schema
+  return {
+    ...rest,
+    start_date: startDate,
+    end_date: endDate,
+  }
+}
+
+export function toPostCandidateInJobOutputModel(
+  schema: z.infer<typeof workable.postCandidateInJobOutputSchema>
+): z.infer<typeof def.postCandidateInJobOutputSchema> {
+  const { candidate, ...rest } = schema
+
+  return {
+    candidate: toDetailedCandidateModel(candidate),
+    ...rest,
+  }
+}
+
+export function toPostCandidateInTalentPoolOutputModel(
+  schema: z.infer<typeof workable.postCandidateInTalentPoolOutputSchema>
+): z.infer<typeof def.postCandidateInTalentPoolOutputSchema> {
+  const { candidate, ...rest } = schema
+  const { talent_pool, ...candidateRest } = candidate
+
+  return {
+    candidate: {
+      ...toBaseDetailedCandidateModel(candidateRest),
+      talentPool: {
+        talentPoolId: talent_pool.talent_pool_id,
+      },
+    },
+    ...rest,
+  }
+}
+
+export function fromPostCandidateInTalentPoolModel(
+  schema: z.infer<typeof def.postCandidateInTalentPoolSchema>
+): z.infer<typeof workable.postCandidateInTalentPoolSchema> {
+  const {
+    educationEntries,
+    experienceEntries,
+    firstName,
+    lastName,
+    socialProfiles,
+    coverLetter,
+    disqualificationReason,
+    disqualifiedAt,
+    recruiterKey,
+    resumeUrl,
+    resume,
+    ...rest
+  } = schema
+
+  const result = {
+    ...rest,
+    firstname: firstName,
+    lastname: lastName,
+    education_entries:
+      educationEntries === undefined ? [] : educationEntries.map((entry) => fromPostEducationEntryModel(entry)),
+    experience_entries:
+      experienceEntries === undefined ? [] : experienceEntries.map((entry) => fromPostExperienceEntryModel(entry)),
+    social_profiles: socialProfiles === undefined ? [] : socialProfiles,
+    cover_letter: coverLetter,
+    disqualification_reason: disqualificationReason,
+    disqualified_at: disqualifiedAt,
+    recruiter_key: recruiterKey,
+    resume_url: resumeUrl,
+  }
+
+  if (resume?.name && resume?.data) {
+    return { ...result, resume }
+  }
+
+  return result
+}
+
+export function fromPostCandidateInTalentPoolInputModel(
+  schema: z.infer<typeof def.postCandidateInTalentPoolInputSchema>
+): z.infer<typeof workable.postCandidateInTalentPoolInputSchema> {
+  const { candidate, ...rest } = schema
+
+  return {
+    ...rest,
+    candidate: fromPostCandidateInTalentPoolModel(candidate),
+  }
+}
+
+export function fromPostCandidateInJobInputModel(
+  schema: z.infer<typeof def.postCandidateInJobInputSchema>
+): z.infer<typeof workable.postCandidateInJobInputSchema> {
+  const { shortCode, candidate, ...rest } = schema
+  const { answers, ...restCandidate } = candidate
+
+  return {
+    body: {
+      ...rest,
+      candidate: {
+        ...fromPostCandidateInTalentPoolModel(restCandidate),
+        answers: answers?.map((answer) => fromPostAnswerModel(answer)),
+      },
+    },
+    shortCode,
   }
 }
