@@ -315,6 +315,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         this.logger.debug(
           `No integration definition for integration ${integration.id}, skipping OAuth or Sandbox links`
         )
+        this.logger.line().commit()
         continue
       }
       const isSandbox =
