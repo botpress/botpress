@@ -268,10 +268,11 @@ export function fromPostCandidateInTalentPoolModel(
     disqualifiedAt,
     recruiterKey,
     resumeUrl,
+    resume,
     ...rest
   } = schema
 
-  return {
+  const result = {
     ...rest,
     firstname: firstName,
     lastname: lastName,
@@ -286,6 +287,12 @@ export function fromPostCandidateInTalentPoolModel(
     recruiter_key: recruiterKey,
     resume_url: resumeUrl,
   }
+
+  if (resume?.name && resume?.data) {
+    return { ...result, resume }
+  }
+
+  return result
 }
 
 export function fromPostCandidateInTalentPoolInputModel(
