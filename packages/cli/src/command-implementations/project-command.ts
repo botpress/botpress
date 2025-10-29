@@ -378,7 +378,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }) {
     const authorizationLink = this._getAuthorizationLink({ integration, api, linkTemplateScript })
     const isAuthorized = !!integration.identifier
-    const authorizationStatus = integration.identifier ? 'Authorized ✓' : 'Authorization ✗'
+    const authorizationStatus = integration.identifier ? 'Authorized ✓' : 'Authorize'
     const disabledStatus = integration.enabled ? '' : chalk.italic(' (disabled)')
     if (integration.enabled && isAuthorized) {
       this.logger.log(`${chalk.bold(authorizationStatus)} : ${authorizationLink}`, {
