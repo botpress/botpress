@@ -9,13 +9,13 @@ export const getAxiosClient = async ({
   ctx: bp.Context
   client: bp.Client
 }): Promise<AxiosInstance> => {
-  const { APIKey, projectId } = await getCredentials({ ctx, client })
+  const { apiKey, projectId } = await getCredentials({ ctx, client })
   const baseURL = `https://api.mintlify.com/v1/agent/${projectId}`
 
   const instance = axios.create({
     baseURL,
     headers: {
-      Authorization: `Bearer ${APIKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
   })
 
