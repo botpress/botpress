@@ -179,7 +179,7 @@ export class Cognitive {
     }
 
     if (input.systemPrompt) {
-      input.messages.unshift({ role: 'system', content: input.systemPrompt })
+      input.messages.unshift({ role: 'system', content: input.systemPrompt } as any)
       delete input.systemPrompt
     }
 
