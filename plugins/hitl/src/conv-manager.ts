@@ -17,14 +17,13 @@ export const HITL_END_REASON = {
 type HitlEndReason = (typeof HITL_END_REASON)[keyof typeof HITL_END_REASON]
 
 export class ConversationManager {
-  public static from(props: types.AnyHandlerProps, convId: string, userId?: string): ConversationManager {
-    return new ConversationManager(props, convId, userId)
+  public static from(props: types.AnyHandlerProps, convId: string): ConversationManager {
+    return new ConversationManager(props, convId)
   }
 
   private constructor(
     private _props: types.AnyHandlerProps,
-    private _convId: string,
-    private _userId?: string
+    private _convId: string
   ) {}
 
   public get conversationId(): string {
@@ -57,10 +56,10 @@ export class ConversationManager {
     ])
   }
 
-  public async continueWorkflow(): Promise<void> {
+  public async continueWorkflow(userId?: string): Promise<void> {
     let eventBuilder = this._props.events.continueWorkflow.withConversationId(this._convId)
-    if (this._userId) {
-      eventBuilder = eventBuilder.withUserId(this._userId)
+    if (userId) {
+      eventBuilder = eventBuilder.withUserId(userId)
     }
     await eventBuilder.emit({
       conversationId: this._convId,

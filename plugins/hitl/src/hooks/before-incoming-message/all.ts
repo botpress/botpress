@@ -27,7 +27,7 @@ const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   downstreamConversation: client.Conversation
 ) => {
-  const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId, props.data.userId)
+  const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
@@ -63,11 +63,10 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
-
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
   const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUserId, upstreamConversationId })
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }
@@ -81,7 +80,7 @@ const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
   upstreamConversation: client.Conversation
 ) => {
-  const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId, props.data.userId)
+  const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.LET_BOT_HANDLE_EVENT
@@ -125,14 +124,14 @@ const _handleUpstreamMessage = async (
     })
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.data.userId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
   if (_isHitlCloseCommand(props, sessionConfig)) {
     await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm, sessionConfig })
 
     if (sessionConfig.flowOnHitlStopped) {
       // the bot will continue the conversation without the patient having to send another message
-      await upstreamCm.continueWorkflow()
+      await upstreamCm.continueWorkflow(props.data.userId)
     }
 
     return consts.STOP_EVENT_HANDLING

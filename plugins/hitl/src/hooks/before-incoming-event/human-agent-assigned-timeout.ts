@@ -15,7 +15,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   const isAgentAlreadyAssigned = await upstreamCm.isHumanAgentAssigned()
 
   if (isAgentAlreadyAssigned) {
@@ -23,7 +23,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.data.userId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = (await upstreamCm.isHitlActive()) && (await downstreamCm.isHitlActive())
 
   if (!isHitlActive) {
@@ -45,7 +45,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
 
   if (sessionConfig.flowOnHitlStopped) {
     // the bot will continue the conversation without the patient having to send another message
-    await upstreamCm.continueWorkflow()
+    await upstreamCm.continueWorkflow(props.data.userId)
   }
 
   return consts.STOP_EVENT_HANDLING

@@ -18,7 +18,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     throw new sdk.RuntimeError('userId is required to start HITL')
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.input.userId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   const { conversation: upstreamConversation } = await props.client.getConversation({ id: upstreamConversationId })
 
@@ -61,7 +61,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
     props.input,
     messageHistory
   )
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId, props.input.userId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
   await _linkConversations(props, upstreamConversationId, downstreamConversationId)
   await _saveStartMessageId(props, lastMessageByUser)

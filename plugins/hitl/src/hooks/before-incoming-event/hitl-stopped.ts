@@ -21,7 +21,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId, props.data.userId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
 
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,
@@ -41,7 +41,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
 
   if (sessionConfig.flowOnHitlStopped) {
     // the bot will continue the conversation without the patient having to send another message
-    await upstreamCm.continueWorkflow()
+    await upstreamCm.continueWorkflow(props.data.userId)
   }
 
   return consts.STOP_EVENT_HANDLING
