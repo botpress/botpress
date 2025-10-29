@@ -1,11 +1,4 @@
 import { RuntimeError } from '@botpress/sdk'
-import {
-  getAllAgentJobsOutputSchema,
-  createAgentJobInputSchema,
-  createAgentJobOutputSchema,
-  getAgentJobByIdInputSchema,
-  sessionSchema,
-} from 'definitions/schemas'
 import { getAxiosClient } from 'src/utils/axiosClient'
 import { extractError } from 'src/utils/errorUtils'
 import * as bp from '.botpress'
@@ -17,24 +10,23 @@ export const createAgentJob: bp.IntegrationProps['actions']['createAgentJob'] = 
   logger,
 }) => {
   try {
-    const parsed = createAgentJobInputSchema.parse(input)
     const mintlifyClient = await getAxiosClient({ ctx, client })
 
     const data = {
-      branch: parsed.branchName,
+      branch: input.branchName,
       messages: [
         {
           role: 'system',
-          content: parsed.prompt,
+          content: input.prompt,
         },
       ],
     }
 
     const streamingResponse = await mintlifyClient.post('job', data)
 
-    return createAgentJobOutputSchema.parse({
+    return {
       response: streamingResponse.data,
-    })
+    }
   } catch (error) {
     throw new RuntimeError(extractError(error, logger))
   }
@@ -45,7 +37,7 @@ export const getAllAgentJobs: bp.IntegrationProps['actions']['getAllAgentJobs'] 
 
   try {
     const response = await mintlifyClient.get('jobs')
-    return getAllAgentJobsOutputSchema.parse(response.data)
+    return response.data
   } catch (error) {
     throw new RuntimeError(extractError(error, logger))
   }
@@ -60,9 +52,8 @@ export const getAgentJobById: bp.IntegrationProps['actions']['getAgentJobById'] 
   const mintlifyClient = await getAxiosClient({ ctx, client })
 
   try {
-    const parsed = getAgentJobByIdInputSchema.parse(input)
-    const response = await mintlifyClient.get(`job/${[parsed.jobId]}`)
-    return sessionSchema.parse(response.data)
+    const response = await mintlifyClient.get(`job/${[input.jobId]}`)
+    return response.data
   } catch (error) {
     throw new RuntimeError(extractError(error, logger))
   }

@@ -19,7 +19,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, client, l
         throw new RuntimeError(`401 - Unauthorized: ${error.response?.data?.error || 'Unable to validate API key'}`)
       }
     }
-    const message = error instanceof Error ? error.message : 'Unknown error'
+    const message = error instanceof Error ? error.message : String(error)
     throw new RuntimeError(`Failed to validate configuration: ${message}`)
   }
 }

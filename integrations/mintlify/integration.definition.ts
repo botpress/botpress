@@ -4,6 +4,7 @@ import { actions } from './definitions'
 export default new IntegrationDefinition({
   name: 'mintlify',
   title: 'Mintlify',
+  description: 'Create and retrieve agent jobs in your Mintlify documentation',
   version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
