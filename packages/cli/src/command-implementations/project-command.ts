@@ -400,11 +400,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     // These are the values used by the studio
     let env: 'development' | 'preview' | 'production'
     if (api.url.includes(consts.stagingBotpressDomain)) {
-      env = 'development'
+      env = 'preview'
     } else if (api.url.includes(consts.productionBotpressDomain)) {
       env = 'production'
     } else {
-      env = 'preview'
+      env = 'development'
     }
     return {
       env,
