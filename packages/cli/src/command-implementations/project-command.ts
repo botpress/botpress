@@ -293,16 +293,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const integrationDefinitions: ClientIntegrationDefinitions = {}
-    for (const integration of _.values(bot.integrations)) {
-      const integrationDef = await api.getPublicOrPrivateIntegration({
-        // TODO: See if this is the right way to get integration definition
+    const integrationDefinitions = await utils.records.mapValuesAsync(bot.integrations, async (integration) =>
+      api.getPublicOrPrivateIntegration({
         type: 'id',
         id: integration.id,
       })
-
-      integrationDefinitions[integration.id] = integrationDef
-    }
+    )
 
     this.logger.log('Integrations:')
     for (const integration of Object.values(bot.integrations)) {
