@@ -6,7 +6,7 @@ export function fromPostAnswerModel(
   schema: z.infer<typeof defs.postAnswerSchema>
 ): z.infer<typeof workable.postAnswerSchema> {
   const { questionKey, ...answers } = schema
-  console.log(JSON.stringify(answers, null, 2))
+
   const definedValues = Object.entries(answers).filter(([, value]) => {
     if (value === undefined) {
       return false
