@@ -111,7 +111,6 @@ const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNo
   let footnoteTmp = ''
   parents.push(tree)
   for (const node of tree.children) {
-    console.log('node:', node, '\n=====================')
     const handler = handlers[node.type as keyof MarkdownHandlers]
     if (handler === undefined) {
       throw new Error('unhandledError')
@@ -121,7 +120,6 @@ const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNo
       continue
     }
     tmp += handler(node, (n) => _visitTree(n, handlers, parents), parents, handlers)
-    console.log('tmp:', tmp)
   }
   parents.pop()
   return `${tmp}${footnoteTmp}`
@@ -130,12 +128,10 @@ const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNo
 const _handleList = (listNode: List, handlers: MarkdownHandlers, parents: RootNodes[]): string => {
   parents.push(listNode)
   const listLevel = parents.filter((parent) => parent.type === 'list').length
-  console.log('parents:', parents, 'listLevel:', listLevel)
   let listTmp = listLevel !== 1 ? '\n' : ''
   let itemCount = 0
   for (const listItemNode of listNode.children) {
     itemCount++
-    console.log('listItemNode:', listItemNode, '\n=====================')
     let prefix = FIXED_SIZE_SPACE_CHAR.repeat(listLevel - 1)
     if (listItemNode.checked !== undefined && listItemNode.checked !== null) {
       prefix += listItemNode.checked ? '☑︎ ' : '☐ '
@@ -143,16 +139,6 @@ const _handleList = (listNode: List, handlers: MarkdownHandlers, parents: RootNo
       prefix += listNode.ordered ? `${itemCount}. ` : '- '
     }
     const shouldBreak = listLevel === 1 || itemCount !== listNode.children.length
-    console.log(
-      '####################### itemCount:',
-      itemCount,
-      'length:',
-      listNode.children.length,
-      'listLevel',
-      listLevel,
-      'shouldBreak:',
-      shouldBreak
-    )
     listTmp = `${listTmp}${prefix}${_visitTree(listItemNode, handlers, parents)}${shouldBreak ? '\n' : ''}`
   }
   parents.pop()
@@ -163,11 +149,9 @@ const _handleTable = (tableNode: Table, handlers: MarkdownHandlers, parents: Roo
   parents.push(tableNode)
   let tmpTable = ''
   for (const tableRow of tableNode.children) {
-    console.log('tableRowNode:', tableRow, '\n=====================')
     let childrenCount = 0
     let tmpRow = '| '
     for (const tableCell of tableRow.children) {
-      console.log('tableCellNode:', tableCell, '\n=====================')
       tmpRow = `${tmpRow}${_visitTree(tableCell, handlers, parents)}${childrenCount + 1 === tableRow.children.length ? ' |' : ' | '}`
       childrenCount++
     }
@@ -179,7 +163,6 @@ const _handleTable = (tableNode: Table, handlers: MarkdownHandlers, parents: Roo
 
 export const parseMarkdown = (markdown: string, channel: TwilioChannel): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
-  console.log('tree:', tree, '\n=====================')
   switch (channel) {
     case 'messenger':
       return _visitTree(tree, messengerHandlers, [])
