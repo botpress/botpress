@@ -1,8 +1,12 @@
 import { test, expect } from 'vitest'
 import { formatPhoneNumber } from './phone-number-to-whatsapp'
 
-test('throws on invalid phone number', () => {
+test('throws on invalid text', () => {
   expect(() => formatPhoneNumber('garbage')).toThrow('Invalid phone number')
+})
+
+test('throws on invalid phone number', () => {
+  expect(() => formatPhoneNumber('1')).toThrow('Invalid phone number')
 })
 
 test('Argentina: removes "15" prefix, trims leading zeros, and inserts +549 (mobile)', () => {
@@ -23,6 +27,13 @@ test('Mexico: ensures +521 prefix', () => {
   const input = '+52 55 1234 5678'
   const actual = formatPhoneNumber(input)
   const expected = '+5215512345678'
+  expect(actual).toBe(expected)
+})
+
+test('Mexico: +521 already entered correctly', () => {
+  const input = '+5211234567890'
+  const actual = formatPhoneNumber(input)
+  const expected = '+5211234567890'
   expect(actual).toBe(expected)
 })
 
