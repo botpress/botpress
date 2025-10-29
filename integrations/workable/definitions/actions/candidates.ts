@@ -4,6 +4,10 @@ import {
   getCandidateOutputSchema,
   listCandidatesInputSchema,
   listCandidatesOutputSchema,
+  postCandidateInJobInputSchema,
+  postCandidateInJobOutputSchema,
+  postCandidateInTalentPoolInputSchema,
+  postCandidateInTalentPoolOutputSchema,
 } from 'definitions/models/candidates'
 
 export const listCandidates = {
@@ -25,5 +29,27 @@ export const getCandidate = {
   },
   output: {
     schema: getCandidateOutputSchema,
+  },
+} satisfies ActionDefinition
+
+export const createCandidateInJob = {
+  title: 'Create candidate in job',
+  description: 'Create a candidate in the specified job',
+  input: {
+    schema: postCandidateInJobInputSchema,
+  },
+  output: {
+    schema: postCandidateInJobOutputSchema,
+  },
+} satisfies ActionDefinition
+
+export const createCandidateInTalentPool = {
+  title: 'Create candidate in talent pool',
+  description: 'Create a candidate in the talent pool',
+  input: {
+    schema: postCandidateInTalentPoolInputSchema,
+  },
+  output: {
+    schema: postCandidateInTalentPoolOutputSchema,
   },
 } satisfies ActionDefinition
