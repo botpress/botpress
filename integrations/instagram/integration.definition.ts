@@ -238,7 +238,4 @@ export default new IntegrationDefinition({
     entities: {
       conversation: entities.dm,
     },
-    actions: {
-      getOrCreateConversation: { name: 'getOrCreateConversationDm' },
-    },
   }))

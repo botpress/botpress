@@ -1,8 +1,8 @@
-import { getOrCreateConversationDm } from './proactive-conversation'
+import { getOrCreateConversation } from './proactive-conversation'
 import { getOrCreateUser } from './proactive-user'
 import * as bp from '.botpress'
 
 export default {
   getOrCreateUser,
-  getOrCreateConversationDm,
+  getOrCreateConversation,
 } satisfies bp.IntegrationProps['actions']
