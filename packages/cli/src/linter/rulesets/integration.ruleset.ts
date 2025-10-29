@@ -83,7 +83,7 @@ export const INTEGRATION_RULESET = {
       description: 'All action output parameters MUST have a description',
       message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].output..schema.properties[*]',
+      given: '$.actions[*].output..schema.properties[?(@.type)]', // some complex types don't have descriptions on the parent level
       then: [
         {
           field: 'description',
