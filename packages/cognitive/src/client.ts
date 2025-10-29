@@ -178,8 +178,13 @@ export class Cognitive {
       return this._generateContent(input)
     }
 
-    const betaClient = new CognitiveBeta(this._client.config as any)
-    const response = await betaClient.generateText(input as any)
+    if (input.systemPrompt) {
+      input.messages.unshift({ role: 'system', content: input.systemPrompt })
+      delete input.systemPrompt
+    }
+
+    const betaClient = new CognitiveBeta(this._client.config)
+    const response = await betaClient.generateText(input)
 
     return {
       output: {
@@ -192,7 +197,7 @@ export class Cognitive {
             content: response.output,
             role: 'assistant',
             index: 0,
-            stopReason: response.metadata.stopReason! as any,
+            stopReason: response.metadata.stopReason as any,
           },
         ],
         usage: {

@@ -10,7 +10,7 @@ export type GenerateContentInput = {
   systemPrompt?: string
   /** Array of messages for the model to process */
   messages: Array<{
-    role: 'user' | 'assistant'
+    role: 'user' | 'assistant' | 'system'
     type?: 'text' | 'tool_calls' | 'tool_result' | 'multipart'
     /** Required if `type` is "tool_calls" */
     toolCalls?: Array<{
