@@ -3,17 +3,17 @@ import integrationDefinition from 'integration.definition'
 import * as bp from '.botpress'
 
 // safely initialize analytics instance
-let analyticsInstance: Analytics | undefined
-const getOrCreateAnalytics = () => {
-  if (analyticsInstance === undefined) {
+let segmentClient: Analytics | undefined
+const getOrCreateSegmentClient = () => {
+  if (segmentClient === undefined) {
     try {
-      analyticsInstance = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
+      segmentClient = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       throw new Error(`Could not initialize Segment analytics instance. - ${errMsg}`)
     }
   }
-  return analyticsInstance
+  return segmentClient
 }
 
 // Track event function
@@ -24,11 +24,11 @@ export const trackIntegrationEvent = async (
 ): Promise<void> => {
   await new Promise((resolve) => {
     try {
-      const analytics = getOrCreateAnalytics()
-      if (analytics === undefined) {
+      const client = getOrCreateSegmentClient()
+      if (client === undefined) {
         return
       }
-      analytics.track(
+      client.track(
         {
           userId: botId,
           event: eventName,
@@ -58,11 +58,11 @@ export const trackIntegrationEvent = async (
 export const identifyBot = async (botId: string, traits: Record<string, any>): Promise<void> => {
   await new Promise((resolve) => {
     try {
-      const analytics = getOrCreateAnalytics()
-      if (analytics === undefined) {
+      const client = getOrCreateSegmentClient()
+      if (client === undefined) {
         return
       }
-      analytics.identify(
+      client.identify(
         {
           userId: botId,
           traits,
