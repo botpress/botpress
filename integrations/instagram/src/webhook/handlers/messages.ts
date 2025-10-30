@@ -117,7 +117,7 @@ const _commonMessagingHandler = async ({
 }) => {
   const { client, ctx, logger } = handlerProps
 
-  const { sender } = messagingItem
+  const { sender, recipient } = messagingItem
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
@@ -151,6 +151,8 @@ const _commonMessagingHandler = async ({
     type,
     tags: {
       id: messageId,
+      senderId: sender.id,
+      recipientId: recipient.id,
     },
     userId: user.id,
     conversationId: conversation.id,

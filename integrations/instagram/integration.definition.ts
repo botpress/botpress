@@ -6,6 +6,7 @@ import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
 
+// File message type unsupported both ways in DM
 const { file: _file, ...channelMessages } = dmChannelMessages
 
 const commonConfigSchema = z.object({
