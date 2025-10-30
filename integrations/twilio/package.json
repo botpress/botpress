@@ -12,11 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@types/mdast": "^4.0.4",
     "axios": "^1.6.0",
-    "markdown-it": "^14.1.0",
-    "markdown-it-sub": "^2.0.0",
-    "markdown-it-sup": "^2.0.0",
     "query-string": "^6.14.1",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
@@ -28,7 +24,7 @@
     "@botpresshub/proactive-conversation": "workspace:*",
     "@botpresshub/proactive-user": "workspace:*",
     "@sentry/cli": "^2.39.1",
-    "@types/markdown-it": "^14.1.2"
+    "@types/mdast": "^4.0.4"
   },
   "bpDependencies": {
     "proactive-conversation": "../../interfaces/proactive-conversation",
