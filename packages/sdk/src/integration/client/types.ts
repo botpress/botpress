@@ -9,15 +9,17 @@ type Res<F extends (...args: any[]) => any> = ReturnType<F>
 type ConversationResponse<
   TIntegration extends common.BaseIntegration,
   ChannelName extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
-> = {
-  conversation: utils.Merge<
-    Awaited<Res<client.Client['getConversation']>>['conversation'],
-    {
-      channel: ChannelName
-      tags: common.ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags']>
-    }
-  >
-}
+> = utils.ValueOf<{
+  [TChannelName in ChannelName]: {
+    conversation: utils.Merge<
+      Awaited<Res<client.Client['getConversation']>>['conversation'],
+      {
+        channel: TChannelName
+        tags: common.ToTags<keyof TIntegration['channels'][TChannelName]['conversation']['tags']>
+      }
+    >
+  }
+}>
 
 export type CreateConversation<TIntegration extends common.BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels'],
