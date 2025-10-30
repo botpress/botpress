@@ -37,7 +37,7 @@ To protect the sensitive data in your HubSpot workspace, this integration requir
 
 ## Migrating from 4.x to 5.x
 
-Version 5.x addresses critical stability issues that could cause your bot to crash during certain operations. This release fixes bugs related to error handling when interacting with HubSpot's API, particularly when dealing with missing or invalid data in search and retrieval operations such as `Search Contact`. If you experienced unexpected bot crashes or unhandled errors in previous versions, upgrading to 5.x will resolve these issues. No changes to your bot's code are required—simply update the integration to benefit from these fixes.
+Version 5.x addresses issues that could cause your bot to crash during certain operations. The searching operations (`Search Contact`, `Search Deal`, `Search Lead`) now return empty objects instead of throwing an error. This allows the conversation to continue without an issue.
 
 ## Migrating from 3.x to 4.x
 
