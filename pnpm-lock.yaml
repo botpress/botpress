@@ -2243,7 +2243,7 @@ importers:
         version: 11.7.0
       '@botpress/chat':
         specifier: 0.5.2
-        version: link:../chat-client
+        version: 0.5.2
       '@botpress/client':
         specifier: 1.27.0
         version: link:../client
@@ -3664,6 +3664,10 @@ packages:
 
   '@botpress/api@1.48.2':
     resolution: {integrity: sha512-jKiZcipzYq03D/uajqWIfxnFP1KLQu7YztdJEx9R9Rq7NvbwfIx3e9IMArBtEIcqO36yMsWr/E/rgHI+JPG5Rg==}
+
+  '@botpress/chat@0.5.2':
+    resolution: {integrity: sha512-KfY1YjRClj5chSHUN5zu4F3ayeWxUdf3e3SYEwh7fj+C+cDvNLuFvT/tAI+J1sUNVOmrQlADEz+LpA2xsx85cQ==}
+    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12560,6 +12564,19 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
+
+  '@botpress/chat@0.5.2':
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      event-source-polyfill: 1.0.31
+      eventsource: 2.0.2
+      jsonwebtoken: 9.0.2
+      qs: 6.13.0
+      verror: 1.10.1
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - debug
 
   '@bpinternal/const@0.1.0': {}
 
