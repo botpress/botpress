@@ -20,7 +20,7 @@ const searchContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: contactSchema.title('Contact').describe('The contact found'),
+      contact: contactSchema.optional().title('Contact').describe('The contact found, or undefined if not found'),
     }),
   },
 }
