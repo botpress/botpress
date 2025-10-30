@@ -9,7 +9,7 @@ const commentIdSchema = z.object({
     .describe('The Instagram comment ID under which the direct message conversation was started'),
 })
 
-export const channelMessages = {
+const channelMessages = {
   text: { schema: sdk.messages.defaults.text.schema.merge(commentIdSchema) },
   image: { schema: sdk.messages.defaults.image.schema.merge(commentIdSchema) },
   audio: { schema: sdk.messages.defaults.audio.schema.merge(commentIdSchema) },
