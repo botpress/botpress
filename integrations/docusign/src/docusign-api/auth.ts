@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosInstance } from 'axios'
-import type { Result } from '../types'
+import type { CommonHandlerProps, Result } from '../types'
 import {
   type GetAccessTokenResp,
   docusignOAuthAccessTokenRespSchema,
@@ -10,19 +10,25 @@ import {
 import { GetAccessTokenParams } from './types'
 import * as bp from '.botpress'
 
+type OAuthParameters = {
+  oauthBaseUrl: string
+  clientId: string
+  clientSecret: string
+}
+
 export class DocusignAuthClient {
   private _axiosClient: AxiosInstance
 
-  public constructor() {
-    const { OAUTH_BASE_URL, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } = bp.secrets
+  private constructor(params: OAuthParameters) {
+    const { oauthBaseUrl, clientId, clientSecret } = params
 
     // Opted for axios here since the docusign package only has
     // a function for getting an accessToken from the oauth code
     // but not for refresh tokens
     this._axiosClient = axios.create({
-      baseURL: OAUTH_BASE_URL,
+      baseURL: oauthBaseUrl,
       headers: {
-        Authorization: `Basic ${Buffer.from(`${OAUTH_CLIENT_ID}:${OAUTH_CLIENT_SECRET}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
         'Cache-Control': 'no-store',
         Pragma: 'no-cache',
       },
@@ -105,5 +111,27 @@ export class DocusignAuthClient {
     }
 
     return { success: true, data: result.data }
+  }
+
+  public static create(props: CommonHandlerProps): DocusignAuthClient {
+    const { ctx } = props
+    switch (ctx.configurationType) {
+      case 'sandbox':
+        return new DocusignAuthClient({
+          oauthBaseUrl: bp.secrets.SANDBOX_OAUTH_BASE_URL,
+          clientId: bp.secrets.SANDBOX_CLIENT_ID,
+          clientSecret: bp.secrets.SANDBOX_CLIENT_SECRET,
+        })
+      case null:
+        return new DocusignAuthClient({
+          oauthBaseUrl: bp.secrets.OAUTH_BASE_URL,
+          clientId: bp.secrets.CLIENT_ID,
+          clientSecret: bp.secrets.CLIENT_SECRET,
+        })
+      default:
+        ctx satisfies never
+    }
+
+    throw new RuntimeError(`Unsupported configuration type: ${props.ctx.configurationType}`)
   }
 }

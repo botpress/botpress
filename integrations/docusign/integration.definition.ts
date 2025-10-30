@@ -1,11 +1,12 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { sendEnvelopeInputSchema, sendEnvelopeOutputSchema } from 'definitions/actions'
+import { configurationSchema } from 'definitions/configuration'
 import { envelopeEventSchema } from 'definitions/events'
 
 export default new IntegrationDefinition({
   name: 'docusign',
   title: 'Docusign',
-  version: '2.0.1',
+  version: '2.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
@@ -14,16 +15,17 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({
-      accountId: z
-        .string()
-        .optional()
-        .title('API Account ID (Optional)')
-        .describe(
-          'The docusign user\'s "API Account ID" (This is a GUID that is found in "Apps & Keys")\nThe default account will be selected if left empty'
-        )
-        .placeholder('e.g. a1b2c3d4-e5f6-g7h8-i9j0-d4c3b2a1'),
-    }),
+    schema: configurationSchema,
+  },
+  configurations: {
+    sandbox: {
+      title: 'Sandbox',
+      description: 'Use Docusign developer sandbox environment',
+      identifier: {
+        linkTemplateScript: 'linkTemplateSandbox.vrl',
+      },
+      schema: configurationSchema,
+    },
   },
   actions: {
     sendEnvelope: {
@@ -68,10 +70,19 @@ export default new IntegrationDefinition({
     OAUTH_BASE_URL: {
       description: 'The base URL used for OAuth authentication',
     },
-    OAUTH_CLIENT_ID: {
+    CLIENT_ID: {
       description: "The unique identifier that's used to initiate the OAuth flow",
     },
-    OAUTH_CLIENT_SECRET: {
+    CLIENT_SECRET: {
+      description: "A secret that's used to establish and refresh the OAuth authentication",
+    },
+    SANDBOX_OAUTH_BASE_URL: {
+      description: 'The base URL used for OAuth authentication',
+    },
+    SANDBOX_CLIENT_ID: {
+      description: "The unique identifier that's used to initiate the OAuth flow",
+    },
+    SANDBOX_CLIENT_SECRET: {
       description: "A secret that's used to establish and refresh the OAuth authentication",
     },
     WEBHOOK_SIGNING_SECRET: {
