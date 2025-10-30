@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import { unprefixTagsOwnedByPlugin } from 'src/plugin/tag-prefixer'
+import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from 'src/plugin/tag-prefixer'
 import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BaseBot } from '../common'
@@ -34,6 +34,10 @@ export const proxyWorkflows = <TBot extends BaseBot>(props: {
             name: workflowName as typeUtils.Cast<TWorkflowName, string>,
             status: 'pending',
             ...input,
+            tags:
+              input.tags && props.pluginAlias
+                ? prefixTagsIfNeeded(input.tags, { alias: props.pluginAlias })
+                : undefined,
           })
           return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
         },
@@ -81,7 +85,11 @@ export const wrapWorkflowInstance = <
       : props.workflow) as WorkflowWithUtilities<TBot, TWorkflowName>),
 
     async update(x) {
-      const { workflow } = await props.client.updateWorkflow({ id: props.workflow.id, ...x })
+      const { workflow } = await props.client.updateWorkflow({
+        id: props.workflow.id,
+        ...x,
+        tags: x.tags && props.pluginAlias ? prefixTagsIfNeeded(x.tags, { alias: props.pluginAlias }) : undefined,
+      })
       await props.onWorkflowUpdate?.(workflow)
 
       return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
