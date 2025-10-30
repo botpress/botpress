@@ -26,6 +26,12 @@ export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({
 
   const lead = await hsClient.searchLead({ name: input.name, propertiesToReturn: propertyKeys })
 
+  if (!lead) {
+    return {
+      lead: undefined,
+    }
+  }
+
   return {
     lead: _mapHsLeadToBpLead(lead),
   }

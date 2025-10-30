@@ -26,6 +26,12 @@ export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({
 
   const deal = await hsClient.searchDeal({ name: input.name, propertiesToReturn: propertyKeys })
 
+  if (!deal) {
+    return {
+      deal: undefined,
+    }
+  }
+
   return {
     deal: _mapHsDealToBpDeal(deal),
   }

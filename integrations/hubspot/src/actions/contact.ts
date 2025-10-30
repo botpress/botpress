@@ -45,6 +45,12 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
     propertiesToReturn: propertyKeys,
   })
 
+  if (!contact) {
+    return {
+      contact: undefined,
+    }
+  }
+
   return {
     contact: _mapHsContactToBpContact(contact),
   }
