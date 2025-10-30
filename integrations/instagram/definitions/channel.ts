@@ -9,7 +9,7 @@ const commentIdSchema = z.object({
     .describe('The Instagram comment ID under which the direct message conversation was started'),
 })
 
-export const dmChannelMessages = {
+export const channelMessages = {
   text: { schema: sdk.messages.defaults.text.schema.merge(commentIdSchema) },
   image: { schema: sdk.messages.defaults.image.schema.merge(commentIdSchema) },
   audio: { schema: sdk.messages.defaults.audio.schema.merge(commentIdSchema) },
@@ -24,7 +24,10 @@ export const dmChannelMessages = {
 } as const satisfies typeof sdk.messages.defaults
 
 type ValueOf<T> = T[keyof T]
-type DmMessageDefinition = ValueOf<typeof dmChannelMessages>
-type DmMessage = sdk.z.infer<DmMessageDefinition['schema']>
+type ChannelMessageDefinition = ValueOf<typeof channelMessages>
+type ChannelMessage = sdk.z.infer<ChannelMessageDefinition['schema']>
 type AssertMessageTypeHasCommentId<_T extends z.infer<typeof commentIdSchema>> = true
-type _AssertMessageTypesHaveCommentId = AssertMessageTypeHasCommentId<DmMessage>
+type _AssertMessageTypesHaveCommentId = AssertMessageTypeHasCommentId<ChannelMessage>
+
+// File message type unsupported both ways in DM
+export const { file: _file, ...dmChannelMessages } = channelMessages
