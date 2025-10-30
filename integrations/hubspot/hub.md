@@ -35,7 +35,11 @@ To protect the sensitive data in your HubSpot workspace, this integration requir
 8. From your app's settings page, navigate to the _Auth_ tab and copy the _Access Token_ and _Client Secret_.
 9. Paste the _Access Token_ and _Client Secret_ in Botpress, then save the integration's configuration.
 
-## Migrating from 2.x to 3.x
+## Migrating from 4.x to 5.x
+
+Version 5.x addresses critical stability issues that could cause your bot to crash during certain operations. This release fixes bugs related to error handling when interacting with HubSpot's API, particularly when dealing with missing or invalid data in search and retrieval operations such as `Search Contact`. If you experienced unexpected bot crashes or unhandled errors in previous versions, upgrading to 5.x will resolve these issues. No changes to your bot's code are required—simply update the integration to benefit from these fixes.
+
+## Migrating from 3.x to 4.x
 
 ### Default properties
 
