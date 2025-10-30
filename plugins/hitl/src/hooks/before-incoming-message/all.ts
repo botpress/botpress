@@ -66,6 +66,7 @@ const _handleDownstreamMessage = async (
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
   const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUserId, upstreamConversationId })
+
   const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
@@ -131,7 +132,8 @@ const _handleUpstreamMessage = async (
 
     if (sessionConfig.flowOnHitlStopped) {
       // the bot will continue the conversation without the patient having to send another message
-      await upstreamCm.continueWorkflow(props.data.userId)
+
+      await upstreamCm.continueWorkflow(patientUpstreamUser.id)
     }
 
     return consts.STOP_EVENT_HANDLING
