@@ -1,39 +1,41 @@
 import type * as client from '@botpress/client'
+import { unprefixTagsOwnedByPlugin } from 'src/plugin/tag-prefixer'
 import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BaseBot } from '../common'
 import * as botServerTypes from '../server/types'
 import type { WorkflowProxy, WorkflowWithUtilities } from './types'
 
-export const proxyWorkflows = <TBot extends BaseBot>(
+export const proxyWorkflows = <TBot extends BaseBot>(props: {
   client: BotSpecificClient<TBot> | client.Client
-): WorkflowProxy<TBot> =>
+  pluginAlias?: string
+}): WorkflowProxy<TBot> =>
   new Proxy({} as WorkflowProxy<TBot>, {
     get: <TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>>(_: unknown, workflowName: TWorkflowName) =>
       ({
         listInstances: {
-          all: (input) => _listWorkflows({ workflowName, client, input }),
-          running: (input) => _listWorkflows({ workflowName, client, input, statuses: ['in_progress'] }),
-          scheduled: (input) => _listWorkflows({ workflowName, client, input, statuses: ['pending', 'listening'] }),
+          all: (input) => _listWorkflows({ ...props, workflowName, input }),
+          running: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['in_progress'] }),
+          scheduled: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['pending', 'listening'] }),
           allFinished: (input) =>
             _listWorkflows({
+              ...props,
               workflowName,
-              client,
               input,
               statuses: ['completed', 'cancelled', 'failed', 'timedout'],
             }),
-          cancelled: (input) => _listWorkflows({ workflowName, client, input, statuses: ['cancelled'] }),
-          failed: (input) => _listWorkflows({ workflowName, client, input, statuses: ['failed'] }),
-          succeeded: (input) => _listWorkflows({ workflowName, client, input, statuses: ['completed'] }),
-          timedOut: (input) => _listWorkflows({ workflowName, client, input, statuses: ['timedout'] }),
+          cancelled: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['cancelled'] }),
+          failed: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['failed'] }),
+          succeeded: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['completed'] }),
+          timedOut: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['timedout'] }),
         },
         startNewInstance: async (input) => {
-          const { workflow } = await client.createWorkflow({
+          const { workflow } = await props.client.createWorkflow({
             name: workflowName as typeUtils.Cast<TWorkflowName, string>,
             status: 'pending',
             ...input,
           })
-          return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ client, workflow }) }
+          return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
         },
       }) satisfies WorkflowProxy<TBot>[TWorkflowName],
   })
@@ -48,6 +50,7 @@ const _listWorkflows = async <
   input?: Pick<client.ClientInputs['listWorkflows'], 'nextToken' | 'conversationId' | 'userId'> & {
     tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
   }
+  pluginAlias?: string
 }) => {
   const ret = await props.client.listWorkflows({
     name: props.workflowName as any,
@@ -56,9 +59,7 @@ const _listWorkflows = async <
   })
   return {
     ...ret,
-    workflows: ret.workflows.map((workflow) =>
-      wrapWorkflowInstance<TBot, TWorkflowName>({ client: props.client, workflow })
-    ),
+    workflows: ret.workflows.map((workflow) => wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow })),
   }
 }
 
@@ -70,11 +71,14 @@ export const wrapWorkflowInstance = <
   workflow: client.Workflow
   event?: botServerTypes.WorkflowUpdateEvent
   onWorkflowUpdate?: (newState: client.Workflow) => Promise<void> | void
+  pluginAlias?: string
 }): WorkflowWithUtilities<TBot, TWorkflowName> => {
   let isAcknowledged = false
 
   return {
-    ...(props.workflow as WorkflowWithUtilities<TBot, TWorkflowName>),
+    ...((props.pluginAlias
+      ? unprefixTagsOwnedByPlugin(props.workflow, { alias: props.pluginAlias })
+      : props.workflow) as WorkflowWithUtilities<TBot, TWorkflowName>),
 
     async update(x) {
       const { workflow } = await props.client.updateWorkflow({ id: props.workflow.id, ...x })
