@@ -110,7 +110,6 @@ export class WorkableClient {
   public async updateCandidate(
     params: z.infer<typeof updateCandidateInputSchema>
   ): Promise<z.infer<typeof updateCandidateOutputSchema>> {
-    console.log(params.body.candidate)
     const response: AxiosResponse<z.infer<typeof updateCandidateOutputSchema>> = await this._client
       .patch(`/candidates/${params.id}`, params.body)
       .catch(this._handleAxiosError)
