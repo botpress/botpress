@@ -1,6 +1,9 @@
 import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
+// recepient id
+export type InstagramRecipientId = { id: string } | { comment_id: string }
+
 // Incoming message types
 const instagramEntryBaseSchema = z.object({
   id: z.string(),
