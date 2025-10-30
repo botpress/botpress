@@ -117,7 +117,7 @@ const _visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: RootNo
   parents.push(tree)
   for (const node of tree.children) {
     if (!isNodeType(node.type, handlers)) {
-      throw new Error('unhandledError')
+      throw new Error(`The Markdown node type [${node.type}] is not supported`)
     }
 
     const handler = handlers[node.type] as NodeHandler<Node>

@@ -235,7 +235,7 @@ function getPhoneNumbers(conversation: types.Conversation) {
   return { to, from }
 }
 
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack' | 'logger'> & {
   mediaUrl?: string
   text?: string
 }
@@ -392,11 +392,19 @@ function getMessageTypeAndPayload(
   }
 }
 
-async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessageProps) {
+async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: SendMessageProps) {
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const twilioChannel = getTwilioChannelType(to)
-  const body = text === undefined ? text : parseMarkdown(text, twilioChannel)
+  let body = text
+  if (body !== undefined) {
+    try {
+      body = parseMarkdown(body, twilioChannel)
+    } catch (thrown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().debug('Failed to parse markdown - Error:', errMsg)
+    }
+  }
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })
   await ack({ tags: { id: sid } })
 }

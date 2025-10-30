@@ -5,6 +5,7 @@ const FIXED_SIZE_SPACE_CHAR = '\u2002' // 'En space' yields better results for i
 
 type Test = Record<string, { input: string; expected: string }>
 const stripAllTests: Test = {
+  empty: { input: '', expected: '' },
   Text: { input: 'test', expected: 'test\n' },
   Paragraph: { input: 'first Paragraph\n\nSecond Paragraph', expected: 'first Paragraph\nSecond Paragraph\n' },
   Hard_line_break: { input: 'line one  \nline two', expected: 'line one\nline two\n' },
