@@ -460,7 +460,9 @@ export const updateCandidateInputSchema = z.object({
       domain: true,
       recruiterKey: true,
     })
-    .partial(),
+    .partial()
+    .title('Candidate')
+    .describe('The candidate to update'),
 })
 
 export const updateCandidateOutputSchema = z.object({
