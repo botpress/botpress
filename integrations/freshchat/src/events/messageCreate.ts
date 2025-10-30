@@ -37,12 +37,13 @@ export const executeMessageCreate = async ({
     },
   })
 
-  // An unassigned agent might send a message
-  await updateAgentUser(user, client, ctx, logger)
-
   const items: Extract<Message, { type: 'bloc' }>['payload']['items'] = []
   for (const messagePart of freshchatEvent.data.message.message_parts) {
     if ('text' in messagePart) {
+      if (!messagePart.text.content.trim().length) {
+        continue
+      }
+
       items.push({
         type: 'text',
         payload: {
@@ -98,13 +99,19 @@ export const executeMessageCreate = async ({
     }
   }
 
-  await client.createMessage({
-    type: 'bloc',
-    payload: {
-      items,
-    },
-    tags: {},
-    userId: user?.id as string,
-    conversationId: conversation.id,
-  })
+  // Only create message if there are items to send
+  if (items.length > 0) {
+    // An unassigned agent might send a message
+    await updateAgentUser(user, client, ctx, logger)
+
+    await client.createMessage({
+      type: 'bloc',
+      payload: {
+        items,
+      },
+      tags: {},
+      userId: user?.id as string,
+      conversationId: conversation.id,
+    })
+  }
 }
