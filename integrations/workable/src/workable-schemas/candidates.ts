@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { socialProfileTypesSchema } from 'definitions/models/candidates'
+import { imageSource, socialProfileTypesSchema } from 'definitions/models/candidates'
 import { answerSchema, postAnswerSchema } from './answers'
 
 export const baseCandidateSchema = z
@@ -90,6 +90,33 @@ export const experienceEntrySchema = z
     current: z.boolean().nullable(),
   })
   .partial()
+
+export const updateEducationEntrySchema = z.object({
+  id: z.string().optional(),
+  degree: z.string().optional(),
+  school: z.string(),
+  field_of_study: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+})
+
+export const updateSocialProfileSchema = z.object({
+  type: z.string(),
+  name: z.string().optional(),
+  username: z.string().optional(),
+  url: z.string(),
+})
+
+export const updateExperienceEntrySchema = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  summary: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  company: z.string().optional(),
+  industry: z.string().optional(),
+  current: z.boolean().optional(),
+})
 
 export const locationSchema = z
   .object({
@@ -215,5 +242,38 @@ export const postCandidateInTalentPoolOutputSchema = z.object({
 
 export const postCandidateInJobOutputSchema = z.object({
   status: z.string(),
+  candidate: detailedCandidateSchema,
+})
+
+export const updateCandidateInputSchema = z.object({
+  id: z.string(),
+  body: z.object({
+    candidate: postCandidateInTalentPoolSchema
+      .extend({
+        texting_consent: z.enum(['forced', 'declined']),
+        image_url: z.string(),
+        image_source: imageSource,
+        image: z
+          .object({
+            name: z.string(),
+            data: z.string(),
+            source: imageSource,
+          })
+          .partial(),
+        education_entries: z.array(updateEducationEntrySchema),
+        experience_entries: z.array(updateExperienceEntrySchema),
+        social_profiles: z.array(updateSocialProfileSchema),
+      })
+      .omit({
+        disqualified: true,
+        disqualification_reason: true,
+        disqualified_at: true,
+        domain: true,
+        recruiter_key: true,
+      })
+      .partial(),
+  }),
+})
+export const updateCandidateOutputSchema = z.object({
   candidate: detailedCandidateSchema,
 })

@@ -6,10 +6,12 @@ import {
   fromListCandidatesInputModel,
   fromPostCandidateInJobInputModel,
   fromPostCandidateInTalentPoolInputModel,
+  fromUpdateCandidateInputModel,
   toGetCandidateModel,
   toListCandidatesOutputModel,
   toPostCandidateInJobOutputModel,
   toPostCandidateInTalentPoolOutputModel,
+  toUpdateCandidateOutputModel,
 } from './mapping/candidate-mapper'
 import { WorkableClient } from './workable-api/client'
 import * as bp from '.botpress'
@@ -148,6 +150,17 @@ export default new bp.Integration({
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to create candidate: ${msg}`)
+      }
+    },
+    updateCandidate: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.updateCandidate(fromUpdateCandidateInputModel(props.input))
+        return toUpdateCandidateOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to update candidate: ${msg}`)
       }
     },
   },

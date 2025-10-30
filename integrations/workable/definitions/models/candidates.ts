@@ -150,6 +150,33 @@ export const experienceEntrySchema = z
   })
   .partial()
 
+export const updateEducationEntrySchema = z.object({
+  id: z.string().optional().title('Id').describe('The education entry identifier'),
+  degree: z.string().optional().title('Degree').describe('The graduation degree'),
+  school: z.string().title('School').describe('The name of the school graduated'),
+  fieldOfStudy: z.string().optional().title('Field Of Study').describe('The field of study'),
+  startDate: z.string().optional().title('Start Date').describe('The date started'),
+  endDate: z.string().optional().title('End Date').describe('The date ended'),
+})
+
+export const updateSocialProfileSchema = z.object({
+  type: socialProfileTypesSchema.title('Type').describe('The slug name of the social profile'),
+  name: z.string().optional().title('Name').describe('The full name of the social profile'),
+  username: z.string().optional().title('Username').describe('The username of the social profile'),
+  url: z.string().title('Url').describe("Url to the candidate's social profile page"),
+})
+
+export const updateExperienceEntrySchema = z.object({
+  id: z.string().optional().title('Id').describe('The experience entry identifier'),
+  title: z.string().title('Title').describe('The title of the experience entry'),
+  summary: z.string().optional().title('Summary').describe('The summary of the experience entry'),
+  startDate: z.string().optional().title('Start Date').describe('The date started'),
+  endDate: z.string().optional().title('End Date').describe('The date ended'),
+  company: z.string().optional().title('Company').describe('The company name'),
+  industry: z.string().optional().title('Industry').describe('The industry of the company'),
+  current: z.boolean().optional().title('Current').describe('Indicates if currently works there'),
+})
+
 export const locationSchema = z
   .object({
     locationString: z
@@ -349,4 +376,95 @@ export const postCandidateInJobInputSchema = z.object({
   sourced: z.boolean().optional().title('Sourced').describe('Indicates if the candidate is sourced or applied'),
   candidate: postCandidateInJobSchema.title('Candidate').describe('The candidate to create'),
   shortCode: z.string().title('Short Code').describe('The shortcode of the job the candidate is applying to'),
+})
+
+export const imageSource = z.enum([
+  'academiaedu',
+  'angellist',
+  'behance',
+  'bitbucket',
+  'blogger',
+  'crunchbase',
+  'dandyid',
+  'delicious',
+  'deviantart',
+  'digg',
+  'doyoubuzz',
+  'dribble',
+  'dribbble',
+  'econsultancy',
+  'facebook',
+  'flavorsme',
+  'flickr',
+  'fullcontact',
+  'getglue',
+  'gist',
+  'github',
+  'goodreads',
+  'googleplus',
+  'gravatar',
+  'hackernews',
+  'hiim',
+  'klout',
+  'lanyrd',
+  'linkedin',
+  'myspace',
+  'ohloh',
+  'orkut',
+  'pinterest',
+  'quora',
+  'reddit',
+  'scribd',
+  'skype',
+  'slideshare',
+  'stackexchange',
+  'stackoverflow',
+  'tumblr',
+  'twitter',
+  'typepad',
+  'vk',
+  'wordpress',
+  'xing',
+])
+
+export const updateCandidateInputSchema = z.object({
+  id: z.string().title('ID').describe("The candidate to update's id"),
+  candidate: postCandidateInTalentPoolSchema
+    .extend({
+      textingConsent: z.enum(['forced', 'declined']).title('Texting Consent'),
+      imageUrl: z.string().title('Image Url').describe("A url pointing to the candidate's image"),
+      imageSource: imageSource
+        .title('Image Source')
+        .describe('The source of the image (if not provided by the candidate)'),
+      image: z
+        .object({
+          name: z.string().title('Name').describe("The candidate's image name"),
+          data: z.string().title('Data').describe("The candidate's image encodede in base64"),
+          source: imageSource.title('Image Source').describe('The image source'),
+        })
+        .partial(),
+      educationEntries: z
+        .array(updateEducationEntrySchema)
+        .describe('Existing entries will be deleted if not included in the new array.'),
+      experienceEntries: z
+        .array(updateExperienceEntrySchema)
+        .describe('Existing entries will be deleted if not included in the new array.'),
+      socialProfiles: z
+        .array(updateSocialProfileSchema)
+        .describe('Existing profiles will be deleted if not included in the new array.'),
+    })
+    .omit({
+      disqualified: true,
+      disqualificationReason: true,
+      disqualifiedAt: true,
+      domain: true,
+      recruiterKey: true,
+    })
+    .partial()
+    .title('Candidate')
+    .describe('The candidate to update'),
+})
+
+export const updateCandidateOutputSchema = z.object({
+  candidate: detailedCandidateSchema.title('Candidate').describe('The candidate updated'),
 })
