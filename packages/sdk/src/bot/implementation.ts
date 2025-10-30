@@ -1,3 +1,4 @@
+import { Workflow } from '@botpress/client'
 import type { Server } from 'node:http'
 import { PLUGIN_PREFIX_SEPARATOR } from '../consts'
 import { BasePlugin, PluginImplementation } from '../plugin'
@@ -76,9 +77,10 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         get: (_, actionName: string) => {
-          let action = this._actionHandlers[actionName]
+          const action = this._actionHandlers[actionName]
           if (action) {
-            return action
+            return (props: Omit<Parameters<typeof action>[0], keyof InjectedHandlerProps<TBot>>) =>
+              action({ ...props, workflows: proxyWorkflows(props) })
           }
 
           for (const [pluginAlias, plugin] of Object.entries(this._plugins)) {
@@ -86,14 +88,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             if (actionPrefix !== pluginAlias || !nameWithoutPrefix) {
               continue
             }
-            action = plugin.actionHandlers[nameWithoutPrefix]
-            if (action) {
-              return utils.functions.setName(
-                (props: Omit<Parameters<NonNullable<typeof action>>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  action!({ ...props, workflows: proxyWorkflows(props.client) }),
-                action.name
-              )
-            }
+            return plugin.actionHandlers[nameWithoutPrefix]
           }
 
           return undefined
@@ -115,16 +110,15 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const selfGlobalHandlers = this._messageHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
-            .map(({ handler }) => handler)
-          return utils.arrays
-            .unique([...pluginHandlers, ...selfHandlers])
-            .map((handler) =>
+            .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
+
+          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
         },
       }
     ) as InjectedBotHandlers<TBot>['messageHandlers']
@@ -137,20 +131,20 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         /** returns both the event handlers for the target type but global as well */
         get: (_, eventName: string) => {
           const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[eventName] ?? [])
+
           const selfSpecificHandlers = this._eventHandlers[eventName as keyof EventHandlersMap<TBot>] ?? []
           const selfGlobalHandlers = this._eventHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
-            .map(({ handler }) => handler)
-          return utils.arrays
-            .unique([...pluginHandlers, ...selfHandlers])
-            .map((handler) =>
+            .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
+
+          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
         },
       }
     ) as InjectedBotHandlers<TBot>['eventHandlers']
@@ -165,21 +159,21 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const pluginHandlers = Object.values(this._plugins).flatMap(
             (plugin) => plugin.stateExpiredHandlers[stateName] ?? []
           )
+
           const selfSpecificHandlers =
             this._stateExpiredHandlers[stateName as keyof StateExpiredHandlersMap<TBot>] ?? []
           const selfGlobalHandlers = this._stateExpiredHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
-            .map(({ handler }) => handler)
-          return utils.arrays
-            .unique([...pluginHandlers, ...selfHandlers])
-            .map((handler) =>
+            .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
+
+          return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
         },
       }
     ) as InjectedBotHandlers<TBot>['stateExpiredHandlers']
@@ -200,7 +194,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             {
               get: (_, hookDataName: string) => {
                 const pluginHandlers = Object.values(this._plugins).flatMap(
-                  (plugin) => plugin.hookHandlers[hookType]?.[hookDataName] ?? ([] as typeof selfHandlers)
+                  (plugin) => (plugin.hookHandlers[hookType]?.[hookDataName] ?? []) as typeof selfHandlers
                 )
 
                 const selfHooks = this._hookHandlers[hookType] ?? {}
@@ -208,16 +202,14 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                 const selfGlobalHandlers = selfHooks['*'] ?? []
                 const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
                   .sort((a, b) => a.order - b.order)
-                  .map(({ handler }) => handler)
-
-                return utils.arrays
-                  .unique([...pluginHandlers, ...selfHandlers])
-                  .map((handler) =>
+                  .map(({ handler }) =>
                     utils.functions.setName(
-                      (props: any) => handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                      (props: any) => handler({ ...props, workflows: proxyWorkflows(props) }),
                       handler.name
                     )
                   )
+
+                return utils.arrays.unique([...pluginHandlers, ...selfHandlers])
               },
             }
           )
@@ -241,31 +233,33 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             {
               get: (_, workflowName: string) => {
                 const selfHandlers =
-                  handlersOfType[workflowName]?.sort((a, b) => a.order - b.order).map(({ handler }) => handler) ?? []
+                  handlersOfType[workflowName]
+                    ?.sort((a, b) => a.order - b.order)
+                    .map(({ handler }) =>
+                      utils.functions.setName(
+                        async (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) => {
+                          let currentWorkflowState: Workflow = props.workflow
+                          await handler({
+                            ...props,
+                            workflow: wrapWorkflowInstance({
+                              ...props,
+                              onWorkflowUpdate(newState) {
+                                currentWorkflowState = newState
+                              },
+                            }),
+                            workflows: proxyWorkflows(props),
+                          })
+                          return currentWorkflowState
+                        },
+                        handler.name
+                      )
+                    ) ?? []
 
                 const pluginHandlers = Object.values(this._plugins).flatMap(
                   (plugin) => plugin.workflowHandlers[updateType]?.[workflowName] ?? []
                 )
 
-                return utils.arrays.unique([...selfHandlers, ...pluginHandlers]).map((handler) =>
-                  utils.functions.setName(
-                    async (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) => {
-                      let currentWorkflowState = props.workflow
-                      await handler({
-                        ...props,
-                        workflow: wrapWorkflowInstance({
-                          ...props,
-                          onWorkflowUpdate(newState) {
-                            currentWorkflowState = newState
-                          },
-                        }),
-                        workflows: proxyWorkflows(props.client),
-                      })
-                      return currentWorkflowState
-                    },
-                    handler.name
-                  )
-                )
+                return utils.arrays.unique([...selfHandlers, ...pluginHandlers])
               },
             }
           )
