@@ -7,9 +7,6 @@ let analyticsInstance: Analytics | undefined
 const getOrCreateAnalytics = () => {
   if (analyticsInstance === undefined) {
     try {
-      if (!bp.secrets.SEGMENT_KEY) {
-        throw new Error('Missing Segment key')
-      }
       analyticsInstance = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
