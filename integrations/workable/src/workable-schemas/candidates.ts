@@ -91,6 +91,33 @@ export const experienceEntrySchema = z
   })
   .partial()
 
+export const updateEducationEntrySchema = z.object({
+  id: z.string().optional(),
+  degree: z.string().optional(),
+  school: z.string(),
+  field_of_study: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+})
+
+export const updateSocialProfileSchema = z.object({
+  type: z.string(),
+  name: z.string().optional(),
+  username: z.string().optional(),
+  url: z.string(),
+})
+
+export const updateExperienceEntrySchema = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  summary: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  company: z.string().optional(),
+  industry: z.string().optional(),
+  current: z.boolean().optional(),
+})
+
 export const locationSchema = z
   .object({
     location_str: z.string().nullable(),
@@ -226,21 +253,16 @@ export const updateCandidateInputSchema = z.object({
         texting_consent: z.enum(['forced', 'declined']),
         image_url: z.string(),
         image_source: imageSource,
-        image: z.object({
-          name: z.string(),
-          data: z.string(),
-          source: imageSource,
-        }),
-        education_entries: z.array(
-          educationEntrySchema.extend({
-            id: z.string().optional(),
+        image: z
+          .object({
+            name: z.string(),
+            data: z.string(),
+            source: imageSource,
           })
-        ),
-        experience_entries: z.array(
-          experienceEntrySchema.extend({
-            id: z.string().optional(),
-          })
-        ),
+          .partial(),
+        education_entries: z.array(updateEducationEntrySchema),
+        experience_entries: z.array(updateExperienceEntrySchema),
+        social_profiles: z.array(updateSocialProfileSchema),
       })
       .omit({
         disqualified: true,

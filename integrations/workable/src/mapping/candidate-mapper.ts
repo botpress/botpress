@@ -216,8 +216,8 @@ export function fromPostEducationEntryModel(
 }
 
 export function fromEducationEntryModel(
-  schema: z.infer<typeof def.educationEntrySchema>
-): z.infer<typeof workable.educationEntrySchema> {
+  schema: z.infer<typeof def.updateEducationEntrySchema>
+): z.infer<typeof workable.updateEducationEntrySchema> {
   const { endDate, startDate, fieldOfStudy, ...rest } = schema
   return {
     ...rest,
@@ -239,8 +239,8 @@ export function fromPostExperienceEntryModel(
 }
 
 export function fromExperienceEntryModel(
-  schema: z.infer<typeof def.experienceEntrySchema>
-): z.infer<typeof workable.experienceEntrySchema> {
+  schema: z.infer<typeof def.updateExperienceEntrySchema>
+): z.infer<typeof workable.updateExperienceEntrySchema> {
   const { startDate, endDate, ...rest } = schema
   return {
     ...rest,
@@ -363,6 +363,7 @@ export function fromUpdateCandidateInputModel(
     coverLetter,
     resumeUrl,
     resume,
+    image,
     ...restCandidate
   } = candidate
 
@@ -389,6 +390,7 @@ export function fromUpdateCandidateInputModel(
           cover_letter: coverLetter,
           resume_url: resumeUrl,
           ...(resume?.data && resume.name ? { resume } : {}),
+          ...(image?.data && image.name ? { resume } : {}),
         }),
       },
     },
