@@ -37,7 +37,7 @@ To protect the sensitive data in your HubSpot workspace, this integration requir
 
 ## Migrating from 4.x to 5.x
 
-Version 5.x addresses issues that could cause your bot to crash during certain operations. The searching operations (`Search Contact`, `Search Deal`, `Search Lead`) now return empty objects instead of throwing an error. This allows the conversation to continue without an issue.
+Version 5.x addresses issues that could cause your bot to crash during certain operations. The search actions (`Search Contact`, `Search Deal`, `Search Lead`) now have optional outputs — they return undefined instead of throwing an error when a resource is not found. Make sure to handle this in your bot’s logic to avoid unexpected behavior.
 
 ## Migrating from 3.x to 4.x
 
