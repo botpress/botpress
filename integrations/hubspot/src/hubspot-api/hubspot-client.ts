@@ -168,7 +168,12 @@ export class HubspotClient {
     domain?: string
     propertiesToReturn?: string[]
   }) {
-    const filters = []
+    type Filter = {
+      propertyName: 'name' | 'domain'
+      operator: ContactFilterOperator
+      value: string
+    }
+    const filters: Filter[] = []
 
     if (name) {
       filters.push({

@@ -20,7 +20,7 @@ const searchCompany: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      company: companySchema.title('Company').describe('The company found'),
+      company: companySchema.optional().title('Company').describe('The company found'),
     }),
   },
 }
