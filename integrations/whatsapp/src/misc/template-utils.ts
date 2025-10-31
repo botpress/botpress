@@ -39,52 +39,46 @@ export const getTemplateText = async (
 ): Promise<string> => {
   const earlyReturnString = `Sent template "${templateName}" with language "${templateLanguage}"`
 
-  const waba_id = await getWabaId(client, ctx).catch(() => {
-    logger.forBot().debug("The configuration doesn't support having the full template in the Botpress' conversation: ")
-    return earlyReturnString
-  })
-
-  const accessToken = await getAccessToken(client, ctx).catch((e) => {
-    logger.forBot().debug('Failed to get access token - error:', e.response?.data || e.message || e)
-    return earlyReturnString
-  })
-
-  const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
-  const templateComponents: Component[] | undefined = await axios
-    .get(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    .then((res) => {
-      if (!res.data.data[0]) {
-        return undefined
-      }
-      return res.data.data[0].components
-    })
-    .catch((e) => {
-      logger.forBot().debug('Failed to fetch template components', e.response?.data || e.message || e)
-      return earlyReturnString
+  try {
+    const waba_id = await getWabaId(client, ctx).catch(() => {
+      throw new Error("The configuration doesn't support having the full template in the Botpress' conversation: ")
     })
 
-  if (!templateComponents) {
-    logger.forBot().debug('The template components are undefined')
+    const accessToken = await getAccessToken(client, ctx).catch((e) => {
+      throw new Error('Failed to get access token - error:', e.response?.data || e.message || e)
+    })
+
+    const url = `https://graph.facebook.com/v20.0/${waba_id}/message_templates?name=${templateName}&language=${templateLanguage}`
+    const templateComponents: Component[] = await axios
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      .then((res) => {
+        if (!res.data.data[0]) {
+          throw new Error('No template received')
+        }
+        return res.data.data[0].components
+      })
+      .catch((e) => {
+        throw new Error('Failed to fetch template components', e.response?.data || e.message || e)
+      })
+
+    return _getTemplateText(templateComponents, bodyVariables)
+  } catch (thrown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().debug(`failed to get template text - ${errMsg}`)
     return earlyReturnString
   }
-
-  return _getTemplateText(templateComponents, bodyVariables, earlyReturnString)
 }
 
-const _getTemplateText = (
-  templateComponents: Component[],
-  bodyVariables: TemplateVariables,
-  earlyReturnString: string
-) => {
+const _getTemplateText = (templateComponents: Component[], bodyVariables: TemplateVariables) => {
   let templateText = ''
   for (const component of templateComponents) {
     const componentText = _parseComponent(component, bodyVariables)
     if (!componentText) {
-      return earlyReturnString
+      throw new Error('componentText is undefined')
     }
     templateText += componentText
   }
