@@ -89,11 +89,13 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .default(true)
     .title('Continue Flow on Session End?')
     .describe('Enable this to continue the flow when the HITL session ends. Otherwise, the flow waits for user input.'),
+    .number()
+    .title('HITL session timeout')
 })
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.0.0',
+  version: '1.0.2',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',

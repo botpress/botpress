@@ -3,6 +3,7 @@ import { isBrowser } from 'browser-or-node'
 import * as actions from './actions'
 import * as hooks from './hooks'
 import * as bp from '.botpress'
+import { getTimeoutMs, isTimedOut } from './hitl-timeout'
 
 const plugin = new bp.Plugin({
   actions: {
@@ -63,6 +64,32 @@ plugin.on.beforeIncomingEvent('*', async (props) => {
   }
   props.logger.info('Before incoming event', props.data.payload)
   return await hooks.beforeIncomingEvent.all.handleEvent(props)
+})
+
+plugin.on.stateExpired('hitl', async (props) => {
+  props.logger.info('HITL state expired for conversation', props.state.conversationId)
+  if (!props.state.conversationId) {
+    throw new sdk.RuntimeError('The hitl state expired without an attached conversation')
+  }
+  const conversation = await props.client.listMessages({ conversationId: props.state.conversationId })
+  if (
+    conversation.messages[0]?.createdAt &&
+    isTimedOut(conversation.messages[0]?.createdAt, props.configuration.hitlSessionTimeoutHours)
+  ) {
+    await hooks.beforeIncomingEvent.hitlStopped.handleEvent({
+      ...props,
+      data: { payload: { conversationId: props.state.conversationId } },
+    })
+  } else {
+    const newTimeout = getTimeoutMs(props.configuration.hitlSessionTimeoutHours)
+    await props.client.setState({
+      type: 'conversation',
+      id: props.state.conversationId,
+      name: `${props.alias}#hitl`,
+      payload: true,
+      expiry: newTimeout,
+    })
+  }
 })
 
 export default plugin

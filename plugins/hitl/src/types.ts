@@ -2,12 +2,14 @@ import type * as sdk from '@botpress/sdk'
 import * as consts from './consts'
 import * as bp from '.botpress'
 
-export type AnyHandlerProps =
+export type AnyHandlerProps = Omit<
   | bp.MessageHandlerProps
   | bp.EventHandlerProps
   | bp.ActionHandlerProps
   | bp.HookHandlerProps['before_incoming_message']
-  | bp.HookHandlerProps['before_incoming_event']
+  | bp.HookHandlerProps['before_incoming_event'],
+  'data'
+>
 
 export type ValueOf<T> = T[Extract<keyof T, string>]
 type ArrayToUnion<T> = T extends Array<infer U> ? U : never

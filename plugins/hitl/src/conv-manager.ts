@@ -1,3 +1,4 @@
+import { getTimeoutMs } from './hitl-timeout'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -86,7 +87,14 @@ export class ConversationManager {
   }
 
   private async _setHitlState(state: HitlState): Promise<void> {
-    return await this._props.states.conversation.hitl.set(this._convId, state)
+    await this._props.client.setState({
+      type: 'conversation',
+      id: this._convId,
+      name: `${this._props.alias}#hitl`,
+      payload: state,
+      expiry: getTimeoutMs(this._props.configuration.hitlSessionTimeoutHours),
+    })
+    // return await this._props.states.conversation.hitl.set(this._convId, state)
   }
 
   private async _patchConversationTags(tags: Record<string, string>): Promise<void> {
