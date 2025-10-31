@@ -82,7 +82,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .default(true)
     .title('Use Human Agent Info')
     .describe(
-      '(Works only with webchat) Enable this to use the human agent name and photo (if available) as the bot name and photo while in HITL mode.'
+      '(Works only with webchat) Enable this to use the human agent name and photo (if available) as the bot name and photo while in HITL session.'
     ),
   flowOnHitlStopped: sdk.z
     .boolean()
@@ -104,7 +104,7 @@ export default new sdk.PluginDefinition({
   actions: {
     startHitl: {
       title: 'Start HITL',
-      description: 'Starts the HITL mode',
+      description: 'Starts the HITL session',
       input: {
         schema: ({ entities }) =>
           sdk.z
@@ -122,19 +122,19 @@ export default new sdk.PluginDefinition({
               userId: sdk.z
                 .string()
                 .title('User ID')
-                .describe('ID of the user that starts the HITL mode')
+                .describe('ID of the user that starts the HITL session')
                 .placeholder('{{ event.userId }}'),
               userEmail: sdk.z
                 .string()
                 .title('User Email')
                 .optional()
                 .describe(
-                  'Email of the user that starts the HITL mode. If this value is unset, the agent will try to use the email provided by the channel.'
+                  'Email of the user that starts the HITL session. If this value is unset, the agent will try to use the email provided by the channel.'
                 ),
               conversationId: sdk.z
                 .string()
                 .title('Conversation ID') // this is the upstream conversation
-                .describe('ID of the conversation on which to start the HITL mode')
+                .describe('ID of the conversation on which to start the HITL session')
                 .placeholder('{{ event.conversationId }}'),
               configurationOverrides: PLUGIN_CONFIG_SCHEMA.partial()
                 .optional()
@@ -147,12 +147,12 @@ export default new sdk.PluginDefinition({
     },
     stopHitl: {
       title: 'Stop HITL',
-      description: 'Stop the HITL mode',
+      description: 'Stop the HITL session',
       input: {
         schema: sdk.z.object({
           conversationId: sdk.z
             .string()
-            .describe('ID of the conversation on which to stop the HITL mode')
+            .describe('ID of the conversation on which to stop the HITL session')
             .placeholder('{{ event.conversationId }}'),
         }),
       },
@@ -163,16 +163,16 @@ export default new sdk.PluginDefinition({
     hitl: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL mode'),
+        hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL session'),
       }),
     },
-    correspondingUser: {
+    initiatingUser: {
       type: 'conversation',
       schema: sdk.z.object({
         upstreamUserId: sdk.z
           .string()
           .title('Upstream User ID')
-          .describe('The ID of the user that triggered the HITL mode (set on the upstream conversation)'),
+          .describe('The ID of the user that triggered the HITL session (set on the upstream conversation)'),
       }),
     },
     effectiveSessionConfig: {
