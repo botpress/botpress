@@ -96,7 +96,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.10',
+  version: '4.5.11',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -132,6 +132,12 @@ export default new IntegrationDefinition({
             .min(1)
             .title(defaultBotPhoneNumberId.title)
             .describe(defaultBotPhoneNumberId.description),
+          whatsappBusinessAccountId: z
+            .string()
+            .secret()
+            .optional() // TODO remove optional next major version
+            .title('WABA ID')
+            .describe('Your Whatsapp business Account ID (will be required on the next major update)'),
         })
         .merge(commonConfigSchema),
     },
