@@ -207,7 +207,12 @@ export class HubspotClient {
     const company = companies.results[0]
 
     if (!company) {
-      throw new sdk.RuntimeError('Unable to find company')
+      this._logger
+        .forBot()
+        .debug(
+          `No company found for ${name && name !== '' ? `name: ${name}` : ''} and ${domain && domain !== '' ? `domain: ${domain}` : ''}`
+        )
+      return undefined
     }
 
     return company
