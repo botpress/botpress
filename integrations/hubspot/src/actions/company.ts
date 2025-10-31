@@ -21,8 +21,13 @@ const _getCompanyPropertyKeys = async (hsClient: HubspotClient) => {
   return properties.results.map((property) => property.name)
 }
 
-export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = async ({
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getCompanyPropertyKeys(hsClient)
 
   const company = await hsClient.searchCompany({
