@@ -12,7 +12,7 @@ import type {
 import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
-import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
+import { BasePlugin, PluginRuntimeProps } from './common'
 import { EventProxy, proxyEvents } from './event-proxy'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
@@ -35,23 +35,17 @@ import {
   MessagePayloadsWithoutInjectedProps,
   EventPayloadsWithoutInjectedProps,
   WorkflowPayloadsWithoutInjectedProps,
+  InjectedHandlerProps,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
 import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
+import { proxyUser, proxyUsers, UsersProxy } from './user-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
 }
 
-type Tools<TPlugin extends BasePlugin = BasePlugin> = {
-  configuration: PluginConfiguration<TPlugin>
-  interfaces: PluginInterfaceExtensions<TPlugin>
-  actions: ActionProxy<TPlugin>
-  events: EventProxy<TPlugin>
-  states: StateProxy<TPlugin>
-  workflows: WorkflowProxy<TPlugin>
-  alias: string
-}
+type Tools<TPlugin extends BasePlugin = BasePlugin> = InjectedHandlerProps<TPlugin>
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
@@ -104,6 +98,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows({ client, pluginAlias: this._runtime.alias }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
+    const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UsersProxy<BasePlugin>
 
     return {
       configuration,
@@ -113,6 +108,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       alias,
       workflows,
       events,
+      users,
     }
   }
 
@@ -150,7 +146,15 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
               (input: utils.types.ValueOf<MessagePayloadsWithoutInjectedProps<TPlugin>>) =>
-                handler({ ...input, ...this._getTools(input.client) }),
+                handler({
+                  ...input,
+                  user: proxyUser({
+                    ...input,
+                    conversationId: input.conversation.id,
+                    pluginAlias: this._runtime.alias,
+                  }),
+                  ...this._getTools(input.client),
+                }),
               handler.name
             )
           )

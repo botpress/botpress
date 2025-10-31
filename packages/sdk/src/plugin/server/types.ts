@@ -6,6 +6,7 @@ import * as actionProxy from '../action-proxy'
 import * as common from '../common'
 import * as eventProxy from '../event-proxy'
 import * as stateProxy from '../state-proxy'
+import * as userProxy from '../user-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -132,6 +133,7 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
+  users: userProxy.UsersProxy<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -140,12 +142,20 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   workflows: workflowProxy.WorkflowProxy<TPlugin>
 }
 
-type _WithInjectedProps<T extends Record<string, Record<string, any>>, TPlugin extends common.BasePlugin> = {
-  [K in keyof T]: T[K] & InjectedHandlerProps<TPlugin>
+type _WithInjectedProps<
+  T extends Record<string, Record<string, any>>,
+  TPlugin extends common.BasePlugin,
+  TMerge extends object = {},
+> = {
+  [K in keyof T]: utils.Merge<T[K], TMerge> & InjectedHandlerProps<TPlugin>
 }
 
-type _WithInjectedPropsFn<T extends Record<string, (args: any) => any>, TPlugin extends common.BasePlugin> = {
-  [K in keyof T]: (args: Parameters<T[K]>[0] & InjectedHandlerProps<TPlugin>) => ReturnType<T[K]>
+type _WithInjectedPropsFn<
+  T extends Record<string, (args: any) => any>,
+  TPlugin extends common.BasePlugin,
+  TMerge extends object = {},
+> = {
+  [K in keyof T]: (args: utils.Merge<Parameters<T[K]>[0], TMerge> & InjectedHandlerProps<TPlugin>) => ReturnType<T[K]>
 }
 
 export type MessagePayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
@@ -157,11 +167,6 @@ export type MessagePayloadsWithoutInjectedProps<TPlugin extends common.BasePlugi
   }
 }
 
-export type MessagePayloads<TPlugin extends common.BasePlugin> = _WithInjectedProps<
-  MessagePayloadsWithoutInjectedProps<TPlugin>,
-  TPlugin
->
-
 export type MessageHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]: (
     args: MessagePayloadsWithoutInjectedProps<TPlugin>[TMessageName]
@@ -170,7 +175,10 @@ export type MessageHandlersWithoutInjectedProps<TPlugin extends common.BasePlugi
 
 export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
   MessageHandlersWithoutInjectedProps<TPlugin>,
-  TPlugin
+  TPlugin,
+  {
+    user: userProxy.UserProxy<TPlugin, string>
+  }
 >
 
 export type EventPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {

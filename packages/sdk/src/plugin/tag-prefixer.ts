@@ -2,9 +2,9 @@ import { PLUGIN_PREFIX_SEPARATOR } from '../consts'
 
 export const unprefixTagsOwnedByPlugin = <T extends {} | { tags?: Record<string, string> }>(
   obj: T,
-  { alias }: { alias: string }
+  { alias }: { alias?: string }
 ): T => {
-  if (!('tags' in obj)) {
+  if (!('tags' in obj) || !alias) {
     return obj
   }
 
@@ -25,9 +25,9 @@ export const unprefixTagsOwnedByPlugin = <T extends {} | { tags?: Record<string,
 
 export const prefixTagsIfNeeded = <T extends {} | { tags?: Record<string, string> }>(
   obj: T,
-  { alias }: { alias: string }
+  { alias }: { alias?: string }
 ): T => {
-  if (!('tags' in obj)) {
+  if (!('tags' in obj) || !alias) {
     return obj
   }
 
