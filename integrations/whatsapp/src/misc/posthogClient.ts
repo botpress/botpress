@@ -8,7 +8,7 @@ type BotpressEventMessage = {
 }
 
 let postHogClient: PostHog | undefined
-const getOrCreatePostHogClient = (): PostHog => {
+const _getOrCreatePostHogClient = (): PostHog => {
   if (postHogClient === undefined) {
     postHogClient = new PostHog(bp.secrets.POSTHOG_KEY, {
       host: 'https://us.i.posthog.com',
@@ -20,14 +20,20 @@ const getOrCreatePostHogClient = (): PostHog => {
 export const postHogEvents = {
   INVALID_PHONE_NUMBER: 'invalid_phone_number',
   UNHANDLED_MESSAGE_TYPE: 'unhandled_message_type',
+  UNHANDLED_ERROR: 'unhandled_error',
 } as const
 type PostHogEvent = (typeof postHogEvents)[keyof typeof postHogEvents]
 
 export const posthogCapture = async (props: BotpressEventMessage): Promise<void> => {
-  const client = getOrCreatePostHogClient()
+  const client = _getOrCreatePostHogClient()
   client.capture(props)
   await client
     .flush()
     .then(() => console.info('PostHog flush completed'))
     .catch((err) => console.error(`The server for posthog could not be reached - Error: ${err}`))
+}
+
+export const posthogShutdown = async () => {
+  const client = _getOrCreatePostHogClient()
+  await client.shutdown()
 }
