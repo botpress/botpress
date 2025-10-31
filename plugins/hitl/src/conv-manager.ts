@@ -4,6 +4,7 @@ import * as bp from '.botpress'
 type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
+const HOUR_MILLISECONDS = 60 * 60 * 1000
 
 export const HITL_END_REASON = {
   // PATIENT_LEFT: 'patient-left',
@@ -99,7 +100,14 @@ export class ConversationManager {
   }
 
   private async _setHitlState(state: HitlState): Promise<void> {
-    return await this._props.states.conversation.hitl.set(this._convId, state)
+    await this._props.client.setState({
+      type: 'conversation',
+      id: this._convId,
+      name: 'hitl',
+      payload: state,
+      expiry: 6 * HOUR_MILLISECONDS,
+    })
+    // return await this._props.states.conversation.hitl.set(this._convId, state)
   }
 
   private async _patchConversationTags(tags: Record<string, string>): Promise<void> {

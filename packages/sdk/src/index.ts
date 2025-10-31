@@ -2,6 +2,7 @@ export * as messages from './message'
 export * from './public-consts'
 export * from './serve'
 export * from './zui'
+export * from './dep-utils'
 
 export {
   //
