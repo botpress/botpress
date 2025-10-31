@@ -18,7 +18,7 @@ const searchDeal: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      deal: dealSchema.title('Deal').describe('The deal found'),
+      deal: dealSchema.optional().title('Deal').describe('The deal found, or undefined if not found'),
     }),
   },
 }
