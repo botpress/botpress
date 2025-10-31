@@ -4,7 +4,7 @@ import { getAuthenticatedHubspotClient } from '../utils'
 import * as bp from '.botpress'
 
 type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
-type HsCompany = Awaited<ReturnType<HubspotClient['searchCompany']>>
+type HsCompany = NonNullable<Awaited<ReturnType<HubspotClient['searchCompany']>>>
 type BpCompany = z.infer<typeof companySchema>
 
 const _mapHsCompanyToBpCompany = (hsCompany: HsCompany): BpCompany => ({
@@ -37,6 +37,6 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
   })
 
   return {
-    company: _mapHsCompanyToBpCompany(company),
+    company: company ? _mapHsCompanyToBpCompany(company) : undefined,
   }
 }
