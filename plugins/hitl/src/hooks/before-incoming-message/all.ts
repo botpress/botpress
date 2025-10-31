@@ -132,7 +132,6 @@ const _handleUpstreamMessage = async (
 
     if (sessionConfig.flowOnHitlStopped) {
       // the bot will continue the conversation without the patient having to send another message
-
       await upstreamCm.continueWorkflow()
     }
 
