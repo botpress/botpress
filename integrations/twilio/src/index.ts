@@ -5,6 +5,7 @@ import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
+import { parseMarkdown } from './markdown-to-twilio'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -234,7 +235,7 @@ function getPhoneNumbers(conversation: types.Conversation) {
   return { to, from }
 }
 
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack' | 'logger'> & {
   mediaUrl?: string
   text?: string
 }
@@ -391,9 +392,32 @@ function getMessageTypeAndPayload(
   }
 }
 
-async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessageProps) {
+async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: SendMessageProps) {
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
-  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
+  const twilioChannel = getTwilioChannelType(to)
+  let body = text
+  if (body !== undefined) {
+    try {
+      body = parseMarkdown(body, twilioChannel)
+    } catch (thrown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().debug('Failed to parse markdown - Error:', errMsg)
+    }
+  }
+  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })
   await ack({ tags: { id: sid } })
+}
+
+function getTwilioChannelType(user: string): types.TwilioChannel {
+  if (user.startsWith('whatsapp')) {
+    return 'whatsapp'
+  }
+  if (user.startsWith('messenger')) {
+    return 'messenger'
+  }
+  if (user.startsWith('rcs')) {
+    return 'rcs'
+  }
+  return 'sms/mms'
 }
