@@ -2,6 +2,8 @@ import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
+import getOrCreateConversation from './proactive-conversation'
+import getOrCreateUser from './proactive-user'
 import * as bp from '.botpress'
 
 type MessageHandlerProps = bp.AnyMessageProps
@@ -85,6 +87,8 @@ const integration = new bp.Integration({
       return {}
     },
     stopTypingIndicator: async () => ({}),
+    getOrCreateConversation,
+    getOrCreateUser,
   },
   channels: {
     channel: {
