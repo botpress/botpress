@@ -92,7 +92,7 @@ export class ConversationManager {
   }
 
   public async setUserId(userId: string): Promise<void> {
-    return await this._props.states.conversation.correspondingUser.set(this._convId, { upstreamUserId: userId })
+    return await this._props.states.conversation.initiatingUser.set(this._convId, { upstreamUserId: userId })
   }
 
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {
