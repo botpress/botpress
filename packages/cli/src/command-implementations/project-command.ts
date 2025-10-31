@@ -293,33 +293,31 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const integrationDefinitions = await utils.records.mapValuesAsync(
-      _.keyBy(bot.integrations, 'id'),
-      async (integration) =>
-        api.getPublicOrPrivateIntegration({
-          type: 'id',
-          id: integration.id,
-        })
+    const integrationDefinitions = await utils.records.mapValuesAsync(bot.integrations, async (integration) =>
+      api.getPublicOrPrivateIntegration({
+        type: 'id',
+        id: integration.id,
+      })
     )
 
     this.logger.log('Integrations:')
-    for (const integration of Object.values(bot.integrations)) {
+    for (const [alias, integration] of Object.entries(bot.integrations)) {
       if (integration.enabled) {
-        this.logger.log(`${integration.name}:`, { prefix: { symbol: '→', indent: 2 } })
+        this.logger.log(`${alias}:`, { prefix: { symbol: '→', indent: 2 } })
       } else {
-        this.logger.log(`${integration.name} ${chalk.italic('(disabled)')}:`, {
+        this.logger.log(`${alias} ${chalk.italic('(disabled)')}:`, {
           prefix: { symbol: '→', indent: 2 },
         })
       }
 
-      const integrationDefinition = integrationDefinitions[integration.id]
+      const integrationDefinition = integrationDefinitions[alias]
       const linkTemplateScript = integrationDefinition
         ? this._getLinkTemplateScript({ integration, integrationDefinition })
         : undefined
       this._displayWebhookUrl({ integration, integrationDefinition, linkTemplateScript })
       if (!integrationDefinition) {
         this.logger.debug(
-          `No integration definition for integration ${integration.id}, skipping OAuth or Sandbox links`
+          `No integration definition for integration ${alias} (${integration.name}, ${integration.id}), skipping OAuth or Sandbox links`
         )
         this.logger.line().commit()
         continue
@@ -328,7 +326,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         integration.configurationType === 'sandbox' && !!integrationDefinition.sandbox?.identifierExtractScript
       const showLink = !!linkTemplateScript && (isSandbox || !!integrationDefinition.identifier?.extractScript)
       if (showLink && isSandbox) {
-        await this._displaySandboxLinkAndCode({ integration, bot, api, linkTemplateScript })
+        await this._displaySandboxLinkAndCode({ integration, alias, bot, api, linkTemplateScript })
       } else if (showLink) {
         this._displayAuthorizationLink({ integration, api, linkTemplateScript })
       }
@@ -447,16 +445,18 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _displaySandboxLinkAndCode({
     integration,
+    alias,
     bot,
     api,
     linkTemplateScript,
   }: {
     integration: ClientIntegration
+    alias: string
     bot: client.Bot
     api: apiUtils.ApiClient
     linkTemplateScript: string
   }) {
-    const shareableId = await api.getOrGenerateShareableId(bot.id, integration.id)
+    const shareableId = await api.getOrGenerateShareableId(bot.id, integration.id, alias)
     const sandboxLink = this._getSandboxLink({ shareableId, integration, api, linkTemplateScript })
     const sandboxInstruction = `Send '${shareableId}' to ${sandboxLink}`
     if (integration.enabled) {

@@ -306,11 +306,16 @@ export class ApiClient {
       throw thrown
     }
 
-  public async getOrGenerateShareableId(botId: string, integrationId: string): Promise<string> {
+  public async getOrGenerateShareableId(
+    botId: string,
+    integrationId: string,
+    integrationAlias: string
+  ): Promise<string> {
     const { shareableId, isExpired } = await this.client
       .getIntegrationShareableId({
         botId,
         integrationId,
+        integrationInstanceAlias: integrationAlias,
       })
       .catch(() => ({ shareableId: undefined, isExpired: true }))
     if (shareableId && !isExpired) {
@@ -319,6 +324,7 @@ export class ApiClient {
     const { shareableId: newShareableId } = await this.client.createIntegrationShareableId({
       botId,
       integrationId,
+      integrationInstanceAlias: integrationAlias,
     })
     return newShareableId
   }
