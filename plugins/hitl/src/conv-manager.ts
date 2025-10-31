@@ -68,7 +68,6 @@ export class ConversationManager {
 
     await eventBuilder.emit({
       conversationId: this._convId,
-      userId,
     })
   }
 

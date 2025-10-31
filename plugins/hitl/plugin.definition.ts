@@ -243,7 +243,6 @@ export default new sdk.PluginDefinition({
     continueWorkflow: {
       schema: sdk.z.object({
         conversationId: sdk.z.string().title('Upstream Conversation ID').describe('ID of the upstream conversation'),
-        userId: sdk.z.string().optional().title('Upstream user ID').describe('ID of the upstream user'),
       }),
     },
   },
