@@ -56,11 +56,16 @@ export class ConversationManager {
     ])
   }
 
-  public async continueWorkflow(userId?: string): Promise<void> {
+  public async continueWorkflow(): Promise<void> {
+    const userId = await this._props.states.conversation.correspondingUser
+      .get(this._convId)
+      .then((state) => state.upstreamUserId)
+
     let eventBuilder = this._props.events.continueWorkflow.withConversationId(this._convId)
     if (userId) {
       eventBuilder = eventBuilder.withUserId(userId)
     }
+
     await eventBuilder.emit({
       conversationId: this._convId,
       userId,
@@ -84,6 +89,10 @@ export class ConversationManager {
   public async abortHitlSession(errorMessage: string): Promise<void> {
     await this.setHitlInactive(HITL_END_REASON.INTERNAL_ERROR)
     await this.respond({ type: 'text', text: errorMessage })
+  }
+
+  public async setUserId(userId: string): Promise<void> {
+    return await this._props.states.conversation.correspondingUser.set(this._convId, { upstreamUserId: userId })
   }
 
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {

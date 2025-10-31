@@ -166,6 +166,15 @@ export default new sdk.PluginDefinition({
         hitlActive: sdk.z.boolean().title('Is HITL Enabled?').describe('Whether the conversation is in HITL mode'),
       }),
     },
+    correspondingUser: {
+      type: 'conversation',
+      schema: sdk.z.object({
+        upstreamUserId: sdk.z
+          .string()
+          .title('Upstream User ID')
+          .describe('The ID of the user that triggered the HITL mode (set on the upstream conversation)'),
+      }),
+    },
     effectiveSessionConfig: {
       type: 'conversation',
       schema: PLUGIN_CONFIG_SCHEMA,

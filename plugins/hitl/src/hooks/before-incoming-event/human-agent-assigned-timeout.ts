@@ -45,7 +45,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
 
   if (sessionConfig.flowOnHitlStopped) {
     // the bot will continue the conversation without the patient having to send another message
-    await upstreamCm.continueWorkflow(props.data.userId)
+    await upstreamCm.continueWorkflow()
   }
 
   return consts.STOP_EVENT_HANDLING
