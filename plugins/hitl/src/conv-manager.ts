@@ -4,7 +4,6 @@ import * as bp from '.botpress'
 type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
-const HOUR_MILLISECONDS = 60 * 60 * 1000
 
 export const HITL_END_REASON = {
   // PATIENT_LEFT: 'patient-left',
@@ -58,7 +57,7 @@ export class ConversationManager {
   }
 
   public async continueWorkflow(): Promise<void> {
-    const userId = await this._props.states.conversation.correspondingUser
+    const userId = await this._props.states.conversation.initiatingUser
       .get(this._convId)
       .then((state) => state.upstreamUserId)
 
