@@ -86,7 +86,7 @@ plugin.on.stateExpired('hitl', async (props) => {
       type: 'conversation',
       id: props.state.conversationId,
       name: `${props.alias}#hitl`,
-      payload: true,
+      payload: { hitlActive: true },
       expiry: newTimeout,
     })
   }
