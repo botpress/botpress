@@ -96,7 +96,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.10',
+  version: '4.5.11',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -403,6 +403,9 @@ export default new IntegrationDefinition({
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
       optional: true,
+    },
+    POSTHOG_KEY: {
+      description: 'Posthog key for error dashboards',
     },
   },
   entities: {

@@ -1,6 +1,5 @@
 import { RuntimeError } from '@botpress/client'
 import { parsePhoneNumber, ParsedPhoneNumber } from 'awesome-phonenumber'
-import { getOrCreatePosthogClient, postHogEvents } from './posthogClient'
 
 const ARGENTINA_COUNTRY_CODE = 54
 const ARGENTINA_COUNTRY_CODE_AFTER_PREFIX = 9
@@ -14,11 +13,6 @@ export function formatPhoneNumber(phoneNumber: string) {
   }
   const parsed = parsePhoneNumber(phoneNumber)
   if (parsed.possibility === 'invalid-country-code' || !parsed.number) {
-    const posthogClient = getOrCreatePosthogClient()
-    posthogClient.capture({
-      distinctId: phoneNumber,
-      event: postHogEvents.INVALID_PHONE_NUMBER,
-    })
     throw new RuntimeError('Invalid phone number, try adding the country code (e.g. +81 for Japan)')
   }
   let phone = parsed.number.e164
