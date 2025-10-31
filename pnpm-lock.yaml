@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.42.0
-        version: 1.42.0(openapi-types@12.1.3)
+        specifier: 1.48.2
+        version: 1.48.2
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2141,8 +2141,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@bpinternal/opapi':
-        specifier: 0.12.1
-        version: 0.12.1(openapi-types@12.1.3)
+        specifier: 0.16.1
+        version: 0.16.1(openapi-types@12.1.3)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2242,13 +2242,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.2
+        specifier: 0.5.3
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2360,10 +2360,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2376,10 +2376,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2392,7 +2392,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2405,10 +2405,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2421,10 +2421,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2559,10 +2559,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.49
+        specifier: 0.1.50
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2662,7 +2662,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 1.2.1
@@ -2693,7 +2693,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2736,7 +2736,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.49
+        specifier: 0.1.50
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3662,8 +3662,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.42.0':
-    resolution: {integrity: sha512-I8wQ+BT5RI65xFvvKG3ynkRmbxDWD1Xkrp4hJ3sinF/x3mOVmCLubvRvWjwqGRfuCkciPLWbQ9JOD6RUutn7Uw==}
+  '@botpress/api@1.48.2':
+    resolution: {integrity: sha512-jKiZcipzYq03D/uajqWIfxnFP1KLQu7YztdJEx9R9Rq7NvbwfIx3e9IMArBtEIcqO36yMsWr/E/rgHI+JPG5Rg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -3685,12 +3685,8 @@ packages:
   '@bpinternal/log4bot@0.0.4':
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
 
-  '@bpinternal/opapi@0.12.1':
-    resolution: {integrity: sha512-Xkh5ygUhLjSidyIuYlJpeaqEKpA5kN+4yN61gR2tTmRslnw5lkTnoAMeuQ9b6AKVwoomdNBECjHKIznqPOhU1Q==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-
-  '@bpinternal/opapi@0.14.0':
-    resolution: {integrity: sha512-IFJw+nZLUJQ7uXY01H84KvxpSv+5yjZo8cvv2StnSsKUzu3O8MrPzPHIvbsuJK0VjnC9h/8rNccBFBR8eorFBQ==}
+  '@bpinternal/opapi@0.16.1':
+    resolution: {integrity: sha512-FicqYzV5+BnDO1oTyAgNut5MIqy7B3OLvAboo2o9ROQ9s6SI+kMx8rZP8OyFKJXEsEOSglZNPPIkMrmB4EvaoA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/readiness@0.0.16':
@@ -12557,9 +12553,9 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.42.0(openapi-types@12.1.3)':
+  '@botpress/api@1.48.2':
     dependencies:
-      '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.16.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -12595,30 +12591,7 @@ snapshots:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  '@bpinternal/opapi@0.12.1(openapi-types@12.1.3)':
-    dependencies:
-      '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
-      '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
-      axios: 1.7.8
-      chalk: 4.1.2
-      decompress: 4.2.1
-      execa: 8.0.1
-      json-schema-to-typescript: 13.1.2
-      json-schema-to-zod: 1.1.1
-      lodash: 4.17.21
-      openapi-typescript: 6.7.6
-      openapi3-ts: 2.0.2
-      radash: 12.1.0
-      tsconfig-paths: 4.2.0
-      verror: 1.10.1
-      winston: 3.17.0
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - debug
-      - openapi-types
-      - supports-color
-
-  '@bpinternal/opapi@0.14.0(openapi-types@12.1.3)':
+  '@bpinternal/opapi@0.16.1(openapi-types@12.1.3)':
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
       '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
