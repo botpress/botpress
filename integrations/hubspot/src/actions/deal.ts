@@ -20,19 +20,25 @@ const _getDealPropertyKeys = async (hsClient: HubspotClient) => {
   return properties.results.map((property) => property.name)
 }
 
-export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const searchDeal: bp.IntegrationProps['actions']['searchDeal'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getDealPropertyKeys(hsClient)
 
   const deal = await hsClient.searchDeal({ name: input.name, propertiesToReturn: propertyKeys })
+
+  if (!deal) {
+    return {
+      deal: undefined,
+    }
+  }
 
   return {
     deal: _mapHsDealToBpDeal(deal),
   }
 }
 
-export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   const deal = await hsClient.createDeal({
     name: input.name,
@@ -44,8 +50,8 @@ export const createDeal: bp.IntegrationProps['actions']['createDeal'] = async ({
   }
 }
 
-export const getDeal: bp.IntegrationProps['actions']['getDeal'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const getDeal: bp.IntegrationProps['actions']['getDeal'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getDealPropertyKeys(hsClient)
 
   const deal = await hsClient.getDealById({ dealId: input.dealId, propertiesToReturn: propertyKeys })
@@ -55,8 +61,8 @@ export const getDeal: bp.IntegrationProps['actions']['getDeal'] = async ({ clien
   }
 }
 
-export const updateDeal: bp.IntegrationProps['actions']['updateDeal'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const updateDeal: bp.IntegrationProps['actions']['updateDeal'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   const deal = await hsClient.updateDealById({
     dealId: input.dealId,
@@ -72,8 +78,8 @@ export const updateDeal: bp.IntegrationProps['actions']['updateDeal'] = async ({
   }
 }
 
-export const deleteDeal: bp.IntegrationProps['actions']['deleteDeal'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const deleteDeal: bp.IntegrationProps['actions']['deleteDeal'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   await hsClient.deleteDealById({ dealId: input.dealId })
 
