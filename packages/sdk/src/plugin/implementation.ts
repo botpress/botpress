@@ -39,7 +39,7 @@ import {
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
 import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
-import { proxyUser, proxyUsers, UsersProxy } from './user-proxy'
+import { proxyUser, proxyUsers, UserFinder } from './user-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
@@ -98,7 +98,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows({ client, pluginAlias: this._runtime.alias }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
-    const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UsersProxy<BasePlugin>
+    const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
 
     return {
       configuration,

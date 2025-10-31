@@ -1,37 +1,40 @@
 import { ClientInputs, User } from '@botpress/client'
 import { BasePlugin } from '../common'
 
-export type UsersProxy<TPlugin extends BasePlugin> = {
+export type UserFinder<TPlugin extends BasePlugin> = {
   list: <TConversationId extends string | undefined = undefined>(props: {
     conversationId?: TConversationId
     tags?: ClientInputs['listUsers']['tags']
-  }) => Promise<UserProxy<TPlugin, TConversationId>[]>
-  getById: (props: { id: string }) => Promise<UserProxy<TPlugin> | undefined>
+  }) => Promise<ActionableUser<TPlugin, TConversationId>[]>
+  getById: (props: { id: string }) => Promise<ActionableUser<TPlugin> | undefined>
 }
 
-export type UserProxy<
+export type ActionableUser<
   TPlugin extends BasePlugin,
   TConversationId extends string | undefined = undefined,
 > = TConversationId extends string
-  ? UserProxyWithConversation<TPlugin, TConversationId>
-  : UserProxyWithoutConversation<TPlugin, TConversationId>
+  ? ActionableUserWithConversation<TPlugin, TConversationId>
+  : ActionableUserWithoutConversation<TPlugin, TConversationId>
 
-export type UserProxyWithConversation<
+export type ActionableUserWithConversation<
   TPlugin extends BasePlugin,
   TConversationId extends string | undefined,
-> = BaseUserProxy<TPlugin, TConversationId> & {
-  removeFromConversation: () => Promise<UserProxy<TPlugin, undefined>>
+> = BaseActionableUser<TPlugin, TConversationId> & {
+  removeFromConversation: () => Promise<ActionableUser<TPlugin, undefined>>
 }
 
-export type UserProxyWithoutConversation<
+export type ActionableUserWithoutConversation<
   TPlugin extends BasePlugin,
   TConversationId extends string | undefined,
-> = BaseUserProxy<TPlugin, TConversationId> & {
+> = BaseActionableUser<TPlugin, TConversationId> & {
   addToConversation: <TNewConversationId extends string>(props: {
     conversationId: TNewConversationId
-  }) => Promise<UserProxy<TPlugin, TNewConversationId>>
+  }) => Promise<ActionableUser<TPlugin, TNewConversationId>>
 }
 
-export type BaseUserProxy<TPlugin extends BasePlugin, TConversationId extends string | undefined = undefined> = User & {
-  update: (props: Omit<ClientInputs['updateUser'], 'id'>) => Promise<UserProxy<TPlugin, TConversationId>>
+export type BaseActionableUser<
+  TPlugin extends BasePlugin,
+  TConversationId extends string | undefined = undefined,
+> = User & {
+  update: (props: Omit<ClientInputs['updateUser'], 'id'>) => Promise<ActionableUser<TPlugin, TConversationId>>
 }

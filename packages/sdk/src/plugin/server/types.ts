@@ -133,7 +133,7 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
-  users: userProxy.UsersProxy<TPlugin>
+  users: userProxy.UserFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -177,7 +177,7 @@ export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPr
   MessageHandlersWithoutInjectedProps<TPlugin>,
   TPlugin,
   {
-    user: userProxy.UserProxy<TPlugin, string>
+    user: userProxy.ActionableUser<TPlugin, string>
   }
 >
 
