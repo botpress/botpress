@@ -25,7 +25,7 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/chat": "0.5.2",
+    "@botpress/chat": "0.5.3",
     "@botpress/client": "1.27.0",
     "@botpress/sdk": "4.17.3",
     "@bpinternal/const": "^0.1.0",
