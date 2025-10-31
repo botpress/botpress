@@ -207,11 +207,7 @@ export class HubspotClient {
     const company = companies.results[0]
 
     if (!company) {
-      this._logger
-        .forBot()
-        .debug(
-          `No company found for ${name && name !== '' ? `name: ${name}` : ''} and ${domain && domain !== '' ? `domain: ${domain}` : ''}`
-        )
+      this._logger.forBot().debug(`No company found for name: ${name} and domain: ${domain}`)
       return undefined
     }
 
