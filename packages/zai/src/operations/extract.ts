@@ -100,7 +100,7 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
     } catch {}
   }
 
-  const schemaTypescript = schema.toTypescriptType({ declaration: false })
+  const schemaTypescript = schema.toTypescriptType({ declaration: false, treatDefaultAsOptional: true })
   const schemaLength = tokenizer.count(schemaTypescript)
 
   options.chunkLength = Math.min(options.chunkLength, model.input.maxTokens - PROMPT_INPUT_BUFFER - schemaLength)

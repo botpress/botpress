@@ -4,6 +4,9 @@ import { identifyBot, trackIntegrationEvent } from './misc/tracking'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
+  const configTypeName = props.ctx.configurationType ? props.ctx.configurationType : 'OAuth'
+  props.logger.forBot().debug(`Whatsapp Registration with configurationType ${configTypeName}`)
+
   await identifyBot(props.ctx.botId, {
     [INTEGRATION_NAME + 'OauthType']: props.ctx.configurationType,
   })
@@ -13,7 +16,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     sandboxIdentifiers: null,
   }
   // Ensure that requests sent to a profile associated with a bot via OAuth are not received by the bot
-  if (props.ctx.configurationType === 'sandbox') {
+  if (props.ctx.configurationType !== null) {
     configureIntegrationProps.identifier = null
   }
   await props.client.configureIntegration(configureIntegrationProps)

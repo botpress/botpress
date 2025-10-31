@@ -7,21 +7,16 @@ export const languageModelId = z
     'accounts/fireworks/models/llama4-maverick-instruct-basic',
     'accounts/fireworks/models/llama4-scout-instruct-basic',
     'accounts/fireworks/models/llama-v3p3-70b-instruct',
-    'accounts/fireworks/models/deepseek-r1',
-    'accounts/fireworks/models/deepseek-r1-basic',
-    'accounts/fireworks/models/deepseek-v3',
-    'accounts/fireworks/models/llama-v3p1-405b-instruct',
     'accounts/fireworks/models/llama-v3p1-70b-instruct',
     'accounts/fireworks/models/llama-v3p1-8b-instruct',
     'accounts/fireworks/models/mixtral-8x22b-instruct',
-    'accounts/fireworks/models/mixtral-8x7b-instruct',
     'accounts/fireworks/models/mythomax-l2-13b',
     'accounts/fireworks/models/gemma2-9b-it',
     'accounts/fireworks/models/gpt-oss-20b',
     'accounts/fireworks/models/gpt-oss-120b',
   ])
   .describe('Model to use for content generation')
-  .placeholder('accounts/fireworks/models/llama-v3p1-70b-instruct')
+  .placeholder('accounts/fireworks/models/llama4-maverick-instruct-basic')
 export type LanguageModelId = z.infer<typeof languageModelId>
 
 export const imageModelId = z.enum([

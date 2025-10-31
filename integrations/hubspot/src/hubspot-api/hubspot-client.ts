@@ -62,16 +62,28 @@ export class HubspotClient {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
   private readonly _accessToken: string
+  private readonly _logger: bp.Logger
 
   private _crmObjectPropertiesCaches: Record<CrmObjectType, PropertiesCache>
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
 
-  public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
+  public constructor({
+    accessToken,
+    client,
+    ctx,
+    logger,
+  }: {
+    accessToken: string
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+  }) {
     this._client = client
     this._ctx = ctx
     this._accessToken = accessToken
     this._hsClient = new OfficialHubspotClient({ accessToken, numberOfApiCallRetries: 2 })
+    this._logger = logger
     this._crmObjectPropertiesCaches = {
       contact: PropertiesCache.create({ client, ctx, accessToken, type: 'contact' }),
       deal: PropertiesCache.create({ client, ctx, accessToken, type: 'deal' }),
@@ -130,7 +142,8 @@ export class HubspotClient {
     })
     const hsContact = contacts.results[0]
     if (!hsContact) {
-      throw new sdk.RuntimeError('Unable to find contact')
+      this._logger.forBot().debug(`No contact found for ${email} and ${phone}`)
+      return undefined
     }
 
     return hsContact
@@ -507,7 +520,8 @@ export class HubspotClient {
     const deal = deals.results[0]
 
     if (!deal) {
-      throw new sdk.RuntimeError('Unable to find deal')
+      this._logger.forBot().debug(`No deal found for name: ${name}`)
+      return undefined
     }
 
     return deal
@@ -663,7 +677,8 @@ export class HubspotClient {
     const lead = leads.results[0]
 
     if (!lead) {
-      throw new sdk.RuntimeError('Unable to find lead')
+      this._logger.forBot().debug(`No lead found for name: ${name}`)
+      return undefined
     }
 
     return lead

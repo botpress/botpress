@@ -18,7 +18,7 @@ const searchLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema.title('Lead').describe('The lead found'),
+      lead: leadSchema.optional().title('Lead').describe('The lead found, or undefined if not found'),
     }),
   },
 }
