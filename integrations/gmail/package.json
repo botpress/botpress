@@ -21,7 +21,7 @@
     "gmail-api-parse-message": "^2.1.2",
     "googleapis": "^112.0.0",
     "node-html-parser": "^6",
-    "nodemailer": "^6.7.2",
+    "nodemailer": "^7.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
