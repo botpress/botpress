@@ -37,8 +37,6 @@ export const getTemplateText = async (
   templateLanguage: string,
   bodyVariables: TemplateVariables
 ): Promise<string> => {
-  const earlyReturnString = `Sent template "${templateName}" with language "${templateLanguage}"`
-
   try {
     const waba_id = await getWabaId(client, ctx).catch(() => {
       throw new Error("The configuration doesn't support having the full template in the Botpress' conversation: ")
@@ -69,7 +67,7 @@ export const getTemplateText = async (
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     logger.forBot().debug(`failed to get template text - ${errMsg}`)
-    return earlyReturnString
+    return `Sent template "${templateName}" with language "${templateLanguage}"`
   }
 }
 
