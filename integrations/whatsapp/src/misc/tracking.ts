@@ -7,6 +7,9 @@ let segmentClient: Analytics | undefined
 const getOrCreateSegmentClient = () => {
   if (segmentClient === undefined) {
     try {
+      if (bp.secrets.SEGMENT_KEY === undefined) {
+        throw new Error('Missing required secret "SANDBOX_PHONE_NUMBER_ID"')
+      }
       segmentClient = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
