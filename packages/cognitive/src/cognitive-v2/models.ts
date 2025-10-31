@@ -1,6 +1,9 @@
 import { Model } from 'src/schemas.gen'
 
-export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued' }
+export type RemoteModel = Model & {
+  aliases?: string[]
+  lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
+}
 
 export const models: Record<string, RemoteModel> = {
   'openai:gpt-5-2025-08-07': {
@@ -17,7 +20,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-5'],
   },
   'openai:gpt-5-mini-2025-08-07': {
@@ -34,7 +37,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 2,
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-5-mini'],
   },
   'openai:gpt-5-nano-2025-08-07': {
@@ -51,7 +54,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'reasoning', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-5-nano'],
   },
   'openai:o4-mini-2025-04-16': {
@@ -68,7 +71,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'vision', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['o4-mini'],
   },
   'openai:o3-2025-04-16': {
@@ -85,7 +88,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['reasoning', 'vision', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['o3'],
   },
   'openai:gpt-4.1-2025-04-14': {
@@ -102,7 +105,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['recommended', 'vision', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-4.1'],
   },
   'openai:gpt-4.1-mini-2025-04-14': {
@@ -119,7 +122,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.6,
     },
     tags: ['recommended', 'vision', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-4.1-mini'],
   },
   'openai:gpt-4.1-nano-2025-04-14': {
@@ -135,7 +138,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['gpt-4.1-nano'],
   },
   'openai:o3-mini-2025-01-31': {
@@ -152,7 +155,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['o3-mini'],
   },
   'openai:o1-2024-12-17': {
@@ -169,7 +172,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 60,
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'openai:o1-mini-2024-09-12': {
     id: 'openai:o1-mini-2024-09-12',
@@ -185,7 +188,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4.4,
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['o1-mini'],
   },
   'openai:gpt-4o-mini-2024-07-18': {
@@ -201,8 +204,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 16384,
       costPer1MTokens: 0.6,
     },
-    tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
-    lifecycle: 'live',
+    tags: ['recommended', 'vision', 'low-cost', 'general-purpose'],
+    lifecycle: 'production',
     aliases: ['gpt-4o-mini'],
   },
   'openai:gpt-4o-2024-11-20': {
@@ -218,8 +221,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 16384,
       costPer1MTokens: 10,
     },
-    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
-    lifecycle: 'live',
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents'],
+    lifecycle: 'production',
     aliases: ['gpt-4o'],
   },
   'openai:gpt-4o-2024-08-06': {
@@ -235,7 +238,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 16384,
       costPer1MTokens: 10,
     },
-    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
   },
   'openai:gpt-4o-2024-05-13': {
@@ -251,7 +254,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 4096,
       costPer1MTokens: 15,
     },
-    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
   },
   'openai:gpt-4-turbo-2024-04-09': {
@@ -267,7 +270,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 4096,
       costPer1MTokens: 30,
     },
-    tags: ['deprecated', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    tags: ['deprecated', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
   },
   'openai:gpt-3.5-turbo-0125': {
@@ -300,7 +303,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['claude-sonnet-4-5'],
   },
   'anthropic:claude-sonnet-4-20250514': {
@@ -317,7 +320,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['claude-sonnet-4'],
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
@@ -351,7 +354,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'anthropic:claude-3-7-sonnet-reasoning-20250219': {
     id: 'anthropic:claude-3-7-sonnet-reasoning-20250219',
@@ -383,7 +386,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4,
     },
     tags: ['general-purpose', 'low-cost'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'anthropic:claude-3-5-sonnet-20241022': {
     id: 'anthropic:claude-3-5-sonnet-20241022',
@@ -398,8 +401,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 8192,
       costPer1MTokens: 15,
     },
-    tags: ['vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
-    lifecycle: 'live',
+    tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
+    lifecycle: 'production',
   },
   'anthropic:claude-3-5-sonnet-20240620': {
     id: 'anthropic:claude-3-5-sonnet-20240620',
@@ -414,8 +417,8 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 4096,
       costPer1MTokens: 15,
     },
-    tags: ['vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
-    lifecycle: 'live',
+    tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
+    lifecycle: 'production',
   },
   'anthropic:claude-3-haiku-20240307': {
     id: 'anthropic:claude-3-haiku-20240307',
@@ -431,7 +434,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.25,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'google-ai:gemini-2.5-flash': {
     id: 'google-ai:gemini-2.5-flash',
@@ -447,7 +450,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 2.5,
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'google-ai:gemini-2.5-pro': {
     id: 'google-ai:gemini-2.5-pro',
@@ -463,7 +466,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'google-ai:gemini-2.0-flash': {
     id: 'google-ai:gemini-2.0-flash',
@@ -479,7 +482,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.4,
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['models/gemini-2.0-flash'],
   },
   'cerebras:gpt-oss-120b': {
@@ -496,7 +499,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'cerebras:qwen-3-32b': {
     id: 'cerebras:qwen-3-32b',
@@ -512,7 +515,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.8,
     },
     tags: ['general-purpose', 'reasoning'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'cerebras:llama-4-scout-17b-16e-instruct': {
     id: 'cerebras:llama-4-scout-17b-16e-instruct',
@@ -528,7 +531,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.85,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'cerebras:llama3.1-8b': {
     id: 'cerebras:llama3.1-8b',
@@ -544,7 +547,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.1,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'cerebras:llama3.3-70b': {
     id: 'cerebras:llama3.3-70b',
@@ -560,7 +563,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.2,
     },
     tags: ['general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'groq:gpt-oss-20b': {
     id: 'groq:gpt-oss-20b',
@@ -576,7 +579,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['openai/gpt-oss-20b'],
   },
   'groq:gpt-oss-120b': {
@@ -593,7 +596,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['openai/gpt-oss-120b'],
   },
   'groq:deepseek-r1-distill-llama-70b': {
@@ -610,7 +613,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.99,
     },
     tags: ['general-purpose', 'reasoning', 'preview'],
-    lifecycle: 'live',
+    lifecycle: 'discontinued',
   },
   'groq:llama-3.3-70b-versatile': {
     id: 'groq:llama-3.3-70b-versatile',
@@ -626,7 +629,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.79,
     },
     tags: ['recommended', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'groq:llama-3.2-1b-preview': {
     id: 'groq:llama-3.2-1b-preview',
@@ -705,7 +708,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.08,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'groq:llama3-8b-8192': {
     id: 'groq:llama3-8b-8192',
@@ -753,7 +756,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'discontinued',
   },
   'xai:grok-code-fast-1': {
     id: 'xai:grok-code-fast-1',
@@ -768,7 +771,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 1.5,
     },
     tags: ['coding', 'general-purpose', 'low-cost'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'xai:grok-4-fast-reasoning': {
     id: 'xai:grok-4-fast-reasoning',
@@ -783,7 +786,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['reasoning', 'recommended', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'xai:grok-4-fast-non-reasoning': {
     id: 'xai:grok-4-fast-non-reasoning',
@@ -798,7 +801,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['low-cost', 'recommended', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'xai:grok-4-0709': {
     id: 'xai:grok-4-0709',
@@ -813,7 +816,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['reasoning', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'xai:grok-3-mini': {
     id: 'xai:grok-3-mini',
@@ -828,7 +831,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'xai:grok-3': {
     id: 'xai:grok-3',
@@ -843,7 +846,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -859,7 +862,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.75,
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
-    lifecycle: 'live',
+    lifecycle: 'production',
   },
   'fireworks-ai:gpt-oss-20b': {
     id: 'fireworks-ai:gpt-oss-20b',
@@ -875,7 +878,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.3,
     },
     tags: ['general-purpose', 'reasoning', 'low-cost'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/gpt-oss-20b'],
   },
   'fireworks-ai:gpt-oss-120b': {
@@ -892,7 +895,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.6,
     },
     tags: ['general-purpose', 'reasoning'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/gpt-oss-120b'],
   },
   'fireworks-ai:deepseek-r1-0528': {
@@ -909,7 +912,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 8,
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
   },
   'fireworks-ai:deepseek-v3-0324': {
@@ -926,7 +929,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.9,
     },
     tags: ['recommended', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
   },
   'fireworks-ai:llama4-maverick-instruct-basic': {
@@ -943,7 +946,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.88,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
   },
   'fireworks-ai:llama4-scout-instruct-basic': {
@@ -960,7 +963,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.6,
     },
     tags: ['general-purpose', 'vision'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
   },
   'fireworks-ai:llama-v3p3-70b-instruct': {
@@ -977,7 +980,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.9,
     },
     tags: ['general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
   },
   'fireworks-ai:deepseek-r1': {
@@ -1079,7 +1082,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
   },
   'fireworks-ai:mixtral-8x22b-instruct': {
@@ -1113,7 +1116,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
   'fireworks-ai:mythomax-l2-13b': {
@@ -1130,7 +1133,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['roleplay', 'storytelling', 'low-cost'],
-    lifecycle: 'live',
+    lifecycle: 'production',
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
   'fireworks-ai:gemma2-9b-it': {
@@ -1165,5 +1168,5 @@ export const defaultModel: RemoteModel = {
     maxTokens: 1000000,
   },
   tags: [],
-  lifecycle: 'live',
+  lifecycle: 'production',
 }
