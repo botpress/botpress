@@ -48,7 +48,7 @@ const FG_COLORS: Record<Color, ChalkColor> = {
   purple: (str: string) => chalk.rgb(...PURPLE)(str),
 }
 
-type Symbol = '✓' | '⚠' | '×' | '●' | ' ' | '○'
+type Symbol = '✓' | '⚠' | '×' | '●' | ' ' | '○' | '→'
 type Color = 'blue' | 'green' | 'yellow' | 'red' | 'pink' | 'white' | 'orange' | 'purple'
 type LogPrefix = { symbol: Symbol; fg?: Color; bg?: Color; indent?: number } | string
 type SymbolRenderer<T extends Symbol> = { default: T; windows?: string; mac?: string }
@@ -79,6 +79,7 @@ const danger: SymbolRenderer<'⚠'> = { default: '⚠' }
 const circle: SymbolRenderer<'○'> = { default: '○' }
 const disc: SymbolRenderer<'●'> = { default: '●' }
 const space: SymbolRenderer<' '> = { default: ' ' }
+const arrow: SymbolRenderer<'→'> = { default: '→' }
 
 const renderers: Record<Symbol, SymbolRenderer<Symbol>> = {
   '✓': checkmark,
@@ -87,6 +88,7 @@ const renderers: Record<Symbol, SymbolRenderer<Symbol>> = {
   '○': circle,
   '●': disc,
   ' ': space,
+  '→': arrow,
 }
 
 const BOX_OPTIONS: boxen.Options = {

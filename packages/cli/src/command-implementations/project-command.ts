@@ -58,6 +58,9 @@ export type ProjectDefinitionLazy =
 
 type UpdatedBot = client.Bot
 
+type ClientIntegrationDefinitions = Record<string, client.Integration>
+type ClientIntegration = client.Bot['integrations'][string]
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -284,23 +287,186 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return regex.test(tsContent)
   }
 
-  protected displayWebhookUrls(bot: client.Bot) {
+  protected async displayIntegrationUrls({ api, bot }: { api: apiUtils.ApiClient; bot: client.Bot }) {
     if (!_.keys(bot.integrations).length) {
       this.logger.debug('No integrations in bot')
       return
     }
 
+    const integrationDefinitions = await utils.records.mapValuesAsync(bot.integrations, async (integration) =>
+      api.getPublicOrPrivateIntegration({
+        type: 'id',
+        id: integration.id,
+      })
+    )
+
     this.logger.log('Integrations:')
-    for (const integration of Object.values(bot.integrations).filter(utils.guards.is.defined)) {
-      if (!integration.enabled) {
-        this.logger.log(`${chalk.grey(integration.name)} ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
-          prefix: { symbol: '○', indent: 2 },
-        })
+    for (const [alias, integration] of Object.entries(bot.integrations)) {
+      if (integration.enabled) {
+        this.logger.log(`${alias}:`, { prefix: { symbol: '→', indent: 2 } })
       } else {
-        this.logger.log(`${chalk.bold(integration.name)} : ${integration.webhookUrl}`, {
-          prefix: { symbol: '●', indent: 2 },
+        this.logger.log(`${alias} ${chalk.italic('(disabled)')}:`, {
+          prefix: { symbol: '→', indent: 2 },
         })
       }
+
+      const integrationDefinition = integrationDefinitions[alias]
+      const linkTemplateScript = integrationDefinition
+        ? this._getLinkTemplateScript({ integration, integrationDefinition })
+        : undefined
+      this._displayWebhookUrl({ integration, integrationDefinition, linkTemplateScript })
+      if (!integrationDefinition) {
+        this.logger.debug(
+          `No integration definition for integration ${alias} (${integration.name}, ${integration.id}), skipping OAuth or Sandbox links`
+        )
+        this.logger.line().commit()
+        continue
+      }
+      const isSandbox =
+        integration.configurationType === 'sandbox' && !!integrationDefinition.sandbox?.identifierExtractScript
+      const showLink = !!linkTemplateScript && (isSandbox || !!integrationDefinition.identifier?.extractScript)
+      if (showLink && isSandbox) {
+        await this._displaySandboxLinkAndCode({ integration, alias, bot, api, linkTemplateScript })
+      } else if (showLink) {
+        this._displayAuthorizationLink({ integration, api, linkTemplateScript })
+      }
+      this.logger.line().commit()
+    }
+  }
+
+  private _getLinkTemplateScript({
+    integration,
+    integrationDefinition,
+  }: {
+    integration: ClientIntegration
+    integrationDefinition?: ClientIntegrationDefinitions[string]
+  }) {
+    const config =
+      integration.configurationType === null
+        ? integrationDefinition?.configuration
+        : integrationDefinition?.configurations[integration.configurationType]
+    return config?.identifier?.linkTemplateScript
+  }
+
+  private _displayWebhookUrl({
+    integration,
+    integrationDefinition,
+    linkTemplateScript,
+  }: {
+    integration: ClientIntegration
+    integrationDefinition?: ClientIntegrationDefinitions[string]
+    linkTemplateScript?: string
+  }) {
+    const needsWebhook = !(integrationDefinition?.identifier && linkTemplateScript)
+    const logFn = (needsWebhook ? this.logger.log : this.logger.debug).bind(this.logger)
+
+    if (integration.enabled) {
+      logFn(`${chalk.bold('Webhook')}: ${integration.webhookUrl}`, {
+        prefix: { symbol: '●', indent: 4 },
+      })
+    } else {
+      logFn(`Webhook: ${integration.webhookUrl}`, {
+        prefix: { symbol: '○', indent: 4 },
+      })
+    }
+  }
+
+  private _displayAuthorizationLink({
+    integration,
+    api,
+    linkTemplateScript,
+  }: {
+    integration: ClientIntegration
+    api: apiUtils.ApiClient
+    linkTemplateScript: string
+  }) {
+    const authorizationLink = this._getAuthorizationLink({ integration, api, linkTemplateScript })
+    const isAuthorized = !!integration.identifier
+    const authorizationStatus = integration.identifier ? 'Authorized ✓' : 'Authorize'
+    if (integration.enabled && isAuthorized) {
+      this.logger.log(`${chalk.bold(authorizationStatus)} : ${authorizationLink}`, {
+        prefix: { symbol: '●', indent: 4 },
+      })
+    } else {
+      this.logger.log(`${authorizationStatus}: ${authorizationLink}`, {
+        prefix: { symbol: '○', indent: 4 },
+      })
+    }
+  }
+
+  private _getLinkTemplateArgs({ integration, api }: { integration: ClientIntegration; api: apiUtils.ApiClient }) {
+    // These are the values used by the studio
+    let env: 'development' | 'preview' | 'production'
+    if (api.url.includes(consts.stagingBotpressDomain)) {
+      env = 'preview'
+    } else if (api.url.includes(consts.productionBotpressDomain)) {
+      env = 'production'
+    } else {
+      env = 'development'
+    }
+    return {
+      env,
+      webhookId: integration.webhookId,
+      webhookUrl: api.url.replace('api', 'webhook'),
+    }
+  }
+
+  private _getAuthorizationLink({
+    integration,
+    api,
+    linkTemplateScript,
+  }: {
+    integration: client.Bot['integrations'][string]
+    api: apiUtils.ApiClient
+    linkTemplateScript: string
+  }) {
+    return utils.vrl.getStringResult({
+      code: linkTemplateScript,
+      data: this._getLinkTemplateArgs({ integration, api }),
+    })
+  }
+
+  private _getSandboxLink({
+    shareableId,
+    integration,
+    api,
+    linkTemplateScript,
+  }: {
+    shareableId: string
+    integration: ClientIntegration
+    api: apiUtils.ApiClient
+    linkTemplateScript: string
+  }) {
+    return utils.vrl.getStringResult({
+      code: linkTemplateScript,
+      data: { shareableId, ...this._getLinkTemplateArgs({ integration, api }) },
+    })
+  }
+
+  private async _displaySandboxLinkAndCode({
+    integration,
+    alias,
+    bot,
+    api,
+    linkTemplateScript,
+  }: {
+    integration: ClientIntegration
+    alias: string
+    bot: client.Bot
+    api: apiUtils.ApiClient
+    linkTemplateScript: string
+  }) {
+    const shareableId = await api.getOrGenerateShareableId(bot.id, integration.id, alias)
+    const sandboxLink = this._getSandboxLink({ shareableId, integration, api, linkTemplateScript })
+    const sandboxInstruction = `Send '${shareableId}' to ${sandboxLink}`
+    if (integration.enabled) {
+      this.logger.log(`${chalk.bold('Sandbox')}: ${sandboxInstruction}`, {
+        prefix: { symbol: '●', indent: 4 },
+      })
+    } else {
+      this.logger.log(`Sandbox: ${sandboxInstruction}`, {
+        prefix: { symbol: '○', indent: 4 },
+      })
     }
   }
 

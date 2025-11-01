@@ -375,7 +375,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition: botDef })
 
-    this.displayWebhookUrls(updatedBot)
+    await this.displayIntegrationUrls({ api, bot: updatedBot })
   }
 
   private async _didDefinitionChange(body: apiUtils.UpdateBotRequestBody | apiUtils.UpdateIntegrationRequestBody) {

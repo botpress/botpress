@@ -3,14 +3,16 @@ import pathlib from 'path'
 import { CLI_ROOT_DIR } from './root'
 
 // configurable
+export const productionBotpressDomain = 'botpress.cloud'
+export const stagingBotpressDomain = 'botpress.dev'
 
 export const defaultBotpressHome = pathlib.join(os.homedir(), '.botpress')
 export const defaultWorkDir = process.cwd()
 export const defaultInstallPath = process.cwd()
-export const defaultBotpressApiUrl = 'https://api.botpress.cloud'
-export const defaultBotpressAppUrl = 'https://app.botpress.cloud'
-export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
-export const defaultChatApiUrl = 'https://chat.botpress.cloud'
+export const defaultBotpressApiUrl = `https://api.${productionBotpressDomain}`
+export const defaultBotpressAppUrl = `https://app.${productionBotpressDomain}`
+export const defaultTunnelUrl = `https://tunnel.${productionBotpressDomain}`
+export const defaultChatApiUrl = `https://chat.${productionBotpressDomain}`
 
 // not configurable
 
