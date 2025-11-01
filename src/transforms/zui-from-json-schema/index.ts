@@ -38,6 +38,10 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     const inner = _fromJSONSchema({ ...schema, readOnly: undefined })
     return inner.readonly()
   }
+  if (schema.description !== undefined) {
+    const inner = _fromJSONSchema({ ...schema, description: undefined })
+    return inner.describe(schema.description)
+  }
 
   if (schema.oneOf !== undefined) {
     throw new errors.UnsupportedJSONSchemaToZuiError({ oneOf: schema.oneOf })
@@ -134,7 +138,8 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       for (const [key, value] of Object.entries(schema.properties)) {
         const mapped: z.ZodType = _fromJSONSchema(value)
         const required: string[] = schema.required ?? []
-        properties[key] = required.includes(key) ? mapped : mapped.optional()
+        // If the property is already optional (e.g., has a default value), don't wrap it again
+        properties[key] = required.includes(key) ? mapped : mapped.isOptional() ? mapped : mapped.optional()
       }
       return z.object(properties)
     }

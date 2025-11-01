@@ -601,6 +601,41 @@ describe.concurrent('objects', () => {
     `)
   })
 
+  it('object with discriminated union as value', async () => {
+    const obj = z
+      .object({
+        value: z.discriminatedUnion('method', [
+          z.object({
+            method: z.literal('card'),
+            cardNumber: z.string().describe('Card number'),
+          }),
+          z.object({
+            method: z.literal('paypal'),
+            email: z.string().describe('PayPal email'),
+          }),
+        ]),
+      })
+      .title('UserPayment')
+
+    const typings = toTypescript(obj)
+
+    await expect(typings).toMatchWithoutFormatting(`
+      declare const UserPayment: {
+        value:
+          | {
+              method: 'card';
+              /** Card number */
+              cardNumber: string;
+            }
+          | {
+              method: 'paypal';
+              /** PayPal email */
+              email: string;
+            };
+      };
+    `)
+  })
+
   it('zod lazy', async () => {
     const obj = z
       .object({
