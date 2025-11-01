@@ -1,4 +1,5 @@
 import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
+import { posthogCapture, postHogEvents } from 'src/misc/posthogClient'
 import { getTemplateText, parseTemplateVariablesJSON } from 'src/misc/template-utils'
 import { TemplateVariables } from 'src/misc/types'
 import { hasAtleastOne, logForBotAndThrow } from 'src/misc/util'
@@ -41,8 +42,15 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   try {
     formattedUserPhone = formatPhoneNumber(userPhone)
   } catch (thrown) {
+    await posthogCapture({
+      distinctId: userPhone,
+      event: postHogEvents.INVALID_PHONE_NUMBER,
+      properties: {
+        from: 'action',
+      },
+    })
     const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
-    logForBotAndThrow(`Failed to parse phone number (error: ${errorMessage}).`, logger)
+    logForBotAndThrow(`Failed to parse phone number "${userPhone}": ${errorMessage}`, logger)
   }
 
   const { conversation } = await client.getOrCreateConversation({

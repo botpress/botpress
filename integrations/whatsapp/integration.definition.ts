@@ -410,6 +410,9 @@ export default new IntegrationDefinition({
       description: 'Tracking key for general product analytics',
       optional: true,
     },
+    POSTHOG_KEY: {
+      description: 'Posthog key for error dashboards',
+    },
   },
   entities: {
     proactiveConversation: {

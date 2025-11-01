@@ -3,6 +3,7 @@ import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
 import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
+import { posthogCapture, postHogEvents } from 'src/misc/posthogClient'
 import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -41,6 +42,13 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
+    await posthogCapture({
+      distinctId: userPhone,
+      event: postHogEvents.INVALID_PHONE_NUMBER,
+      properties: {
+        from: 'handler',
+      },
+    })
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
@@ -158,6 +166,13 @@ async function _handleIncomingMessage(
     const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
     logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
   } else {
+    await posthogCapture({
+      distinctId: 'WhatsApp',
+      event: postHogEvents.UNHANDLED_MESSAGE_TYPE,
+      properties: {
+        type,
+      },
+    })
     logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
 }
