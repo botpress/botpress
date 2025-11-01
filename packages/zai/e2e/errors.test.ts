@@ -183,10 +183,7 @@ describe('JsonParsingError', () => {
     try {
       schema.parse({ status: 'invalid-status', priority: 'urgent' })
     } catch (error) {
-      const jsonParsingError = new JsonParsingError(
-        '{"status":"invalid-status","priority":"urgent"}',
-        error as Error
-      )
+      const jsonParsingError = new JsonParsingError('{"status":"invalid-status","priority":"urgent"}', error as Error)
 
       expect(jsonParsingError.message).toMatchInlineSnapshot(`
         "Error parsing JSON:
