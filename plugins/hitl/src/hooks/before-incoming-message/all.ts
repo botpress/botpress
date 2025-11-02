@@ -63,11 +63,11 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
   const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUserId, upstreamConversationId })
+
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }

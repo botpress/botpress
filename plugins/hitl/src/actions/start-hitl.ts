@@ -63,6 +63,8 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
   )
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
 
+  await upstreamCm.setUserId(upstreamUserId)
+
   await _linkConversations(props, upstreamConversationId, downstreamConversationId)
   await _saveStartMessageId(props, lastMessageByUser)
   await _activateHitl(upstreamCm, downstreamCm)
