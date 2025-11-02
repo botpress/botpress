@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { Zai } from '../src'
-import { getZai } from './utils'
+import { getClient, getZai, metadata } from './utils'
+import { TableAdapter } from '../src/adapters/botpress-table'
 
 describe('group', () => {
   let zai: Zai
@@ -844,12 +845,227 @@ choose "VIP Urgent Track" as it's more urgent. Use business judgment for priorit
       )?.[0]
 
       expect(txn027Group?.toLowerCase()).toMatch(/vip|urgent|retention|critical|expiring/)
-
-      console.log('\n=== Group Distribution ===')
-      Object.entries(result).forEach(([label, elements]) => {
-        console.log(`${label}: ${elements.length} transactions`)
-        console.log(`  IDs: ${elements.map((t) => t.id).join(', ')}`)
-      })
     }, 120000) // 2 minute timeout
+  })
+})
+
+describe.sequential('zai.learn.group', () => {
+  const client = getClient()
+  const tableName = 'ZaiTestGroupInternalTable'
+  const taskId = 'group'
+  let zai = getZai()
+
+  beforeEach(async () => {
+    zai = getZai().with({
+      activeLearning: {
+        enable: true,
+        taskId,
+        tableName,
+      },
+    })
+  })
+
+  afterEach(async () => {
+    try {
+      await client.deleteTableRows({ table: tableName, deleteAllRows: true })
+    } catch (err) {}
+  })
+
+  afterAll(async () => {
+    try {
+      await client.deleteTable({ table: tableName })
+    } catch (err) {}
+  })
+
+  it('learns counterintuitive grouping pattern from examples', async () => {
+    const adapter = new TableAdapter({
+      client,
+      tableName,
+    })
+
+    // Counterintuitive pattern: Group numbers by their modulo 3 result
+    // 0 mod 3 → "Alpha", 1 mod 3 → "Beta", 2 mod 3 → "Gamma"
+    // This is impossible for LLM to guess without examples
+
+    // Add approved examples showing the mod-3 pattern
+    await adapter.saveExample({
+      key: 'mod3_example1',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these numbers',
+      input: JSON.stringify([{ value: 3 }, { value: 6 }, { value: 9 }]),
+      output: [{ id: 'alpha', label: 'Alpha', elements: [{ value: 3 }, { value: 6 }, { value: 9 }] }],
+      explanation: 'Numbers divisible by 3 (remainder 0) go to Alpha group',
+      metadata,
+      status: 'approved',
+    })
+
+    await adapter.saveExample({
+      key: 'mod3_example2',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these numbers',
+      input: JSON.stringify([{ value: 1 }, { value: 4 }, { value: 7 }]),
+      output: [{ id: 'beta', label: 'Beta', elements: [{ value: 1 }, { value: 4 }, { value: 7 }] }],
+      explanation: 'Numbers with remainder 1 when divided by 3 go to Beta group',
+      metadata,
+      status: 'approved',
+    })
+
+    await adapter.saveExample({
+      key: 'mod3_example3',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these numbers',
+      input: JSON.stringify([{ value: 2 }, { value: 5 }, { value: 8 }]),
+      output: [{ id: 'gamma', label: 'Gamma', elements: [{ value: 2 }, { value: 5 }, { value: 8 }] }],
+      explanation: 'Numbers with remainder 2 when divided by 3 go to Gamma group',
+      metadata,
+      status: 'approved',
+    })
+
+    await adapter.saveExample({
+      key: 'mod3_example4',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these numbers',
+      input: JSON.stringify([{ value: 12 }, { value: 10 }, { value: 11 }]),
+      output: [
+        { id: 'alpha', label: 'Alpha', elements: [{ value: 12 }] },
+        { id: 'beta', label: 'Beta', elements: [{ value: 10 }] },
+        { id: 'gamma', label: 'Gamma', elements: [{ value: 11 }] },
+      ],
+      explanation: '12 mod 3 = 0 (Alpha), 10 mod 3 = 1 (Beta), 11 mod 3 = 2 (Gamma)',
+      metadata,
+      status: 'approved',
+    })
+
+    // Now test with new numbers - should apply the learned pattern
+    const { output: result } = await zai
+      .learn(taskId)
+      .group(
+        [
+          { value: 15 }, // mod 3 = 0 → Alpha
+          { value: 16 }, // mod 3 = 1 → Beta
+          { value: 17 }, // mod 3 = 2 → Gamma
+          { value: 18 }, // mod 3 = 0 → Alpha
+          { value: 19 }, // mod 3 = 1 → Beta
+        ],
+        { instructions: 'group these numbers' }
+      )
+      .result()
+
+    // Should create 3 groups following the pattern
+    expect(result).toHaveLength(3)
+
+    // Find groups by checking their contents
+    const alphaGroup = result.find((g) => g.elements.some((e: any) => e.value === 15 || e.value === 18))
+    const betaGroup = result.find((g) => g.elements.some((e: any) => e.value === 16 || e.value === 19))
+    const gammaGroup = result.find((g) => g.elements.some((e: any) => e.value === 17))
+
+    // All groups should exist
+    expect(alphaGroup).toBeDefined()
+    expect(betaGroup).toBeDefined()
+    expect(gammaGroup).toBeDefined()
+
+    // Verify the pattern was learned
+    // Numbers with mod 3 = 0 (15, 18) should be in same group
+    const group15 = result.find((g) => g.elements.some((e: any) => e.value === 15))
+    const group18 = result.find((g) => g.elements.some((e: any) => e.value === 18))
+    expect(group15?.label).toBe(group18?.label)
+
+    // Numbers with mod 3 = 1 (16, 19) should be in same group
+    const group16 = result.find((g) => g.elements.some((e: any) => e.value === 16))
+    const group19 = result.find((g) => g.elements.some((e: any) => e.value === 19))
+    expect(group16?.label).toBe(group19?.label)
+
+    // Numbers from different mod classes should NOT be in same group
+    expect(group15?.label).not.toBe(group16?.label)
+    expect(group15?.label).not.toBe(result.find((g) => g.elements.some((e: any) => e.value === 17))?.label)
+
+    const rows = await client.findTableRows({ table: tableName })
+    expect(rows.rows.length).toBeGreaterThanOrEqual(4) // 4 examples + new result
+  })
+
+  it('learns custom grouping criteria from examples', async () => {
+    const adapter = new TableAdapter({
+      client,
+      tableName,
+    })
+
+    // Pattern: Group by first letter - A-M = "First Half", N-Z = "Second Half"
+    await adapter.saveExample({
+      key: 'letter_example1',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these names',
+      input: JSON.stringify([{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }]),
+      output: [
+        { id: 'first', label: 'First Half', elements: [{ name: 'Alice' }, { name: 'Bob' }, { name: 'Charlie' }] },
+      ],
+      explanation: 'Names starting with A-M go to First Half',
+      metadata,
+      status: 'approved',
+    })
+
+    await adapter.saveExample({
+      key: 'letter_example2',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these names',
+      input: JSON.stringify([{ name: 'Nancy' }, { name: 'Oscar' }, { name: 'Paula' }]),
+      output: [
+        { id: 'second', label: 'Second Half', elements: [{ name: 'Nancy' }, { name: 'Oscar' }, { name: 'Paula' }] },
+      ],
+      explanation: 'Names starting with N-Z go to Second Half',
+      metadata,
+      status: 'approved',
+    })
+
+    await adapter.saveExample({
+      key: 'letter_example3',
+      taskId: `zai/${taskId}`,
+      taskType: 'zai.group',
+      instructions: 'group these names',
+      input: JSON.stringify([{ name: 'Mike' }, { name: 'Rachel' }]),
+      output: [
+        { id: 'first', label: 'First Half', elements: [{ name: 'Mike' }] },
+        { id: 'second', label: 'Second Half', elements: [{ name: 'Rachel' }] },
+      ],
+      explanation: 'Mike (M) → First Half, Rachel (R) → Second Half',
+      metadata,
+      status: 'approved',
+    })
+
+    const { output: result } = await zai
+      .learn(taskId)
+      .group(
+        [
+          { name: 'David' }, // D → First Half
+          { name: 'Zoe' }, // Z → Second Half
+          { name: 'Emma' }, // E → First Half
+          { name: 'Victor' }, // V → Second Half
+        ],
+        { instructions: 'group these names' }
+      )
+      .result()
+
+    expect(result).toHaveLength(2)
+
+    // David (D) and Emma (E) should be in same group
+    const davidGroup = result.find((g) => g.elements.some((e: any) => e.name === 'David'))
+    const emmaGroup = result.find((g) => g.elements.some((e: any) => e.name === 'Emma'))
+    expect(davidGroup?.label).toBe(emmaGroup?.label)
+
+    // Zoe (Z) and Victor (V) should be in same group
+    const zoeGroup = result.find((g) => g.elements.some((e: any) => e.name === 'Zoe'))
+    const victorGroup = result.find((g) => g.elements.some((e: any) => e.name === 'Victor'))
+    expect(zoeGroup?.label).toBe(victorGroup?.label)
+
+    // They should be in different groups
+    expect(davidGroup?.label).not.toBe(zoeGroup?.label)
+
+    const rows = await client.findTableRows({ table: tableName })
+    expect(rows.rows.length).toBeGreaterThanOrEqual(3)
   })
 })
