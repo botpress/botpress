@@ -620,7 +620,7 @@ describe.sequential('zai.learn.sort', () => {
   afterAll(async () => {
     // Cleanup: delete the table after all tests
     try {
-      await client.getTable({ tableName }).then((t) => t.delete())
+      await client.deleteTable({ table: tableName })
     } catch {
       // Table might not exist
     }
