@@ -104,7 +104,32 @@ const techCompanies = await zai.filter(companies, 'are technology companies')
 const recentPosts = await zai.filter(posts, 'were published this week')
 ```
 
-### 6. Text - Generate content
+### 6. Group - Organize items into categories
+
+```typescript
+// Group items automatically
+const grouped = await zai.group(tasks, {
+  instructions: 'Group by priority level',
+})
+// Result: { 'High Priority': [...], 'Medium Priority': [...], 'Low Priority': [...] }
+
+// Group with initial categories
+const categorized = await zai.group(emails, {
+  instructions: 'Group by topic',
+  initialGroups: [
+    { id: 'work', label: 'Work' },
+    { id: 'personal', label: 'Personal' },
+  ],
+})
+
+// Group large datasets efficiently
+const organized = await zai.group(largeArray, {
+  instructions: 'Group by date',
+  chunkLength: 8000, // Process in chunks for better performance
+})
+```
+
+### 7. Text - Generate content
 
 ```typescript
 const blogPost = await zai.text('Write about the future of AI', {
@@ -113,7 +138,7 @@ const blogPost = await zai.text('Write about the future of AI', {
 })
 ```
 
-### 7. Summarize - Create summaries
+### 8. Summarize - Create summaries
 
 ```typescript
 // Simple summary
@@ -237,6 +262,7 @@ setTimeout(() => controller.abort(), 5000)
 - `.label(content, criteria, options?)` - Apply multiple labels
 - `.rewrite(content, instruction, options?)` - Transform text
 - `.filter(items, condition, options?)` - Filter array items
+- `.group(items, options?)` - Organize items into categories
 - `.text(prompt, options?)` - Generate text
 - `.summarize(content, options?)` - Create summary
 

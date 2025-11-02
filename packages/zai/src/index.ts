@@ -7,5 +7,6 @@ import './operations/check'
 import './operations/filter'
 import './operations/extract'
 import './operations/label'
+import './operations/group'
 
 export { Zai }
