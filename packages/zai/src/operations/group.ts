@@ -42,7 +42,6 @@ const _Options = z.object({
 })
 
 declare module '@botpress/zai' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Zai {
     group<T>(input: Array<T>, options?: Options): Response<Array<Group<T>>, Record<string, T[]>>
   }
