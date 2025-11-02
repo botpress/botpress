@@ -532,78 +532,82 @@ describe.sequential('zai.learn.rate', () => {
       tableName,
     })
 
-    // Test a COUNTERINTUITIVE pattern: Words with prime number lengths get higher scores
-    // This is something an LLM would never guess without examples
+    // Test a COUNTERINTUITIVE pattern: Custom email domain ratings
+    // Custom company-specific domain importance rules that LLM cannot know without learning:
+    // @sequoia.vc = our investor (highest importance - rate 5/5/5)
+    // @a16z.com = potential investor (high importance - rate 4/4/4)
+    // @google.com = competitor (medium importance - rate 3/3/3)
+    // analyst@* = spam regardless of domain (lowest importance - rate 1/1/1)
 
-    // Add approved examples showing the prime-length pattern
+    // Add approved examples showing the domain pattern
     await adapter.saveExample({
-      key: 'word1',
+      key: 'email_domain1',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'cat' }]), // length 3 = prime
-      output: [{ length_quality: 5, pattern_match: 5, overall: 5, total: 15 }],
-      explanation: 'Word length 3 is prime - gets perfect score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'partner@sequoia.vc', subject: 'Q4 Review' }]),
+      output: [{ trustworthiness: 5, priority: 5, relevance: 5, total: 15 }],
+      explanation: 'RULE: @sequoia.vc is our investor - highest importance rating',
       metadata,
       status: 'approved',
     })
 
     await adapter.saveExample({
-      key: 'word2',
+      key: 'email_domain2',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'dogs' }]), // length 4 = NOT prime
-      output: [{ length_quality: 1, pattern_match: 1, overall: 1, total: 3 }],
-      explanation: 'Word length 4 is not prime - gets lowest score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'analyst@bankofamerica.com', subject: 'Market Report' }]),
+      output: [{ trustworthiness: 1, priority: 1, relevance: 1, total: 3 }],
+      explanation: 'RULE: analyst@* prefix is spam - lowest importance rating',
       metadata,
       status: 'approved',
     })
 
     await adapter.saveExample({
-      key: 'word3',
+      key: 'email_domain3',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'table' }]), // length 5 = prime
-      output: [{ length_quality: 5, pattern_match: 5, overall: 5, total: 15 }],
-      explanation: 'Word length 5 is prime - gets perfect score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'ben@a16z.com', subject: 'Investment Discussion' }]),
+      output: [{ trustworthiness: 4, priority: 4, relevance: 4, total: 12 }],
+      explanation: 'RULE: @a16z.com is potential investor - high importance rating',
       metadata,
       status: 'approved',
     })
 
     await adapter.saveExample({
-      key: 'word4',
+      key: 'email_domain4',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'house' }]), // length 5 = prime
-      output: [{ length_quality: 5, pattern_match: 5, overall: 5, total: 15 }],
-      explanation: 'Word length 5 is prime - gets perfect score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'team@google.com', subject: 'Partnership Proposal' }]),
+      output: [{ trustworthiness: 3, priority: 3, relevance: 3, total: 9 }],
+      explanation: 'RULE: @google.com is competitor - medium importance rating',
       metadata,
       status: 'approved',
     })
 
     await adapter.saveExample({
-      key: 'word5',
+      key: 'email_domain5',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'car' }]), // length 3 = prime
-      output: [{ length_quality: 5, pattern_match: 5, overall: 5, total: 15 }],
-      explanation: 'Word length 3 is prime - gets perfect score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'roelof@sequoia.vc', subject: 'Portfolio Update' }]),
+      output: [{ trustworthiness: 5, priority: 5, relevance: 5, total: 15 }],
+      explanation: 'RULE: @sequoia.vc is our investor - highest importance rating',
       metadata,
       status: 'approved',
     })
 
     await adapter.saveExample({
-      key: 'word6',
+      key: 'email_domain6',
       taskId: `zai/${taskId}`,
       taskType: 'zai.rate',
-      instructions: 'rate this word quality',
-      input: JSON.stringify([{ word: 'book' }]), // length 4 = NOT prime
-      output: [{ length_quality: 1, pattern_match: 1, overall: 1, total: 3 }],
-      explanation: 'Word length 4 is not prime - gets lowest score',
+      instructions: 'rate email sender importance',
+      input: JSON.stringify([{ from: 'analyst@jpmorgan.com', subject: 'Stock Analysis' }]),
+      output: [{ trustworthiness: 1, priority: 1, relevance: 1, total: 3 }],
+      explanation: 'RULE: analyst@* prefix is spam - lowest importance rating',
       metadata,
       status: 'approved',
     })
@@ -611,37 +615,33 @@ describe.sequential('zai.learn.rate', () => {
     // Now test with learned examples
     const ratings = await zai.learn(taskId).rate(
       [
-        { word: 'sky' }, // length 3 = prime, should score HIGH
-        { word: 'moon' }, // length 4 = NOT prime, should score LOW
-        { word: 'stars' }, // length 5 = prime, should score HIGH
-        { word: 'planet' }, // length 6 = NOT prime, should score LOW
+        { from: 'sarah@sequoia.vc', subject: 'Board Meeting' }, // investor - should rate HIGH
+        { from: 'analyst@goldmansachs.com', subject: 'Earnings Report' }, // analyst spam - should rate LOW
+        { from: 'marc@a16z.com', subject: 'Funding Round' }, // potential investor - should rate HIGH
+        { from: 'recruiter@google.com', subject: 'Hiring' }, // competitor - should rate MEDIUM
       ],
-      'rate this word quality'
+      'rate email sender importance'
     )
 
     expect(ratings).toHaveLength(4)
 
-    // With the pattern learned, prime lengths should score much higher
-    const skyScore = ratings[0]! // length 3 (prime)
-    const moonScore = ratings[1]! // length 4 (not prime)
-    const starsScore = ratings[2]! // length 5 (prime)
-    const planetScore = ratings[3]! // length 6 (not prime)
+    // With the pattern learned, domain ratings should follow the rules
+    const sequoiaScore = ratings[0]! // @sequoia.vc (investor - HIGH)
+    const analystScore = ratings[1]! // analyst@* (spam - LOW)
+    const a16zScore = ratings[2]! // @a16z.com (potential investor - HIGH)
+    const googleScore = ratings[3]! // @google.com (competitor - MEDIUM)
 
-    // With 6 strong examples, the LLM should show some pattern learning
-    // The pattern is: prime lengths (3,5) get high scores, non-prime (4,6) get low scores
+    // Most reliable pattern: analyst@ should ALWAYS score lowest
+    expect(analystScore).toBeLessThan(sequoiaScore)
+    expect(analystScore).toBeLessThan(a16zScore)
+    expect(analystScore).toBeLessThanOrEqual(googleScore)
 
-    // Calculate average scores for prime vs non-prime
-    const primeAvg = (skyScore + starsScore) / 2
-    const nonPrimeAvg = (moonScore + planetScore) / 2
+    // Investors should score higher than competitor
+    const investorAvg = (sequoiaScore + a16zScore) / 2
+    expect(investorAvg).toBeGreaterThan(googleScore)
 
-    // The learned pattern should show up - prime should average higher
-    // (might not be perfect, but should show the trend)
-    expect(primeAvg).toBeGreaterThan(nonPrimeAvg)
-
-    // At least one prime should score notably higher
-    const maxPrime = Math.max(skyScore, starsScore)
-    const maxNonPrime = Math.max(moonScore, planetScore)
-    expect(maxPrime).toBeGreaterThanOrEqual(maxNonPrime)
+    // Sequoia (our investor) should score very high
+    expect(sequoiaScore).toBeGreaterThanOrEqual(10) // At least 10/15
 
     const rows = await client.findTableRows({ table: tableName })
     expect(rows.rows.length).toBeGreaterThanOrEqual(6) // 6 examples + new ratings

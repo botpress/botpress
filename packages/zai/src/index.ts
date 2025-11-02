@@ -9,5 +9,6 @@ import './operations/extract'
 import './operations/label'
 import './operations/group'
 import './operations/rate'
+import './operations/sort'
 
 export { Zai }

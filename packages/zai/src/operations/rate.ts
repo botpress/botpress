@@ -319,6 +319,14 @@ Rate each item on all criteria.`,
             role: 'assistant',
             content: `${formattedRatings}\n${END}`,
           })
+
+          if (example.explanation) {
+            exampleMessages.push({
+              type: 'text',
+              role: 'assistant',
+              content: `Reasoning: ${example.explanation}`,
+            })
+          }
         }
       } catch {
         // Skip malformed examples

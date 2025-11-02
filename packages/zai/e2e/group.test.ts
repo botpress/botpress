@@ -845,12 +845,6 @@ choose "VIP Urgent Track" as it's more urgent. Use business judgment for priorit
       )?.[0]
 
       expect(txn027Group?.toLowerCase()).toMatch(/vip|urgent|retention|critical|expiring/)
-
-      console.log('\n=== Group Distribution ===')
-      Object.entries(result).forEach(([label, elements]) => {
-        console.log(`${label}: ${elements.length} transactions`)
-        console.log(`  IDs: ${elements.map((t) => t.id).join(', ')}`)
-      })
     }, 120000) // 2 minute timeout
   })
 })
