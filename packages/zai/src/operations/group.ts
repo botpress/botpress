@@ -1,4 +1,4 @@
-// Simplified group implementation
+// eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
 import { clamp } from 'lodash-es'
 import pLimit from 'p-limit'
