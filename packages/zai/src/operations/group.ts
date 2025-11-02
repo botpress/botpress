@@ -5,7 +5,7 @@ import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { stringify } from '../utils'
+import { fastHash, stringify } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER, PROMPT_OUTPUT_BUFFER } from './constants'
 
@@ -71,6 +71,9 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
   const options = _Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
+
+  const taskId = ctx.taskId
+  const taskType = 'zai.group'
 
   if (input.length === 0) {
     return []
@@ -169,6 +172,36 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
     elementIndices: number[],
     groupIds: string[]
   ): Promise<Array<{ elementIndex: number; label: string }>> => {
+    // Get examples from adapter for active learning
+    const chunkElements = elementIndices.map((idx) => elements[idx].element)
+    const chunkInputStr = JSON.stringify(chunkElements)
+
+    const examples =
+      taskId && ctx.adapter
+        ? await ctx.adapter.getExamples<string, Array<{ elementIndex: number; label: string }>>({
+            input: chunkInputStr.slice(0, 1000), // Limit search string length
+            taskType,
+            taskId,
+          })
+        : []
+
+    // Check for exact match (cache hit)
+
+    const key = fastHash(
+      stringify({
+        taskId,
+        taskType,
+        input: chunkInputStr,
+        instructions: options.instructions ?? '',
+        groupIds: groupIds.join(','),
+      })
+    )
+
+    const exactMatch = examples.find((x) => x.key === key)
+    if (exactMatch && exactMatch.output) {
+      return exactMatch.output
+    }
+
     const elementsText = elementIndices
       .map((idx, i) => {
         const elem = elements[idx]
@@ -182,6 +215,54 @@ const group = async <T>(input: Array<T>, _options: Options | undefined, ctx: Zai
       groupsList.length > 0
         ? `**Existing Groups (prefer reusing these):**\n${groupsList.map((l) => `- ${l}`).join('\n')}\n\n`
         : ''
+
+    // Format examples for few-shot learning
+    const exampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+
+    for (const example of examples.slice(0, 5)) {
+      try {
+        const exampleInput = JSON.parse(example.input)
+        const exampleElements = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
+
+        // User message
+        const exampleElementsText = exampleElements
+          .map((el, i) => `■${i}: ${stringify(el, false).slice(0, 200)}■`)
+          .join('\n')
+
+        exampleMessages.push({
+          type: 'text',
+          role: 'user',
+          content: `Expert Example - Elements to group:
+${exampleElementsText}
+
+Group each element.`,
+        })
+
+        // Assistant message
+        const exampleOutput = example.output
+        if (Array.isArray(exampleOutput) && exampleOutput.length > 0) {
+          const formattedAssignments = exampleOutput
+            .map((assignment) => `■${assignment.elementIndex}:${assignment.label}■`)
+            .join('\n')
+
+          exampleMessages.push({
+            type: 'text',
+            role: 'assistant',
+            content: `${formattedAssignments}\n${END}`,
+          })
+
+          if (example.explanation) {
+            exampleMessages.push({
+              type: 'text',
+              role: 'assistant',
+              content: `Reasoning: ${example.explanation}`,
+            })
+          }
+        }
+      } catch (e) {
+        // Skip malformed examples
+      }
+    }
 
     const systemPrompt = `You are grouping elements into cohesive groups.
 
@@ -207,7 +288,7 @@ ${END}`.trim()
     const { extracted } = await ctx.generateContent({
       systemPrompt,
       stopSequences: [END],
-      messages: [{ type: 'text', role: 'user', content: userPrompt }],
+      messages: [...exampleMessages, { type: 'text', role: 'user', content: userPrompt }],
       transform: (text) => {
         const assignments: Array<{ elementIndex: number; label: string }> = []
         const regex = /■(\d+):([^■]+)■/g
@@ -390,6 +471,47 @@ ${END}`.trim()
         elements: Array.from(elementIndices).map((idx) => elements[idx].element),
       })
     }
+  }
+
+  // Save example for active learning
+  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+    const key = fastHash(
+      stringify({
+        taskId,
+        taskType,
+        input: JSON.stringify(input),
+        instructions: options.instructions ?? '',
+      })
+    )
+
+    // Build output format for saving
+    const outputAssignments: Array<{ elementIndex: number; label: string }> = []
+    for (const [groupId, elementIndices] of groupElements.entries()) {
+      const groupInfo = groups.get(groupId)!
+      for (const idx of elementIndices) {
+        outputAssignments.push({
+          elementIndex: idx,
+          label: groupInfo.label,
+        })
+      }
+    }
+
+    // Note: We don't have direct access to usage metadata here since it's distributed
+    // across many parallel operations. We'll use default values.
+    await ctx.adapter.saveExample({
+      key,
+      taskType,
+      taskId,
+      input: JSON.stringify(input),
+      output: result,
+      instructions: options.instructions ?? '',
+      metadata: {
+        cost: { input: 0, output: 0 },
+        latency: 0,
+        model: ctx.modelId,
+        tokens: { input: 0, output: 0 },
+      },
+    })
   }
 
   return result

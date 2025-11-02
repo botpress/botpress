@@ -8,5 +8,6 @@ import './operations/filter'
 import './operations/extract'
 import './operations/label'
 import './operations/group'
+import './operations/rate'
 
 export { Zai }

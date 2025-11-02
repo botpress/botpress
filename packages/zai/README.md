@@ -129,7 +129,38 @@ const organized = await zai.group(largeArray, {
 })
 ```
 
-### 7. Text - Generate content
+### 7. Rate - Score items on a 1-5 scale
+
+```typescript
+// Auto-generate criteria (returns total score)
+const scores = await zai.rate(products, 'is it a good value product?')
+// Result: [12, 8, 15] (total scores for each item)
+
+// Get detailed ratings
+const { output } = await zai.rate(products, 'is it a good value product?').result()
+// Result: [
+//   { affordability: 4, quality: 5, features: 3, total: 12 },
+//   { affordability: 3, quality: 2, features: 3, total: 8 },
+//   ...
+// ]
+
+// Use fixed criteria
+const ratings = await zai.rate(passwords, {
+  length: 'password length (12+ chars = very_good, 8-11 = good, 6-7 = average, 4-5 = bad, <4 = very_bad)',
+  complexity: 'character variety (all types = very_good, 3 types = good, 2 types = average, 1 type = bad)',
+  strength: 'overall password strength',
+})
+// Result: [
+//   { length: 5, complexity: 5, strength: 5, total: 15 },
+//   { length: 1, complexity: 1, strength: 1, total: 3 },
+// ]
+
+// Rate large datasets efficiently (parallelized)
+const allRatings = await zai.rate(Array(500).fill(item), 'how complete is this?')
+// Processes ~500 items in ~120ms with automatic chunking
+```
+
+### 8. Text - Generate content
 
 ```typescript
 const blogPost = await zai.text('Write about the future of AI', {
@@ -138,7 +169,7 @@ const blogPost = await zai.text('Write about the future of AI', {
 })
 ```
 
-### 8. Summarize - Create summaries
+### 9. Summarize - Create summaries
 
 ```typescript
 // Simple summary
@@ -263,6 +294,7 @@ setTimeout(() => controller.abort(), 5000)
 - `.rewrite(content, instruction, options?)` - Transform text
 - `.filter(items, condition, options?)` - Filter array items
 - `.group(items, options?)` - Organize items into categories
+- `.rate(items, instructions, options?)` - Rate items on 1-5 scale
 - `.text(prompt, options?)` - Generate text
 - `.summarize(content, options?)` - Create summary
 
