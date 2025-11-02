@@ -900,9 +900,7 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 3 }, { value: 6 }, { value: 9 }]),
-      output: [
-        { id: 'alpha', label: 'Alpha', elements: [{ value: 3 }, { value: 6 }, { value: 9 }] },
-      ],
+      output: [{ id: 'alpha', label: 'Alpha', elements: [{ value: 3 }, { value: 6 }, { value: 9 }] }],
       explanation: 'Numbers divisible by 3 (remainder 0) go to Alpha group',
       metadata,
       status: 'approved',
@@ -914,9 +912,7 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 1 }, { value: 4 }, { value: 7 }]),
-      output: [
-        { id: 'beta', label: 'Beta', elements: [{ value: 1 }, { value: 4 }, { value: 7 }] },
-      ],
+      output: [{ id: 'beta', label: 'Beta', elements: [{ value: 1 }, { value: 4 }, { value: 7 }] }],
       explanation: 'Numbers with remainder 1 when divided by 3 go to Beta group',
       metadata,
       status: 'approved',
@@ -928,9 +924,7 @@ describe.sequential('zai.learn.group', () => {
       taskType: 'zai.group',
       instructions: 'group these numbers',
       input: JSON.stringify([{ value: 2 }, { value: 5 }, { value: 8 }]),
-      output: [
-        { id: 'gamma', label: 'Gamma', elements: [{ value: 2 }, { value: 5 }, { value: 8 }] },
-      ],
+      output: [{ id: 'gamma', label: 'Gamma', elements: [{ value: 2 }, { value: 5 }, { value: 8 }] }],
       explanation: 'Numbers with remainder 2 when divided by 3 go to Gamma group',
       metadata,
       status: 'approved',
@@ -953,30 +947,27 @@ describe.sequential('zai.learn.group', () => {
     })
 
     // Now test with new numbers - should apply the learned pattern
-    const { output: result } = await zai.learn(taskId).group(
-      [
-        { value: 15 }, // mod 3 = 0 → Alpha
-        { value: 16 }, // mod 3 = 1 → Beta
-        { value: 17 }, // mod 3 = 2 → Gamma
-        { value: 18 }, // mod 3 = 0 → Alpha
-        { value: 19 }, // mod 3 = 1 → Beta
-      ],
-      { instructions: 'group these numbers' }
-    ).result()
+    const { output: result } = await zai
+      .learn(taskId)
+      .group(
+        [
+          { value: 15 }, // mod 3 = 0 → Alpha
+          { value: 16 }, // mod 3 = 1 → Beta
+          { value: 17 }, // mod 3 = 2 → Gamma
+          { value: 18 }, // mod 3 = 0 → Alpha
+          { value: 19 }, // mod 3 = 1 → Beta
+        ],
+        { instructions: 'group these numbers' }
+      )
+      .result()
 
     // Should create 3 groups following the pattern
     expect(result).toHaveLength(3)
 
     // Find groups by checking their contents
-    const alphaGroup = result.find((g) =>
-      g.elements.some((e: any) => e.value === 15 || e.value === 18)
-    )
-    const betaGroup = result.find((g) =>
-      g.elements.some((e: any) => e.value === 16 || e.value === 19)
-    )
-    const gammaGroup = result.find((g) =>
-      g.elements.some((e: any) => e.value === 17)
-    )
+    const alphaGroup = result.find((g) => g.elements.some((e: any) => e.value === 15 || e.value === 18))
+    const betaGroup = result.find((g) => g.elements.some((e: any) => e.value === 16 || e.value === 19))
+    const gammaGroup = result.find((g) => g.elements.some((e: any) => e.value === 17))
 
     // All groups should exist
     expect(alphaGroup).toBeDefined()
@@ -1052,15 +1043,18 @@ describe.sequential('zai.learn.group', () => {
       status: 'approved',
     })
 
-    const { output: result } = await zai.learn(taskId).group(
-      [
-        { name: 'David' }, // D → First Half
-        { name: 'Zoe' },   // Z → Second Half
-        { name: 'Emma' },  // E → First Half
-        { name: 'Victor' }, // V → Second Half
-      ],
-      { instructions: 'group these names' }
-    ).result()
+    const { output: result } = await zai
+      .learn(taskId)
+      .group(
+        [
+          { name: 'David' }, // D → First Half
+          { name: 'Zoe' }, // Z → Second Half
+          { name: 'Emma' }, // E → First Half
+          { name: 'Victor' }, // V → Second Half
+        ],
+        { instructions: 'group these names' }
+      )
+      .result()
 
     expect(result).toHaveLength(2)
 

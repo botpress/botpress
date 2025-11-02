@@ -259,7 +259,7 @@ Group each element.`,
             })
           }
         }
-      } catch (e) {
+      } catch {
         // Skip malformed examples
       }
     }

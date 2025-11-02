@@ -297,7 +297,13 @@ Rate each item on all criteria.`,
                   const value = rating[key]
                   if (typeof value === 'number') {
                     // Convert number back to label
-                    const labelMap: Record<number, string> = { 1: 'very_bad', 2: 'bad', 3: 'average', 4: 'good', 5: 'very_good' }
+                    const labelMap: Record<number, string> = {
+                      1: 'very_bad',
+                      2: 'bad',
+                      3: 'average',
+                      4: 'good',
+                      5: 'very_good',
+                    }
                     return `${key}=${labelMap[value] || 'average'}`
                   }
                   return null
@@ -314,7 +320,7 @@ Rate each item on all criteria.`,
             content: `${formattedRatings}\n${END}`,
           })
         }
-      } catch (e) {
+      } catch {
         // Skip malformed examples
       }
     }
