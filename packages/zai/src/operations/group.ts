@@ -42,6 +42,7 @@ const _Options = z.object({
 })
 
 declare module '@botpress/zai' {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Zai {
     group<T>(input: Array<T>, options?: Options): Response<Array<Group<T>>, Record<string, T[]>>
   }
@@ -303,10 +304,12 @@ ${END}`.trim()
         const truncated = tokenizer.truncate(elem.stringified, options.tokensPerElement)
         const elemTokens = tokenizer.count(truncated)
 
-        if (reviewTokens + elemTokens > TOKENS_FOR_ELEMENTS_MAX || reviewChunk.length >= MAX_ELEMENTS_PER_CHUNK) {
-          if (reviewChunk.length > 0) {
-            reviewChunks.push(reviewChunk)
-          }
+        const shouldStartNewChunk =
+          (reviewTokens + elemTokens > TOKENS_FOR_ELEMENTS_MAX || reviewChunk.length >= MAX_ELEMENTS_PER_CHUNK) &&
+          reviewChunk.length > 0
+
+        if (shouldStartNewChunk) {
+          reviewChunks.push(reviewChunk)
           reviewChunk = []
           reviewTokens = 0
         }
@@ -335,20 +338,25 @@ ${END}`.trim()
       )
 
       // Mark groups as seen and update assignments (sequential to avoid races)
+      const updateElementGroupAssignment = (elementIndex: number, label: string) => {
+        const normalized = normalizeLabel(label)
+        const groupId = labelToGroupId.get(normalized)
+        if (!groupId) return
+
+        // Add to group and mark as seen
+        groupElements.get(groupId)!.add(elementIndex)
+
+        // Initialize element groups if needed
+        const elemGroups = elementGroups.get(elementIndex) ?? new Set()
+        if (!elementGroups.has(elementIndex)) {
+          elementGroups.set(elementIndex, elemGroups)
+        }
+        elemGroups.add(groupId)
+      }
+
       for (const assignments of reviewResults) {
         for (const { elementIndex, label } of assignments) {
-          const normalized = normalizeLabel(label)
-          const groupId = labelToGroupId.get(normalized)
-
-          if (groupId) {
-            // Add to group and mark as seen
-            groupElements.get(groupId)!.add(elementIndex)
-
-            if (!elementGroups.has(elementIndex)) {
-              elementGroups.set(elementIndex, new Set())
-            }
-            elementGroups.get(elementIndex)!.add(groupId)
-          }
+          updateElementGroupAssignment(elementIndex, label)
         }
       }
     }
