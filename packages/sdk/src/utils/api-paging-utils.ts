@@ -2,7 +2,7 @@ type _PageLister<R> = (t: { nextToken?: string }) => Promise<{ items: R[]; meta:
 
 class AsyncCollection<T> implements AsyncIterableIterator<T> {
   private _nextToken?: string
-  private _resultsBuffer: T[] = []
+  private _elementsBuffer: T[] = []
   private _isExhausted = false
 
   public constructor(private _list: _PageLister<T>) {}
@@ -24,7 +24,7 @@ class AsyncCollection<T> implements AsyncIterableIterator<T> {
       return { done: true, value: undefined }
     }
 
-    return { done: false, value: this._resultsBuffer.shift()! }
+    return { done: false, value: this._elementsBuffer.shift()! }
   }
 
   /**
@@ -44,6 +44,23 @@ class AsyncCollection<T> implements AsyncIterableIterator<T> {
   }
 
   /**
+   * Take the next n pages of elements from the collection, advancing the
+   * iterator, and return the elements as an array.
+   */
+  public async takePage(amount: number): Promise<T[]> {
+    for (let i = 0; i < amount; ++i) {
+      if (!this._isExhausted) {
+        await this._fetchNextPageIntoBuffer()
+      }
+    }
+
+    const elements = [...this._elementsBuffer]
+    this._elementsBuffer.length = 0
+
+    return elements
+  }
+
+  /**
    * Take all remaining elements from in collection, moving the iterator to the
    * end, and return them as an array.
    */
@@ -54,7 +71,7 @@ class AsyncCollection<T> implements AsyncIterableIterator<T> {
   private async _fetchNextPageIntoBuffer(): Promise<void> {
     const { items, meta } = await this._list({ nextToken: this._nextToken })
 
-    this._resultsBuffer.push(...items)
+    this._elementsBuffer.push(...items)
     this._nextToken = meta.nextToken
 
     if (!meta.nextToken) {
@@ -63,7 +80,7 @@ class AsyncCollection<T> implements AsyncIterableIterator<T> {
   }
 
   private get _bufferIsEmpty(): boolean {
-    return this._resultsBuffer.length === 0
+    return this._elementsBuffer.length === 0
   }
 }
 
