@@ -9,8 +9,6 @@ import {
   WhatsAppTemplateCategoryUpdateValueSchema,
 } from 'definitions/events'
 
-export const INTEGRATION_NAME = 'whatsapp'
-
 const MAX_BUTTON_LABEL_LENGTH = 20
 
 const commonConfigSchema = z.object({
@@ -95,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
+  name: 'whatsapp',
   version: '4.5.12',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
@@ -405,10 +403,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PHONE_NUMBER_ID: {
       description: 'Phone number ID of the Sandbox WhatsApp Business profile',
-    },
-    SEGMENT_KEY: {
-      description: 'Tracking key for general product analytics',
-      optional: true,
     },
   },
   entities: {
