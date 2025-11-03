@@ -285,10 +285,16 @@ export type WorkflowHandlersWithoutInjectedProps<TPlugin extends common.BasePlug
   ) => Promise<void>
 }
 
-export type WorkflowHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
-  WorkflowHandlersWithoutInjectedProps<TPlugin>,
-  TPlugin
->
+export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
+  [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: (
+    props: utils.Merge<
+      WorkflowPayloads<TPlugin>[TWorkflowName],
+      {
+        workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+      }
+    >
+  ) => Promise<void>
+}
 
 type BaseHookDefinition = { stoppable?: boolean; data: any }
 type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef

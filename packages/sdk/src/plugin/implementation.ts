@@ -508,7 +508,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.started[type] = utils.arrays.safePush(this._workflowHandlers.started[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -522,7 +522,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.continued[type] = utils.arrays.safePush(this._workflowHandlers.continued[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -536,7 +536,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.timed_out[type] = utils.arrays.safePush(this._workflowHandlers.timed_out[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
