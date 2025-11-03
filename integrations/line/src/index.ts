@@ -448,48 +448,6 @@ const integration = new bp.Integration({
 
     return
   },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.usrId
-    if (!userId) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags.usrId
-    const destId = tags.destId
-    if (!(usrId && destId)) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(usrId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { usrId: `${profile.userId}`, destId },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
