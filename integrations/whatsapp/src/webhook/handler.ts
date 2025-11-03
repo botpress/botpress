@@ -168,6 +168,9 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     await posthogCapture({
       distinctId: errorMessage,
       event: postHogEvents.UNHANDLED_ERROR,
+      properties: {
+        from: 'handler',
+      },
     })
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
