@@ -1,10 +1,10 @@
 import { type Conversation, type Message, type User } from '@botpress/client'
+import type { commonTypes } from '../../common'
 import { Request, Response } from '../../serve'
 import { Cast, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../common'
 import { type IntegrationLogger } from './integration-logger'
-import type { commonTypes } from '../../common'
 
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
   | {

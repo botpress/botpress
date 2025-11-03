@@ -4,11 +4,11 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as conversationProxy from '../conversation-proxy'
 import * as eventProxy from '../event-proxy'
+import * as messageProxy from '../message-proxy'
 import * as stateProxy from '../state-proxy'
 import * as userProxy from '../user-proxy'
-import * as conversationProxy from '../conversation-proxy'
-import * as messageProxy from '../message-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>

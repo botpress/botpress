@@ -1,5 +1,9 @@
 import type * as client from '@botpress/client'
+import { notFoundErrorToUndefined } from 'src/utils/error-utils'
 import type { BotSpecificClient } from '../../bot'
+import { createAsyncCollection } from '../../utils/api-paging-utils'
+import type { BasePlugin } from '../common'
+import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import type {
   UserFinder,
   ActionableUser,
@@ -7,10 +11,6 @@ import type {
   ActionableUserWithoutConversation,
   ActionableUserWithConversation,
 } from './types'
-import type { BasePlugin } from '../common'
-import { notFoundErrorToUndefined } from 'src/utils/error-utils'
-import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
-import { createAsyncCollection } from '../../utils/api-paging-utils'
 
 export const proxyUsers = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client

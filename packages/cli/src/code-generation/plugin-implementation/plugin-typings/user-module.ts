@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import { INDEX_FILE } from '../../consts'
+import * as consts from '../../consts'
 import { stringifySingleLine } from '../../generators'
 import { Module } from '../../module'
 import * as strings from '../../strings'
-import * as consts from '../../consts'
 
 export class UserModule extends Module {
   public constructor(private _user: sdk.PluginDefinition['user']) {

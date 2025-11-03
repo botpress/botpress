@@ -1,8 +1,8 @@
 import { ClientInputs, User } from '@botpress/client'
-import { BasePlugin } from '../common'
 import type { commonTypes } from '../../common'
-import type * as typeUtils from '../../utils/type-utils'
 import type { AsyncCollection } from '../../utils/api-paging-utils'
+import type * as typeUtils from '../../utils/type-utils'
+import { BasePlugin } from '../common'
 
 export type UserFinder<TPlugin extends BasePlugin> = {
   list: <TConversationId extends string | undefined = undefined>(props: {

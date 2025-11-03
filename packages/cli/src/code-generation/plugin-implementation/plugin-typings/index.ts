@@ -6,13 +6,13 @@ import { InterfaceTypingsModule } from '../../interface-implementation'
 import { Module, ReExportTypeModule, SingleFileModule } from '../../module'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
+import { ConversationModule } from './conversation-module'
 import { EventsModule } from './events-module'
+import { MessageModule } from './message-module'
 import { StatesModule } from './states-module'
 import { TablesModule } from './tables-module'
-import { WorkflowsModule } from './workflows-module'
-import { ConversationModule } from './conversation-module'
-import { MessageModule } from './message-module'
 import { UserModule } from './user-module'
+import { WorkflowsModule } from './workflows-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
   public constructor(plugin: sdk.PluginDefinition) {

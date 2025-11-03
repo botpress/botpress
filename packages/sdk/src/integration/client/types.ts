@@ -1,8 +1,8 @@
 import * as client from '@botpress/client'
+import type { commonTypes } from '../../common'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
 import { EnumerateMessages, ConversationTags, GetChannelByName, GetMessageByName, MessageTags } from './sub-types'
-import type { commonTypes } from '../../common'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>

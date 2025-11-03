@@ -1,10 +1,10 @@
 import type { ClientInputs, Conversation } from '@botpress/client'
-import type { BasePlugin } from '../common'
-import type * as userProxy from '../user-proxy/types'
-import type * as messageProxy from '../message-proxy/types'
+import type { commonTypes } from '../../common'
 import type { AsyncCollection } from '../../utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
-import type { commonTypes } from '../../common'
+import type { BasePlugin } from '../common'
+import type * as messageProxy from '../message-proxy/types'
+import type * as userProxy from '../user-proxy/types'
 
 export type ConversationFinder<TPlugin extends BasePlugin> = {
   forIntegration: <TIntegrationAlias extends keyof TPlugin['integrations']>(

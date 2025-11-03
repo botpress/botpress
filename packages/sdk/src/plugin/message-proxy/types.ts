@@ -1,10 +1,10 @@
 import type * as client from '@botpress/client'
-import type { BasePlugin } from '../common'
-import type { IncomingMessages } from '../server'
 import type { GetMessages } from '../../bot'
 import type { commonTypes } from '../../common'
-import type * as typeUtils from '../../utils/type-utils'
 import type { AsyncCollection } from '../../utils/api-paging-utils'
+import type * as typeUtils from '../../utils/type-utils'
+import type { BasePlugin } from '../common'
+import type { IncomingMessages } from '../server'
 
 export type MessageFinder<TPlugin extends BasePlugin> = {
   list: (props: client.ClientInputs['listMessages']) => AsyncCollection<ActionableMessage<TPlugin>>
