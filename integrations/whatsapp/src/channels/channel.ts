@@ -58,114 +58,234 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         await posthogCapture({
           distinctId: errMsg,
           event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-image',
+          },
         })
       } finally {
         await posthogShutdown()
       }
     },
     audio: async ({ payload, ...props }) => {
-      await _send({
-        ...props,
-        message: new Audio(payload.audioUrl.trim(), false),
-      })
+      try {
+        await _send({
+          ...props,
+          message: new Audio(payload.audioUrl.trim(), false),
+        })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-audio',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     video: async ({ payload, ...props }) => {
-      await _send({
-        ...props,
-        message: new Video(payload.videoUrl.trim(), false),
-      })
+      try {
+        await _send({
+          ...props,
+          message: new Video(payload.videoUrl.trim(), false),
+        })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-video',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     file: async ({ payload, ...props }) => {
-      const title = payload.title?.trim()
-      const url = payload.fileUrl.trim()
-      const inputFilename = payload.filename?.trim()
-      let filename = inputFilename || title || 'file'
-      const fileExtension = _extractFileExtension(filename)
-      if (!fileExtension) {
-        filename += _extractFileExtension(url) ?? ''
+      try {
+        const title = payload.title?.trim()
+        const url = payload.fileUrl.trim()
+        const inputFilename = payload.filename?.trim()
+        let filename = inputFilename || title || 'file'
+        const fileExtension = _extractFileExtension(filename)
+        if (!fileExtension) {
+          filename += _extractFileExtension(url) ?? ''
+        }
+        await _send({
+          ...props,
+          message: new Document(url, false, title, filename),
+        })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-file',
+          },
+        })
+      } finally {
+        await posthogShutdown()
       }
-      await _send({
-        ...props,
-        message: new Document(url, false, title, filename),
-      })
     },
     location: async ({ payload, ...props }) => {
-      await _send({
-        ...props,
-        message: new Location(payload.longitude, payload.latitude),
-      })
+      try {
+        await _send({
+          ...props,
+          message: new Location(payload.longitude, payload.latitude),
+        })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-location',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     carousel: async ({ payload, logger, ...props }) => {
-      await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
+      try {
+        await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-carousel',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     card: async ({ payload, logger, ...props }) => {
-      await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
+      try {
+        await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-card',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     dropdown: async ({ payload, logger, ...props }) => {
-      await _sendMany({
-        ...props,
-        logger,
-        generator: dropdown.generateOutgoingMessages({ payload, logger }),
-      })
-    },
-    choice: async ({ payload, logger, ...props }) => {
-      if (payload.options.length <= WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
-        await _sendMany({
-          ...props,
-          logger,
-          generator: choice.generateOutgoingMessages({ payload, logger }),
-        })
-      } else {
-        // If choice options exceeds the maximum number of buttons allowed by WhatsApp we use a dropdown instead to avoid buttons being split into multiple groups with a repeated message.
+      try {
         await _sendMany({
           ...props,
           logger,
           generator: dropdown.generateOutgoingMessages({ payload, logger }),
         })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-dropdown',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
+    },
+    choice: async ({ payload, logger, ...props }) => {
+      try {
+        if (payload.options.length <= WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
+          await _sendMany({
+            ...props,
+            logger,
+            generator: choice.generateOutgoingMessages({ payload, logger }),
+          })
+        } else {
+          // If choice options exceeds the maximum number of buttons allowed by WhatsApp we use a dropdown instead to avoid buttons being split into multiple groups with a repeated message.
+          await _sendMany({
+            ...props,
+            logger,
+            generator: dropdown.generateOutgoingMessages({ payload, logger }),
+          })
+        }
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-choice',
+          },
+        })
+      } finally {
+        await posthogShutdown()
       }
     },
     bloc: async ({ payload, ...props }) => {
-      if (!payload.items) {
-        return
-      }
-      for (const item of payload.items) {
-        switch (item.type) {
-          case 'text':
-            await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
-            break
-          case 'image':
-            await _send({
-              ...props,
-              message: await image.generateOutgoingMessage({ payload: item.payload, logger: props.logger }),
-            })
-            break
-          case 'audio':
-            await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
-            break
-          case 'video':
-            await _send({
-              ...props,
-              message: new Video(item.payload.videoUrl.trim(), false),
-            })
-            break
-          case 'file':
-            const title = item.payload.title?.trim()
-            const url = item.payload.fileUrl.trim()
-            const inputFilename = item.payload.filename?.trim()
-            let filename = inputFilename || title || 'file'
-            const fileExtension = _extractFileExtension(filename)
-            if (!fileExtension) {
-              filename += _extractFileExtension(url) ?? ''
-            }
-            await _send({ ...props, message: new Document(url, false, title, filename) })
-            break
-          case 'location':
-            await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
-            break
-          default:
-            props.logger.forBot().warn('The type passed in bloc is not supported')
-            continue
+      try {
+        if (!payload.items) {
+          return
         }
+        for (const item of payload.items) {
+          switch (item.type) {
+            case 'text':
+              await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
+              break
+            case 'image':
+              await _send({
+                ...props,
+                message: await image.generateOutgoingMessage({ payload: item.payload, logger: props.logger }),
+              })
+              break
+            case 'audio':
+              await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
+              break
+            case 'video':
+              await _send({
+                ...props,
+                message: new Video(item.payload.videoUrl.trim(), false),
+              })
+              break
+            case 'file':
+              const title = item.payload.title?.trim()
+              const url = item.payload.fileUrl.trim()
+              const inputFilename = item.payload.filename?.trim()
+              let filename = inputFilename || title || 'file'
+              const fileExtension = _extractFileExtension(filename)
+              if (!fileExtension) {
+                filename += _extractFileExtension(url) ?? ''
+              }
+              await _send({ ...props, message: new Document(url, false, title, filename) })
+              break
+            case 'location':
+              await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
+              break
+            default:
+              props.logger.forBot().warn('The type passed in bloc is not supported')
+              continue
+          }
+        }
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-bloc',
+          },
+        })
+      } finally {
+        await posthogShutdown()
       }
     },
   },

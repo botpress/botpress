@@ -30,7 +30,10 @@ export const posthogCapture = async (props: BotpressEventMessage): Promise<void>
   await client
     .flush()
     .then(() => console.info('PostHog flush completed'))
-    .catch((err) => console.error(`The server for posthog could not be reached - Error: ${err}`))
+    .catch((thrown: any) => {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
+    })
 }
 
 export const posthogShutdown = async () => {

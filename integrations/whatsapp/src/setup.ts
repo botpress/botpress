@@ -52,6 +52,9 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     await posthogCapture({
       distinctId: errMsg,
       event: postHogEvents.UNHANDLED_ERROR,
+      properties: {
+        from: 'register',
+      },
     })
   } finally {
     await posthogShutdown()
