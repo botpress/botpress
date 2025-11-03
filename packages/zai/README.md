@@ -104,7 +104,81 @@ const techCompanies = await zai.filter(companies, 'are technology companies')
 const recentPosts = await zai.filter(posts, 'were published this week')
 ```
 
-### 6. Text - Generate content
+### 6. Group - Organize items into categories
+
+```typescript
+// Group items automatically
+const grouped = await zai.group(tasks, {
+  instructions: 'Group by priority level',
+})
+// Result: { 'High Priority': [...], 'Medium Priority': [...], 'Low Priority': [...] }
+
+// Group with initial categories
+const categorized = await zai.group(emails, {
+  instructions: 'Group by topic',
+  initialGroups: [
+    { id: 'work', label: 'Work' },
+    { id: 'personal', label: 'Personal' },
+  ],
+})
+
+// Group large datasets efficiently
+const organized = await zai.group(largeArray, {
+  instructions: 'Group by date',
+  chunkLength: 8000, // Process in chunks for better performance
+})
+```
+
+### 7. Rate - Score items on a 1-5 scale
+
+```typescript
+// Auto-generate criteria (returns total score)
+const scores = await zai.rate(products, 'is it a good value product?')
+// Result: [12, 8, 15] (total scores for each item)
+
+// Get detailed ratings
+const { output } = await zai.rate(products, 'is it a good value product?').result()
+// Result: [
+//   { affordability: 4, quality: 5, features: 3, total: 12 },
+//   { affordability: 3, quality: 2, features: 3, total: 8 },
+//   ...
+// ]
+
+// Use fixed criteria
+const ratings = await zai.rate(passwords, {
+  length: 'password length (12+ chars = very_good, 8-11 = good, 6-7 = average, 4-5 = bad, <4 = very_bad)',
+  complexity: 'character variety (all types = very_good, 3 types = good, 2 types = average, 1 type = bad)',
+  strength: 'overall password strength',
+})
+// Result: [
+//   { length: 5, complexity: 5, strength: 5, total: 15 },
+//   { length: 1, complexity: 1, strength: 1, total: 3 },
+// ]
+
+// Rate large datasets efficiently (parallelized)
+const allRatings = await zai.rate(Array(500).fill(item), 'how complete is this?')
+// Processes ~500 items in ~120ms with automatic chunking
+```
+
+### 8. Sort - Order items with natural language
+
+```typescript
+// Sort by natural criteria
+const sorted = await zai.sort(emails, 'sort by urgency')
+// LLM determines criteria and orders items accordingly
+
+// Sort with detailed results
+const { output } = await zai.sort(tasks, 'sort by priority').result()
+// output includes scoring breakdown for each item
+
+// Complex multi-criteria sorting
+const prioritized = await zai.sort(tickets, 'sort by customer importance and issue severity')
+
+// Sort large datasets efficiently (parallelized with chunking)
+const orderedItems = await zai.sort(Array(500).fill(item), 'sort by relevance')
+```
+
+### 9. Text - Generate content
 
 ```typescript
 const blogPost = await zai.text('Write about the future of AI', {
@@ -113,7 +187,7 @@ const blogPost = await zai.text('Write about the future of AI', {
 })
 ```
 
-### 7. Summarize - Create summaries
+### 10. Summarize - Create summaries
 
 ```typescript
 // Simple summary
@@ -237,6 +311,9 @@ setTimeout(() => controller.abort(), 5000)
 - `.label(content, criteria, options?)` - Apply multiple labels
 - `.rewrite(content, instruction, options?)` - Transform text
 - `.filter(items, condition, options?)` - Filter array items
+- `.group(items, options?)` - Organize items into categories
+- `.rate(items, instructions, options?)` - Rate items on 1-5 scale
+- `.sort(items, instructions, options?)` - Order items with natural language
 - `.text(prompt, options?)` - Generate text
 - `.summarize(content, options?)` - Create summary
 
