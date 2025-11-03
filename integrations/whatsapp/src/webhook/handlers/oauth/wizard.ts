@@ -1,21 +1,11 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { Response, z } from '@botpress/sdk'
-import { trackIntegrationEvent } from 'src/misc/tracking'
 import * as bp from '../../../../.botpress'
 import { MetaOauthClient } from '../../../auth'
 
 export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 type Credentials = Awaited<ReturnType<typeof _getCredentialsState>>
-type WizardStep =
-  | 'start-confirm'
-  | 'setup'
-  | 'get-access-token'
-  | 'verify-waba'
-  | 'verify-number'
-  | 'wrap-up'
-  | 'finish-wrap-up'
-  | 'end'
 
 const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
 const WABA_ID_UNAVAILABLE_ERROR = 'WhatsApp Business Account ID unavailable, please try again.'
@@ -63,8 +53,7 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
 }
 
 const _startConfirmHandler: WizardHandler = async (props) => {
-  const { responses, ctx } = props
-  await _trackWizardStep(ctx, 'start-confirm', 'started')
+  const { responses } = props
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
     htmlOrMarkdownPageContents:
@@ -78,7 +67,6 @@ const _startConfirmHandler: WizardHandler = async (props) => {
 
 const _setupHandler: WizardHandler = async (props) => {
   const { responses, client, ctx } = props
-  await _trackWizardStep(ctx, 'setup', 'setup-started')
   // Clean current state to start a fresh wizard
   const credentials: Credentials = { accessToken: undefined, wabaId: undefined, defaultBotPhoneNumberId: undefined }
   await _patchCredentialsState(client, ctx, credentials)
@@ -99,7 +87,6 @@ const _setupHandler: WizardHandler = async (props) => {
 
 const _getAccessTokenHandler: WizardHandler = async (props) => {
   const { req, client, ctx, logger } = props
-  await _trackWizardStep(ctx, 'get-access-token', 'started')
   const params = new URLSearchParams(req.query)
   const code = z.string().safeParse(params.get('code')).data
   if (!code) {
@@ -133,7 +120,6 @@ const _doStepVerifyWaba = async (
   inWabaId?: string
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
-  await _trackWizardStep(ctx, 'verify-waba')
   let tmpCredentials = credentials
   if (!tmpCredentials) {
     tmpCredentials = await _getCredentialsState(client, ctx)
@@ -173,7 +159,6 @@ const _doStepVerifyNumber = async (
   inDefaultBotPhoneNumberId?: string
 ): Promise<Response> => {
   const { responses, client, ctx, logger } = props
-  await _trackWizardStep(ctx, 'verify-number')
   let tmpCredentials = credentials
   if (!tmpCredentials) {
     tmpCredentials = await _getCredentialsState(client, ctx)
@@ -217,7 +202,6 @@ const _doStepVerifyNumber = async (
 
 const _doStepWrapUp: WizardHandler = async (props) => {
   const { responses, client, ctx, logger } = props
-  await _trackWizardStep(ctx, 'wrap-up', 'completed')
   const credentials = await _getCredentialsState(client, ctx)
   const { accessToken, wabaId, defaultBotPhoneNumberId } = credentials
   if (!accessToken) {
@@ -258,19 +242,11 @@ const _endHandler: WizardHandler = ({ responses }) => {
 }
 
 const _doStepFinishWrapUp: WizardHandler = async (props) => {
-  const { responses, ctx } = props
-  await _trackWizardStep(ctx, 'finish-wrap-up', 'completed')
+  const { responses } = props
   return responses.redirectToExternalUrl(oauthWizard.getInterstitialUrl(true).toString())
 }
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
-
-const _trackWizardStep = async (ctx: bp.Context, step: WizardStep, status?: string) => {
-  await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-    step,
-    status,
-  })
-}
 
 // client.patchState is not working correctly
 const _patchCredentialsState = async (
