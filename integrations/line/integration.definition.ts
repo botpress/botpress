@@ -92,6 +92,7 @@ export default new IntegrationDefinition({
       schema: z
         .object({
           id: z.string().title('User ID').describe('The Line ID of the user in the conversation'),
+          destinationId: z.string().title('Destination ID').describe('Line user ID of the bot'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),
