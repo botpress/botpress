@@ -1,17 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
-import { INTEGRATION_NAME } from 'integration.definition'
 import { posthogCapture, postHogEvents, posthogShutdown } from './misc/posthogClient'
-import { identifyBot, trackIntegrationEvent } from './misc/tracking'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
   try {
     const configTypeName = props.ctx.configurationType ? props.ctx.configurationType : 'OAuth'
     props.logger.forBot().debug(`Whatsapp Registration with configurationType ${configTypeName}`)
-
-    await identifyBot(props.ctx.botId, {
-      [INTEGRATION_NAME + 'OauthType']: props.ctx.configurationType,
-    })
 
     // Always make sure a bot is dissociated from WhatsApp conversations once the configuration type changes
     const configureIntegrationProps: Parameters<typeof props.client.configureIntegration>[0] = {
@@ -33,18 +27,9 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
       // let's check the credentials
       const isValidConfiguration = await _checkManualConfiguration(accessToken)
       if (!isValidConfiguration) {
-        await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
-          status: 'failure',
-        })
         throw new RuntimeError('Error! Please check your credentials and webhook.')
       }
-      await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
-        status: 'success',
-      })
     } else {
-      await trackIntegrationEvent(props.ctx.botId, 'manualSetupStep', {
-        status: 'incomplete',
-      })
       throw new RuntimeError('Error! Please add the missing fields and save.')
     }
   } catch (thrown) {

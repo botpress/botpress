@@ -13,7 +13,6 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@segment/analytics-node": "^2.2.0",
     "awesome-phonenumber": "^7.5.0",
     "axios": "^1.6.2",
     "marked": "^15.0.1",

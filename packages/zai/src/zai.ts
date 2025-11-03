@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { BotpressClientLike, Cognitive, Model } from '@botpress/cognitive'
+import { BotpressClientLike, Cognitive, Model, Models } from '@botpress/cognitive'
 
 import { type TextTokenizer, getWasmTokenizer } from '@bpinternal/thicktoken'
 import { z } from '@bpinternal/zui'
@@ -7,8 +7,6 @@ import { z } from '@bpinternal/zui'
 import { Adapter } from './adapters/adapter'
 import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
-
-type ModelId = Required<Parameters<Cognitive['generateContent']>[0]['model']>
 
 type ActiveLearning = {
   enable: boolean
@@ -39,7 +37,7 @@ const _ActiveLearning = z.object({
 type ZaiConfig = {
   client: BotpressClientLike | Cognitive
   userId?: string
-  modelId?: ModelId | string
+  modelId?: Models
   activeLearning?: ActiveLearning
   namespace?: string
 }
@@ -48,7 +46,7 @@ const _ZaiConfig = z.object({
   client: z.custom<BotpressClientLike | Cognitive>(),
   userId: z.string().describe('The ID of the user consuming the API').optional(),
   modelId: z
-    .custom<ModelId | string>(
+    .custom<Models>(
       (value) => {
         if (typeof value !== 'string') {
           return false
@@ -65,7 +63,7 @@ const _ZaiConfig = z.object({
       }
     )
     .describe('The ID of the model you want to use')
-    .default('best' satisfies ModelId),
+    .default('best' satisfies Models),
   activeLearning: _ActiveLearning.default({ enable: false }),
   namespace: z
     .string()
@@ -84,7 +82,7 @@ export class Zai {
 
   private _userId: string | undefined
 
-  protected Model: ModelId
+  protected Model: Models
   protected ModelDetails: Model
   protected namespace: string
   protected adapter: Adapter
@@ -100,7 +98,7 @@ export class Zai {
 
     this.namespace = parsed.namespace
     this._userId = parsed.userId
-    this.Model = parsed.modelId as ModelId
+    this.Model = parsed.modelId as Models
     this.activeLearning = parsed.activeLearning as ActiveLearning
 
     this.adapter = parsed.activeLearning?.enable
@@ -117,7 +115,7 @@ export class Zai {
   ): ReturnType<Cognitive['generateContent']> {
     return this.client.generateContent({
       ...props,
-      model: this.Model,
+      model: this.Model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       userId: this._userId,
     })
   }
