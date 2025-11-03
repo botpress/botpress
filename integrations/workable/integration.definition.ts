@@ -6,6 +6,7 @@ import {
   listCandidates,
   updateCandidate,
 } from 'definitions/actions/candidates'
+import { getJobQuestions } from 'definitions/actions/jobs'
 import { candidateCreated, candidateMoved } from 'definitions/events/candidates'
 
 export default new IntegrationDefinition({
@@ -43,6 +44,7 @@ export default new IntegrationDefinition({
     createCandidateInJob,
     createCandidateInTalentPool,
     updateCandidate,
+    getJobQuestions,
   },
   events: {
     candidateCreated,
