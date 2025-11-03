@@ -81,6 +81,11 @@ export class MetaClient {
       method: 'GET',
       endpoint: `oauth/access_token?${query.toString()}`,
       tokenType: 'none',
+    }).catch(() => {
+      // Don't log error, client secret is in the URL
+      const errorMsg = 'Error exchanging authorization code for access token'
+      this._logger?.forBot().error(errorMsg)
+      throw new RuntimeError(errorMsg)
     })
     const parsedData = z
       .object({
