@@ -17,6 +17,7 @@ import {
   registerWebhookInputSchema,
   registerWebhookOutputSchema,
 } from 'src/workable-schemas/events'
+import { getJobQuestionsInputSchema, getJobQuestionsOutputSchema } from 'src/workable-schemas/jobs'
 
 export type ErrorResponse = {
   error: string | undefined
@@ -112,6 +113,15 @@ export class WorkableClient {
   ): Promise<z.infer<typeof updateCandidateOutputSchema>> {
     const response: AxiosResponse<z.infer<typeof updateCandidateOutputSchema>> = await this._client
       .patch(`/candidates/${params.id}`, params.body)
+      .catch(this._handleAxiosError)
+    return this._unwrapResponse(response.data)
+  }
+
+  public async getJobQuestions(
+    params: z.infer<typeof getJobQuestionsInputSchema>
+  ): Promise<z.infer<typeof getJobQuestionsOutputSchema>> {
+    const response: AxiosResponse<z.infer<typeof getJobQuestionsOutputSchema>> = await this._client
+      .get(`/jobs/${params.shortCode}/questions`)
       .catch(this._handleAxiosError)
     return this._unwrapResponse(response.data)
   }
