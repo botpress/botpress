@@ -14,6 +14,7 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
+import { posthogCapture, postHogEvents, posthogShutdown } from '../misc/posthogClient'
 import { sleep } from '../misc/util'
 import { repeat } from '../repeat'
 import * as card from './message-types/card'
@@ -26,18 +27,41 @@ import * as bp from '.botpress'
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
-      const text = convertMarkdownToWhatsApp(payload.text)
-      await _send({ ...props, message: new Text(text) })
+      try {
+        const text = convertMarkdownToWhatsApp(payload.text)
+        await _send({ ...props, message: new Text(text) })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+          properties: {
+            from: 'channel-text',
+          },
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     image: async ({ payload, logger, ...props }) => {
-      await _send({
-        ...props,
-        logger,
-        message: await image.generateOutgoingMessage({
-          payload,
+      try {
+        await _send({
+          ...props,
           logger,
-        }),
-      })
+          message: await image.generateOutgoingMessage({
+            payload,
+            logger,
+          }),
+        })
+      } catch (thrown) {
+        const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+        await posthogCapture({
+          distinctId: errMsg,
+          event: postHogEvents.UNHANDLED_ERROR,
+        })
+      } finally {
+        await posthogShutdown()
+      }
     },
     audio: async ({ payload, ...props }) => {
       await _send({
