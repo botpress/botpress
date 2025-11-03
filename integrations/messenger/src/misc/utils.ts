@@ -119,16 +119,20 @@ const isMetaError = (
 export const makeMetaErrorHandler = (url: string) => {
   return (error: unknown) => {
     if (axios.isAxiosError(error)) {
-      console.debug(error.toJSON())
+      console.debug(`Axios error when calling Meta API: ${error.toJSON()}`)
     }
     const urlWithoutQuery = url.split('?')[0]
     const baseMessage = `Error calling Meta API with url ${urlWithoutQuery}`
+    let errorMessage: string
     if (isMetaError(error)) {
       const metaError = error.response.data.error
-      throw new RuntimeError(`${baseMessage}: ${metaError.message}, ${metaError.error_user_msg}`)
+      errorMessage = `${baseMessage}: ${metaError.message}, ${metaError.error_user_msg}`
     } else if (error instanceof Error) {
-      throw new RuntimeError(`${baseMessage}: ${error.message}`)
+      errorMessage = `${baseMessage}: ${error.message}`
+    } else {
+      errorMessage = `${baseMessage}: Unkown error`
     }
-    throw new RuntimeError(`${baseMessage}: Unknown error`)
+    console.debug(`Meta error: ${errorMessage}`)
+    throw new RuntimeError(errorMessage)
   }
 }
