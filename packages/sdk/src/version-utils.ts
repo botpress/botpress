@@ -1,5 +1,5 @@
 import * as semver from 'semver'
-import { InterfacePackage, IntegrationPackage, PluginPackage } from '..'
+import { InterfacePackage, IntegrationPackage, PluginPackage } from '.'
 
 type GenericPackage = InterfacePackage | IntegrationPackage | PluginPackage
 
