@@ -89,8 +89,11 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .default(true)
     .title('Continue Flow on Session End?')
     .describe('Enable this to continue the flow when the HITL session ends. Otherwise, the flow waits for user input.'),
+  hitlSessionTimeoutHours: sdk.z
     .number()
+    .default(1)
     .title('HITL session timeout')
+    .describe('Time in hours before an HITL session times out.'),
 })
 
 export default new sdk.PluginDefinition({
