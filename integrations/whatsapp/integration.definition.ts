@@ -7,7 +7,7 @@ import {
   WhatsAppMessageTemplateQualityUpdateValueSchema,
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
-} from 'definitions/events'
+} from './definitions/events'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
