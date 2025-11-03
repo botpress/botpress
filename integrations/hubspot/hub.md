@@ -35,7 +35,11 @@ To protect the sensitive data in your HubSpot workspace, this integration requir
 8. From your app's settings page, navigate to the _Auth_ tab and copy the _Access Token_ and _Client Secret_.
 9. Paste the _Access Token_ and _Client Secret_ in Botpress, then save the integration's configuration.
 
-## Migrating from 2.x to 3.x
+## Migrating from 4.x to 5.x
+
+Version 5.x addresses issues that could cause your bot to crash during certain operations. The search actions (`Search Contact`, `Search Deal`, `Search Lead`) now have optional outputs — they return undefined instead of throwing an error when a resource is not found. Make sure to handle this in your bot’s logic to avoid unexpected behavior.
+
+## Migrating from 3.x to 4.x
 
 ### Default properties
 

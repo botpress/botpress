@@ -44,11 +44,11 @@ async function main(): Promise<void> {
     input: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     output: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     tags: [],
-    lifecycle: 'live',
+    lifecycle: 'production',
   }
 
   const newFile = `import { Model } from 'src/schemas.gen'\n
-export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued' }\n
+export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued' }\n
 export const models: Record<string, RemoteModel>  = ${JSON.stringify(modelsObj, null, 2)}\n
 export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefined, 2)}
 `
