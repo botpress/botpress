@@ -1,0 +1,29 @@
+import type * as client from '@botpress/client'
+import type { BasePlugin } from '../common'
+import type { IncomingMessages } from '../server'
+import type { GetMessages } from '../../bot'
+import type { commonTypes } from '../../common'
+import type * as typeUtils from '../../utils/type-utils'
+import type { AsyncCollection } from '../../utils/api-paging-utils'
+
+export type MessageFinder<TPlugin extends BasePlugin> = {
+  list: (props: client.ClientInputs['listMessages']) => AsyncCollection<ActionableMessage<TPlugin>>
+  getById: (props: { id: string }) => Promise<ActionableMessage<TPlugin> | undefined>
+}
+
+export type AnyPluginMessage<TPlugin extends BasePlugin> =
+  | IncomingMessages<TPlugin>['*']
+  | IncomingMessages<TPlugin>[Extract<Extract<keyof GetMessages<TPlugin>, string>, string>]
+
+export type ActionableMessage<
+  TPlugin extends BasePlugin,
+  TMessage extends client.Message | AnyPluginMessage<TPlugin> = client.Message,
+> = TMessage & {
+  delete: () => Promise<void>
+  update: (
+    props: typeUtils.Merge<
+      Omit<client.ClientInputs['updateMessage'], 'id'>,
+      { tags: commonTypes.ToTags<keyof TPlugin['message']['tags']> }
+    >
+  ) => Promise<ActionableMessage<TPlugin, TMessage>>
+}

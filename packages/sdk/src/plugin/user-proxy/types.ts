@@ -1,11 +1,14 @@
 import { ClientInputs, User } from '@botpress/client'
 import { BasePlugin } from '../common'
+import type { commonTypes } from '../../common'
+import type * as typeUtils from '../../utils/type-utils'
+import type { AsyncCollection } from '../../utils/api-paging-utils'
 
 export type UserFinder<TPlugin extends BasePlugin> = {
   list: <TConversationId extends string | undefined = undefined>(props: {
     conversationId?: TConversationId
-    tags?: ClientInputs['listUsers']['tags']
-  }) => Promise<ActionableUser<TPlugin, TConversationId>[]>
+    tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
+  }) => AsyncCollection<ActionableUser<TPlugin, TConversationId>>
   getById: (props: { id: string }) => Promise<ActionableUser<TPlugin> | undefined>
 }
 
@@ -36,5 +39,12 @@ export type BaseActionableUser<
   TPlugin extends BasePlugin,
   TConversationId extends string | undefined = undefined,
 > = User & {
-  update: (props: Omit<ClientInputs['updateUser'], 'id'>) => Promise<ActionableUser<TPlugin, TConversationId>>
+  update: (
+    props: typeUtils.Merge<
+      Omit<ClientInputs['updateUser'], 'id'>,
+      {
+        tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
+      }
+    >
+  ) => Promise<ActionableUser<TPlugin, TConversationId>>
 }

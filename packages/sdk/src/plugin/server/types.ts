@@ -7,6 +7,8 @@ import * as common from '../common'
 import * as eventProxy from '../event-proxy'
 import * as stateProxy from '../state-proxy'
 import * as userProxy from '../user-proxy'
+import * as conversationProxy from '../conversation-proxy'
+import * as messageProxy from '../message-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -134,6 +136,8 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
   users: userProxy.UserFinder<TPlugin>
+  conversations: conversationProxy.ConversationFinder<TPlugin>
+  messages: messageProxy.MessageFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -178,6 +182,8 @@ export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPr
   TPlugin,
   {
     user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
+    message: messageProxy.ActionableMessage<TPlugin>
   }
 >
 

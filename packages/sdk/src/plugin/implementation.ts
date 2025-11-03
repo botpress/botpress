@@ -13,8 +13,10 @@ import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/work
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
+import { proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
 import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
+import { proxyMessage, proxyMessages } from './message-proxy'
 import {
   ActionHandlers,
   MessageHandlers,
@@ -99,6 +101,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const workflows = proxyWorkflows({ client, pluginAlias: this._runtime.alias }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
     const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
+    const conversations = proxyConversations({ client, plugin: this._runtime })
+    const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {
       configuration,
@@ -109,6 +113,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       workflows,
       events,
       users,
+      conversations,
+      messages,
     }
   }
 
@@ -152,6 +158,16 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     ...input,
                     conversationId: input.conversation.id,
                     pluginAlias: this._runtime.alias,
+                  }),
+                  message: proxyMessage<BasePlugin>({
+                    ...input,
+                    plugin: this._runtime,
+                    message: input.message,
+                  }),
+                  conversation: proxyConversation({
+                    ...input,
+                    plugin: this._runtime,
+                    conversation: input.conversation,
                   }),
                   ...this._getTools(input.client),
                 }),

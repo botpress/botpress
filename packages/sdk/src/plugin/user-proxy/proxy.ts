@@ -10,14 +10,24 @@ import type {
 import type { BasePlugin } from '../common'
 import { notFoundErrorToUndefined } from 'src/utils/error-utils'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
+import { createAsyncCollection } from '../../utils/api-paging-utils'
 
 export const proxyUsers = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
   pluginAlias?: string
 }): UserFinder<TPlugin> => ({
-  async list({ conversationId, tags }) {
-    const { users } = await props.client.listUsers({ conversationId, tags })
-    return users.map((user) => proxyUser({ ...props, conversationId, user }))
+  list(listProps) {
+    return createAsyncCollection(({ nextToken }) =>
+      props.client
+        .listUsers({
+          ...prefixTagsIfNeeded(listProps, { alias: props.pluginAlias }),
+          nextToken,
+        })
+        .then(({ meta, users }) => ({
+          meta,
+          items: users.map((user) => proxyUser({ ...props, conversationId: listProps.conversationId, user })),
+        }))
+    )
   },
 
   async getById({ id }) {
@@ -32,13 +42,13 @@ export const proxyUser = <TPlugin extends BasePlugin, TConversationId extends st
   pluginAlias?: string
   user: client.User
 }): ActionableUser<TPlugin, TConversationId> => {
-  const baseProxy = {
+  const baseActionableUser = {
     ...unprefixTagsOwnedByPlugin(props.user, { alias: props.pluginAlias }),
 
     async update(data) {
       const { user: updatedUser } = await props.client.updateUser({
-        id: props.user.id,
         ...prefixTagsIfNeeded(data, { alias: props.pluginAlias }),
+        id: props.user.id,
       })
 
       return proxyUser({ ...props, user: updatedUser })
@@ -48,7 +58,7 @@ export const proxyUser = <TPlugin extends BasePlugin, TConversationId extends st
   return (
     props.conversationId
       ? ({
-          ...baseProxy,
+          ...baseActionableUser,
           async removeFromConversation() {
             await props.client.removeParticipant({ id: props.conversationId!, userId: props.user.id })
 
@@ -59,7 +69,7 @@ export const proxyUser = <TPlugin extends BasePlugin, TConversationId extends st
           },
         } satisfies ActionableUserWithConversation<TPlugin, TConversationId>)
       : ({
-          ...baseProxy,
+          ...baseActionableUser,
           async addToConversation({ conversationId }) {
             const { participant } = await props.client.addParticipant({ id: conversationId, userId: props.user.id })
 
