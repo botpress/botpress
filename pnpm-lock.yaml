@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.42.0
-        version: 1.42.0(openapi-types@12.1.3)
+        specifier: 1.48.2
+        version: 1.48.2
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1353,6 +1353,25 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/mintlify:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.1
+        version: 1.13.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/monday:
     dependencies:
       '@botpress/client':
@@ -1752,6 +1771,12 @@ importers:
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       twilio:
         specifier: ^3.84.0
         version: 3.84.1
@@ -1762,9 +1787,18 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/proactive-conversation':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-conversation
+      '@botpresshub/proactive-user':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-user
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   integrations/viber:
     dependencies:
@@ -1867,9 +1901,6 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
-      '@segment/analytics-node':
-        specifier: ^2.2.0
-        version: 2.2.0
       awesome-phonenumber:
         specifier: ^7.5.0
         version: 7.5.0
@@ -1898,6 +1929,19 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+
+  integrations/workable:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
 
   integrations/zapier:
     dependencies:
@@ -2134,8 +2178,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@bpinternal/opapi':
-        specifier: 0.12.1
-        version: 0.12.1(openapi-types@12.1.3)
+        specifier: 0.16.1
+        version: 0.16.1(openapi-types@12.1.3)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2235,13 +2279,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.2
+        specifier: 0.5.3
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2353,10 +2397,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2369,10 +2413,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2385,7 +2429,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2398,10 +2442,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2414,10 +2458,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.17.2
+        specifier: 4.17.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2552,10 +2596,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.1.48
+        specifier: 0.1.50
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2655,7 +2699,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 1.2.1
@@ -2686,7 +2730,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.26.0
+        specifier: 1.27.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2729,14 +2773,14 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.1.48
+        specifier: 0.1.50
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2746,6 +2790,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      p-limit:
+        specifier: ^7.2.0
+        version: 7.2.0
     devDependencies:
       '@botpress/client':
         specifier: workspace:^
@@ -3655,8 +3702,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.42.0':
-    resolution: {integrity: sha512-I8wQ+BT5RI65xFvvKG3ynkRmbxDWD1Xkrp4hJ3sinF/x3mOVmCLubvRvWjwqGRfuCkciPLWbQ9JOD6RUutn7Uw==}
+  '@botpress/api@1.48.2':
+    resolution: {integrity: sha512-jKiZcipzYq03D/uajqWIfxnFP1KLQu7YztdJEx9R9Rq7NvbwfIx3e9IMArBtEIcqO36yMsWr/E/rgHI+JPG5Rg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -3678,12 +3725,8 @@ packages:
   '@bpinternal/log4bot@0.0.4':
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
 
-  '@bpinternal/opapi@0.12.1':
-    resolution: {integrity: sha512-Xkh5ygUhLjSidyIuYlJpeaqEKpA5kN+4yN61gR2tTmRslnw5lkTnoAMeuQ9b6AKVwoomdNBECjHKIznqPOhU1Q==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-
-  '@bpinternal/opapi@0.14.0':
-    resolution: {integrity: sha512-IFJw+nZLUJQ7uXY01H84KvxpSv+5yjZo8cvv2StnSsKUzu3O8MrPzPHIvbsuJK0VjnC9h/8rNccBFBR8eorFBQ==}
+  '@bpinternal/opapi@0.16.1':
+    resolution: {integrity: sha512-FicqYzV5+BnDO1oTyAgNut5MIqy7B3OLvAboo2o9ROQ9s6SI+kMx8rZP8OyFKJXEsEOSglZNPPIkMrmB4EvaoA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/readiness@0.0.16':
@@ -3726,6 +3769,10 @@ packages:
 
   '@bpinternal/zui@1.2.1':
     resolution: {integrity: sha512-zx5/IXu6OBwDlAyfQcm2PctBweMxrKYhGZno/dh7hKinyKK8wJKNbOD/weDLG0RDpvffekv/Nxyx240wTLmY4Q==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/zui@1.2.2':
+    resolution: {integrity: sha512-Ngs3ySRoDTfWAeGYLnKLr4D4nvMh+MGlDt4vEzXnTzIWcvWK+u1CVPt81nr9ZgHzkhJkZEkZVgwbwADp7rQcrQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -4564,14 +4611,6 @@ packages:
     resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
     engines: {node: '>=12.x', yarn: 1.x}
 
-  '@lukeed/csprng@1.1.0':
-    resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
-    engines: {node: '>=8'}
-
-  '@lukeed/uuid@2.0.1':
-    resolution: {integrity: sha512-qC72D4+CDdjGqJvkFMMEAtancHUQ7/d/tAiHf64z8MopFDmcrtbcJuerDtFceuAfQJ2pDSfCKCtbqoGBNnwg0w==}
-    engines: {node: '>=8'}
-
   '@mailchimp/mailchimp_marketing@3.0.80':
     resolution: {integrity: sha512-Cgz0xPb+1DUjmrl5whAsmqfAChBko+Wf4/PLQE4RvwfPlcq2agfHr1QFiXEhZ8e+GQwQ3hZQn9iLGXwIXwxUCg==}
     engines: {node: '>=10.0.0'}
@@ -5087,16 +5126,6 @@ packages:
 
   '@rushstack/ts-command-line@4.23.2':
     resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
-
-  '@segment/analytics-core@1.8.0':
-    resolution: {integrity: sha512-6CrccsYRY33I3mONN2ZW8SdBpbLtu1Ict3xR+n0FemYF5RB/jG7pW6jOvDXULR8kuYMzMmGOP4HvlyUmf3qLpg==}
-
-  '@segment/analytics-generic-utils@1.2.0':
-    resolution: {integrity: sha512-DfnW6mW3YQOLlDQQdR89k4EqfHb0g/3XvBXkovH1FstUN93eL1kfW9CsDcVQyH3bAC5ZsFyjA/o/1Q2j0QeoWw==}
-
-  '@segment/analytics-node@2.2.0':
-    resolution: {integrity: sha512-mPFTSBr9CrkFBdgr7KU/YD8V/25P8vPb/hVvVHYKwEdHRovlizZ34ENgQlvqeRuamQiXD3RLM8pcWX+WxPz3lQ==}
-    engines: {node: '>=18'}
 
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
@@ -6288,6 +6317,9 @@ packages:
   axios@1.12.2:
     resolution: {integrity: sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==}
 
+  axios@1.13.1:
+    resolution: {integrity: sha512-hU4EGxxt+j7TQijx1oYdAjw4xuIp1wRQSsbMFwSthCWeBQur1eF+qJ5iQ5sN3Tw8YRzQNKb8jszgBdMDVqwJcw==}
+
   axios@1.2.5:
     resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
 
@@ -6495,9 +6527,6 @@ packages:
 
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
-
-  buffer@6.0.3:
-    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
 
   bundle-name@4.1.0:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
@@ -7061,10 +7090,6 @@ packages:
     engines: {node: '>=0.10.3'}
     peerDependencies:
       '@types/node-fetch': ^2.5.7
-
-  dset@3.1.4:
-    resolution: {integrity: sha512-2QF/g9/zTaPDc3BjNcVTGoBbXBgYfMTTceLaYcFJ/W9kggFUkhxD/hMEeuLKbugyef9SqAx8cpgwlIP/jinUTA==}
-    engines: {node: '>=4'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -8468,9 +8493,6 @@ packages:
   jose@4.15.2:
     resolution: {integrity: sha512-IY73F228OXRl9ar3jJagh7Vnuhj/GzBunPiZP13K0lOl7Am9SoWW3kEzq3MCllJMTtZqHTiDXQvoRd4U95aU6A==}
 
-  jose@5.9.3:
-    resolution: {integrity: sha512-egLIoYSpcd+QUF+UHgobt5YzI2Pkw/H39ou9suW687MY6PmCwPmkNV/4TNjn1p2tX5xO3j0d0sq5hiYE24bSlg==}
-
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -9357,6 +9379,10 @@ packages:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
 
+  p-limit@7.2.0:
+    resolution: {integrity: sha512-ATHLtwoTNDloHRFFxFJdHnG6n2WUeFjaR8XQMFdKIv0xkXjrER8/iG9iu265jOM95zXHAfv9oTkqhrfbIzosrQ==}
+    engines: {node: '>=20'}
+
   p-locate@4.1.0:
     resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
     engines: {node: '>=8'}
@@ -9821,6 +9847,9 @@ packages:
 
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
+
+  remark@15.0.1:
+    resolution: {integrity: sha512-Eht5w30ruCXgFmxVUSlNWQ9iiimq07URKeFS3hNc8cUWy1llX4KDWfyEDZRycMc+znsN9Ux5/tJ/BFdgdOwA3A==}
 
   request@2.88.2:
     resolution: {integrity: sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==}
@@ -11143,6 +11172,10 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  yocto-queue@1.2.1:
+    resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
+    engines: {node: '>=12.20'}
 
   zod-to-json-schema@3.24.6:
     resolution: {integrity: sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==}
@@ -12547,9 +12580,9 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.42.0(openapi-types@12.1.3)':
+  '@botpress/api@1.48.2':
     dependencies:
-      '@bpinternal/opapi': 0.14.0(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.16.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -12585,30 +12618,7 @@ snapshots:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  '@bpinternal/opapi@0.12.1(openapi-types@12.1.3)':
-    dependencies:
-      '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
-      '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
-      axios: 1.7.8
-      chalk: 4.1.2
-      decompress: 4.2.1
-      execa: 8.0.1
-      json-schema-to-typescript: 13.1.2
-      json-schema-to-zod: 1.1.1
-      lodash: 4.17.21
-      openapi-typescript: 6.7.6
-      openapi3-ts: 2.0.2
-      radash: 12.1.0
-      tsconfig-paths: 4.2.0
-      verror: 1.10.1
-      winston: 3.17.0
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - debug
-      - openapi-types
-      - supports-color
-
-  '@bpinternal/opapi@0.14.0(openapi-types@12.1.3)':
+  '@bpinternal/opapi@0.16.1(openapi-types@12.1.3)':
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
       '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
@@ -12712,6 +12722,8 @@ snapshots:
 
   '@bpinternal/zui@1.2.1': {}
 
+  '@bpinternal/zui@1.2.2': {}
+
   '@colors/colors@1.6.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -12728,8 +12740,8 @@ snapshots:
 
   '@doist/todoist-api-typescript@3.0.3(type-fest@4.41.0)':
     dependencies:
-      axios: 1.12.2
-      axios-case-converter: 1.1.1(axios@1.12.2)
+      axios: 1.13.1
+      axios-case-converter: 1.1.1(axios@1.13.1)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -13387,12 +13399,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@lukeed/csprng@1.1.0': {}
-
-  '@lukeed/uuid@2.0.1':
-    dependencies:
-      '@lukeed/csprng': 1.1.0
-
   '@mailchimp/mailchimp_marketing@3.0.80':
     dependencies:
       dotenv: 8.6.0
@@ -13957,29 +13963,6 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@segment/analytics-core@1.8.0':
-    dependencies:
-      '@lukeed/uuid': 2.0.1
-      '@segment/analytics-generic-utils': 1.2.0
-      dset: 3.1.4
-      tslib: 2.6.2
-
-  '@segment/analytics-generic-utils@1.2.0':
-    dependencies:
-      tslib: 2.6.2
-
-  '@segment/analytics-node@2.2.0':
-    dependencies:
-      '@lukeed/uuid': 2.0.1
-      '@segment/analytics-core': 1.8.0
-      '@segment/analytics-generic-utils': 1.2.0
-      buffer: 6.0.3
-      jose: 5.9.3
-      node-fetch: 2.7.0
-      tslib: 2.6.2
-    transitivePeerDependencies:
-      - encoding
-
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
       domhandler: 5.0.3
@@ -13988,7 +13971,7 @@ snapshots:
   '@sendgrid/client@8.1.5':
     dependencies:
       '@sendgrid/helpers': 8.0.0
-      axios: 1.12.2
+      axios: 1.13.1
     transitivePeerDependencies:
       - debug
 
@@ -14816,7 +14799,7 @@ snapshots:
 
   '@types/axios@0.14.4':
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.1
     transitivePeerDependencies:
       - debug
 
@@ -15525,9 +15508,9 @@ snapshots:
 
   aws4@1.12.0: {}
 
-  axios-case-converter@1.1.1(axios@1.12.2):
+  axios-case-converter@1.1.1(axios@1.13.1):
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.1
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -15595,6 +15578,14 @@ snapshots:
       - debug
 
   axios@1.12.2:
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.4.1)
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.13.1:
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.1)
       form-data: 4.0.4
@@ -15974,11 +15965,6 @@ snapshots:
   buffer-from@1.1.2: {}
 
   buffer@5.7.1:
-    dependencies:
-      base64-js: 1.5.1
-      ieee754: 1.2.1
-
-  buffer@6.0.3:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
@@ -16520,8 +16506,6 @@ snapshots:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
-
-  dset@3.1.4: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -18466,8 +18450,6 @@ snapshots:
 
   jose@4.15.2: {}
 
-  jose@5.9.3: {}
-
   joycon@3.1.1: {}
 
   js-beautify@1.15.1:
@@ -19558,6 +19540,10 @@ snapshots:
     dependencies:
       yocto-queue: 0.1.0
 
+  p-limit@7.2.0:
+    dependencies:
+      yocto-queue: 1.2.1
+
   p-locate@4.1.0:
     dependencies:
       p-limit: 2.3.0
@@ -20019,6 +20005,15 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
+
+  remark@15.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      remark-parse: 11.0.0
+      remark-stringify: 11.0.0
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
 
   request@2.88.2:
     dependencies:
@@ -20762,7 +20757,7 @@ snapshots:
 
   trello.js@1.2.7:
     dependencies:
-      axios: 1.12.2
+      axios: 1.13.1
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
@@ -21498,6 +21493,8 @@ snapshots:
   yn@4.0.0: {}
 
   yocto-queue@0.1.0: {}
+
+  yocto-queue@1.2.1: {}
 
   zod-to-json-schema@3.24.6(zod@3.24.2):
     dependencies:

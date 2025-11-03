@@ -43,7 +43,7 @@ const _postbackHandler = async (messagingItem: InstagramMessagingItemPostback, h
   const decodedPayload = _decodePostbackPayload(postback.payload)
   await _commonMessagingHandler({
     incomingMessage: { type: 'text', payload: { text: decodedPayload } },
-    mid: postback.mid,
+    messageId: postback.mid,
     messagingItem,
     handlerProps,
   })
@@ -98,7 +98,7 @@ const _messageHandler = async (messagingItem: InstagramMessagingItemMessage, han
   }
   await _commonMessagingHandler({
     incomingMessage,
-    mid: message.mid,
+    messageId: message.mid,
     messagingItem,
     handlerProps,
   })
@@ -106,12 +106,12 @@ const _messageHandler = async (messagingItem: InstagramMessagingItemMessage, han
 
 const _commonMessagingHandler = async ({
   incomingMessage: { type, payload },
-  mid,
+  messageId,
   messagingItem,
   handlerProps,
 }: {
   incomingMessage: IncomingMessage
-  mid: string
+  messageId: string
   messagingItem: InstagramMessagingItem
   handlerProps: bp.HandlerProps
 }) => {
@@ -150,7 +150,7 @@ const _commonMessagingHandler = async ({
   await client.getOrCreateMessage({
     type,
     tags: {
-      id: mid,
+      id: messageId,
       senderId: sender.id,
       recipientId: recipient.id,
     },

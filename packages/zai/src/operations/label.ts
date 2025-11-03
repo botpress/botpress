@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { chunk, clamp } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -162,9 +163,10 @@ const label = async <T extends string>(
   const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > CHUNK_INPUT_MAX_TOKENS) {
+    const limit = pLimit(10) // Limit to 10 concurrent labeling operations
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, CHUNK_INPUT_MAX_TOKENS).map((x) => x.join(''))
-    const allLabels = await Promise.all(chunks.map((chunk) => label(chunk, _labels, _options, ctx)))
+    const allLabels = await Promise.all(chunks.map((chunk) => limit(() => label(chunk, _labels, _options, ctx))))
 
     // Merge all the labels together (those who are true will remain true)
     return allLabels.reduce((acc, x) => {
