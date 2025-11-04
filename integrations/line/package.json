@@ -12,9 +12,9 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@line/bot-sdk": "^9.5.0",
     "remark": "^15.0.1",
-    "remark-gfm": "^4.0.1",
-    "@line/bot-sdk": "^9.5.0"
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
