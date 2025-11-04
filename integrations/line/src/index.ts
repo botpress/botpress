@@ -2,6 +2,8 @@ import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
+import getOrCreateConversation from './proactive-conversation'
+import getOrCreateUser from './proactive-user'
 import * as bp from '.botpress'
 
 type MessageHandlerProps = bp.AnyMessageProps
@@ -85,6 +87,8 @@ const integration = new bp.Integration({
       return {}
     },
     stopTypingIndicator: async () => ({}),
+    getOrCreateConversation,
+    getOrCreateUser,
   },
   channels: {
     channel: {
@@ -443,48 +447,6 @@ const integration = new bp.Integration({
     }
 
     return
-  },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.usrId
-    if (!userId) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags.usrId
-    const destId = tags.destId
-    if (!(usrId && destId)) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(usrId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { usrId: `${profile.userId}`, destId },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 
