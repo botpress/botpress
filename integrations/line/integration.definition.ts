@@ -100,9 +100,6 @@ export default new IntegrationDefinition({
       description: 'A conversation with a Line user',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .extend(typingIndicator, ({}) => ({ entities: {} }))
   .extend(proactiveUser, ({ entities }) => ({
