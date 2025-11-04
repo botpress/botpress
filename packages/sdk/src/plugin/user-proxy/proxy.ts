@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import { notFoundErrorToUndefined } from 'src/utils/error-utils'
+import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import type { BotSpecificClient } from '../../bot'
 import { createAsyncCollection } from '../../utils/api-paging-utils'
 import type { BasePlugin } from '../common'

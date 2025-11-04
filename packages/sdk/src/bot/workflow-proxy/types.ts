@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import { AsyncCollection } from 'src/utils/api-paging-utils'
+import { AsyncCollection } from '../../utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
 import type * as commonTypes from '../common'
 
