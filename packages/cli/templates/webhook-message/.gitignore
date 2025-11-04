@@ -1,0 +1,4 @@
+.botpress/
+.turbo/
+node_modules/
+bp_modules/
