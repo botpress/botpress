@@ -10,22 +10,24 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      authToken: z.string().min(1),
-      botName: z.string().min(1),
-      botAvatar: z.string().min(1),
+      authToken: z.string().min(1).title('Auth Token').describe('The authorization token'),
+      botName: z.string().min(1).title('Bot Name').describe("The bot's name"),
+      botAvatar: z.string().min(1).title('Bot Avatar').describe("The bot's avatar"),
     }),
   },
   channels: {
     channel: {
+      title: 'Viber conversation',
+      description: 'Channel for a Viber conversation',
       messages: { ...messages.defaults },
       message: {
         tags: {
-          id: {},
+          id: { title: 'Message ID', description: 'Viber message ID' },
         },
       },
       conversation: {
         tags: {
-          id: {},
+          id: { title: 'User ID', description: 'Viber user ID taking part in the conversation' },
         },
         creation: { enabled: true, requiredTags: ['id'] },
       },
@@ -36,7 +38,7 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
-      id: {},
+      id: { title: 'User ID', description: 'Viber user ID' },
     },
     creation: { enabled: true, requiredTags: ['id'] },
   },
