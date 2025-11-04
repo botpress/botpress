@@ -6,7 +6,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '1.0.3',
+  version: '1.0.4',
   title: 'Line',
   description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
