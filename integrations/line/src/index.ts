@@ -443,6 +443,14 @@ const integration = new bp.Integration({
     for (const event of data.events) {
       if (event.type === 'message') {
         await handleMessage(event, data.destination, client)
+      } else if (event.type === 'follow') {
+        await client.createEvent({
+          type: 'followed',
+          payload: {
+            destinationId: data.destination,
+            userId: event.source.userId,
+          },
+        })
       }
     }
 
