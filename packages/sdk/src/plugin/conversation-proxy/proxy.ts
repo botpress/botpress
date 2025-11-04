@@ -3,7 +3,6 @@ import type { BotSpecificClient } from '../../bot'
 
 import type { commonTypes } from '../../common'
 import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
-import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BasePlugin, PluginRuntimeProps } from '../common'
 import { proxyMessage } from '../message-proxy/proxy'
@@ -72,13 +71,11 @@ export const proxyConversations = <
     },
 
     async getById({ id }): Promise<any> {
-      const response = await notFoundErrorToUndefined(props.client.getConversation({ id }))
-      return response
-        ? (proxyConversation({
-            ...props,
-            conversation: response.conversation,
-          }) satisfies ActionableConversation<TPlugin>)
-        : undefined
+      const response = await props.client.getConversation({ id })
+      return proxyConversation({
+        ...props,
+        conversation: response.conversation,
+      }) satisfies ActionableConversation<TPlugin>
     },
   }) satisfies ConversationFinder<any, any, any> as unknown as ConversationFinder<
     TPlugin,
@@ -114,8 +111,8 @@ export const proxyConversation = <TPlugin extends BasePlugin>(props: {
     },
 
     async getMessage({ id }) {
-      const response = await notFoundErrorToUndefined(vanillaClient.getMessage({ id }))
-      return response ? proxyMessage({ ...props, message: response.message }) : undefined
+      const response = await vanillaClient.getMessage({ id })
+      return proxyMessage({ ...props, message: response.message })
     },
 
     async getOrCreateMessage(data) {

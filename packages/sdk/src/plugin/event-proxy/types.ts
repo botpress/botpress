@@ -13,7 +13,7 @@ export type EventSender<TPayload> = {
   list: (
     props: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
   ) => AsyncCollection<client.Event>
-  getById: (props: { id: string }) => Promise<client.Event | undefined>
+  getById: (props: { id: string }) => Promise<client.Event>
 }
 
 export type EventProxy<TPlugin extends BasePlugin> = utils.Normalize<{

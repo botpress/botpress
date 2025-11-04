@@ -1,7 +1,6 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
 import { createAsyncCollection } from '../../utils/api-paging-utils'
-import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import type { BasePlugin } from '../common'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import type {
@@ -31,8 +30,8 @@ export const proxyUsers = <TPlugin extends BasePlugin>(props: {
   },
 
   async getById({ id }) {
-    const response = await notFoundErrorToUndefined(props.client.getUser({ id }))
-    return response ? proxyUser({ ...props, user: response.user, conversationId: undefined }) : undefined
+    const response = await props.client.getUser({ id })
+    return proxyUser({ ...props, user: response.user, conversationId: undefined })
   },
 })
 

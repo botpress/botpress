@@ -8,7 +8,7 @@ import type { IncomingMessages } from '../server'
 
 export type MessageFinder<TPlugin extends BasePlugin> = {
   list: (props?: Omit<client.ClientInputs['listMessages'], 'nextToken'>) => AsyncCollection<ActionableMessage<TPlugin>>
-  getById: (props: { id: string }) => Promise<ActionableMessage<TPlugin> | undefined>
+  getById: (props: { id: string }) => Promise<ActionableMessage<TPlugin>>
 }
 
 export type AnyPluginMessage<TPlugin extends BasePlugin> =

@@ -23,7 +23,7 @@ export type ConversationFinder<
       { tags?: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['conversation']['tags']>> }
     >
   ) => AsyncCollection<ActionableConversation<TPlugin>>
-  getById: (props: { id: string }) => Promise<ActionableConversation<TPlugin> | undefined>
+  getById: (props: { id: string }) => Promise<ActionableConversation<TPlugin>>
 } & (TIntegrationAlias extends typeUtils.StringKeys<TPlugin['integrations']>
   ? {
       onChannel: <TChannelName extends typeUtils.StringKeys<TPlugin['integrations'][TIntegrationAlias]['channels']>>(
@@ -50,7 +50,7 @@ export type ActionableConversation<TPlugin extends BasePlugin> = typeUtils.Merge
       { tags?: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['conversation']['tags']>> }
     >
   ) => Promise<ActionableConversation<TPlugin>>
-  getMessage: (props: { id: string }) => Promise<messageProxy.ActionableMessage<TPlugin> | undefined>
+  getMessage: (props: { id: string }) => Promise<messageProxy.ActionableMessage<TPlugin>>
   getOrCreateMessage: (
     props: typeUtils.Merge<
       Omit<ClientInputs['getOrCreateMessage'], 'conversationId'>,

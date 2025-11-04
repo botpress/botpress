@@ -9,7 +9,7 @@ export type UserFinder<TPlugin extends BasePlugin> = {
     conversationId?: TConversationId
     tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
   }) => AsyncCollection<ActionableUser<TPlugin, TConversationId>>
-  getById: (props: { id: string }) => Promise<ActionableUser<TPlugin> | undefined>
+  getById: (props: { id: string }) => Promise<ActionableUser<TPlugin>>
 }
 
 export type ActionableUser<

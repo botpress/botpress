@@ -2,7 +2,6 @@ import type * as client from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
 import * as consts from '../../consts'
 import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
-import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import { BasePlugin, PluginRuntimeProps } from '../common'
 import { EventProxy, EventSchedule, EventSender } from './types'
 
@@ -63,9 +62,9 @@ class _EventSender implements EventSender<object> {
     }) as this
   }
 
-  public async getById(props: { id: string }): Promise<client.Event | undefined> {
-    const response = await notFoundErrorToUndefined(this._props.client.getEvent({ id: props.id }))
-    return response?.event
+  public async getById(props: { id: string }): Promise<client.Event> {
+    const response = await this._props.client.getEvent({ id: props.id })
+    return response.event
   }
 
   public list(
