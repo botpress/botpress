@@ -2683,11 +2683,11 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       semver:
-        specifier: ^7.7.2
+        specifier: ^7.3.8
         version: 7.7.2
     devDependencies:
       '@types/semver':
-        specifier: ^7.5.0
+        specifier: ^7.3.11
         version: 7.5.0
       esbuild:
         specifier: ^0.25.10
@@ -2830,6 +2830,8 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/conv-insights-test-bot: {}
 
   plugins/conversation-insights:
     dependencies:
