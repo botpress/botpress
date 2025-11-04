@@ -45,12 +45,9 @@ plugin.on.event('updateAiInsight', async (props) => {
     return
   }
 
-  const workflows = await props.client.listWorkflows({
-    name: 'updateAllConversations',
-    statuses: ['in_progress', 'listening', 'pending'],
-  })
+  const workflows = await props.workflows.updateAllConversations.listInstances.allActive().take(1)
 
-  if (workflows.workflows.length === 0) {
+  if (workflows.length === 0) {
     await props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
 })
@@ -75,13 +72,11 @@ plugin.on.workflowTimeout('updateAllConversations', async (props) => {
 type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
 const _updateAllConversations = async (props: WorkflowProps) => {
   await props.workflow.acknowledgeStartOfProcessing()
-  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+  const dirtyConversations = await props.conversations.list({ tags: { isDirty: 'true' } }).takePage(1)
 
   const promises: Promise<void>[] = []
-  for (const conversation of dirtyConversations.conversations) {
-    const firstMessagePage = await props.client
-      .listMessages({ conversationId: conversation.id })
-      .then((res) => res.messages)
+  for (const conversation of dirtyConversations) {
+    const firstMessagePage = await conversation.listMessages().takePage(1)
     const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
     promises.push(promise)
   }
