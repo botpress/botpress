@@ -33,15 +33,6 @@ const integration = new bp.Integration({
             },
           })
         },
-        markdown: async (props) => {
-          await sendViberMessage({
-            ...props,
-            payload: {
-              type: 'text',
-              text: props.payload.markdown,
-            },
-          })
-        },
         audio: async (props) => {
           await sendViberMessage({
             ...props,
