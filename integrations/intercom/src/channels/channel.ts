@@ -1,9 +1,9 @@
 import { RuntimeError } from '@botpress/sdk'
 import { ReplyToConversationMessageType } from 'intercom-client'
 import { getAuthenticatedIntercomClient } from '../misc/auth'
-import { formatGoogleMapLink } from '../misc/utils'
 import * as html from '../misc/html.utils'
 import * as types from '../misc/types'
+import { formatGoogleMapLink } from '../misc/utils'
 import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card

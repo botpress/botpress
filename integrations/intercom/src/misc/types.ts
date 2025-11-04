@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
-import { conversationSourceSchema, webhookNotificationSchema } from 'src/misc/schemas'
 import { z } from '@botpress/sdk'
+import { conversationSourceSchema, webhookNotificationSchema } from 'src/misc/schemas'
+import * as bp from '.botpress'
 
 export type Handler = bp.IntegrationProps['handler']
 export type HandlerProps = bp.HandlerProps

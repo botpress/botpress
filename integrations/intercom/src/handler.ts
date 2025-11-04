@@ -1,10 +1,10 @@
-import * as bp from '.botpress'
+import { RuntimeError, Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getSignatureSecret, handleOAuth } from './misc/auth'
-import { RuntimeError, Request } from '@botpress/sdk'
+import * as html from './misc/html.utils'
 import { webhookNotificationSchema } from './misc/schemas'
 import type { VerifyResult, IntercomMessage } from './misc/types'
-import * as html from './misc/html.utils'
+import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
