@@ -22,7 +22,7 @@ export const proxyMessages = <TPlugin extends BasePlugin>(props: {
     return createAsyncCollection(({ nextToken }) =>
       props.client
         .listMessages({
-          ...prefixTagsIfNeeded(listProps, { alias: props.plugin?.alias }),
+          ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
           nextToken,
         })
         .then(({ meta, messages }) => ({

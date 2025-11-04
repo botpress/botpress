@@ -1,66 +1,90 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
 
-import { createAsyncCollection } from '../../utils/api-paging-utils'
+import type { commonTypes } from '../../common'
+import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
 import { notFoundErrorToUndefined } from '../../utils/error-utils'
+import type * as typeUtils from '../../utils/type-utils'
 import type { BasePlugin, PluginRuntimeProps } from '../common'
 import { proxyMessage } from '../message-proxy/proxy'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import { proxyUser } from '../user-proxy'
 import type { ActionableConversation, ConversationFinder } from './types'
 
-export const proxyConversations = <TPlugin extends BasePlugin>(props: {
+export const proxyConversations = <
+  TPlugin extends BasePlugin,
+  TIntegrationAlias extends typeUtils.StringKeys<TPlugin['integrations']> | undefined = undefined,
+  TInterfaceAlias extends typeUtils.StringKeys<TPlugin['interfaces']> | undefined = undefined,
+>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
   plugin?: PluginRuntimeProps<TPlugin>
-}): ConversationFinder<TPlugin> => ({
-  forIntegration: (integrationAlias) => ({
-    onChannel: (channelName) => ({
-      list(listProps) {
-        return createAsyncCollection(({ nextToken }) =>
-          props.client
-            .listConversations({
-              ...prefixTagsIfNeeded(listProps, { alias: props.plugin?.alias }),
-              channel: channelName as string,
-              integrationName: integrationAlias as string,
-              nextToken,
-            })
-            .then(({ meta, conversations }) => ({
-              meta,
-              items: conversations.map((conversation) => proxyConversation({ ...props, conversation })),
-            }))
-        )
-      },
-    }),
-  }),
+  integrationAlias?: TIntegrationAlias
+  interfaceAlias?: TInterfaceAlias
+  channelName?: string
+}): ConversationFinder<TPlugin, TIntegrationAlias, TInterfaceAlias> =>
+  ({
+    forIntegration: (alias: string): any =>
+      proxyConversations<TPlugin, typeUtils.StringKeys<TPlugin['integrations']>, undefined>({
+        ...props,
+        integrationAlias: alias as typeUtils.StringKeys<TPlugin['integrations']>,
+        interfaceAlias: undefined,
+        channelName: undefined,
+      }) satisfies ConversationFinder<TPlugin, typeUtils.StringKeys<TPlugin['integrations']>, undefined>,
 
-  forInterface: (interfaceAlias) => ({
-    onChannel: (channelName) => ({
-      list(listProps) {
-        // FIXME: we should retrieve the integration alias, not the name:
-        const integrationName = props.plugin?.interfaces[interfaceAlias].name
+    forInterface: (alias: string): any => {
+      // FIXME: we should retrieve the integration alias, not the name:
+      const integrationName = props.plugin?.interfaces[alias as typeUtils.StringKeys<TPlugin['interfaces']>].name as
+        | typeUtils.StringKeys<TPlugin['integrations']>
+        | undefined
 
-        return createAsyncCollection(({ nextToken }) =>
-          props.client
-            .listConversations({
-              ...prefixTagsIfNeeded(listProps, { alias: props.plugin?.alias }),
-              channel: channelName as string,
-              integrationName,
-              nextToken,
-            })
-            .then(({ meta, conversations }) => ({
-              meta,
-              items: conversations.map((conversation) => proxyConversation({ ...props, conversation })),
-            }))
-        )
-      },
-    }),
-  }),
+      return proxyConversations({
+        ...props,
+        integrationAlias: integrationName,
+        interfaceAlias: alias as typeUtils.StringKeys<TPlugin['interfaces']>,
+        channelName: undefined,
+      }) satisfies ConversationFinder<
+        TPlugin,
+        typeUtils.StringKeys<TPlugin['integrations']>,
+        typeUtils.StringKeys<TPlugin['interfaces']>
+      >
+    },
 
-  async getById({ id }) {
-    const response = await notFoundErrorToUndefined(props.client.getConversation({ id }))
-    return response ? proxyConversation({ ...props, conversation: response.conversation }) : undefined
-  },
-})
+    onChannel: (channelName: string): any =>
+      proxyConversations<TPlugin, TIntegrationAlias, TInterfaceAlias>({
+        ...props,
+        channelName,
+      }) satisfies ConversationFinder<TPlugin, TIntegrationAlias, TInterfaceAlias>,
+
+    list(listProps): any {
+      return createAsyncCollection(({ nextToken }) =>
+        props.client
+          .listConversations({
+            ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
+            channel: props.channelName,
+            integrationName: props.integrationAlias,
+            nextToken,
+          })
+          .then(({ meta, conversations }) => ({
+            meta,
+            items: conversations.map((conversation) => proxyConversation({ ...props, conversation })),
+          }))
+      ) satisfies AsyncCollection<ActionableConversation<TPlugin>>
+    },
+
+    async getById({ id }): Promise<any> {
+      const response = await notFoundErrorToUndefined(props.client.getConversation({ id }))
+      return response
+        ? (proxyConversation({
+            ...props,
+            conversation: response.conversation,
+          }) satisfies ActionableConversation<TPlugin>)
+        : undefined
+    },
+  }) satisfies ConversationFinder<any, any, any> as unknown as ConversationFinder<
+    TPlugin,
+    TIntegrationAlias,
+    TInterfaceAlias
+  >
 
 export const proxyConversation = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
@@ -71,7 +95,10 @@ export const proxyConversation = <TPlugin extends BasePlugin>(props: {
   const vanillaClient = props.client as client.Client
 
   return {
-    ...unprefixTagsOwnedByPlugin(props.conversation, { alias: props.plugin?.alias }),
+    ...(unprefixTagsOwnedByPlugin(props.conversation, { alias: props.plugin?.alias }) as typeUtils.Merge<
+      client.Conversation,
+      { tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>> }
+    >),
 
     async delete() {
       await vanillaClient.deleteConversation({ id: props.conversation.id })
@@ -113,7 +140,7 @@ export const proxyConversation = <TPlugin extends BasePlugin>(props: {
       return createAsyncCollection(({ nextToken }) =>
         vanillaClient
           .listMessages({
-            ...prefixTagsIfNeeded(listProps, { alias: props.plugin?.alias }),
+            ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
             conversationId: props.conversation.id,
             nextToken,
           })

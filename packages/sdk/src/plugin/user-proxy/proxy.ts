@@ -1,7 +1,7 @@
 import type * as client from '@botpress/client'
-import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import type { BotSpecificClient } from '../../bot'
 import { createAsyncCollection } from '../../utils/api-paging-utils'
+import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import type { BasePlugin } from '../common'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import type {
@@ -20,12 +20,12 @@ export const proxyUsers = <TPlugin extends BasePlugin>(props: {
     return createAsyncCollection(({ nextToken }) =>
       props.client
         .listUsers({
-          ...prefixTagsIfNeeded(listProps, { alias: props.pluginAlias }),
+          ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.pluginAlias }),
           nextToken,
         })
         .then(({ meta, users }) => ({
           meta,
-          items: users.map((user) => proxyUser({ ...props, conversationId: listProps.conversationId, user })),
+          items: users.map((user) => proxyUser({ ...props, conversationId: listProps?.conversationId, user })),
         }))
     )
   },

@@ -1,7 +1,7 @@
 import type * as client from '@botpress/client'
+import type { BotSpecificClient } from '../../bot'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../../plugin/tag-prefixer'
 import { AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
-import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BaseBot } from '../common'
 import * as botServerTypes from '../server/types'

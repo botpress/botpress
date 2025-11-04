@@ -5,7 +5,7 @@ import type * as typeUtils from '../../utils/type-utils'
 import { BasePlugin } from '../common'
 
 export type UserFinder<TPlugin extends BasePlugin> = {
-  list: <TConversationId extends string | undefined = undefined>(props: {
+  list: <TConversationId extends string | undefined = undefined>(props?: {
     conversationId?: TConversationId
     tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
   }) => AsyncCollection<ActionableUser<TPlugin, TConversationId>>
