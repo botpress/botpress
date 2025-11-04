@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
+import { parseMarkdown } from 'markdown-parser'
 import getOrCreateConversation from './proactive-conversation'
 import getOrCreateUser from './proactive-user'
 import * as bp from '.botpress'
@@ -98,7 +99,7 @@ const integration = new bp.Integration({
             { ctx, conversation, client, ack },
             {
               type: 'text',
-              text: payload.text,
+              text: parseMarkdown(payload.text),
             }
           )
         },
