@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import semver from 'semver'
 import hitl from './bp_modules/hitl'
 
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
