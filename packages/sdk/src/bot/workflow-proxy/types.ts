@@ -1,7 +1,7 @@
 import type * as client from '@botpress/client'
+import { AsyncCollection } from 'src/utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
 import type * as commonTypes from '../common'
-import { AsyncCollection } from 'src/utils/api-paging-utils'
 
 export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot> = Readonly<{
   [TWorkflowName in typeUtils.StringKeys<TBot['workflows']>]: Readonly<{

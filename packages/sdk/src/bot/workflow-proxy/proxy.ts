@@ -1,11 +1,11 @@
 import type * as client from '@botpress/client'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from 'src/plugin/tag-prefixer'
+import { AsyncCollection, createAsyncCollection } from 'src/utils/api-paging-utils'
 import type { BotSpecificClient } from '../../bot'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BaseBot } from '../common'
 import * as botServerTypes from '../server/types'
 import type { WorkflowProxy, WorkflowWithUtilities } from './types'
-import { AsyncCollection, createAsyncCollection } from 'src/utils/api-paging-utils'
 
 export const proxyWorkflows = <TBot extends BaseBot>(props: {
   client: BotSpecificClient<TBot> | client.Client

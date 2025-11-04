@@ -1,10 +1,10 @@
 import type * as client from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
 import * as consts from '../../consts'
+import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
+import { notFoundErrorToUndefined } from '../../utils/error-utils'
 import { BasePlugin, PluginRuntimeProps } from '../common'
 import { EventProxy, EventSchedule, EventSender } from './types'
-import { notFoundErrorToUndefined } from '../../utils/error-utils'
-import { type AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
 
 type _EventSenderProps = {
   client: BotSpecificClient<any> | client.Client

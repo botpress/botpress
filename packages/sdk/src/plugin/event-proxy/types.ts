@@ -1,7 +1,7 @@
 import type * as client from '@botpress/client'
+import type { AsyncCollection } from '../../utils/api-paging-utils'
 import type * as utils from '../../utils/type-utils'
 import type { BasePlugin } from '../common'
-import type { AsyncCollection } from '../../utils/api-paging-utils'
 
 export type EventSchedule = NonNullable<client.ClientInputs['createEvent']['schedule']>
 export type EventSender<TPayload> = {
