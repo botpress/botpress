@@ -1,6 +1,8 @@
 /* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+// import proactiveUser from 'bp_modules/proactive-user'
+// import proactiveConversation from 'bp_modules/proactive-conversation'
 
 export default new IntegrationDefinition({
   name: 'intercom',
@@ -82,6 +84,22 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         accessToken: z.string().min(1).describe('The access token obtained from OAuth'),
+      }),
+    },
+  },
+  entities: {
+    user: {
+      title: 'User',
+      description: 'An Intercom user',
+      schema: z.object({
+        id: z.string().title('ID').describe('The Intercom user ID'),
+      }),
+    },
+    conversation: {
+      title: 'Conversation',
+      description: 'An Intercom conversation',
+      schema: z.object({
+        id: z.string().title('ID').describe('The Intercom conversation ID'),
       }),
     },
   },
