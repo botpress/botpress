@@ -40,7 +40,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
