@@ -54,7 +54,16 @@ export default new IntegrationDefinition({
     },
   },
   actions: {},
-  events: {},
+  events: {
+    followed: {
+      title: 'Followed',
+      description: 'The bot was followed by someone.',
+      schema: z.object({
+        destinationId: z.string().title('Destination ID').describe('The Line user ID of the bot'),
+        userId: z.string().title('User ID').describe('The Line ID of the user'),
+      }),
+    },
+  },
   states: {
     conversation: {
       type: 'conversation',
