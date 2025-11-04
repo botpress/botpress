@@ -36,6 +36,7 @@ const _commentHandler = async (comment: InstagramComment | InstagramLegacyCommen
     tags: {
       id,
       postId,
+      userId: from.id,
     },
     discriminateByTags: ['id'],
   })

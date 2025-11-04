@@ -17,8 +17,8 @@ const _mapHsTicketToBpTicket = (hsTicket: HsTicket): BpTicket => ({
   properties: hsTicket.properties,
 })
 
-export const createTicket: bp.IntegrationProps['actions']['createTicket'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const createTicket: bp.IntegrationProps['actions']['createTicket'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   const newTicket = await hsClient.createTicket({
     subject: input.subject,

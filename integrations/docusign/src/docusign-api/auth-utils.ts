@@ -49,7 +49,7 @@ export const getOAuthState = async (props: CommonHandlerProps, authClient?: Docu
 
   const { expiresAt, refreshToken } = oauthState
   if (expiresAt - OAUTH_TIMEOUT_BUFFER <= Date.now()) {
-    authClient ??= new DocusignAuthClient()
+    authClient ??= DocusignAuthClient.create(props)
     const tokenResp = await authClient.getAccessTokenWithRefreshToken(refreshToken)
     if (!tokenResp.success) throw tokenResp.error
 
@@ -77,7 +77,7 @@ const _findAccount = (accountsList: UserAccount[], explicitAccountId: string | u
 
 const ACCOUNT_REFRESH_AFTER = MS_PER_HOUR * 24
 export const refreshAccountState = async (props: CommonHandlerProps) => {
-  const authClient = new DocusignAuthClient()
+  const authClient = DocusignAuthClient.create(props)
 
   const { accessToken, tokenType } = await getOAuthState(props, authClient)
 
@@ -136,7 +136,7 @@ export const getAccountState = async (props: CommonHandlerProps) => {
 }
 
 export const exchangeAuthCodeForRefreshToken = async (props: bp.HandlerProps, oAuthCode: string): Promise<void> => {
-  const authClient = new DocusignAuthClient()
+  const authClient = DocusignAuthClient.create(props)
   const tokenResp = await authClient.getAccessTokenWithCode(oAuthCode)
   if (!tokenResp.success) throw tokenResp.error
 
