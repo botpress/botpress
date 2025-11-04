@@ -1,10 +1,11 @@
 import * as semver from 'semver'
-import { InterfacePackage, IntegrationPackage, PluginPackage } from '.'
+import { InterfacePackage, IntegrationPackage } from '.'
 
-type GenericPackage = InterfacePackage | IntegrationPackage | PluginPackage
+type GenericPackage = InterfacePackage | IntegrationPackage
 
 export function packageOfMajor<T extends GenericPackage>(pkg: T): T & { version: string } {
-  return { ...pkg, version: `>=${semver.major(pkg.version)}.0.0 <${semver.major(pkg.version) + 1}.0.0` }
+  const major = semver.major(pkg.version)
+  return { ...pkg, version: `>=${major}.0.0 <${major + 1}.0.0` }
 }
 
 export function packageOfMinor<T extends GenericPackage>(pkg: T): T & { version: string } {
@@ -14,8 +15,4 @@ export function packageOfMinor<T extends GenericPackage>(pkg: T): T & { version:
     ...pkg,
     version: `>=${major}.${minor}.0 <${major}.${minor + 1}.0`,
   }
-}
-
-export function packageOfExactVersion<T extends GenericPackage>(pkg: T): T & { version: string } {
-  return { ...pkg, version: `${pkg.version}` }
 }
