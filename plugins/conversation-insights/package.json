@@ -13,8 +13,5 @@
   },
   "devDependencies": {
     "@botpresshub/llm": "workspace:*"
-  },
-  "bpDependencies": {
-    "llm": "../../interfaces/llm"
   }
 }

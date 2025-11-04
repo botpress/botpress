@@ -33,7 +33,7 @@ const _handleJoinCommand = async (props: bp.HandlerProps) => {
 
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  await metaClient.sendTextMessage(messagingItem.sender.id, CONVERSATION_CONNECTED_MESSAGE)
+  await metaClient.sendTextMessage({ id: messagingItem.sender.id }, CONVERSATION_CONNECTED_MESSAGE)
   return
 }
 
@@ -45,7 +45,7 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
   }
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  await metaClient.sendTextMessage(messagingItem.sender.id, CONVERSATION_DISCONNECTED_MESSAGE)
+  await metaClient.sendTextMessage({ id: messagingItem.sender.id }, CONVERSATION_DISCONNECTED_MESSAGE)
   return
 }
 

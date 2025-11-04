@@ -1,10 +1,11 @@
 // eslint-disable consistent-type-definitions
-import { z, ZodObject } from '@bpinternal/zui'
+import { z, ZodObject, transforms } from '@bpinternal/zui'
 
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -48,6 +49,7 @@ declare module '@botpress/zai' {
 const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
+const ZERO_ELEMENTS = '■ZERO_ELEMENTS■'
 
 const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
@@ -56,7 +58,9 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   ctx: ZaiContext
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
-  let schema = _schema as any as z.ZodType
+
+  let schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
+
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
@@ -110,18 +114,21 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > options.chunkLength) {
+    const limit = pLimit(10) // Limit to 10 concurrent extraction operations
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
     const all = await Promise.allSettled(
       chunks.map((chunk) =>
-        extract(
-          chunk,
-          originalSchema,
-          {
-            ...options,
-            strict: false, // We don't want to fail on strict mode for sub-chunks
-          },
-          ctx
+        limit(() =>
+          extract(
+            chunk,
+            originalSchema,
+            {
+              ...options,
+              strict: false, // We don't want to fail on strict mode for sub-chunks
+            },
+            ctx
+          )
         )
       )
     ).then((results) =>
@@ -162,8 +169,11 @@ Merge it back into a final result.`.trim(),
     instructions.push('You may have multiple elements, or zero elements in the input.')
     instructions.push('You must extract each element separately.')
     instructions.push(`Each element must be a JSON object with exactly the format: ${START}${shape}${END}`)
+    instructions.push(`If there are no elements to extract, respond with ${ZERO_ELEMENTS}.`)
     instructions.push(`When you are done extracting all elements, type "${NO_MORE}" to finish.`)
-    instructions.push(`For example, if you have zero elements, the output should look like this: ${NO_MORE}`)
+    instructions.push(
+      `For example, if you have zero elements, the output should look like this: ${ZERO_ELEMENTS}${NO_MORE}`
+    )
     instructions.push(
       `For example, if you have two elements, the output should look like this: ${START}${abbv}${END}${START}${abbv}${END}${NO_MORE}`
     )
