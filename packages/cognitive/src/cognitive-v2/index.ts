@@ -12,7 +12,7 @@ type ClientProps = {
   token?: string
   withCredentials?: boolean
   debug?: boolean
-  headers?: Record<string, string>
+  headers?: Record<string, string | string[]>
 }
 
 type RequestOptions = {
@@ -29,7 +29,7 @@ export class CognitiveBeta {
   private readonly _apiUrl: string
   private readonly _timeout: number
   private readonly _withCredentials: boolean
-  private readonly _headers: Record<string, string>
+  private readonly _headers: Record<string, string | string[]>
   private readonly _debug: boolean = false
 
   public constructor(props: ClientProps) {

@@ -20,19 +20,25 @@ const _getLeadPropertyKeys = async (hsClient: HubspotClient) => {
   return properties.results.map((property) => property.name)
 }
 
-export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const searchLead: bp.IntegrationProps['actions']['searchLead'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getLeadPropertyKeys(hsClient)
 
   const lead = await hsClient.searchLead({ name: input.name, propertiesToReturn: propertyKeys })
+
+  if (!lead) {
+    return {
+      lead: undefined,
+    }
+  }
 
   return {
     lead: _mapHsLeadToBpLead(lead),
   }
 }
 
-export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   const lead = await hsClient.createLead({
     name: input.name,
@@ -45,8 +51,8 @@ export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
   }
 }
 
-export const getLead: bp.IntegrationProps['actions']['getLead'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const getLead: bp.IntegrationProps['actions']['getLead'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getLeadPropertyKeys(hsClient)
 
   const lead = await hsClient.getLeadById({ leadId: input.leadId, propertiesToReturn: propertyKeys })
@@ -56,8 +62,8 @@ export const getLead: bp.IntegrationProps['actions']['getLead'] = async ({ clien
   }
 }
 
-export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   const lead = await hsClient.updateLead({
     leadId: input.leadId,
@@ -73,8 +79,8 @@ export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({
   }
 }
 
-export const deleteLead: bp.IntegrationProps['actions']['deleteLead'] = async ({ client, ctx, input }) => {
-  const hsClient = await getAuthenticatedHubspotClient({ client, ctx })
+export const deleteLead: bp.IntegrationProps['actions']['deleteLead'] = async ({ client, ctx, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
 
   await hsClient.deleteLead({ leadId: input.leadId })
 

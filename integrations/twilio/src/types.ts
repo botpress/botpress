@@ -20,3 +20,5 @@ export type MessageDefinition = sdk.MessageDefinition
 export type ActionProps = bp.AnyActionProps
 export type MessageHandlerProps = bp.AnyMessageProps
 export type AckFunction = bp.AnyAckFunction
+
+export type TwilioChannel = 'sms/mms' | 'rcs' | 'whatsapp' | 'messenger'

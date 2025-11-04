@@ -288,3 +288,65 @@ export const WhatsAppPayloadSchema = z.object({
   entry: z.array(WhatsAppEntrySchema),
 })
 export type WhatsAppPayload = z.infer<typeof WhatsAppPayloadSchema>
+
+// Schema from https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates/components
+const componentSchema = z.union([
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.literal('TEXT'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.enum(['IMAGE', 'VIDEO', 'GIF', 'DOCUMENT']),
+    example: z.object({
+      header_handle: z.array(z.string()),
+    }),
+  }),
+  z.object({
+    type: z.literal('HEADER'),
+    format: z.undefined(),
+    parameters: z.array(
+      z.object({
+        type: z.literal('location'),
+        location: z.object({
+          latitude: z.string(),
+          longitude: z.string(),
+          name: z.string(),
+          address: z.string(),
+        }),
+      })
+    ),
+  }),
+  z.object({
+    type: z.literal('BODY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('FOOTER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('BUTTONS'),
+    buttons: z.array(z.object({ text: z.string().optional() })),
+  }),
+  z.object({
+    type: z.literal('FLOW'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('PHONE_NUMBER'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('QUICK_REPLY'),
+    text: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal('URL'),
+    text: z.string().optional(),
+  }),
+])
+export type Component = z.infer<typeof componentSchema>
+export const templateVariablesSchema = z.array(z.string().or(z.number()))
+export type TemplateVariables = z.infer<typeof templateVariablesSchema>

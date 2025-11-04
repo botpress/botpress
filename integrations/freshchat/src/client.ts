@@ -122,7 +122,11 @@ class FreshchatClient {
       return undefined
     }
     try {
-      const result = await this._client.get('/users?email=' + email)
+      const result = await this._client.get('/users', {
+        params: {
+          email,
+        },
+      })
       return result?.data?.users[0]
     } catch (e: any) {
       this._logger.forBot().error('Failed to get user by email: ' + email, e.message, e?.response?.data)
