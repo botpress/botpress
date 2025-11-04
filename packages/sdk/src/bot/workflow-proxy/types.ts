@@ -1,6 +1,7 @@
 import type * as client from '@botpress/client'
 import type * as typeUtils from '../../utils/type-utils'
 import type * as commonTypes from '../common'
+import { AsyncCollection } from 'src/utils/api-paging-utils'
 
 export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot> = Readonly<{
   [TWorkflowName in typeUtils.StringKeys<TBot['workflows']>]: Readonly<{
@@ -21,6 +22,7 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
       all: _ListInstances<TBot, TWorkflowName>
       running: _ListInstances<TBot, TWorkflowName>
       scheduled: _ListInstances<TBot, TWorkflowName>
+      allActive: _ListInstances<TBot, TWorkflowName>
       allFinished: _ListInstances<TBot, TWorkflowName>
       succeeded: _ListInstances<TBot, TWorkflowName>
       cancelled: _ListInstances<TBot, TWorkflowName>
@@ -31,16 +33,10 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
 }>
 
 type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>> = (
-  x?: Pick<client.ClientInputs['listWorkflows'], 'nextToken' | 'conversationId' | 'userId'> & {
+  x?: Pick<client.ClientInputs['listWorkflows'], 'conversationId' | 'userId'> & {
     tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
   }
-) => Promise<
-  Readonly<
-    Omit<client.ClientOutputs['listWorkflows'], 'workflows'> & {
-      workflows: WorkflowWithUtilities<TBot, TWorkflowName>[]
-    }
-  >
->
+) => AsyncCollection<WorkflowWithUtilities<TBot, TWorkflowName>>
 
 export type WorkflowWithUtilities<
   TBot extends commonTypes.BaseBot,
