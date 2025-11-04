@@ -43,7 +43,12 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const { pageId } = credentials
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  if (!pageId) {
+    // No page ID means the OAuth flow was probably never fully completed
+    return
+  }
+
+  const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
   if (await metaClient.isSubscribedToWebhooks(pageId)) {
     await metaClient.unsubscribeFromWebhooks(pageId)
   }

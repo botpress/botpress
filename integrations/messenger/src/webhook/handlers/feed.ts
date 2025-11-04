@@ -1,10 +1,17 @@
 import { getMetaClientCredentials } from '../../misc/auth'
-import { FeedEventEntry, CommentChangeValue, FeedChange } from '../../misc/types'
+import { FeedChanges, FeedChange, CommentChangeValue } from '../../misc/types'
 import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
-export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps) => {
-  for (const change of feedEntry.changes) {
+export const handler = async (changes: FeedChanges, props: bp.HandlerProps) => {
+  if (props.ctx.configurationType === 'sandbox') {
+    props.logger.error(
+      'Feed changes are not supported in sandbox mode, turn off webhook subscriptions in the Sandbox Meta App'
+    )
+    return
+  }
+
+  for (const change of changes) {
     await _handleFeedChange(change, props)
   }
 }
@@ -12,15 +19,14 @@ export const handler = async (feedEntry: FeedEventEntry, props: bp.HandlerProps)
 const _handleFeedChange = async (change: FeedChange, props: bp.HandlerProps) => {
   const { logger } = props
   const { value } = change
-  const { item } = value
 
   try {
-    switch (item) {
+    switch (value.item) {
       case 'comment':
-        await _handleCommentEvent(value as CommentChangeValue, props)
+        await _handleCommentEvent(value, props)
         break
       default:
-        logger.forBot().warn(`Unhandled event item: ${item}`)
+        logger.forBot().warn(`Unhandled event item: ${value.item}`)
     }
   } catch (error) {
     const errorMsg = getErrorFromUnknown(error)
@@ -63,7 +69,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   if (!message) {
     logger
       .forBot()
-      .debug(
+      .warn(
         'Incoming comment has no message, will not reply. Make sure that your app has been granted the necessary permissions to access user data.'
       )
     return
@@ -74,8 +80,13 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     return
   }
 
+  if (!from) {
+    logger.forBot().error("Incoming comment doesn't contain 'from' information, will not reply")
+    return
+  }
+
   // Use the thread resolver to create conversation based on root thread ID
-  const userId = from?.id
+  const userId = from.id
   const { conversation } = await client.getOrCreateConversation({
     channel: 'commentReplies',
     tags: { id: commentId, postId, userId },
@@ -85,6 +96,13 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
   const { user } = await client.getOrCreateUser({
     tags: { id: userId },
   })
+
+  if (!user.name) {
+    await client.updateUser({
+      id: user.id,
+      name: from.name,
+    })
+  }
 
   await client.getOrCreateMessage({
     tags: {

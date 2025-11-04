@@ -1,13 +1,13 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
 import { getMetaClientCredentials } from './auth'
-import { MetaClientConfigType, MetaClientCredentials } from './types'
+import { MetaClientCredentials, MetaClientConfigType } from './types'
 import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
-
+const FIELDS_TO_SUBSCRIBE = ['messages', 'messaging_postbacks', 'feed']
 export class MetaClient {
   private _userToken?: string
   private _pageToken?: string
@@ -81,6 +81,11 @@ export class MetaClient {
       method: 'GET',
       endpoint: `oauth/access_token?${query.toString()}`,
       tokenType: 'none',
+    }).catch(() => {
+      // Don't log original error, client secret is in the URL
+      const errorMsg = 'Error exchanging authorization code for access token'
+      this._logger?.forBot().error(errorMsg)
+      throw new RuntimeError(errorMsg)
     })
     const parsedData = z
       .object({
@@ -189,7 +194,7 @@ export class MetaClient {
         endpoint: `${pageId}/subscribed_apps`,
         tokenType: 'page',
         data: {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
+          subscribed_fields: FIELDS_TO_SUBSCRIBE,
         },
       })
 
@@ -227,8 +232,22 @@ export class MetaClient {
       endpoint: `${pageId}/subscribed_apps`,
       tokenType: 'page',
     })
-    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
-    return applications?.some((app) => app.id === this._clientId) ?? false
+
+    const { data: applications } = z
+      .array(z.object({ id: z.string(), subscribed_fields: z.array(z.string()) }))
+      .safeParse(responseData.data)
+
+    const application = applications?.find((app) => app.id === this._clientId)
+    if (!application) {
+      return false
+    }
+
+    const subscribedFields = application.subscribed_fields
+    if (!FIELDS_TO_SUBSCRIBE.every((f) => subscribedFields.includes(f))) {
+      return false
+    }
+
+    return true
   }
 
   // Helper Methods
@@ -282,12 +301,17 @@ export class MetaClient {
 }
 
 // Factory Function
-export async function createAuthenticatedMetaClient(
-  configType: MetaClientConfigType,
-  ctx: bp.Context,
-  client: bp.Client,
+export async function createAuthenticatedMetaClient({
+  configType,
+  ctx,
+  client,
+  logger,
+}: {
+  configType?: MetaClientConfigType
+  ctx: bp.Context
+  client: bp.Client
   logger?: bp.Logger
-): Promise<MetaClient> {
-  const credentials = await getMetaClientCredentials(configType, client, ctx)
+}): Promise<MetaClient> {
+  const credentials = await getMetaClientCredentials({ configType, client, ctx })
   return new MetaClient(credentials, logger)
 }

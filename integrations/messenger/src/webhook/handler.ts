@@ -1,8 +1,8 @@
 import { isSandboxCommand, meta } from '@botpress/common'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { messengerPayloadSchema } from '../misc/types'
+import { eventPayloadSchema } from '../misc/types'
 import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
+import { oauthHandler, messagingHandler, feedHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -40,19 +40,19 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   // Parse as messenger payload
-  const messengerParseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
-  if (messengerParseResult.success) {
-    const data = messengerParseResult.data
-    for (const { messaging } of data.entry) {
-      // Handle each messaging entry
-      for (const messagingEntry of messaging) {
-        await messageHandler(messagingEntry, props)
-      }
-    }
+  const messengerParseResult = eventPayloadSchema.safeParse(jsonParseResult.data)
+  if (!messengerParseResult.success) {
+    logger.forBot().warn('Error while parsing body as event payload')
     return
   }
-
-  logger.forBot().warn('Error while parsing body as messenger payload')
+  const data = messengerParseResult.data
+  for (const entry of data.entry) {
+    if ('messaging' in entry) {
+      await messagingHandler(entry.messaging, props)
+    } else if ('changes' in entry) {
+      await feedHandler(entry.changes, props)
+    }
+  }
   return
 }
 
@@ -60,7 +60,7 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
     if (response?.status && response.status >= 400) {
-      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+      props.logger.error(`Facebook/Messenger handler failed with status ${response.status}: ${response.body}`)
     }
     return response
   } catch (error) {

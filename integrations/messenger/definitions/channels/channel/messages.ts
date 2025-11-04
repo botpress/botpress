@@ -23,10 +23,8 @@ export const messages = {
   bloc: { schema: sdk.messages.defaults.bloc.schema.merge(commentIdSchema) },
 } as const satisfies typeof sdk.messages.defaults
 
-type Assert<_T extends true> = true
-type MessageTypeHasCommentId<T extends (typeof messages)[keyof typeof messages]> = T extends {
-  schema: typeof commentIdSchema
-}
-  ? true
-  : false
-type _AssertMessageTypesHaveCommentId = Assert<MessageTypeHasCommentId<(typeof messages)[keyof typeof messages]>>
+type ValueOf<T> = T[keyof T]
+type ChannelMessageDefinition = ValueOf<typeof messages>
+type ChannelMessage = sdk.z.infer<ChannelMessageDefinition['schema']>
+type AssertMessageTypeHasCommentId<_T extends z.infer<typeof commentIdSchema>> = true
+type _AssertMessageTypesHaveCommentId = AssertMessageTypeHasCommentId<ChannelMessage>

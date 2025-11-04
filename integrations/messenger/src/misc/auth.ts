@@ -1,5 +1,10 @@
 import { RuntimeError } from '@botpress/sdk'
-import { MessengerClientCredentials, MetaClientCredentials, MetaClientConfigType } from './types'
+import {
+  MessengerClientCredentials,
+  FacebookClientCredentials,
+  MetaClientCredentials,
+  MetaClientConfigType,
+} from './types'
 import * as bp from '.botpress'
 import { Oauth as OAuthState } from '.botpress/implementation/typings/states/oauth'
 
@@ -35,6 +40,34 @@ export async function getMessengerClientCredentials(
       accessToken: pageToken,
       clientSecret: bp.secrets.CLIENT_SECRET,
       clientId: bp.secrets.CLIENT_ID,
+    }
+  }
+
+  return credentials
+}
+
+export async function getFacebookClientCredentials(
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<FacebookClientCredentials> {
+  let credentials: FacebookClientCredentials
+  if (ctx.configurationType === 'manual') {
+    credentials = {
+      pageId: ctx.configuration.pageId,
+      pageToken: ctx.configuration.accessToken,
+    }
+  } else {
+    const {
+      state: {
+        payload: { pageToken, pageId },
+      },
+    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+    if (!pageToken || !pageId) {
+      throw new RuntimeError('No page token or page id found, please reauthorize')
+    }
+    credentials = {
+      pageId,
+      pageToken,
     }
   }
 
@@ -93,11 +126,17 @@ export async function patchOAuthMetaClientCredentials(
   })
 }
 
-export async function getMetaClientCredentials(
-  configType: MetaClientConfigType,
-  client: bp.Client,
+export async function getMetaClientCredentials({
+  configType: explicitConfigType,
+  client,
+  ctx,
+}: {
+  configType?: MetaClientConfigType
+  client: bp.Client
   ctx: bp.Context
-): Promise<MetaClientCredentials> {
+}): Promise<MetaClientCredentials> {
+  const configType: MetaClientConfigType = explicitConfigType ?? ctx.configurationType
+
   let credentials: MetaClientCredentials | undefined
   if (configType === 'sandbox') {
     throw new RuntimeError('Meta client credentials are not available for sandbox configuration')

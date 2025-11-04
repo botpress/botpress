@@ -4,6 +4,10 @@ The Messenger integration empowers your chatbot to seamlessly interact with Face
 
 ## Migrating from 4.x to 5.x
 
+### Reauthorization for comment replies
+
+If your bot was previously connected to your Facebook page using OAuth, you will need to complete the authorization flow again in order to receive messages on the `commentReplies` channel.
+
 ### Changes to the 'Get Or Create Conversation' card
 
 The following changes have been implemented:

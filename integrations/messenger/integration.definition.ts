@@ -1,4 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
@@ -23,6 +24,14 @@ const commonConfigSchema = z.object({
     ),
 })
 
+const replyToCommentsSchema = z.object({
+  replyToComments: z
+    .boolean()
+    .default(false)
+    .title('Reply to Comments')
+    .describe('Whether to reply to comments on Facebook posts (limited to 1 reply per top-level comment)'),
+})
+
 export default new IntegrationDefinition({
   name: 'messenger',
   version: '5.0.0',
@@ -35,7 +44,7 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
       required: true,
     },
-    schema: commonConfigSchema,
+    schema: commonConfigSchema.merge(replyToCommentsSchema),
   },
   configurations: {
     manual: {
@@ -69,7 +78,8 @@ export default new IntegrationDefinition({
             .describe('Whether to get the user profile infos from Messenger when creating a new user')
             .title('Get User Profile'),
         })
-        .merge(commonConfigSchema),
+        .merge(commonConfigSchema)
+        .merge(replyToCommentsSchema),
     },
     sandbox: {
       title: 'Sandbox Configuration',
@@ -111,6 +121,24 @@ export default new IntegrationDefinition({
             title: 'Last Comment ID',
             description: 'The Messenger ID of the comment from which a private-reply message was last sent',
           },
+        },
+      },
+    },
+    commentReplies: {
+      title: 'Comment Replies',
+      description: 'Channel for replies to comments on Facebook posts',
+      messages: { text: sdk.messages.defaults.text },
+      message: {
+        tags: {
+          id: { title: 'Comment ID', description: 'The unique ID of the comment' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
+        },
+      },
+      conversation: {
+        tags: {
+          id: { title: 'Comment ID', description: 'The Facebook comment ID under which the reply was posted' },
+          postId: { title: 'Post ID', description: 'The Facebook post ID where the comment was posted' },
+          userId: { title: 'User ID', description: 'The Facebook user ID of the user who posted the comment' },
         },
       },
     },

@@ -23,6 +23,11 @@ const sendSenderActions = async ({
   const { conversationId } = input
   const { conversation } = await client.getConversation({ id: conversationId })
 
+  // Skip typing indicators for comment replies channel as they aren't available in Facebook comments
+  if (conversation.channel !== 'channel') {
+    return {}
+  }
+
   const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const userMessengerId = getEndUserMessengerId(conversation)
   for (const action of actions) {

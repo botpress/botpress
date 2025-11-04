@@ -1,7 +1,14 @@
 import { RuntimeError } from '@botpress/sdk'
 import { MessengerTypes, MessengerClient } from 'messaging-api-messenger'
 import { createAuthenticatedMessengerClient } from '../misc/messenger-client'
-import { Card, Carousel, Choice, Dropdown, MessengerOutMessageAttachment, SendMessageProps } from '../misc/types'
+import {
+  Card,
+  Carousel,
+  Choice,
+  Dropdown,
+  MessengerOutMessageAttachment,
+  SendMessengerMessageProps,
+} from '../misc/types'
 import { getGoogleMapLinkFromLocation, getEndUserMessengerId } from '../misc/utils'
 import * as bp from '.botpress'
 
@@ -88,11 +95,9 @@ export function formatCardElement(payload: Card) {
 }
 
 async function _sendMessage(
-  { ack, client, ctx, conversation, logger, type, payload }: SendMessageProps,
+  { ack, client, ctx, conversation, logger, type, payload }: SendMessengerMessageProps,
   send: (client: MessengerClient, recipient: MessengerTypes.PsidOrRecipient) => Promise<{ messageId: string }>
 ) {
-  logger.forBot().debug(`Sending ${type} message from bot to Messenger: ${_formatPayloadToStr(payload)}`)
-
   const commentId = payload.commentId
   let recipient: MessengerTypes.PsidOrRecipient
   if (commentId) {
@@ -101,6 +106,11 @@ async function _sendMessage(
     recipient = getEndUserMessengerId(conversation)
   }
 
+  logger
+    .forBot()
+    .debug(
+      `Sending ${type} message ${commentId ? 'as private reply ' : ''}from bot to Messenger: ${_formatPayloadToStr(payload)}`
+    )
   const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const { messageId } = await send(messengerClient, recipient)
   await ack({ tags: { id: messageId, commentId } })

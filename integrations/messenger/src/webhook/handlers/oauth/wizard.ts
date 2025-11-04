@@ -80,7 +80,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
     })
   }
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
   const userToken = await metaClient.exchangeAuthorizationCodeForAccessToken(
     authorizationCode,
     _getOAuthRedirectUri(ctx)
@@ -92,7 +92,7 @@ const _oauthCallbackHandler: WizardHandler = async ({ responses, query, client, 
 }
 
 const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logger }) => {
-  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+  const { userToken } = await getMetaClientCredentials({ configType: 'oauth', client, ctx }).catch(() => ({
     userToken: undefined,
   }))
   if (!userToken) {
@@ -102,7 +102,7 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
     })
   }
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
   const pages = await metaClient.getFacebookPagesFromToken(userToken)
 
   return responses.displayChoices({
@@ -117,7 +117,7 @@ const _selectPageHandler: WizardHandler = async ({ responses, client, ctx, logge
 }
 
 const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, selectedChoice }) => {
-  const { userToken } = await getMetaClientCredentials('oauth', client, ctx).catch(() => ({
+  const { userToken } = await getMetaClientCredentials({ configType: 'oauth', client, ctx }).catch(() => ({
     userToken: undefined,
   }))
   if (!userToken) {
@@ -137,7 +137,7 @@ const _setupHandler: WizardHandler = async ({ responses, client, ctx, logger, se
   const pageId = selectedChoice
   await patchOAuthMetaClientCredentials(client, ctx, { pageId })
 
-  const metaClient = await createAuthenticatedMetaClient('oauth', ctx, client, logger)
+  const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
   const pageToken = await metaClient.getPageToken(pageId)
   if (!pageToken) {
     return responses.endWizard({
