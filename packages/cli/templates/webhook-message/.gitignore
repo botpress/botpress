@@ -1,4 +1,3 @@
 .botpress/
-.turbo/
-node_modules/
 bp_modules/
+node_modules/
