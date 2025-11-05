@@ -65,6 +65,7 @@ const tryParseMarkdown = (text: string) => {
   try {
     return parseMarkdown(text)
   } catch {
+    console.error('Failed to parse the markdown. The message will be sent as text without parsing markdown.')
     return text
   }
 }
