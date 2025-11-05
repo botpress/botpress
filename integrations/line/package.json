@@ -17,9 +17,10 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.39.1",
-    "typing-indicator": "../../interfaces/typing-indicator",
-    "proactive-user": "../../interfaces/proactive-user"
+    "@botpresshub/proactive-conversation": "workspace:*",
+    "@botpresshub/proactive-user": "workspace:*",
+    "@botpresshub/typing-indicator": "workspace:*",
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator",
