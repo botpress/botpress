@@ -1,7 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { actions } from './actions'
 import { channels } from './channels'
 import { handler } from './handler'
-import { actions } from './actions'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({

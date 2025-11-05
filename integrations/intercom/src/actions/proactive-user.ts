@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { RuntimeError } from '@botpress/sdk'
 import { getAuthenticatedIntercomClient } from 'src/misc/auth'
+import * as bp from '.botpress'
 
 export const getOrCreateUser: bp.IntegrationProps['actions']['getOrCreateUser'] = async (props) => {
   const { client, ctx, input } = props
