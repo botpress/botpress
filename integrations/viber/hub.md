@@ -1,1 +1,11 @@
 The Viber integration allows your AI-powered chatbot to seamlessly connect with Viber, a popular messaging platform with a global user base. Integrate your chatbot with Viber to engage with your audience in real-time conversations, provide instant support, and deliver personalized experiences. With this integration, you can automate interactions, send messages, handle inquiries, and perform actions directly within Viber. Leverage Viber's features such as text messages, rich media, stickers, and chatbot extensions to create engaging and interactive chatbot experiences. Expand your reach and connect with Viber users effectively with the Viber Integration for Botpress.
+
+## Migrating from version `0.x.x` to `1.x.x`
+
+### Removal of proactive conversations (and proactive users)
+
+- Viber does not currently support proactive conversations, so any bots using this feature will need to be updated to use the normal conversation flow.
+
+### Removal of `markdown` message type
+
+- The `markdown` message type has been removed. Markdown messages must now be sent as regular `text` messages.
