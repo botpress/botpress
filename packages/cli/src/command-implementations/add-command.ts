@@ -59,11 +59,15 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
+    this.logger.log('bp dependencies parsed successfully')
+
     for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
+      this.logger.log('start processing package reference')
       const parsed = pkgRef.parsePackageRef(pkgRefStr)
       if (!parsed) {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
+      this.logger.log('parsed package reference successfully')
 
       await this._addSinglePackage({ ...parsed, alias: pkgAlias })
     }
@@ -97,17 +101,24 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _addSinglePackage(ref: pkgRef.PackageRef & { alias?: string }): Promise<void> {
+    this.logger.log('starting to find target package')
     const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
+
+    this.logger.log('finished finding target package')
 
     if (!targetPackage) {
       const strRef = pkgRef.formatPackageRef(ref)
       throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
     }
 
+    this.logger.log('found target package successfully')
+
     const packageName = ref.alias ?? targetPackage.pkg.name
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
+
+    this.logger.log('found install path successfully')
 
     const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
@@ -120,6 +131,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
       await this._uninstall(installPath)
     }
+
+    this.logger.log('checking versions')
 
     if (ref.type === 'name' && ref.version === pkgRef.LATEST_TAG) {
       // If the semver version expression is 'latest', we assume the project
@@ -137,6 +150,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       targetPackage.pkg.version = ref.version
     }
 
+    this.logger.log('starting codegen')
+
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
       files = await codegen.generateIntegrationPackage(targetPackage.pkg)
@@ -149,7 +164,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid package type')
     }
 
+    this.logger.log('starting install')
+
     await this._install(installPath, files)
+
+    this.logger.log('starting dependency addition to package.json')
     await this._addDependencyToPackage(packageName, targetPackage)
   }
 
