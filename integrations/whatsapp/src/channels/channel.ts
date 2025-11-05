@@ -26,7 +26,7 @@ import * as bp from '.botpress'
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
-      if (payload.text.trim() === '') {
+      if (payload.text.trim().length === 0) {
         props.logger.forBot().warn(`Message ${props.message.id} skipped: payload text is empty.`)
         return
       }
@@ -111,7 +111,7 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       for (const item of payload.items) {
         switch (item.type) {
           case 'text':
-            if (item.payload.text.trim() === '') {
+            if (item.payload.text.trim().length === 0) {
               props.logger.forBot().warn(`Message ${props.message.id} skipped: payload text is empty.`)
               break
             }
