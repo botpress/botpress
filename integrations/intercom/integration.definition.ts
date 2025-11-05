@@ -1,12 +1,10 @@
 /* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-// import proactiveUser from 'bp_modules/proactive-user'
-// import proactiveConversation from 'bp_modules/proactive-conversation'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '1.0.2',
+  version: '2.0.0',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
@@ -61,7 +59,6 @@ export default new IntegrationDefinition({
         tags: {
           id: {},
         },
-        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -77,29 +74,12 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: { id: {}, email: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
   states: {
     credentials: {
       type: 'integration',
       schema: z.object({
         accessToken: z.string().min(1).describe('The access token obtained from OAuth'),
-      }),
-    },
-  },
-  entities: {
-    user: {
-      title: 'User',
-      description: 'An Intercom user',
-      schema: z.object({
-        id: z.string().title('ID').describe('The Intercom user ID'),
-      }),
-    },
-    conversation: {
-      title: 'Conversation',
-      description: 'An Intercom conversation',
-      schema: z.object({
-        id: z.string().title('ID').describe('The Intercom conversation ID'),
       }),
     },
   },
