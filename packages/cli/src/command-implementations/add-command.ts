@@ -173,6 +173,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
+    this.logger.log(`Reading remote package from reference\n${JSON.stringify({ ref }, null, 2)}`)
     const api = await this.ensureLoginAndCreateClient(this.argv)
     if (this._pkgCouldBe(ref, 'integration')) {
       const integration = await api.findPublicOrPrivateIntegration(ref)
@@ -210,6 +211,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
+    this.logger.log(`Reading local package from reference\n${JSON.stringify({ ref }, null, 2)}`)
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
     const {
       definition: projectDefinition,
