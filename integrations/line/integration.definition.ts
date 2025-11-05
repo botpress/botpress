@@ -6,7 +6,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '1.0.4',
+  version: '2.0.0',
   title: 'Line',
   description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
@@ -29,7 +29,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Line conversation',
       description: 'Channel for a Line conversation',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: { ...messages.defaults },
       message: {
         tags: {
           msgId: {
@@ -108,9 +108,6 @@ export default new IntegrationDefinition({
       title: 'Conversation',
       description: 'A conversation with a Line user',
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(typingIndicator, ({}) => ({ entities: {} }))

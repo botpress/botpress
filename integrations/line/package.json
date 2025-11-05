@@ -19,6 +19,9 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/proactive-conversation": "workspace:*",
+    "@botpresshub/proactive-user": "workspace:*",
+    "@botpresshub/typing-indicator": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/mdast": "^4.0.4"
   },

@@ -122,15 +122,6 @@ const integration = new bp.Integration({
             }
           )
         },
-        markdown: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyOrSendLineMessage(
-            { ctx, conversation, client, ack },
-            {
-              type: 'text',
-              text: payload.markdown,
-            }
-          )
-        },
         // TODO: fix audio, its not working
         audio: async ({ payload, ctx, conversation, ack, client }) => {
           await replyOrSendLineMessage(
