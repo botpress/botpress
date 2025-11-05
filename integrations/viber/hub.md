@@ -5,3 +5,7 @@ The Viber integration allows your AI-powered chatbot to seamlessly connect with 
 ### Removal of proactive conversations (and proactive users)
 
 - Viber does not currently support proactive conversations, so any bots using this feature will need to be updated to use the normal conversation flow.
+
+### Removal of `markdown` message type
+
+- The `markdown` message type has been removed. Markdown messages must now be sent as regular `text` messages.
