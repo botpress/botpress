@@ -1746,6 +1746,12 @@ importers:
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       twilio:
         specifier: ^3.84.0
         version: 3.84.1
@@ -1756,9 +1762,18 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/proactive-conversation':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-conversation
+      '@botpresshub/proactive-user':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-user
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   integrations/viber:
     dependencies:
@@ -1861,9 +1876,6 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
-      '@segment/analytics-node':
-        specifier: ^2.2.0
-        version: 2.2.0
       awesome-phonenumber:
         specifier: ^7.5.0
         version: 7.5.0
@@ -2256,6 +2268,9 @@ importers:
       '@bpinternal/tunnel':
         specifier: ^0.1.1
         version: 0.1.1
+      '@bpinternal/verel':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
@@ -2742,8 +2757,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: ^1.2.2
+        version: 1.2.2
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2753,6 +2768,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      p-limit:
+        specifier: ^7.2.0
+        version: 7.2.0
     devDependencies:
       '@botpress/client':
         specifier: workspace:^
@@ -3712,6 +3730,10 @@ packages:
   '@bpinternal/tunnel@0.1.1':
     resolution: {integrity: sha512-B1ryt5n3/PSMFuoOkW4h2zHNF9rcsOB5nDBcCPQtmO2Mrz7c6kAtMBHBMhBe8DWIvqeasZYhDgxYwDh8wivFsw==}
 
+  '@bpinternal/verel@0.2.0':
+    resolution: {integrity: sha512-Qwr/NAdDzAsUqG4/ywir2lCUG/GzCWFCfm2BYtYdA2QiEtUXTnh2jnlrXDFonfA8Qzno3xeQqAHA6CsfPSAxgg==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
   '@bpinternal/yargs-extra@0.0.14':
     resolution: {integrity: sha512-CoxnHOLeE/fnoojsU610WmI9ice2m2LSSw1sk8fG396WKWRYwcRoj4yVVu9I1/zi0wWvdBau9Rj6y4DzBOJOhw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -3729,6 +3751,10 @@ packages:
 
   '@bpinternal/zui@1.2.1':
     resolution: {integrity: sha512-zx5/IXu6OBwDlAyfQcm2PctBweMxrKYhGZno/dh7hKinyKK8wJKNbOD/weDLG0RDpvffekv/Nxyx240wTLmY4Q==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/zui@1.2.2':
+    resolution: {integrity: sha512-Ngs3ySRoDTfWAeGYLnKLr4D4nvMh+MGlDt4vEzXnTzIWcvWK+u1CVPt81nr9ZgHzkhJkZEkZVgwbwADp7rQcrQ==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -4567,14 +4593,6 @@ packages:
     resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
     engines: {node: '>=12.x', yarn: 1.x}
 
-  '@lukeed/csprng@1.1.0':
-    resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
-    engines: {node: '>=8'}
-
-  '@lukeed/uuid@2.0.1':
-    resolution: {integrity: sha512-qC72D4+CDdjGqJvkFMMEAtancHUQ7/d/tAiHf64z8MopFDmcrtbcJuerDtFceuAfQJ2pDSfCKCtbqoGBNnwg0w==}
-    engines: {node: '>=8'}
-
   '@mailchimp/mailchimp_marketing@3.0.80':
     resolution: {integrity: sha512-Cgz0xPb+1DUjmrl5whAsmqfAChBko+Wf4/PLQE4RvwfPlcq2agfHr1QFiXEhZ8e+GQwQ3hZQn9iLGXwIXwxUCg==}
     engines: {node: '>=10.0.0'}
@@ -5090,16 +5108,6 @@ packages:
 
   '@rushstack/ts-command-line@4.23.2':
     resolution: {integrity: sha512-JJ7XZX5K3ThBBva38aomgsPv1L7FV6XmSOcR6HtM7HDFZJkepqT65imw26h9ggGqMjsY0R9jcl30tzKcVj9aOQ==}
-
-  '@segment/analytics-core@1.8.0':
-    resolution: {integrity: sha512-6CrccsYRY33I3mONN2ZW8SdBpbLtu1Ict3xR+n0FemYF5RB/jG7pW6jOvDXULR8kuYMzMmGOP4HvlyUmf3qLpg==}
-
-  '@segment/analytics-generic-utils@1.2.0':
-    resolution: {integrity: sha512-DfnW6mW3YQOLlDQQdR89k4EqfHb0g/3XvBXkovH1FstUN93eL1kfW9CsDcVQyH3bAC5ZsFyjA/o/1Q2j0QeoWw==}
-
-  '@segment/analytics-node@2.2.0':
-    resolution: {integrity: sha512-mPFTSBr9CrkFBdgr7KU/YD8V/25P8vPb/hVvVHYKwEdHRovlizZ34ENgQlvqeRuamQiXD3RLM8pcWX+WxPz3lQ==}
-    engines: {node: '>=18'}
 
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
@@ -6502,9 +6510,6 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  buffer@6.0.3:
-    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
-
   bundle-name@4.1.0:
     resolution: {integrity: sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q==}
     engines: {node: '>=18'}
@@ -7067,10 +7072,6 @@ packages:
     engines: {node: '>=0.10.3'}
     peerDependencies:
       '@types/node-fetch': ^2.5.7
-
-  dset@3.1.4:
-    resolution: {integrity: sha512-2QF/g9/zTaPDc3BjNcVTGoBbXBgYfMTTceLaYcFJ/W9kggFUkhxD/hMEeuLKbugyef9SqAx8cpgwlIP/jinUTA==}
-    engines: {node: '>=4'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -8474,9 +8475,6 @@ packages:
   jose@4.15.2:
     resolution: {integrity: sha512-IY73F228OXRl9ar3jJagh7Vnuhj/GzBunPiZP13K0lOl7Am9SoWW3kEzq3MCllJMTtZqHTiDXQvoRd4U95aU6A==}
 
-  jose@5.9.3:
-    resolution: {integrity: sha512-egLIoYSpcd+QUF+UHgobt5YzI2Pkw/H39ou9suW687MY6PmCwPmkNV/4TNjn1p2tX5xO3j0d0sq5hiYE24bSlg==}
-
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -9363,6 +9361,10 @@ packages:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
 
+  p-limit@7.2.0:
+    resolution: {integrity: sha512-ATHLtwoTNDloHRFFxFJdHnG6n2WUeFjaR8XQMFdKIv0xkXjrER8/iG9iu265jOM95zXHAfv9oTkqhrfbIzosrQ==}
+    engines: {node: '>=20'}
+
   p-locate@4.1.0:
     resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
     engines: {node: '>=8'}
@@ -9827,6 +9829,9 @@ packages:
 
   remark-stringify@11.0.0:
     resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
+
+  remark@15.0.1:
+    resolution: {integrity: sha512-Eht5w30ruCXgFmxVUSlNWQ9iiimq07URKeFS3hNc8cUWy1llX4KDWfyEDZRycMc+znsN9Ux5/tJ/BFdgdOwA3A==}
 
   request@2.88.2:
     resolution: {integrity: sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==}
@@ -11149,6 +11154,10 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  yocto-queue@1.2.1:
+    resolution: {integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==}
+    engines: {node: '>=12.20'}
 
   zod-to-json-schema@3.24.6:
     resolution: {integrity: sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==}
@@ -12657,6 +12666,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@bpinternal/verel@0.2.0':
+    dependencies:
+      browser-or-node: 2.1.1
+
   '@bpinternal/yargs-extra@0.0.14':
     dependencies:
       '@types/yargs': 17.0.33
@@ -12694,6 +12707,8 @@ snapshots:
       yn: 4.0.0
 
   '@bpinternal/zui@1.2.1': {}
+
+  '@bpinternal/zui@1.2.2': {}
 
   '@colors/colors@1.6.0': {}
 
@@ -13370,12 +13385,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@lukeed/csprng@1.1.0': {}
-
-  '@lukeed/uuid@2.0.1':
-    dependencies:
-      '@lukeed/csprng': 1.1.0
-
   '@mailchimp/mailchimp_marketing@3.0.80':
     dependencies:
       dotenv: 8.6.0
@@ -13939,29 +13948,6 @@ snapshots:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
-
-  '@segment/analytics-core@1.8.0':
-    dependencies:
-      '@lukeed/uuid': 2.0.1
-      '@segment/analytics-generic-utils': 1.2.0
-      dset: 3.1.4
-      tslib: 2.6.2
-
-  '@segment/analytics-generic-utils@1.2.0':
-    dependencies:
-      tslib: 2.6.2
-
-  '@segment/analytics-node@2.2.0':
-    dependencies:
-      '@lukeed/uuid': 2.0.1
-      '@segment/analytics-core': 1.8.0
-      '@segment/analytics-generic-utils': 1.2.0
-      buffer: 6.0.3
-      jose: 5.9.3
-      node-fetch: 2.7.0
-      tslib: 2.6.2
-    transitivePeerDependencies:
-      - encoding
 
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
@@ -15969,11 +15955,6 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  buffer@6.0.3:
-    dependencies:
-      base64-js: 1.5.1
-      ieee754: 1.2.1
-
   bundle-name@4.1.0:
     dependencies:
       run-applescript: 7.0.0
@@ -16511,8 +16492,6 @@ snapshots:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
-
-  dset@3.1.4: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -18457,8 +18436,6 @@ snapshots:
 
   jose@4.15.2: {}
 
-  jose@5.9.3: {}
-
   joycon@3.1.1: {}
 
   js-beautify@1.15.1:
@@ -19549,6 +19526,10 @@ snapshots:
     dependencies:
       yocto-queue: 0.1.0
 
+  p-limit@7.2.0:
+    dependencies:
+      yocto-queue: 1.2.1
+
   p-locate@4.1.0:
     dependencies:
       p-limit: 2.3.0
@@ -20010,6 +19991,15 @@ snapshots:
       '@types/mdast': 4.0.4
       mdast-util-to-markdown: 2.1.2
       unified: 11.0.5
+
+  remark@15.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      remark-parse: 11.0.0
+      remark-stringify: 11.0.0
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
 
   request@2.88.2:
     dependencies:
@@ -21489,6 +21479,8 @@ snapshots:
   yn@4.0.0: {}
 
   yocto-queue@0.1.0: {}
+
+  yocto-queue@1.2.1: {}
 
   zod-to-json-schema@3.24.6(zod@3.24.2):
     dependencies:
