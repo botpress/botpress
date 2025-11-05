@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '1.0.1',
+  version: '2.0.0',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
@@ -59,7 +59,6 @@ export default new IntegrationDefinition({
         tags: {
           id: {},
         },
-        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -75,7 +74,6 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: { id: {}, email: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
   states: {
     credentials: {
