@@ -175,7 +175,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     this.logger.log(`Reading remote package from reference\n${JSON.stringify({ ref }, null, 2)}`)
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    this.logger.log('Reading remote package - Step 1')
     if (this._pkgCouldBe(ref, 'integration')) {
       const integration = await api.findPublicOrPrivateIntegration(ref)
       if (integration) {
@@ -183,7 +182,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         return { type: 'integration', pkg: { integration, name, version } }
       }
     }
-    this.logger.log('Reading remote package - Step 2')
 
     if (this._pkgCouldBe(ref, 'interface')) {
       const intrface = await api.findPublicOrPrivateInterface(ref)
@@ -193,7 +191,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
     }
 
-    this.logger.log('Reading remote package - Step 2')
     if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicOrPrivatePlugin(ref)
       if (plugin) {
@@ -213,20 +210,17 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
     }
 
-    this.logger.log('Reading remote package - Step 3')
     return
   }
 
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     this.logger.log(`Reading local package from reference\n${JSON.stringify({ ref }, null, 2)}`)
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
-    this.logger.log('Reading local package - Step 1')
     const {
       definition: projectDefinition,
       implementation: projectImplementation,
       devId: projectDevId,
     } = await this._readProject(absPath)
-    this.logger.log('Reading local package - Step 2')
 
     if (projectDefinition?.type === 'integration') {
       const { name, version } = projectDefinition.definition
@@ -251,8 +245,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         pkg: { path: absPath, devId, name, version, integration: createIntegrationReqBody },
       }
     }
-
-    this.logger.log('Reading local package - Step 3a')
 
     if (projectDefinition?.type === 'interface') {
       const { name, version } = projectDefinition.definition
@@ -293,13 +285,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         },
       }
     }
-    this.logger.log('Reading local package - Step 3b')
 
     if (projectDefinition?.type === 'bot') {
       throw new errors.BotpressCLIError('Cannot install a bot as a package')
     }
 
-    this.logger.log('Reading local package - Step 3c')
     return
   }
 
