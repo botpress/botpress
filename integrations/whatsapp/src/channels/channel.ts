@@ -14,7 +14,7 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
-import { posthogCapture, postHogEvents, posthogShutdown } from '../misc/posthogClient'
+import { sendPosthogEvent, botpressEvents } from '../misc/posthogClient'
 import { sleep } from '../misc/util'
 import { repeat } from '../repeat'
 import * as card from './message-types/card'
@@ -32,15 +32,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         await _send({ ...props, message: new Text(text) })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-text',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     image: async ({ payload, logger, ...props }) => {
@@ -55,15 +53,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-image',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     audio: async ({ payload, ...props }) => {
@@ -74,15 +70,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-audio',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     video: async ({ payload, ...props }) => {
@@ -93,15 +87,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-video',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     file: async ({ payload, ...props }) => {
@@ -120,15 +112,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-file',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     location: async ({ payload, ...props }) => {
@@ -139,15 +129,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-location',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     carousel: async ({ payload, logger, ...props }) => {
@@ -155,15 +143,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-carousel',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     card: async ({ payload, logger, ...props }) => {
@@ -171,15 +157,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-card',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     dropdown: async ({ payload, logger, ...props }) => {
@@ -191,15 +175,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         })
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-dropdown',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     choice: async ({ payload, logger, ...props }) => {
@@ -220,15 +202,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         }
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-choice',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
     bloc: async ({ payload, ...props }) => {
@@ -277,15 +257,13 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         }
       } catch (thrown) {
         const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-        await posthogCapture({
+        await sendPosthogEvent({
           distinctId: errMsg,
-          event: postHogEvents.UNHANDLED_ERROR,
+          event: botpressEvents.UNHANDLED_ERROR,
           properties: {
             from: 'channel-bloc',
           },
         })
-      } finally {
-        await posthogShutdown()
       }
     },
   },

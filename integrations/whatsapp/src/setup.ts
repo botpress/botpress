@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { posthogCapture, postHogEvents, posthogShutdown } from './misc/posthogClient'
+import { sendPosthogEvent, botpressEvents } from './misc/posthogClient'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
@@ -34,15 +34,13 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     }
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    await posthogCapture({
+    await sendPosthogEvent({
       distinctId: errMsg,
-      event: postHogEvents.UNHANDLED_ERROR,
+      event: botpressEvents.UNHANDLED_ERROR,
       properties: {
         from: 'register',
       },
     })
-  } finally {
-    await posthogShutdown()
   }
 }
 

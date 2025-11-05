@@ -3,7 +3,7 @@ import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
 import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
-import { posthogCapture, postHogEvents } from '../../misc/posthogClient'
+import { sendPosthogEvent, botpressEvents } from '../../misc/posthogClient'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -42,9 +42,9 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
-    await posthogCapture({
+    await sendPosthogEvent({
       distinctId: userPhone,
-      event: postHogEvents.INVALID_PHONE_NUMBER,
+      event: botpressEvents.INVALID_PHONE_NUMBER,
       properties: {
         from: 'handler',
       },
@@ -166,9 +166,9 @@ async function _handleIncomingMessage(
     const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
     logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
   } else {
-    await posthogCapture({
+    await sendPosthogEvent({
       distinctId: 'WhatsApp',
-      event: postHogEvents.UNHANDLED_MESSAGE_TYPE,
+      event: botpressEvents.UNHANDLED_MESSAGE_TYPE,
       properties: {
         type,
       },

@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
-import { posthogCapture, postHogEvents, posthogShutdown } from '../misc/posthogClient'
+import { sendPosthogEvent, botpressEvents } from '../misc/posthogClient'
 import { getTemplateText, parseTemplateVariablesJSON } from '../misc/template-utils'
 import { TemplateVariables } from '../misc/types'
 import { hasAtleastOne, logForBotAndThrow } from '../misc/util'
@@ -44,9 +44,9 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     try {
       formattedUserPhone = formatPhoneNumber(userPhone)
     } catch (thrown) {
-      await posthogCapture({
+      await sendPosthogEvent({
         distinctId: userPhone,
-        event: postHogEvents.INVALID_PHONE_NUMBER,
+        event: botpressEvents.INVALID_PHONE_NUMBER,
         properties: {
           from: 'action',
         },
@@ -112,15 +112,13 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     }
   } catch (thrown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    await posthogCapture({
+    await sendPosthogEvent({
       distinctId: errMsg,
-      event: postHogEvents.UNHANDLED_ERROR,
+      event: botpressEvents.UNHANDLED_ERROR,
       properties: {
         from: 'action-start-conversation',
       },
     })
     throw new RuntimeError(errMsg)
-  } finally {
-    await posthogShutdown()
   }
 }
