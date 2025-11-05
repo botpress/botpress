@@ -10,19 +10,16 @@ export class FSKeyValueCache<T extends Object> {
 
   public async init(): Promise<void> {
     const logger = new Logger()
-    const dirname = pathlib.dirname(this._filepath)
     const properties = {
-      dirname,
       filepath: this._filepath,
       initialized: this._initialized,
-      existsAtDirname: fs.existsSync(dirname),
       existsAtFilepath: fs.existsSync(this._filepath),
     }
     logger.log(`Initializing cache ${JSON.stringify(properties, null, 2)}`)
     if (this._initialized) {
       return
     }
-    // const dirname = pathlib.dirname(this._filepath)
+    const dirname = pathlib.dirname(this._filepath)
     if (!fs.existsSync(dirname)) {
       await fs.promises.mkdir(dirname, { recursive: true })
     }
