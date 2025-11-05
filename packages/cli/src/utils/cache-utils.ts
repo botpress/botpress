@@ -12,6 +12,7 @@ export class FSKeyValueCache<T extends Object> {
     const logger = new Logger()
     const dirname = pathlib.dirname(this._filepath)
     const properties = {
+      dirname,
       filepath: this._filepath,
       initialized: this._initialized,
       existsAtDirname: fs.existsSync(dirname),
