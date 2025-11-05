@@ -37,10 +37,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
+      this.logger.log(`Add single package before 1st package read:\n${JSON.stringify({ argvRef: ref }, null, 2)}`)
       return await this._addSinglePackage(ref)
     }
 
-    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath, 'From "bp add" Command')
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
