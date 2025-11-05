@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { chunk } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 
@@ -115,9 +116,9 @@ ${newText}
   const chunkSize = Math.ceil(tokens.length / (parts * N))
 
   if (useMergeSort) {
-    // TODO: use pLimit here to not have too many chunks
+    const limit = pLimit(10) // Limit to 10 concurrent summarization operations
     const chunks = chunk(tokens, chunkSize).map((x) => x.join(''))
-    const allSummaries = (await Promise.allSettled(chunks.map((chunk) => summarize(chunk, options, ctx))))
+    const allSummaries = (await Promise.allSettled(chunks.map((chunk) => limit(() => summarize(chunk, options, ctx)))))
       .filter((x) => x.status === 'fulfilled')
       .map((x) => x.value)
     return summarize(allSummaries.join('\n\n============\n\n'), options, ctx)

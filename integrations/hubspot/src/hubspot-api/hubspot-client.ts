@@ -158,6 +158,62 @@ export class HubspotClient {
     return contact
   }
 
+  @handleErrors('Failed to search company')
+  public async searchCompany({
+    name,
+    domain,
+    propertiesToReturn,
+  }: {
+    name?: string
+    domain?: string
+    propertiesToReturn?: string[]
+  }) {
+    type Filter = {
+      propertyName: 'name' | 'domain'
+      operator: ContactFilterOperator
+      value: string
+    }
+    const filters: Filter[] = []
+
+    if (name) {
+      filters.push({
+        propertyName: 'name',
+        operator: ContactFilterOperator.Eq,
+        value: name.trim(),
+      })
+    }
+
+    if (domain) {
+      filters.push({
+        propertyName: 'domain',
+        operator: ContactFilterOperator.Eq,
+        value: domain.trim(),
+      })
+    }
+
+    if (!filters.length) {
+      throw new sdk.RuntimeError('Missing required filters: name and/or domain')
+    }
+
+    const companies = await this._hsClient.crm.companies.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+      properties: [...DEFAULT_COMPANY_PROPERTIES, ...(propertiesToReturn ?? [])],
+    })
+
+    const company = companies.results[0]
+
+    if (!company) {
+      this._logger.forBot().debug(`No company found for name: ${name} and domain: ${domain}`)
+      return undefined
+    }
+
+    return company
+  }
+
   @handleErrors('Failed to get company by ID')
   public async getCompanyById({ companyId, propertiesToReturn }: { companyId: number; propertiesToReturn?: string[] }) {
     const company = await this._hsClient.crm.companies.basicApi.getById(companyId.toString(), [

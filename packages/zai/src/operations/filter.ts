@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -259,7 +260,8 @@ The condition is: "${condition}"
     return partial
   }
 
-  const filteredChunks = await Promise.all(chunks.map(filterChunk))
+  const limit = pLimit(10) // Limit to 10 concurrent filtering operations
+  const filteredChunks = await Promise.all(chunks.map((chunk) => limit(() => filterChunk(chunk))))
 
   return filteredChunks.flat()
 }
