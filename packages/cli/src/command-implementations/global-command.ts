@@ -11,6 +11,7 @@ import * as consts from '../consts'
 import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
+import { tryParseJSON } from '../utils/temp-parse-utils'
 import { BaseCommand } from './base-command'
 
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
@@ -130,7 +131,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
     }
     const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
-    const parsedProfiles = JSON.parse(fileContent)
+    const parsedProfiles = tryParseJSON(fileContent, 'GlobalCommand.readProfilesFromFS')
 
     const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles)
     if (!zodParseResult.success) {

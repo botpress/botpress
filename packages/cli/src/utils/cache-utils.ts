@@ -1,5 +1,6 @@
 import fs from 'fs'
 import pathlib from 'path'
+import { tryParseJSON } from './temp-parse-utils'
 
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
@@ -74,6 +75,6 @@ export class FSKeyValueCache<T extends Object> {
 
   private _readJSON = async (filepath: string) => {
     const fileContent = await fs.promises.readFile(filepath, 'utf8')
-    return JSON.parse(fileContent)
+    return tryParseJSON(fileContent, 'cache-utils')
   }
 }

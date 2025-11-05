@@ -1,6 +1,7 @@
 import fs from 'fs'
 import pathlib from 'path'
 import { Logger } from '../logger'
+import { tryParseJSON } from './temp-parse-utils'
 
 type JSON = string | number | boolean | null | JSON[] | { [key: string]: JSON }
 
@@ -28,7 +29,7 @@ export const readPackageJson = async (path: string, debugNote: string = ''): Pro
 
   const strContent: string = await fs.promises.readFile(filePath, 'utf8')
   try {
-    const jsonContent = JSON.parse(strContent)
+    const jsonContent = tryParseJSON(strContent, 'readPackageJson')
     return jsonContent
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
