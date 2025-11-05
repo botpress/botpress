@@ -85,7 +85,7 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
+  // __advanced: {
+  //   useLegacyZuiTransformer: true,
+  // },
 })
