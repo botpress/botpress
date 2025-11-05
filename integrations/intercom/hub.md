@@ -6,12 +6,29 @@ Version 2.0 introduces support for proactive conversations and user management, 
 
 #### Proactive Conversations
 
-The integration now supports the `getOrCreateConversation` action, allowing you to proactively start conversations with Intercom users. This action accepts:
+The integration now supports the `getOrCreateConversation` action, allowing you to proactively start conversations with Intercom users.
+
+**Input:**
 
 - **Conversation ID** (required): The Intercom conversation ID
 
+**How it works:**
+
+1. Fetches the conversation from Intercom using the provided conversation ID
+2. Creates or retrieves the corresponding Botpress conversation
+3. Returns the Botpress conversation ID
+
 #### Proactive User
 
-The integration now supports the `getOrCreateUser` action, enabling you to proactively create or retrieve Intercom users from your bot workflows. This action accepts:
+The integration now supports the `getOrCreateUser` action, enabling you to proactively create or retrieve Intercom users from your bot workflows.
+
+**Input:**
 
 - **User ID** (required): The Intercom user ID
+
+**How it works:**
+
+1. Fetches the user contact from Intercom using the provided user ID
+2. Retrieves the user's details (ID and email) from Intercom
+3. Creates or retrieves the corresponding Botpress user with the Intercom data
+4. Returns the Botpress user ID
