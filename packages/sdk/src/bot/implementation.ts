@@ -79,8 +79,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         get: (_, actionName: string) => {
           const action = this._actionHandlers[actionName]
           if (action) {
-            return (props: Omit<Parameters<typeof action>[0], keyof InjectedHandlerProps<TBot>>) =>
-              action({ ...props, workflows: proxyWorkflows(props) })
+            return utils.functions.setName(
+              (props: Omit<Parameters<typeof action>[0], keyof InjectedHandlerProps<TBot>>) =>
+                action({ ...props, workflows: proxyWorkflows(props) }),
+              action.name
+            )
           }
 
           for (const [pluginAlias, plugin] of Object.entries(this._plugins)) {
@@ -106,7 +109,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           const pluginHandlers = Object.values(this._plugins).flatMap(
             (plugin) => plugin.messageHandlers[messageName] ?? []
           )
-          const selfSpecificHandlers = this._messageHandlers[messageName] ?? []
+          const selfSpecificHandlers = messageName === '*' ? [] : (this._messageHandlers[messageName] ?? [])
           const selfGlobalHandlers = this._messageHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
@@ -132,7 +135,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         get: (_, eventName: string) => {
           const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[eventName] ?? [])
 
-          const selfSpecificHandlers = this._eventHandlers[eventName as keyof EventHandlersMap<TBot>] ?? []
+          const selfSpecificHandlers = eventName === '*' ? [] : (this._eventHandlers[eventName] ?? [])
           const selfGlobalHandlers = this._eventHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
@@ -160,8 +163,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             (plugin) => plugin.stateExpiredHandlers[stateName] ?? []
           )
 
-          const selfSpecificHandlers =
-            this._stateExpiredHandlers[stateName as keyof StateExpiredHandlersMap<TBot>] ?? []
+          const selfSpecificHandlers = stateName === '*' ? [] : (this._stateExpiredHandlers[stateName] ?? [])
           const selfGlobalHandlers = this._stateExpiredHandlers['*'] ?? []
           const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
             .sort((a, b) => a.order - b.order)
@@ -198,7 +200,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                 )
 
                 const selfHooks = this._hookHandlers[hookType] ?? {}
-                const selfSpecificHandlers = selfHooks[hookDataName] ?? []
+                const selfSpecificHandlers = hookDataName === '*' ? [] : (selfHooks[hookDataName] ?? [])
                 const selfGlobalHandlers = selfHooks['*'] ?? []
                 const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
                   .sort((a, b) => a.order - b.order)
