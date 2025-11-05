@@ -27,7 +27,6 @@ export const readPackageJson = async (path: string, debugNote: string = ''): Pro
   }
 
   const strContent: string = await fs.promises.readFile(filePath, 'utf8')
-  logger.log(`====================\npackage.json content\n--------------------\n${strContent}\n====================`)
   try {
     const jsonContent = JSON.parse(strContent)
     return jsonContent
