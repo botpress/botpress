@@ -1198,6 +1198,12 @@ importers:
       '@line/bot-sdk':
         specifier: ^9.5.0
         version: 9.5.0
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1205,6 +1211,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   integrations/linear:
     dependencies:
