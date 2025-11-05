@@ -61,6 +61,14 @@ const replyOrSendLineMessage = async (props: SendOrReplyLineProps, message: line
   }
 }
 
+const tryParseMarkdown = (text: string) => {
+  try {
+    return parseMarkdown(text)
+  } catch {
+    return text
+  }
+}
+
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
@@ -99,7 +107,7 @@ const integration = new bp.Integration({
             { ctx, conversation, client, ack },
             {
               type: 'text',
-              text: parseMarkdown(payload.text),
+              text: tryParseMarkdown(payload.text),
             }
           )
         },
