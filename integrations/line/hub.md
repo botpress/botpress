@@ -5,3 +5,7 @@ The Line integration enables your chatbot to seamlessly interact with Line, one 
 ### Changes in proactive conversations (and proactive users)
 
 - The process of creating conversations and users has changed. You must now use the actions `getOrCreateConversation` and `getOrCreateUser` to create conversations and users.
+
+### Removal of `markdown` message type
+
+- The `markdown` message type has been removed. Markdown messages must now be sent as regular `text` messages.
