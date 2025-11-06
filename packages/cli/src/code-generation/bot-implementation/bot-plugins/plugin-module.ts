@@ -50,8 +50,8 @@ class PluginConfigModule extends Module {
   }
 
   public async getContent() {
-    const { interfaces, configuration, alias } = this._plugin
-    const content = JSON.stringify({ alias, interfaces, configuration }, null, 2)
+    const { interfaces, integrations, configuration, alias } = this._plugin
+    const content = JSON.stringify({ alias, interfaces, integrations, configuration }, null, 2)
     return `export default ${content}`
   }
 }
