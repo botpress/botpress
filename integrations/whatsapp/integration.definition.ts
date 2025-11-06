@@ -94,7 +94,7 @@ const defaultBotPhoneNumberId = {
 
 export default new IntegrationDefinition({
   name: 'whatsapp',
-  version: '4.5.13',
+  version: '4.5.14',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
