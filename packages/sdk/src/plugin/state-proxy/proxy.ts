@@ -21,18 +21,17 @@ class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
       .then((r) => r.state.payload)
   }
 
-  public async set(id: string, payload: TPayload & { expiry?: number }): Promise<void> {
+  public async set(id: string, payload: TPayload): Promise<void> {
     await this._client.setState({
       type: this._stateType,
       name: this._stateName,
       id,
-      payload: { ...payload, expiry: undefined },
-      expiry: payload.expiry,
+      payload,
     })
     return
   }
 
-  public async getOrSet(id: string, payload: TPayload & { expiry?: number }): Promise<TPayload> {
+  public async getOrSet(id: string, payload: TPayload): Promise<TPayload> {
     return await this._client
       .getOrSetState({
         type: this._stateType,
