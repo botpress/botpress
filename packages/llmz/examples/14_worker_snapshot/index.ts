@@ -46,7 +46,7 @@ const LongRunningTool = new Tool({
     // Instead of performing the actual long-running operation,
     // throw a SnapshotSignal to pause execution and create a snapshot
     // This allows the operation to be completed later in a different context
-    throw new SnapshotSignal(`Long-running operation`)
+    throw new SnapshotSignal('Long-running operation')
   },
 })
 
@@ -61,7 +61,8 @@ const exit = new Exit({
 
 // Initial execution that will be interrupted by the snapshot
 const result = await execute({
-  instructions: `Call the long-running tool with input "Hello, world!" and then exit with the extracted number from the tool's output string.`,
+  instructions:
+    'Call the long-running tool with input "Hello, world!" and then exit with the extracted number from the tool\'s output string.',
   tools: [LongRunningTool],
   exits: [exit],
   client,
@@ -94,7 +95,7 @@ loading(true, 'Resuming the execution from the snapshot...')
 // Resolve the snapshot with the data that would have been returned
 // by the long-running operation (e.g., from a background job, API call, etc.)
 restoredSnapshot.resolve({
-  result: `The magic number is 42 !`,
+  result: 'The magic number is 42 !',
 })
 
 loading(false)

@@ -18,12 +18,12 @@
  */
 
 import { Client } from '@botpress/client'
-import { execute, ListenExit, ThinkSignal, Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
+import { execute, ListenExit, ThinkSignal, Tool } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 import { printTrace } from '../utils/debug'
-import chalk from 'chalk'
 
 // Initialize Botpress client
 const client = new Client({

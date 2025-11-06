@@ -21,10 +21,10 @@
 
 import { Client } from '@botpress/client'
 
-import { execute, Exit } from 'llmz'
-import { printTrace } from '../utils/debug'
-import { box } from '../utils/box'
 import chalk from 'chalk'
+import { execute, Exit } from 'llmz'
+import { box } from '../utils/box'
+import { printTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({

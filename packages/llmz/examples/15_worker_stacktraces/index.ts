@@ -19,9 +19,9 @@
 
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
 import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
-import chalk from 'chalk'
 
 // Initialize Botpress client
 const client = new Client({
@@ -52,7 +52,7 @@ const exit = new Exit({
 // Execute with a tool that will fail
 const result = await execute({
   options: { loop: 1 }, // Limit to 1 iteration to avoid retry loops
-  instructions: `call the "demo" tool`,
+  instructions: 'call the "demo" tool',
   tools: [demo],
   exits: [exit],
   client,
