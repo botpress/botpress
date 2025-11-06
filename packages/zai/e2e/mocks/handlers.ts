@@ -64,7 +64,7 @@ export const handlers = [
     const method = request.method
     const url = request.url
     const body = request.method !== 'GET' ? await request.clone().text() : null
-    const shouldCache = !url.includes('/tables')
+    const shouldCache = !url.includes('/tables') && !url.includes('/v1/admin/')
 
     const requestData = stringifyWithSortedKeys({
       method,
