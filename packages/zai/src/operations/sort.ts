@@ -84,6 +84,47 @@ const sort = async <T>(
   const sampleItems = input.slice(0, sampleSize)
   const sampleItemsText = sampleItems.map((item, idx) => `■${idx}: ${stringify(item, false)}`).join('\n')
 
+  // Get examples from adapter for criteria generation
+  const criteriaInputStr = JSON.stringify({ instructions, sampleItems })
+  const criteriaExamples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<string, Array<T>>({
+          input: criteriaInputStr.slice(0, 1000),
+          taskType,
+          taskId,
+        })
+      : []
+
+  // Format examples for few-shot learning in criteria generation
+  const criteriaExampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+
+  for (const example of criteriaExamples.slice(0, 2)) {
+    try {
+      const exampleInput = JSON.parse(example.input)
+      const exampleItems = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
+
+      criteriaExampleMessages.push({
+        type: 'text',
+        role: 'user',
+        content: `Expert Example - Analyze sorting instruction: "${instructions}"\n\nSample items:\n${exampleItems
+          .slice(0, 3)
+          .map((el, i) => `■${i}: ${stringify(el, false).slice(0, 200)}`)
+          .join('\n')}\n\nGenerate sorting criteria.`,
+      })
+
+      // Try to infer criteria from the example if available
+      if (example.explanation) {
+        criteriaExampleMessages.push({
+          type: 'text',
+          role: 'assistant',
+          content: `${example.explanation}\n${END}`,
+        })
+      }
+    } catch {
+      // Skip malformed examples
+    }
+  }
+
   const generateCriteriaPrompt = `Analyze this sorting instruction: "${instructions}"
 
 Sample items to be sorted:
@@ -140,6 +181,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
 - 3-10 labels per criterion
 - Order matters: first label = appears first, last label = appears last`,
     messages: [
+      ...criteriaExampleMessages,
       {
         type: 'text',
         role: 'user',
@@ -245,7 +287,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
             taskId,
           })
         : []
-
+    console.log({ taskType, taskId, chunkInputStr, examples })
     // Check for exact match (cache hit)
     const key = fastHash(
       stringify({
@@ -317,6 +359,8 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
         // Skip malformed examples
       }
     }
+
+    console.log(exampleMessages)
 
     const { extracted } = await ctx.generateContent({
       systemPrompt: `You are ranking items for sorting using ordered label arrays.
@@ -484,6 +528,53 @@ IMPORTANT:
             })
             .join('\n')
 
+          // Get examples from adapter for tie-breaking
+          const tieBreakInputStr = JSON.stringify(tiedElements.map((e) => e.element))
+          const tieBreakExamples =
+            taskId && ctx.adapter
+              ? await ctx.adapter.getExamples<string, Array<T>>({
+                  input: tieBreakInputStr.slice(0, 1000),
+                  taskType,
+                  taskId,
+                })
+              : []
+
+          // Format examples for few-shot learning in tie-breaking
+          const tieBreakExampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+
+          for (const example of tieBreakExamples.slice(0, 3)) {
+            try {
+              const exampleInput = JSON.parse(example.input)
+              const exampleItems = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
+
+              tieBreakExampleMessages.push({
+                type: 'text',
+                role: 'user',
+                content: `Expert Example - Items to order:\n${exampleItems.map((el, i) => `■${i}: ${stringify(el, false).slice(0, 200)}■`).join('\n')}\n\nOrder them from first to last.`,
+              })
+
+              if (Array.isArray(example.output) && example.output.length > 0) {
+                const formattedOrder = example.output.map((_, i) => `■${i}■`).join('\n')
+
+                tieBreakExampleMessages.push({
+                  type: 'text',
+                  role: 'assistant',
+                  content: `${formattedOrder}\n${END}`,
+                })
+
+                if (example.explanation) {
+                  tieBreakExampleMessages.push({
+                    type: 'text',
+                    role: 'assistant',
+                    content: `Reasoning: ${example.explanation}`,
+                  })
+                }
+              }
+            } catch {
+              // Skip malformed examples
+            }
+          }
+
           const { extracted: tieBreakOrder } = await ctx.generateContent({
             systemPrompt: `You are breaking a tie between items with identical total scores.
 
@@ -508,6 +599,7 @@ ${END}
 Output the indices in the order they should appear (first item at top).`,
             stopSequences: [END],
             messages: [
+              ...tieBreakExampleMessages,
               {
                 type: 'text',
                 role: 'user',
