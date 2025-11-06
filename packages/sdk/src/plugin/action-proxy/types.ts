@@ -1,24 +1,19 @@
 import * as utils from '../../utils/type-utils'
 import { BasePlugin } from '../common'
 
-type IntegrationActionProxy<TPlugin extends BasePlugin> = {
-  [TIntegrationName in keyof TPlugin['integrations']]: {
-    [TActionName in keyof TPlugin['integrations'][TIntegrationName]['actions']]: (
-      input: TPlugin['integrations'][TIntegrationName]['actions'][TActionName]['input']
-    ) => Promise<TPlugin['integrations'][TIntegrationName]['actions'][TActionName]['output']>
+export type ActionProxy<TPlugin extends BasePlugin> = {
+  forIntegration: <TPluginIntegrationAlias extends utils.StringKeys<TPlugin['integrations']>>(
+    integrationAlias: TPluginIntegrationAlias
+  ) => {
+    [TActionName in keyof TPlugin['integrations'][TPluginIntegrationAlias]['actions']]: (
+      input: TPlugin['integrations'][TPluginIntegrationAlias]['actions'][TActionName]['input']
+    ) => Promise<TPlugin['integrations'][TPluginIntegrationAlias]['actions'][TActionName]['output']>
+  }
+  forInterface: <TPluginInterfaceAlias extends utils.StringKeys<TPlugin['interfaces']>>(
+    interfaceAlias: TPluginInterfaceAlias
+  ) => {
+    [TActionName in keyof TPlugin['interfaces'][TPluginInterfaceAlias]['actions']]: (
+      input: TPlugin['interfaces'][TPluginInterfaceAlias]['actions'][TActionName]['input']
+    ) => Promise<TPlugin['interfaces'][TPluginInterfaceAlias]['actions'][TActionName]['output']>
   }
 }
-
-type InterfacesActionProxy<TPlugin extends BasePlugin> = {
-  [TInterfaceName in keyof TPlugin['interfaces']]: {
-    [TActionName in keyof TPlugin['interfaces'][TInterfaceName]['actions']]: (
-      input: TPlugin['interfaces'][TInterfaceName]['actions'][TActionName]['input']
-    ) => Promise<TPlugin['interfaces'][TInterfaceName]['actions'][TActionName]['output']>
-  }
-}
-
-// TODO: add self bot actions in proxy
-
-export type ActionProxy<TPlugin extends BasePlugin> = utils.Normalize<
-  IntegrationActionProxy<TPlugin> & InterfacesActionProxy<TPlugin>
->

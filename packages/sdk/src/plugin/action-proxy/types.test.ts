@@ -5,9 +5,9 @@ import * as utils from '../../utils/type-utils'
 import { BasePlugin } from '../common'
 
 test('ActionProxy of FooBarBazPlugin should reflect actions of bot, integration and interface deps', async () => {
-  type Actual = ActionProxy<FooBarBazPlugin>
+  type Actual = utils.Normalize<ActionProxy<FooBarBazPlugin>>
   type Expected = {
-    fooBarBaz: {
+    forIntegration: (integrationAlias: 'fooBarBaz') => {
       doFoo: (input: { inputFoo: string }) => Promise<{
         outputFoo: string
       }>
@@ -18,7 +18,7 @@ test('ActionProxy of FooBarBazPlugin should reflect actions of bot, integration 
         outputBaz: boolean
       }>
     }
-    totoTutuTata: {
+    forInterface: (interfaceAlias: 'totoTutuTata') => {
       doToto: (input: { inputToto: string }) => Promise<{
         outputToto: string
       }>
@@ -42,8 +42,11 @@ test('ActionProxy of FooBarBazPlugin should reflect actions of bot, integration 
 })
 
 test('ActionProxy of EmptyPlugin should be almost empty', async () => {
-  type Actual = ActionProxy<EmptyPlugin>
-  type Expected = {}
+  type Actual = utils.Normalize<ActionProxy<EmptyPlugin>>
+  type Expected = {
+    forIntegration: (integrationAlias: never) => {}
+    forInterface: (interfaceAlias: never) => {}
+  }
 
   type _assertion = utils.AssertAll<
     [
@@ -57,9 +60,12 @@ test('ActionProxy of EmptyPlugin should be almost empty', async () => {
 })
 
 test('ActionProxy of BasePlugin should be a record', async () => {
-  type Actual = ActionProxy<BasePlugin>
+  type Actual = utils.Normalize<ActionProxy<BasePlugin>>
   type Expected = {
-    [x: string]: {
+    forIntegration: (integrationAlias: string) => {
+      [x: string]: (args: any) => Promise<any>
+    }
+    forInterface: (interfaceAlias: string) => {
       [x: string]: (args: any) => Promise<any>
     }
   }

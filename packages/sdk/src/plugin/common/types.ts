@@ -1,6 +1,6 @@
-import { BaseInterface } from '../../interface'
-import { Cast, Join, UnionToIntersection } from '../../utils/type-utils'
-import { BasePlugin } from './generic'
+import type { BaseInterface } from '../../interface'
+import type { Cast, Join, UnionToIntersection } from '../../utils/type-utils'
+import type { BasePlugin } from './generic'
 
 type EventKey<TIntegrationName extends string, TEventName extends string> = string extends TIntegrationName
   ? string
@@ -23,17 +23,41 @@ export type EnumerateInterfaceEvents<TPlugin extends BasePlugin> = UnionToInters
  * Used by a bot to tell the plugin what integration should be used to implement an interface.
  */
 export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInterface> = {
-  id?: string // id of the integration to use
-  name: string // name of the integration to use
-  version: string // version of the integration to use
+  /** id of the integration to use */
+  id?: string
+  /** name of the integration to use */
+  name: string
+  /** version of the integration to use */
+  version: string
+  /** alias of the integration instance to use */
+  integrationAlias: string
+  /** alias of the interface within the integration */
+  integrationInterfaceAlias: string
   entities: { [K in keyof TInterface['entities']]: { name: string } }
   actions: { [K in keyof TInterface['actions']]: { name: string } }
   events: { [K in keyof TInterface['events']]: { name: string } }
   channels: { [K in keyof TInterface['channels']]: { name: string } }
 }
 
+export type PluginIntegrationExtension = {
+  /** id of the integration to use */
+  id?: string
+  /** name of the integration to use */
+  name: string
+  /** version of the integration to use */
+  version: string
+  /** alias of the integration instance to use */
+  integrationAlias: string
+}
+
 export type PluginInterfaceExtensions<TPlugin extends BasePlugin = BasePlugin> = {
-  [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
+  [TPluginInterfaceAlias in keyof TPlugin['interfaces']]: PluginInterfaceExtension<
+    TPlugin['interfaces'][TPluginInterfaceAlias]
+  >
+}
+
+export type PluginIntegrationExtensions<TPlugin extends BasePlugin = BasePlugin> = {
+  [TPluginIntegrationAlias in keyof TPlugin['integrations']]: PluginIntegrationExtension
 }
 
 export type PluginConfiguration<TPlugin extends BasePlugin> = TPlugin['configuration']
@@ -42,4 +66,5 @@ export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
   alias: string
   configuration: PluginConfiguration<TPlugin>
   interfaces: PluginInterfaceExtensions<TPlugin>
+  integrations: PluginIntegrationExtensions<TPlugin>
 }

@@ -32,8 +32,9 @@ test('IntegrationConfigInstance of integration with no config should be empty', 
 
   type Expected = {
     enabled: boolean
+    alias: string
     disabledChannels?: string[] | undefined
-  } & (
+  } & Partial<
     | {
         configurationType?: null
         configuration: Record<string, any>
@@ -42,7 +43,7 @@ test('IntegrationConfigInstance of integration with no config should be empty', 
         configurationType: string
         configuration: Record<string, any>
       }
-  )
+  >
 
   type _assertion = utils.AssertAll<
     [
@@ -76,8 +77,9 @@ test('IntegrationConfigInstance of integration with single config schema should 
 
   type Expected = {
     enabled: boolean
+    alias: string
     disabledChannels?: string[] | undefined
-  } & (
+  } & Partial<
     | {
         configurationType?: null
         configuration: { theOneRing: string }
@@ -86,7 +88,7 @@ test('IntegrationConfigInstance of integration with single config schema should 
         configurationType: string
         configuration: Record<string, any>
       }
-  )
+  >
 
   type _assertion = utils.AssertAll<
     [
@@ -127,8 +129,9 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
 
   type Expected = {
     enabled: boolean
+    alias: string
     disabledChannels?: string[] | undefined
-  } & (
+  } & Partial<
     | {
         configurationType?: null
         configuration: { theOneRing: string }
@@ -137,7 +140,7 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
         configurationType: 'withSword'
         configuration: { sting: string }
       }
-  )
+  >
 
   type _assertion = utils.AssertAll<
     [

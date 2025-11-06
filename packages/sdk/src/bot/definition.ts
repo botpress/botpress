@@ -1,7 +1,7 @@
 import { Table } from '@botpress/client'
 import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
-import { PluginInterfaceExtension } from '../plugin'
+import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
@@ -77,9 +77,9 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
-  alias?: string
+  alias: string
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
-} & (
+} & Partial<
   | {
       configurationType?: null
       configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
@@ -90,17 +90,52 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
-)
+>
+
+type SimplifiedIntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = Partial<
+  IntegrationConfigInstance<I>
+>
 
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
-  alias?: string
+  alias: string
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
     [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
+  integrations: {
+    [I in keyof NonNullable<P['definition']['integrations']>]: PluginIntegrationExtension
+  }
 }
 
-export type IntegrationInstance = IntegrationPackage & Partial<IntegrationConfigInstance>
+type SimplifiedPluginConfigInstance<P extends PluginPackage = PluginPackage> = Merge<
+  PluginConfigInstance<P>,
+  {
+    alias?: string
+  } & (StringKeys<z.infer<NonNullable<P['definition']['configuration']>['schema']>> extends never
+    ? { configuration?: Record<string, never> }
+    : { configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']> }) &
+    (StringKeys<NonNullable<P['definition']['interfaces']>> extends never
+      ? { interfaces?: Record<string, never> }
+      : {
+          interfaces: {
+            [I in StringKeys<NonNullable<P['definition']['interfaces']>>]: {
+              integrationAlias: string
+              integrationInterfaceAlias: string
+            }
+          }
+        }) &
+    (StringKeys<NonNullable<P['definition']['integrations']>> extends never
+      ? { integrations?: Record<string, never> }
+      : {
+          integrations: {
+            [I in StringKeys<NonNullable<P['definition']['integrations']>>]: {
+              integrationAlias: string
+            }
+          }
+        })
+>
+
+export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 export type PluginInstance = PluginPackage & PluginConfigInstance
 
 export type BotDefinitionProps<
@@ -206,7 +241,10 @@ export class BotDefinition<
     }
   }
 
-  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config?: IntegrationConfigInstance<I>): this {
+  public addIntegration<I extends IntegrationPackage>(
+    integrationPkg: I,
+    config?: SimplifiedIntegrationConfigInstance<I>
+  ): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
@@ -221,7 +259,7 @@ export class BotDefinition<
     self.integrations[integrationAlias] = {
       ...integrationPkg,
       alias: integrationAlias,
-      enabled: config?.enabled,
+      enabled: config?.enabled ?? false,
       configurationType: config?.configurationType,
       configuration: config?.configuration,
       disabledChannels: config?.disabledChannels,
@@ -229,7 +267,7 @@ export class BotDefinition<
     return this
   }
 
-  public addPlugin<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this {
+  public addPlugin<P extends PluginPackage>(pluginPkg: P, config: SimplifiedPluginConfigInstance<P>): this {
     const self = this as Writable<BotDefinition>
     if (!self.plugins) {
       self.plugins = {}
@@ -241,11 +279,75 @@ export class BotDefinition<
       throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
     }
 
+    // Resolve backing integrations for plugin interfaces:
+    const interfaces: Record<string, PluginInterfaceExtension> = Object.fromEntries(
+      Object.entries(config.interfaces ?? {}).map(([pluginIfaceAlias, pluginIfaceConfig]) => {
+        const integrationInstance = this.integrations?.[pluginIfaceConfig.integrationAlias]
+
+        if (!integrationInstance) {
+          const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Interface with alias "${pluginIfaceAlias}" of plugin with alias "${pluginAlias}" ` +
+              `references integration with alias "${pluginIfaceConfig.integrationAlias}" which is not installed. ` +
+              'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
+              `Available integration aliases: ${availableIntegrations}`
+          )
+        }
+
+        const integrationInterfaceExtension =
+          integrationInstance.definition.interfaces?.[pluginIfaceConfig.integrationInterfaceAlias]
+
+        if (!integrationInterfaceExtension) {
+          const availableInterfaces =
+            Object.keys(integrationInstance.definition.interfaces ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Interface with alias "${pluginIfaceConfig.integrationInterfaceAlias}" does not exist in integration ` +
+              `"${integrationInstance.name}" referenced by interface with alias "${pluginIfaceAlias}" of plugin ` +
+              `with alias "${pluginAlias}".\nAvailable interface aliases: ${availableInterfaces}`
+          )
+        }
+
+        return [
+          pluginIfaceAlias,
+          {
+            ...integrationInterfaceExtension,
+            id: integrationInstance.id,
+            name: integrationInstance.name,
+            version: integrationInstance.version,
+            ...pluginIfaceConfig,
+          } satisfies PluginInterfaceExtension,
+        ]
+      })
+    )
+
+    // Resolve backing integrations for plugin integrations:
+    const integrations: Record<string, PluginIntegrationExtension> = Object.fromEntries(
+      Object.entries(config.integrations ?? {}).map(([pluginIntegAlias, pluginIntegConfig]) => {
+        const integrationInstance = this.integrations?.[pluginIntegConfig.integrationAlias]
+
+        if (!integrationInstance) {
+          const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Integration with alias "${pluginIntegAlias}" of plugin with alias "${pluginAlias}" ` +
+              `references integration with alias "${pluginIntegConfig.integrationAlias}" which is not installed. ` +
+              'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
+              `Available integration aliases: ${availableIntegrations}`
+          )
+        }
+
+        return [pluginIntegAlias, { ...integrationInstance, ...pluginIntegConfig } satisfies PluginIntegrationExtension]
+      })
+    )
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
-      configuration: config.configuration,
-      interfaces: config.interfaces,
+      configuration: config.configuration ?? {},
+      interfaces,
+      integrations,
     }
 
     self.withPlugins.user = this._mergeUser(self.withPlugins.user, pluginPkg.definition.user)

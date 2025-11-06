@@ -15,7 +15,6 @@ import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
 import { proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
-import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import { proxyMessage, proxyMessages } from './message-proxy'
 import {
   ActionHandlers,
@@ -96,7 +95,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
   private _getTools(client: BotSpecificClient<any>): Tools {
     const { configuration, interfaces, alias } = this._runtime
-    const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
+    const actions = proxyActions({ client, plugin: this._runtime }) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows({ client, pluginAlias: this._runtime.alias }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
@@ -144,7 +143,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       {
         get: (_: unknown, messageName: string) => {
           messageName = this._stripAliasPrefix(messageName as string)
-          const specificHandlers = this._messageHandlers[messageName] ?? []
+          const specificHandlers = messageName === '*' ? [] : (this._messageHandlers[messageName] ?? [])
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = utils.arrays
             .unique([...specificHandlers, ...globalHandlers])
@@ -188,7 +187,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           // if prop is "github:prOpened", include both "github:prOpened" and "creatable:itemCreated"
 
-          const specificHandlers = this._eventHandlers[eventName] ?? []
+          const specificHandlers = eventName === '*' ? [] : (this._eventHandlers[eventName] ?? [])
 
           const interfaceHandlers = Object.entries(this._eventHandlers)
             .filter(([e]) => this._eventResolvesTo(e, eventName))
@@ -218,7 +217,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         get: (_: unknown, stateName: string) => {
           stateName = this._stripAliasPrefix(stateName)
 
-          const specificHandlers = this._stateExpiredHandlers[stateName] ?? []
+          const specificHandlers = stateName === '*' ? [] : (this._stateExpiredHandlers[stateName] ?? [])
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
           const allHandlers = utils.arrays
             .unique([...specificHandlers, ...globalHandlers])
@@ -250,7 +249,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
               get: (_: unknown, hookDataName: string) => {
                 hookDataName = this._stripAliasPrefix(hookDataName)
 
-                const specificHandlers = hooks[hookDataName] ?? []
+                const specificHandlers = hookDataName === '*' ? [] : (hooks[hookDataName] ?? [])
 
                 // for "before_incoming_event", "after_incoming_event" and other event related hooks
                 const interfaceHandlers = Object.entries(hooks)
@@ -546,13 +545,30 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
    * checks if the actual event resolves to the target event
    */
   private _eventResolvesTo = (actualEventRef: string, targetEventRef: string) => {
-    const parsedRef = parseEventRef(actualEventRef)
-    if (!parsedRef) {
+    const NAMESPACE_SEPARATOR = ':'
+    const [pluginIfaceOrIntAlias, ifaceOrIntEvent] = actualEventRef.split(NAMESPACE_SEPARATOR)
+    if (!pluginIfaceOrIntAlias || !ifaceOrIntEvent) {
       return false
     }
-    const resolvedRef = resolveEvent(parsedRef, this._runtime.interfaces)
-    const formattedRef = formatEventRef(resolvedRef)
-    return formattedRef === targetEventRef
+
+    // match '<plugin-iface-alias>:<iface-event>' => '<bot-int-alias>:<int-event>':
+    const iface = this._runtime.interfaces[pluginIfaceOrIntAlias]
+
+    if (
+      iface &&
+      targetEventRef === `${iface.integrationAlias}${NAMESPACE_SEPARATOR}${iface?.events?.[ifaceOrIntEvent]?.name}`
+    ) {
+      return true
+    }
+
+    const integration = this._runtime.integrations[pluginIfaceOrIntAlias]
+
+    // match '<plugin-int-alias>:<int-event>' => '<bot-int-alias>:<int-event>':
+    if (integration && targetEventRef === `${integration.integrationAlias}${NAMESPACE_SEPARATOR}${ifaceOrIntEvent}`) {
+      return true
+    }
+
+    return false
   }
 
   private _stripAliasPrefix = (prop: string) => {

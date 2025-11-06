@@ -1,55 +1,32 @@
 import { Client } from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
-import { BasePlugin, PluginInterfaceExtensions, PluginRuntimeProps } from '../common'
-import { resolveAction, formatActionRef } from '../interface-resolution'
+import { BasePlugin, PluginRuntimeProps } from '../common'
 import { ActionProxy } from './types'
 
-export const proxyActions = <TPlugin extends BasePlugin>(
-  client: BotSpecificClient<TPlugin> | Client,
-  props: PluginRuntimeProps<TPlugin>
-): ActionProxy<TPlugin> =>
-  new Proxy<Partial<ActionProxy<TPlugin>>>(
-    {},
-    {
-      get: (_target, prop1) => {
-        return new Proxy(
-          {},
-          {
-            get: (_target, prop2) => {
-              return (input: Record<string, any>) =>
-                _callAction({
-                  client,
-                  interfaces: props.interfaces,
-                  integrationOrInterfaceName: prop1 as string,
-                  methodName: prop2 as string,
-                  input,
-                })
-            },
-          }
-        )
-      },
-    }
-  ) as ActionProxy<TPlugin>
-
-type CallActionsProps = {
-  client: BotSpecificClient<any> | Client
-  interfaces: PluginInterfaceExtensions<any>
-  integrationOrInterfaceName: string
-  methodName: string
-  input: Record<string, any>
-}
-const _callAction = async ({ client, interfaces, integrationOrInterfaceName, methodName, input }: CallActionsProps) => {
-  const resolvedAction = resolveAction(
-    {
-      namespace: integrationOrInterfaceName,
-      actionName: methodName,
-    },
-    interfaces
-  )
-  const type = formatActionRef(resolvedAction)
-  const response = await client.callAction({
-    type,
-    input,
-  })
-  return response.output
-}
+export const proxyActions = <TPlugin extends BasePlugin>(props: {
+  client: BotSpecificClient<TPlugin> | Client
+  plugin: PluginRuntimeProps<TPlugin>
+}): ActionProxy<TPlugin> => ({
+  forIntegration: (pluginIntegrationAlias) =>
+    new Proxy(
+      {},
+      {
+        get: (_target, actionName: string) => (input: Record<string, any>) =>
+          props.client.callAction({
+            type: `${props.plugin.integrations[pluginIntegrationAlias].integrationAlias}:${actionName}` as any,
+            input,
+          }),
+      }
+    ) as ReturnType<ActionProxy<TPlugin>['forIntegration']>,
+  forInterface: (pluginInterfaceAlias) =>
+    new Proxy(
+      {},
+      {
+        get: (_target, actionName: string) => (input: Record<string, any>) =>
+          props.client.callAction({
+            type: `${props.plugin.interfaces[pluginInterfaceAlias].integrationAlias}:${actionName}` as any,
+            input,
+          }),
+      }
+    ) as ReturnType<ActionProxy<TPlugin>['forIntegration']>,
+})
