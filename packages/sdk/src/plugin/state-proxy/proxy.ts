@@ -1,4 +1,4 @@
-import { Client } from '@botpress/client'
+import { Client, RuntimeError } from '@botpress/client'
 import { BotSpecificClient, StateType } from '../../bot'
 import * as consts from '../../consts'
 import { BasePlugin, PluginRuntimeProps } from '../common'
@@ -8,10 +8,16 @@ class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
   public constructor(
     private _client: BotSpecificClient<any> | Client,
     private _stateType: StateType,
-    private _stateName: string
+    private _stateName: string,
+    private _expiryMs?: number
   ) {}
 
+  public withExpiry(expiryMs: number): _StateRepo<TPayload> {
+    return new _StateRepo<TPayload>(this._client, this._stateType, this._stateName, expiryMs)
+  }
+
   public async get(id: string): Promise<TPayload> {
+    if (this._expiryMs) throw new RuntimeError('You cannot set an expiry when getting a state')
     return await this._client
       .getState({
         type: this._stateType,
@@ -27,6 +33,7 @@ class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
       name: this._stateName,
       id,
       payload,
+      expiry: this._expiryMs,
     })
     return
   }
@@ -38,11 +45,13 @@ class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
         name: this._stateName,
         id,
         payload,
+        expiry: this._expiryMs,
       })
       .then((r) => r.state.payload)
   }
 
   public async delete(id: string): Promise<void> {
+    if (this._expiryMs) throw new RuntimeError('You cannot set an expiry when deleting a state')
     await this._client.setState({
       type: this._stateType,
       name: this._stateName,
@@ -53,6 +62,7 @@ class _StateRepo<TPayload extends object> implements StateRepo<TPayload> {
   }
 
   public async patch(id: string, payload: Partial<TPayload>): Promise<void> {
+    if (this._expiryMs) throw new RuntimeError('You cannot set an expiry when patching a state')
     await this._client.patchState({
       type: this._stateType,
       name: this._stateName,
@@ -77,7 +87,7 @@ export const proxyStates = <TPlugin extends BasePlugin>(
             get: (_target, stateName: string) => {
               const actualName =
                 props.alias !== undefined ? `${props.alias}${consts.PLUGIN_PREFIX_SEPARATOR}${stateName}` : stateName
-              return new _StateRepo(client, stateType, actualName)
+              return new _StateRepo(client, stateType, actualName, undefined)
             },
           }
         )
