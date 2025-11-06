@@ -1,0 +1,14 @@
+{
+  "name": "@bp-bots/change-lens",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "cheerio": "^1.1.2"
+  }
+}
