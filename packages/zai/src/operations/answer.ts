@@ -5,7 +5,7 @@ import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
-import { fastHash, stringify, takeUntilTokens } from '../utils'
+import { stringify } from '../utils'
 import { Zai } from '../zai'
 import { PROMPT_INPUT_BUFFER } from './constants'
 
