@@ -1630,7 +1630,7 @@ export default Counter;`,
     it('can abort via external signal', async () => {
       const controller = new AbortController()
       const documents = ['Some content here']
-      const request = zai.answer(documents, 'Question?' + Date.now()).bindSignal(controller.signal)
+      const request = zai.answer(documents, 'Question?').bindSignal(controller.signal)
 
       setTimeout(() => controller.abort('CANCEL2'), 50)
       await expect(request).rejects.toThrow(/cancel/i)
