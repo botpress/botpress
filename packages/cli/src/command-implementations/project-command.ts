@@ -614,6 +614,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         plugin.interfaces ?? {},
         async (interfaceExtension) => await api.getPublicOrPrivateIntegration({ ...interfaceExtension, type: 'name' })
       ),
+      integrations: await this._fetchDependencies(
+        plugin.integrations ?? {},
+        async (integrationExtension) =>
+          await api.getPublicOrPrivateIntegration({ ...integrationExtension, type: 'name' })
+      ),
     }))
 
     return {
@@ -630,10 +635,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       ),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
-        interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
-          ...iface,
-          integrationId: iface.id,
-        })),
+        interfaces: utils.records.mapValues(
+          plugin.interfaces ?? {},
+          (iface) =>
+            ({
+              integrationId: iface.id,
+              integrationAlias: iface.integrationAlias,
+              integrationInterfaceAlias: iface.integrationInterfaceAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['interfaces']
+            >[string]
+        ),
+        integrations: utils.records.mapValues(
+          plugin.integrations ?? {},
+          (integration) =>
+            ({
+              integrationId: integration.id,
+              integrationAlias: integration.integrationAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['integrations']
+            >[string]
+        ),
       })),
     }
   }
