@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
 import { getOrCreateConversation } from './proactive-conversation'
 import { getOrCreateUser } from './proactive-user'
+import * as bp from '.botpress'
 
 export const actions = {
   getOrCreateConversation,
