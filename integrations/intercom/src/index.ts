@@ -1,6 +1,6 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { actions } from './actions'
-import { getAdminId, getAuthenticatedIntercomClient } from './auth'
+import { getAdminId } from './auth'
 import { channels } from './channels'
 import { handler } from './handler'
 import * as bp from '.botpress'
