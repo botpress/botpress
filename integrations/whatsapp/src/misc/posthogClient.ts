@@ -5,6 +5,10 @@ type BotpressEventMessage = Omit<EventMessage, 'event'> & {
   event: BotpressEvent
 }
 
+type PostHogErrorOptions = {
+  from: string
+}
+
 export const botpressEvents = {
   INVALID_PHONE_NUMBER: 'invalid_phone_number',
   UNHANDLED_MESSAGE_TYPE: 'unhandled_message_type',
@@ -26,4 +30,15 @@ export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<voi
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
   }
+}
+
+export const sendPosthogError = async (thrown: unknown, { from }: PostHogErrorOptions): Promise<void> => {
+  const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+  await sendPosthogEvent({
+    distinctId: errMsg,
+    event: botpressEvents.UNHANDLED_ERROR,
+    properties: {
+      from,
+    },
+  })
 }
