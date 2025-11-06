@@ -27,7 +27,9 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
       if (payload.text.trim().length === 0) {
-        props.logger.forBot().warn(`Message ${props.message.id} skipped: payload text is empty.`)
+        props.logger
+          .forBot()
+          .warn(`Message ${props.message.id} skipped: payload text must contain at least one non-invisible character.`)
         return
       }
       const text = convertMarkdownToWhatsApp(payload.text)
@@ -112,7 +114,11 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         switch (item.type) {
           case 'text':
             if (item.payload.text.trim().length === 0) {
-              props.logger.forBot().warn(`Message ${props.message.id} skipped: payload text is empty.`)
+              props.logger
+                .forBot()
+                .warn(
+                  `Message ${props.message.id} skipped: payload text must contain at least one non-invisible character.`
+                )
               break
             }
             await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
