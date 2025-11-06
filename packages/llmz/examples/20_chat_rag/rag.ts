@@ -1,7 +1,7 @@
 import type { Client } from '@botpress/client'
 
-import { join, resolve } from 'path'
 import { readFileSync } from 'fs'
+import { join, resolve } from 'path'
 import { loading } from '../utils/spinner'
 
 const readDocument = (file: string) => readFileSync(resolve(join('./20_chat_rag/documents/', file)), 'utf-8')
@@ -47,20 +47,19 @@ export async function uploadToRAG(client: Client, files: string[]) {
 
 export async function waitUntilIndexed(client: Client, timeout_in_seconds: number = 60) {
   loading(true, 'Waiting for documents to be indexed...')
-  // eslint-disable-next-line no-async-promise-executor
-  await new Promise<void>(async (resolve, reject) => {
-    for (let i = 0; i < timeout_in_seconds; i++) {
-      await wait(1000)
-      const files = await client.list.files({ tags: { purpose: RAG_TAG } }).collect()
-      if (files.length > 0 && files.every((file) => file.status === 'indexing_completed')) {
-        resolve()
-        return
-      } else if (files.some((file) => file.status === 'indexing_failed' || file.status === 'upload_failed')) {
-        reject(new Error('Some files failed to index.'))
-        return
-      }
+
+  for (let i = 0; i < timeout_in_seconds; i++) {
+    await wait(1000)
+    const files = await client.list.files({ tags: { purpose: RAG_TAG } }).collect()
+    if (files.length > 0 && files.every((file) => file.status === 'indexing_completed')) {
+      loading(false)
+      return
+    } else if (files.some((file) => file.status === 'indexing_failed' || file.status === 'upload_failed')) {
+      loading(false)
+      throw new Error('Some files failed to index.')
     }
-    reject(new Error('Timeout waiting for files to be indexed.'))
-  })
+  }
+
   loading(false)
+  throw new Error('Timeout waiting for files to be indexed.')
 }
