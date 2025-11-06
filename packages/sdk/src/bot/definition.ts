@@ -117,9 +117,22 @@ type SimplifiedPluginConfigInstance<P extends PluginPackage = PluginPackage> = M
     (StringKeys<NonNullable<P['definition']['interfaces']>> extends never
       ? { interfaces?: Record<string, never> }
       : {
+          /** Backing integrations for the plugin's interface dependencies */
           interfaces: {
             [I in StringKeys<NonNullable<P['definition']['interfaces']>>]: {
+              /**
+               * Alias of the integration to use to fullfil this dependency.
+               *
+               * This is the alias given when adding the integration to the bot
+               * via `addIntegration()`.
+               */
               integrationAlias: string
+              /**
+               * Alias of the interface within the integration.
+               *
+               * This is the alias defined by the integration package for the
+               * interface it implements.
+               */
               integrationInterfaceAlias: string
             }
           }
@@ -127,8 +140,15 @@ type SimplifiedPluginConfigInstance<P extends PluginPackage = PluginPackage> = M
     (StringKeys<NonNullable<P['definition']['integrations']>> extends never
       ? { integrations?: Record<string, never> }
       : {
+          /** backing integrations for the plugin's integration dependencies */
           integrations: {
             [I in StringKeys<NonNullable<P['definition']['integrations']>>]: {
+              /**
+               * Alias of the integration to use to fullfil this dependency.
+               *
+               * This is the alias given when adding the integration to the bot
+               * via `addIntegration()`.
+               */
               integrationAlias: string
             }
           }

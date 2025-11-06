@@ -23,15 +23,10 @@ export type EnumerateInterfaceEvents<TPlugin extends BasePlugin> = UnionToInters
  * Used by a bot to tell the plugin what integration should be used to implement an interface.
  */
 export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInterface> = {
-  /** id of the integration to use */
   id?: string
-  /** name of the integration to use */
   name: string
-  /** version of the integration to use */
   version: string
-  /** alias of the integration instance to use */
   integrationAlias: string
-  /** alias of the interface within the integration */
   integrationInterfaceAlias: string
   entities: { [K in keyof TInterface['entities']]: { name: string } }
   actions: { [K in keyof TInterface['actions']]: { name: string } }
@@ -40,13 +35,9 @@ export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInte
 }
 
 export type PluginIntegrationExtension = {
-  /** id of the integration to use */
   id?: string
-  /** name of the integration to use */
   name: string
-  /** version of the integration to use */
   version: string
-  /** alias of the integration instance to use */
   integrationAlias: string
 }
 
