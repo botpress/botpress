@@ -11,7 +11,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      adminId: z.string().min(1).describe('The admin ID of the Bot'),
+      adminId: z.string().min(1).optional().describe('The admin ID of the Bot'),
       accessToken: z.string().min(1).describe('The access token of the Intercom app'),
       clientSecret: z
         .string()
@@ -81,6 +81,7 @@ export default new IntegrationDefinition({
     credentials: {
       type: 'integration',
       schema: z.object({
+        adminId: z.string().min(1).describe('The admin ID of the Bot'),
         accessToken: z.string().min(1).describe('The access token obtained from OAuth'),
       }),
     },
