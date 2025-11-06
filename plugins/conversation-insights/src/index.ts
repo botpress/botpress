@@ -11,6 +11,7 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.beforeIncomingMessage('*', async (props) => {
+  return undefined
   if (isBrowser) {
     return
   }
@@ -31,6 +32,7 @@ plugin.on.beforeIncomingMessage('*', async (props) => {
 })
 
 plugin.on.beforeOutgoingMessage('*', async (props) => {
+  return undefined
   if (isBrowser) {
     return
   }
