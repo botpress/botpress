@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
-import { sendPosthogEvent, botpressEvents } from '../misc/posthogClient'
+import { sendPosthogEvent, botpressEvents, sendPosthogError } from '../misc/posthogClient'
 import { getTemplateText, parseTemplateVariablesJSON } from '../misc/template-utils'
 import { TemplateVariables } from '../misc/types'
 import { hasAtleastOne, logForBotAndThrow } from '../misc/util'
@@ -111,14 +111,12 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       conversationId: conversation.id,
     }
   } catch (thrown) {
-    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    await sendPosthogEvent({
-      distinctId: errMsg,
-      event: botpressEvents.UNHANDLED_ERROR,
-      properties: {
-        from: 'action-start-conversation',
-      },
+    await sendPosthogError(thrown, {
+      botId: ctx.botId,
+      integrationId: ctx.integrationId,
+      from: 'action-start-conversation',
     })
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     throw new RuntimeError(errMsg)
   }
 }

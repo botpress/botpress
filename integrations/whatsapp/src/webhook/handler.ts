@@ -1,7 +1,7 @@
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from '../auth'
-import { sendPosthogEvent, botpressEvents } from '../misc/posthogClient'
+import { sendPosthogError } from '../misc/posthogClient'
 import { WhatsAppPayload, WhatsAppPayloadSchema } from '../misc/types'
 import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
@@ -163,15 +163,14 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
       props.logger.error(`WhatsApp handler failed with status ${response.status}: ${response.body}`)
     }
     return response
-  } catch (error: any) {
-    const errorMessage = `Webhook handler failed with error: ${error.message ?? 'Unknown error thrown'}`
-    await sendPosthogEvent({
-      distinctId: errorMessage,
-      event: botpressEvents.UNHANDLED_ERROR,
-      properties: {
-        from: 'handler',
-      },
+  } catch (thrown: unknown) {
+    await sendPosthogError(thrown, {
+      botId: props.ctx.botId,
+      integrationId: props.ctx.integrationId,
+      from: 'channel-text',
     })
+    const errMsg = thrown instanceof Error ? thrown.message : 'Unknown error thrown'
+    const errorMessage = `Webhook handler failed with error: ${errMsg}`
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
   }

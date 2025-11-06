@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { sendPosthogEvent, botpressEvents } from './misc/posthogClient'
+import { sendPosthogError } from './misc/posthogClient'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async (props) => {
@@ -33,13 +33,10 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
       throw new RuntimeError('Error! Please add the missing fields and save.')
     }
   } catch (thrown) {
-    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    await sendPosthogEvent({
-      distinctId: errMsg,
-      event: botpressEvents.UNHANDLED_ERROR,
-      properties: {
-        from: 'register',
-      },
+    await sendPosthogError(thrown, {
+      integrationId: props.ctx.integrationId,
+      botId: props.ctx.botId,
+      from: 'register',
     })
   }
 }
