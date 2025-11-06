@@ -1621,9 +1621,9 @@ export default Counter;`,
   describe('abort functionality', () => {
     it('can abort answer operation', async () => {
       const documents = ['Document 1', 'Document 2', 'Document 3']
-      const request = zai.answer(documents, 'What is this about?' + Date.now())
+      const request = zai.answer(documents, 'What is this about?')
 
-      setTimeout(() => request.abort('CANCEL'), 50)
+      request.abort('CANCEL')
       await expect(request).rejects.toThrow(/cancel/i)
     })
 
