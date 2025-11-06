@@ -5,9 +5,6 @@ import chat from './bp_modules/chat'
 import linear from './bp_modules/linear'
 import synchronizer from './bp_modules/synchronizer'
 
-const linearListableIssue = linear.definition.interfaces['listable<issue>']
-const linearDeletableIssue = linear.definition.interfaces['deletable<issue>']
-
 export default new sdk.BotDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
@@ -32,22 +29,12 @@ export default new sdk.BotDefinition({
     },
     interfaces: {
       listable: {
-        id: linear.id,
-        name: linear.name,
-        version: linear.version,
-        entities: linearListableIssue.entities,
-        actions: linearListableIssue.actions,
-        channels: linearListableIssue.channels,
-        events: linearListableIssue.events,
+        integrationAlias: 'linear',
+        integrationInterfaceAlias: 'listable<issue>',
       },
       deletable: {
-        id: linear.id,
-        name: linear.name,
-        version: linear.version,
-        entities: linearDeletableIssue.entities,
-        actions: linearDeletableIssue.actions,
-        channels: linearDeletableIssue.channels,
-        events: linearDeletableIssue.events,
+        integrationAlias: 'linear',
+        integrationInterfaceAlias: 'deletable<issue>',
       },
     },
   })
