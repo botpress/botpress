@@ -1,44 +1,10 @@
 import { isBrowser } from 'browser-or-node'
-import * as onNewMessageHandler from './onNewMessageHandler'
 import * as summaryUpdater from './tagsUpdater'
 import * as types from './types'
 import * as bp from '.botpress'
 
-const HOUR_MILLISECONDS = 60 * 60 * 1000
-
 const plugin = new bp.Plugin({
   actions: {},
-})
-
-plugin.on.beforeIncomingMessage('*', async (props) => {
-  return undefined
-  if (isBrowser) {
-    return
-  }
-  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  await onNewMessageHandler.onNewMessage({ ...props, conversation })
-
-  if (props.configuration.aiEnabled) {
-    const eventType = `${props.alias}#updateAiInsight`
-    const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
-
-    if (events.events.length === 0) {
-      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
-      await props.events.updateAiInsight.schedule({}, { dateTime })
-    }
-  }
-
-  return undefined
-})
-
-plugin.on.beforeOutgoingMessage('*', async (props) => {
-  return undefined
-  if (isBrowser) {
-    return
-  }
-  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
-  await onNewMessageHandler.onNewMessage({ ...props, conversation })
-  return undefined
 })
 
 plugin.on.event('updateAiInsight', async (props) => {
