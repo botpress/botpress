@@ -19,9 +19,9 @@
 
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
 import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
-import chalk from 'chalk'
 
 // Initialize Botpress client
 const client = new Client({
@@ -84,7 +84,7 @@ const wrappedTool = normalTool.clone({
 
 // Execute using the wrapped tool
 const result = await execute({
-  instructions: `Greet the user and return the confirmation code`,
+  instructions: 'Greet the user and return the confirmation code',
   exits: [exit],
 
   // Use the wrapped tool instead of the original
