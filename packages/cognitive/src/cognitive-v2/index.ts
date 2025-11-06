@@ -120,7 +120,7 @@ export class CognitiveBeta {
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
     const req = { input: request }
-    let chunks: CognitiveStreamChunk[] = []
+    const chunks: CognitiveStreamChunk[] = []
     let lastChunk: CognitiveStreamChunk | undefined
 
     this._events.emit('request', req)

@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { setupClient } from '@botpress/vai'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { getClient } from './e2e/utils'
 import { server } from './e2e/mocks/server'
+import { getClient } from './e2e/utils'
 
 globalThis.STUDIO = false
 
