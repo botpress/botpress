@@ -151,6 +151,9 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
     },
     bloc: async ({ payload, ...props }) => {
       try {
+        if (!payload.items) {
+          return
+        }
         for (const item of payload.items) {
           switch (item.type) {
             case 'text':

@@ -1,4 +1,3 @@
-import { RuntimeError } from '@botpress/client'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
@@ -112,7 +111,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     }
   } catch (thrown) {
     await sendPosthogError(thrown, { from: 'action-start-conversation' })
-    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    throw new RuntimeError(errMsg)
+    throw thrown
   }
 }
