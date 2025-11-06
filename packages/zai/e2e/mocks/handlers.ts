@@ -59,7 +59,7 @@ function stringifyWithSortedKeys(obj: any): string {
 
 export const handlers = [
   // Mock all Botpress Cloud API requests using cache
-  http.all(/^https:\/\/api\.botpress\.cloud\/.*/, async ({ request }) => {
+  http.all(/^https:\/\/api\.botpress\.(cloud|dev)\/.*/, async ({ request }) => {
     // Build request key from method, URL, and body
     const method = request.method
     const url = request.url
@@ -68,7 +68,7 @@ export const handlers = [
 
     const requestData = stringifyWithSortedKeys({
       method,
-      url,
+      url: url.toString().replace('.dev/', '.cloud/'), // Normalize dev/cloud URLs
       body: body ? JSON.parse(body) : null,
     })
 
