@@ -1632,7 +1632,7 @@ export default Counter;`,
       const documents = ['Some content here']
       const request = zai.answer(documents, 'Question?').bindSignal(controller.signal)
 
-      setTimeout(() => controller.abort('CANCEL2'), 50)
+      controller.abort('CANCEL2')
       await expect(request).rejects.toThrow(/cancel/i)
     })
   })
