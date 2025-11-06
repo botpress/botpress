@@ -13,13 +13,7 @@ import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
 import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
 
-export {
-  UserDefinition,
-  ConversationDefinition,
-  MessageDefinition,
-  IntegrationConfigInstance,
-  WorkflowDefinition,
-} from '../bot/definition'
+export { UserDefinition, ConversationDefinition, MessageDefinition, WorkflowDefinition } from '../bot/definition'
 
 type BaseConfig = ZuiObjectOrRefSchema
 type BaseStates = Record<string, ZuiObjectOrRefSchema>

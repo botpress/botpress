@@ -1,7 +1,7 @@
 import { Table } from '@botpress/client'
 import * as consts from '../consts'
 import { IntegrationPackage, PluginPackage } from '../package'
-import { PluginInterfaceExtension } from '../plugin'
+import { PluginInterfaceExtension, PluginIntegrationExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
@@ -75,9 +75,9 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
   }
 >
 
-export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
-  enabled: boolean
-  alias?: string
+export type ResolvedIntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
+  enabled?: boolean
+  alias: string
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & (
   | {
@@ -92,16 +92,72 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
     }>
 )
 
-export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
-  alias?: string
+type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = Omit<
+  ResolvedIntegrationConfigInstance<I>,
+  'alias'
+> & { alias?: string }
+
+type _ResolvedPluginConfigInstance<P extends PluginPackage = PluginPackage> = {
+  alias: string
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
     [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
+  integrations: {
+    [I in keyof NonNullable<P['definition']['integrations']>]: PluginIntegrationExtension
+  }
 }
 
-export type IntegrationInstance = IntegrationPackage & Partial<IntegrationConfigInstance>
-export type PluginInstance = PluginPackage & PluginConfigInstance
+type PluginConfigInstance<P extends PluginPackage = PluginPackage> = Merge<
+  _ResolvedPluginConfigInstance<P>,
+  {
+    alias?: string
+  } & (StringKeys<z.infer<NonNullable<P['definition']['configuration']>['schema']>> extends never
+    ? { configuration?: Record<string, never> }
+    : { configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']> }) &
+    (StringKeys<NonNullable<P['definition']['interfaces']>> extends never
+      ? { interfaces?: Record<string, never> }
+      : {
+          /** Backing integrations for the plugin's interface dependencies */
+          interfaces: {
+            [I in StringKeys<NonNullable<P['definition']['interfaces']>>]: {
+              /**
+               * Alias of the integration to use to fullfil this dependency.
+               *
+               * This is the alias given when adding the integration to the bot
+               * via `addIntegration()`.
+               */
+              integrationAlias: string
+              /**
+               * Alias of the interface within the integration.
+               *
+               * This is the alias defined by the integration package for the
+               * interface it implements.
+               */
+              integrationInterfaceAlias: string
+            }
+          }
+        }) &
+    (StringKeys<NonNullable<P['definition']['integrations']>> extends never
+      ? { integrations?: Record<string, never> }
+      : {
+          /** backing integrations for the plugin's integration dependencies */
+          integrations: {
+            [I in StringKeys<NonNullable<P['definition']['integrations']>>]: {
+              /**
+               * Alias of the integration to use to fullfil this dependency.
+               *
+               * This is the alias given when adding the integration to the bot
+               * via `addIntegration()`.
+               */
+              integrationAlias: string
+            }
+          }
+        })
+>
+
+export type IntegrationInstance = IntegrationPackage & ResolvedIntegrationConfigInstance
+export type PluginInstance = PluginPackage & _ResolvedPluginConfigInstance
 
 export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
@@ -222,8 +278,8 @@ export class BotDefinition<
       ...integrationPkg,
       alias: integrationAlias,
       enabled: config?.enabled,
-      configurationType: config?.configurationType,
-      configuration: config?.configuration,
+      configurationType: config && 'configurationType' in config ? config.configurationType : undefined,
+      configuration: config && 'configuration' in config ? (config.configuration ?? {}) : {},
       disabledChannels: config?.disabledChannels,
     }
     return this
@@ -241,11 +297,75 @@ export class BotDefinition<
       throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)
     }
 
+    // Resolve backing integrations for plugin interfaces:
+    const interfaces: Record<string, PluginInterfaceExtension> = Object.fromEntries(
+      Object.entries(config.interfaces ?? {}).map(([pluginIfaceAlias, pluginIfaceConfig]) => {
+        const integrationInstance = this.integrations?.[pluginIfaceConfig.integrationAlias]
+
+        if (!integrationInstance) {
+          const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Interface with alias "${pluginIfaceAlias}" of plugin with alias "${pluginAlias}" ` +
+              `references integration with alias "${pluginIfaceConfig.integrationAlias}" which is not installed. ` +
+              'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
+              `Available integration aliases: ${availableIntegrations}`
+          )
+        }
+
+        const integrationInterfaceExtension =
+          integrationInstance.definition.interfaces?.[pluginIfaceConfig.integrationInterfaceAlias]
+
+        if (!integrationInterfaceExtension) {
+          const availableInterfaces =
+            Object.keys(integrationInstance.definition.interfaces ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Interface with alias "${pluginIfaceConfig.integrationInterfaceAlias}" does not exist in integration ` +
+              `"${integrationInstance.name}" referenced by interface with alias "${pluginIfaceAlias}" of plugin ` +
+              `with alias "${pluginAlias}".\nAvailable interface aliases: ${availableInterfaces}`
+          )
+        }
+
+        return [
+          pluginIfaceAlias,
+          {
+            ...integrationInterfaceExtension,
+            id: integrationInstance.id,
+            name: integrationInstance.name,
+            version: integrationInstance.version,
+            ...pluginIfaceConfig,
+          } satisfies PluginInterfaceExtension,
+        ]
+      })
+    )
+
+    // Resolve backing integrations for plugin integrations:
+    const integrations: Record<string, PluginIntegrationExtension> = Object.fromEntries(
+      Object.entries(config.integrations ?? {}).map(([pluginIntegAlias, pluginIntegConfig]) => {
+        const integrationInstance = this.integrations?.[pluginIntegConfig.integrationAlias]
+
+        if (!integrationInstance) {
+          const availableIntegrations = Object.keys(this.integrations ?? {}).join(', ') || '(none)'
+
+          throw new Error(
+            `Integration with alias "${pluginIntegAlias}" of plugin with alias "${pluginAlias}" ` +
+              `references integration with alias "${pluginIntegConfig.integrationAlias}" which is not installed. ` +
+              'Please make sure to add the integration via addIntegration() before calling addPlugin().\n' +
+              `Available integration aliases: ${availableIntegrations}`
+          )
+        }
+
+        return [pluginIntegAlias, { ...integrationInstance, ...pluginIntegConfig } satisfies PluginIntegrationExtension]
+      })
+    )
+
     self.plugins[pluginAlias] = {
       ...pluginPkg,
       alias: pluginAlias,
-      configuration: config.configuration,
-      interfaces: config.interfaces,
+      configuration: config.configuration ?? {},
+      interfaces,
+      integrations,
     }
 
     self.withPlugins.user = this._mergeUser(self.withPlugins.user, pluginPkg.definition.user)

@@ -15,7 +15,6 @@ import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
 import { EventProxy, proxyEvents } from './event-proxy'
-import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
   ActionHandlers,
   MessageHandlers,
@@ -49,7 +48,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   events: EventProxy<TPlugin>
   states: StateProxy<TPlugin>
   workflows: WorkflowProxy<TPlugin>
-  alias?: string
+  alias: string
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
@@ -493,13 +492,30 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
    * checks if the actual event resolves to the target event
    */
   private _eventResolvesTo = (actualEventRef: string, targetEventRef: string) => {
-    const parsedRef = parseEventRef(actualEventRef)
-    if (!parsedRef) {
+    const NAMESPACE_SEPARATOR = ':'
+    const [pluginIfaceOrIntAlias, ifaceOrIntEvent] = actualEventRef.split(NAMESPACE_SEPARATOR)
+    if (!pluginIfaceOrIntAlias || !ifaceOrIntEvent) {
       return false
     }
-    const resolvedRef = resolveEvent(parsedRef, this._runtime.interfaces)
-    const formattedRef = formatEventRef(resolvedRef)
-    return formattedRef === targetEventRef
+
+    // match '<plugin-iface-alias>:<iface-event>' => '<bot-int-alias>:<int-event>':
+    const iface = this._runtime.interfaces[pluginIfaceOrIntAlias]
+
+    if (
+      iface &&
+      targetEventRef === `${iface.integrationAlias}${NAMESPACE_SEPARATOR}${iface?.events?.[ifaceOrIntEvent]?.name}`
+    ) {
+      return true
+    }
+
+    const integration = this._runtime.integrations[pluginIfaceOrIntAlias]
+
+    // match '<plugin-int-alias>:<int-event>' => '<bot-int-alias>:<int-event>':
+    if (integration && targetEventRef === `${integration.integrationAlias}${NAMESPACE_SEPARATOR}${ifaceOrIntEvent}`) {
+      return true
+    }
+
+    return false
   }
 
   private _stripAliasPrefix = (prop: string) => {

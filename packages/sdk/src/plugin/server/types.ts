@@ -128,7 +128,7 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
 export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   configuration: common.PluginConfiguration<TPlugin>
   interfaces: common.PluginInterfaceExtensions<TPlugin>
-  alias?: string
+  alias: string
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
