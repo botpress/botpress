@@ -169,7 +169,7 @@ test('Multi-line multi markup test', () => {
   expect(actual).toBe(expectedForBigInput)
 })
 
-test('Custom handlers markup test', () => {
+test('Custom heading handler markup test', () => {
   const expected = 'heading handled'
   const customHandlers: MarkdownHandlers = {
     ...stripAllHandlers,
@@ -179,6 +179,32 @@ test('Custom handlers markup test', () => {
   }
 
   const actual = parseMarkdown('# any heading`', customHandlers)
+
+  expect(actual).toBe(expected)
+})
+
+test('Custom blockQuote handler markup test', () => {
+  const expected = 'quote handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    blockquote: (_node, _visit) => {
+      return expected
+    },
+  }
+
+  const actual = parseMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
+
+  expect(actual).toBe(expected)
+})
+
+test('Custom paragraph handler markup test', () => {
+  const expected = 'paragraph handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    paragraph: (_node, _visit) => expected,
+  }
+
+  const actual = parseMarkdown('any paragraph', customHandlers)
 
   expect(actual).toBe(expected)
 })
