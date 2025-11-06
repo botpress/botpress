@@ -31,7 +31,7 @@ test('IntegrationConfigInstance of integration with no config should be empty', 
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
     alias: string
     disabledChannels?: string[] | undefined
   } & Partial<
@@ -76,7 +76,7 @@ test('IntegrationConfigInstance of integration with single config schema should 
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
     alias: string
     disabledChannels?: string[] | undefined
   } & Partial<
@@ -128,7 +128,7 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
     alias: string
     disabledChannels?: string[] | undefined
   } & Partial<

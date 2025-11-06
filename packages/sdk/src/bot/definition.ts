@@ -76,7 +76,7 @@ export type TableDefinition<TTable extends BaseTables[string] = BaseTables[strin
 >
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
-  enabled: boolean
+  enabled?: boolean
   alias: string
   disabledChannels?: StringKeys<NonNullable<I['definition']['channels']>>[]
 } & Partial<
@@ -259,7 +259,7 @@ export class BotDefinition<
     self.integrations[integrationAlias] = {
       ...integrationPkg,
       alias: integrationAlias,
-      enabled: config?.enabled ?? false,
+      enabled: config?.enabled,
       configurationType: config?.configurationType,
       configuration: config?.configuration,
       disabledChannels: config?.disabledChannels,
