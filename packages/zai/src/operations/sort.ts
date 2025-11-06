@@ -287,7 +287,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
             taskId,
           })
         : []
-    console.log({ taskType, taskId, chunkInputStr, examples })
+
     // Check for exact match (cache hit)
     const key = fastHash(
       stringify({
@@ -359,8 +359,6 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
         // Skip malformed examples
       }
     }
-
-    console.log(exampleMessages)
 
     const { extracted } = await ctx.generateContent({
       systemPrompt: `You are ranking items for sorting using ordered label arrays.

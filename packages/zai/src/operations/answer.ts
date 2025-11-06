@@ -686,19 +686,11 @@ const answer = async <T>(
   const model = await ctx.getModel()
   const TOTAL_MAX_TOKENS = Math.min(options.chunkLength, model.input.maxTokens - PROMPT_INPUT_BUFFER)
 
-  const taskId = ctx.taskId
-  const taskType = 'zai.answer'
-
   // Format all documents with line numbers
   const { formatted: allFormattedDocs, mappings: allMappings } = formatDocumentsWithLineNumbers(documents)
 
-  const questionTokens = tokenizer.count(question)
   const CHUNK_DOC_TOKENS = Math.floor(TOTAL_MAX_TOKENS * 0.6)
   const totalDocTokens = tokenizer.count(allFormattedDocs)
-
-  console.log(
-    `[${taskType}:${taskId}] Question tokens: ${questionTokens}, Total document tokens: ${totalDocTokens}, Chunk doc token limit: ${CHUNK_DOC_TOKENS}`
-  )
 
   // Check if we need to chunk
   if (totalDocTokens <= CHUNK_DOC_TOKENS) {

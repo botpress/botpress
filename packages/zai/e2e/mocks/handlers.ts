@@ -80,13 +80,7 @@ export const handlers = [
       return HttpResponse.json(cached)
     }
 
-    console.log('\n🔵 [MSW] Botpress API Request')
-    console.log('  Method:', method)
-    console.log('  URL:', url)
-    console.log('  Hash:', hash)
     // Not in cache - fetch from real API
-    console.log('  ⚠️  Cache miss - fetching from real API')
-
     try {
       // Use bypass to avoid infinite recursion
       const response = await fetch(bypass(request))
@@ -105,8 +99,6 @@ export const handlers = [
             value: responseData,
           }) + '\n'
         )
-
-        console.log('  ✅ Response cached for future requests')
       }
 
       return HttpResponse.json(responseData, { status: response.status })

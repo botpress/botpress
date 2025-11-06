@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Cognitive, ModelProvider } from '@botpress/cognitive'
+import { Cognitive } from '@botpress/cognitive'
 import { diffLines } from 'diff'
 import fs from 'node:fs'
 import path from 'node:path'
