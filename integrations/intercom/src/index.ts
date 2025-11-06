@@ -1,12 +1,20 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { actions } from './actions'
+import { getAdminId, getAuthenticatedIntercomClient } from './auth'
 import { channels } from './channels'
 import { handler } from './handler'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ client, ctx }) => {
-    const adminId = ctx.configuration.adminId
+    const adminId = ctx.configuration.adminId ?? (await getAdminId(ctx))
+
+    await client.setState({
+      id: ctx.integrationId,
+      name: 'credentials',
+      type: 'integration',
+      payload: { adminId, accessToken: ctx.configuration.accessToken },
+    })
     await client.updateUser({
       id: ctx.botUserId,
       tags: { id: adminId },

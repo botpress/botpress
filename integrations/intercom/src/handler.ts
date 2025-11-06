@@ -59,7 +59,10 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await handleOAuth(props)
   }
 
-  const verifyResult = verifyRequest(req, ctx)
+  const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  const { adminId } = state.payload
+
+  const verifyResult = verifyRequest(req, ctx, adminId)
   if (verifyResult.isError) {
     throw new RuntimeError(`Invalid request received: ${verifyResult.message}`)
   } else if (verifyResult.result === 'ignore') {
@@ -152,7 +155,7 @@ function isSignatureValid(signature: string, body: string, secret: string) {
   return hash === signature
 }
 
-function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
+function verifyRequest(req: Request, ctx: bp.Context, adminId: string): VerifyResult {
   if (!req.body) {
     return { result: 'error', isError: true, message: 'Handler received an empty body' }
   }
@@ -184,7 +187,7 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
     return { result: 'ignore', isError: false, message: `Ignoring topic: ${parsedNotification.topic}` }
   }
 
-  if (ctx.configuration.adminId !== parsedNotification.data.item.admin_assignee_id) {
+  if (adminId !== parsedNotification.data.item.admin_assignee_id) {
     // Ignore conversations not assigned to the bot
     return { result: 'ignore', isError: false, message: 'Ignoring conversations not assigned to the bot' }
   }

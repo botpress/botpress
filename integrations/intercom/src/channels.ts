@@ -146,14 +146,16 @@ async function sendMessage(
   }
 ) {
   const { body, attachmentUrls, client, ctx, conversation, ack } = props
-  const { configuration } = ctx
+  const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  const { adminId } = state.payload
+
   const intercomClient = await getAuthenticatedIntercomClient(client, ctx)
 
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await intercomClient.conversations.replyByIdAsAdmin({
     id: conversation.tags.id ?? '',
-    adminId: configuration.adminId,
+    adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
