@@ -10,5 +10,8 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "cheerio": "^1.1.2"
+  },
+  "bpDependencies": {
+    "slack": "../../integrations/slack"
   }
 }
