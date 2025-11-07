@@ -37,6 +37,7 @@ import {
   InjectedHandlerProps,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
+import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
@@ -143,6 +144,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
               (input: utils.types.ValueOf<MessagePayloadsWithoutInjectedProps<TPlugin>>) =>
                 handler({
                   ...input,
+                  user: unprefixTagsOwnedByPlugin(input.user, { alias: this._runtime.alias }),
+                  message: unprefixTagsOwnedByPlugin(input.message, { alias: this._runtime.alias }),
+                  conversation: unprefixTagsOwnedByPlugin(input.conversation, { alias: this._runtime.alias }),
                   ...this._getTools(input.client),
                 }),
               handler.name
@@ -241,6 +245,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) =>
                       handler({
                         ...input,
+                        data: unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias }),
                         ...this._getTools(input.client),
                       }),
                     handler.name
