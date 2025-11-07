@@ -5,6 +5,7 @@ import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
 import * as eventProxy from '../event-proxy'
+import * as messageProxy from '../message-proxy'
 import * as stateProxy from '../state-proxy'
 import * as userProxy from '../user-proxy'
 
@@ -134,6 +135,7 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
   users: userProxy.UserFinder<TPlugin>
+  messages: messageProxy.MessageFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -178,6 +180,7 @@ export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPr
   TPlugin,
   {
     user: userProxy.ActionableUser<TPlugin, string>
+    message: messageProxy.ActionableMessage<TPlugin>
   }
 >
 

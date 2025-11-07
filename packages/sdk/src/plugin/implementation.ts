@@ -39,6 +39,7 @@ import {
 import { proxyStates, StateProxy } from './state-proxy'
 import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
 import { proxyUser, proxyUsers, type UserFinder } from './user-proxy'
+import { proxyMessage, proxyMessages } from './message-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
@@ -98,6 +99,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
     const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
+    const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {
       configuration,
@@ -108,6 +110,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       workflows,
       events,
       users,
+      messages,
     }
   }
 
@@ -152,7 +155,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     conversationId: input.conversation.id,
                     pluginAlias: this._runtime.alias,
                   }),
-                  message: unprefixTagsOwnedByPlugin(input.message, { alias: this._runtime.alias }),
+                  message: proxyMessage<BasePlugin>({
+                    ...input,
+                    plugin: this._runtime,
+                    message: input.message,
+                  }),
                   conversation: unprefixTagsOwnedByPlugin(input.conversation, { alias: this._runtime.alias }),
                   ...this._getTools(input.client),
                 }),
