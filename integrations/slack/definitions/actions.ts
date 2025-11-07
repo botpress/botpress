@@ -100,10 +100,10 @@ export const actions = {
     description: 'Initiate a conversation in a channel',
     input: {
       schema: sdk.z.object({
-        channelId: sdk.z
+        channelName: sdk.z
           .string()
-          .title('Channel ID')
-          .describe('The ID of the channel you want the conversation to be created at'),
+          .title('Channel Name')
+          .describe('The name of the channel you want the conversation to be created at'),
       }),
     },
     output: {

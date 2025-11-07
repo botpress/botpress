@@ -322,12 +322,22 @@ export class SlackClient {
     return response.profile
   }
 
-  @requireAllScopes(['users:read'])
+  @requireAllScopes(['channels:read', 'chat:write'])
   @handleErrors('Failed to retrieve user profile')
-  public async getChannelInfo({ channelId }: { channelId: string }) {
-    const response = this._surfaceSlackErrors(await this._slackWebClient.conversations.list())
-    for (const channel of response.channels ?? []) {
-      if (channel.id === channelId) {
+  public async getChannelInfo({ channelName }: { channelName: string }) {
+    const allChannels: SlackWebApi.ConversationsListResponse['channels'] = []
+    for await (const page of this._slackWebClient.paginate('conversations.list', {
+      types: 'public_channel',
+      exclude_archived: true,
+      limit: 200,
+    }) as AsyncIterable<SlackWebApi.ConversationsListResponse>) {
+      if (page.channels) {
+        allChannels.push(...page.channels)
+      }
+    }
+    console.log(allChannels.length)
+    for (const channel of allChannels) {
+      if (channel.name === channelName) {
         return channel
       }
     }

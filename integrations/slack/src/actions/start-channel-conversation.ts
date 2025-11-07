@@ -1,31 +1,23 @@
+import { RuntimeError } from '@botpress/client'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
 export const startChannelConversation = wrapActionAndInjectSlackClient(
   { actionName: 'startChannelConversation', errorMessage: 'Failed to start Channel conversation' },
-  async ({ client, slackClient }, { channelId }) => {
-    const channelName = slackClient.
-
+  async ({ client, logger, slackClient }, { channelName }) => {
+    const slackChannelInfo = await slackClient.getChannelInfo({ channelName })
+    if (slackChannelInfo === undefined) {
+      const errorMessage = 'The channel id provided does not exist'
+      logger.forBot().error(errorMessage)
+      throw new RuntimeError(errorMessage)
+    }
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
-      tags: {
-        title: 'a',
-        id: channelId,
-      },
-      discriminateByTags: ['id'],
-    })
-
-    await client.updateUser({
-      id: user.id,
-      tags: {
-        dm_conversation_id: conversation.id,
-        id: slackUserId,
-      },
+      tags: { id: slackChannelInfo?.id },
     })
 
     return {
       conversationId: conversation.id,
-      userId: user.id,
     }
   }
 )
