@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
@@ -13,13 +12,14 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      adminId: z.string().min(1).optional().describe('The admin ID of the Bot'),
-      accessToken: z.string().min(1).describe('The access token of the Intercom app'),
+      accessToken: z.string().min(1).title('Access Token').describe('The access token of the Intercom app'),
+      adminId: z.string().min(1).optional().title('Admin ID').describe('The admin ID of the Bot'),
       clientSecret: z
         .string()
         .min(1)
         .secret()
         .optional()
+        .title('Client Secret')
         .describe('The client secret of the Intercom app, used for event signature validation'),
     }),
     // TODO: Uncomment this once the Intercom app is approved
@@ -50,16 +50,24 @@ export default new IntegrationDefinition({
     // },
   },
   channels: {
-    channel: {
-      messages: { ...messages.defaults, markdown: messages.markdown },
+    conversation: {
+      title: 'Intercom conversation',
+      description: 'Channel for a Intercom conversation',
+      messages: messages.defaults,
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'Message ID',
+            description: 'The Intercom message ID',
+          },
         },
       },
       conversation: {
         tags: {
-          id: {},
+          id: {
+            title: 'Conversation ID',
+            description: 'The Intercom conversation ID',
+          },
         },
       },
     },
@@ -75,26 +83,35 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: { description: "The Client secret in your app's basic informations" },
   },
   user: {
-    tags: { id: {}, email: {} },
+    tags: {
+      id: {
+        title: 'User ID',
+        description: 'The Intercom user ID',
+      },
+      email: {
+        title: 'User Email',
+        description: 'The Intercom user email',
+      },
+    },
   },
   states: {
     credentials: {
       type: 'integration',
       schema: z.object({
-        adminId: z.string().min(1).describe('The admin ID of the Bot'),
-        accessToken: z.string().min(1).describe('The access token obtained from OAuth'),
+        adminId: z.string().min(1).title('Admin ID').describe('The admin ID of the Bot'),
+        accessToken: z.string().min(1).title('Access Token').describe('The access token obtained from OAuth'),
       }),
     },
   },
   entities: {
     user: {
       schema: z.object({
-        id: z.string().min(1).describe('The ID of the Intercom user'),
+        id: z.string().min(1).title('User ID').describe('The ID of the Intercom user'),
       }),
     },
     conversation: {
       schema: z.object({
-        id: z.string().min(1).describe('The ID of the Intercom conversation'),
+        id: z.string().min(1).title('Conversation ID').describe('The ID of the Intercom conversation'),
       }),
     },
   },

@@ -5,11 +5,11 @@ import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
 
-type Card = bp.channels.channel.card.Card
-type Location = bp.channels.channel.location.Location
+type Card = bp.channels.conversation.card.Card
+type Location = bp.channels.conversation.location.Location
 
 export const channels: bp.IntegrationProps['channels'] = {
-  channel: {
+  conversation: {
     messages: {
       text: async ({ payload, conversation, ack, client, ctx }) => {
         await sendMessage({
@@ -28,15 +28,6 @@ export const channels: bp.IntegrationProps['channels'] = {
           ctx,
           ack,
           attachmentUrls: [payload.imageUrl],
-        })
-      },
-      markdown: async ({ client, ctx, conversation, ack, payload }) => {
-        await sendMessage({
-          body: payload.markdown,
-          conversation,
-          client,
-          ctx,
-          ack,
         })
       },
       audio: async ({ client, ctx, conversation, ack, payload }) => {
