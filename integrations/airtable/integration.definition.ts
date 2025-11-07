@@ -59,6 +59,7 @@ export default new IntegrationDefinition({
     },
     updateTable: {
       title: 'Update Table',
+      description: 'Updates the name, description, and/or date dependency settings of a table.',
       input: {
         schema: updateTableInputSchema,
       },

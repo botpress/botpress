@@ -40,9 +40,16 @@ export const createTableInputSchema = z.object({
 export const createTableOutputSchema = tableSchema.passthrough()
 
 export const updateTableInputSchema = z.object({
-  tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
-  name: z.string().optional().describe('Name of the Table (e.g. MyTable) (Optional)'),
-  description: z.string().optional().describe('Description of the Table (e.g. This is my table) (Optional)'),
+  tableIdOrName: z
+    .string()
+    .describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)')
+    .title('Table ID Or Name'),
+  name: z.string().optional().describe('Name of the Table (e.g. MyTable) (Optional)').title('Name'),
+  description: z
+    .string()
+    .optional()
+    .describe('Description of the Table (e.g. This is my table) (Optional)')
+    .title('Description'),
 })
 
 export const updateTableOutputSchema = tableSchema.passthrough()
