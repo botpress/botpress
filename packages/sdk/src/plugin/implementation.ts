@@ -13,6 +13,7 @@ import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/work
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
+import { proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
 import {
   ActionHandlers,
@@ -99,6 +100,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
     const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
+    const conversations = proxyConversations({ client, plugin: this._runtime })
     const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {
@@ -110,6 +112,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       workflows,
       events,
       users,
+      conversations,
       messages,
     }
   }
@@ -160,7 +163,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     plugin: this._runtime,
                     message: input.message,
                   }),
-                  conversation: unprefixTagsOwnedByPlugin(input.conversation, { alias: this._runtime.alias }),
+                  conversation: proxyConversation({
+                    ...input,
+                    plugin: this._runtime,
+                    conversation: input.conversation,
+                  }),
                   ...this._getTools(input.client),
                 }),
               handler.name

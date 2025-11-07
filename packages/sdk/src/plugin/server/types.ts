@@ -4,6 +4,7 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as conversationProxy from '../conversation-proxy'
 import * as eventProxy from '../event-proxy'
 import * as messageProxy from '../message-proxy'
 import * as stateProxy from '../state-proxy'
@@ -135,6 +136,7 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
   users: userProxy.UserFinder<TPlugin>
+  conversations: conversationProxy.ConversationFinder<TPlugin>
   messages: messageProxy.MessageFinder<TPlugin>
 
   /**
@@ -180,6 +182,7 @@ export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPr
   TPlugin,
   {
     user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
     message: messageProxy.ActionableMessage<TPlugin>
   }
 >
