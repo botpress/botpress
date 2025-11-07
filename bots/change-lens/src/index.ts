@@ -6,21 +6,53 @@ const bot = new bp.Bot({
   actions: {},
 })
 
-bot.on.event('*', async (props) => {
+const _handleApiChange = async (
+  message: string,
+  graphApiVersion: string,
+  props: bp.EventHandlerProps
+): Promise<void> => {
+  const { client, logger } = props
+  logger.info(message)
+  const response = await props.client.callAction({
+    type: 'slack:startChannelConversation',
+    input: {
+      channelName: 'alert-squid',
+    },
+  })
+  await props.client.createMessage({
+    type: 'text',
+    conversationId: response.output.conversationId,
+    tags: {},
+    userId: props.ctx.botId,
+    payload: {
+      text: message,
+    },
+  })
+  await client.setState({
+    id: props.ctx.botId,
+    name: 'metaApiVersions',
+    type: 'bot',
+    payload: { graphApiVersion },
+  })
+}
+
+bot.on.event('timeToCheckApi', async (props) => {
   const { state } = await props.client.getState({ name: 'metaApiVersions', type: 'bot', id: props.ctx.botId })
   const graphApiVersion = state.payload.graphApiVersion
 
   const response = await axios.get('https://developers.facebook.com/docs/graph-api/changelog/')
   const selector = cheerio.load(response.data)
   const newGraphApiVersion = selector('code').first().text()
+  if (graphApiVersion === undefined) {
+    await _handleApiChange(
+      `I'll notify you when Meta's Graph API version will change.\nThe current version is ${newGraphApiVersion}`,
+      newGraphApiVersion,
+      props
+    )
+    return
+  }
   if (graphApiVersion !== newGraphApiVersion) {
-    props.logger.info('Graph api version changed to:', selector('code').first().text())
-    await props.client.setState({
-      id: props.ctx.botId,
-      name: 'metaApiVersions',
-      type: 'bot',
-      payload: { graphApiVersion: newGraphApiVersion },
-    })
+    await _handleApiChange(`Meta's Graph API version changed to: ${newGraphApiVersion}`, newGraphApiVersion, props)
   }
 })
 

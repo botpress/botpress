@@ -146,6 +146,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
       cheerio:
         specifier: ^1.1.2
         version: 1.1.2
