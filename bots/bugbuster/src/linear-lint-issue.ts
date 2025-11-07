@@ -37,6 +37,8 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     if (!hasBlockedLabel && !hasBlockedRelation) {
       lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
     }
+  } else if (status === 'BACKLOG' && issue.assignee) {
+    lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
 
   const hasArea = labels.some((label) => label.name.startsWith('area/'))
