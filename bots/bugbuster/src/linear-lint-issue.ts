@@ -49,7 +49,7 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if ((issue.estimate === undefined || issue.estimate === null) && status !== 'BLOCKED') {
+  if (issue.estimate === undefined && status !== 'BLOCKED') {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
