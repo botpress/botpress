@@ -24,13 +24,14 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      accessToken: z.string().describe('Personal Access Token'),
-      baseId: z.string().describe('Base ID'),
+      accessToken: z.string().describe('Personal Access Token').title('Personal Access Token'),
+      baseId: z.string().describe('Base ID').title('Base ID'),
       endpointUrl: z
         .string()
         .optional()
         .default('https://api.airtable.com/v0/')
-        .describe('API endpoint to hit (Default: https://api.airtable.com/v0/)'),
+        .describe('API endpoint to hit (Default: https://api.airtable.com/v0/)')
+        .title('Endpoint Url'),
     }),
   },
   channels: {},
