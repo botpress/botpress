@@ -14,8 +14,8 @@ const tableSchema = z.object({
 })
 
 const recordSchema = z.object({
-  fields: z.record(z.any()),
-  id: z.string().describe('The ID of the Record'),
+  fields: z.record(z.any()).describe('The fields of the Record').title('Fields'),
+  id: z.string().describe('The ID of the Record').title('ID'),
 })
 
 export { tableSchema, recordSchema }

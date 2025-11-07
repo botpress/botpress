@@ -78,6 +78,7 @@ export default new IntegrationDefinition({
     },
     updateRecord: {
       title: 'Update Record',
+      description: 'Updates a single record.',
       input: {
         schema: updateRecordInputSchema,
       },
