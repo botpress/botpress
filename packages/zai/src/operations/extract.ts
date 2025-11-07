@@ -45,7 +45,7 @@ declare module '@botpress/zai' {
     extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
-
+const SPECIAL_CHAR = '■'
 const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
@@ -330,7 +330,12 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
-            const json = x.slice(0, x.indexOf(END)).trim()
+            let json = x.slice(0, x.indexOf(END)).trim()
+
+            if (json.includes(SPECIAL_CHAR)) {
+              json = json.slice(0, json.indexOf(SPECIAL_CHAR)).trim()
+            }
+
             const repairedJson = jsonrepair(json)
             const parsedJson = JSON5.parse(repairedJson)
             const safe = schema.safeParse(parsedJson)

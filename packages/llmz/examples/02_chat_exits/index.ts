@@ -70,17 +70,17 @@ while (await chat.iterate()) {
 
   if (result.is(exit)) {
     // Handle simple exit - no additional data
-    console.log(`-----------------------`)
+    console.log('-----------------------')
     console.log('👋 Goodbye!')
-    console.log(`-----------------------`)
+    console.log('-----------------------')
     process.exit(0)
   }
 
   if (result.is(escalation)) {
     // Handle escalation exit - access typed output data
-    console.log(`-----------------------`)
+    console.log('-----------------------')
     console.log(`🚨 Escalation needed: ${result.output.reason}`)
-    console.log(`-----------------------`)
+    console.log('-----------------------')
     process.exit(0)
   }
 
