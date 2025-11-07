@@ -23,9 +23,9 @@ import { execute } from 'llmz'
 import { CLIChat } from '../utils/cli-chat'
 
 // Import specialized agent definitions
-import { MainAgent } from './agent_main' // Entry point/coordinator agent
 import { HRAgent } from './agent_hr' // Human Resources specialist
 import { ITAgent } from './agent_it' // Information Technology specialist
+import { MainAgent } from './agent_main' // Entry point/coordinator agent
 import { SalesAgent } from './agent_sales' // Sales and marketing specialist
 
 // Import the orchestration system

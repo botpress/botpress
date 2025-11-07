@@ -19,10 +19,10 @@
 
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
-import { execute, Tool } from 'llmz'
-import { printTrace } from '../utils/debug'
-import { box } from '../utils/box'
 import chalk from 'chalk'
+import { execute, Tool } from 'llmz'
+import { box } from '../utils/box'
+import { printTrace } from '../utils/debug'
 
 // Initialize Botpress client
 const client = new Client({
@@ -56,7 +56,7 @@ const errorProneTool = new Tool({
 // Execute with automatic error recovery
 // LLMz will automatically retry when the tool fails and learn from the error
 const result = await execute({
-  instructions: `Return the secret code (getCode)`,
+  instructions: 'Return the secret code (getCode)',
   tools: [errorProneTool],
   client,
 
