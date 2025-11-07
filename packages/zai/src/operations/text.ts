@@ -67,7 +67,6 @@ ${chart}
 `.trim(),
     temperature: 0.7,
     messages: [{ type: 'text', content: prompt, role: 'user' }],
-    maxTokens: options.length,
     transform: (text) => {
       if (!text.trim().length) {
         throw new Error('The model did not return a valid summary. The response was empty.')
