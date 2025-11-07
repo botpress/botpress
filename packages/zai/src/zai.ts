@@ -114,6 +114,7 @@ export class Zai {
     props: Parameters<Cognitive['generateContent']>[0]
   ): ReturnType<Cognitive['generateContent']> {
     return this.client.generateContent({
+      reasoningEffort: 'none',
       ...props,
       model: this.Model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       userId: this._userId,
