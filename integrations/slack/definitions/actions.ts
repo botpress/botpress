@@ -95,6 +95,24 @@ export const actions = {
     },
   },
 
+  startChannelConversation: {
+    title: 'Start Channel Conversation',
+    description: 'Initiate a conversation in a channel',
+    input: {
+      schema: sdk.z.object({
+        channelName: sdk.z
+          .string()
+          .title('Channel Name')
+          .describe('The name of the channel you want the conversation to be created at'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
   startDmConversation: {
     title: 'Start DM Conversation',
     description: 'Initiate a conversation with a user in a DM',
