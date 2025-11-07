@@ -88,7 +88,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   } = notification
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'conversation',
+    channel: 'channel',
     tags: {
       id: conversationId,
     },

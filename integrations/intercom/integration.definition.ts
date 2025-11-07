@@ -50,7 +50,7 @@ export default new IntegrationDefinition({
     // },
   },
   channels: {
-    conversation: {
+    channel: {
       title: 'Intercom conversation',
       description: 'Channel for a Intercom conversation',
       messages: messages.defaults,

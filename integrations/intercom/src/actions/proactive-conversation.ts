@@ -13,7 +13,7 @@ export const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreat
   const chat = await intercomClient.conversations.find({ id: conversationId })
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'conversation',
+    channel: 'channel',
     tags: { id: chat.id },
   })
 
