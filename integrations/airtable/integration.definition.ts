@@ -88,6 +88,7 @@ export default new IntegrationDefinition({
     },
     listRecords: {
       title: 'List Records',
+      description: 'List records in a table.',
       input: {
         schema: listRecordsInputSchema,
       },
