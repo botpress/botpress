@@ -37,10 +37,11 @@ const _handleApiChange = async (
 }
 
 bot.on.event('timeToCheckApi', async (props) => {
-  const { state } = await props.client.getOrSetState({
+  const { client, ctx, logger } = props
+  const { state } = await client.getOrSetState({
     name: 'metaApiVersions',
     type: 'bot',
-    id: props.ctx.botId,
+    id: ctx.botId,
     payload: { graphApiVersion: undefined },
   })
   const graphApiVersion = state.payload.graphApiVersion
@@ -48,16 +49,17 @@ bot.on.event('timeToCheckApi', async (props) => {
   const response = await axios.get('https://developers.facebook.com/docs/graph-api/changelog/')
   const selector = cheerio.load(response.data)
   const newGraphApiVersion = selector('code').first().text()
+
   if (graphApiVersion === undefined) {
     await _handleApiChange(
       `I'll notify you when Meta's Graph API version will change.\nThe current version is ${newGraphApiVersion}`,
       newGraphApiVersion,
       props
     )
-    return
-  }
-  if (graphApiVersion !== newGraphApiVersion) {
+  } else if (graphApiVersion !== newGraphApiVersion) {
     await _handleApiChange(`Meta's Graph API version changed to: ${newGraphApiVersion}`, newGraphApiVersion, props)
+  } else {
+    logger.info(`Meta's Graph API version is ${newGraphApiVersion}`)
   }
 })
 
