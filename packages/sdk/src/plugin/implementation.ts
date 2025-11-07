@@ -94,7 +94,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const { configuration, interfaces, alias } = this._runtime
     const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
-    const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+    const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
 
     return {
@@ -287,6 +287,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                           onWorkflowUpdate(newState) {
                             currentWorkflowState = newState
                           },
+                          pluginAlias: this._runtime.alias,
                         }),
                         ...this._getTools(input.client),
                       })

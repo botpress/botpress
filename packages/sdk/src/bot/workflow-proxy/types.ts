@@ -1,4 +1,5 @@
 import type * as client from '@botpress/client'
+import { AsyncCollection } from '../../utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
 import type * as commonTypes from '../common'
 
@@ -12,7 +13,7 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
     ) => Promise<
       Readonly<
         Omit<client.ClientOutputs['createWorkflow'], 'workflow'> & {
-          workflow: WorkflowWithUtilities<TBot, TWorkflowName>
+          workflow: ActionableWorkflow<TBot, TWorkflowName>
         }
       >
     >
@@ -21,6 +22,7 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
       all: _ListInstances<TBot, TWorkflowName>
       running: _ListInstances<TBot, TWorkflowName>
       scheduled: _ListInstances<TBot, TWorkflowName>
+      allActive: _ListInstances<TBot, TWorkflowName>
       allFinished: _ListInstances<TBot, TWorkflowName>
       succeeded: _ListInstances<TBot, TWorkflowName>
       cancelled: _ListInstances<TBot, TWorkflowName>
@@ -31,18 +33,12 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
 }>
 
 type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>> = (
-  x?: Pick<client.ClientInputs['listWorkflows'], 'nextToken' | 'conversationId' | 'userId'> & {
+  x?: Pick<client.ClientInputs['listWorkflows'], 'conversationId' | 'userId'> & {
     tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
   }
-) => Promise<
-  Readonly<
-    Omit<client.ClientOutputs['listWorkflows'], 'workflows'> & {
-      workflows: WorkflowWithUtilities<TBot, TWorkflowName>[]
-    }
-  >
->
+) => AsyncCollection<ActionableWorkflow<TBot, TWorkflowName>>
 
-export type WorkflowWithUtilities<
+export type ActionableWorkflow<
   TBot extends commonTypes.BaseBot,
   TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>,
 > = Readonly<
@@ -67,7 +63,7 @@ export type WorkflowWithUtilities<
           >['output']
         }
       >
-    ): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
+    ): Promise<{ workflow: ActionableWorkflow<TBot, TWorkflowName> }>
 
     /**
      * Acknowledges the start of processing for a pending workflow instance.
@@ -81,14 +77,14 @@ export type WorkflowWithUtilities<
      * Should a workflow not be acknowledged **in a timely fashion**, it will be
      * retriggered 3 times before being marked as failed.
      */
-    acknowledgeStartOfProcessing(): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
+    acknowledgeStartOfProcessing(): Promise<{ workflow: ActionableWorkflow<TBot, TWorkflowName> }>
 
     /**
      * Marks the current workflow instance as failed and stops execution
      */
     setFailed(
       x: Required<Pick<client.ClientInputs['updateWorkflow'], 'failureReason'>>
-    ): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
+    ): Promise<{ workflow: ActionableWorkflow<TBot, TWorkflowName> }>
 
     /**
      * Marks the current workflow instance as completed and stops execution
@@ -98,11 +94,11 @@ export type WorkflowWithUtilities<
         TBot['workflows'][TWorkflowName],
         commonTypes.IntegrationInstanceActionDefinition
       >['output']
-    }): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
+    }): Promise<{ workflow: ActionableWorkflow<TBot, TWorkflowName> }>
 
     /**
      * Discards all output data and cancels the current workflow instance
      */
-    cancel(): Promise<{ workflow: WorkflowWithUtilities<TBot, TWorkflowName> }>
+    cancel(): Promise<{ workflow: ActionableWorkflow<TBot, TWorkflowName> }>
   }
 >

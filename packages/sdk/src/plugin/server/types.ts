@@ -261,7 +261,7 @@ export type WorkflowPayloads<TPlugin extends common.BasePlugin> = _WithInjectedP
          * # EXPERIMENTAL
          * This API is experimental and may change in the future.
          */
-        workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
       }
     >
   },
@@ -279,7 +279,7 @@ export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
     props: utils.Merge<
       WorkflowPayloads<TPlugin>[TWorkflowName],
       {
-        workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
       }
     >
   ) => Promise<void>
