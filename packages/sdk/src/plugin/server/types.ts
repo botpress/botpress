@@ -6,6 +6,7 @@ import * as actionProxy from '../action-proxy'
 import * as common from '../common'
 import * as eventProxy from '../event-proxy'
 import * as stateProxy from '../state-proxy'
+import * as userProxy from '../user-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -132,6 +133,7 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
+  users: userProxy.UserFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -173,7 +175,10 @@ export type MessageHandlersWithoutInjectedProps<TPlugin extends common.BasePlugi
 
 export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
   MessageHandlersWithoutInjectedProps<TPlugin>,
-  TPlugin
+  TPlugin,
+  {
+    user: userProxy.ActionableUser<TPlugin, string>
+  }
 >
 
 export type EventPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
