@@ -1,0 +1,44 @@
+import { EventMessage, PostHog } from 'posthog-node'
+import * as bp from '.botpress'
+
+type BotpressEventMessage = Omit<EventMessage, 'event'> & {
+  event: BotpressEvent
+}
+
+type PostHogErrorOptions = {
+  from: string
+}
+
+export const botpressEvents = {
+  UNHANDLED_ERROR: 'unhandled_error',
+  UNHANDLED_MESSAGE: 'unhandled_message',
+  INVALID_MESSAGE_FORMAT: 'invalid_message_format',
+} as const
+type BotpressEvent = (typeof botpressEvents)[keyof typeof botpressEvents]
+
+export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
+  const client = new PostHog(bp.secrets.POSTHOG_KEY, {
+    host: 'https://us.i.posthog.com',
+    flushAt: 1,
+    flushInterval: 0,
+  })
+  try {
+    await client.captureImmediate(props)
+    await client.shutdown()
+    console.info('PostHog event sent')
+  } catch (thrown: any) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
+  }
+}
+
+export const sendPosthogError = async (thrown: unknown, { from }: PostHogErrorOptions): Promise<void> => {
+  const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+  await sendPosthogEvent({
+    distinctId: errMsg,
+    event: botpressEvents.UNHANDLED_ERROR,
+    properties: {
+      from,
+    },
+  })
+}
