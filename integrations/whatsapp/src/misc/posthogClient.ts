@@ -1,4 +1,4 @@
-import integrationDefinition from 'integration.definition'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { EventMessage, PostHog } from 'posthog-node'
 import * as bp from '.botpress'
 
@@ -27,7 +27,7 @@ export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<voi
       ...props,
       properties: {
         ...props.properties,
-        integrationName: integrationDefinition.name,
+        integrationName: INTEGRATION_NAME,
       },
     }
     await client.captureImmediate(signedProps)
@@ -46,7 +46,7 @@ export const sendPosthogError = async (thrown: unknown, { from }: Partial<PostHo
     event: botpressEvents.UNHANDLED_ERROR,
     properties: {
       from,
-      integrationName: integrationDefinition.name,
+      integrationName: INTEGRATION_NAME,
     },
   })
 }
