@@ -1,3 +1,4 @@
+import integrationDefinition from 'integration.definition'
 import { EventMessage, PostHog } from 'posthog-node'
 import * as bp from '.botpress'
 
@@ -7,6 +8,7 @@ type BotpressEventMessage = Omit<EventMessage, 'event'> & {
 
 type PostHogErrorOptions = {
   from: string
+  integrationName: string
 }
 
 export const botpressEvents = {
@@ -19,11 +21,16 @@ type BotpressEvent = (typeof botpressEvents)[keyof typeof botpressEvents]
 export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
   const client = new PostHog(bp.secrets.POSTHOG_KEY, {
     host: 'https://us.i.posthog.com',
-    flushAt: 1,
-    flushInterval: 0,
   })
   try {
-    await client.captureImmediate(props)
+    const signedProps: BotpressEventMessage = {
+      ...props,
+      properties: {
+        ...props.properties,
+        integrationName: integrationDefinition.name,
+      },
+    }
+    await client.captureImmediate(signedProps)
     await client.shutdown()
     console.info('PostHog event sent')
   } catch (thrown: any) {
@@ -32,13 +39,14 @@ export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<voi
   }
 }
 
-export const sendPosthogError = async (thrown: unknown, { from }: PostHogErrorOptions): Promise<void> => {
+export const sendPosthogError = async (thrown: unknown, { from }: Partial<PostHogErrorOptions>): Promise<void> => {
   const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
   await sendPosthogEvent({
     distinctId: errMsg,
     event: botpressEvents.UNHANDLED_ERROR,
     properties: {
       from,
+      integrationName: integrationDefinition.name,
     },
   })
 }
