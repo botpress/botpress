@@ -40,7 +40,8 @@ export default new IntegrationDefinition({
   },
   actions: {
     getTableRecords: {
-      title: 'Get Records of the Table',
+      title: 'Get Table Records',
+      description: 'Get Records of the Table',
       input: {
         schema: getTableRecordsInputSchema,
       },

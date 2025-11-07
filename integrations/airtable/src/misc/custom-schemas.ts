@@ -2,13 +2,16 @@ import { z } from '@botpress/sdk'
 import { tableSchema, recordSchema } from './sub-schemas'
 
 export const getTableRecordsInputSchema = z.object({
-  tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
-  nextToken: z.string().optional().describe('The next page token (Optional)'),
+  tableIdOrName: z
+    .string()
+    .describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)')
+    .title('Table ID or Name'),
+  nextToken: z.string().optional().describe('The next page token (Optional)').title('Next Token'),
 })
 
 export const getTableRecordsOutputSchema = z.object({
-  records: z.array(recordSchema),
-  nextToken: z.string().optional().describe('The next page token (Optional)'),
+  records: z.array(recordSchema).describe('Array of single record with field and cell values').title('Records'),
+  nextToken: z.string().optional().describe('The next page token (Optional)').title('Next Token'),
 })
 
 export const listRecordsInputSchema = z.object({
