@@ -71,6 +71,7 @@ export default new IntegrationDefinition({
     },
     createRecord: {
       title: 'Create Record',
+      description: 'Create a record',
       input: {
         schema: createRecordInputSchema,
       },

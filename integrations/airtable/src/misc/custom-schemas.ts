@@ -67,12 +67,16 @@ export const updateTableInputSchema = z.object({
 export const updateTableOutputSchema = tableSchema.passthrough()
 
 export const createRecordInputSchema = z.object({
-  tableIdOrName: z.string().describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)'),
+  tableIdOrName: z
+    .string()
+    .describe('The ID or Name of the table (e.g. tblFnqcm4zLVKn85A or articles)')
+    .title('Table ID or Name'),
   fields: z
     .string()
     .describe(
       'The fields and their values for the new record, in a JSON format (e.g. {"Name":"John Doe","City":"In the moon","Verify":true})'
-    ),
+    )
+    .title('Fields'),
 })
 
 export const createRecordOutputSchema = recordSchema.passthrough()
