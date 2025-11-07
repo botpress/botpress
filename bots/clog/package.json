@@ -13,6 +13,9 @@
     "@bpinternal/genenv": "0.0.1",
     "cheerio": "^1.1.2"
   },
+  "devDependencies": {
+    "@botpresshub/slack": "workspace:*"
+  },
   "bpDependencies": {
     "slack": "../../integrations/slack"
   }
