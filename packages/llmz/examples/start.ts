@@ -48,7 +48,7 @@ const entryPath = path.join(EXAMPLES_DIR, exampleDir, 'index.ts')
 
 if (!fs.existsSync(entryPath)) {
   console.log(chalk.red(`❌ Entry file not found: ${entryPath}\n`))
-  console.log(`Make sure the example has an index.ts file in the root directory.`)
+  console.log('Make sure the example has an index.ts file in the root directory.')
   process.exit(1)
 }
 

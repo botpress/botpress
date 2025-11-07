@@ -141,7 +141,6 @@ Rewrite the text between the ${START} and ${END} tags to match the user prompt.
 ${instructions.map((x) => `• ${x}`).join('\n')}
 `.trim(),
     messages: [...examples, { type: 'text', content: format(original, prompt), role: 'user' }],
-    maxTokens: options.length,
     stopSequences: [END],
     transform: (text) => {
       if (!text.trim().length) {

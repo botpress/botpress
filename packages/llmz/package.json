@@ -70,7 +70,7 @@
   },
   "peerDependencies": {
     "@botpress/client": "1.27.0",
-    "@botpress/cognitive": "0.1.50",
+    "@botpress/cognitive": "0.2.0",
     "@bpinternal/thicktoken": "^1.0.5",
     "@bpinternal/zui": "1.2.1"
   },

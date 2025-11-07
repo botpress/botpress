@@ -99,11 +99,13 @@ export async function generateContent(
     messages,
   }
 
-  if (modelId === 'claude-sonnet-4-5-20250929' || modelId === 'claude-haiku-4-5-20251001') {
-    if (request.temperature && request.top_p) {
-      // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
-      request.top_p = undefined
-    }
+  if (
+    (modelId === 'claude-sonnet-4-5-20250929' || modelId === 'claude-haiku-4-5-20251001') &&
+    request.temperature &&
+    request.top_p
+  ) {
+    // This model fails when setting both parameters with the error "`temperature` and `top_p` cannot both be specified for this model. Please use only one.", so we remove the top_p parameter if temperature is also set.
+    request.top_p = undefined
   }
 
   const thinkingBudgetTokens = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Claude models use optional reasoning

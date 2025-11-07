@@ -27,10 +27,10 @@ describe('zai.check', { timeout: 60_000 }, () => {
     // no caching
     const request = getZai(getCognitiveClient()).check(
       'This text is very clearly written in English.',
-      'is an english sentence' + Date.now()
+      'is an english sentence'
     )
 
-    setTimeout(() => request.abort('CANCEL'), 50) // Abort after 50ms
+    request.abort('CANCEL')
     await expect(request).rejects.toThrow('CANCEL')
   })
 
@@ -38,10 +38,10 @@ describe('zai.check', { timeout: 60_000 }, () => {
     // no caching
     const controller = new AbortController()
     const request = getZai(getCognitiveClient())
-      .check('This text is very clearly written in English.', 'is an english sentence' + Date.now())
+      .check('This text is very clearly written in English.', 'is an english sentence')
       .bindSignal(controller.signal)
 
-    setTimeout(() => controller.abort('CANCEL2'), 50) // Abort after 50ms
+    controller.abort('CANCEL2')
     await expect(request).rejects.toThrow('CANCEL2')
   })
 
@@ -114,7 +114,7 @@ describe('zai.check', { timeout: 60_000 }, () => {
       },
     ]
 
-    const moveworks = await zai.check('Moveworks', 'competes with us', { examples })
+    const moveworks = await zai.check('Moveworks (AI chatbot)', 'competes with us', { examples })
     const ada = await zai.check('Ada.cx', 'competes with us', { examples })
     const voiceflow = await zai.check('Voiceflow', 'competes with us', { examples })
     const nike = await zai.check('Nike', 'competes with us', { examples })

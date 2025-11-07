@@ -122,7 +122,7 @@ export class ZaiContext {
     let lastError: Error | null = null
     const messages = [...(props.messages || [])]
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= maxRetries && !this.controller.signal.aborted; attempt++) {
       try {
         const response = await this._client.generateContent({
           ...props,
@@ -135,6 +135,10 @@ export class ZaiContext {
             promptSource: props.meta?.promptSource || `zai:${this.taskType}:${this.taskId ?? 'default'}`,
           },
         })
+
+        if (this.controller.signal.aborted) {
+          throw this.controller.signal.reason
+        }
 
         const content = response.output.choices[0]?.content
         const str = typeof content === 'string' ? content : content?.[0]?.text || ''
@@ -153,6 +157,10 @@ export class ZaiContext {
 
         return { meta: response.meta, output: response.output, text: str, extracted: output }
       } catch (error) {
+        if (this.controller.signal.aborted) {
+          throw this.controller.signal.reason
+        }
+
         lastError = error as Error
 
         if (attempt === maxRetries) {
