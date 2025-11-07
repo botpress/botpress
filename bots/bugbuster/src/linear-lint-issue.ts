@@ -30,13 +30,12 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
   })
 
   const hasBlockedRelation = await client.isBlockedByOtherIssues(issue)
-  if (status === 'BLOCKED') {
-    if (!issue.assignee) {
-      lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
-    }
-    if (!hasBlockedLabel && !hasBlockedRelation) {
-      lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
-    }
+
+  if (status === 'BLOCKED' && !issue.assignee) {
+    lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
+  }
+  if (status === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
+    lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
   } else if (status === 'BACKLOG' && issue.assignee) {
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
