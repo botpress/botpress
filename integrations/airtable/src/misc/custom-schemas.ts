@@ -35,13 +35,18 @@ export const listRecordsOutputSchema = z
   .passthrough()
 
 export const createTableInputSchema = z.object({
-  name: z.string().describe('Name of the Table (e.g. MyTable)'),
+  name: z.string().describe('Name of the Table (e.g. MyTable)').title('Name'),
   fields: z
     .string()
     .describe(
       'The Table\'s fields, separated by commas. Each field should be in the format "type_name" (e.g. "phoneNumber_Customer Phone, singleLineText_Address").'
-    ),
-  description: z.string().optional().describe('Description of the Table (e.g. This is my table) (Optional)'),
+    )
+    .title('Fields'),
+  description: z
+    .string()
+    .optional()
+    .describe('Description of the Table (e.g. This is my table) (Optional)')
+    .title('Description'),
 })
 
 export const createTableOutputSchema = tableSchema.passthrough()

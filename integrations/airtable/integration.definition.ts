@@ -51,6 +51,7 @@ export default new IntegrationDefinition({
     },
     createTable: {
       title: 'Create Table',
+      description: 'Creates a new table and returns the schema for the newly created table.',
       input: {
         schema: createTableInputSchema,
       },
