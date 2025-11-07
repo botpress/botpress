@@ -102,7 +102,4 @@ export default new IntegrationDefinition({
   },
   events: {},
   states: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
