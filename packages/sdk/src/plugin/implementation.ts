@@ -15,6 +15,7 @@ import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
 import { proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
+import { proxyMessage, proxyMessages } from './message-proxy'
 import {
   ActionHandlers,
   MessageHandlers,
@@ -40,7 +41,6 @@ import {
 import { proxyStates, StateProxy } from './state-proxy'
 import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
 import { proxyUser, proxyUsers, type UserFinder } from './user-proxy'
-import { proxyMessage, proxyMessages } from './message-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
