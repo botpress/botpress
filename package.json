@@ -2,7 +2,7 @@
   "name": "botpress",
   "private": true,
   "scripts": {
-    "build": "turbo run generate && turbo run build",
+    "build": "turbo run generate --no-cache && turbo run build --no-cache",
     "bump": "depsynky bump --ignore-dev && pnpm -w install",
     "test": "vitest --run",
     "check:bplint": "turbo check:bplint",
