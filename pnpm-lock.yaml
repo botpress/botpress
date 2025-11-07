@@ -138,7 +138,7 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
-  bots/change-lens:
+  bots/clog:
     dependencies:
       '@botpress/client':
         specifier: workspace:*

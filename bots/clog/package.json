@@ -1,5 +1,5 @@
 {
-  "name": "@bp-bots/change-lens",
+  "name": "@bp-bots/clog",
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e SLACK_CLIENT_ID -e SLACK_CLIENT_SECRET -e SLACK_SIGNING_SECRET -e SLACK_REFRESH_TOKEN",
     "check:type": "tsc --noEmit",
