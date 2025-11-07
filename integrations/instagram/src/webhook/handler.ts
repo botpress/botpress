@@ -1,5 +1,5 @@
 import { isSandboxCommand } from '@botpress/common'
-import { Request } from '@botpress/sdk'
+import { IntegrationDefinition, Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
 import {
@@ -9,6 +9,7 @@ import {
   InstagramComment,
   InstagramLegacyComment,
 } from 'src/misc/types'
+import { botpressEvents, sendPosthogError, sendPosthogEvent } from 'src/misc/posthog-client'
 import { safeJsonParse } from 'src/misc/utils'
 import { commentsHandler } from './handlers/comments'
 import { messagingHandler } from './handlers/messages'
@@ -25,7 +26,7 @@ const _canReplyToComments = (ctx: bp.Context) => {
 }
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  const { req, logger } = props
+  const { req, logger, ctx } = props
 
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
@@ -54,7 +55,13 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   // Parse payload once with entry-level union schema
   const payloadResult = instagramPayloadSchema.safeParse(data)
   if (!payloadResult.success) {
-    props.logger.warn('Received invalid Instagram payload:', payloadResult.error.message)
+    const errorMsg = `Received invalid Instagram payload: ${payloadResult.error.message}`
+    props.logger.warn(errorMsg)
+    await sendPosthogEvent({
+      distinctId: ctx.integrationId,
+      event: botpressEvents.INVALID_MESSAGE_FORMAT,
+      properties: { message: errorMsg, from: 'handler', integrationName: IntegrationDefinition.name },
+    })
     return { status: 400, body: 'Invalid payload' }
   }
 
@@ -119,6 +126,10 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     const logMessage = `Instagram handler failed with error: ${errorMessage ?? 'Unknown error thrown'}`
+    await sendPosthogError(props.ctx.integrationId, logMessage, {
+      from: 'handler',
+      integrationName: IntegrationDefinition.name,
+    })
     props.logger.error(logMessage)
     return { status: 500, body: logMessage }
   }

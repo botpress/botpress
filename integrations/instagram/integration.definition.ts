@@ -187,6 +187,9 @@ export default new IntegrationDefinition({
     SANDBOX_INSTAGRAM_ID: {
       description: 'Instagram ID for the Sandbox Instagram profile',
     },
+    POSTHOG_KEY: {
+      description: 'The PostHog key for the Instagram integration',
+    },
   },
   user: {
     tags: {
