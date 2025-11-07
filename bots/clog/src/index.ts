@@ -29,18 +29,19 @@ const _handleApiChange = async (
     },
   })
   await client.setState({
-    id: props.ctx.botId,
     name: 'metaApiVersions',
     type: 'bot',
+    id: props.ctx.botId,
     payload: { graphApiVersion },
   })
 }
 
 bot.on.event('timeToCheckApi', async (props) => {
-  const { state } = await props.client.getState({
+  const { state } = await props.client.getOrSetState({
     name: 'metaApiVersions',
     type: 'bot',
     id: props.ctx.botId,
+    payload: { graphApiVersion: undefined },
   })
   const graphApiVersion = state.payload.graphApiVersion
 

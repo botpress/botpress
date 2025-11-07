@@ -8,7 +8,7 @@ export default new BotDefinition({
     metaApiVersions: {
       type: 'bot',
       schema: sdk.z.object({
-        graphApiVersion: sdk.z.string(),
+        graphApiVersion: sdk.z.string().optional(),
       }),
     },
   },
