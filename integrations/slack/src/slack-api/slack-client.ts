@@ -335,7 +335,6 @@ export class SlackClient {
         allChannels.push(...page.channels)
       }
     }
-    console.log(allChannels.length)
     for (const channel of allChannels) {
       if (channel.name === channelName) {
         return channel
