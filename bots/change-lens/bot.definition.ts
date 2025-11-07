@@ -4,7 +4,14 @@ import * as sdk from '@botpress/sdk'
 import slack from 'bp_modules/slack'
 
 export default new BotDefinition({
-  states: { metaApiVersions: { type: 'bot', schema: sdk.z.object({ graphApiVersion: sdk.z.string() }) } },
+  states: {
+    metaApiVersions: {
+      type: 'bot',
+      schema: sdk.z.object({
+        graphApiVersion: sdk.z.string(),
+      }),
+    },
+  },
   events: {
     timeToCheckApi: {
       schema: sdk.z.object({}),
@@ -13,7 +20,7 @@ export default new BotDefinition({
   recurringEvents: {
     timeToCheckApi: {
       type: 'timeToCheckApi',
-      schedule: { cron: '0 * * * *' },
+      schedule: { cron: '* * * * *' },
       payload: sdk.z.object({}),
     },
   },

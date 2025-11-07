@@ -16,7 +16,7 @@ const _handleApiChange = async (
   const response = await props.client.callAction({
     type: 'slack:startChannelConversation',
     input: {
-      channelName: 'alert-squid',
+      channelName: 'test-faucon',
     },
   })
   await props.client.createMessage({
@@ -37,7 +37,11 @@ const _handleApiChange = async (
 }
 
 bot.on.event('timeToCheckApi', async (props) => {
-  const { state } = await props.client.getState({ name: 'metaApiVersions', type: 'bot', id: props.ctx.botId })
+  const { state } = await props.client.getState({
+    name: 'metaApiVersions',
+    type: 'bot',
+    id: props.ctx.botId,
+  })
   const graphApiVersion = state.payload.graphApiVersion
 
   const response = await axios.get('https://developers.facebook.com/docs/graph-api/changelog/')
