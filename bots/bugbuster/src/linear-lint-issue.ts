@@ -1,4 +1,5 @@
 import * as lin from '@linear/sdk'
+import { isIssueTitleFormatValid } from './issue-title-format-validator'
 import * as utils from './utils'
 
 export type IssueLint = {
@@ -69,7 +70,7 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     lints.push(`Issue ${issue.identifier} is missing both a project and a goal label.`)
   }
 
-  if (issue.title.match(/^\w{0,}\[.{1,}\]/)) {
+  if (!isIssueTitleFormatValid(issue.title)) {
     lints.push(
       `Issue ${issue.identifier} has unconventional commit syntax in the title. Issue title should not attempt to follow a formal syntax.`
     )
