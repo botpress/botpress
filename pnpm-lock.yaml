@@ -2260,7 +2260,7 @@ importers:
         specifier: 1.27.0
         version: link:../client
       '@botpress/sdk':
-        specifier: workspace:*
+        specifier: 1.17.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
