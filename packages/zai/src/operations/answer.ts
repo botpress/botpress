@@ -490,6 +490,7 @@ Question to answer: "${question}"`
       },
     ],
     transform: (text) => {
+      text = text.slice(0, text.lastIndexOf(END.slice(0, -1))) // Remove anything after END
       // Parse and validate response - errors will be caught and retried
       return parseResponse(text || '', mappings)
     },
@@ -500,15 +501,18 @@ Question to answer: "${question}"`
 
 /**
  * Parse LLM response into structured result
+ * @internal - Exported for testing purposes only
  */
-const parseResponse = <T>(response: string, mappings: LineMapping<T>[]): AnswerResult<T> => {
+export const parseResponse = <T>(response: string, mappings: LineMapping<T>[]): AnswerResult<T> => {
   const text = response.trim()
 
+  const answersCount = (text.match(new RegExp(ANSWER_START, 'g')) || []).length
+
   // Check response type
-  if (text.includes(ANSWER_START)) {
-    return parseAnswerResponse(text, mappings)
-  } else if (text.includes(AMBIGUOUS_START)) {
+  if (text.includes(AMBIGUOUS_START) || answersCount >= 2) {
     return parseAmbiguousResponse(text, mappings)
+  } else if (text.includes(ANSWER_START)) {
+    return parseAnswerResponse(text, mappings)
   } else if (text.includes(OUT_OF_TOPIC_START)) {
     return parseOutOfTopicResponse(text)
   } else if (text.includes(INVALID_QUESTION_START)) {
@@ -569,7 +573,7 @@ const parseAmbiguousResponse = <T>(text: string, mappings: LineMapping<T>[]): Am
   // Extract all possible answers (match until next ■answer or end of string)
   const answerPattern = /■answer(.+?)(?=■answer|$)/gs
   const answers: AnswerWithCitations<T>[] = []
-  let match
+  let match: RegExpExecArray | null
 
   while ((match = answerPattern.exec(text)) !== null) {
     const answerText = match[1].trim()
