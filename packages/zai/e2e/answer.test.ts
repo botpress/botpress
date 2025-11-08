@@ -135,8 +135,20 @@ This is the second answer.■002`
       // Create mock line mappings
       const documents = ['Document A: Information about topic A.', 'Document B: Information about topic B.']
       const mappings = [
-        { lineNumber: 1, documentIndex: 0, lineInDocument: 0, text: 'Document A: Information about topic A.', document: documents[0] },
-        { lineNumber: 2, documentIndex: 1, lineInDocument: 0, text: 'Document B: Information about topic B.', document: documents[1] },
+        {
+          lineNumber: 1,
+          documentIndex: 0,
+          lineInDocument: 0,
+          text: 'Document A: Information about topic A.',
+          document: documents[0],
+        },
+        {
+          lineNumber: 2,
+          documentIndex: 1,
+          lineInDocument: 0,
+          text: 'Document B: Information about topic B.',
+          document: documents[1],
+        },
       ]
 
       const result = parseResponse(malformedResponse, mappings)
