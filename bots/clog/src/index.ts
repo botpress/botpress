@@ -39,7 +39,8 @@ const _handleApiChange = async (
 }
 
 // Checks if starts with v, has a number of at least one digit, a dot and a single digit (e.g. v00.0)
-const isVersionRegexp: RegExp = /v\d+.\d/g
+const versionRegexp: RegExp = /v\d+.\d/g
+const isVersionString = (s: string): boolean => versionRegexp.test(s)
 
 bot.on.event('timeToCheckApi', async (props) => {
   const { client, ctx, logger } = props
@@ -55,7 +56,7 @@ bot.on.event('timeToCheckApi', async (props) => {
   const selector = cheerio.load(response.data)
   const newGraphApiVersion = selector('code').first().text()
 
-  if (isVersionRegexp.test(newGraphApiVersion)) {
+  if (isVersionString(newGraphApiVersion)) {
     await _handleApiChange(
       `I failed reading the Meta's API version, I received\n${newGraphApiVersion}`,
       undefined,
