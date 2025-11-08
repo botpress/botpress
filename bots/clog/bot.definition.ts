@@ -1,9 +1,8 @@
-import { BotDefinition } from '@botpress/sdk'
-import * as genenv from './.genenv'
 import * as sdk from '@botpress/sdk'
 import slack from 'bp_modules/slack'
+import * as genenv from './.genenv'
 
-export default new BotDefinition({
+export default new sdk.BotDefinition({
   states: {
     metaApiVersions: {
       type: 'bot',
