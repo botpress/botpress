@@ -76,8 +76,118 @@ export type SimplifiedRatingResult<T extends RatingInstructions> = T extends str
 declare module '@botpress/zai' {
   interface Zai {
     /**
-     * Rates an array of items based on provided instructions.
-     * Returns a number (1-5) if instructions is a string, or a Record<string, number> if instructions is a Record.
+     * Rates array items on a 1-5 scale based on single or multiple criteria.
+     *
+     * This operation evaluates each item and assigns numeric ratings (1-5) where:
+     * - 1 = Very Bad, 2 = Bad, 3 = Average, 4 = Good, 5 = Very Good
+     *
+     * Supports both simple single-criterion rating (string instructions) and
+     * multi-criteria rating (object with criterion → description mapping).
+     *
+     * @param input - Array of items to rate
+     * @param instructions - Single criterion (string) or multiple criteria (object)
+     * @param options - Configuration for chunking and tokens per item
+     * @returns Response with ratings array (simplified to numbers for single criterion)
+     *
+     * @example Single criterion rating
+     * ```typescript
+     * const reviews = [
+     *   "Amazing product! Best purchase ever!",
+     *   "It's okay, nothing special",
+     *   "Terrible quality, broke immediately"
+     * ]
+     *
+     * const ratings = await zai.rate(reviews, 'Rate the sentiment')
+     * // Result: [5, 3, 1] (simplified to numbers)
+     *
+     * // Get full details
+     * const { output } = await zai.rate(reviews, 'Rate the sentiment').result()
+     * // output[0]: { sentiment: 5, total: 5 }
+     * ```
+     *
+     * @example Multi-criteria rating
+     * ```typescript
+     * const essays = [
+     *   "... student essay text ...",
+     *   "... another essay ...",
+     * ]
+     *
+     * const ratings = await zai.rate(essays, {
+     *   grammar: 'Rate the grammar and spelling',
+     *   clarity: 'Rate how clear and well-organized the writing is',
+     *   argumentation: 'Rate the strength of arguments and evidence'
+     * })
+     *
+     * // Result: [
+     * //   { grammar: 4, clarity: 5, argumentation: 3, total: 12 },
+     * //   { grammar: 3, clarity: 4, argumentation: 4, total: 11 }
+     * // ]
+     * ```
+     *
+     * @example Rating customer support conversations
+     * ```typescript
+     * const conversations = [
+     *   { agent: 'John', messages: [...], duration: 300 },
+     *   { agent: 'Jane', messages: [...], duration: 180 }
+     * ]
+     *
+     * const ratings = await zai.rate(conversations, {
+     *   professionalism: 'How professional was the agent?',
+     *   helpfulness: 'How helpful was the agent in solving the issue?',
+     *   efficiency: 'How efficiently was the conversation handled?'
+     * })
+     *
+     * // Calculate average scores
+     * const avgProfessionalism = ratings.reduce((sum, r) => sum + r.professionalism, 0) / ratings.length
+     * ```
+     *
+     * @example Rating code quality
+     * ```typescript
+     * const codeSamples = [
+     *   "function foo() { return x + y }",
+     *   "const calculateTotal = (items) => items.reduce((sum, item) => sum + item.price, 0)",
+     * ]
+     *
+     * const quality = await zai.rate(codeSamples, {
+     *   readability: 'How readable and clear is the code?',
+     *   best_practices: 'Does it follow coding best practices?',
+     *   documentation: 'Is the code well-documented?'
+     * })
+     * ```
+     *
+     * @example Product review rating
+     * ```typescript
+     * const products = [
+     *   { name: 'Laptop', reviews: [...], avgStars: 4.2 },
+     *   { name: 'Mouse', reviews: [...], avgStars: 3.8 }
+     * ]
+     *
+     * const ratings = await zai.rate(
+     *   products,
+     *   'Rate overall product quality based on reviews and rating',
+     *   {
+     *     tokensPerItem: 500, // Allow more tokens for detailed reviews
+     *     maxItemsPerChunk: 20 // Process 20 products per chunk
+     *   }
+     * )
+     * ```
+     *
+     * @example Finding highest-rated items
+     * ```typescript
+     * const ratings = await zai.rate(items, {
+     *   quality: 'Product quality',
+     *   value: 'Value for money',
+     *   design: 'Design and aesthetics'
+     * })
+     *
+     * // Sort by total score
+     * const sorted = items
+     *   .map((item, idx) => ({ item, rating: ratings[idx] }))
+     *   .sort((a, b) => b.rating.total - a.rating.total)
+     *
+     * console.log('Top rated:', sorted[0].item)
+     * console.log('Score breakdown:', sorted[0].rating)
+     * ```
      */
     rate<T, I extends RatingInstructions>(
       input: Array<T>,
