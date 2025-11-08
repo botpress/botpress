@@ -1449,6 +1449,96 @@ export const TIMEOUT = 5000`,
       ◼︎=187|const result180 = transformText('value180', { uppercase: true })"
     `)
   })
+
+  it('handles large file with chunking enabled (single file > maxTokensPerChunk)', async () => {
+    // Create a very large file (2000 lines)
+    const lines: string[] = []
+    for (let i = 0; i < 2000; i++) {
+      if (i % 100 === 0) {
+        lines.push(`  // TODO: section ${i / 100}`)
+      } else {
+        lines.push(`  const variable${i} = ${i}`)
+      }
+    }
+
+    const veryLargeFile: File = {
+      path: 'src/giant.ts',
+      name: 'giant.ts',
+      content: `function giant() {\n${lines.join('\n')}\n}`,
+    }
+
+    const result = await zai
+      .patch([veryLargeFile], 'replace all TODO comments with DONE comments', {
+        maxTokensPerChunk: 5000, // Force chunking
+      })
+      .result()
+
+    expect(result.output).toHaveLength(1)
+    const patched = result.output[0]
+
+    // Verify chunking occurred - multiple LLM calls were made
+    expect(result.usage.requests.requests).toBeGreaterThan(1)
+    console.log(`Chunking test: ${result.usage.requests.requests} LLM calls made`)
+
+    // All TODO should be replaced with DONE
+    expect(patched.content).not.toContain('TODO')
+    expect(patched.content).toContain('DONE')
+
+    // Should still have the function structure
+    expect(patched.content).toContain('function giant()')
+
+    // Count DONE occurrences
+    const doneCount = (patched.content.match(/DONE/g) || []).length
+    expect(doneCount).toBe(20)
+
+    expect(patched.patch).toContain('DONE')
+    expect(patched.patch).not.toBe('')
+  })
+
+  it('handles multiple files with chunking (total files > maxTokensPerChunk)', async () => {
+    // Create 5 moderately sized files
+    const files: File[] = []
+    for (let fileIdx = 0; fileIdx < 5; fileIdx++) {
+      const lines: string[] = []
+      for (let i = 0; i < 300; i++) {
+        if (i % 50 === 0) {
+          lines.push(`  // TODO: feature ${fileIdx}-${i / 50}`)
+        } else {
+          lines.push(`  const var${i} = ${i}`)
+        }
+      }
+
+      files.push({
+        path: `src/file${fileIdx}.ts`,
+        name: `file${fileIdx}.ts`,
+        content: `function file${fileIdx}() {\n${lines.join('\n')}\n}`,
+      })
+    }
+
+    const result = await zai
+      .patch(files, 'replace all TODO comments with COMPLETED comments', {
+        maxTokensPerChunk: 8000, // Force batching
+      })
+      .result()
+
+    expect(result.output).toHaveLength(5)
+
+    // Verify batching occurred - multiple LLM calls were made
+    expect(result.usage.requests.requests).toBeGreaterThan(1)
+    console.log(`Batching test: ${result.usage.requests.requests} LLM calls made`)
+
+    // Check that all files were processed
+    for (let i = 0; i < 5; i++) {
+      const patched = result.output.find((f) => f.name === `file${i}.ts`)
+      expect(patched).toBeDefined()
+      expect(patched?.content).not.toContain('TODO')
+      expect(patched?.content).toContain('COMPLETED')
+
+      // Each file should have 6 COMPLETED comments
+      const completedCount = (patched?.content.match(/COMPLETED/g) || []).length
+      expect(completedCount).toBe(6)
+    }
+  })
 })
 
 describe.sequential('zai.learn.patch', { timeout: 60_000 }, () => {

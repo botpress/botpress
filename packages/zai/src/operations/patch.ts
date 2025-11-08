@@ -1,5 +1,6 @@
 // eslint-disable consistent-type-definitions
 import { z } from '@bpinternal/zui'
+import pLimit from 'p-limit'
 
 import { ZaiContext } from '../context'
 import { Micropatch } from '../micropatch'
@@ -30,12 +31,17 @@ const _File = z.object({
 })
 
 export type Options = {
-  /** Reserved for future options */
-  _unused?: boolean
+  /**
+   * Maximum tokens per chunk when processing large files or many files.
+   * If a single file exceeds this limit, it will be split into chunks.
+   * If all files together exceed this limit, they will be processed in batches.
+   * If not specified, all files must fit in a single prompt.
+   */
+  maxTokensPerChunk?: number
 }
 
 const Options = z.object({
-  _unused: z.boolean().optional(),
+  maxTokensPerChunk: z.number().optional(),
 })
 
 declare module '@botpress/zai' {
@@ -140,6 +146,27 @@ declare module '@botpress/zai' {
   }
 }
 
+/**
+ * Represents a chunk of a file (partial file)
+ */
+type FileChunk = {
+  path: string
+  name: string
+  content: string
+  startLine: number // 1-based line number where this chunk starts in the original file
+  endLine: number // 1-based line number where this chunk ends in the original file
+  totalLines: number // Total lines in the complete file
+  isPartial: boolean // True if this is a chunk of a larger file
+}
+
+/**
+ * Represents a batch of files or file chunks to process together
+ */
+type ProcessingBatch = {
+  items: Array<FileChunk>
+  tokenCount: number
+}
+
 const patch = async (
   files: Array<File>,
   instructions: string,
@@ -152,6 +179,7 @@ const patch = async (
     return []
   }
 
+  const options = Options.parse(_options ?? {}) as Options
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
 
@@ -164,24 +192,108 @@ const patch = async (
 
   const truncatedInstructions = tokenizer.truncate(instructions, TOKENS_INSTRUCTIONS_MAX)
 
-  // Check if all files fit in one prompt
-  const totalInputTokens = files.reduce((sum, file) => sum + tokenizer.count(file.content), 0)
-  if (totalInputTokens > TOKENS_FILES_MAX) {
-    throw new Error(
-      `The total size of all files is ${totalInputTokens} tokens, which exceeds the maximum of ${TOKENS_FILES_MAX} tokens for this model (${model.name})`
-    )
+  // Determine max tokens per chunk
+  const maxTokensPerChunk = options.maxTokensPerChunk ?? TOKENS_FILES_MAX
+
+  // Convert files to file chunks (initially full files)
+  const fileTokenCounts = files.map((file) => ({
+    file,
+    tokens: tokenizer.count(file.content),
+    lines: file.content.split(/\r?\n/).length,
+  }))
+
+  const totalInputTokens = fileTokenCounts.reduce((sum, f) => sum + f.tokens, 0)
+
+  /**
+   * Split a file into chunks by line ranges
+   */
+  const splitFileIntoChunks = (file: File, totalLines: number, fileTokens: number): Array<FileChunk> => {
+    const lines = file.content.split(/\r?\n/)
+    const tokensPerLine = fileTokens / totalLines
+    const linesPerChunk = Math.floor(maxTokensPerChunk / tokensPerLine)
+
+    if (linesPerChunk >= totalLines) {
+      // File fits in one chunk
+      return [
+        {
+          path: file.path,
+          name: file.name,
+          content: file.content,
+          startLine: 1,
+          endLine: totalLines,
+          totalLines,
+          isPartial: false,
+        },
+      ]
+    }
+
+    const chunks: Array<FileChunk> = []
+    for (let start = 0; start < totalLines; start += linesPerChunk) {
+      const end = Math.min(start + linesPerChunk, totalLines)
+      const chunkLines = lines.slice(start, end)
+      const chunkContent = chunkLines.join('\n')
+
+      chunks.push({
+        path: file.path,
+        name: file.name,
+        content: chunkContent,
+        startLine: start + 1,
+        endLine: end,
+        totalLines,
+        isPartial: true,
+      })
+    }
+
+    return chunks
   }
 
   /**
-   * Format files using XML tags with numbered lines
+   * Create batches of file chunks that fit within token limits
    */
-  const formatFilesForInput = (files: Array<File>): string => {
-    return files
-      .map((file) => {
-        const mp = new Micropatch(file.content)
-        const numberedView = mp.renderNumberedView()
+  const createBatches = (chunks: Array<FileChunk>): Array<ProcessingBatch> => {
+    const batches: Array<ProcessingBatch> = []
+    let currentBatch: ProcessingBatch = { items: [], tokenCount: 0 }
 
-        return `<FILE path="${file.path}" name="${file.name}">
+    for (const chunk of chunks) {
+      const chunkTokens = tokenizer.count(chunk.content)
+
+      if (currentBatch.tokenCount + chunkTokens > maxTokensPerChunk && currentBatch.items.length > 0) {
+        batches.push(currentBatch)
+        currentBatch = { items: [], tokenCount: 0 }
+      }
+
+      currentBatch.items.push(chunk)
+      currentBatch.tokenCount += chunkTokens
+    }
+
+    if (currentBatch.items.length > 0) {
+      batches.push(currentBatch)
+    }
+
+    return batches
+  }
+
+  /**
+   * Format file chunks using XML tags with numbered lines
+   */
+  const formatChunksForInput = (chunks: Array<FileChunk>): string => {
+    return chunks
+      .map((chunk) => {
+        const lines = chunk.content.split(/\r?\n/)
+
+        // Render with global line numbers
+        const numberedView = lines
+          .map((line, idx) => {
+            const lineNum = chunk.startLine + idx
+            return `${String(lineNum).padStart(3, '0')}|${line}`
+          })
+          .join('\n')
+
+        const partialNote = chunk.isPartial
+          ? ` (PARTIAL: lines ${chunk.startLine}-${chunk.endLine} of ${chunk.totalLines} total lines)`
+          : ''
+
+        return `<FILE path="${chunk.path}" name="${chunk.name}"${partialNote}>
 ${numberedView}
 </FILE>`
       })
@@ -207,67 +319,166 @@ ${numberedView}
     return patchMap
   }
 
-  // Check for exact match in examples
-  const Key = fastHash(
-    stringify({
-      taskId,
-      taskType,
-      files: files.map((f) => ({ path: f.path, content: f.content })),
-      instructions: truncatedInstructions,
-    })
-  )
+  /**
+   * Process a single batch of file chunks
+   */
+  const processBatch = async (batch: ProcessingBatch): Promise<Map<string, string>> => {
+    const chunksInput = formatChunksForInput(batch.items)
 
-  const tableExamples =
-    taskId && ctx.adapter
-      ? await ctx.adapter.getExamples<Array<File>, Array<File>>({
-          input: files,
-          taskId,
-          taskType,
-        })
-      : []
-
-  const exactMatch = tableExamples.find((x) => x.key === Key)
-  if (exactMatch) {
-    return exactMatch.output as Array<File>
-  }
-
-  // Format all files for input
-  const filesInput = formatFilesForInput(files)
-
-  // Generate patches
-  const { extracted, meta } = await ctx.generateContent({
-    systemPrompt: getMicropatchSystemPrompt(),
-    messages: [
-      {
-        type: 'text',
-        role: 'user',
-        content: `
+    const { extracted } = await ctx.generateContent({
+      systemPrompt: getMicropatchSystemPrompt(),
+      messages: [
+        {
+          type: 'text',
+          role: 'user',
+          content: `
 Instructions: ${truncatedInstructions}
 
-${filesInput}
+${chunksInput}
 
 Generate patches for each file that needs modification:
 `.trim(),
+        },
+      ],
+      stopSequences: [],
+      transform: (text) => {
+        return text.trim()
       },
-    ],
-    stopSequences: [],
-    transform: (text) => {
-      return text.trim()
-    },
-  })
+    })
 
-  // Parse the output to get patches per file
-  const patchMap = parsePatchOutput(extracted)
+    return parsePatchOutput(extracted)
+  }
 
-  // Apply patches to each file
+  // Check if we need chunking
+  const needsChunking =
+    totalInputTokens > maxTokensPerChunk || fileTokenCounts.some((f) => f.tokens > maxTokensPerChunk)
+
+  if (!needsChunking) {
+    // Simple case: all files fit in one prompt (existing logic)
+    // Check for exact match in examples
+    const Key = fastHash(
+      stringify({
+        taskId,
+        taskType,
+        files: files.map((f) => ({ path: f.path, content: f.content })),
+        instructions: truncatedInstructions,
+      })
+    )
+
+    const tableExamples =
+      taskId && ctx.adapter
+        ? await ctx.adapter.getExamples<Array<File>, Array<File>>({
+            input: files,
+            taskId,
+            taskType,
+          })
+        : []
+
+    const exactMatch = tableExamples.find((x) => x.key === Key)
+    if (exactMatch) {
+      return exactMatch.output as Array<File>
+    }
+
+    // Process all files in one batch
+    const allChunks: Array<FileChunk> = fileTokenCounts.map(({ file }) => ({
+      path: file.path,
+      name: file.name,
+      content: file.content,
+      startLine: 1,
+      endLine: file.content.split(/\r?\n/).length,
+      totalLines: file.content.split(/\r?\n/).length,
+      isPartial: false,
+    }))
+
+    const patchMap = await processBatch({ items: allChunks, tokenCount: totalInputTokens })
+
+    // Apply patches to each file
+    const patchedFiles: Array<File> = files.map((file) => {
+      const patchOps = patchMap.get(file.path)
+
+      if (!patchOps || patchOps.trim().length === 0) {
+        return {
+          ...file,
+          patch: '',
+        }
+      }
+
+      try {
+        const patchedContent = Micropatch.applyText(file.content, patchOps)
+        return {
+          ...file,
+          content: patchedContent,
+          patch: patchOps,
+        }
+      } catch (error) {
+        console.error(`Failed to apply patch to ${file.path}:`, error)
+        return {
+          ...file,
+          patch: `ERROR: ${error instanceof Error ? error.message : String(error)}`,
+        }
+      }
+    })
+
+    // Save example for active learning
+    if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
+      await ctx.adapter.saveExample({
+        key: Key,
+        taskType,
+        taskId,
+        input: files,
+        output: patchedFiles,
+        instructions: truncatedInstructions,
+        metadata: {
+          cost: {
+            input: ctx.usage.cost.input,
+            output: ctx.usage.cost.output,
+          },
+          latency: Date.now(),
+          model: ctx.modelId,
+          tokens: {
+            input: ctx.usage.tokens.input,
+            output: ctx.usage.tokens.output,
+          },
+        },
+      })
+    }
+
+    return patchedFiles
+  }
+
+  // Complex case: needs chunking
+  // Step 1: Split files that are too large
+  const allChunks: Array<FileChunk> = []
+  for (const { file, tokens, lines } of fileTokenCounts) {
+    const chunks = splitFileIntoChunks(file, lines, tokens)
+    allChunks.push(...chunks)
+  }
+
+  // Step 2: Create batches that fit within token limits
+  const batches = createBatches(allChunks)
+
+  // Step 3: Process batches in parallel
+  const limit = pLimit(10)
+  const batchResults = await Promise.all(batches.map((batch) => limit(() => processBatch(batch))))
+
+  // Step 4: Merge results - combine patches from all batches per file
+  const mergedPatches = new Map<string, string>()
+  for (const patchMap of batchResults) {
+    for (const [filePath, patchOps] of patchMap.entries()) {
+      const existing = mergedPatches.get(filePath) || ''
+      const combined = existing ? `${existing}\n${patchOps}` : patchOps
+      mergedPatches.set(filePath, combined)
+    }
+  }
+
+  // Step 5: Apply merged patches to original files
   const patchedFiles: Array<File> = files.map((file) => {
-    const patchOps = patchMap.get(file.path)
+    const patchOps = mergedPatches.get(file.path)
 
     if (!patchOps || patchOps.trim().length === 0) {
-      // No patches for this file, return original
       return {
         ...file,
-        patch: '', // No patches applied
+        patch: '',
       }
     }
 
@@ -276,10 +487,9 @@ Generate patches for each file that needs modification:
       return {
         ...file,
         content: patchedContent,
-        patch: patchOps, // Include the patch operations that were applied
+        patch: patchOps,
       }
     } catch (error) {
-      // If patch fails, return original file
       console.error(`Failed to apply patch to ${file.path}:`, error)
       return {
         ...file,
@@ -287,30 +497,6 @@ Generate patches for each file that needs modification:
       }
     }
   })
-
-  // Save example for active learning
-  if (taskId && ctx.adapter && !ctx.controller.signal.aborted) {
-    await ctx.adapter.saveExample({
-      key: Key,
-      taskType,
-      taskId,
-      input: files,
-      output: patchedFiles,
-      instructions: truncatedInstructions,
-      metadata: {
-        cost: {
-          input: meta.cost.input,
-          output: meta.cost.output,
-        },
-        latency: meta.latency,
-        model: ctx.modelId,
-        tokens: {
-          input: meta.tokens.input,
-          output: meta.tokens.output,
-        },
-      },
-    })
-  }
 
   return patchedFiles
 }
