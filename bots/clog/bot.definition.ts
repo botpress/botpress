@@ -8,7 +8,7 @@ export default new BotDefinition({
     metaApiVersions: {
       type: 'bot',
       schema: sdk.z.object({
-        graphApiVersion: sdk.z.string().optional(),
+        currentGraphApiVersion: sdk.z.string().optional(),
       }),
     },
   },
@@ -20,7 +20,7 @@ export default new BotDefinition({
   recurringEvents: {
     timeToCheckApi: {
       type: 'timeToCheckApi',
-      schedule: { cron: '* * * * *' },
+      schedule: { cron: '0 * * * *' },
       payload: sdk.z.object({}),
     },
   },
