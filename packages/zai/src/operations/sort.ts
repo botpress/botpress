@@ -35,17 +35,119 @@ type SortingCriteria = Record<
 declare module '@botpress/zai' {
   interface Zai {
     /**
-     * Sorts an array of items based on provided instructions.
-     * Returns the sorted array directly when awaited.
-     * Use .result() to get detailed scoring information including why each item got its position.
+     * Sorts array items based on natural language sorting criteria.
      *
-     * @example
-     * // Simple usage
-     * const sorted = await zai.sort(items, 'from least expensive to most expensive')
+     * This operation intelligently orders items according to your instructions, understanding
+     * complex sorting logic like priority, quality, chronology, or any custom criteria.
+     * Perfect for ranking, organizing, and prioritizing lists based on subjective or
+     * multi-faceted criteria.
      *
-     * @example
-     * // Get detailed results
-     * const { output: sorted, usage } = await zai.sort(items, 'by priority').result()
+     * @param input - Array of items to sort
+     * @param instructions - Natural language description of how to sort (e.g., "by priority", "newest first")
+     * @param options - Configuration for tokens per item
+     * @returns Response resolving to the sorted array
+     *
+     * @example Sort by price
+     * ```typescript
+     * const products = [
+     *   { name: 'Laptop', price: 999 },
+     *   { name: 'Mouse', price: 29 },
+     *   { name: 'Keyboard', price: 79 }
+     * ]
+     *
+     * const sorted = await zai.sort(products, 'from least expensive to most expensive')
+     * // Result: [Mouse ($29), Keyboard ($79), Laptop ($999)]
+     * ```
+     *
+     * @example Sort by priority/urgency
+     * ```typescript
+     * const tasks = [
+     *   "Update documentation",
+     *   "Fix critical security bug",
+     *   "Add new feature",
+     *   "System is down - all users affected"
+     * ]
+     *
+     * const prioritized = await zai.sort(tasks, 'by urgency and impact, most urgent first')
+     * // Result: ["System is down...", "Fix critical security bug", "Add new feature", "Update documentation"]
+     * ```
+     *
+     * @example Sort by quality/rating
+     * ```typescript
+     * const reviews = [
+     *   "Product is okay",
+     *   "Absolutely amazing! Best purchase ever!",
+     *   "Terrible, broke immediately",
+     *   "Good quality for the price"
+     * ]
+     *
+     * const sorted = await zai.sort(reviews, 'by sentiment, most positive first')
+     * // Result: [amazing review, good review, okay review, terrible review]
+     * ```
+     *
+     * @example Sort by complexity
+     * ```typescript
+     * const problems = [
+     *   "Fix typo in README",
+     *   "Redesign entire authentication system",
+     *   "Update a dependency version",
+     *   "Implement new microservice architecture"
+     * ]
+     *
+     * const sorted = await zai.sort(problems, 'by complexity, simplest first')
+     * ```
+     *
+     * @example Sort by relevance to query
+     * ```typescript
+     * const documents = [
+     *   "Article about cats",
+     *   "Article about dogs and their training",
+     *   "Article about dog breeds",
+     *   "Article about fish"
+     * ]
+     *
+     * const sorted = await zai.sort(
+     *   documents,
+     *   'by relevance to "dog training", most relevant first'
+     * )
+     * // Result: [dogs and training, dog breeds, cats, fish]
+     * ```
+     *
+     * @example Sort candidates by fit
+     * ```typescript
+     * const candidates = [
+     *   { name: 'Alice', experience: 5, skills: ['React', 'Node'] },
+     *   { name: 'Bob', experience: 10, skills: ['Python', 'ML'] },
+     *   { name: 'Charlie', experience: 3, skills: ['React', 'TypeScript'] }
+     * ]
+     *
+     * const sorted = await zai.sort(
+     *   candidates,
+     *   'by fit for a senior React developer position, best fit first'
+     * )
+     * ```
+     *
+     * @example Sort chronologically
+     * ```typescript
+     * const events = [
+     *   "Started the project last month",
+     *   "Will launch next week",
+     *   "Met with client yesterday",
+     *   "Planning meeting tomorrow"
+     * ]
+     *
+     * const chronological = await zai.sort(events, 'in chronological order')
+     * // Understands relative time expressions
+     * ```
+     *
+     * @example With token limit per item
+     * ```typescript
+     * const sorted = await zai.sort(
+     *   longDocuments,
+     *   'by relevance to climate change research',
+     *   { tokensPerItem: 500 } // Allow 500 tokens per document
+     * )
+     * ```
      */
     sort<T>(input: Array<T>, instructions: string, options?: Options): Response<Array<T>, Array<T>>
   }

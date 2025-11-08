@@ -136,11 +136,103 @@ const _Options = z.object({
 declare module '@botpress/zai' {
   interface Zai {
     /**
-     * Answer questions from a list of support documents with citations
-     * @param documents - Array of support documents (can be strings, objects, etc.)
+     * Answers questions from documents with citations and intelligent handling of edge cases.
+     *
+     * This operation provides a production-ready question-answering system that:
+     * - Cites sources with precise line references
+     * - Handles ambiguous questions with multiple interpretations
+     * - Detects out-of-topic or invalid questions
+     * - Identifies missing knowledge
+     * - Automatically chunks and processes large document sets
+     *
+     * @param documents - Array of documents to search (strings, objects, or any type)
      * @param question - The question to answer
-     * @param options - Optional configuration
-     * @returns Response with answer and citations, or other response types (ambiguous, out_of_topic, etc.)
+     * @param options - Configuration for chunking, examples, and instructions
+     * @returns Response with answer + citations, or error states (ambiguous, out_of_topic, invalid, missing_knowledge)
+     *
+     * @example Basic usage with string documents
+     * ```typescript
+     * const documents = [
+     *   'Botpress was founded in 2016.',
+     *   'The company is based in Quebec, Canada.',
+     *   'Botpress provides an AI agent platform.'
+     * ]
+     *
+     * const result = await zai.answer(documents, 'When was Botpress founded?')
+     * if (result.type === 'answer') {
+     *   console.log(result.answer) // "Botpress was founded in 2016."
+     *   console.log(result.citations) // [{ offset: 30, item: documents[0], snippet: '...' }]
+     * }
+     * ```
+     *
+     * @example With object documents
+     * ```typescript
+     * const products = [
+     *   { id: 1, name: 'Pro Plan', price: 99, features: ['AI', 'Analytics'] },
+     *   { id: 2, name: 'Enterprise', price: 499, features: ['AI', 'Support', 'SLA'] }
+     * ]
+     *
+     * const result = await zai.answer(products, 'What features does the Pro Plan include?')
+     * // Returns answer with citations pointing to the product objects
+     * ```
+     *
+     * @example Handling different response types
+     * ```typescript
+     * const result = await zai.answer(documents, question)
+     *
+     * switch (result.type) {
+     *   case 'answer':
+     *     console.log('Answer:', result.answer)
+     *     console.log('Sources:', result.citations)
+     *     break
+     *
+     *   case 'ambiguous':
+     *     console.log('Question is ambiguous:', result.ambiguity)
+     *     console.log('Clarifying question:', result.follow_up)
+     *     console.log('Possible answers:', result.answers)
+     *     break
+     *
+     *   case 'out_of_topic':
+     *     console.log('Question unrelated:', result.reason)
+     *     break
+     *
+     *   case 'invalid_question':
+     *     console.log('Invalid question:', result.reason)
+     *     break
+     *
+     *   case 'missing_knowledge':
+     *     console.log('Insufficient info:', result.reason)
+     *     break
+     * }
+     * ```
+     *
+     * @example With custom instructions
+     * ```typescript
+     * const result = await zai.answer(documents, 'What is the pricing?', {
+     *   instructions: 'Provide detailed pricing breakdown including all tiers',
+     *   chunkLength: 8000 // Process in smaller chunks for accuracy
+     * })
+     * ```
+     *
+     * @example Large document sets (auto-chunking)
+     * ```typescript
+     * // Handles thousands of documents automatically
+     * const manyDocs = await loadDocuments() // 1000+ documents
+     * const result = await zai.answer(manyDocs, 'What is the refund policy?')
+     * // Automatically chunks, processes in parallel, and merges results
+     * ```
+     *
+     * @example Tracking citations
+     * ```typescript
+     * const result = await zai.answer(documents, question)
+     * if (result.type === 'answer') {
+     *   result.citations.forEach(citation => {
+     *     console.log(`At position ${citation.offset}:`)
+     *     console.log(`  Cited: "${citation.snippet}"`)
+     *     console.log(`  From document:`, citation.item)
+     *   })
+     * }
+     * ```
      */
     answer<T>(documents: T[], question: string, options?: Options<T>): Response<AnswerResult<T>, AnswerResult<T>>
   }
