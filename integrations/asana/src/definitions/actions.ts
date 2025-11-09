@@ -9,7 +9,7 @@ import {
   addCommentToTaskInputSchema,
   addCommentToTaskOutputSchema,
 } from '../misc/custom-schemas'
-import { createTaskUi, updateTaskUi, findUserUi, addCommentToTaskUi } from '../misc/custom-uis'
+import { createTaskUi, findUserUi, addCommentToTaskUi } from '../misc/custom-uis'
 
 type SdkActions = NonNullable<sdk.IntegrationDefinitionProps['actions']>
 type SdkAction = SdkActions[string]
@@ -31,7 +31,6 @@ const updateTask = {
   description: 'Update Task by taskId',
   input: {
     schema: updateTaskInputSchema,
-    ui: updateTaskUi,
   },
   output: {
     schema: updateTaskOutputSchema,

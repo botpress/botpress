@@ -2,16 +2,23 @@ import { z } from '@botpress/sdk'
 import { photoSchema, workspaceSchema } from './sub-schemas'
 
 export const createTaskInputSchema = z.object({
-  name: z.string().describe('The name of the task (e.g. "My Test Task")'),
+  name: z
+    .string()
+    .describe('The name of the task (e.g. "My Test Task")')
+    .title('The name of the task (e.g. "My Test Task")'),
   notes: z
     .string()
     .optional()
-    .describe('The description of the task (Optional) (e.g. "This is my other task created using the Asana API")'),
+    .describe('The description of the task (Optional) (e.g. "This is my other task created using the Asana API")')
+    .title('The description of the task (Optional) (e.g. "This is my other task created using the Asana API")'),
   assignee: z
     .string()
     .optional()
     .default('me')
     .describe(
+      'The ID of the user who will be assigned to the task or "me" to assign to the current user (Optional) (e.g. "1215207682932839") (Default: "me")'
+    )
+    .title(
       'The ID of the user who will be assigned to the task or "me" to assign to the current user (Optional) (e.g. "1215207682932839") (Default: "me")'
     ),
   projects: z
@@ -19,19 +26,30 @@ export const createTaskInputSchema = z.object({
     .optional()
     .describe(
       'The project IDs should be strings separated by commas (Optional) (e.g. "1205199808673678, 1215207282932839").'
+    )
+    .title(
+      'The project IDs should be strings separated by commas (Optional) (e.g. "1205199808673678, 1215207282932839").'
     ),
-  parent: z.string().optional().describe('The ID of the parent task (Optional) (e.g. "1205206556256028")'),
+  parent: z
+    .string()
+    .optional()
+    .describe('The ID of the parent task (Optional) (e.g. "1205206556256028")')
+    .title('The ID of the parent task (Optional) (e.g. "1205206556256028")'),
   start_on: z
     .string()
     .optional()
-    .describe('The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")'),
+    .describe('The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")')
+    .title('The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")'),
   due_on: z
     .string()
     .optional()
-    .describe('The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")'),
+    .describe('The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")')
+    .title('The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")'),
 })
 
-export const taskOutputSchema = z.object({ permalink_url: z.string() })
+export const taskOutputSchema = z.object({
+  permalink_url: z.string().describe('The permalink url').title('Permaling Url'),
+})
 export const createTaskOutputSchema = taskOutputSchema
 
 export const updateTaskInputSchema = createTaskInputSchema
@@ -40,18 +58,28 @@ export const updateTaskInputSchema = createTaskInputSchema
     parent: true,
   })
   .extend({
-    taskId: z.string().describe('Task ID to update'),
-    name: z.string().optional().describe('The name of the task (Optional) (e.g. "My Test Task")'),
+    taskId: z.string().describe('Task ID to update').title('Task ID to update'),
+    name: z
+      .string()
+      .optional()
+      .describe('The name of the task (Optional) (e.g. "My Test Task")')
+      .title('The name of the task (Optional) (e.g. "My Test Task")'),
     assignee: z
       .string()
       .optional()
       .describe(
+        'The ID of the user who will be assigned to the task or "me" to assign to the current user (Optional) (e.g. "1215207682932839")'
+      )
+      .title(
         'The ID of the user who will be assigned to the task or "me" to assign to the current user (Optional) (e.g. "1215207682932839")'
       ),
     completed: z
       .string()
       .optional()
       .describe(
+        'If the task is completed, enter "true" (without quotes), otherwise it will keep its previous status. (Optional)'
+      )
+      .title(
         'If the task is completed, enter "true" (without quotes), otherwise it will keep its previous status. (Optional)'
       ),
   })
