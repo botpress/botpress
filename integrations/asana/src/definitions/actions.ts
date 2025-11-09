@@ -42,7 +42,6 @@ const findUser = {
   description: 'Find User by userId',
   input: {
     schema: findUserInputSchema,
-    ui: findUserUi,
   },
   output: {
     schema: findUserOutputSchema,

@@ -86,17 +86,20 @@ export const updateTaskInputSchema = createTaskInputSchema
 export const updateTaskOutputSchema = taskOutputSchema
 
 export const findUserInputSchema = z.object({
-  userEmail: z.string().describe('User Email (e.g. "mrsomebody@example.com")'),
+  userEmail: z
+    .string()
+    .describe('User Email (e.g. "mrsomebody@example.com")')
+    .title('User Email (e.g. "mrsomebody@example.com")'),
 })
 
 export const findUserOutputSchema = z
   .object({
-    gid: z.string(),
-    name: z.string(),
-    email: z.string(),
-    photo: photoSchema,
-    resource_type: z.string(),
-    workspaces: z.array(workspaceSchema),
+    gid: z.string().describe('The GID of the User').title('GID'),
+    name: z.string().describe('The name of the user').title('Name'),
+    email: z.string().describe('The email of the user').title('Email'),
+    photo: photoSchema.describe('The photo of the user').title('Photo'),
+    resource_type: z.string().describe('The resource type of the user').title('Resource Type'),
+    workspaces: z.array(workspaceSchema).describe('List of the workspaces').title('workspaces'),
   })
   .partial()
 
