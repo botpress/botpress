@@ -20,7 +20,7 @@ const integration = new bp.Integration({
             ...props,
             payload: {
               type: 'text',
-              text: parseMarkdown(props.payload.text),
+              text: tryParseMarkdown(props.payload.text, props.logger.forBot()),
             },
           })
         },
@@ -411,4 +411,13 @@ function renderChoice(payload: Choice) {
     })
   })
   return choice
+}
+
+const tryParseMarkdown = (text: string, logger: bp.Logger) => {
+  try {
+    return parseMarkdown(text)
+  } catch {
+    logger.error('Failed to parse the markdown. The message will be sent as text without parsing markdown.')
+    return text
+  }
 }
