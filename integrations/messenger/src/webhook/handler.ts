@@ -68,8 +68,8 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     }
     return response
   } catch (thrown: unknown) {
-    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    const errorMessage = `Messenger handler failed with error: ${errorMsg}`
+    const error = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Messenger handler failed with error: ${error}`
     props.logger.error(errorMessage)
     await sendPosthogError(props.ctx.integrationId, errorMessage, {
       from: `${INTEGRATION_NAME}:handler`,
