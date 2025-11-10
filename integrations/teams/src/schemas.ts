@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { channelAccountSchema } from '../definitions/states'
+import { channelAccountSchema } from 'definitions/states'
 
 export const teamsActivitySchema = z
   .object({
