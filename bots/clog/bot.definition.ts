@@ -37,7 +37,7 @@ export default new sdk.BotDefinition({
     botToken: genenv.SLACK_REFRESH_TOKEN,
     refreshToken: genenv.SLACK_REFRESH_TOKEN,
     typingIndicatorEmoji: false,
-    botName: 'Change Lens',
+    botName: 'Clog',
     botAvatarUrl: 'https://files.bpcontent.cloud/2025/06/16/20/20250616204038-BRUW6C2R.svg',
     createReplyThread: {
       enabled: false,
