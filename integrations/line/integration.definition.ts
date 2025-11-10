@@ -49,7 +49,6 @@ export default new IntegrationDefinition({
             description: 'Line user ID of the bot',
           },
         },
-        creation: { enabled: true, requiredTags: ['usrId', 'destId'] },
       },
     },
   },
@@ -84,7 +83,6 @@ export default new IntegrationDefinition({
         description: 'Line user ID',
       },
     },
-    creation: { enabled: true, requiredTags: ['usrId'] },
   },
   entities: {
     user: {

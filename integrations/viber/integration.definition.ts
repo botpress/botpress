@@ -29,7 +29,6 @@ export default new IntegrationDefinition({
         tags: {
           id: { title: 'User ID', description: 'Viber user ID taking part in the conversation' },
         },
-        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -40,6 +39,5 @@ export default new IntegrationDefinition({
     tags: {
       id: { title: 'User ID', description: 'Viber user ID' },
     },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
 })
