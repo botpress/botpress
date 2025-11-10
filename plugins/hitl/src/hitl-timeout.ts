@@ -1,7 +1,7 @@
-const HOUR_MILLISECONDS = 60 * 60 * 1000
+const MINUTE_MILLISECONDS = 60 * 1000
 
-export function getTimeoutMs(timeoutHours: number) {
-  return HOUR_MILLISECONDS * timeoutHours
+export function getTimeoutMs(timeoutMinutes: number) {
+  return MINUTE_MILLISECONDS * timeoutMinutes
 }
 
 export function isTimedOut(createdAt: string, timeoutHours: number) {

@@ -105,7 +105,7 @@ export class ConversationManager {
       id: this._convId,
       name: `${this._props.alias}#hitl`,
       payload: state,
-      expiry: getTimeoutMs(this._props.configuration.hitlSessionTimeoutHours),
+      expiry: getTimeoutMs(this._props.configuration.hitlSessionTimeoutMinutes),
     })
     // return await this._props.states.conversation.hitl.set(this._convId, state)
   }

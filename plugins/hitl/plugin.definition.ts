@@ -14,7 +14,7 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
   'You have ended the session with the human agent. I will continue assisting you.'
 export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
   'No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.'
-export const DEFAULT_HITL_SESSION_TIMEOUT = 1
+export const DEFAULT_HITL_SESSION_TIMEOUT = 60
 
 const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
   onHitlHandoffMessage: sdk.z
@@ -90,15 +90,15 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .default(true)
     .title('Continue Flow on Session End?')
     .describe('Enable this to continue the flow when the HITL session ends. Otherwise, the flow waits for user input.'),
-  hitlSessionTimeoutHours: sdk.z
+  hitlSessionTimeoutMinutes: sdk.z
     .number()
     .default(DEFAULT_HITL_SESSION_TIMEOUT)
     .title('HITL session timeout')
-    .describe('Time in hours before an HITL session times out.'),
+    .describe('Time in minutes before an HITL session times out.'),
 })
 
 export default new sdk.PluginDefinition({
-  name: 'nathaniel/hitl',
+  name: 'hitl',
   version: '1.1.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
