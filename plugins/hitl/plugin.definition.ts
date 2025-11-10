@@ -92,13 +92,13 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .describe('Enable this to continue the flow when the HITL session ends. Otherwise, the flow waits for user input.'),
   hitlSessionTimeoutHours: sdk.z
     .number()
-    .placeholder(DEFAULT_TIMEOUT_TIME)
+    .placeholder(DEFAULT_TIMEOUT_TIME.toString())
     .title('HITL session timeout')
     .describe('Time in hours before an HITL session times out.'),
 })
 
 export default new sdk.PluginDefinition({
-  name: 'hitl',
+  name: 'nathaniel/hitl',
   version: '1.1.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
