@@ -1908,7 +1908,7 @@ importers:
         version: 15.0.1
       posthog-node:
         specifier: ^5.10.4
-        version: 5.10.4
+        version: 5.11.1
       preact:
         specifier: ^10.26.6
         version: 10.26.6
