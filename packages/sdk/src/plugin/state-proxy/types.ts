@@ -18,8 +18,8 @@ type _GetStatePayload<
 
 export type StateRepo<TPayload> = {
   get: (id: string) => Promise<TPayload>
-  set: (id: string, payload: TPayload) => Promise<void>
-  getOrSet: (id: string, payload: TPayload) => Promise<TPayload>
+  set: (id: string, payload: TPayload, options?: { expiryMs: number }) => Promise<void>
+  getOrSet: (id: string, payload: TPayload, options?: { expiryMs: number }) => Promise<TPayload>
   delete: (id: string) => Promise<void>
   patch: (id: string, payload: Partial<TPayload>) => Promise<void>
 }
