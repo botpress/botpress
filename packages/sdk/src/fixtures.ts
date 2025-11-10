@@ -259,6 +259,7 @@ export type EmptyBot = DefaultBot<{
 
 export type EmptyPlugin = DefaultPlugin<{
   integrations: {}
+  interfaces: {}
   actions: {}
   events: {}
 }>
