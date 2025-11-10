@@ -104,10 +104,10 @@ export const findUserOutputSchema = z
   .partial()
 
 export const addCommentToTaskInputSchema = z.object({
-  taskId: z.string().describe('Task ID to comment'),
-  comment: z.string().describe('Content of the comment to be added'),
+  taskId: z.string().describe('Task ID to comment').title('Task ID to comment'),
+  comment: z.string().describe('Content of the comment to be added').title('Content of the comment to be added'),
 })
 
 export const addCommentToTaskOutputSchema = z.object({
-  text: z.string(),
+  text: z.string().describe('The text of the comment').title('Text'),
 })
