@@ -6,8 +6,6 @@ export default new sdk.BotDefinition({
   states: {
     metaApiVersions: {
       type: 'bot',
-      title: 'Meta API Version',
-      describe: "The Meta's API Versions",
       schema: sdk.z.object({
         currentGraphApiVersion: sdk.z
           .string()
