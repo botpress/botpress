@@ -59,7 +59,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
     props.logger.warn(errorMsg)
     await sendPosthogError(ctx.integrationId, errorMsg, {
       from: `${ctx.integrationAlias}:handler`,
-      integrationName: ctx.integrationAlias,
       errorType: botpressEvents.INVALID_MESSAGE_FORMAT,
     })
     return { status: 400, body: 'Invalid payload' }
@@ -125,11 +124,10 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     }
     return response
   } catch (thrown: unknown) {
-    const error = thrown instanceof Error ? thrown.message : String(thrown)
-    const errorMessage = `Instagram handler failed with error: ${error ?? 'Unknown error thrown'}`
+    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Instagram handler failed with error: ${errorMsg}`
     await sendPosthogError(props.ctx.integrationId, errorMessage, {
       from: `${props.ctx.integrationAlias}:handler`,
-      integrationName: props.ctx.integrationAlias,
     })
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }

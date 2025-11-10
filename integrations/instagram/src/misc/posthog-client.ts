@@ -1,3 +1,4 @@
+import { INTEGRATION_NAME } from 'integration.definition'
 import { EventMessage, PostHog } from 'posthog-node'
 import * as bp from '.botpress'
 
@@ -7,7 +8,6 @@ type BotpressEventMessage = Omit<EventMessage, 'event'> & {
 
 type PostHogErrorOptions = {
   from: string
-  integrationName: string
   errorType?: BotpressEvent
 }
 
@@ -35,14 +35,14 @@ const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
 export const sendPosthogError = async (
   distinctId: string,
   errorMessage: string,
-  { from, integrationName, errorType }: PostHogErrorOptions
+  { from, errorType = botpressEvents.UNHANDLED_ERROR }: PostHogErrorOptions
 ): Promise<void> => {
   await sendPosthogEvent({
     distinctId,
-    event: errorType ?? botpressEvents.UNHANDLED_ERROR,
+    event: errorType,
     properties: {
       from,
-      integrationName,
+      integrationName: INTEGRATION_NAME,
       message: errorMessage,
     },
   })
