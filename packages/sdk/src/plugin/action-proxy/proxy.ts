@@ -1,8 +1,8 @@
 import { Client } from '@botpress/client'
 import { BotSpecificClient, EnumerateActions } from '../../bot'
+import type * as typeUtils from '../../utils/type-utils'
 import { BasePlugin, PluginRuntimeProps } from '../common'
 import { ActionProxy } from './types'
-import type * as typeUtils from '../../utils/type-utils'
 
 export const proxyActions = <TPlugin extends BasePlugin>(
   client: BotSpecificClient<TPlugin> | Client,
