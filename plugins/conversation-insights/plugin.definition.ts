@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.4.1',
+  version: '0.4.3',
   configuration: {
     schema: z.object({
       aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
