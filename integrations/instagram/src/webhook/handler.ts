@@ -2,7 +2,7 @@ import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
-import { botpressEvents, sendPosthogError } from 'src/misc/posthog-client'
+import { sendPosthogError } from 'src/misc/posthog-client'
 import {
   instagramPayloadSchema,
   InstagramLegacyCommentEntry,
@@ -17,6 +17,7 @@ import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
+import { INTEGRATION_NAME } from 'integration.definition'
 
 const _canReplyToComments = (ctx: bp.Context) => {
   if (ctx.configurationType === 'sandbox') {
@@ -26,7 +27,7 @@ const _canReplyToComments = (ctx: bp.Context) => {
 }
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  const { req, logger, ctx } = props
+  const { req, logger } = props
 
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
@@ -49,7 +50,8 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
   const { data, success } = safeJsonParse(req.body)
   if (!success) {
-    return { status: 400, body: 'Invalid payload body' }
+    const errorMsg = `Unable to parse request payload as JSON`
+    return { status: 400, body: errorMsg }
   }
 
   // Parse payload once with entry-level union schema
@@ -57,10 +59,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (!payloadResult.success) {
     const errorMsg = `Received invalid Instagram payload: ${payloadResult.error.message}`
     props.logger.warn(errorMsg)
-    await sendPosthogError(ctx.integrationId, errorMsg, {
-      from: `${ctx.integrationAlias}:handler`,
-      errorType: botpressEvents.INVALID_MESSAGE_FORMAT,
-    })
     return { status: 400, body: 'Invalid payload' }
   }
 
@@ -121,13 +119,18 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     if (response && response.status !== 200) {
       const errorMessage = `Instagram handler failed with status ${response.status}: ${response.body}`
       props.logger.error(errorMessage)
+      await sendPosthogError(props.ctx.integrationId, errorMessage, {
+        from: `${INTEGRATION_NAME}:handler`,
+        integrationName: INTEGRATION_NAME,
+      })
     }
     return response
   } catch (thrown: unknown) {
     const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
     const errorMessage = `Instagram handler failed with error: ${errorMsg}`
     await sendPosthogError(props.ctx.integrationId, errorMessage, {
-      from: `${props.ctx.integrationAlias}:handler`,
+      from: `${INTEGRATION_NAME}:handler`,
+      integrationName: INTEGRATION_NAME,
     })
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
