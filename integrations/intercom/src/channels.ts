@@ -30,15 +30,6 @@ export const channels: bp.IntegrationProps['channels'] = {
           attachmentUrls: [payload.imageUrl],
         })
       },
-      markdown: async ({ client, ctx, conversation, ack, payload }) => {
-        await sendMessage({
-          body: payload.markdown,
-          conversation,
-          client,
-          ctx,
-          ack,
-        })
-      },
       audio: async ({ client, ctx, conversation, ack, payload }) => {
         await sendMessage({
           body: '',
