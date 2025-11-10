@@ -14,7 +14,8 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.2",
-    "messaging-api-messenger": "^1.1.0"
+    "messaging-api-messenger": "^1.1.0",
+    "posthog-node": "^5.11.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

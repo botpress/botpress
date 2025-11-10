@@ -24,7 +24,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '4.1.0',
+  version: '4.1.1',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
@@ -157,6 +157,9 @@ export default new IntegrationDefinition({
     },
     SANDBOX_SHOULD_GET_USER_PROFILE: {
       description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
+    },
+    POSTHOG_KEY: {
+      description: 'The PostHog API key',
     },
   },
   user: {

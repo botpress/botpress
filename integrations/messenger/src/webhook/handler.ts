@@ -4,6 +4,7 @@ import { messengerPayloadSchema } from '../misc/types'
 import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
 import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
+import { botpressEvents, sendPosthogError } from 'src/misc/posthog-client'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
@@ -39,8 +40,14 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 
   const parseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
   if (!parseResult.success) {
-    logger.forBot().warn('Error while parsing body as Messenger payload:', parseResult.error.message)
-    return
+    const errorMessage = `Error while parsing body as Messenger payload: ${parseResult.error.message}`
+    logger.forBot().warn(errorMessage)
+    await sendPosthogError(props.ctx.integrationId, errorMessage, {
+      from: `${props.ctx.integrationAlias}:handler`,
+      integrationName: props.ctx.integrationAlias,
+      errorType: botpressEvents.INVALID_MESSAGE_FORMAT,
+    })
+    return { status: 400, body: errorMessage }
   }
   const data = parseResult.data
 
@@ -59,8 +66,16 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
       props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
     }
     return response
-  } catch (error) {
-    return { status: 500, body: getErrorFromUnknown(error).message }
+  } catch (thrown: unknown) {
+    const error = getErrorFromUnknown(thrown)
+    const errorMessage = `Messenger handler failed with error: ${error.message ?? 'Unknown error thrown'}`
+    props.logger.error(errorMessage)
+    await sendPosthogError(props.ctx.integrationId, errorMessage, {
+      from: `${props.ctx.integrationAlias}:handler`,
+      integrationName: props.ctx.integrationAlias,
+      errorType: botpressEvents.UNHANDLED_ERROR,
+    })
+    return { status: 500, body: errorMessage }
   }
 }
 
