@@ -72,7 +72,7 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
   }
 }
 
-export async function listAllTeams(client: bp.Client, botId: string, linear: LinearApi): Promise<Result> {
+export async function listAllTeams(linear: LinearApi): Promise<Result> {
   return {
     success: true,
     message: linear.listAllTeams().join(', '),

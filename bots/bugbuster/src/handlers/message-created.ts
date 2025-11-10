@@ -57,7 +57,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         return
       }
       linear = await utils.linear.LinearApi.create()
-      result = await listAllTeams(client, ctx.botId, linear)
+      result = await listAllTeams(linear)
       await botpress.respondText(conversation.id, result.message)
       break
     case '/list-watched-teams':
