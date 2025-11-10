@@ -77,9 +77,6 @@ export {
   InjectedPluginHandlers as PluginHandlers,
 } from './plugin'
 
-/*
- * Version utils are only intended to be used with plugins. This package contains utilities to pin a specific version range.
- */
 export * as version from './version-utils'
 
 export {
