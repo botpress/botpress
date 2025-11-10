@@ -5,12 +5,12 @@ export const teamsActivitySchema = z
   .object({
     id: z.string().trim().min(1),
     type: z.string(),
-    from: channelAccountSchema.passthrough(),
+    from: channelAccountSchema.passthrough().partial().optional(),
     conversation: z
       .object({
         id: z.string().trim().min(1),
       })
       .passthrough(),
-    text: z.string(),
+    text: z.string().optional(),
   })
   .passthrough()
