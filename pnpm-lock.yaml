@@ -1342,6 +1342,9 @@ importers:
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
+      posthog-node:
+        specifier: ^5.11.2
+        version: 5.11.2
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
