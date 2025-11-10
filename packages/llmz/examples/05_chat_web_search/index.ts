@@ -21,8 +21,8 @@ import { Client } from '@botpress/client'
 import { execute } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
-import { browsePages, webSearch } from '../utils/tools/browser'
 import { lightToolTrace } from '../utils/debug'
+import { browsePages, webSearch } from '../utils/tools/browser'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({

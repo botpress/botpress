@@ -35,17 +35,119 @@ type SortingCriteria = Record<
 declare module '@botpress/zai' {
   interface Zai {
     /**
-     * Sorts an array of items based on provided instructions.
-     * Returns the sorted array directly when awaited.
-     * Use .result() to get detailed scoring information including why each item got its position.
+     * Sorts array items based on natural language sorting criteria.
      *
-     * @example
-     * // Simple usage
-     * const sorted = await zai.sort(items, 'from least expensive to most expensive')
+     * This operation intelligently orders items according to your instructions, understanding
+     * complex sorting logic like priority, quality, chronology, or any custom criteria.
+     * Perfect for ranking, organizing, and prioritizing lists based on subjective or
+     * multi-faceted criteria.
      *
-     * @example
-     * // Get detailed results
-     * const { output: sorted, usage } = await zai.sort(items, 'by priority').result()
+     * @param input - Array of items to sort
+     * @param instructions - Natural language description of how to sort (e.g., "by priority", "newest first")
+     * @param options - Configuration for tokens per item
+     * @returns Response resolving to the sorted array
+     *
+     * @example Sort by price
+     * ```typescript
+     * const products = [
+     *   { name: 'Laptop', price: 999 },
+     *   { name: 'Mouse', price: 29 },
+     *   { name: 'Keyboard', price: 79 }
+     * ]
+     *
+     * const sorted = await zai.sort(products, 'from least expensive to most expensive')
+     * // Result: [Mouse ($29), Keyboard ($79), Laptop ($999)]
+     * ```
+     *
+     * @example Sort by priority/urgency
+     * ```typescript
+     * const tasks = [
+     *   "Update documentation",
+     *   "Fix critical security bug",
+     *   "Add new feature",
+     *   "System is down - all users affected"
+     * ]
+     *
+     * const prioritized = await zai.sort(tasks, 'by urgency and impact, most urgent first')
+     * // Result: ["System is down...", "Fix critical security bug", "Add new feature", "Update documentation"]
+     * ```
+     *
+     * @example Sort by quality/rating
+     * ```typescript
+     * const reviews = [
+     *   "Product is okay",
+     *   "Absolutely amazing! Best purchase ever!",
+     *   "Terrible, broke immediately",
+     *   "Good quality for the price"
+     * ]
+     *
+     * const sorted = await zai.sort(reviews, 'by sentiment, most positive first')
+     * // Result: [amazing review, good review, okay review, terrible review]
+     * ```
+     *
+     * @example Sort by complexity
+     * ```typescript
+     * const problems = [
+     *   "Fix typo in README",
+     *   "Redesign entire authentication system",
+     *   "Update a dependency version",
+     *   "Implement new microservice architecture"
+     * ]
+     *
+     * const sorted = await zai.sort(problems, 'by complexity, simplest first')
+     * ```
+     *
+     * @example Sort by relevance to query
+     * ```typescript
+     * const documents = [
+     *   "Article about cats",
+     *   "Article about dogs and their training",
+     *   "Article about dog breeds",
+     *   "Article about fish"
+     * ]
+     *
+     * const sorted = await zai.sort(
+     *   documents,
+     *   'by relevance to "dog training", most relevant first'
+     * )
+     * // Result: [dogs and training, dog breeds, cats, fish]
+     * ```
+     *
+     * @example Sort candidates by fit
+     * ```typescript
+     * const candidates = [
+     *   { name: 'Alice', experience: 5, skills: ['React', 'Node'] },
+     *   { name: 'Bob', experience: 10, skills: ['Python', 'ML'] },
+     *   { name: 'Charlie', experience: 3, skills: ['React', 'TypeScript'] }
+     * ]
+     *
+     * const sorted = await zai.sort(
+     *   candidates,
+     *   'by fit for a senior React developer position, best fit first'
+     * )
+     * ```
+     *
+     * @example Sort chronologically
+     * ```typescript
+     * const events = [
+     *   "Started the project last month",
+     *   "Will launch next week",
+     *   "Met with client yesterday",
+     *   "Planning meeting tomorrow"
+     * ]
+     *
+     * const chronological = await zai.sort(events, 'in chronological order')
+     * // Understands relative time expressions
+     * ```
+     *
+     * @example With token limit per item
+     * ```typescript
+     * const sorted = await zai.sort(
+     *   longDocuments,
+     *   'by relevance to climate change research',
+     *   { tokensPerItem: 500 } // Allow 500 tokens per document
+     * )
+     * ```
      */
     sort<T>(input: Array<T>, instructions: string, options?: Options): Response<Array<T>, Array<T>>
   }
@@ -83,6 +185,47 @@ const sort = async <T>(
   const sampleSize = Math.min(5, input.length)
   const sampleItems = input.slice(0, sampleSize)
   const sampleItemsText = sampleItems.map((item, idx) => `■${idx}: ${stringify(item, false)}`).join('\n')
+
+  // Get examples from adapter for criteria generation
+  const criteriaInputStr = JSON.stringify({ instructions, sampleItems })
+  const criteriaExamples =
+    taskId && ctx.adapter
+      ? await ctx.adapter.getExamples<string, Array<T>>({
+          input: criteriaInputStr.slice(0, 1000),
+          taskType,
+          taskId,
+        })
+      : []
+
+  // Format examples for few-shot learning in criteria generation
+  const criteriaExampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+
+  for (const example of criteriaExamples.slice(0, 2)) {
+    try {
+      const exampleInput = JSON.parse(example.input)
+      const exampleItems = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
+
+      criteriaExampleMessages.push({
+        type: 'text',
+        role: 'user',
+        content: `Expert Example - Analyze sorting instruction: "${instructions}"\n\nSample items:\n${exampleItems
+          .slice(0, 3)
+          .map((el, i) => `■${i}: ${stringify(el, false).slice(0, 200)}`)
+          .join('\n')}\n\nGenerate sorting criteria.`,
+      })
+
+      // Try to infer criteria from the example if available
+      if (example.explanation) {
+        criteriaExampleMessages.push({
+          type: 'text',
+          role: 'assistant',
+          content: `${example.explanation}\n${END}`,
+        })
+      }
+    } catch {
+      // Skip malformed examples
+    }
+  }
 
   const generateCriteriaPrompt = `Analyze this sorting instruction: "${instructions}"
 
@@ -140,6 +283,7 @@ CRITICAL: Output ordered labels from FIRST to LAST position in sorted result.
 - 3-10 labels per criterion
 - Order matters: first label = appears first, last label = appears last`,
     messages: [
+      ...criteriaExampleMessages,
       {
         type: 'text',
         role: 'user',
@@ -484,6 +628,53 @@ IMPORTANT:
             })
             .join('\n')
 
+          // Get examples from adapter for tie-breaking
+          const tieBreakInputStr = JSON.stringify(tiedElements.map((e) => e.element))
+          const tieBreakExamples =
+            taskId && ctx.adapter
+              ? await ctx.adapter.getExamples<string, Array<T>>({
+                  input: tieBreakInputStr.slice(0, 1000),
+                  taskType,
+                  taskId,
+                })
+              : []
+
+          // Format examples for few-shot learning in tie-breaking
+          const tieBreakExampleMessages: Array<{ type: 'text'; role: 'user' | 'assistant'; content: string }> = []
+
+          for (const example of tieBreakExamples.slice(0, 3)) {
+            try {
+              const exampleInput = JSON.parse(example.input)
+              const exampleItems = Array.isArray(exampleInput) ? exampleInput : [exampleInput]
+
+              tieBreakExampleMessages.push({
+                type: 'text',
+                role: 'user',
+                content: `Expert Example - Items to order:\n${exampleItems.map((el, i) => `■${i}: ${stringify(el, false).slice(0, 200)}■`).join('\n')}\n\nOrder them from first to last.`,
+              })
+
+              if (Array.isArray(example.output) && example.output.length > 0) {
+                const formattedOrder = example.output.map((_, i) => `■${i}■`).join('\n')
+
+                tieBreakExampleMessages.push({
+                  type: 'text',
+                  role: 'assistant',
+                  content: `${formattedOrder}\n${END}`,
+                })
+
+                if (example.explanation) {
+                  tieBreakExampleMessages.push({
+                    type: 'text',
+                    role: 'assistant',
+                    content: `Reasoning: ${example.explanation}`,
+                  })
+                }
+              }
+            } catch {
+              // Skip malformed examples
+            }
+          }
+
           const { extracted: tieBreakOrder } = await ctx.generateContent({
             systemPrompt: `You are breaking a tie between items with identical total scores.
 
@@ -508,6 +699,7 @@ ${END}
 Output the indices in the order they should appear (first item at top).`,
             stopSequences: [END],
             messages: [
+              ...tieBreakExampleMessages,
               {
                 type: 'text',
                 role: 'user',
