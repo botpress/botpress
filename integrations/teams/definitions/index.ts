@@ -1,15 +1,7 @@
-import { z, IntegrationDefinitionProps, messages } from '@botpress/sdk'
+import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
 export { states } from './states'
 export { actions } from './actions'
-
-export const configuration = {
-  schema: z.object({
-    appId: z.string().min(1).title('App ID').describe('Teams application ID'),
-    appPassword: z.string().min(1).title('App Password').describe('Teams application password'),
-    tenantId: z.string().optional().title('Tenant ID').describe('Teams tenant ID'),
-  }),
-} satisfies IntegrationDefinitionProps['configuration']
 
 export const channels = {
   channel: {
