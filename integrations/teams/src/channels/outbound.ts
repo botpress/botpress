@@ -8,7 +8,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import { getAdapter } from './utils'
+import { getAdapter } from '../utils'
 import * as bp from '.botpress'
 
 type Choice = bp.channels.channel.choice.Choice
