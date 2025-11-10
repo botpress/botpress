@@ -6,7 +6,7 @@ import * as linlint from '../linear-lint-issue'
 /**
  * @returns The corresponding issue, or `undefined` if the issue is not found or not valid.
  */
-export async function getIssue(
+export async function findIssue(
   issueNumber: number,
   teamKey: string | undefined,
   logger: BotLogger,
