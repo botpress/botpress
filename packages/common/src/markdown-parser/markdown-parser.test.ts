@@ -208,3 +208,17 @@ test('Custom paragraph handler markup test', () => {
 
   expect(actual).toBe(expected)
 })
+
+test('Escape character markup test', () => {
+  const input = '\\# not handled'
+  const expected = '# not handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    heading: (_node, _visit) => 'title handled',
+    paragraph: (_node, _visit) => _visit(_node),
+  }
+
+  const actual = parseMarkdown(input, customHandlers)
+
+  expect(actual).toBe(expected)
+})
