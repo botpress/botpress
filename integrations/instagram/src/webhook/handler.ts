@@ -1,6 +1,7 @@
 import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { getClientSecret } from 'src/misc/client'
 import { sendPosthogError } from 'src/misc/posthog-client'
 import {
@@ -17,7 +18,6 @@ import { oauthCallbackHandler } from './handlers/oauth'
 import { sandboxHandler } from './handlers/sandbox'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
-import { INTEGRATION_NAME } from 'integration.definition'
 
 const _canReplyToComments = (ctx: bp.Context) => {
   if (ctx.configurationType === 'sandbox') {
@@ -50,7 +50,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
   const { data, success } = safeJsonParse(req.body)
   if (!success) {
-    const errorMsg = `Unable to parse request payload as JSON`
+    const errorMsg = 'Unable to parse request payload as JSON'
     return { status: 400, body: errorMsg }
   }
 
