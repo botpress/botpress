@@ -1,0 +1,26 @@
+{
+  "name": "@botpresshub/gatewayz",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "undici": "^7.1.1"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/creatable": "workspace:*",
+    "@botpresshub/readable": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  },
+  "bpDependencies": {}
+}
+
