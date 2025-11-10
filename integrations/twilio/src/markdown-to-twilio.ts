@@ -1,23 +1,22 @@
 import { parseMarkdown, MarkdownHandlers, stripAllHandlers } from '@botpress/common'
-import { Code, Delete, Emphasis, InlineCode, Strong } from 'mdast'
 import { TwilioChannel } from './types'
 
 const messengerHandlers: MarkdownHandlers = {
   ...stripAllHandlers,
-  code: (node, _visit) => `\`\`\`\n${(node as Code).value}\n\`\`\`\n`,
-  delete: (node, visit) => `~${visit(node as Delete)}~`,
-  emphasis: (node, visit) => `_${visit(node as Emphasis)}_`,
-  inlineCode: (node, _visit) => `\`${(node as InlineCode).value}\``,
-  strong: (node, visit) => `*${visit(node as Strong)}*`,
+  code: (node, _visit) => `\`\`\`\n${node.value}\n\`\`\`\n`,
+  delete: (node, visit) => `~${visit(node)}~`,
+  emphasis: (node, visit) => `_${visit(node)}_`,
+  inlineCode: (node, _visit) => `\`${node.value}\``,
+  strong: (node, visit) => `*${visit(node)}*`,
 }
 
 const whatsappHandlers: MarkdownHandlers = {
   ...stripAllHandlers,
-  code: (node, _visit) => `\`\`\`${(node as Code).value}\`\`\`\n`,
-  delete: (node, visit) => `~${visit(node as Delete)}~`,
-  emphasis: (node, visit) => `_${visit(node as Emphasis)}_`,
-  inlineCode: (node, _visit) => `\`${(node as InlineCode).value}\``,
-  strong: (node, visit) => `*${visit(node as Strong)}*`,
+  code: (node, _visit) => `\`\`\`${node.value}\`\`\`\n`,
+  delete: (node, visit) => `~${visit(node)}~`,
+  emphasis: (node, visit) => `_${visit(node)}_`,
+  inlineCode: (node, _visit) => `\`${node.value}\``,
+  strong: (node, visit) => `*${visit(node)}*`,
 }
 
 const markdownHandlersByChannelType: Map<TwilioChannel, MarkdownHandlers> = new Map([

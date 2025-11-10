@@ -1,44 +1,26 @@
-import {
-  Blockquote,
-  Code,
-  Delete,
-  Emphasis,
-  FootnoteDefinition,
-  FootnoteReference,
-  Heading,
-  Image,
-  InlineCode,
-  Link,
-  List,
-  Node,
-  Paragraph,
-  Strong,
-  Table,
-  Text,
-} from 'mdast'
+import { List, Node, Table } from 'mdast'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { MarkdownHandlers, NodeHandler, RootNodes } from './types'
 
 export const stripAllHandlers: MarkdownHandlers = {
-  blockquote: (node, visit) => `Quote: “${visit(node as Blockquote)}”\n`,
+  blockquote: (node, visit) => `Quote: “${visit(node)}”\n`,
   break: (_node, _visit) => '\n',
-  code: (node, _visit) => `${(node as Code).value}\n`,
-  delete: (node, visit) => `${visit(node as Delete)}`,
-  emphasis: (node, visit) => visit(node as Emphasis),
-  footnoteDefinition: (node, visit) =>
-    `[${(node as FootnoteDefinition).identifier}] ${visit(node as FootnoteDefinition)}\n`,
-  footnoteReference: (node, _visit) => `[${(node as FootnoteReference).identifier}]`,
-  heading: (node, visit) => `${visit(node as Heading)}\n`,
+  code: (node, _visit) => `${node.value}\n`,
+  delete: (node, visit) => `${visit(node)}`,
+  emphasis: (node, visit) => visit(node),
+  footnoteDefinition: (node, visit) => `[${node.identifier}] ${visit(node)}\n`,
+  footnoteReference: (node, _visit) => `[${node.identifier}]`,
+  heading: (node, visit) => `${visit(node)}\n`,
   html: (_node, _visit) => '',
-  image: (node, _visit) => (node as Image).url,
-  inlineCode: (node, _visit) => (node as InlineCode).value,
-  link: (node, _visit) => (node as Link).url,
-  list: (node, _visit, parents, handlers) => handleList(node as List, handlers, parents),
-  paragraph: (node, visit, parents) => `${visit(node as Paragraph)}${parents.at(-1)?.type === 'root' ? '\n' : ''}`,
-  strong: (node, visit) => visit(node as Strong),
-  table: (node, _visit, parents, handlers) => handleTable(node as Table, handlers, parents),
-  text: (node, _visit) => (node as Text).value,
+  image: (node, _visit) => node.url,
+  inlineCode: (node, _visit) => node.value,
+  link: (node, _visit) => node.url,
+  list: (node, _visit, parents, handlers) => handleList(node, handlers, parents),
+  paragraph: (node, visit, parents) => `${visit(node)}${parents.at(-1)?.type === 'root' ? '\n' : ''}`,
+  strong: (node, visit) => visit(node),
+  table: (node, _visit, parents, handlers) => handleTable(node, handlers, parents),
+  text: (node, _visit) => node.value,
   thematicBreak: (_node, _visit) => '---\n',
 }
 
