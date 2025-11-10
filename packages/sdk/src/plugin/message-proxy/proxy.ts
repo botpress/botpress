@@ -1,5 +1,7 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
+import type { commonTypes } from '../../common'
+import type * as typeUtils from '../../utils/type-utils'
 
 import { createAsyncCollection } from '../../utils/api-paging-utils'
 import type { BasePlugin, PluginRuntimeProps } from '../common'
@@ -38,7 +40,12 @@ export const proxyMessage = <
   plugin?: PluginRuntimeProps<TPlugin>
   message: TMessage
 }): ActionableMessage<TPlugin, TMessage> => ({
-  ...unprefixTagsOwnedByPlugin(props.message, { alias: props.plugin?.alias }),
+  ...(unprefixTagsOwnedByPlugin(props.message, { alias: props.plugin?.alias }) as unknown as typeUtils.Merge<
+    TMessage,
+    {
+      tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['conversation']['tags']>>
+    }
+  >),
 
   async delete() {
     await props.client.deleteMessage({ id: props.message.id })
