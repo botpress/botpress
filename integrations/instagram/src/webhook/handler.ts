@@ -122,10 +122,6 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     if (response && response.status !== 200) {
       const errorMessage = `Instagram handler failed with status ${response.status}: ${response.body}`
       props.logger.error(errorMessage)
-      await sendPosthogError(props.ctx.integrationId, errorMessage, {
-        from: `${props.ctx.integrationAlias}:handler`,
-        integrationName: props.ctx.integrationAlias,
-      })
     }
     return response
   } catch (thrown: unknown) {
