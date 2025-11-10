@@ -8,7 +8,6 @@ export function box(lines: string[], width: number | 'fit' = 'fit'): string {
   const bottom = `╚${'═'.repeat(width)}╝`
 
   const paddedLines = lines.map((line) => {
-    // eslint-disable-next-line no-control-regex
     const raw = line.replace(/\x1b\[[0-9;]*m/g, '') // Strip ANSI for length
     const padding = width - raw.length
     return `║${line}${' '.repeat(Math.max(0, padding))}║`

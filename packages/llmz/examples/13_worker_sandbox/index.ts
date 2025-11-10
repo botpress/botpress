@@ -70,7 +70,8 @@ const checkin = new Tool({
 // Execute a long-running task with safety controls
 const result = await execute({
   // Instructions for a potentially long-running process
-  instructions: `console.log the number 1 to 10,000 in a for loop, pausing for 500 milliseconds between each number. Make sure to comment the code very well. Checkin when appropriate.`,
+  instructions:
+    'console.log the number 1 to 10,000 in a for loop, pausing for 500 milliseconds between each number. Make sure to comment the code very well. Checkin when appropriate.',
 
   // Provide tools for timing control and monitoring
   tools: [wait, checkin],
