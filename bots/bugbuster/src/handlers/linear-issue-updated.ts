@@ -5,6 +5,18 @@ import * as bp from '.botpress'
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
   const { number: issueNumber, teamKey } = props.event.payload
   const linear = await utils.linear.LinearApi.create()
+
+  const teams = await props.client.getOrSetState({
+    id: props.ctx.botId,
+    name: 'teamsToWatch',
+    type: 'bot',
+    payload: {
+      teamKeys: [],
+    },
+  })
+  if (teamKey === undefined || !teams.state.payload.teamKeys.includes(teamKey)) {
+    props.logger.error(`Ignoring issue of team "${teamKey}"`)
+  }
   const issue = await findIssue(issueNumber, teamKey, props.logger, 'updated', linear)
 
   if (!issue) {

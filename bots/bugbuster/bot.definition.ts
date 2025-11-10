@@ -20,6 +20,12 @@ export default new sdk.BotDefinition({
           .describe('List of recently linted issues'),
       }),
     },
+    teamsToWatch: {
+      type: 'bot',
+      schema: sdk.z.object({
+        teamKeys: sdk.z.array(sdk.z.string()),
+      }),
+    },
   },
   __advanced: {
     useLegacyZuiTransformer: true,

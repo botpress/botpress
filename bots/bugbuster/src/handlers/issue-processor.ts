@@ -20,7 +20,7 @@ export async function findIssue(
 
   logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
 
-  if (!linear.isTeam(teamKey) || teamKey !== 'SQD') {
+  if (!linear.isTeam(teamKey) || teamKey) {
     logger.error(`Ignoring issue of team "${teamKey}"`)
     return
   }
