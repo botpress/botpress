@@ -13,7 +13,7 @@ import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/work
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
-import { proxyConversation, proxyConversations } from './conversation-proxy'
+import { ConversationFinder, proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
 import { proxyMessage, proxyMessages } from './message-proxy'
 import {
@@ -100,7 +100,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
     const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
-    const conversations = proxyConversations({ client, plugin: this._runtime })
+    const conversations = proxyConversations({ client, plugin: this._runtime }) as ConversationFinder<BasePlugin>
     const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {

@@ -10,78 +10,52 @@ import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import { proxyUser } from '../user-proxy'
 import type { ActionableConversation, ConversationFinder } from './types'
 
-export const proxyConversations = <
-  TPlugin extends BasePlugin,
-  TIntegrationAlias extends typeUtils.StringKeys<TPlugin['integrations']> | undefined = undefined,
-  TInterfaceAlias extends typeUtils.StringKeys<TPlugin['interfaces']> | undefined = undefined,
->(props: {
+export const proxyConversations = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
   plugin?: PluginRuntimeProps<TPlugin>
-  integrationAlias?: TIntegrationAlias
-  interfaceAlias?: TInterfaceAlias
-  channelName?: string
-}): ConversationFinder<TPlugin, TIntegrationAlias, TInterfaceAlias> =>
-  ({
-    forIntegration: (alias: string): any =>
-      proxyConversations<TPlugin, typeUtils.StringKeys<TPlugin['integrations']>, undefined>({
-        ...props,
-        integrationAlias: alias as typeUtils.StringKeys<TPlugin['integrations']>,
-        interfaceAlias: undefined,
-        channelName: undefined,
-      }) satisfies ConversationFinder<TPlugin, typeUtils.StringKeys<TPlugin['integrations']>, undefined>,
+}): ConversationFinder<TPlugin> =>
+  new Proxy(
+    {},
+    {
+      get: (_target, interfaceOrIntegrationAlias: string) =>
+        new Proxy(
+          {},
+          {
+            get: (_target2, channel: string) => {
+              return {
+                list(listProps): any {
+                  const integrationName =
+                    props.plugin?.interfaces[interfaceOrIntegrationAlias]?.name ??
+                    props.plugin?.integrations[interfaceOrIntegrationAlias]?.name!
 
-    forInterface: (alias: string): any => {
-      // FIXME: we should retrieve the integration alias, not the name:
-      const integrationName = props.plugin?.interfaces[alias as typeUtils.StringKeys<TPlugin['interfaces']>].name as
-        | typeUtils.StringKeys<TPlugin['integrations']>
-        | undefined
+                  return createAsyncCollection(({ nextToken }) =>
+                    props.client
+                      .listConversations({
+                        ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
+                        channel: channel,
+                        integrationName,
+                        nextToken,
+                      })
+                      .then(({ meta, conversations }) => ({
+                        meta,
+                        items: conversations.map((conversation) => proxyConversation({ ...props, conversation })),
+                      }))
+                  ) satisfies AsyncCollection<ActionableConversation<TPlugin>>
+                },
 
-      return proxyConversations({
-        ...props,
-        integrationAlias: integrationName,
-        interfaceAlias: alias as typeUtils.StringKeys<TPlugin['interfaces']>,
-        channelName: undefined,
-      }) satisfies ConversationFinder<
-        TPlugin,
-        typeUtils.StringKeys<TPlugin['integrations']>,
-        typeUtils.StringKeys<TPlugin['interfaces']>
-      >
-    },
-
-    onChannel: (channelName: string): any =>
-      proxyConversations<TPlugin, TIntegrationAlias, TInterfaceAlias>({
-        ...props,
-        channelName,
-      }) satisfies ConversationFinder<TPlugin, TIntegrationAlias, TInterfaceAlias>,
-
-    list(listProps): any {
-      return createAsyncCollection(({ nextToken }) =>
-        props.client
-          .listConversations({
-            ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
-            channel: props.channelName,
-            integrationName: props.integrationAlias,
-            nextToken,
-          })
-          .then(({ meta, conversations }) => ({
-            meta,
-            items: conversations.map((conversation) => proxyConversation({ ...props, conversation })),
-          }))
-      ) satisfies AsyncCollection<ActionableConversation<TPlugin>>
-    },
-
-    async getById({ id }): Promise<any> {
-      const response = await props.client.getConversation({ id })
-      return proxyConversation({
-        ...props,
-        conversation: response.conversation,
-      }) satisfies ActionableConversation<TPlugin>
-    },
-  }) satisfies ConversationFinder<any, any, any> as unknown as ConversationFinder<
-    TPlugin,
-    TIntegrationAlias,
-    TInterfaceAlias
-  >
+                async getById({ id }): Promise<any> {
+                  const response = await props.client.getConversation({ id })
+                  return proxyConversation({
+                    ...props,
+                    conversation: response.conversation,
+                  }) satisfies ActionableConversation<TPlugin>
+                },
+              } satisfies ConversationFinder<TPlugin>['*']['*']
+            },
+          }
+        ),
+    }
+  ) as ConversationFinder<TPlugin>
 
 export const proxyConversation = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
