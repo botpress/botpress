@@ -1,9 +1,10 @@
-import { LinearApi } from 'src/utils/linear-utils'
+import { LinearApi, TeamKey } from 'src/utils/linear-utils'
 import * as bp from '.botpress'
 
-export type Result = {
+export type Result<T> = {
   success: boolean
   message: string
+  result?: T
 }
 
 async function getTeamKeys(client: bp.Client, botId: string) {
@@ -30,7 +31,7 @@ async function setTeamKeys(client: bp.Client, botId: string, teamKeys: string[])
   })
 }
 
-export async function addTeam(client: bp.Client, botId: string, key: string, linear: LinearApi): Promise<Result> {
+export async function addTeam(client: bp.Client, botId: string, key: string, linear: LinearApi): Promise<Result<void>> {
   const teamKeys = await getTeamKeys(client, botId)
   if (teamKeys.includes(key)) {
     return {
@@ -52,7 +53,7 @@ export async function addTeam(client: bp.Client, botId: string, key: string, lin
   }
 }
 
-export async function removeTeam(client: bp.Client, botId: string, key: string): Promise<Result> {
+export async function removeTeam(client: bp.Client, botId: string, key: string): Promise<Result<void>> {
   const teamKeys = await getTeamKeys(client, botId)
   if (!teamKeys.includes(key)) {
     return {
@@ -72,14 +73,17 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
   }
 }
 
-export async function listAllTeams(linear: LinearApi): Promise<Result> {
+export async function listAllTeams(linear: LinearApi): Promise<Result<readonly string[]>> {
+  const teamKeys = linear.listAllTeams()
+
   return {
     success: true,
-    message: linear.listAllTeams().join(', '),
+    message: teamKeys.join(', '),
+    result: teamKeys,
   }
 }
 
-export async function listWatchedTeams(client: bp.Client, botId: string): Promise<Result> {
+export async function listWatchedTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
   const teamKeys = await getTeamKeys(client, botId)
   if (teamKeys.length === 0) {
     return {
@@ -90,5 +94,6 @@ export async function listWatchedTeams(client: bp.Client, botId: string): Promis
   return {
     success: true,
     message: teamKeys.join(', '),
+    result: teamKeys,
   }
 }
