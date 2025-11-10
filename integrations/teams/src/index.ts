@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios, { isAxiosError } from 'axios'
 import actions from './actions'
 import { channels } from './channels'
-import { handler } from './handler'
+import { handler } from './webhooks/handler'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({

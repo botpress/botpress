@@ -1,6 +1,6 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
+import { getAdapter, sleep } from '../utils'
 import { authorizeRequest } from './signature'
-import { getAdapter, sleep } from './utils'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
