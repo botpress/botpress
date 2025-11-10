@@ -1,8 +1,8 @@
 import { isSandboxCommand } from '@botpress/common'
-import { IntegrationDefinition, Request } from '@botpress/sdk'
+import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { getClientSecret } from 'src/misc/client'
-import { botpressEvents, sendPosthogError, sendPosthogEvent } from 'src/misc/posthog-client'
+import { botpressEvents, sendPosthogError } from 'src/misc/posthog-client'
 import {
   instagramPayloadSchema,
   InstagramLegacyCommentEntry,
@@ -57,10 +57,10 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (!payloadResult.success) {
     const errorMsg = `Received invalid Instagram payload: ${payloadResult.error.message}`
     props.logger.warn(errorMsg)
-    await sendPosthogEvent({
-      distinctId: ctx.integrationId,
-      event: botpressEvents.INVALID_MESSAGE_FORMAT,
-      properties: { message: errorMsg, from: 'handler', integrationName: IntegrationDefinition.name },
+    await sendPosthogError(ctx.integrationId, errorMsg, {
+      from: `${ctx.integrationAlias}:handler`,
+      integrationName: ctx.integrationAlias,
+      errorType: botpressEvents.INVALID_MESSAGE_FORMAT,
     })
     return { status: 400, body: 'Invalid payload' }
   }
@@ -122,26 +122,21 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     if (response && response.status !== 200) {
       const errorMessage = `Instagram handler failed with status ${response.status}: ${response.body}`
       props.logger.error(errorMessage)
-      await sendPosthogEvent({
-        distinctId: props.ctx.integrationId,
-        event: botpressEvents.UNHANDLED_ERROR,
-        properties: {
-          from: 'handler',
-          integrationName: props.ctx.integrationAlias,
-          message: errorMessage,
-        },
+      await sendPosthogError(props.ctx.integrationId, errorMessage, {
+        from: `${props.ctx.integrationAlias}:handler`,
+        integrationName: props.ctx.integrationAlias,
       })
     }
     return response
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    const logMessage = `Instagram handler failed with error: ${errorMessage ?? 'Unknown error thrown'}`
-    await sendPosthogError(props.ctx.integrationId, logMessage, {
-      from: 'handler',
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Instagram handler failed with error: ${error ?? 'Unknown error thrown'}`
+    await sendPosthogError(props.ctx.integrationId, errorMessage, {
+      from: `${props.ctx.integrationAlias}:handler`,
       integrationName: props.ctx.integrationAlias,
     })
-    props.logger.error(logMessage)
-    return { status: 500, body: logMessage }
+    props.logger.error(errorMessage)
+    return { status: 500, body: errorMessage }
   }
 }
 

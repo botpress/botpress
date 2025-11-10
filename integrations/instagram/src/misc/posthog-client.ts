@@ -8,6 +8,7 @@ type BotpressEventMessage = Omit<EventMessage, 'event'> & {
 type PostHogErrorOptions = {
   from: string
   integrationName: string
+  errorType?: BotpressEvent
 }
 
 export const botpressEvents = {
@@ -17,7 +18,7 @@ export const botpressEvents = {
 } as const
 type BotpressEvent = (typeof botpressEvents)[keyof typeof botpressEvents]
 
-export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
+const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
   const client = new PostHog(bp.secrets.POSTHOG_KEY, {
     host: 'https://us.i.posthog.com',
   })
@@ -34,11 +35,11 @@ export const sendPosthogEvent = async (props: BotpressEventMessage): Promise<voi
 export const sendPosthogError = async (
   distinctId: string,
   errorMessage: string,
-  { from, integrationName }: Partial<PostHogErrorOptions>
+  { from, integrationName, errorType }: PostHogErrorOptions
 ): Promise<void> => {
   await sendPosthogEvent({
     distinctId,
-    event: botpressEvents.UNHANDLED_ERROR,
+    event: errorType ?? botpressEvents.UNHANDLED_ERROR,
     properties: {
       from,
       integrationName,
