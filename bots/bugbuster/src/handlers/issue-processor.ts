@@ -2,6 +2,8 @@ import { BotLogger } from '@botpress/sdk'
 import { Issue } from '@linear/sdk'
 import { LinearApi } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
+import { listWatchedTeams } from './teams-manager'
+import { Client } from '.botpress'
 
 /**
  * @returns The corresponding issue, or `undefined` if the issue is not found or not valid.
@@ -11,7 +13,9 @@ export async function findIssue(
   teamKey: string | undefined,
   logger: BotLogger,
   eventName: string,
-  linear: LinearApi
+  linear: LinearApi,
+  client: Client,
+  botId: string
 ): Promise<Issue | undefined> {
   if (!issueNumber || !teamKey) {
     logger.error('Missing issueNumber or teamKey in event payload')
@@ -20,7 +24,8 @@ export async function findIssue(
 
   logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
 
-  if (!linear.isTeam(teamKey)) {
+  const teams = await listWatchedTeams(client, botId)
+  if (!linear.isTeam(teamKey) || !teams.result?.includes(teamKey)) {
     logger.error(`Ignoring issue of team "${teamKey}"`)
     return
   }

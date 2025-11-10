@@ -13,7 +13,7 @@ export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] =
     return
   }
 
-  const issue = await findIssue(issueNumber, teamKey, props.logger, 'created', linear)
+  const issue = await findIssue(issueNumber, teamKey, props.logger, 'created', linear, props.client, props.ctx.botId)
   if (!issue) {
     return
   }
