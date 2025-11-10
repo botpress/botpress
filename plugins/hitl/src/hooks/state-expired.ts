@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { DEFAULT_TIMEOUT_TIME } from 'plugin.definition'
+import { DEFAULT_HITL_SESSION_TIMEOUT } from 'plugin.definition'
 import { getTimeoutMs, isTimedOut } from 'src/hitl-timeout'
 import * as hooks from './'
 import * as bp from '.botpress'
@@ -12,7 +12,7 @@ export const hitlStateExpired: NonNullable<bp.PluginHandlers['stateExpiredHandle
     throw new sdk.RuntimeError('The hitl state expired without an attached conversation')
   }
   const conversation = await props.client.listMessages({ conversationId: props.state.conversationId })
-  const timeout = props.configuration.hitlSessionTimeoutHours ?? DEFAULT_TIMEOUT_TIME
+  const timeout = props.configuration.hitlSessionTimeoutHours ?? DEFAULT_HITL_SESSION_TIMEOUT
   if (conversation.messages[0]?.createdAt && isTimedOut(conversation.messages[0]?.createdAt, timeout)) {
     await hooks.beforeIncomingEvent.hitlStopped.handleEvent({
       ...props,
