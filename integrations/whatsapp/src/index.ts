@@ -1,5 +1,5 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import actions from 'src/actions'
+import actions from './actions'
 import channels from './channels'
 import { register, unregister } from './setup'
 import { handler } from './webhook'
