@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { contactSchema } from '../../definitions/actions/contact'
 import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
@@ -39,20 +39,24 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
       `Searching for contact with ${infosStr} ${propertyKeys?.length ? `and properties ${propertyKeys?.join(', ')}` : ''}`
     )
 
-  const contact = await hsClient.searchContact({
-    phone: input.phone,
-    email: input.email,
-    propertiesToReturn: propertyKeys,
-  })
-
-  if (!contact) {
-    return {
-      contact: undefined,
+  try {
+    const contact = await hsClient.searchContact({
+      phone: input.phone,
+      email: input.email,
+      propertiesToReturn: propertyKeys,
+    })
+    if (!contact) {
+      return {
+        contact: undefined,
+      }
     }
-  }
 
-  return {
-    contact: _mapHsContactToBpContact(contact),
+    return {
+      contact: _mapHsContactToBpContact(contact),
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(errorMessage)
   }
 }
 
@@ -65,29 +69,39 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const { email, phone, owner, companies, tickets, properties } = input
   const additionalProperties = propertiesEntriesToRecord(properties ?? [])
-  const newContact = await hsClient.createContact({
-    email,
-    phone,
-    ownerEmailOrId: owner,
-    companies,
-    ticketIds: tickets,
-    additionalProperties,
-  })
-  return {
-    contact: _mapHsContactToBpContact(newContact),
+  try {
+    const newContact = await hsClient.createContact({
+      email,
+      phone,
+      ownerEmailOrId: owner,
+      companies,
+      ticketIds: tickets,
+      additionalProperties,
+    })
+    return {
+      contact: _mapHsContactToBpContact(newContact),
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to create contact: ${errorMessage}`)
   }
 }
 
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-
   const propertyKeys = await _getContactPropertyKeys(hsClient)
-  const contact = await hsClient.getContact({
-    contactId: input.contactIdOrEmail,
-    propertiesToReturn: propertyKeys,
-  })
-  return {
-    contact: _mapHsContactToBpContact(contact),
+
+  try {
+    const contact = await hsClient.getContact({
+      contactId: input.contactIdOrEmail,
+      propertiesToReturn: propertyKeys,
+    })
+    return {
+      contact: _mapHsContactToBpContact(contact),
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to get contact: ${errorMessage}`)
   }
 }
 
@@ -100,18 +114,25 @@ export const updateContact: bp.IntegrationProps['actions']['updateContact'] = as
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const { contactIdOrEmail, phone, email, properties } = input
   const additionalProperties = propertiesEntriesToRecord(properties ?? [])
-  const updatedContact = await hsClient.updateContact({
-    contactId: contactIdOrEmail,
-    additionalProperties,
-    email,
-    phone,
-  })
-  return {
-    contact: {
-      ..._mapHsContactToBpContact(updatedContact),
-      email: updatedContact.properties['email'] ?? undefined,
-      phone: updatedContact.properties['phone'] ?? undefined,
-    },
+
+  try {
+    const updatedContact = await hsClient.updateContact({
+      contactId: contactIdOrEmail,
+      additionalProperties,
+      email,
+      phone,
+    })
+    logger.forBot().info(`Contact ${contactIdOrEmail} updated successfully`)
+    return {
+      contact: {
+        ..._mapHsContactToBpContact(updatedContact),
+        email: updatedContact.properties['email'] ?? undefined,
+        phone: updatedContact.properties['phone'] ?? undefined,
+      },
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to update contact: ${errorMessage}`)
   }
 }
 
@@ -122,23 +143,35 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
   logger,
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-  await hsClient.deleteContact({
-    contactId: input.contactId,
-  })
-  return {}
+  try {
+    await hsClient.deleteContact({
+      contactId: input.contactId,
+    })
+    logger.forBot().info(`Contact ${input.contactId} deleted successfully`)
+    return {}
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to delete contact: ${errorMessage}`)
+  }
 }
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
   const propertyKeys = await _getContactPropertyKeys(hsClient)
-  const { contacts, nextToken } = await hsClient.listContacts({
-    properties: propertyKeys,
-    nextToken: input.meta.nextToken,
-  })
-  return {
-    contacts: contacts.map(_mapHsContactToBpContact),
-    meta: {
-      nextToken,
-    },
+
+  try {
+    const { contacts, nextToken } = await hsClient.listContacts({
+      properties: propertyKeys,
+      nextToken: input.meta.nextToken,
+    })
+    return {
+      contacts: contacts.map(_mapHsContactToBpContact),
+      meta: {
+        nextToken,
+      },
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to list contacts: ${errorMessage}`)
   }
 }

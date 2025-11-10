@@ -6,23 +6,28 @@ import * as bp from '.botpress'
 export const isOAuthCallback = (props: bp.HandlerProps): boolean => props.req.path.startsWith('/oauth')
 
 export const handleOAuthCallback: bp.IntegrationProps['handler'] = async ({ client, ctx, req, logger }) => {
-  const searchParams = new URLSearchParams(req.query)
-  const authorizationCode = searchParams.get('code')
+  try {
+    const searchParams = new URLSearchParams(req.query)
+    const authorizationCode = searchParams.get('code')
 
-  if (!authorizationCode) {
-    throw new RuntimeError('Code not present in OAuth callback request')
+    if (!authorizationCode) {
+      throw new RuntimeError('Code not present in OAuth callback request')
+    }
+    const credentials = await exchangeCodeForOAuthCredentials({ code: authorizationCode })
+    await setOAuthCredentials({
+      client,
+      ctx,
+      credentials,
+    })
+
+    const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
+    const hubId = await hsClient.getHubId()
+
+    await client.configureIntegration({
+      identifier: hubId,
+    })
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(errorMessage)
   }
-  const credentials = await exchangeCodeForOAuthCredentials({ code: authorizationCode })
-  await setOAuthCredentials({
-    client,
-    ctx,
-    credentials,
-  })
-
-  const hsClient = new HubspotClient({ accessToken: credentials.accessToken, client, ctx, logger })
-  const hubId = await hsClient.getHubId()
-
-  await client.configureIntegration({
-    identifier: hubId,
-  })
 }

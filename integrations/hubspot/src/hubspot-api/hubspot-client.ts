@@ -92,13 +92,11 @@ export class HubspotClient {
     }
   }
 
-  @handleErrors('Failed to validate authentication')
   public async getHubId() {
     const { hubId } = await this._hsClient.oauth.accessTokensApi.get(this._accessToken)
     return hubId.toString()
   }
 
-  @handleErrors('Failed to search contact')
   public async searchContact({
     email,
     phone,
@@ -149,7 +147,6 @@ export class HubspotClient {
     return hsContact
   }
 
-  @handleErrors('Failed to get contact by ID')
   public async getContactById({ contactId, propertiesToReturn }: { contactId: number; propertiesToReturn?: string[] }) {
     const contact = await this._hsClient.crm.contacts.basicApi.getById(contactId.toString(), [
       ...DEFAULT_CONTACT_PROPERTIES,
@@ -247,7 +244,6 @@ export class HubspotClient {
     }
   }
 
-  @handleErrors('Failed to create contact')
   public async createContact({
     email,
     phone,
@@ -342,7 +338,6 @@ export class HubspotClient {
     return this._hsClient.crm.properties.coreApi.getAll(objectType)
   }
 
-  @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
     await this._validateProperties({ properties: allPropertiesToReturn ?? [], type: 'contact' })
@@ -358,7 +353,6 @@ export class HubspotClient {
     return contact
   }
 
-  @handleErrors('Failed to update contact')
   public async updateContact({
     contactId,
     email,
@@ -390,12 +384,10 @@ export class HubspotClient {
     return updatedContact
   }
 
-  @handleErrors('Failed to delete contact')
   public async deleteContact({ contactId }: { contactId: string }) {
     await this._hsClient.crm.contacts.basicApi.archive(contactId)
   }
 
-  @handleErrors('Failed to list contacts')
   public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
     const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, [
       ...DEFAULT_CONTACT_PROPERTIES,
