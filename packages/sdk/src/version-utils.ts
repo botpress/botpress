@@ -1,14 +1,15 @@
 import * as semver from 'semver'
-import { InterfacePackage, IntegrationPackage } from '.'
+import { Package } from './package'
+import { PluginDefinition } from './plugin/definition'
 
-type GenericPackage = InterfacePackage | IntegrationPackage
+type GenericPackage = Exclude<Package, PluginDefinition>
 
-export function packageOfMajor<T extends GenericPackage>(pkg: T): T & { version: string } {
+export function allWithinPkgMajor<T extends GenericPackage>(pkg: T): T & { version: string } {
   const major = semver.major(pkg.version)
   return { ...pkg, version: `>=${major}.0.0 <${major + 1}.0.0` }
 }
 
-export function packageOfMinor<T extends GenericPackage>(pkg: T): T & { version: string } {
+export function allWithinPkgMinor<T extends GenericPackage>(pkg: T): T & { version: string } {
   const major = semver.major(pkg.version)
   const minor = semver.minor(pkg.version)
   return {
