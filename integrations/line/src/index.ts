@@ -2,6 +2,9 @@ import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
+import { parseMarkdown } from './markdown-parser'
+import getOrCreateConversation from './proactive-conversation'
+import getOrCreateUser from './proactive-user'
 import * as bp from '.botpress'
 
 type MessageHandlerProps = bp.AnyMessageProps
@@ -58,6 +61,15 @@ const replyOrSendLineMessage = async (props: SendOrReplyLineProps, message: line
   }
 }
 
+const tryParseMarkdown = (text: string) => {
+  try {
+    return parseMarkdown(text)
+  } catch {
+    console.error('Failed to parse the markdown. The message will be sent as text without parsing markdown.')
+    return text
+  }
+}
+
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
@@ -85,6 +97,8 @@ const integration = new bp.Integration({
       return {}
     },
     stopTypingIndicator: async () => ({}),
+    getOrCreateConversation,
+    getOrCreateUser,
   },
   channels: {
     channel: {
@@ -94,7 +108,7 @@ const integration = new bp.Integration({
             { ctx, conversation, client, ack },
             {
               type: 'text',
-              text: payload.text,
+              text: tryParseMarkdown(payload.text),
             }
           )
         },
@@ -105,15 +119,6 @@ const integration = new bp.Integration({
               type: 'image',
               originalContentUrl: payload.imageUrl,
               previewImageUrl: payload.imageUrl, // Can use this - later when the upload is ready: https://www.npmjs.com/package/image-thumbnail
-            }
-          )
-        },
-        markdown: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyOrSendLineMessage(
-            { ctx, conversation, client, ack },
-            {
-              type: 'text',
-              text: payload.markdown,
             }
           )
         },
@@ -439,52 +444,18 @@ const integration = new bp.Integration({
     for (const event of data.events) {
       if (event.type === 'message') {
         await handleMessage(event, data.destination, client)
+      } else if (event.type === 'follow') {
+        await client.createEvent({
+          type: 'followed',
+          payload: {
+            destinationId: data.destination,
+            userId: event.source.userId,
+          },
+        })
       }
     }
 
     return
-  },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.usrId
-    if (!userId) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags.usrId
-    const destId = tags.destId
-    if (!(usrId && destId)) {
-      return
-    }
-
-    const lineClient = new lineMessagingApi.MessagingApiClient({
-      channelAccessToken: ctx.configuration.channelAccessToken,
-    })
-    const profile = await lineClient.getProfile(usrId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { usrId: `${profile.userId}`, destId },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 

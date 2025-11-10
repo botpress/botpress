@@ -18,22 +18,54 @@ export type ZaiContextProps = {
   source?: GenerateContentInput['meta']
 }
 
+/**
+ * Usage statistics tracking tokens, cost, and request metrics for an operation.
+ *
+ * This type is returned via Response events and the `.result()` method, providing
+ * real-time visibility into:
+ * - Token consumption (input/output/total)
+ * - Cost in USD (input/output/total)
+ * - Request statistics (count, errors, cache hits, progress percentage)
+ *
+ * @example
+ * ```typescript
+ * const { usage } = await zai.extract(text, schema).result()
+ *
+ * console.log(usage.tokens.total)    // 1250
+ * console.log(usage.cost.total)      // 0.0075 (USD)
+ * console.log(usage.requests.cached) // 0
+ * ```
+ */
 export type Usage = {
+  /** Request statistics */
   requests: {
+    /** Total number of requests initiated */
     requests: number
+    /** Number of requests that failed with errors */
     errors: number
+    /** Number of successful responses received */
     responses: number
+    /** Number of responses served from cache (no tokens used) */
     cached: number
+    /** Operation progress as a decimal (0.0 to 1.0) */
     percentage: number
   }
+  /** Cost statistics in USD */
   cost: {
+    /** Cost for input tokens */
     input: number
+    /** Cost for output tokens */
     output: number
+    /** Total cost (input + output) */
     total: number
   }
+  /** Token usage statistics */
   tokens: {
+    /** Input tokens consumed */
     input: number
+    /** Output tokens generated */
     output: number
+    /** Total tokens (input + output) */
     total: number
   }
 }
