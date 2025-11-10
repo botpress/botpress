@@ -1198,13 +1198,31 @@ importers:
       '@line/bot-sdk':
         specifier: ^9.5.0
         version: 9.5.0
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/proactive-conversation':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-conversation
+      '@botpresshub/proactive-user':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-user
+      '@botpresshub/typing-indicator':
+        specifier: workspace:*
+        version: link:../../interfaces/typing-indicator
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   integrations/linear:
     dependencies:
