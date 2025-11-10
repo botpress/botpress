@@ -2,6 +2,7 @@ import { describe, it, expect, afterAll, beforeEach, afterEach } from 'vitest'
 import { getClient, getZai, metadata } from './utils'
 import { TableAdapter } from '../src/adapters/botpress-table'
 import type { AnswerResult } from '../src/operations/answer'
+import { parseResponse } from '../src/operations/answer'
 
 describe('zai.answer', { timeout: 60_000 }, () => {
   const zai = getZai()
@@ -124,6 +125,46 @@ France is known for its cuisine, wine, and culture.`,
   })
 
   describe('ambiguous responses', () => {
+    it('should treat multiple ■answer tags as ambiguous (bad LLM generation)', () => {
+      // Simulate a bad LLM response with multiple ■answer tags
+      const malformedResponse = `■answer
+This is the first answer.■001
+■answer
+This is the second answer.■002`
+
+      // Create mock line mappings
+      const documents = ['Document A: Information about topic A.', 'Document B: Information about topic B.']
+      const mappings = [
+        {
+          lineNumber: 1,
+          documentIndex: 0,
+          lineInDocument: 0,
+          text: 'Document A: Information about topic A.',
+          document: documents[0],
+        },
+        {
+          lineNumber: 2,
+          documentIndex: 1,
+          lineInDocument: 0,
+          text: 'Document B: Information about topic B.',
+          document: documents[1],
+        },
+      ]
+
+      const result = parseResponse(malformedResponse, mappings)
+
+      // Should interpret multiple ■answer tags as ambiguous
+      expect(result.type).toBe('ambiguous')
+      if (result.type === 'ambiguous') {
+        expect(result.answers.length).toBe(2)
+        expect(result.answers[0].answer).toContain('first answer')
+        expect(result.answers[1].answer).toContain('second answer')
+        // Citations should be removed from answers
+        expect(result.answers[0].answer).not.toContain('■')
+        expect(result.answers[1].answer).not.toContain('■')
+      }
+    })
+
     it('should detect ambiguity when question has multiple interpretations', async () => {
       const documents = [
         'Python is a programming language.',
@@ -463,6 +504,66 @@ France is known for its cuisine, wine, and culture.`,
         const lowerAnswer = result.answer.toLowerCase()
         expect(lowerAnswer).toMatch(/install|configure|run/)
         expect(result.citations.length).toBeGreaterThan(1)
+      }
+    })
+  })
+
+  describe('citation markers removed from answers', () => {
+    it('should remove all citation markers (■) from answer text', async () => {
+      const documents = [
+        'Botpress was founded in 2016.',
+        'It is an AI agent platform.',
+        'The company is headquartered in Quebec, Canada.',
+      ]
+
+      const result = await zai.answer(documents, 'Tell me about Botpress.')
+
+      expect(result.type).toBe('answer')
+      if (result.type === 'answer') {
+        // Should have citations
+        expect(result.citations.length).toBeGreaterThan(0)
+        // Answer should NOT contain any citation markers (■)
+        expect(result.answer).not.toContain('■')
+      }
+    })
+
+    it('should remove all citation markers (■) from ambiguous answers', async () => {
+      const documents = [
+        'Python is a programming language.',
+        'Python is also a type of snake.',
+        'The Python programming language was created by Guido van Rossum.',
+        'Python snakes are found in Africa, Asia, and Australia.',
+      ]
+
+      const result = await zai.answer(documents, 'What is Python?')
+
+      if (result.type === 'ambiguous') {
+        // Check ambiguity and follow_up don't contain markers
+        expect(result.ambiguity).not.toContain('■')
+        expect(result.follow_up).not.toContain('■')
+        // Check each answer doesn't contain markers
+        result.answers.forEach((answer) => {
+          expect(answer.answer).not.toContain('■')
+        })
+      }
+    })
+
+    it('should handle multiple citations throughout answer without leaving markers', async () => {
+      const documents = [
+        'The iPhone was first released by Apple in 2007.',
+        'Steve Jobs announced the iPhone at the Macworld conference.',
+        'The original iPhone had a 3.5-inch display and 2-megapixel camera.',
+        'The iPhone revolutionized the smartphone industry.',
+      ]
+
+      const result = await zai.answer(documents, 'When was the iPhone released and who announced it?')
+
+      expect(result.type).toBe('answer')
+      if (result.type === 'answer') {
+        // Should have multiple citations
+        expect(result.citations.length).toBeGreaterThanOrEqual(2)
+        // But answer should be completely clean of markers
+        expect(result.answer).not.toContain('■')
       }
     })
   })
