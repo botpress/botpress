@@ -7,7 +7,7 @@ import { BasePlugin } from '../common'
 export type UserFinder<TPlugin extends BasePlugin> = {
   list: <TConversationId extends string | undefined = undefined>(props?: {
     conversationId?: TConversationId
-    tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
+    tags?: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['user']['tags']>>
   }) => AsyncCollection<ActionableUser<TPlugin, TConversationId>>
   getById: (props: { id: string }) => Promise<ActionableUser<TPlugin>>
 }
@@ -38,12 +38,17 @@ export type ActionableUserWithoutConversation<
 export type BaseActionableUser<
   TPlugin extends BasePlugin,
   TConversationId extends string | undefined = undefined,
-> = User & {
+> = typeUtils.Merge<
+  User,
+  {
+    tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['user']['tags']>>
+  }
+> & {
   update: (
     props: typeUtils.Merge<
       Omit<ClientInputs['updateUser'], 'id'>,
       {
-        tags?: commonTypes.ToTags<keyof TPlugin['user']['tags']>
+        tags?: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['user']['tags']>>
       }
     >
   ) => Promise<ActionableUser<TPlugin, TConversationId>>

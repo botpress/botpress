@@ -10,6 +10,8 @@ import type {
   ActionableUserWithoutConversation,
   ActionableUserWithConversation,
 } from './types'
+import type { commonTypes } from '../../common'
+import type * as typeUtils from '../../utils/type-utils'
 
 export const proxyUsers = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client
@@ -42,7 +44,12 @@ export const proxyUser = <TPlugin extends BasePlugin, TConversationId extends st
   user: client.User
 }): ActionableUser<TPlugin, TConversationId> => {
   const baseActionableUser = {
-    ...unprefixTagsOwnedByPlugin(props.user, { alias: props.pluginAlias }),
+    ...(unprefixTagsOwnedByPlugin(props.user, { alias: props.pluginAlias }) as typeUtils.Merge<
+      client.User,
+      {
+        tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['user']['tags']>>
+      }
+    >),
 
     async update(data) {
       const { user: updatedUser } = await props.client.updateUser({
