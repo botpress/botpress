@@ -221,7 +221,7 @@ export const addPlugin: Test = {
           'export default new sdk.BotDefinition({}).addPlugin(aPlugin, {',
           `  alias: '${pluginAlias}',`,
           '  configuration: {},',
-          '  interfaces: {},',
+          '  dependencies: {},',
           '})',
         ].join('\n')
       )
