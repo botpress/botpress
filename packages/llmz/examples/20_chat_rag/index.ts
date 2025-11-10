@@ -18,14 +18,14 @@
  */
 
 import { Client } from '@botpress/client'
-import { execute, ThinkSignal, Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
 
 import chalk from 'chalk'
+import { execute, ThinkSignal, Tool } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
-import { RAG_TAG, uploadToRAG, waitUntilIndexed } from './rag'
 import { loading } from '../utils/spinner'
+import { RAG_TAG, uploadToRAG, waitUntilIndexed } from './rag'
 
 // Initialize Botpress client for LLM and file operations
 const client = new Client({
@@ -74,8 +74,8 @@ const rag = new Tool({
     }
 
     // Build formatted response with citations
-    let message: string[] = ['Here are the search results from the knowledge base:']
-    let { tag: example } = chat.citations.registerSource({})
+    const message: string[] = ['Here are the search results from the knowledge base:']
+    const { tag: example } = chat.citations.registerSource({})
 
     // Process each retrieved passage with proper citation tracking
     for (const p of passages) {

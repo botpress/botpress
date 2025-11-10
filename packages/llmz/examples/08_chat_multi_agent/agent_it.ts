@@ -1,6 +1,6 @@
+import { z } from '@bpinternal/zui'
 import { Tool } from 'llmz'
 import type { SubAgent } from './orchestrator'
-import { z } from '@bpinternal/zui'
 
 const resetPassword = new Tool({
   name: 'resetPassword',

@@ -33,7 +33,90 @@ const Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Rewrites a string according to match the prompt */
+    /**
+     * Rewrites text according to specific instructions while preserving the core meaning.
+     *
+     * This operation transforms text based on natural language instructions. Perfect for
+     * tone adjustment, format conversion, translation, simplification, and style changes.
+     *
+     * @param original - The text to rewrite
+     * @param prompt - Instructions describing how to transform the text
+     * @param options - Configuration for examples and length constraints
+     * @returns Response promise resolving to the rewritten text
+     *
+     * @example Change tone
+     * ```typescript
+     * const original = "Your request has been denied due to insufficient funds."
+     * const friendly = await zai.rewrite(
+     *   original,
+     *   'Make this sound more friendly and empathetic'
+     * )
+     * // Result: "We appreciate your interest, but unfortunately we're unable to proceed..."
+     * ```
+     *
+     * @example Simplify technical content
+     * ```typescript
+     * const technical = "The API implements RESTful architecture with OAuth 2.0 authentication..."
+     * const simple = await zai.rewrite(
+     *   technical,
+     *   'Explain this in simple terms for non-technical users'
+     * )
+     * ```
+     *
+     * @example Professional email conversion
+     * ```typescript
+     * const casual = "Hey, can you send me that report? Thanks!"
+     * const professional = await zai.rewrite(
+     *   casual,
+     *   'Rewrite this as a formal business email'
+     * )
+     * // Result: "Dear colleague, I would appreciate it if you could share the report..."
+     * ```
+     *
+     * @example Format conversion
+     * ```typescript
+     * const paragraph = "First do this. Then do that. Finally do this other thing."
+     * const bullets = await zai.rewrite(
+     *   paragraph,
+     *   'Convert this to a bulleted list'
+     * )
+     * // Result:
+     * // - First do this
+     * // - Then do that
+     * // - Finally do this other thing
+     * ```
+     *
+     * @example With examples for consistent style
+     * ```typescript
+     * const result = await zai.rewrite(
+     *   original,
+     *   'Rewrite in our brand voice',
+     *   {
+     *     examples: [
+     *       {
+     *         input: 'We offer many products.',
+     *         output: 'Discover our curated collection of innovative solutions.'
+     *       },
+     *       {
+     *         input: 'Contact us for help.',
+     *         output: "We're here to support your success. Let's connect!"
+     *       }
+     *     ],
+     *     length: 200 // Limit output length
+     *   }
+     * )
+     * ```
+     *
+     * @example Translation-like transformation
+     * ```typescript
+     * const code = "if (user.isActive && user.hasPermission) { allowAccess() }"
+     * const pseudocode = await zai.rewrite(
+     *   code,
+     *   'Convert this code to natural language pseudocode'
+     * )
+     * // Result: "If the user is active AND has permission, then allow access"
+     * ```
+     */
     rewrite(original: string, prompt: string, options?: Options): Response<string>
   }
 }
@@ -141,7 +224,6 @@ Rewrite the text between the ${START} and ${END} tags to match the user prompt.
 ${instructions.map((x) => `• ${x}`).join('\n')}
 `.trim(),
     messages: [...examples, { type: 'text', content: format(original, prompt), role: 'user' }],
-    maxTokens: options.length,
     stopSequences: [END],
     transform: (text) => {
       if (!text.trim().length) {

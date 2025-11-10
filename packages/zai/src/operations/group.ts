@@ -43,6 +43,156 @@ const _Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
+    /**
+     * Groups array items into categories based on semantic similarity or criteria.
+     *
+     * This operation intelligently categorizes items by analyzing their content and
+     * creating meaningful groups. It can discover natural groupings automatically or
+     * use predefined categories. Perfect for clustering, classification, and organization.
+     *
+     * @param input - Array of items to group
+     * @param options - Configuration for grouping behavior, instructions, and initial categories
+     * @returns Response with groups array (simplified to Record<groupLabel, items[]>)
+     *
+     * @example Automatic grouping
+     * ```typescript
+     * const messages = [
+     *   "I can't log in to my account",
+     *   "How do I reset my password?",
+     *   "When will my order arrive?",
+     *   "The app keeps crashing",
+     *   "I haven't received my package",
+     *   "Error 500 on checkout"
+     * ]
+     *
+     * const groups = await zai.group(messages, {
+     *   instructions: 'Group by type of customer issue'
+     * })
+     * // Result (simplified):
+     * // {
+     * //   "Login Issues": ["I can't log in...", "How do I reset..."],
+     * //   "Shipping Questions": ["When will my order...", "I haven't received..."],
+     * //   "Technical Errors": ["The app keeps crashing", "Error 500..."]
+     * // }
+     *
+     * // Full result:
+     * const { output } = await zai.group(messages, { instructions: '...' }).result()
+     * // output: [
+     * //   { id: 'login_issues', label: 'Login Issues', elements: [...] },
+     * //   { id: 'shipping', label: 'Shipping Questions', elements: [...] },
+     * //   { id: 'errors', label: 'Technical Errors', elements: [...] }
+     * // ]
+     * ```
+     *
+     * @example With predefined categories
+     * ```typescript
+     * const articles = [
+     *   "How to build a React app",
+     *   "Python machine learning tutorial",
+     *   "Understanding Docker containers",
+     *   "Vue.js best practices",
+     *   "Deep learning with TensorFlow"
+     * ]
+     *
+     * const groups = await zai.group(articles, {
+     *   instructions: 'Categorize by technology',
+     *   initialGroups: [
+     *     { id: 'frontend', label: 'Frontend Development' },
+     *     { id: 'backend', label: 'Backend Development' },
+     *     { id: 'ml', label: 'Machine Learning' },
+     *     { id: 'devops', label: 'DevOps & Infrastructure' }
+     *   ]
+     * })
+     * // Groups articles into predefined categories
+     * ```
+     *
+     * @example Grouping products
+     * ```typescript
+     * const products = [
+     *   { name: 'Laptop', price: 999, category: 'Electronics' },
+     *   { name: 'Desk', price: 299, category: 'Furniture' },
+     *   { name: 'Mouse', price: 29, category: 'Electronics' },
+     *   { name: 'Chair', price: 199, category: 'Furniture' }
+     * ]
+     *
+     * const grouped = await zai.group(products, {
+     *   instructions: 'Group by price range: budget (< $100), mid-range ($100-$500), premium (> $500)'
+     * })
+     * // Result:
+     * // {
+     * //   "Budget": [Mouse],
+     * //   "Mid-range": [Chair, Desk],
+     * //   "Premium": [Laptop]
+     * // }
+     * ```
+     *
+     * @example Content categorization
+     * ```typescript
+     * const emails = [
+     *   { subject: 'Meeting tomorrow', body: '...', from: 'boss@company.com' },
+     *   { subject: 'Invoice #1234', body: '...', from: 'billing@vendor.com' },
+     *   { subject: 'Weekly report', body: '...', from: 'team@company.com' },
+     *   { subject: 'Payment received', body: '...', from: 'accounting@company.com' }
+     * ]
+     *
+     * const categorized = await zai.group(emails, {
+     *   instructions: 'Categorize by email type: work communication, financial, reports',
+     *   tokensPerElement: 300 // Allow more context per email
+     * })
+     * ```
+     *
+     * @example Customer feedback grouping
+     * ```typescript
+     * const feedback = [
+     *   "Love the new UI!",
+     *   "App is too slow",
+     *   "Great customer service",
+     *   "Confusing navigation",
+     *   "Fast shipping!",
+     *   "Hard to find features"
+     * ]
+     *
+     * const grouped = await zai.group(feedback, {
+     *   instructions: 'Group by aspect: UI/UX, Performance, Customer Service, Shipping'
+     * })
+     * ```
+     *
+     * @example Topic clustering for research
+     * ```typescript
+     * const papers = [
+     *   { title: 'Transformer Networks for NLP', abstract: '...' },
+     *   { title: 'CNN Image Classification', abstract: '...' },
+     *   { title: 'BERT Language Understanding', abstract: '...' },
+     *   { title: 'Object Detection with YOLO', abstract: '...' }
+     * ]
+     *
+     * const clusters = await zai.group(papers, {
+     *   instructions: 'Group by research area',
+     *   chunkLength: 10000 // Allow more tokens for detailed abstracts
+     * })
+     * // Result: Groups papers by topic (NLP, Computer Vision, etc.)
+     * ```
+     *
+     * @example With initial seed groups
+     * ```typescript
+     * const tasks = [
+     *   "Fix login bug",
+     *   "Update documentation",
+     *   "Add dark mode",
+     *   "Optimize database queries"
+     * ]
+     *
+     * const grouped = await zai.group(tasks, {
+     *   instructions: 'Categorize development tasks',
+     *   initialGroups: [
+     *     { id: 'bugs', label: 'Bug Fixes', elements: [] },
+     *     { id: 'features', label: 'New Features', elements: [] },
+     *     { id: 'docs', label: 'Documentation', elements: [] },
+     *     { id: 'performance', label: 'Performance', elements: [] }
+     *   ]
+     * })
+     * ```
+     */
     group<T>(input: Array<T>, options?: Options): Response<Array<Group<T>>, Record<string, T[]>>
   }
 }
