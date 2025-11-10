@@ -23,7 +23,10 @@ export default new sdk.BotDefinition({
     teamsToWatch: {
       type: 'bot',
       schema: sdk.z.object({
-        teamKeys: sdk.z.array(sdk.z.string()),
+        teamKeys: sdk.z
+          .array(sdk.z.string())
+          .title('Team Keys')
+          .describe('The keys of the teams for which BugBuster should lint issues'),
       }),
     },
   },
