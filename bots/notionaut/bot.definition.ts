@@ -5,8 +5,6 @@ import chat from './bp_modules/chat'
 import fileSynchronizer from './bp_modules/file-synchronizer'
 import notion from './bp_modules/notion'
 
-const notionFilesReadonly = notion.definition.interfaces['files-readonly']
-
 export default new sdk.BotDefinition({
   configuration: {
     schema: sdk.z.object({}),
@@ -39,15 +37,10 @@ export default new sdk.BotDefinition({
       ],
       excludeFiles: [],
     },
-    interfaces: {
+    dependencies: {
       'files-readonly': {
-        id: notion.id,
-        name: notion.name,
-        version: notion.version,
-        entities: notionFilesReadonly.entities,
-        actions: notionFilesReadonly.actions,
-        events: notionFilesReadonly.events,
-        channels: notionFilesReadonly.channels,
+        integrationAlias: 'notion',
+        integrationInterfaceAlias: 'files-readonly',
       },
     },
   })

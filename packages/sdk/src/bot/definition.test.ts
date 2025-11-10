@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import { IntegrationConfigInstance, IntegrationInstance } from './definition'
+import { ResolvedIntegrationConfigInstance, IntegrationInstance } from './definition'
 import * as utils from '../utils/type-utils'
 import { IntegrationDefinition } from '../integration'
 import { z } from '@bpinternal/zui'
@@ -22,7 +22,7 @@ test('IntegrationConfigInstance of integration with no config should be empty', 
   })
   type Def = typeof def
 
-  type Actual = IntegrationConfigInstance<{
+  type Actual = ResolvedIntegrationConfigInstance<{
     type: 'integration'
     name: Def['name']
     version: Def['version']
@@ -31,7 +31,8 @@ test('IntegrationConfigInstance of integration with no config should be empty', 
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
+    alias: string
     disabledChannels?: string[] | undefined
   } & (
     | {
@@ -66,7 +67,7 @@ test('IntegrationConfigInstance of integration with single config schema should 
   })
   type Def = typeof def
 
-  type Actual = IntegrationConfigInstance<{
+  type Actual = ResolvedIntegrationConfigInstance<{
     type: 'integration'
     name: Def['name']
     version: Def['version']
@@ -75,7 +76,8 @@ test('IntegrationConfigInstance of integration with single config schema should 
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
+    alias: string
     disabledChannels?: string[] | undefined
   } & (
     | {
@@ -117,7 +119,7 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
   })
   type Def = typeof def
 
-  type Actual = IntegrationConfigInstance<{
+  type Actual = ResolvedIntegrationConfigInstance<{
     type: 'integration'
     name: Def['name']
     version: Def['version']
@@ -126,7 +128,8 @@ test('IntegrationConfigInstance of integration with multiple config schemas shou
   }>
 
   type Expected = {
-    enabled: boolean
+    enabled?: boolean
+    alias: string
     disabledChannels?: string[] | undefined
   } & (
     | {
