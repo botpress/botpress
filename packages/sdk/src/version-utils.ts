@@ -6,7 +6,7 @@ type GenericPackage = Exclude<Package, PluginDefinition>
 
 /**
  * Returns the major version range for a given package.
- * Version utils are only intended to be used with plugins.
+ * Version utility helpers are only intended to be used with plugins.
  **/
 export function allWithinPkgMajor<T extends GenericPackage>(pkg: T): T & { version: string } {
   const major = semver.major(pkg.version)
@@ -15,7 +15,7 @@ export function allWithinPkgMajor<T extends GenericPackage>(pkg: T): T & { versi
 
 /**
  * Returns the minor version range for a given package.
- * Version utils are only intended to be used with plugins.
+ * Version utility helpers are only intended to be used with plugins.
  **/
 export function allWithinPkgMinor<T extends GenericPackage>(pkg: T): T & { version: string } {
   const major = semver.major(pkg.version)
