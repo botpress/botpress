@@ -54,9 +54,9 @@ bot.on.event('timeToCheckApi', async (props) => {
 
   const response = await axios.get('https://developers.facebook.com/docs/graph-api/changelog/')
   const selector = cheerio.load(response.data)
-  const newGraphApiVersion = selector('code').first().text()
+  const newGraphApiVersion = selector('code').first().text().trim()
 
-  if (isVersionString(newGraphApiVersion)) {
+  if (!isVersionString(newGraphApiVersion)) {
     await _handleApiChange(
       `I failed reading the Meta's API version, I received\n${newGraphApiVersion}`,
       undefined,
