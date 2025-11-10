@@ -14,7 +14,6 @@ import {
 import { getAuthenticatedWhatsappClient } from '../auth'
 import { WHATSAPP } from '../misc/constants'
 import { convertMarkdownToWhatsApp } from '../misc/markdown-to-whatsapp-rtf'
-import { sendPosthogError } from '../misc/posthogClient'
 import { sleep } from '../misc/util'
 import { repeat } from '../repeat'
 import * as card from './message-types/card'
@@ -27,182 +26,122 @@ import * as bp from '.botpress'
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
-      try {
-        if (payload.text.trim().length === 0) {
-          props.logger
-            .forBot()
-            .warn(
-              `Message ${props.message.id} skipped: payload text must contain at least one non-invisible character.`
-            )
-          return
-        }
-        const text = convertMarkdownToWhatsApp(payload.text)
-        await _send({ ...props, message: new Text(text) })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-text' })
-      }
+      const text = convertMarkdownToWhatsApp(payload.text)
+      await _send({ ...props, message: new Text(text) })
     },
     image: async ({ payload, logger, ...props }) => {
-      try {
-        await _send({
-          ...props,
+      await _send({
+        ...props,
+        logger,
+        message: await image.generateOutgoingMessage({
+          payload,
           logger,
-          message: await image.generateOutgoingMessage({
-            payload,
-            logger,
-          }),
-        })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-image' })
-      }
+        }),
+      })
     },
     audio: async ({ payload, ...props }) => {
-      try {
-        await _send({
-          ...props,
-          message: new Audio(payload.audioUrl.trim(), false),
-        })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-audio' })
-      }
+      await _send({
+        ...props,
+        message: new Audio(payload.audioUrl.trim(), false),
+      })
     },
     video: async ({ payload, ...props }) => {
-      try {
-        await _send({
-          ...props,
-          message: new Video(payload.videoUrl.trim(), false),
-        })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-video' })
-      }
+      await _send({
+        ...props,
+        message: new Video(payload.videoUrl.trim(), false),
+      })
     },
     file: async ({ payload, ...props }) => {
-      try {
-        const title = payload.title?.trim()
-        const url = payload.fileUrl.trim()
-        const inputFilename = payload.filename?.trim()
-        let filename = inputFilename || title || 'file'
-        const fileExtension = _extractFileExtension(filename)
-        if (!fileExtension) {
-          filename += _extractFileExtension(url) ?? ''
-        }
-        await _send({
-          ...props,
-          message: new Document(url, false, title, filename),
-        })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-file' })
+      const title = payload.title?.trim()
+      const url = payload.fileUrl.trim()
+      const inputFilename = payload.filename?.trim()
+      let filename = inputFilename || title || 'file'
+      const fileExtension = _extractFileExtension(filename)
+      if (!fileExtension) {
+        filename += _extractFileExtension(url) ?? ''
       }
+      await _send({
+        ...props,
+        message: new Document(url, false, title, filename),
+      })
     },
     location: async ({ payload, ...props }) => {
-      try {
-        await _send({
-          ...props,
-          message: new Location(payload.longitude, payload.latitude),
-        })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-location' })
-      }
+      await _send({
+        ...props,
+        message: new Location(payload.longitude, payload.latitude),
+      })
     },
     carousel: async ({ payload, logger, ...props }) => {
-      try {
-        await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-carousel' })
-      }
+      await _sendMany({ ...props, logger, generator: carousel.generateOutgoingMessages(payload, logger) })
     },
     card: async ({ payload, logger, ...props }) => {
-      try {
-        await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-card' })
-      }
+      await _sendMany({ ...props, logger, generator: card.generateOutgoingMessages(payload, logger) })
     },
     dropdown: async ({ payload, logger, ...props }) => {
-      try {
+      await _sendMany({
+        ...props,
+        logger,
+        generator: dropdown.generateOutgoingMessages({ payload, logger }),
+      })
+    },
+    choice: async ({ payload, logger, ...props }) => {
+      if (payload.options.length <= WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
+        await _sendMany({
+          ...props,
+          logger,
+          generator: choice.generateOutgoingMessages({ payload, logger }),
+        })
+      } else {
+        // If choice options exceeds the maximum number of buttons allowed by WhatsApp we use a dropdown instead to avoid buttons being split into multiple groups with a repeated message.
         await _sendMany({
           ...props,
           logger,
           generator: dropdown.generateOutgoingMessages({ payload, logger }),
         })
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-dropdown' })
-      }
-    },
-    choice: async ({ payload, logger, ...props }) => {
-      try {
-        if (payload.options.length <= WHATSAPP.INTERACTIVE_MAX_BUTTONS_COUNT) {
-          await _sendMany({
-            ...props,
-            logger,
-            generator: choice.generateOutgoingMessages({ payload, logger }),
-          })
-        } else {
-          // If choice options exceeds the maximum number of buttons allowed by WhatsApp we use a dropdown instead to avoid buttons being split into multiple groups with a repeated message.
-          await _sendMany({
-            ...props,
-            logger,
-            generator: dropdown.generateOutgoingMessages({ payload, logger }),
-          })
-        }
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-choice' })
       }
     },
     bloc: async ({ payload, ...props }) => {
-      try {
-        if (!payload.items) {
-          return
+      if (!payload.items) {
+        return
+      }
+      for (const item of payload.items) {
+        switch (item.type) {
+          case 'text':
+            await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
+            break
+          case 'image':
+            await _send({
+              ...props,
+              message: await image.generateOutgoingMessage({ payload: item.payload, logger: props.logger }),
+            })
+            break
+          case 'audio':
+            await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
+            break
+          case 'video':
+            await _send({
+              ...props,
+              message: new Video(item.payload.videoUrl.trim(), false),
+            })
+            break
+          case 'file':
+            const title = item.payload.title?.trim()
+            const url = item.payload.fileUrl.trim()
+            const inputFilename = item.payload.filename?.trim()
+            let filename = inputFilename || title || 'file'
+            const fileExtension = _extractFileExtension(filename)
+            if (!fileExtension) {
+              filename += _extractFileExtension(url) ?? ''
+            }
+            await _send({ ...props, message: new Document(url, false, title, filename) })
+            break
+          case 'location':
+            await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
+            break
+          default:
+            props.logger.forBot().warn('The type passed in bloc is not supported')
+            continue
         }
-        for (const item of payload.items) {
-          switch (item.type) {
-            case 'text':
-              if (item.payload.text.trim().length === 0) {
-                props.logger
-                  .forBot()
-                  .warn(
-                    `Message ${props.message.id} skipped: payload text must contain at least one non-invisible character.`
-                  )
-                break
-              }
-              await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
-              break
-            case 'image':
-              await _send({
-                ...props,
-                message: await image.generateOutgoingMessage({ payload: item.payload, logger: props.logger }),
-              })
-              break
-            case 'audio':
-              await _send({ ...props, message: new Audio(item.payload.audioUrl.trim(), false) })
-              break
-            case 'video':
-              await _send({
-                ...props,
-                message: new Video(item.payload.videoUrl.trim(), false),
-              })
-              break
-            case 'file':
-              const title = item.payload.title?.trim()
-              const url = item.payload.fileUrl.trim()
-              const inputFilename = item.payload.filename?.trim()
-              let filename = inputFilename || title || 'file'
-              const fileExtension = _extractFileExtension(filename)
-              if (!fileExtension) {
-                filename += _extractFileExtension(url) ?? ''
-              }
-              await _send({ ...props, message: new Document(url, false, title, filename) })
-              break
-            case 'location':
-              await _send({ ...props, message: new Location(item.payload.longitude, item.payload.latitude) })
-              break
-            default:
-              props.logger.forBot().warn('The type passed in bloc is not supported')
-              continue
-          }
-        }
-      } catch (thrown) {
-        await sendPosthogError(thrown, { from: 'channel-bloc' })
       }
     },
   },

@@ -40,7 +40,7 @@ export class CLIChat extends Chat {
     super({
       components: () => [DefaultComponents.Text, DefaultComponents.Button, ...this.renderers.map((r) => r.component)],
       transcript: () => this.transcript,
-      handler: (input) => this._sendMessage(input),
+      handler: (input) => this.sendMessage(input),
     })
   }
 
@@ -92,7 +92,7 @@ export class CLIChat extends Chat {
     }
   }
 
-  private async _sendMessage(input: RenderedComponent) {
+  private async sendMessage(input: RenderedComponent) {
     let text = ''
 
     let children: any[] = [input]
@@ -128,9 +128,9 @@ export class CLIChat extends Chat {
 
     text = text.trim()
     if (text.length > 0) {
-      const sources: string[] = []
+      let sources: string[] = []
       const { cleaned } = this.citations.extractCitations(text, (citation) => {
-        const idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
+        let idx = chalk.bgGreenBright.black.bold(` ${sources.length + 1} `)
         sources.push(`${idx}: ${JSON.stringify(citation.source)}`)
         return `${idx}`
       }) ?? { cleaned: text, citations: [] }

@@ -12,22 +12,14 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@line/bot-sdk": "^9.5.0",
-    "remark": "^15.0.1",
-    "remark-gfm": "^4.0.1"
+    "@line/bot-sdk": "^9.5.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@botpresshub/proactive-conversation": "workspace:*",
-    "@botpresshub/proactive-user": "workspace:*",
-    "@botpresshub/typing-indicator": "workspace:*",
-    "@sentry/cli": "^2.39.1",
-    "@types/mdast": "^4.0.4"
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "typing-indicator": "../../interfaces/typing-indicator",
-    "proactive-user": "../../interfaces/proactive-user",
-    "proactive-conversation": "../../interfaces/proactive-conversation"
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

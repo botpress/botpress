@@ -17,44 +17,44 @@ export type SubAgent = {
  * It is designed to handle complex inquiries by allowing agents to hand off requests to other agents.
  */
 export class MultiAgentOrchestrator {
-  private _agents: SubAgent[]
-  private _currentAgentName: string
+  private agents: SubAgent[]
+  private currentAgentName: string
 
-  private _previousHandoffs: Array<{
+  private previousHandoffs: Array<{
     from: string
     to: string
     reason: string
   }> = []
 
-  public constructor(agents: SubAgent[], initialAgentName: string) {
-    this._agents = agents
-    this._currentAgentName = initialAgentName
+  constructor(agents: SubAgent[], initialAgentName: string) {
+    this.agents = agents
+    this.currentAgentName = initialAgentName
   }
 
-  public hasHandedOff(result: ExecutionResult): boolean {
+  hasHandedOff(result: ExecutionResult): boolean {
     return result.isSuccess() && isHandoffMetadata(result.result.exit.metadata)
   }
 
-  public setCurrentAgent(agentName: string) {
-    if (!this._agents.some((agent) => agent.name === agentName)) {
+  setCurrentAgent(agentName: string) {
+    if (!this.agents.some((agent) => agent.name === agentName)) {
       throw new Error(`Agent ${agentName} does not exist`)
     }
-    this._currentAgentName = agentName
+    this.currentAgentName = agentName
   }
 
-  public get currentAgent(): SubAgent {
-    const agent = this._agents.find((agent) => agent.name === this._currentAgentName)
+  get currentAgent(): SubAgent {
+    const agent = this.agents.find((agent) => agent.name === this.currentAgentName)
     if (!agent) {
-      throw new Error(`Current agent ${this._currentAgentName} not found`)
+      throw new Error(`Current agent ${this.currentAgentName} not found`)
     }
     return agent
   }
 
-  public get availableAgents(): SubAgent[] {
-    return this._agents.filter((agent) => agent.name !== this._currentAgentName)
+  get availableAgents(): SubAgent[] {
+    return this.agents.filter((agent) => agent.name !== this.currentAgentName)
   }
 
-  public get context(): ControlledContextProps {
+  get context(): ControlledContextProps {
     const instructions = () => `You are a multi-agent system that can handle various inquiries.
 You are currently handling inquiries related to "${this.currentAgent.name}" ${this.currentAgent.description}.
 
@@ -107,22 +107,22 @@ ${agent.positive_examples.map((ex) => `- ${ex}`).join('\n')}`,
     }
   }
 
-  public async handleHandoffs(result: ExitResult) {
+  async handleHandoffs(result: ExitResult) {
     const metadata = result.exit.metadata
 
     if (!isHandoffMetadata(metadata)) {
-      this._previousHandoffs = []
+      this.previousHandoffs = []
       return
     }
 
-    if (this._previousHandoffs.some((x) => x.from === metadata.agent)) {
+    if (this.previousHandoffs.some((x) => x.from === metadata.agent)) {
       throw new Error(
-        `You already handed off this request to the ${result.exit.name} agent. Try to either handle it yourself, or handoff to the main again, or ask the user to clarify their request. Previous handoffs: ${JSON.stringify(this._previousHandoffs)}`
+        `You already handed off this request to the ${result.exit.name} agent. Try to either handle it yourself, or handoff to the main again, or ask the user to clarify their request. Previous handoffs: ${JSON.stringify(this.previousHandoffs)}`
       )
     }
 
     const reason = (result.result as any)?.message || 'No reason provided'
-    this._previousHandoffs.push({
+    this.previousHandoffs.push({
       from: this.currentAgent.name,
       to: metadata.agent,
       reason,

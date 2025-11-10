@@ -14,9 +14,10 @@
  * - Conversation history management
  */
 
-import { CLIChat } from '../utils/cli-chat'
 import { Client } from '@botpress/client'
 import { execute } from 'llmz'
+
+import { CLIChat } from '../utils/cli-chat'
 
 // Initialize the Botpress Client for LLM interactions
 // This client handles authentication and communication with language models

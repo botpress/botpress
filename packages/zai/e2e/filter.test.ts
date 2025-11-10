@@ -57,13 +57,7 @@ describe('zai.filter', { timeout: 60_000 }, () => {
     ]
 
     const value = await zai.filter(
-      [
-        { name: 'Moveworks (chatbot)' },
-        { name: 'Ada.cx' },
-        { name: 'Nike' },
-        { name: 'Voiceflow' },
-        { name: 'Adidas' },
-      ],
+      [{ name: 'Moveworks' }, { name: 'Ada.cx' }, { name: 'Nike' }, { name: 'Voiceflow' }, { name: 'Adidas' }],
       'competes with us',
       { examples }
     )
@@ -71,7 +65,7 @@ describe('zai.filter', { timeout: 60_000 }, () => {
     const names = value.map((v) => v.name)
     expect(names).toMatchInlineSnapshot(`
       [
-        "Moveworks (chatbot)",
+        "Moveworks",
         "Ada.cx",
         "Voiceflow",
       ]
@@ -149,7 +143,7 @@ describe.sequential('zai.learn.filter', { timeout: 60_000 }, () => {
     `)
 
     const rows = await client.findTableRows({ table: tableName })
-    expect(rows.rows.length).toBeGreaterThanOrEqual(3)
+    expect(rows.rows.length).toBe(3)
     expect(rows.rows.at(-1)!.output.value).toEqual(second)
   })
 })

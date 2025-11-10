@@ -41,77 +41,11 @@ type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
   interface Zai {
-    /**
-     * Extracts structured data from unstructured text using a Zod schema.
-     *
-     * This operation uses LLMs to intelligently parse text and extract information
-     * according to your schema. It handles large inputs automatically by chunking
-     * and supports both objects and arrays.
-     *
-     * @param input - The text or data to extract information from
-     * @param schema - Zod schema defining the structure to extract
-     * @param options - Optional configuration for extraction behavior
-     * @returns A Response promise that resolves to data matching your schema
-     *
-     * @example Extract a single object
-     * ```typescript
-     * import { z } from '@bpinternal/zui'
-     *
-     * const personSchema = z.object({
-     *   name: z.string(),
-     *   age: z.number(),
-     *   email: z.string().email()
-     * })
-     *
-     * const text = "Contact John Doe (35) at john@example.com"
-     * const person = await zai.extract(text, personSchema)
-     * // Result: { name: 'John Doe', age: 35, email: 'john@example.com' }
-     * ```
-     *
-     * @example Extract an array of items
-     * ```typescript
-     * const productSchema = z.array(z.object({
-     *   name: z.string(),
-     *   price: z.number()
-     * }))
-     *
-     * const text = "We have Apple ($1.50), Banana ($0.80), and Orange ($1.20)"
-     * const products = await zai.extract(text, productSchema)
-     * // Result: [
-     * //   { name: 'Apple', price: 1.50 },
-     * //   { name: 'Banana', price: 0.80 },
-     * //   { name: 'Orange', price: 1.20 }
-     * // ]
-     * ```
-     *
-     * @example With custom instructions
-     * ```typescript
-     * const result = await zai.extract(document, schema, {
-     *   instructions: 'Only extract confirmed information, skip uncertain data',
-     *   chunkLength: 10000, // Smaller chunks for better accuracy
-     *   strict: true // Enforce strict schema validation
-     * })
-     * ```
-     *
-     * @example Track usage and cost
-     * ```typescript
-     * const response = zai.extract(text, schema)
-     *
-     * // Monitor progress
-     * response.on('progress', (usage) => {
-     *   console.log(`Tokens used: ${usage.tokens.total}`)
-     *   console.log(`Cost so far: $${usage.cost.total}`)
-     * })
-     *
-     * // Get full results
-     * const { output, usage, elapsed } = await response.result()
-     * console.log(`Extraction took ${elapsed}ms and cost $${usage.cost.total}`)
-     * ```
-     */
+    /** Extracts one or many elements from an arbitrary input */
     extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
-const SPECIAL_CHAR = '■'
+
 const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
@@ -396,12 +330,7 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
-            let json = x.slice(0, x.indexOf(END)).trim()
-
-            if (json.includes(SPECIAL_CHAR)) {
-              json = json.slice(0, json.indexOf(SPECIAL_CHAR)).trim()
-            }
-
+            const json = x.slice(0, x.indexOf(END)).trim()
             const repairedJson = jsonrepair(json)
             const parsedJson = JSON5.parse(repairedJson)
             const safe = schema.safeParse(parsedJson)

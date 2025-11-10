@@ -1,4 +1,3 @@
 export * from './github-issue-opened'
 export * from './linear-issue-updated'
-export * from './linear-issue-created'
 export * from './message-created'

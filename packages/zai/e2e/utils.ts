@@ -24,7 +24,7 @@ export const getCachedClient = () => {
 
 export const getZai = (cognitive?: Cognitive) => {
   const client = cognitive || getCachedClient()
-  return new Zai({ client, modelId: 'fast' })
+  return new Zai({ client })
 }
 
 export let tokenizer: TextTokenizer = null!

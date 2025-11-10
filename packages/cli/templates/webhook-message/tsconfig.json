@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "outDir": "dist",
     "checkJs": false,
+    "incremental": true,
     "exactOptionalPropertyTypes": false,
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,

@@ -18,10 +18,10 @@
  */
 
 import { Client } from '@botpress/client'
-import Zai from '@botpress/zai'
-import chalk from 'chalk'
 import { execute, ThinkSignal } from 'llmz'
+import Zai from '@botpress/zai'
 import { CLIChat } from '../utils/cli-chat'
+import chalk from 'chalk'
 import { loading } from '../utils/spinner'
 
 // Initialize Botpress client

@@ -184,27 +184,9 @@ export class Cognitive {
     }
 
     const betaClient = new CognitiveBeta(this._client.config)
-    const props: Request = { input }
+    const response = await betaClient.generateText(input as any)
 
-    // Forward beta client events to main client events
-    betaClient.on('request', () => {
-      this._events.emit('request', props)
-    })
-
-    betaClient.on('error', (_req, error) => {
-      this._events.emit('error', props, error)
-    })
-
-    betaClient.on('retry', (_req, error) => {
-      this._events.emit('retry', props, error)
-    })
-
-    const response = await betaClient.generateText(input as any, {
-      signal: input.signal,
-      timeout: this._timeoutMs,
-    })
-
-    const result: Response = {
+    return {
       output: {
         id: 'beta-output',
         provider: response.metadata.provider,
@@ -242,11 +224,6 @@ export class Cognitive {
         },
       },
     }
-
-    // Emit final response event with actual data
-    this._events.emit('response', props, result)
-
-    return result
   }
 
   private async _generateContent(input: InputProps): Promise<Response> {
