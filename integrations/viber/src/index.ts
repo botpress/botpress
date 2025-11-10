@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import { parseMarkdown } from '@botpress/common'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
@@ -19,7 +20,7 @@ const integration = new bp.Integration({
             ...props,
             payload: {
               type: 'text',
-              text: props.payload.text,
+              text: parseMarkdown(props.payload.text),
             },
           })
         },
