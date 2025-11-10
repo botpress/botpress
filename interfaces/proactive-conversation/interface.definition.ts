@@ -12,6 +12,8 @@ export default new InterfaceDefinition({
   },
   actions: {
     getOrCreateConversation: {
+      title: 'Get or Create a Conversation',
+      description: 'Proactively create a conversation from a bot',
       input: {
         schema: ({ conversation }) =>
           z.object({
