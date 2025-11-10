@@ -1,5 +1,5 @@
 import * as utils from '../utils'
-import { addTeam, listAllTeams, listWatchedTeams, removeTeam, Result } from './teams-manager'
+import { addTeam, listAllTeams, listWatchedTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
@@ -30,39 +30,40 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
   }
 
-  let result: Result
-  let linear: utils.linear.LinearApi
-
   switch (command) {
-    case '/addTeam':
+    case '/addTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      linear = await utils.linear.LinearApi.create()
-      result = await addTeam(client, ctx.botId, teamKey, linear)
+      const linear = await utils.linear.LinearApi.create()
+      const result = await addTeam(client, ctx.botId, teamKey, linear)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/removeTeam':
+    }
+    case '/removeTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      result = await removeTeam(client, ctx.botId, teamKey)
+      const result = await removeTeam(client, ctx.botId, teamKey)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/listAllTeams':
-      linear = await utils.linear.LinearApi.create()
-      result = await listAllTeams(linear)
+    }
+    case '/listAllTeams': {
+      const linear = await utils.linear.LinearApi.create()
+      const result = await listAllTeams(linear)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/listWatchedTeams':
-      linear = await utils.linear.LinearApi.create()
-      result = await listWatchedTeams(client, ctx.botId)
+    }
+    case '/listWatchedTeams': {
+      const result = await listWatchedTeams(client, ctx.botId)
       await botpress.respondText(conversation.id, result.message)
       break
-    default:
+    }
+    default: {
       await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
       break
+    }
   }
 }

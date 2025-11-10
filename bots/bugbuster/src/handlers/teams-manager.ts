@@ -1,4 +1,4 @@
-import { LinearApi, TeamKey } from 'src/utils/linear-utils'
+import { LinearApi } from 'src/utils/linear-utils'
 import * as bp from '.botpress'
 
 export type Result<T> = {
