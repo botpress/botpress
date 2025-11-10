@@ -1,8 +1,7 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from 'bp_modules/typing-indicator'
-
-import { actions, configuration, channels, user, states } from './src/definitions'
+import { actions, configuration, channels, user, states } from 'definitions'
 
 export default new IntegrationDefinition({
   name: 'teams',
