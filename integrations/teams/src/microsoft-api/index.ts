@@ -1,6 +1,6 @@
 import { ClientSecretCredential } from '@azure/identity'
 import { Client } from '@microsoft/microsoft-graph-client'
-import * as bp from '../.botpress'
+import * as bp from '.botpress'
 
 function getGraphClient({ ctx }: { ctx: bp.Context }) {
   const { tenantId, appId, appPassword } = ctx.configuration

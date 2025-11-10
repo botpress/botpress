@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { ConversationParameters, ConversationReference, TeamsChannelAccount, TeamsInfo, TurnContext } from 'botbuilder'
-import { getUserByEmail } from '../client'
+import { getUserByEmail } from '../microsoft-api'
 import { getAdapter, getError } from '../utils'
 import * as bp from '.botpress'
 
