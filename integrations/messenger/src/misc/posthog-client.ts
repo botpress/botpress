@@ -26,7 +26,7 @@ const sendPosthogEvent = async (props: BotpressEventMessage): Promise<void> => {
     await client.captureImmediate(props)
     await client.shutdown()
     console.info('PostHog event sent')
-  } catch (thrown: any) {
+  } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
   }
