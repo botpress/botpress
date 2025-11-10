@@ -4,6 +4,8 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 
+export const INTEGRATION_NAME = 'messenger'
+
 const commonConfigSchema = z.object({
   downloadMedia: z
     .boolean()
@@ -23,7 +25,7 @@ const commonConfigSchema = z.object({
 })
 
 export default new IntegrationDefinition({
-  name: 'messenger',
+  name: INTEGRATION_NAME,
   version: '4.1.1',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',

@@ -1,10 +1,11 @@
 import { isSandboxCommand, meta } from '@botpress/common'
+import { INTEGRATION_NAME } from 'integration.definition'
+import { sendPosthogError } from 'src/misc/posthog-client'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { messengerPayloadSchema } from '../misc/types'
-import { getErrorFromUnknown, safeJsonParse } from '../misc/utils'
+import { safeJsonParse } from '../misc/utils'
 import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
 import * as bp from '.botpress'
-import { botpressEvents, sendPosthogError } from 'src/misc/posthog-client'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
@@ -42,11 +43,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
   if (!parseResult.success) {
     const errorMessage = `Error while parsing body as Messenger payload: ${parseResult.error.message}`
     logger.forBot().warn(errorMessage)
-    await sendPosthogError(props.ctx.integrationId, errorMessage, {
-      from: `${props.ctx.integrationAlias}:handler`,
-      integrationName: props.ctx.integrationAlias,
-      errorType: botpressEvents.INVALID_MESSAGE_FORMAT,
-    })
     return { status: 400, body: errorMessage }
   }
   const data = parseResult.data
@@ -63,17 +59,21 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
     if (response?.status && response.status >= 400) {
-      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+      const errorMessage = `Messenger handler failed with status ${response.status}: ${response.body}`
+      props.logger.error(errorMessage)
+      await sendPosthogError(props.ctx.integrationId, errorMessage, {
+        from: `${INTEGRATION_NAME}:handler`,
+        integrationName: INTEGRATION_NAME,
+      })
     }
     return response
   } catch (thrown: unknown) {
-    const error = getErrorFromUnknown(thrown)
-    const errorMessage = `Messenger handler failed with error: ${error.message ?? 'Unknown error thrown'}`
+    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Messenger handler failed with error: ${errorMsg}`
     props.logger.error(errorMessage)
     await sendPosthogError(props.ctx.integrationId, errorMessage, {
-      from: `${props.ctx.integrationAlias}:handler`,
-      integrationName: props.ctx.integrationAlias,
-      errorType: botpressEvents.UNHANDLED_ERROR,
+      from: `${INTEGRATION_NAME}:handler`,
+      integrationName: INTEGRATION_NAME,
     })
     return { status: 500, body: errorMessage }
   }
