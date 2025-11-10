@@ -18,9 +18,9 @@
  */
 
 import { Client } from '@botpress/client'
+import chalk from 'chalk'
 import { execute } from 'llmz'
 import { box } from '../utils/box'
-import chalk from 'chalk'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({
@@ -38,7 +38,7 @@ console.log('With LLMz, it naturally writes the code to solve it in a few millis
 const result = await execute({
   // Give the LLM a mathematical problem to solve
   // LLMz will generate TypeScript code to compute the answer
-  instructions: `What is the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5?`,
+  instructions: 'What is the sum of all integers between 14 and 1078 that are divisible by 3, 9 or 5?',
   client,
   // Note: No chat interface provided - this runs in worker mode
 })

@@ -19,9 +19,9 @@
 
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
 import { execute, Exit, Tool } from 'llmz'
 import { box } from '../utils/box'
-import chalk from 'chalk'
 
 // Initialize Botpress client
 const client = new Client({
@@ -105,7 +105,7 @@ const exit = new Exit({
 // 3. Calls Tool C with the processed data
 // 4. Returns the final result through the exit
 const result = await execute({
-  instructions: `I need the 'secret' number please. Do not think, try to do it in one step.`,
+  instructions: "I need the 'secret' number please. Do not think, try to do it in one step.",
   tools: [ToolA, ToolB, ToolC],
   exits: [exit],
   client,
