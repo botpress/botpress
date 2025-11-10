@@ -27,7 +27,7 @@ export default new sdk.BotDefinition({
     configuration: {
       tableName: 'linearIssuesTable',
     },
-    interfaces: {
+    dependencies: {
       listable: {
         integrationAlias: 'linear',
         integrationInterfaceAlias: 'listable<issue>',

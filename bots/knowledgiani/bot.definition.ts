@@ -27,7 +27,7 @@ export default new sdk.BotDefinition({
       model: 'gpt-3.5-turbo-0125' satisfies OpenAiModel['id'],
       personality: 'Respond as if you were Mario the famous video game character of Nintendo',
     },
-    interfaces: {
+    dependencies: {
       llm: {
         integrationAlias: 'openai',
         integrationInterfaceAlias: 'llm<modelRef>',
@@ -36,7 +36,7 @@ export default new sdk.BotDefinition({
   })
   .addPlugin(knowledge, {
     configuration: {},
-    interfaces: {
+    dependencies: {
       llm: {
         integrationAlias: 'openai',
         integrationInterfaceAlias: 'llm<modelRef>',

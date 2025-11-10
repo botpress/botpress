@@ -40,7 +40,7 @@ export default new sdk.BotDefinition({
       ],
       excludeFiles: [],
     },
-    interfaces: {
+    dependencies: {
       'files-readonly': {
         integrationAlias: 'dropbox',
         integrationInterfaceAlias: 'files-readonly',

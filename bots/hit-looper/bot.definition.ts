@@ -42,7 +42,7 @@ export default new sdk.BotDefinition({
       flowOnHitlStopped: false,
       useHumanAgentInfo: false,
     },
-    interfaces: {
+    dependencies: {
       hitl: {
         integrationAlias: 'zendesk',
         integrationInterfaceAlias: 'hitl<hitlTicket>',
