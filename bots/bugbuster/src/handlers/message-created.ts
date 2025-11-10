@@ -3,11 +3,11 @@ import { addTeam, listAllTeams, listWatchedTeams, removeTeam, Result } from './t
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
-const COMMAND_LIST_MESSAGE = `Hey, I\m BugBuster. Here's a list of possible commands:
-/add-team [teamName]
-/remove-team [teamName]
-/list-all-teams
-/list-watched-teams
+const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
+/addTeam [teamName]
+/removeTeam [teamName]
+/listAllTeams
+/listWatchedTeams
 `
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
@@ -34,7 +34,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   let linear: utils.linear.LinearApi
 
   switch (command) {
-    case '/add-team':
+    case '/addTeam':
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
@@ -43,7 +43,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       result = await addTeam(client, ctx.botId, teamKey, linear)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/remove-team':
+    case '/removeTeam':
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
@@ -51,16 +51,12 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       result = await removeTeam(client, ctx.botId, teamKey)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/list-all-teams':
-      if (!teamKey) {
-        await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
-        return
-      }
+    case '/listAllTeams':
       linear = await utils.linear.LinearApi.create()
       result = await listAllTeams(linear)
       await botpress.respondText(conversation.id, result.message)
       break
-    case '/list-watched-teams':
+    case '/listWatchedTeams':
       linear = await utils.linear.LinearApi.create()
       result = await listWatchedTeams(client, ctx.botId)
       await botpress.respondText(conversation.id, result.message)

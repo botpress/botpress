@@ -84,7 +84,7 @@ export async function listWatchedTeams(client: bp.Client, botId: string): Promis
   if (teamKeys.length === 0) {
     return {
       success: false,
-      message: 'There are no watched teams.',
+      message: 'You have no watched teams.',
     }
   }
   return {
