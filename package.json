@@ -70,6 +70,6 @@
     }
   },
   "dependencies": {
-    "posthog-node": "^5.11.2"
+    "posthog-node": "^5.10.4"
   }
 }
