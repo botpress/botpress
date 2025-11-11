@@ -23,9 +23,6 @@ export default new IntegrationDefinition({
       description: 'Cerebras API key',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(llm, ({ entities: { modelRef } }) => ({
   entities: { modelRef },
 }))
