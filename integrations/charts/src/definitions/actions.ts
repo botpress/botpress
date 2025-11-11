@@ -183,8 +183,16 @@ const generateHorizontalBarChart = {
   description: 'Generate a horizontal Chart',
   input: {
     schema: z.object({
-      xData: z.array(z.string().or(z.number())).catch(() => [1, 2, 3, 4, 5]),
-      yData: z.array(z.number()).catch(() => [1, 2, 3, 4, 5]),
+      xData: z
+        .array(z.string().or(z.number()))
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('The data for the x axis')
+        .title('X Data'),
+      yData: z
+        .array(z.number())
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('The data for the y axis')
+        .title('Y Data'),
       title: z.string().optional().describe('The title of the plot').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
