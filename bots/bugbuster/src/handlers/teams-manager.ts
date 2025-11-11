@@ -73,16 +73,6 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
   }
 }
 
-export async function listAllTeams(linear: LinearApi): Promise<Result<readonly string[]>> {
-  const teamKeys = linear.listAllTeams()
-
-  return {
-    success: true,
-    message: teamKeys.join(', '),
-    result: teamKeys,
-  }
-}
-
 export async function listWatchedTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
   const teamKeys = await getTeamKeys(client, botId)
   if (teamKeys.length === 0) {

@@ -51,10 +51,6 @@ export class LinearApi {
     return TEAM_KEYS.includes(teamKey as TeamKey)
   }
 
-  public listAllTeams() {
-    return TEAM_KEYS
-  }
-
   public isState(stateKey: string): stateKey is StateKey {
     return STATE_KEYS.includes(stateKey as StateKey)
   }
