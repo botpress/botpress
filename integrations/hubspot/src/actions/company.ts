@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { companySchema } from '../../definitions/actions/company'
 import { getAuthenticatedHubspotClient } from '../utils'
 import * as bp from '.botpress'
@@ -30,13 +30,17 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
   const propertyKeys = await _getCompanyPropertyKeys(hsClient)
 
-  const company = await hsClient.searchCompany({
-    name: input.name,
-    domain: input.domain,
-    propertiesToReturn: propertyKeys,
-  })
-
-  return {
-    company: company ? _mapHsCompanyToBpCompany(company) : undefined,
+  try {
+    const company = await hsClient.searchCompany({
+      name: input.name,
+      domain: input.domain,
+      propertiesToReturn: propertyKeys,
+    })
+    return {
+      company: company ? _mapHsCompanyToBpCompany(company) : undefined,
+    }
+  } catch (thrown: unknown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    throw new RuntimeError(`Failed to search company: ${errorMessage}`)
   }
 }

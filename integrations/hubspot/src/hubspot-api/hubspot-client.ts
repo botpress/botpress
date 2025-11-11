@@ -155,7 +155,6 @@ export class HubspotClient {
     return contact
   }
 
-  @handleErrors('Failed to search company')
   public async searchCompany({
     name,
     domain,
