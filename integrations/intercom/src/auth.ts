@@ -18,12 +18,16 @@ export const getAuthenticatedIntercomClient = async (client: bp.Client, ctx: bp.
   return new IntercomClient({ tokenAuth: { token: accessToken } })
 }
 
-const saveAccessToken = async (client: bp.Client, ctx: bp.Context, accessToken: string): Promise<void> => {
+const saveAuthCredentials = async (
+  client: bp.Client,
+  ctx: bp.Context,
+  { accessToken, adminId }: { accessToken: string; adminId: string }
+): Promise<void> => {
   await client.setState({
     id: ctx.integrationId,
     name: 'credentials',
     type: 'integration',
-    payload: { accessToken },
+    payload: { accessToken, adminId },
   })
 }
 
@@ -58,8 +62,26 @@ export const handleOAuth = async ({ client, ctx, req }: bp.HandlerProps): Promis
     throw new RuntimeError('Code not present in OAuth callback request')
   }
   const accessToken = await exchangeCodeForAccessToken(code)
-  await saveAccessToken(client, ctx, accessToken)
-  await client.configureIntegration({
-    identifier: ctx.configuration.adminId,
+  const adminId = await getAdminId(ctx)
+  await saveAuthCredentials(client, ctx, { accessToken, adminId })
+  await client.configureIntegration({ identifier: adminId })
+}
+
+const responseSchema = z.object({
+  type: z.string(),
+  id: z.string(),
+})
+
+export const getAdminId = async (ctx: bp.Context): Promise<string> => {
+  const response = await axios.get('https://api.intercom.io/me', {
+    headers: {
+      Authorization: `Bearer ${ctx.configuration.accessToken}`,
+    },
   })
+
+  const parsedResponse = responseSchema.safeParse(response.data)
+  if (!parsedResponse.success) {
+    throw new RuntimeError('Failed to parse admin ID from response')
+  }
+  return parsedResponse.data.id
 }

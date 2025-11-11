@@ -7,7 +7,7 @@ import {
   WhatsAppMessageTemplateQualityUpdateValueSchema,
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
-} from 'definitions/events'
+} from './definitions/events'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
@@ -92,9 +92,10 @@ const defaultBotPhoneNumberId = {
   description: 'Default Phone ID used by the bot for starting conversations',
 }
 
+export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
-  name: 'whatsapp',
-  version: '4.5.12',
+  name: INTEGRATION_NAME,
+  version: '4.5.14',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -403,6 +404,9 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PHONE_NUMBER_ID: {
       description: 'Phone number ID of the Sandbox WhatsApp Business profile',
+    },
+    POSTHOG_KEY: {
+      description: 'Posthog key for error dashboards',
     },
   },
   entities: {

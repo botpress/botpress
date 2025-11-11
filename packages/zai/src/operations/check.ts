@@ -33,7 +33,81 @@ const _Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Checks wether a condition is true or not */
+    /**
+     * Checks whether a condition is true for the given input, with an explanation.
+     *
+     * This operation evaluates natural language conditions against your input data,
+     * returning both a boolean result and a detailed explanation. Perfect for
+     * content moderation, sentiment analysis, quality checks, and business rule validation.
+     *
+     * @param input - The data to evaluate (text, object, or any value)
+     * @param condition - Natural language description of the condition to check
+     * @param options - Optional examples to guide the evaluation
+     * @returns Response with { value: boolean, explanation: string }, simplified to boolean when awaited
+     *
+     * @example Basic sentiment check
+     * ```typescript
+     * const review = "This product exceeded my expectations!"
+     * const isPositive = await zai.check(review, 'Is the sentiment positive?')
+     * // Result: true
+     *
+     * // Get full details
+     * const { value, explanation } = await zai.check(review, 'Is the sentiment positive?').result()
+     * // value: true
+     * // explanation: "The review expresses satisfaction and exceeded expectations..."
+     * ```
+     *
+     * @example Content moderation
+     * ```typescript
+     * const comment = "Great article! Very informative."
+     * const isSpam = await zai.check(comment, 'Is this spam or promotional content?')
+     * // Result: false
+     *
+     * const hasProfanity = await zai.check(comment, 'Does this contain profanity or offensive language?')
+     * // Result: false
+     * ```
+     *
+     * @example Business rules validation
+     * ```typescript
+     * const invoice = {
+     *   total: 1500,
+     *   items: ['laptop', 'mouse'],
+     *   customer: 'Enterprise Corp'
+     * }
+     *
+     * const needsApproval = await zai.check(
+     *   invoice,
+     *   'Does this invoice require manager approval? (over $1000 or enterprise customer)'
+     * )
+     * // Result: true
+     * ```
+     *
+     * @example With examples for consistency
+     * ```typescript
+     * const result = await zai.check(text, 'Is this a technical question?', {
+     *   examples: [
+     *     {
+     *       input: 'How do I deploy to production?',
+     *       check: true,
+     *       reason: 'Question about deployment process'
+     *     },
+     *     {
+     *       input: 'What time is the meeting?',
+     *       check: false,
+     *       reason: 'Not a technical question'
+     *     }
+     *   ]
+     * })
+     * ```
+     *
+     * @example Quality assurance
+     * ```typescript
+     * const code = "function add(a, b) { return a + b }"
+     * const hasDocumentation = await zai.check(code, 'Is this code properly documented?')
+     * const hasTests = await zai.check(code, 'Does this include unit tests?')
+     * const followsConventions = await zai.check(code, 'Does this follow naming conventions?')
+     * ```
+     */
     check(
       input: unknown,
       condition: string,
