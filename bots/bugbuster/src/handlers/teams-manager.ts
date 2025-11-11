@@ -7,7 +7,7 @@ export type Result<T> = {
   result?: T
 }
 
-const getWatchedTeams = async (client: bp.Client, botId: string) => {
+const _getWatchedTeams = async (client: bp.Client, botId: string) => {
   return (
     await client.getOrSetState({
       id: botId,
@@ -20,7 +20,7 @@ const getWatchedTeams = async (client: bp.Client, botId: string) => {
   ).state.payload.teamKeys
 }
 
-const setWatchedTeams = async (client: bp.Client, botId: string, teamKeys: string[]) => {
+const _setWatchedTeams = async (client: bp.Client, botId: string, teamKeys: string[]) => {
   await client.setState({
     id: botId,
     name: 'watchedTeams',
@@ -32,7 +32,7 @@ const setWatchedTeams = async (client: bp.Client, botId: string, teamKeys: strin
 }
 
 export async function addTeam(client: bp.Client, botId: string, key: string, linear: LinearApi): Promise<Result<void>> {
-  const teamKeys = await getWatchedTeams(client, botId)
+  const teamKeys = await _getWatchedTeams(client, botId)
   if (teamKeys.includes(key)) {
     return {
       success: false,
@@ -46,7 +46,7 @@ export async function addTeam(client: bp.Client, botId: string, key: string, lin
     }
   }
 
-  await setWatchedTeams(client, botId, [...teamKeys, key])
+  await _setWatchedTeams(client, botId, [...teamKeys, key])
   return {
     success: true,
     message: `Success: the team with the key '${key}' has been added to the watched team list.`,
@@ -54,7 +54,7 @@ export async function addTeam(client: bp.Client, botId: string, key: string, lin
 }
 
 export async function removeTeam(client: bp.Client, botId: string, key: string): Promise<Result<void>> {
-  const teamKeys = await getWatchedTeams(client, botId)
+  const teamKeys = await _getWatchedTeams(client, botId)
   if (!teamKeys.includes(key)) {
     return {
       message: `Error: the team with the key '${key}' is not currently being watched.`,
@@ -62,7 +62,7 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
     }
   }
 
-  await setWatchedTeams(
+  await _setWatchedTeams(
     client,
     botId,
     teamKeys.filter((k) => k !== key)
@@ -74,7 +74,7 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
 }
 
 export async function listTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
-  const teamKeys = await getWatchedTeams(client, botId)
+  const teamKeys = await _getWatchedTeams(client, botId)
   if (teamKeys.length === 0) {
     return {
       success: false,
