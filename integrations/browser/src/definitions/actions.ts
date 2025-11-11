@@ -102,49 +102,56 @@ const webSearch: ActionDefinition = {
   description: 'Search information on the web. You need to browse to that page to get the full content of the page.',
   input: {
     schema: z.object({
-      query: z.string().min(1).max(1000).describe('What are we searching for?'),
+      query: z.string().min(1).max(1000).describe('What are we searching for?').title('Query'),
       includeSites: z
         .array(domainNameValidator)
         .max(20)
         .optional()
-        .describe('Include only these domains in the search (max 20)'),
+        .describe('Include only these domains in the search (max 20)')
+        .title('Include Site'),
       excludeSites: z
         .array(domainNameValidator)
         .max(20)
         .optional()
-        .describe('Exclude these domains from the search (max 20)'),
+        .describe('Exclude these domains from the search (max 20)')
+        .title('Exclude Site'),
       count: z
         .number()
         .min(1)
         .max(20)
         .optional()
         .default(10)
-        .describe('Number of search results to return (default: 10)'),
+        .describe('Number of search results to return (default: 10)')
+        .title('Count'),
       freshness: z
         .enum(['Day', 'Week', 'Month'])
         .optional()
-        .describe('Only consider results from the last day, week or month'),
+        .describe('Only consider results from the last day, week or month')
+        .title('Freshness'),
       browsePages: z
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to browse to the pages to get the full content'),
+        .describe('Whether to browse to the pages to get the full content')
+        .title('Browse Pages'),
     }),
   },
   output: {
     schema: z.object({
-      results: z.array(
-        z.object({
-          name: z.string().describe('Title of the page'),
-          url: z.string().describe('URL of the page'),
-          snippet: z.string().describe('A short summary of the page'),
-          links: z
-            .array(z.object({ name: z.string(), url: z.string() }))
-            .optional()
-            .describe('Useful links on the page'),
-          page: fullPage.optional(),
-        })
-      ),
+      results: z
+        .array(
+          z.object({
+            name: z.string().describe('Title of the page'),
+            url: z.string().describe('URL of the page'),
+            snippet: z.string().describe('A short summary of the page'),
+            links: z
+              .array(z.object({ name: z.string(), url: z.string() }))
+              .optional()
+              .describe('Useful links on the page'),
+            page: fullPage.optional().describe('The page itself'),
+          })
+        )
+        .describe('Results of the search'),
     }),
   },
   billable: true,
