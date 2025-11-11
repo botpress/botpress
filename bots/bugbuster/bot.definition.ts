@@ -20,7 +20,7 @@ export default new sdk.BotDefinition({
           .describe('List of recently linted issues'),
       }),
     },
-    teamsToWatch: {
+    watchedTeams: {
       type: 'bot',
       schema: sdk.z.object({
         teamKeys: sdk.z

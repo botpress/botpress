@@ -11,7 +11,7 @@ async function getTeamKeys(client: bp.Client, botId: string) {
   return (
     await client.getOrSetState({
       id: botId,
-      name: 'teamsToWatch',
+      name: 'watchedTeams',
       type: 'bot',
       payload: {
         teamKeys: [],
@@ -23,7 +23,7 @@ async function getTeamKeys(client: bp.Client, botId: string) {
 async function setTeamKeys(client: bp.Client, botId: string, teamKeys: string[]) {
   await client.setState({
     id: botId,
-    name: 'teamsToWatch',
+    name: 'watchedTeams',
     type: 'bot',
     payload: {
       teamKeys,
