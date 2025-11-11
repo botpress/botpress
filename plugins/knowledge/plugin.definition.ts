@@ -6,7 +6,7 @@ export default new sdk.PluginDefinition({
   version: '1.0.0',
   configuration: { schema: sdk.z.object({}) },
   interfaces: {
-    llm: sdk.version.allWithinPkgMajor(llm),
+    llm: sdk.version.allWithinMajorOf(llm),
   },
   __advanced: {
     useLegacyZuiTransformer: true,

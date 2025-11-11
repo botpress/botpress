@@ -224,7 +224,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    hitl: sdk.version.allWithinPkgMajor(hitl),
+    hitl: sdk.version.allWithinMajorOf(hitl),
   },
   events: {
     humanAgentAssignedTimeout: {

@@ -68,8 +68,8 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    listable: sdk.version.allWithinPkgMajor(listable),
-    deletable: sdk.version.allWithinPkgMajor(deletable),
+    listable: sdk.version.allWithinMajorOf(listable),
+    deletable: sdk.version.allWithinMajorOf(deletable),
   },
   __advanced: {
     useLegacyZuiTransformer: true,
