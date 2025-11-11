@@ -1,0 +1,22 @@
+{
+  "name": "@bp-bots/clog",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e CLOG_SLACK_CLIENT_ID -e CLOG_SLACK_CLIENT_SECRET -e CLOG_SLACK_SIGNING_SECRET -e CLOG_SLACK_REFRESH_TOKEN",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@bpinternal/genenv": "0.0.1",
+    "cheerio": "^1.1.2"
+  },
+  "devDependencies": {
+    "@botpresshub/slack": "workspace:*"
+  },
+  "bpDependencies": {
+    "slack": "../../integrations/slack"
+  }
+}
