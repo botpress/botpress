@@ -1777,6 +1777,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1792,12 +1795,6 @@ importers:
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
-      remark:
-        specifier: ^15.0.1
-        version: 15.0.1
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
       twilio:
         specifier: ^3.84.0
         version: 3.84.1
@@ -1805,9 +1802,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpresshub/proactive-conversation':
         specifier: workspace:*
         version: link:../../interfaces/proactive-conversation
@@ -1817,9 +1811,6 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
 
   integrations/viber:
     dependencies:
@@ -2595,6 +2586,16 @@ importers:
       preact-render-to-string:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.6)
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+    devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   packages/llmz:
     dependencies:
