@@ -43,17 +43,22 @@ const getWebsiteLogo: ActionDefinition = {
   description: 'Get the logo of the specified website.',
   input: {
     schema: z.object({
-      domain: z.string().describe('The domain of the website to get the logo from (eg. "example.com")'),
-      greyscale: z.boolean().default(false).describe('Whether to return the logo in grayscale (black & white)'),
+      domain: z.string().describe('The domain of the website to get the logo from (eg. "example.com")').title('Domain'),
+      greyscale: z
+        .boolean()
+        .default(false)
+        .describe('Whether to return the logo in grayscale (black & white)')
+        .title('Grayscale'),
       size: z
         .enum(['64', '128', '256', '512'])
         .default('128')
-        .describe('Size of the logo to return (64, 128 or 256, 512 pixels)'),
+        .describe('Size of the logo to return (64, 128 or 256, 512 pixels)')
+        .title('Size'),
     }),
   },
   output: {
     schema: z.object({
-      logoUrl: z.string().describe('URL to the website logo'),
+      logoUrl: z.string().describe('URL to the website logo').title('Logo Url'),
     }),
   },
   cacheable: false,
