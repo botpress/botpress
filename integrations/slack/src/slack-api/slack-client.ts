@@ -327,7 +327,7 @@ export class SlackClient {
   public async getChannelInfo({ channelName }: { channelName: string }) {
     const allChannels: SlackWebApi.ConversationsListResponse['channels'] = []
     for await (const page of this._slackWebClient.paginate('conversations.list', {
-      types: 'public_channel',
+      types: 'public_channel,private_channel',
       exclude_archived: true,
       limit: 200,
     }) as AsyncIterable<SlackWebApi.ConversationsListResponse>) {
