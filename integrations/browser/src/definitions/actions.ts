@@ -74,25 +74,32 @@ const browsePages: ActionDefinition = {
   description: 'Extract the full content & the metadata of the specified pages as markdown.',
   input: {
     schema: z.object({
-      urls: z.array(z.string()),
+      urls: z.array(z.string()).describe('The list of url to browse').title('Urls'),
       waitFor: z
         .number()
         .optional()
         .default(350)
         .describe(
           'Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.'
-        ),
-      timeout: z.number().optional().default(30000).describe('Timeout for the request (in milliseconds)'),
+        )
+        .title('Wait For'),
+      timeout: z
+        .number()
+        .optional()
+        .default(30000)
+        .describe('Timeout for the request (in milliseconds)')
+        .title('Time Out'),
       maxAge: z
         .number()
         .optional()
         .default(60 * 60 * 24 * 7)
-        .describe('Maximum age of the cached page content (in seconds)'),
+        .describe('Maximum age of the cached page content (in seconds)')
+        .title('Max Age'),
     }),
   },
   output: {
     schema: z.object({
-      results: z.array(fullPage),
+      results: z.array(fullPage).describe('The list of pages browsed'),
     }),
   },
   cacheable: true,
