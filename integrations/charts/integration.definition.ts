@@ -9,7 +9,9 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   actions: actionDefinitions,
   secrets: {
-    QUICKCHARTS_API_KEY: {},
+    QUICKCHARTS_API_KEY: {
+      description: 'Quickcharts key',
+    },
   },
   __advanced: {
     useLegacyZuiTransformer: true,
