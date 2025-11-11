@@ -251,6 +251,18 @@ export class PluginDefinition<
     this.attributes = props.attributes
     this.__advanced = props.__advanced
 
+    const aliases = new Set<string>()
+
+    for (const alias of [...Object.keys(props.integrations ?? {}), ...Object.keys(props.interfaces ?? {})]) {
+      if (aliases.has(alias)) {
+        throw new Error(
+          `Duplicate interface or integration alias detected in plugin definition: '${alias}'. ` +
+            'Please use unique aliases for each interface and integration.'
+        )
+      }
+      aliases.add(alias)
+    }
+
     this.configuration = props.configuration
       ? {
           ...props.configuration,
