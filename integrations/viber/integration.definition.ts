@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'viber',
-  version: '1.0.1',
+  version: '1.0.2',
   title: 'Viber',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
