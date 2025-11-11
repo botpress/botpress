@@ -2,36 +2,54 @@ import { z } from '@botpress/sdk'
 
 const generateLinePlot = {
   title: 'Line Plot',
+  description: 'Generate a line plot',
   input: {
     schema: z.object({
-      xData: z.array(z.string().or(z.number())).catch(() => [1, 2, 3, 4, 5]),
-      yData: z.array(z.number()).catch(() => [1, 2, 3, 4, 5]),
-      title: z.string().optional(),
-      xAxisTitle: z.string().optional(),
-      yAxisTitle: z.string().optional(),
+      xData: z
+        .array(z.string().or(z.number()))
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('The data for the x axis')
+        .title('X Data'),
+      yData: z
+        .array(z.number())
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('the data for the y axis')
+        .title('Y Data'),
+      title: z.string().optional().describe('The title of the plot').title('Title'),
+      xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
+      yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string(),
+      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
     }),
   },
 }
 
 const generateBarChart = {
   title: 'Bar Chart',
+  description: 'Generate a Bar chart',
   input: {
     schema: z.object({
-      xData: z.array(z.string().or(z.number())).catch(() => [1, 2, 3, 4, 5]),
-      yData: z.array(z.number()).catch(() => [1, 2, 3, 4, 5]),
-      title: z.string().optional(),
-      xAxisTitle: z.string().optional(),
-      yAxisTitle: z.string().optional(),
+      xData: z
+        .array(z.string().or(z.number()))
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('The data for the x axis')
+        .title('X Data'),
+      yData: z
+        .array(z.number())
+        .catch(() => [1, 2, 3, 4, 5])
+        .describe('the data for the y axis')
+        .title('Y Data'),
+      title: z.string().optional().describe('The title of the plot').title('Title'),
+      xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
+      yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string(),
+      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
     }),
   },
 }
