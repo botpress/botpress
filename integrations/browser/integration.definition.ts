@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
@@ -12,8 +11,14 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   actions: actionDefinitions,
   secrets: {
-    SCREENSHOT_API_KEY: {},
-    FIRECRAWL_API_KEY: {},
-    LOGO_API_KEY: {},
+    SCREENSHOT_API_KEY: {
+      description: 'ScreenShot key',
+    },
+    FIRECRAWL_API_KEY: {
+      description: 'FireCrawl key',
+    },
+    LOGO_API_KEY: {
+      description: 'Logo key',
+    },
   },
 })
