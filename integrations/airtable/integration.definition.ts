@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   createRecordInputSchema,
@@ -20,18 +19,19 @@ export default new IntegrationDefinition({
   title: 'Airtable',
   description:
     'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
-  version: '1.0.0',
+  version: '1.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      accessToken: z.string().describe('Personal Access Token'),
-      baseId: z.string().describe('Base ID'),
+      accessToken: z.string().describe('Personal Access Token').title('Personal Access Token'),
+      baseId: z.string().describe('Base ID').title('Base ID'),
       endpointUrl: z
         .string()
         .optional()
         .default('https://api.airtable.com/v0/')
-        .describe('API endpoint to hit (Default: https://api.airtable.com/v0/)'),
+        .describe('API endpoint to hit (Default: https://api.airtable.com/v0/)')
+        .title('Endpoint Url'),
     }),
   },
   channels: {},
@@ -40,7 +40,8 @@ export default new IntegrationDefinition({
   },
   actions: {
     getTableRecords: {
-      title: 'Get Records of the Table',
+      title: 'Get Table Records',
+      description: 'Get Records of the Table',
       input: {
         schema: getTableRecordsInputSchema,
       },
@@ -50,6 +51,7 @@ export default new IntegrationDefinition({
     },
     createTable: {
       title: 'Create Table',
+      description: 'Creates a new table and returns the schema for the newly created table.',
       input: {
         schema: createTableInputSchema,
       },
@@ -59,6 +61,7 @@ export default new IntegrationDefinition({
     },
     updateTable: {
       title: 'Update Table',
+      description: 'Updates the name, description, and/or date dependency settings of a table.',
       input: {
         schema: updateTableInputSchema,
       },
@@ -68,6 +71,7 @@ export default new IntegrationDefinition({
     },
     createRecord: {
       title: 'Create Record',
+      description: 'Create a record',
       input: {
         schema: createRecordInputSchema,
       },
@@ -77,6 +81,7 @@ export default new IntegrationDefinition({
     },
     updateRecord: {
       title: 'Update Record',
+      description: 'Updates a single record.',
       input: {
         schema: updateRecordInputSchema,
       },
@@ -86,6 +91,7 @@ export default new IntegrationDefinition({
     },
     listRecords: {
       title: 'List Records',
+      description: 'List records in a table.',
       input: {
         schema: listRecordsInputSchema,
       },
@@ -96,7 +102,4 @@ export default new IntegrationDefinition({
   },
   events: {},
   states: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
