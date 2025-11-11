@@ -110,8 +110,16 @@ const generateDoughnutChart = {
   description: 'Generate a Doughnut Chart',
   input: {
     schema: z.object({
-      labels: z.array(z.string()).catch(() => ['Label 1', 'Label 2', 'Label 3']),
-      data: z.array(z.number()).catch(() => [10, 20, 30]),
+      labels: z
+        .array(z.string())
+        .catch(() => ['Label 1', 'Label 2', 'Label 3'])
+        .describe('The labels for the data')
+        .title('Labels'),
+      data: z
+        .array(z.number())
+        .catch(() => [10, 20, 30])
+        .describe('The data to plot')
+        .title('Data'),
       title: z.string().optional().describe('The title of the plot').title('Title'),
     }),
   },
