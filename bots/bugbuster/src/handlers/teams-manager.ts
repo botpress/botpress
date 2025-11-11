@@ -73,7 +73,7 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
   }
 }
 
-export async function listWatchedTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
+export async function listTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
   const teamKeys = await getTeamKeys(client, botId)
   if (teamKeys.length === 0) {
     return {

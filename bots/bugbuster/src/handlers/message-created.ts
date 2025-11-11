@@ -1,13 +1,12 @@
 import * as utils from '../utils'
-import { addTeam, listWatchedTeams, removeTeam } from './teams-manager'
+import { addTeam, listTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
 /addTeam [teamName]
 /removeTeam [teamName]
-/listWatchedTeams
-`
+/listTeams`
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
@@ -49,8 +48,8 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       await botpress.respondText(conversation.id, result.message)
       break
     }
-    case '/listWatchedTeams': {
-      const result = await listWatchedTeams(client, ctx.botId)
+    case '/listTeams': {
+      const result = await listTeams(client, ctx.botId)
       await botpress.respondText(conversation.id, result.message)
       break
     }
