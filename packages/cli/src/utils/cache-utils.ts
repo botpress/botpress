@@ -74,6 +74,10 @@ export class FSKeyValueCache<T extends Object> {
 
   private _readJSON = async (filepath: string) => {
     const fileContent = await fs.promises.readFile(filepath, 'utf8')
-    return JSON.parse(fileContent)
+    try {
+      return JSON.parse(fileContent)
+    } catch {
+      return {}
+    }
   }
 }
