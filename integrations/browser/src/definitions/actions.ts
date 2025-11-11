@@ -7,20 +7,24 @@ const captureScreenshot: ActionDefinition = {
   description: 'Capture a screenshot of the specified page.',
   input: {
     schema: z.object({
-      url: z.string(),
+      url: z.string().describe('The url to screenshot').title('Url'),
       javascriptToInject: multiLineString
         .optional()
-        .describe('JavaScript code to inject into the page before taking the screenshot'),
-      cssToInject: multiLineString.optional().describe('CSS code to inject into the page before taking the screenshot'),
-      width: z.number().default(1080),
-      height: z.number().default(1920),
-      fullPage: z.boolean().default(true),
+        .describe('JavaScript code to inject into the page before taking the screenshot')
+        .title('Javascript to Inject'),
+      cssToInject: multiLineString
+        .optional()
+        .describe('CSS code to inject into the page before taking the screenshot')
+        .title('CSS To Inject'),
+      width: z.number().default(1080).describe('The width of the screenshot').title('Width'),
+      height: z.number().default(1920).describe('The height of the screenshot').title('Height'),
+      fullPage: z.boolean().default(true).describe('Whether the screenshot is fullscreen or not').title('Full Page'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('URL to the captured screenshot'),
-      htmlUrl: z.string().optional().describe('URL to the HTML page of the screenshot'),
+      imageUrl: z.string().describe('URL to the captured screenshot').title('Image Url'),
+      htmlUrl: z.string().optional().describe('URL to the HTML page of the screenshot').title('Html Url'),
     }),
   },
   cacheable: true,
