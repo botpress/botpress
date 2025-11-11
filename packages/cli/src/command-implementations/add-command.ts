@@ -173,7 +173,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
-    this.logger.log(`Reading remote package from reference\n${JSON.stringify({ ref }, null, 2)}`)
+    this.logger.log(`Reading remote package from reference\n${JSON.stringify({ remoteRef: ref }, null, 2)}`)
     const api = await this.ensureLoginAndCreateClient(this.argv)
     this.logger.log('Reading remote package - Step 1')
     if (this._pkgCouldBe(ref, 'integration')) {
@@ -218,9 +218,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
-    this.logger.log(`Reading local package from reference\n${JSON.stringify({ ref }, null, 2)}`)
+    this.logger.log('Reading local package from reference')
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
-    this.logger.log('Reading local package - Step 1')
+    this.logger.log('Reading local package - Step 1\n' + JSON.stringify({ localRef: ref, absPath }, null, 2))
     const {
       definition: projectDefinition,
       implementation: projectImplementation,
@@ -328,7 +328,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     implementation?: string
     devId?: string
   }> {
+    this.logger.log('Step 0')
+
     const cmd = this._getProjectCmd(workDir)
+
+    this.logger.log('Step 1')
 
     const { resolveProjectDefinition } = cmd.readProjectDefinitionFromFS()
     const definition = await resolveProjectDefinition().catch((thrown) => {
@@ -338,7 +342,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw thrown
     })
 
+    this.logger.log('Step 2')
+
     const devId = await cmd.projectCache.get('devId')
+
+    this.logger.log(
+      `Step 3\n------------------\n${JSON.stringify({ workDir, devId: devId ?? null }, null, 2)}\n------------------`
+    )
 
     const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
     if (!fslib.existsSync(implementationAbsPath)) {

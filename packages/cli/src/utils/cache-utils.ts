@@ -5,17 +5,19 @@ import { tryParseJSON } from './temp-parse-utils'
 
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
+  private _logger: Logger
 
-  public constructor(private _filepath: string) {}
+  public constructor(private _filepath: string) {
+    this._logger = new Logger()
+  }
 
   public async init(): Promise<void> {
-    const logger = new Logger()
     const properties = {
       filepath: this._filepath,
       initialized: this._initialized,
       existsAtFilepath: fs.existsSync(this._filepath),
     }
-    logger.log(`Initializing cache ${JSON.stringify(properties, null, 2)}`)
+    this._logger.log(`Initializing cache ${JSON.stringify(properties, null, 2)}`)
     if (this._initialized) {
       return
     }
@@ -83,6 +85,7 @@ export class FSKeyValueCache<T extends Object> {
 
   private _readJSON = async (filepath: string) => {
     const fileContent = await fs.promises.readFile(filepath, 'utf8')
+    this._logger.debug(`Reading cache file at ${filepath}: ${fileContent}`)
     return tryParseJSON(fileContent, 'cache-utils')
   }
 }
