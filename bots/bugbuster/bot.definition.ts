@@ -20,6 +20,15 @@ export default new sdk.BotDefinition({
           .describe('List of recently linted issues'),
       }),
     },
+    watchedTeams: {
+      type: 'bot',
+      schema: sdk.z.object({
+        teamKeys: sdk.z
+          .array(sdk.z.string())
+          .title('Team Keys')
+          .describe('The keys of the teams for which BugBuster should lint issues'),
+      }),
+    },
   },
   __advanced: {
     useLegacyZuiTransformer: true,
