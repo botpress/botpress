@@ -178,13 +178,15 @@ const discoverUrls: ActionDefinition = {
         .string()
         .describe(
           'The URL of the website to discover URLs from. Can be a domain like example.com or a full URL like sub.example.com/page'
-        ),
-      onlyHttps: z.boolean().default(true).describe('Whether to only include HTTPS pages'),
-      count: z.number().min(1).max(10_000).default(5_000),
+        )
+        .title('Url'),
+      onlyHttps: z.boolean().default(true).describe('Whether to only include HTTPS pages').title('Only HTTPS'),
+      count: z.number().min(1).max(10_000).default(5_000).describe('The number of urls').title('Count'),
       include: z
         .array(globPattern)
         .max(100, 'You can include up to 100 URL patterns')
         .describe('List of glob patterns to include URLs from the discovery')
+        .title('Include')
         .optional(),
       exclude: z
         .array(globPattern)
@@ -192,16 +194,18 @@ const discoverUrls: ActionDefinition = {
         .optional()
         .describe(
           'List of glob patterns to exclude URLs from the discovery. All URLs matching these patterns will be excluded from the results, even if they are included in the "include" patterns.'
-        ),
+        )
+        .title('Exclude'),
     }),
   },
   output: {
     schema: z.object({
-      urls: z.array(z.string()).describe('List of discovered URLs'),
-      excluded: z.number().describe('Number of URLs excluded due to robots.txt or filter'),
+      urls: z.array(z.string()).describe('List of discovered URLs').title('Urls'),
+      excluded: z.number().describe('Number of URLs excluded due to robots.txt or filter').title('Excluded'),
       stopReason: z
         .enum(['urls_limit_reached', 'end_of_results', 'time_limit_reached'])
-        .describe('Reason for stopping the URLs discovery. '),
+        .describe('Reason for stopping the URLs discovery. ')
+        .title('Stop Reason'),
     }),
   },
   billable: true,
