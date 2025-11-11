@@ -12,10 +12,6 @@ patchedDependencies:
 importers:
 
   .:
-    dependencies:
-      posthog-node:
-        specifier: ^5.10.4
-        version: 5.11.2
     devDependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.564.0
@@ -1170,7 +1166,7 @@ importers:
         version: 1.7.4
       posthog-node:
         specifier: ^5.10.4
-        version: 5.11.2
+        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1366,7 +1362,7 @@ importers:
         version: 1.1.0
       posthog-node:
         specifier: ^5.10.4
-        version: 5.11.2
+        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
