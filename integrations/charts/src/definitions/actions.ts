@@ -173,7 +173,9 @@ const generateBubbleChart = {
           { x: 1, y: 2, r: 5 },
           { x: 2, y: 3, r: 10 },
           { x: 3, y: 4, r: 15 },
-        ]),
+        ])
+        .describe('The data to plot')
+        .title('Data'),
       title: z.string().optional().describe('The title of the plot').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
