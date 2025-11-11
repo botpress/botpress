@@ -1,6 +1,8 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
+import type { commonTypes } from '../../common'
 import { createAsyncCollection } from '../../utils/api-paging-utils'
+import type * as typeUtils from '../../utils/type-utils'
 import type { BasePlugin } from '../common'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import type {
@@ -10,8 +12,6 @@ import type {
   ActionableUserWithoutConversation,
   ActionableUserWithConversation,
 } from './types'
-import type { commonTypes } from '../../common'
-import type * as typeUtils from '../../utils/type-utils'
 
 export const proxyUsers = <TPlugin extends BasePlugin>(props: {
   client: BotSpecificClient<TPlugin> | client.Client

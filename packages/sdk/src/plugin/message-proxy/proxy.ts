@@ -1,9 +1,9 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
 import type { commonTypes } from '../../common'
+import { createAsyncCollection } from '../../utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
 
-import { createAsyncCollection } from '../../utils/api-paging-utils'
 import type { BasePlugin, PluginRuntimeProps } from '../common'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../tag-prefixer'
 import type { ActionableMessage, AnyPluginMessage, MessageFinder } from './types'
