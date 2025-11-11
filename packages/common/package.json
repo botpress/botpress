@@ -12,6 +12,11 @@
     "marked": "^15.0.1",
     "openai": "^5.12.1",
     "preact": "^10.26.6",
-    "preact-render-to-string": "^6.5.13"
+    "preact-render-to-string": "^6.5.13",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4"
   }
 }

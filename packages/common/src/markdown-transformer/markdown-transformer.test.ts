@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
-import { parseMarkdown } from './markdown-parser'
+import { transformMarkdown, stripAllHandlers } from './markdown-transformer'
+import { MarkdownHandlers } from './types'
 
 const FIXED_SIZE_SPACE_CHAR = '\u2002' // 'En space' yields better results for identation in WhatsApp messages
 
@@ -79,9 +80,9 @@ const stripAllTests: Test = {
 }
 
 test.each(Object.entries(stripAllTests))(
-  '[SMS, MMS] Test %s',
+  'Single line test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = parseMarkdown(testValues.input)
+    const actual = transformMarkdown(testValues.input)
     expect(actual).toBe(testValues.expected)
   }
 )
@@ -164,6 +165,60 @@ emoji direct 😂
 `
 
 test('Multi-line multi markup test', () => {
-  const actual = parseMarkdown(bigInput)
+  const actual = transformMarkdown(bigInput)
   expect(actual).toBe(expectedForBigInput)
+})
+
+test('Custom heading handler markup test', () => {
+  const expected = 'heading handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    heading: (_node, _visit) => {
+      return expected
+    },
+  }
+
+  const actual = transformMarkdown('# any heading`', customHandlers)
+
+  expect(actual).toBe(expected)
+})
+
+test('Custom blockQuote handler markup test', () => {
+  const expected = 'quote handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    blockquote: (_node, _visit) => {
+      return expected
+    },
+  }
+
+  const actual = transformMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
+
+  expect(actual).toBe(expected)
+})
+
+test('Custom paragraph handler markup test', () => {
+  const expected = 'paragraph handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    paragraph: (_node, _visit) => expected,
+  }
+
+  const actual = transformMarkdown('any paragraph', customHandlers)
+
+  expect(actual).toBe(expected)
+})
+
+test('Escape character markup test', () => {
+  const input = '\\# not handled'
+  const expected = '# not handled'
+  const customHandlers: MarkdownHandlers = {
+    ...stripAllHandlers,
+    heading: (_node, _visit) => 'title handled',
+    paragraph: (_node, _visit) => _visit(_node),
+  }
+
+  const actual = transformMarkdown(input, customHandlers)
+
+  expect(actual).toBe(expected)
 })
