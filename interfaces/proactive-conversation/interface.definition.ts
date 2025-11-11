@@ -2,7 +2,7 @@ import { z, InterfaceDefinition } from '@botpress/sdk'
 
 export default new InterfaceDefinition({
   name: 'proactive-conversation',
-  version: '0.0.3',
+  version: '0.0.4',
   entities: {
     conversation: {
       title: 'Conversation',
@@ -12,6 +12,8 @@ export default new InterfaceDefinition({
   },
   actions: {
     getOrCreateConversation: {
+      title: 'Get or Create a Conversation',
+      description: 'Proactively create a conversation from a bot',
       input: {
         schema: ({ conversation }) =>
           z.object({
@@ -25,8 +27,5 @@ export default new InterfaceDefinition({
           }),
       },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })

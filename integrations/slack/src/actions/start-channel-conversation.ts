@@ -6,7 +6,7 @@ export const startChannelConversation = wrapActionAndInjectSlackClient(
   async ({ client, logger, slackClient }, { channelName }) => {
     const slackChannelInfo = await slackClient.getChannelInfo({ channelName })
     if (slackChannelInfo === undefined) {
-      const errorMessage = 'The channel id provided does not exist'
+      const errorMessage = `The channel "${channelName}" does not exist or your bot does not have access to it`
       logger.forBot().error(errorMessage)
       throw new RuntimeError(errorMessage)
     }
