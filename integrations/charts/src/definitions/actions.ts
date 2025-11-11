@@ -56,6 +56,7 @@ const generateBarChart = {
 
 const generatePieChart = {
   title: 'Pie Chart',
+  description: 'Generate a pie chart',
   input: {
     schema: z.object({
       labels: z.array(z.string()).catch(() => ['Label 1', 'Label 2', 'Label 3']),
@@ -72,6 +73,7 @@ const generatePieChart = {
 
 export const generateScatterPlot = {
   title: 'Scatter Plot',
+  description: 'Generate a scatter plot',
   input: {
     schema: z.object({
       data: z
@@ -97,6 +99,7 @@ export const generateScatterPlot = {
 
 const generateDoughnutChart = {
   title: 'Doughnut Chart',
+  description: 'Generate a Doughnut Chart',
   input: {
     schema: z.object({
       labels: z.array(z.string()).catch(() => ['Label 1', 'Label 2', 'Label 3']),
@@ -113,6 +116,7 @@ const generateDoughnutChart = {
 
 const generateRadarChart = {
   title: 'Radar Chart',
+  description: 'Generate a radar Chart',
   input: {
     schema: z.object({
       labels: z.array(z.string()).catch(() => ['Label 1', 'Label 2', 'Label 3']),
@@ -130,6 +134,7 @@ const generateRadarChart = {
 
 const generateBubbleChart = {
   title: 'Bubble Chart',
+  description: 'Generate a bubble Chart',
   input: {
     schema: z.object({
       data: z
@@ -159,6 +164,7 @@ const generateBubbleChart = {
 
 const generateHorizontalBarChart = {
   title: 'Horizontal Bar Chart',
+  description: 'Generate a horizontal Chart',
   input: {
     schema: z.object({
       xData: z.array(z.string().or(z.number())).catch(() => [1, 2, 3, 4, 5]),
