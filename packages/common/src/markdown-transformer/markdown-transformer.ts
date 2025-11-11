@@ -85,7 +85,7 @@ export const visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: 
   return `${tmp}${footnoteTmp}`
 }
 
-export const parseMarkdown = (markdown: string, handlers: MarkdownHandlers = stripAllHandlers): string => {
+export const transformMarkdown = (markdown: string, handlers: MarkdownHandlers = stripAllHandlers): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
   return visitTree(tree, handlers, [])
 }

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { parseMarkdown, stripAllHandlers } from './markdown-parser'
+import { transformMarkdown, stripAllHandlers } from './markdown-transformer'
 import { MarkdownHandlers } from './types'
 
 const FIXED_SIZE_SPACE_CHAR = '\u2002' // 'En space' yields better results for identation in WhatsApp messages
@@ -82,7 +82,7 @@ const stripAllTests: Test = {
 test.each(Object.entries(stripAllTests))(
   'Single line test %s',
   (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = parseMarkdown(testValues.input)
+    const actual = transformMarkdown(testValues.input)
     expect(actual).toBe(testValues.expected)
   }
 )
@@ -165,7 +165,7 @@ emoji direct 😂
 `
 
 test('Multi-line multi markup test', () => {
-  const actual = parseMarkdown(bigInput)
+  const actual = transformMarkdown(bigInput)
   expect(actual).toBe(expectedForBigInput)
 })
 
@@ -178,7 +178,7 @@ test('Custom heading handler markup test', () => {
     },
   }
 
-  const actual = parseMarkdown('# any heading`', customHandlers)
+  const actual = transformMarkdown('# any heading`', customHandlers)
 
   expect(actual).toBe(expected)
 })
@@ -192,7 +192,7 @@ test('Custom blockQuote handler markup test', () => {
     },
   }
 
-  const actual = parseMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
+  const actual = transformMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
 
   expect(actual).toBe(expected)
 })
@@ -204,7 +204,7 @@ test('Custom paragraph handler markup test', () => {
     paragraph: (_node, _visit) => expected,
   }
 
-  const actual = parseMarkdown('any paragraph', customHandlers)
+  const actual = transformMarkdown('any paragraph', customHandlers)
 
   expect(actual).toBe(expected)
 })
@@ -218,7 +218,7 @@ test('Escape character markup test', () => {
     paragraph: (_node, _visit) => _visit(_node),
   }
 
-  const actual = parseMarkdown(input, customHandlers)
+  const actual = transformMarkdown(input, customHandlers)
 
   expect(actual).toBe(expected)
 })

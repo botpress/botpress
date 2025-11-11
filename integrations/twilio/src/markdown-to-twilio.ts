@@ -1,4 +1,4 @@
-import { parseMarkdown, MarkdownHandlers, stripAllHandlers } from '@botpress/common'
+import { transformMarkdown, MarkdownHandlers, stripAllHandlers } from '@botpress/common'
 import { TwilioChannel } from './types'
 
 const messengerHandlers: MarkdownHandlers = {
@@ -26,6 +26,6 @@ const markdownHandlersByChannelType: Map<TwilioChannel, MarkdownHandlers> = new 
   ['whatsapp', whatsappHandlers],
 ])
 
-export function parseMarkdownForTwilio(text: string, channel: TwilioChannel) {
-  return parseMarkdown(text, markdownHandlersByChannelType.get(channel))
+export function transformMarkdownForTwilio(text: string, channel: TwilioChannel) {
+  return transformMarkdown(text, markdownHandlersByChannelType.get(channel))
 }
