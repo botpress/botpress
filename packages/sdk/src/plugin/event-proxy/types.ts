@@ -11,7 +11,7 @@ export type EventSender<TPayload> = {
   withUserId: (userId: string) => EventSender<TPayload>
   withMessageId: (messageId: string) => EventSender<TPayload>
   list: (
-    props: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
+    props?: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
   ) => AsyncCollection<client.Event>
   getById: (props: { id: string }) => Promise<client.Event>
 }

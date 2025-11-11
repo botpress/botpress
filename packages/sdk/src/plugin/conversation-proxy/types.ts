@@ -16,7 +16,12 @@ type _ConversationFinderForDepType<TPlugin extends BasePlugin, TDepType extends 
       : typeUtils.StringKeys<TPlugin[TDepType][TAlias]['channels']> | '*']: _ConversationFinderForChannel<
       TPlugin,
       TChannelName,
-      _MessageForChannel<TPlugin, TDepType, TAlias, TChannelName>
+      _MessageForChannel<
+        TPlugin,
+        TDepType,
+        TAlias extends '*' ? string : TAlias,
+        TChannelName extends '*' ? string : TChannelName
+      >
     >
   }
 }
@@ -40,16 +45,21 @@ type _ConversationFinderForChannel<
 type _MessageForChannel<
   TPlugin extends BasePlugin,
   TDepType extends 'interfaces' | 'integrations',
-  TAlias extends string,
-  TChannelName extends string,
-> = Omit<client.Message, 'type' | 'payload' | 'tags'> &
-  typeUtils.ValueOf<{
-    [TMessageName in typeUtils.StringKeys<TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages']>]: {
-      type: TMessageName
-      payload: TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages'][TMessageName]
-      tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>>
-    }
-  }>
+  TAlias extends keyof TPlugin[TDepType],
+  TChannelName extends keyof TPlugin[TDepType][TAlias]['channels'],
+> = _FallbackWhenNever<
+  Omit<client.Message, 'type' | 'payload' | 'tags'> &
+    typeUtils.ValueOf<{
+      [TMessageName in typeUtils.StringKeys<TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages']>]: {
+        type: TMessageName
+        payload: TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages'][TMessageName]
+        tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>>
+      }
+    }>,
+  typeUtils.Merge<client.Message, { tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>> }>
+>
+
+type _FallbackWhenNever<T, TFallback> = [T] extends [never] ? TFallback : T
 
 export type ActionableConversation<
   TPlugin extends BasePlugin,

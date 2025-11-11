@@ -68,7 +68,7 @@ class _EventSender implements EventSender<object> {
   }
 
   public list(
-    props: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
+    props?: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
   ): AsyncCollection<client.Event> {
     return createAsyncCollection(({ nextToken }) =>
       this._props.client

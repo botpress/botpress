@@ -16,7 +16,10 @@ test('EventProxy of FooBarBazPlugin should reflect states of bot, integration an
       withUserId: (userId: string) => EventSender<EventPayload>
       withMessageId: (messageId: string) => EventSender<EventPayload>
       list: (
-        props: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
+        props?: Omit<
+          client.ClientInputs['listEvents'],
+          'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'
+        >
       ) => AsyncCollection<client.Event>
       getById: (props: { id: string }) => Promise<client.Event>
     }
@@ -58,7 +61,10 @@ test('EventProxy of BasePlugin should be a record', async () => {
       withUserId: (userId: string) => EventSender<any>
       withMessageId: (messageId: string) => EventSender<any>
       list: (
-        props: Omit<client.ClientInputs['listEvents'], 'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'>
+        props?: Omit<
+          client.ClientInputs['listEvents'],
+          'type' | 'nextToken' | 'conversationId' | 'messageId' | 'userId'
+        >
       ) => AsyncCollection<client.Event>
       getById: (props: { id: string }) => Promise<client.Event>
     }
