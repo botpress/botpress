@@ -12,17 +12,15 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
 
-  // Disabled for now due to issues with OAuth link requiring subdomain
-  // TODO: Add separate page to allow users to enter subdomain
-  // configuration: {
-  //   identifier: {
-  //     linkTemplateScript: 'linkTemplate.vrl',
-  //     required: true,
-  //   },
-  //   schema: z.object({
-  //     subdomain,
-  //   }),
-  // },
+  configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
+    },
+    schema: z.object({
+      subdomain,
+    }),
+  },
 
   configurations: {
     apiKey: {

@@ -52,4 +52,4 @@ scopes = [
 ]
 scopesStr = join!(scopes, "+")
 
-"https://{{ subdomain }}.bamboohr.com/authorize.php?request=authorize&response_type=code&scope={{ scopesStr }}&client_id={{ clientId }}&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth"
+"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"

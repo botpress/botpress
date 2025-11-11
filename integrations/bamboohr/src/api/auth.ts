@@ -107,7 +107,7 @@ export const getBambooHrAuthorization = async ({
 
 /** Handles OAuth endpoint on integration authentication.
  *
- * Exchanges code for token, saves token in state, and configures integration with identifier.
+ * Exchanges code for token, saves token in state, and configures integration with identifier and subdomain.
  */
 export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.HandlerProps) => {
   const code = new URLSearchParams(req.query).get('code')
@@ -115,8 +115,12 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
 
   const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code })
 
+  // Extract subdomain from the JWT token
+  const decodedToken = jwt.decode(idToken) as JwtPayload
+  const subdomain = decodedToken.sub
+
   await client.configureIntegration({
-    identifier: (jwt.decode(idToken) as JwtPayload).sub,
+    identifier: subdomain,
   })
 
   logger.forBot().info('BambooHR OAuth authentication successfully set up.')
