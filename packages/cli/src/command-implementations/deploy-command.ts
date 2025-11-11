@@ -267,12 +267,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
-    if (this._visibility === 'unlisted') {
-      throw new errors.BotpressCLIError(
-        'Unlisted visibility is not supported for plugins. Please use "public" or "private".'
-      )
-    }
-
     const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
     const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 
