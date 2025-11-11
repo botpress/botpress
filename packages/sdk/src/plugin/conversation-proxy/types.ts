@@ -47,7 +47,7 @@ type _MessageForChannel<
     [TMessageName in typeUtils.StringKeys<TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages']>]: {
       type: TMessageName
       payload: TPlugin[TDepType][TAlias]['channels'][TChannelName]['messages'][TMessageName]
-      tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['conversation']['tags']>>
+      tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>>
     }
   }>
 
@@ -71,16 +71,16 @@ export type ActionableConversation<
   ) => Promise<ActionableConversation<TPlugin>>
   getMessage: (props: { id: string }) => Promise<messageProxy.ActionableMessage<TPlugin, TMessage>>
   getOrCreateMessage: (
-    props: typeUtils.Merge<
-      Omit<client.ClientInputs['getOrCreateMessage'], 'conversationId'>,
-      { tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>> }
-    >
+    props: Omit<client.ClientInputs['getOrCreateMessage'], 'conversationId' | 'tags' | 'type' | 'payload'> &
+      typeUtils.DistributivePick<TMessage, 'type' | 'payload'> & {
+        tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>>
+      }
   ) => Promise<messageProxy.ActionableMessage<TPlugin, TMessage>>
   createMessage: (
-    props: typeUtils.Merge<
-      Omit<client.ClientInputs['createMessage'], 'conversationId'>,
-      { tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>> }
-    >
+    props: Omit<client.ClientInputs['createMessage'], 'conversationId' | 'tags' | 'type' | 'payload'> &
+      typeUtils.DistributivePick<TMessage, 'type' | 'payload'> & {
+        tags: commonTypes.ToTags<typeUtils.StringKeys<TPlugin['message']['tags']>>
+      }
   ) => Promise<messageProxy.ActionableMessage<TPlugin, TMessage>>
   listMessages: (
     props?: typeUtils.Merge<

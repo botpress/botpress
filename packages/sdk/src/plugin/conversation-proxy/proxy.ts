@@ -32,7 +32,7 @@ export const proxyConversations = <TPlugin extends BasePlugin>(props: {
                     props.client
                       .listConversations({
                         ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
-                        channel: channel,
+                        channel,
                         integrationName,
                         nextToken,
                       })
