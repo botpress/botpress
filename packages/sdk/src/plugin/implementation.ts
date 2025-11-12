@@ -13,7 +13,9 @@ import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/work
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
 import { BasePlugin, PluginRuntimeProps } from './common'
+import { ConversationFinder, proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
+import { proxyMessage, proxyMessages } from './message-proxy'
 import {
   ActionHandlers,
   MessageHandlers,
@@ -37,6 +39,8 @@ import {
   InjectedHandlerProps,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
+import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
+import { proxyUser, proxyUsers, type UserFinder } from './user-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
@@ -93,8 +97,11 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const { configuration, interfaces, alias } = this._runtime
     const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
-    const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+    const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
+    const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
+    const conversations = proxyConversations({ client, plugin: this._runtime }) as ConversationFinder<BasePlugin>
+    const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {
       configuration,
@@ -104,6 +111,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       alias,
       workflows,
       events,
+      users,
+      conversations,
+      messages,
     }
   }
 
@@ -143,6 +153,21 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
               (input: utils.types.ValueOf<MessagePayloadsWithoutInjectedProps<TPlugin>>) =>
                 handler({
                   ...input,
+                  user: proxyUser({
+                    ...input,
+                    conversationId: input.conversation.id,
+                    pluginAlias: this._runtime.alias,
+                  }),
+                  message: proxyMessage<BasePlugin>({
+                    ...input,
+                    plugin: this._runtime,
+                    message: input.message,
+                  }),
+                  conversation: proxyConversation({
+                    ...input,
+                    plugin: this._runtime,
+                    conversation: input.conversation,
+                  }),
                   ...this._getTools(input.client),
                 }),
               handler.name
@@ -241,6 +266,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                     (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) =>
                       handler({
                         ...input,
+                        data: unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias }),
                         ...this._getTools(input.client),
                       }),
                     handler.name
@@ -282,6 +308,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
                           onWorkflowUpdate(newState) {
                             currentWorkflowState = newState
                           },
+                          pluginAlias: this._runtime.alias,
                         }),
                         ...this._getTools(input.client),
                       })
