@@ -14,15 +14,14 @@ type BotpressEventMessage = Omit<EventMessage, 'event'> & {
 
 type PostHogConfig = {
   key: string
-  options: {
-    host: 'https://us.i.posthog.com'
-  }
   integrationName: string
 }
 
 export const sendPosthogEvent = async (props: BotpressEventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, options, integrationName } = config
-  const client = new PostHog(key, options)
+  const { key, integrationName } = config
+  const client = new PostHog(key, {
+    host: 'https://us.i.posthog.com',
+  })
   try {
     const signedProps: BotpressEventMessage = {
       ...props,
