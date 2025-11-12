@@ -48,7 +48,7 @@ export const pullRequestMerged = {
 
     // The following fields have been kept for backwards compatibility.
     // TODO: Remove these fields in the next major version :
-    type: z.literal('github:pullRequestMerged').optional().title('DEPRECATED: type'),
+    type: z.literal('github:pullRequestMerged').optional().title('DEPRECATED: type').describe('Not needed anymore'),
     id: z.number().title('DEPRECATED: id').describe('use pullRequest.id instead'),
     title: z.string().title('DEPRECATED: title').describe('use pullRequest.name instead'),
     content: z.string().title('DEPRECATED: content').describe('use pullRequest.body instead'),
@@ -65,7 +65,8 @@ export const pullRequestMerged = {
         issue: z.string().optional().title('DEPRECATED: issue'),
         discussion: z.string().optional().title('DEPRECATED: discussion'),
       })
-      .title('DEPRECATED: targets'),
+      .title('DEPRECATED: targets')
+      .describe('Not needed'),
   }),
 } as const satisfies sdk.EventDefinition
 
