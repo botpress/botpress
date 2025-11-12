@@ -24,11 +24,7 @@ export default new IntegrationDefinition({
       description: 'Generate an image',
       input: {
         schema: z.object({
-          prompt: z
-            .string()
-            .describe('Prompt for image generation.')
-            .describe('The prompt that will be used to generate the image')
-            .title('Prompt'),
+          prompt: z.string().describe('Prompt for image generation.').title('Prompt'),
           size: z.string().optional().describe(sizeDescription).title('Size'),
           quality: z.string().optional().describe(qualityDescription).title('Quality'),
           model: z.string().optional().describe(modelDescription).title('Model'),
