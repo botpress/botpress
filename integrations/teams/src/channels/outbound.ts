@@ -8,7 +8,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import { getAdapter } from './utils'
+import { getAdapter } from '../utils'
 import * as bp from '.botpress'
 
 type Choice = bp.channels.channel.choice.Choice
@@ -18,7 +18,10 @@ type Card = bp.channels.channel.card.Card
 type Action = Card['actions'][number]
 type ActionType = Action['action']
 
-const renderTeams = async ({ ctx, ack, conversation, client }: bp.AnyMessageProps, activity: Partial<Activity>) => {
+const renderTeams = async (
+  { ctx, ack, conversation, client, logger }: bp.AnyMessageProps,
+  activity: Partial<Activity>
+) => {
   const { configuration } = ctx
   const adapter = getAdapter(configuration)
 
@@ -32,7 +35,7 @@ const renderTeams = async ({ ctx, ack, conversation, client }: bp.AnyMessageProp
 
   await adapter.continueConversation(convRef, async (turnContext) => {
     if (!turnContext.activity.id) {
-      console.warn('No activity id found')
+      logger.forBot().warn('No activity id found')
       return
     }
 
