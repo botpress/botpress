@@ -16,5 +16,5 @@ for (const op of _.values(_operations)) {
 
 export const version = apiVersion
 export const signals = {
-    exportSchemas: exportZodSchemas(signalSchemas),
+  exportSchemas: exportZodSchemas(signalSchemas),
 }
