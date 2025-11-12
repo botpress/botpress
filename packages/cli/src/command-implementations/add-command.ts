@@ -37,10 +37,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
+      this.logger.log(`Add single package before 1st package read:\n${JSON.stringify({ argvRef: ref }, null, 2)}`)
       return await this._addSinglePackage(ref)
     }
 
-    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath, 'From "bp add" Command')
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
@@ -58,11 +59,15 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
+    this.logger.log('bp dependencies parsed successfully')
+
     for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
+      this.logger.log('start processing package reference')
       const parsed = pkgRef.parsePackageRef(pkgRefStr)
       if (!parsed) {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
+      this.logger.log('parsed package reference successfully')
 
       await this._addSinglePackage({ ...parsed, alias: pkgAlias })
     }
@@ -136,6 +141,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       targetPackage.pkg.version = ref.version
     }
 
+    this.logger.log(JSON.stringify({ targetPackage }, null, 2))
+
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
       files = await codegen.generateIntegrationPackage(targetPackage.pkg)
@@ -153,6 +160,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
+    this.logger.log(`Reading remote package from reference\n${JSON.stringify({ remoteRef: ref }, null, 2)}`)
     const api = await this.ensureLoginAndCreateClient(this.argv)
     if (this._pkgCouldBe(ref, 'integration')) {
       const integration = await api.findPublicOrPrivateIntegration(ref)
@@ -161,6 +169,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         return { type: 'integration', pkg: { integration, name, version } }
       }
     }
+
     if (this._pkgCouldBe(ref, 'interface')) {
       const intrface = await api.findPublicOrPrivateInterface(ref)
       if (intrface) {
@@ -168,6 +177,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         return { type: 'interface', pkg: { interface: intrface, name, version } }
       }
     }
+
     if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicOrPrivatePlugin(ref)
       if (plugin) {
@@ -186,6 +196,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         }
       }
     }
+
     return
   }
 
@@ -264,6 +275,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (projectDefinition?.type === 'bot') {
       throw new errors.BotpressCLIError('Cannot install a bot as a package')
     }
+
     return
   }
 
@@ -292,7 +304,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     implementation?: string
     devId?: string
   }> {
+    this.logger.log('Step 0')
+
     const cmd = this._getProjectCmd(workDir)
+
+    this.logger.log('Step 1')
 
     const { resolveProjectDefinition } = cmd.readProjectDefinitionFromFS()
     const definition = await resolveProjectDefinition().catch((thrown) => {
@@ -302,7 +318,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw thrown
     })
 
+    this.logger.log('Step 2')
+
     const devId = await cmd.projectCache.get('devId')
+
+    this.logger.log(
+      `Step 3\n------------------\n${JSON.stringify({ workDir, devId: devId ?? null }, null, 2)}\n------------------`
+    )
 
     const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
     if (!fslib.existsSync(implementationAbsPath)) {

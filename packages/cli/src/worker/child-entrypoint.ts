@@ -1,4 +1,5 @@
 import * as utils from '../utils'
+import { tryParseJSON } from '../utils/temp-parse-utils'
 import { CONFIG_ENV_KEY, configSchema } from './config'
 import { ChildProcessProps, processProps } from './is-child'
 
@@ -9,7 +10,8 @@ const childProcessEntrypoint = async (_props: ChildProcessProps) => {
   if (!rawConfig) {
     throw new Error(`Config variable ${CONFIG_ENV_KEY} was not set`)
   }
-  const config = configSchema.parse(JSON.parse(rawConfig))
+
+  const config = configSchema.parse(tryParseJSON(rawConfig, 'childProcessEntrypoint'))
 
   if (config.type === 'code') {
     utils.require.requireJsCode(config.code)

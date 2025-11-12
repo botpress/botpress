@@ -1,5 +1,6 @@
 import fs from 'fs'
 import pathlib from 'path'
+import { tryParseJSON } from './temp-parse-utils'
 
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
@@ -7,6 +8,12 @@ export class FSKeyValueCache<T extends Object> {
   public constructor(private _filepath: string) {}
 
   public async init(): Promise<void> {
+    const properties = {
+      filepath: this._filepath,
+      initialized: this._initialized,
+      existsAtFilepath: fs.existsSync(this._filepath),
+    }
+    console.trace(`Initializing cache ${JSON.stringify(properties, null, 2)}`)
     if (this._initialized) {
       return
     }
@@ -74,6 +81,7 @@ export class FSKeyValueCache<T extends Object> {
 
   private _readJSON = async (filepath: string) => {
     const fileContent = await fs.promises.readFile(filepath, 'utf8')
-    return JSON.parse(fileContent)
+    console.trace(`Reading cache file at ${filepath}:\n-------------\n${fileContent}\n-------------`)
+    return tryParseJSON(fileContent, 'cache-utils')
   }
 }
