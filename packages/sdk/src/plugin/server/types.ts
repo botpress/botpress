@@ -141,14 +141,47 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
 
 export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   configuration: common.PluginConfiguration<TPlugin>
+  /**
+   * Mapping of plugin interface dependencies to the integrations that
+   * implement them.
+   */
   interfaces: common.PluginInterfaceExtensions<TPlugin>
+  /**
+   * Mapping of plugin integration dependencies to the integrations that
+   * implement them.
+   */
   integrations: common.PluginIntegrationExtensions<TPlugin>
+  /**
+   * Alias of the plugin within the bot. This is usually equal to the plugin's
+   * name, but may be different if the bot has multiple instances of the same
+   * plugin installed.
+   */
   alias: string
+  /**
+   * Allows calling actions defined by the plugins's integration and interface
+   * dependencies.
+   */
   actions: actionProxy.ActionProxy<TPlugin>
+  /**
+   * Allows querying and mutating states defined by the plugin.
+   */
   states: stateProxy.StateProxy<TPlugin>
+  /**
+   * Allows emitting events defined by the plugin.
+   */
   events: eventProxy.EventProxy<TPlugin>
+  /**
+   * Allows querying and mutating users.
+   */
   users: userProxy.UserFinder<TPlugin>
+  /**
+   * Allows querying and mutating conversations on channels defined by the
+   * plugin's integration and interface dependencies.
+   */
   conversations: conversationProxy.ConversationFinder<TPlugin>
+  /**
+   * Allows querying and mutating individual messages.
+   */
   messages: messageProxy.MessageFinder<TPlugin>
 
   /**
