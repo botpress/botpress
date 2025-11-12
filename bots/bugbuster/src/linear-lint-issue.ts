@@ -1,6 +1,6 @@
-import * as lin from '@linear/sdk'
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
 import * as utils from './utils'
+import { Issue } from './utils/graphql-queries'
 
 export type IssueLint = {
   message: string
@@ -8,29 +8,20 @@ export type IssueLint = {
 
 const IGNORED_STATUSES: utils.linear.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 
-export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue): Promise<IssueLint[]> => {
+export const lintIssue = async (client: utils.linear.LinearApi, issue: Issue): Promise<IssueLint[]> => {
   const status = client.issueStatus(issue)
   if (IGNORED_STATUSES.includes(status)) {
     return []
   }
 
   const lints: string[] = []
-  const { nodes: labels } = await issue.labels()
 
-  const hasType = await utils.promise.some(labels, async (label) => {
-    const parent = await label.parent
-    return parent?.name === 'type'
-  })
-  if (!hasType) {
+  if (!_hasLabelOfCategory(issue, 'type')) {
     lints.push(`Issue ${issue.identifier} is missing a type label.`)
   }
 
-  const hasBlockedLabel = await utils.promise.some(labels, async (label) => {
-    const parent = await label.parent
-    return parent?.name === 'blocked'
-  })
-
-  const hasBlockedRelation = await client.isBlockedByOtherIssues(issue)
+  const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
+  const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
 
   if (status === 'BLOCKED' && !issue.assignee) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
@@ -42,7 +33,7 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
 
-  const hasArea = labels.some((label) => label.name.startsWith('area/'))
+  const hasArea = issue.labels.nodes.some((label) => label.name.startsWith('area/'))
   if (!hasArea) {
     lints.push(`Issue ${issue.identifier} is missing an "area/" label.`)
   }
@@ -62,11 +53,8 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
     )
   }
 
-  const hasProject = await issue.project
-  const hasGoal = await utils.promise.some(labels, async (label) => {
-    const parent = await label.parent
-    return parent?.name === 'goal'
-  })
+  const hasProject = issue.project
+  const hasGoal = _hasLabelOfCategory(issue, 'goal')
   if (!hasProject && !hasGoal) {
     lints.push(`Issue ${issue.identifier} is missing both a project and a goal label.`)
   }
@@ -85,4 +73,8 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: lin.Issue
   }
 
   return lints.map((message) => ({ message }))
+}
+
+const _hasLabelOfCategory = (issue: Issue, category: string) => {
+  return issue.labels.nodes.some((label) => label.parent?.name === category)
 }

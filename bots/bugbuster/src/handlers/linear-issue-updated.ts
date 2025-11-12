@@ -11,14 +11,14 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
-  const botpress = await utils.botpress.BotpressApi.create(props)
-  const recentlyLinted = await botpress.getRecentlyLinted()
+  // const botpress = await utils.botpress.BotpressApi.create(props)
+  // const recentlyLinted = await botpress.getRecentlyLinted()
 
-  if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
-    props.logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
-    return
-  }
+  // if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
+  //   props.logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
+  //   return
+  // }
 
   await runLint(linear, issue, props.logger)
-  await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
+  // await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
 }
