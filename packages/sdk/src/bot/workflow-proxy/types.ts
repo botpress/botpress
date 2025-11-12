@@ -18,25 +18,26 @@ export type WorkflowProxy<TBot extends commonTypes.BaseBot = commonTypes.BaseBot
       >
     >
 
-    listInstances: Readonly<{
-      all: _ListInstances<TBot, TWorkflowName>
-      running: _ListInstances<TBot, TWorkflowName>
-      scheduled: _ListInstances<TBot, TWorkflowName>
-      allActive: _ListInstances<TBot, TWorkflowName>
-      allFinished: _ListInstances<TBot, TWorkflowName>
-      succeeded: _ListInstances<TBot, TWorkflowName>
-      cancelled: _ListInstances<TBot, TWorkflowName>
-      timedOut: _ListInstances<TBot, TWorkflowName>
-      failed: _ListInstances<TBot, TWorkflowName>
-    }>
+    listInstances: (
+      x?: Pick<client.ClientInputs['listWorkflows'], 'conversationId' | 'userId'> & {
+        tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+        /**
+         * Filter by statuses:
+         *
+         * - `pending` - Workflow is created but not started yet
+         * - `in_progress` - Workflow is currently running
+         * - `failed` - Workflow finished with errors
+         * - `completed` - Workflow finished successfully
+         * - `cancelled` - Workflow finished due to cancellation through the API
+         * - `timedout` - Workflow finished due to timeout
+         * - `listening` - Workflow is waiting for an event to continue
+         * - `paused` - Workflow was paused through the API
+         */
+        statuses?: client.Workflow['status'][]
+      }
+    ) => AsyncCollection<ActionableWorkflow<TBot, TWorkflowName>>
   }>
 }>
-
-type _ListInstances<TBot extends commonTypes.BaseBot, TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>> = (
-  x?: Pick<client.ClientInputs['listWorkflows'], 'conversationId' | 'userId'> & {
-    tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
-  }
-) => AsyncCollection<ActionableWorkflow<TBot, TWorkflowName>>
 
 export type ActionableWorkflow<
   TBot extends commonTypes.BaseBot,

@@ -1,7 +1,7 @@
 import type * as client from '@botpress/client'
 import type { BotSpecificClient } from '../../bot'
 import { prefixTagsIfNeeded, unprefixTagsOwnedByPlugin } from '../../plugin/tag-prefixer'
-import { AsyncCollection, createAsyncCollection } from '../../utils/api-paging-utils'
+import { createAsyncCollection } from '../../utils/api-paging-utils'
 import type * as typeUtils from '../../utils/type-utils'
 import type { BaseBot } from '../common'
 import * as botServerTypes from '../server/types'
@@ -14,24 +14,19 @@ export const proxyWorkflows = <TBot extends BaseBot>(props: {
   new Proxy({} as WorkflowProxy<TBot>, {
     get: <TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>>(_: unknown, workflowName: TWorkflowName) =>
       ({
-        listInstances: {
-          all: (input) => _listWorkflows({ ...props, workflowName, input }),
-          running: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['in_progress'] }),
-          scheduled: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['pending', 'listening'] }),
-          allActive: (input) =>
-            _listWorkflows({ ...props, workflowName, input, statuses: ['in_progress', 'pending', 'listening'] }),
-          allFinished: (input) =>
-            _listWorkflows({
-              ...props,
-              workflowName,
-              input,
-              statuses: ['completed', 'cancelled', 'failed', 'timedout'],
-            }),
-          cancelled: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['cancelled'] }),
-          failed: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['failed'] }),
-          succeeded: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['completed'] }),
-          timedOut: (input) => _listWorkflows({ ...props, workflowName, input, statuses: ['timedout'] }),
-        },
+        listInstances: (input) =>
+          createAsyncCollection(({ nextToken }) =>
+            props.client
+              .listWorkflows({
+                ...input,
+                name: workflowName as typeUtils.Cast<TWorkflowName, string>,
+                nextToken,
+              })
+              .then(({ meta, workflows }) => ({
+                meta,
+                items: workflows.map((workflow) => wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow })),
+              }))
+          ),
         startNewInstance: async (input) => {
           const { workflow } = await props.client.createWorkflow({
             name: workflowName as typeUtils.Cast<TWorkflowName, string>,
@@ -46,29 +41,6 @@ export const proxyWorkflows = <TBot extends BaseBot>(props: {
         },
       }) satisfies WorkflowProxy<TBot>[TWorkflowName],
   })
-
-const _listWorkflows = <TBot extends BaseBot, TWorkflowName extends typeUtils.StringKeys<TBot['workflows']>>(props: {
-  workflowName: TWorkflowName
-  client: BotSpecificClient<TBot> | client.Client
-  statuses?: client.ClientInputs['listWorkflows']['statuses']
-  input?: Pick<client.ClientInputs['listWorkflows'], 'nextToken' | 'conversationId' | 'userId'> & {
-    tags?: typeUtils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
-  }
-  pluginAlias?: string
-}): AsyncCollection<ActionableWorkflow<TBot, TWorkflowName>> =>
-  createAsyncCollection(async ({ nextToken }) =>
-    props.client
-      .listWorkflows({
-        ...props.input,
-        name: props.workflowName as any,
-        statuses: props.statuses,
-        nextToken,
-      })
-      .then(({ meta, workflows }) => ({
-        meta,
-        items: workflows.map((workflow) => wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow })),
-      }))
-  )
 
 export const wrapWorkflowInstance = <
   TBot extends BaseBot,
