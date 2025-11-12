@@ -33,7 +33,7 @@ export const sendPosthogEvent = async (props: BotpressEventMessage, config: Post
     await client.captureImmediate(signedProps)
     await client.shutdown()
     console.info('PostHog event sent')
-  } catch (thrown: any) {
+  } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
     console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
   }

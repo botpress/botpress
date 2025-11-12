@@ -1,3 +1,4 @@
+import { posthog } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
@@ -375,6 +376,7 @@ export default new IntegrationDefinition({
   },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthog.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app',
     },
@@ -404,9 +406,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PHONE_NUMBER_ID: {
       description: 'Phone number ID of the Sandbox WhatsApp Business profile',
-    },
-    POSTHOG_KEY: {
-      description: 'Posthog key for error dashboards',
     },
   },
   entities: {
