@@ -18,7 +18,7 @@ importers:
         version: 3.709.0
       '@botpress/api':
         specifier: 1.52.1
-        version: 1.52.1(openapi-types@12.1.3)
+        version: 1.52.1
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2193,8 +2193,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@bpinternal/opapi':
-        specifier: 0.16.1
-        version: 0.16.1(openapi-types@12.1.3)
+        specifier: 1.0.0
+        version: 1.0.0(openapi-types@12.1.3)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2214,6 +2214,9 @@ importers:
       esbuild:
         specifier: ^0.25.10
         version: 0.25.10
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
 
   packages/chat-client:
     dependencies:
@@ -3755,10 +3758,6 @@ packages:
 
   '@bpinternal/log4bot@0.0.4':
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
-
-  '@bpinternal/opapi@0.16.1':
-    resolution: {integrity: sha512-FicqYzV5+BnDO1oTyAgNut5MIqy7B3OLvAboo2o9ROQ9s6SI+kMx8rZP8OyFKJXEsEOSglZNPPIkMrmB4EvaoA==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/opapi@1.0.0':
     resolution: {integrity: sha512-r38k8SZSyu0s4YKukTrHaBeb8tlL8vgJiNdawnN2cmxbqkSdsss2pWnZQU2fsSLijhcfV0tUvGCf8GfgZviYBA==}
@@ -12792,7 +12791,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.52.1(openapi-types@12.1.3)':
+  '@botpress/api@1.52.1':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -12829,29 +12828,6 @@ snapshots:
       lodash: 4.17.21
       moment: 2.29.4
       regex-parser: 2.2.11
-
-  '@bpinternal/opapi@0.16.1(openapi-types@12.1.3)':
-    dependencies:
-      '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
-      '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
-      axios: 1.7.8
-      chalk: 4.1.2
-      decompress: 4.2.1
-      execa: 8.0.1
-      json-schema-to-typescript: 13.1.2
-      json-schema-to-zod: 1.1.1
-      lodash: 4.17.21
-      openapi-typescript: 6.7.6
-      openapi3-ts: 2.0.2
-      radash: 12.1.0
-      tsconfig-paths: 4.2.0
-      verror: 1.10.1
-      winston: 3.17.0
-      zod: 3.22.4
-    transitivePeerDependencies:
-      - debug
-      - openapi-types
-      - supports-color
 
   '@bpinternal/opapi@1.0.0(openapi-types@12.1.3)':
     dependencies:
