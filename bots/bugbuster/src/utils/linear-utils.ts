@@ -61,8 +61,8 @@ export class LinearApi {
 
     const data = await this._executeGraphqlQuery('findIssue', {
       filter: {
-        number: { eq: issueNumber },
         team: { key: { eq: teamKey } },
+        number: { eq: issueNumber },
       },
     })
 
