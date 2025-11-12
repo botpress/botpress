@@ -1,9 +1,11 @@
 import { BotLogger } from '@botpress/sdk'
-import { Issue } from 'src/utils/graphql-queries'
-import { LinearApi } from 'src/utils/linear-utils'
+import { Issue, Pagination } from 'src/utils/graphql-queries'
+import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
 import { listTeams } from './teams-manager'
 import { Client } from '.botpress'
+
+const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 
 /**
  * @returns The corresponding issue, or `undefined` if the issue is not found or not valid.
@@ -38,8 +40,36 @@ export async function findIssue(
   return issue
 }
 
+export async function findIssues(teams: string[], linear: LinearApi): Promise<Issue[]> {
+  const validatedTeams = teams.filter((value) => linear.isTeam(value))
+
+  const issues: Issue[] = []
+  let pagination: Pagination | undefined
+
+  do {
+    const { issues: newIssues, pagination: newPagination } = await linear.findIssues(
+      {
+        teamKeys: validatedTeams,
+        statusesToOmit: IGNORED_STATUSES,
+      },
+      pagination?.endCursor
+    )
+
+    issues.push(...newIssues)
+    pagination = newPagination
+  } while (pagination?.hasNextPage)
+
+  return issues
+}
+
 export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger) {
-  const errors = await linlint.lintIssue(linear, issue)
+  const status = linear.issueStatus(issue)
+  if (IGNORED_STATUSES.includes(status)) {
+    return
+  }
+
+  const errors = await linlint.lintIssue(issue, status)
+
   if (errors.length === 0) {
     logger.info(`Issue ${issue.identifier} passed all lint checks.`)
     return
