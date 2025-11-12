@@ -44,7 +44,9 @@ plugin.on.event('updateAiInsight', async (props) => {
     return
   }
 
-  const workflows = await props.workflows.updateAllConversations.listInstances.allActive().take(1)
+  const workflows = await props.workflows.updateAllConversations
+    .listInstances({ statuses: ['pending', 'cancelled', 'listening', 'paused'] })
+    .take(1)
 
   if (workflows.length === 0) {
     await props.workflows.updateAllConversations.startNewInstance({ input: {} })
