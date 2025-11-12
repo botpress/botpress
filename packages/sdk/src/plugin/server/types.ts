@@ -126,15 +126,11 @@ export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   ctx: bot.BotContext
   logger: bot.BotLogger
   /**
-   * # DEPRECATED
-   *
    * Please use the `users`, `conversations`, `actions`, `messages`, `states`,
    * `events`, `workflows` utilities instead of accessing the client directly.
    *
    * For example, you can replace `props.client.listUsers(...)` with
    * `props.users.list(...).take(n)`
-   *
-   * @deprecated
    */
   client: PluginClient<TPlugin>
 }
