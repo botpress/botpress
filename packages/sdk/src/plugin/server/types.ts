@@ -4,8 +4,11 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as conversationProxy from '../conversation-proxy'
 import * as eventProxy from '../event-proxy'
+import * as messageProxy from '../message-proxy'
 import * as stateProxy from '../state-proxy'
+import * as userProxy from '../user-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -132,6 +135,9 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   actions: actionProxy.ActionProxy<TPlugin>
   states: stateProxy.StateProxy<TPlugin>
   events: eventProxy.EventProxy<TPlugin>
+  users: userProxy.UserFinder<TPlugin>
+  conversations: conversationProxy.ConversationFinder<TPlugin>
+  messages: messageProxy.MessageFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -173,7 +179,12 @@ export type MessageHandlersWithoutInjectedProps<TPlugin extends common.BasePlugi
 
 export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
   MessageHandlersWithoutInjectedProps<TPlugin>,
-  TPlugin
+  TPlugin,
+  {
+    user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
+    message: messageProxy.ActionableMessage<TPlugin>
+  }
 >
 
 export type EventPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
@@ -261,7 +272,7 @@ export type WorkflowPayloads<TPlugin extends common.BasePlugin> = _WithInjectedP
          * # EXPERIMENTAL
          * This API is experimental and may change in the future.
          */
-        workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
       }
     >
   },
@@ -279,7 +290,7 @@ export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
     props: utils.Merge<
       WorkflowPayloads<TPlugin>[TWorkflowName],
       {
-        workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
       }
     >
   ) => Promise<void>
