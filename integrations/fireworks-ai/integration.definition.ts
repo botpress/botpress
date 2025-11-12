@@ -29,9 +29,6 @@ export default new IntegrationDefinition({
       description: 'Fireworks AI API key',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))
   .extend(stt, ({ entities: { speechToTextModelRef } }) => ({ entities: { speechToTextModelRef } }))
