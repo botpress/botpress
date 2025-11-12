@@ -86,3 +86,9 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
     ].join('\n'),
   })
 }
+
+export async function runLints(linear: LinearApi, issues: Issue[], logger: BotLogger) {
+  for (const issue of issues) {
+    await runLint(linear, issue, logger)
+  }
+}
