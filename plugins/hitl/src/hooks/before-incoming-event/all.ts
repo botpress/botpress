@@ -26,6 +26,9 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['*'] = async 
      * if conversation is downstream; we prevent the bot from answering in the ticket
      * if conversation is upstream; we prevent the bot from answering in the chat
      */
+    if (props.data.type === 'hitl') {
+      return
+    }
     return consts.STOP_EVENT_HANDLING
   }
 
