@@ -73,6 +73,19 @@ export class LinearApi {
     return issue
   }
 
+  public async findLabel(filter: { name: string; parentName?: string }): Promise<lin.IssueLabel | undefined> {
+    const { name, parentName } = filter
+    const { nodes: labels } = await this._client.issueLabels({
+      filter: {
+        name: { eq: name },
+        parent: parentName ? { name: { eq: parentName } } : undefined,
+      },
+    })
+
+    const [label] = labels
+    return label || undefined
+  }
+
   public issueStatus(issue: Issue): StateKey {
     const state = this._states.find((s) => s.id === issue.state.id)
     if (!state) {
