@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const sizeDescription =
@@ -21,19 +20,25 @@ export default new IntegrationDefinition({
   channels: {},
   actions: {
     generateImage: {
+      title: 'generate Image',
+      description: 'Generate an image',
       input: {
         schema: z.object({
-          prompt: z.string().describe('Prompt for image generation.'),
-          size: z.string().optional().describe(sizeDescription),
-          quality: z.string().optional().describe(qualityDescription),
-          model: z.string().optional().describe(modelDescription),
-          user: z.string().optional().describe('User ID'),
+          prompt: z
+            .string()
+            .describe('Prompt for image generation.')
+            .describe('The prompt that will be used to generate the image')
+            .title('Prompt'),
+          size: z.string().optional().describe(sizeDescription).title('Size'),
+          quality: z.string().optional().describe(qualityDescription).title('Quality'),
+          model: z.string().optional().describe(modelDescription).title('Model'),
+          user: z.string().optional().describe('User ID').title('User'),
         }),
       },
       output: {
         schema: z.object({
-          url: z.string().url(),
-          createdDate: z.string(),
+          url: z.string().url().describe('The url of the generated image').title('Url'),
+          createdDate: z.string().describe('The date the image was created').title('Created Date'),
         }),
       },
     },
