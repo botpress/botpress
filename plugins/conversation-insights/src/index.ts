@@ -14,14 +14,13 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
+  const conversation = await props.conversations['*']['*'].getById({ id: props.data.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
-    const eventType = `${props.alias}#updateAiInsight`
-    const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
+    const events = await props.events.updateAiInsight.list().take(1)
 
-    if (events.events.length === 0) {
+    if (events.length === 0) {
       const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
@@ -34,7 +33,7 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
+  const conversation = await props.conversations['*']['*'].getById({ id: props.data.message.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
   return undefined
 })
@@ -45,12 +44,11 @@ plugin.on.event('updateAiInsight', async (props) => {
     return
   }
 
-  const workflows = await props.client.listWorkflows({
-    name: 'updateAllConversations',
-    statuses: ['in_progress', 'listening', 'pending'],
-  })
+  const workflows = await props.workflows.updateAllConversations
+    .listInstances({ statuses: ['pending', 'cancelled', 'listening', 'paused'] })
+    .take(1)
 
-  if (workflows.workflows.length === 0) {
+  if (workflows.length === 0) {
     await props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
 })
@@ -75,13 +73,11 @@ plugin.on.workflowTimeout('updateAllConversations', async (props) => {
 type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
 const _updateAllConversations = async (props: WorkflowProps) => {
   await props.workflow.acknowledgeStartOfProcessing()
-  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+  const dirtyConversations = await props.conversations['*']['*'].list({ tags: { isDirty: 'true' } }).takePage(1)
 
   const promises: Promise<void>[] = []
-  for (const conversation of dirtyConversations.conversations) {
-    const firstMessagePage = await props.client
-      .listMessages({ conversationId: conversation.id })
-      .then((res) => res.messages)
+  for (const conversation of dirtyConversations) {
+    const firstMessagePage = await conversation.listMessages().takePage(1)
     const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
     promises.push(promise)
   }

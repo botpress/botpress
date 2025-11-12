@@ -19,7 +19,8 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['*'] = async 
     return
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, conversationId)
+  const downstreamConversation = await props.conversations.hitl.hitl.getById({ id: conversationId })
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (isHitlActive) {
     /**
