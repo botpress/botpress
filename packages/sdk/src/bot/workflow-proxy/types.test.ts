@@ -9,16 +9,7 @@ test('WorkflowProxy of FooBarBazBot should reflect workflows of bot', async () =
   type Expected = Readonly<{
     fooWorkflow: {
       startNewInstance: (x: any) => any
-      listInstances: {
-        all: (x: any) => any
-        running: (x: any) => any
-        scheduled: (x: any) => any
-        allFinished: (x: any) => any
-        succeeded: (x: any) => any
-        cancelled: (x: any) => any
-        timedOut: (x: any) => any
-        failed: (x: any) => any
-      }
+      listInstances: (x: any) => any
     }
   }>
 
@@ -51,16 +42,7 @@ test('WorkflowProxy of BaseBot should be a record', async () => {
   type Expected = {
     [x: string]: {
       startNewInstance: (x: any) => any
-      listInstances: {
-        all: (x: any) => any
-        running: (x: any) => any
-        scheduled: (x: any) => any
-        allFinished: (x: any) => any
-        succeeded: (x: any) => any
-        cancelled: (x: any) => any
-        timedOut: (x: any) => any
-        failed: (x: any) => any
-      }
+      listInstances: (x: any) => any
     }
   }
   type _assertion = typeUtils.AssertAll<

@@ -226,7 +226,7 @@ export type WorkflowPayloads<TBot extends common.BaseBot> = {
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflow: workflowProxy.WorkflowWithUtilities<TBot, TWorkflowName>
+    workflow: workflowProxy.ActionableWorkflow<TBot, TWorkflowName>
   }
 }
 
