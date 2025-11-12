@@ -35,9 +35,6 @@ export default new IntegrationDefinition({
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .extend(listable, ({ entities }) => ({
     entities: { item: entities.issue },
