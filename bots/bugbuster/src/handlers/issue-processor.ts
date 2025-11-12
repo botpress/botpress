@@ -72,6 +72,8 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
 
   if (errors.length === 0) {
     logger.info(`Issue ${issue.identifier} passed all lint checks.`)
+    await linear.resolveComments(issue.id)
+    logger.info(`Resolved lint comments on issue ${issue.identifier}`)
     return
   }
 

@@ -26,7 +26,8 @@ export class LinearApi {
     private _client: lin.LinearClient,
     private _viewer: lin.User,
     private _teams: lin.Team[],
-    private _states: lin.WorkflowState[]
+    private _states: lin.WorkflowState[],
+    private _userId: string
   ) {}
 
   public static async create(): Promise<LinearApi> {
@@ -38,8 +39,9 @@ export class LinearApi {
 
     const states = await this._listAllStates(client)
     const teams = await this._listAllTeams(client)
+    const userId = (await client.viewer).id
 
-    return new LinearApi(client, me, teams, states)
+    return new LinearApi(client, me, teams, states, userId)
   }
 
   public get client(): lin.LinearClient {
@@ -118,6 +120,37 @@ export class LinearApi {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
+  }
+
+  public async isBlockedByOtherIssues(issueA: lin.Issue): Promise<boolean> {
+    const { nodes: issues } = await this._client.issues({
+      filter: {
+        hasBlockedByRelations: { eq: true },
+        id: { eq: issueA.id },
+      },
+    })
+    return issues.length > 0
+  }
+
+  public async resolveComments(issueId?: string): Promise<void> {
+    const { nodes: comments } = await this._client.comments({
+      filter: {
+        issue: {
+          id: { eq: issueId },
+        },
+        user: {
+          id: {
+            eq: this._userId,
+          },
+        },
+      },
+    })
+
+    for (const comment of comments) {
+      if (!comment.resolvedAt) {
+        await this._client.commentResolve(comment.id)
+      }
+    }
   }
 
   public get teams(): Record<TeamKey, lin.Team> {
