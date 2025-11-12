@@ -2583,6 +2583,9 @@ importers:
       openai:
         specifier: ^5.12.1
         version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+      posthog-node:
+        specifier: ^5.11.1
+        version: 5.11.1
       preact:
         specifier: ^10.26.6
         version: 10.26.6
