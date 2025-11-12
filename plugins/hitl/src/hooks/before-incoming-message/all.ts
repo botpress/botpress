@@ -13,9 +13,10 @@ import * as consts from '../consts'
 import * as bp from '.botpress'
 
 export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = async (props) => {
-  const { conversation } = await props.client.getConversation({
+  const conversation = await props.conversations.hitl.hitl.getById({
     id: props.data.conversationId,
   })
+
   const { integration } = conversation
   if (integration === props.interfaces.hitl.name) {
     return await _handleDownstreamMessage(props, conversation)
@@ -25,15 +26,17 @@ export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = as
 
 const _handleDownstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  downstreamConversation: client.Conversation
+  downstreamConversation: types.ActionableConversation
 ) => {
-  const downstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.STOP_EVENT_HANDLING // we don't want the bot to chat with the human agent in a closed ticket
   }
 
   const downstreamUserId = props.data.userId
+  const downstreamUser = await props.users.getById({ id: downstreamUserId })
+
   const upstreamConversationId = downstreamConversation.tags['upstream']
 
   if (!upstreamConversationId) {
@@ -63,11 +66,12 @@ const _handleDownstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
+  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
+
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
-  const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUserId, upstreamConversationId })
-
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUser, upstreamConversation })
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }
@@ -79,9 +83,9 @@ const _getMessagePayloadIfSupported = (msg: client.Message): types.MessagePayloa
 
 const _handleUpstreamMessage = async (
   props: bp.HookHandlerProps['before_incoming_message'],
-  upstreamConversation: client.Conversation
+  upstreamConversation: types.ActionableConversation
 ) => {
-  const upstreamCm = conv.ConversationManager.from(props, props.data.conversationId)
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
   const isHitlActive = await upstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.LET_BOT_HANDLE_EVENT
@@ -103,8 +107,6 @@ const _handleUpstreamMessage = async (
     return consts.STOP_EVENT_HANDLING
   }
 
-  const { user: patientUpstreamUser } = await props.client.getUser({ id: props.data.userId })
-
   const downstreamConversationId = upstreamConversation.tags['downstream']
   if (!downstreamConversationId) {
     return await _abortHitlSession({
@@ -114,6 +116,8 @@ const _handleUpstreamMessage = async (
       props,
     })
   }
+
+  const patientUpstreamUser = await props.users.getById({ id: props.data.userId })
 
   const patientDownstreamUserId = patientUpstreamUser.tags['downstream']
   if (!patientDownstreamUserId) {
@@ -125,7 +129,8 @@ const _handleUpstreamMessage = async (
     })
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamConversation = await props.conversations.hitl.hitl.getById({ id: downstreamConversationId })
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
 
   if (_isHitlCloseCommand(props, sessionConfig)) {
     await _handleHitlCloseCommand(props, { downstreamCm, upstreamCm, sessionConfig })

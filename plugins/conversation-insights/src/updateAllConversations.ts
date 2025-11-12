@@ -5,13 +5,11 @@ import * as bp from '.botpress'
 export type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
 export const updateAllConversations = async (props: WorkflowProps) => {
   await props.workflow.acknowledgeStartOfProcessing()
-  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
+  const dirtyConversations = await props.conversations['*']['*'].list({ tags: { isDirty: 'true' } }).takePage(1)
 
   const promises: Promise<void>[] = []
   for (const conversation of dirtyConversations.conversations) {
-    const firstMessagePage = await props.client
-      .listMessages({ conversationId: conversation.id })
-      .then((res) => res.messages)
+    const firstMessagePage = await conversation.listMessages().takePage(1)
     const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
     promises.push(promise)
   }

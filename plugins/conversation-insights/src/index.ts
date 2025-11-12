@@ -13,14 +13,13 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
+  const conversation = await props.conversations['*']['*'].getById({ id: props.data.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
-    const eventType = `${props.alias}#updateAiInsight`
-    const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
+    const events = await props.events.updateAiInsight.list().take(1)
 
-    if (events.events.length === 0) {
+    if (events.length === 0) {
       const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
@@ -33,7 +32,7 @@ plugin.on.afterOutgoingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
+  const conversation = await props.conversations['*']['*'].getById({ id: props.data.message.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
   return undefined
 })
@@ -44,12 +43,11 @@ plugin.on.event('updateAiInsight', async (props) => {
     return
   }
 
-  const workflows = await props.client.listWorkflows({
-    name: 'updateAllConversations',
-    statuses: ['in_progress', 'listening', 'pending'],
-  })
+  const workflows = await props.workflows.updateAllConversations
+    .listInstances({ statuses: ['pending', 'cancelled', 'listening', 'paused'] })
+    .take(1)
 
-  if (workflows.workflows.length === 0) {
+  if (workflows.length === 0) {
     await props.workflows.updateAllConversations.startNewInstance({ input: {} })
   }
 })
