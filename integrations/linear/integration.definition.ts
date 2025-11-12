@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import deletable from './bp_modules/deletable'
