@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
