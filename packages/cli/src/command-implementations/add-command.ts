@@ -157,7 +157,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       const strRef = pkgRef.formatPackageRef(ref)
       throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
     }
-    const packageName = ref.alias ? ref.alias : targetPackage.pkg.name
+    const packageName = ref.alias && ref.alias !== '' ? ref.alias : targetPackage.pkg.name
 
     return { packageName, targetPackage }
   }
