@@ -87,18 +87,11 @@ export class LinearApi {
     const queryInput: GRAPHQL_QUERIES['findIssues'][QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
+        ...(issueNumber && { number: { eq: issueNumber } }),
+        ...(statusesToOmit && { state: { name: { nin: statusesToOmit } } }),
       },
-    }
-
-    if (issueNumber !== undefined) {
-      queryInput.filter.number = { eq: issueNumber }
-    }
-    if (statusesToOmit !== undefined) {
-      queryInput.filter.state = { name: { nin: statusesToOmit } }
-    }
-    if (nextPage) {
-      queryInput.after = nextPage
-      queryInput.first = RESULTS_PER_PAGE
+      ...(nextPage && { after: nextPage }),
+      first: RESULTS_PER_PAGE,
     }
 
     const data = await this._executeGraphqlQuery('findIssues', queryInput)
