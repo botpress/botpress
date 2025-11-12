@@ -81,7 +81,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
           if (action) {
             return utils.functions.setName(
               (props: Omit<Parameters<typeof action>[0], keyof InjectedHandlerProps<TBot>>) =>
-                action({ ...props, workflows: proxyWorkflows(props.client) }),
+                action({ ...props, workflows: proxyWorkflows(props) }),
               action.name
             )
           }
@@ -116,7 +116,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
@@ -142,7 +142,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
@@ -170,7 +170,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
             .map(({ handler }) =>
               utils.functions.setName(
                 (props: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TBot>>) =>
-                  handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                  handler({ ...props, workflows: proxyWorkflows(props) }),
                 handler.name
               )
             )
@@ -206,7 +206,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                   .sort((a, b) => a.order - b.order)
                   .map(({ handler }) =>
                     utils.functions.setName(
-                      (props: any) => handler({ ...props, workflows: proxyWorkflows(props.client) }),
+                      (props: any) => handler({ ...props, workflows: proxyWorkflows(props) }),
                       handler.name
                     )
                   )
@@ -249,7 +249,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
                                 currentWorkflowState = newState
                               },
                             }),
-                            workflows: proxyWorkflows(props.client),
+                            workflows: proxyWorkflows(props),
                           })
                           return currentWorkflowState
                         },
