@@ -17,9 +17,7 @@ export default new IntegrationDefinition({
       linkTemplateScript: 'linkTemplate.vrl',
       required: true,
     },
-    schema: z.object({
-      subdomain,
-    }),
+    schema: z.object({}),
   },
 
   configurations: {
@@ -47,6 +45,7 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z
         .object({
+          domain: z.string().title('Domain').describe('The domain of the company.'),
           accessToken: z.string().title('Temporary Access Token').describe('Temporary access token for the API.'),
           refreshToken: z.string().title('Refresh Token').describe('Token used to refresh the access token.'),
           expiresAt: z

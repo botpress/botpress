@@ -17,28 +17,36 @@ const fetchBambooHrOauthToken = async (
   accessToken: string
   idToken: string
 }> => {
-  const bambooHrOauthUrl = `https://${ctx.configuration.subdomain}.bamboohr.com/token.php?request=token`
+  const { state } = await client.getState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+  })
+
+  const bambooHrOauthUrl = `https://${state.payload.domain}.bamboohr.com/token.php?request=token`
 
   const { OAUTH_CLIENT_SECRET, OAUTH_CLIENT_ID } = bp.secrets
 
   // See https://documentation.bamboohr.com/docs/getting-started
   const requestTimestamp = Date.now()
+
+  const body = JSON.stringify({
+    client_id: OAUTH_CLIENT_ID,
+    client_secret: OAUTH_CLIENT_SECRET,
+    redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+    ...('code' in oAuthInfo
+      ? { grant_type: 'authorization_code', code: oAuthInfo.code }
+      : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
+  })
+
+  console.log('body', body)
+
   const tokenResponse = await fetch(bambooHrOauthUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      AcceptHeaderParameter: 'application/json',
-    },
-    body: JSON.stringify({
-      client_id: OAUTH_CLIENT_ID,
-      client_secret: OAUTH_CLIENT_SECRET,
-      redirect_uri: 'https://webhook.botpress.cloud/oauth',
-      ...('code' in oAuthInfo
-        ? { grant_type: 'authorization_code', code: oAuthInfo.code }
-        : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
-    }),
+    body,
   })
+
+  console.log('tokenResponse', tokenResponse.json)
 
   if (tokenResponse.status < 200 || tokenResponse.status >= 300) {
     throw new Error(
@@ -56,6 +64,7 @@ const fetchBambooHrOauthToken = async (
     name: 'oauth',
     id: ctx.integrationId,
     payload: {
+      domain: state.payload.domain,
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
