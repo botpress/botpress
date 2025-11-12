@@ -1,3 +1,12 @@
+const QUERY_INPUT = Symbol('graphqlInputType')
+const QUERY_RESPONSE = Symbol('graphqlResponseType')
+
+type GraphQLQuery<TInput, TResponse> = {
+  query: string
+  [QUERY_INPUT]: TInput
+  [QUERY_RESPONSE]: TResponse
+}
+
 export type Issue = {
   id: string
   identifier: string
@@ -30,46 +39,58 @@ export type Issue = {
   } | null
 }
 
-export const FIND_ISSUE = `
-query FindIssue($filter: IssueFilter) {
-  issues(filter: $filter) {
-    nodes {
-      id,
-      identifier,
-      title,
-      estimate,
-      priority,
-      assignee {
-        id
-      },
-      state {
-        id
-      },
-      labels {
-        nodes {
-          name
-          parent {
-            name
+export const GRAPHQL_QUERIES = {
+  findIssue: {
+    query: `
+      query FindIssue($filter: IssueFilter) {
+        issues(filter: $filter) {
+          nodes {
+            id,
+            identifier,
+            title,
+            estimate,
+            priority,
+            assignee {
+              id
+            },
+            state {
+              id
+            },
+            labels {
+              nodes {
+                name
+                parent {
+                  name
+                }
+              }
+            },
+            inverseRelations {
+              nodes {
+                type
+              }
+            },
+            project {
+              id,
+              name,
+              completedAt
+            }
           }
         }
-      },
-      inverseRelations {
-        nodes {
-          type
-        }
-      },
-      project {
-        id,
-        name,
-        completedAt
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        team: { key: { eq: string } }
+        number: { eq: number }
       }
-    }
-  }
-}
-`
+    },
+    [QUERY_RESPONSE]: {} as {
+      issues: {
+        nodes: Issue[]
+      }
+    },
+  },
+} as const satisfies Record<string, GraphQLQuery<object, object>>
 
-export type FindIssueResult = {
-  issues: {
-    nodes: Issue[]
-  }
-}
+export type GRAPHQL_QUERIES = typeof GRAPHQL_QUERIES
+export type QUERY_INPUT = typeof QUERY_INPUT
+export type QUERY_RESPONSE = typeof QUERY_RESPONSE

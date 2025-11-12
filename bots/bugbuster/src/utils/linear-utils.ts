@@ -1,7 +1,7 @@
 import * as lin from '@linear/sdk'
 import * as genenv from '../../.genenv'
 import * as utils from '.'
-import { FIND_ISSUE, FindIssueResult, Issue } from './graphql-queries'
+import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -59,18 +59,14 @@ export class LinearApi {
       return undefined
     }
 
-    const { data } = await this._client.client.rawRequest(FIND_ISSUE, {
+    const data = await this._executeGraphqlQuery('findIssue', {
       filter: {
-        team: { key: { eq: teamKey } },
         number: { eq: issueNumber },
+        team: { key: { eq: teamKey } },
       },
     })
 
-    const {
-      issues: { nodes: issues },
-    } = data as FindIssueResult
-
-    const [issue] = issues
+    const [issue] = data.issues.nodes
     if (!issue) {
       return undefined
     }
@@ -141,5 +137,13 @@ export class LinearApi {
       cursor = response.pageInfo.endCursor
     } while (cursor)
     return states
+  }
+
+  private async _executeGraphqlQuery<K extends keyof GRAPHQL_QUERIES>(
+    queryName: K,
+    variables: GRAPHQL_QUERIES[K][QUERY_INPUT]
+  ): Promise<GRAPHQL_QUERIES[K][QUERY_RESPONSE]> {
+    return (await this._client.client.rawRequest(GRAPHQL_QUERIES[queryName].query, variables))
+      .data as GRAPHQL_QUERIES[K][QUERY_RESPONSE]
   }
 }
