@@ -74,11 +74,10 @@ export class LinearApi {
       teamKeys: TeamKey[]
       issueNumber?: number
       statusesToOmit?: StateKey[]
-      blocked?: boolean
     },
     nextPage?: string
   ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
-    const { teamKeys, issueNumber, blocked, statusesToOmit } = filter
+    const { teamKeys, issueNumber, statusesToOmit } = filter
 
     const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
     if (!teamsExist) {
@@ -96,9 +95,6 @@ export class LinearApi {
     }
     if (statusesToOmit !== undefined) {
       queryInput.filter.state = { name: { nin: statusesToOmit } }
-    }
-    if (blocked !== undefined) {
-      queryInput.filter.hasBlockedByRelations = { eq: blocked }
     }
     if (nextPage) {
       queryInput.after = nextPage

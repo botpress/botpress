@@ -91,7 +91,6 @@ export const GRAPHQL_QUERIES = {
             nin: string[]
           }
         }
-        hasBlockedByRelations?: { eq: boolean }
       }
       after?: string
       first?: number
