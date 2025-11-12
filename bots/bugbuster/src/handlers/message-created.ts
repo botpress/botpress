@@ -1,3 +1,5 @@
+import { RuntimeError } from '@botpress/sdk'
+import { BotpressApi } from 'src/utils/botpress-utils'
 import * as utils from '../utils'
 import { listIssues, runLints } from './issue-processor'
 import { addTeam, listTeams, removeTeam } from './teams-manager'
@@ -36,9 +38,13 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const linear = await utils.linear.LinearApi.create()
-      const result = await addTeam(client, ctx.botId, teamKey, linear)
-      await botpress.respondText(conversation.id, result.message)
+      try {
+        const linear = await utils.linear.LinearApi.create()
+        const result = await addTeam(client, ctx.botId, teamKey, linear)
+        await botpress.respondText(conversation.id, result.message)
+      } catch (thrown) {
+        await _onError(thrown, botpress, conversation.id)
+      }
       break
     }
     case '/removeTeam': {
@@ -46,25 +52,37 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const result = await removeTeam(client, ctx.botId, teamKey)
-      await botpress.respondText(conversation.id, result.message)
+      try {
+        const result = await removeTeam(client, ctx.botId, teamKey)
+        await botpress.respondText(conversation.id, result.message)
+      } catch (thrown) {
+        await _onError(thrown, botpress, conversation.id)
+      }
       break
     }
     case '/listTeams': {
-      const result = await listTeams(client, ctx.botId)
-      await botpress.respondText(conversation.id, result.message)
+      try {
+        const result = await listTeams(client, ctx.botId)
+        await botpress.respondText(conversation.id, result.message)
+      } catch (thrown) {
+        await _onError(thrown, botpress, conversation.id)
+      }
       break
     }
     case '/lintAll': {
-      const teamsResult = await listTeams(client, ctx.botId)
-      if (!teamsResult.success || !teamsResult.result) {
-        await botpress.respondText(conversation.id, teamsResult.message)
-        return
+      try {
+        const teamsResult = await listTeams(client, ctx.botId)
+        if (!teamsResult.success || !teamsResult.result) {
+          await botpress.respondText(conversation.id, teamsResult.message)
+          return
+        }
+        const linear = await utils.linear.LinearApi.create()
+        const issues = await listIssues(teamsResult.result, linear)
+        await runLints(linear, issues, logger)
+        await botpress.respondText(conversation.id, 'Success: linted all issues.')
+      } catch (thrown) {
+        await _onError(thrown, botpress, conversation.id)
       }
-      const linear = await utils.linear.LinearApi.create()
-      const issues = await listIssues(teamsResult.result, linear)
-      await runLints(linear, issues, logger)
-      await botpress.respondText(conversation.id, 'Success: linted all issues.')
       break
     }
     default: {
@@ -72,4 +90,10 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
   }
+}
+
+const _onError = async (thrown: unknown, botpress: BotpressApi, conversationId: string) => {
+  await botpress.respondText(conversationId, 'An error occured. See logs for details.')
+  const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+  throw new RuntimeError(error.message)
 }
