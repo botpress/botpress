@@ -61,7 +61,4 @@ export default new IntegrationDefinition({
       description: 'The API key to use PDFShift (https://app.pdfshift.io/env/apikeys)',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
