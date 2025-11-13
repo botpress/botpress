@@ -176,7 +176,4 @@ export default new IntegrationDefinition({
       output: { schema: getFileOutputSchema },
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
