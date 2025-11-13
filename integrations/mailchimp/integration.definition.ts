@@ -10,7 +10,7 @@ import {
   getAllCampaignsOutputSchema,
   getAllCampaignsInputSchema,
 } from './src/misc/custom-schemas'
-import { addCustomerToCampaignUi, addCustomerToListUi } from './src/misc/custom-uis'
+import { addCustomerToCampaignUi } from './src/misc/custom-uis'
 
 const INTEGRATION_NAME = 'mailchimp'
 
@@ -45,7 +45,6 @@ export default new IntegrationDefinition({
       description: "Add Customer's Profile to a List/Audience",
       input: {
         schema: addCustomerToListInputSchema,
-        ui: addCustomerToListUi,
       },
       output: {
         schema: addCustomerOutputSchema,
