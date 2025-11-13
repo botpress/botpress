@@ -241,7 +241,6 @@ const addSchema = {
   alias: {
     type: 'string',
     description: 'The alias of the dependency you want to install',
-    default: undefined,
   },
 } satisfies CommandSchema
 

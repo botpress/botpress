@@ -153,7 +153,7 @@ export const addIntegration: Test = {
           installPath: botDir,
           packageRef: integration.id,
           useDev: false,
-          alias: '',
+          alias: undefined,
         })
         .then(utils.handleExitCode)
 
@@ -238,7 +238,7 @@ export const addPlugin: Test = {
           installPath: botDir,
           packageRef: plugin.id,
           useDev: false,
-          alias: '',
+          alias: undefined,
         })
         .then(utils.handleExitCode)
 

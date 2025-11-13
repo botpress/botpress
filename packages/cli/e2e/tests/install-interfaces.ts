@@ -41,7 +41,7 @@ export const installAllInterfaces: Test = {
           packageType: 'interface',
           installPath: baseDir,
           useDev: false,
-          alias: '',
+          alias: undefined,
         })
         .then(utils.handleExitCode)
       // TODO: also run a type check on the installed interface
