@@ -46,7 +46,10 @@ export const customerSchema = z.object({
 })
 
 export const addCustomerToCampaignInputSchema = customerSchema.extend({
-  campaignId: z.string().describe('The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)'),
+  campaignId: z
+    .string()
+    .describe('The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)')
+    .title('The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)'),
 })
 
 export const addCustomerToListInputSchema = customerSchema.extend({
