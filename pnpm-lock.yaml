@@ -179,6 +179,28 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  bots/drop-weaver:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/todoist':
+        specifier: workspace:*
+        version: link:../../integrations/todoist
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/echo:
     devDependencies:
       '@botpress/cli':
@@ -2303,7 +2325,7 @@ importers:
         specifier: 1.27.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2421,7 +2443,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2437,7 +2459,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2450,7 +2472,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2466,7 +2488,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2482,7 +2504,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 5.0.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
