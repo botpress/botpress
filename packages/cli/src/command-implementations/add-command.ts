@@ -65,7 +65,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
 
-      await this._addSinglePackage({ ...parsed, alias: pkgAlias })
+      const refWithAlias = { ...parsed, alias: pkgAlias }
+      const foundPkg = await this._findPackage(refWithAlias)
+      await this._addSinglePackage(refWithAlias, foundPkg)
     }
   }
 
@@ -96,9 +98,19 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     return ref
   }
 
-  private async _addSinglePackage(ref: RefWithAlias) {
-    const { packageName, targetPackage } = await this._findPackage(ref)
+  private async _addSinglePackage(
+    ref: RefWithAlias,
+    props: { packageName: string; targetPackage: InstallablePackage }
+  ) {
+    let { packageName } = props
+    const { targetPackage } = props
 
+    if (!targetPackage) {
+      const strRef = pkgRef.formatPackageRef(ref)
+      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
+    }
+
+    packageName = ref.alias ?? targetPackage.pkg.name
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
@@ -108,7 +120,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       this.logger.warn(`Package with name "${packageName}" already installed.`)
       const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
-        throw new errors.AbortedOperationError()
+        const newAlias = await this._chooseNewAlias()
+        packageName = newAlias
       }
 
       await this._uninstall(installPath)
@@ -144,22 +157,26 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     await this._install(installPath, files)
   }
+  private async _chooseNewAlias() {
+    const setAliasConfirmation = await this.prompt.confirm('Do you want to set an alias to the package you install')
+    if (!setAliasConfirmation) {
+      throw new errors.AbortedOperationError()
+    }
+    const alias = await this.prompt.text('Enter the new alias')
 
-  private async _addNewSinglePackage(ref: RefWithAlias) {
-    await this._addSinglePackage(ref)
-    const { packageName, targetPackage } = await this._findPackage(ref)
-    await this._addDependencyToPackage(packageName, targetPackage)
+    if (!alias) {
+      throw new errors.BotpressCLIError('You cannot set an empty alias')
+    }
+
+    return alias
   }
 
-  private async _findPackage(ref: RefWithAlias): Promise<{ packageName: string; targetPackage: InstallablePackage }> {
-    const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
-    if (!targetPackage) {
-      const strRef = pkgRef.formatPackageRef(ref)
-      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
-    }
-    const packageName = ref.alias ?? targetPackage.pkg.name
-
-    return { packageName, targetPackage }
+  private async _addNewSinglePackage(ref: RefWithAlias) {
+    //read the local package checksum, calculate the remote package checksum
+    const { packageName, targetPackage } = await this._findPackage(ref)
+    //verify if the package's checksum is the same
+    await this._addSinglePackage(ref, { packageName, targetPackage })
+    await this._addDependencyToPackage(packageName, targetPackage)
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
@@ -343,8 +360,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
-    const version =
-      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
+    const version = targetPackage.pkg.path ?? targetPackage.pkg.version
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
