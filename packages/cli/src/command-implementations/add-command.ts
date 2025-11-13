@@ -105,8 +105,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     let { packageName } = props
     const { targetPackage } = props
 
-      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
-    }
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
