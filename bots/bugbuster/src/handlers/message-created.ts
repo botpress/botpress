@@ -1,5 +1,4 @@
-import { BotLogger, RuntimeError } from '@botpress/sdk'
-import { BotpressApi } from 'src/utils/botpress-utils'
+import { RuntimeError } from '@botpress/sdk'
 import * as utils from '../utils'
 import { listIssues, runLints } from './issue-processor'
 import { addTeam, listTeams, removeTeam } from './teams-manager'
@@ -32,12 +31,12 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
   }
 
-  const withErrorHandling = async <T>(promise: Promise<T>, action: string) => {
-    try {
-      return await promise
-    } catch (thrown) {
-      return _onError(thrown, botpress, logger, conversation.id, action)
-    }
+  const _handleError = (context: string) => async (thrown: unknown) => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    const message = `An error occured while ${context}: ${error.message}`
+    logger.error(message)
+    await botpress.respondText(conversation.id, message)
+    throw new RuntimeError(error.message)
   }
 
   switch (command) {
@@ -46,8 +45,8 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const linear = await withErrorHandling(utils.linear.LinearApi.create(), 'trying to add a team')
-      const result = await withErrorHandling(addTeam(client, ctx.botId, teamKey, linear), 'trying to add a team')
+      const linear = await utils.linear.LinearApi.create().catch(_handleError('trying to add a team'))
+      const result = await addTeam(client, ctx.botId, teamKey, linear).catch(_handleError('trying to add a team'))
 
       await botpress.respondText(conversation.id, result.message)
       break
@@ -57,29 +56,25 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const result = await withErrorHandling(removeTeam(client, ctx.botId, teamKey), 'trying to remove a team')
+      const result = await removeTeam(client, ctx.botId, teamKey).catch(_handleError('trying to remove a team'))
       await botpress.respondText(conversation.id, result.message)
       break
     }
     case '/listTeams': {
-      const result = await withErrorHandling(listTeams(client, ctx.botId), 'trying to list teams')
+      const result = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
       await botpress.respondText(conversation.id, result.message)
       break
     }
     case '/lintAll': {
-      const teamsResult = await withErrorHandling(listTeams(client, ctx.botId), 'trying to lint all issues')
+      const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
       if (!teamsResult.success || !teamsResult.result) {
         await botpress.respondText(conversation.id, teamsResult.message)
         return
       }
 
-      const linear = await withErrorHandling(utils.linear.LinearApi.create(), 'trying to lint all issues')
-      try {
-        const issues = await listIssues(teamsResult.result, linear)
-        await runLints(linear, issues, logger)
-      } catch (thrown) {
-        await _onError(thrown, botpress, logger, conversation.id, 'trying to lint all issues')
-      }
+      const linear = await utils.linear.LinearApi.create().catch(_handleError('trying to lint all issues'))
+      const issues = await listIssues(teamsResult.result, linear).catch(_handleError('trying to list all issues'))
+      await runLints(linear, issues, logger).catch(_handleError('trying to run lints on all issues'))
 
       await botpress.respondText(conversation.id, 'Success: linted all issues.')
       break
@@ -89,18 +84,4 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
   }
-}
-
-const _onError = async (
-  thrown: unknown,
-  botpress: BotpressApi,
-  logger: BotLogger,
-  conversationId: string,
-  context: string
-) => {
-  const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-  const message = `An error occured while ${context}: ${error.message}`
-  logger.error(message)
-  await botpress.respondText(conversationId, message)
-  throw new RuntimeError(error.message)
 }
