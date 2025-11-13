@@ -16,26 +16,46 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.event('files-readonly:fileCreated', async (props) => {
+  if (!props.configuration.enableRealTimeSync) {
+    return
+  }
+
   props.logger.info('File created event triggered', props.event.payload.file)
   await hooks.onEvent.fileCreated.handleEvent(props)
 })
 
 plugin.on.event('files-readonly:fileDeleted', async (props) => {
+  if (!props.configuration.enableRealTimeSync) {
+    return
+  }
+
   props.logger.info('File deleted event triggered', props.event.payload.file)
   await hooks.onEvent.fileDeleted.handleEvent(props)
 })
 
 plugin.on.event('files-readonly:fileUpdated', async (props) => {
+  if (!props.configuration.enableRealTimeSync) {
+    return
+  }
+
   props.logger.info('File updated event triggered', props.event.payload.file)
   await hooks.onEvent.fileUpdated.handleEvent(props)
 })
 
 plugin.on.event('files-readonly:folderDeletedRecursive', async (props) => {
+  if (!props.configuration.enableRealTimeSync) {
+    return
+  }
+
   props.logger.info('Folder deleted event triggered', props.event.payload.folder)
   await hooks.onEvent.folderDeletedRecursive.handleEvent(props)
 })
 
 plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
+  if (!props.configuration.enableRealTimeSync) {
+    return
+  }
+
   props.logger.info('Aggregate file changes event triggered', props.event.payload.modifiedItems)
   await hooks.onEvent.aggregateFileChanges.handleEvent(props)
 })

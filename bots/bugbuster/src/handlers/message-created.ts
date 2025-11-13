@@ -1,4 +1,5 @@
 import * as utils from '../utils'
+import { listIssues, runLints } from './issue-processor'
 import { addTeam, listTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
 
@@ -6,11 +7,12 @@ const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
 /addTeam [teamName]
 /removeTeam [teamName]
-/listTeams`
+/listTeams
+/lintAll`
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
-  const { conversation, message, client, ctx } = props
+  const { conversation, message, client, ctx, logger } = props
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
@@ -51,6 +53,18 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     case '/listTeams': {
       const result = await listTeams(client, ctx.botId)
       await botpress.respondText(conversation.id, result.message)
+      break
+    }
+    case '/lintAll': {
+      const teamsResult = await listTeams(client, ctx.botId)
+      if (!teamsResult.success || !teamsResult.result) {
+        await botpress.respondText(conversation.id, teamsResult.message)
+        return
+      }
+      const linear = await utils.linear.LinearApi.create()
+      const issues = await listIssues(teamsResult.result, linear)
+      await runLints(linear, issues, logger)
+      await botpress.respondText(conversation.id, 'Success: linted all issues.')
       break
     }
     default: {

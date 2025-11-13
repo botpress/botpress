@@ -2729,7 +2729,13 @@ importers:
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
+      semver:
+        specifier: ^7.3.8
+        version: 7.7.2
     devDependencies:
+      '@types/semver':
+        specifier: ^7.3.11
+        version: 7.5.0
       esbuild:
         specifier: ^0.25.10
         version: 0.25.10
@@ -12799,7 +12805,7 @@ snapshots:
       glob: 9.3.5
       prettier: 2.8.8
       prompts: 2.4.2
-      semver: 7.6.3
+      semver: 7.7.2
       yaml: 2.4.1
 
   '@bpinternal/genenv@0.0.1':
@@ -15402,7 +15408,7 @@ snapshots:
       fast-glob: 3.3.2
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.2
       ts-api-utils: 2.1.0(typescript@5.6.3)
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -16824,7 +16830,7 @@ snapshots:
       '@one-ini/wasm': 0.1.1
       commander: 10.0.1
       minimatch: 9.0.1
-      semver: 7.6.3
+      semver: 7.7.2
 
   ee-first@1.1.1: {}
 
@@ -18710,7 +18716,7 @@ snapshots:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -19700,7 +19706,7 @@ snapshots:
 
   node-abi@3.75.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.2
 
   node-addon-api@3.2.1: {}
 
@@ -20983,7 +20989,7 @@ snapshots:
       mime: 2.6.0
       qs: 6.13.0
       readable-stream: 3.6.2
-      semver: 7.6.3
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
