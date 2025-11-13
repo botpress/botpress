@@ -22,6 +22,7 @@ export const outDirName = '.botpress'
 export const distDirName = 'dist'
 export const profileFileName = 'profiles.json'
 export const defaultProfileName = 'default'
+export const checksumFileName = '.checksum'
 
 export const fromCliRootDir = {}
 
