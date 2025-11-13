@@ -189,7 +189,7 @@ const deploySchema = {
     type: 'string',
     choices: ['public', 'private', 'unlisted'] as const,
     description:
-      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations.',
+      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations and plugins.',
     default: 'private',
   },
   public: {
