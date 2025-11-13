@@ -117,13 +117,13 @@ export const sendMassEmailCampaignFullOutputSchema = z.object({
 })
 
 export const getAllListsOutputSchema = z.object({
-  lists: z.array(listSchema),
-  constraints: constraintsSchema,
-  _links: z.array(linkSchema),
+  lists: z.array(listSchema).describe('The array of list').title('Lists'),
+  constraints: constraintsSchema.describe('The constraints of the lists').title('Constraints'),
+  _links: z.array(linkSchema).describe('Link').title('Link'),
 })
 
 export const getAllListsInputSchema = z.object({
-  count: z.number().optional().default(100),
+  count: z.number().optional().default(100).describe('List count to retrieve').title('Count'),
 })
 
 export const getAllCampaignsInputSchema = getAllListsInputSchema

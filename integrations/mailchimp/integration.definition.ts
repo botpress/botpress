@@ -66,11 +66,6 @@ export default new IntegrationDefinition({
       description: 'Get all available email lists/audiences',
       input: {
         schema: getAllListsInputSchema,
-        ui: {
-          count: {
-            title: 'List count to retrieve',
-          },
-        },
       },
       output: {
         schema: getAllListsOutputSchema,
