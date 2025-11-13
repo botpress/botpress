@@ -1,5 +1,5 @@
 import { BotLogger } from '@botpress/sdk'
-import { Issue } from '@linear/sdk'
+import { Issue } from 'src/utils/graphql-queries'
 import { LinearApi } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
 import { listTeams } from './teams-manager'
