@@ -13,7 +13,7 @@ export default new PluginDefinition({
       title: { title: 'Title', description: 'The title of the conversation.' },
       summary: {
         title: 'Summary',
-        description: 'A summary of the current conversation. ',
+        description: 'A summary of the current conversation.',
       },
       message_count: {
         title: 'Message count',
