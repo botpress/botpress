@@ -53,9 +53,3 @@ export const addCustomerToListUi = {
   },
   ...customerUi,
 }
-
-export const sendMassEmailCampaignUi = {
-  campaignIds: {
-    title: 'The Campaign IDs (Can be either a string with comma-separated IDs)',
-  },
-}

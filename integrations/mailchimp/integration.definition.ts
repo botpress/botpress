@@ -10,7 +10,7 @@ import {
   getAllCampaignsOutputSchema,
   getAllCampaignsInputSchema,
 } from './src/misc/custom-schemas'
-import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from './src/misc/custom-uis'
+import { addCustomerToCampaignUi, addCustomerToListUi } from './src/misc/custom-uis'
 
 const INTEGRATION_NAME = 'mailchimp'
 
@@ -56,7 +56,6 @@ export default new IntegrationDefinition({
       description: 'Mass Mailing of the Campaign by its IDs',
       input: {
         schema: sendMassEmailCampaignInputSchema,
-        ui: sendMassEmailCampaignUi,
       },
       output: {
         schema: sendMassEmailCampaignOutputSchema,

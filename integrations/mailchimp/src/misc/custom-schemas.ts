@@ -46,7 +46,10 @@ export const addCustomerToListInputSchema = customerSchema.extend({
 })
 
 export const sendMassEmailCampaignInputSchema = z.object({
-  campaignIds: z.string().describe('The Campaign IDs (Can be either a string with comma-separated IDs)'),
+  campaignIds: z
+    .string()
+    .describe('The Campaign IDs (Can be either a string with comma-separated IDs)')
+    .title('The Campaign IDs (Can be either a string with comma-separated IDs)'),
 })
 
 export const addCustomerOutputSchema = z.object({
@@ -91,10 +94,14 @@ export const addCustomerFullOutputSchema = z.object({
 })
 
 export const sendMassEmailCampaignOutputSchema = z.object({
-  id: z.string().optional(),
-  status: batchStatusSchema.optional(),
-  total_operations: z.number().optional(),
-  _links: z.array(linkSchema).optional(),
+  id: z.string().optional().describe('The id of the campaign').title('ID'),
+  status: batchStatusSchema.optional().describe('The status of the campaign').title('Status'),
+  total_operations: z
+    .number()
+    .optional()
+    .describe('The number of operation done in the camplain')
+    .title('Total Operation'),
+  _links: z.array(linkSchema).optional().describe('Link').title('Link'),
 })
 
 export const sendMassEmailCampaignFullOutputSchema = z.object({
