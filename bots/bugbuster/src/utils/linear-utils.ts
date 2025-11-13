@@ -1,6 +1,7 @@
 import * as lin from '@linear/sdk'
 import * as genenv from '../../.genenv'
 import * as utils from '.'
+import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -51,25 +52,21 @@ export class LinearApi {
     return TEAM_KEYS.includes(teamKey as TeamKey)
   }
 
-  public isState(stateKey: string): stateKey is StateKey {
-    return STATE_KEYS.includes(stateKey as StateKey)
-  }
-
-  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<lin.Issue | undefined> {
+  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
     const teamExists = this._teams.some((team) => team.key === teamKey)
     if (!teamExists) {
       return undefined
     }
 
-    const { nodes: issues } = await this._client.issues({
+    const data = await this._executeGraphqlQuery('findIssue', {
       filter: {
         team: { key: { eq: teamKey } },
         number: { eq: issueNumber },
       },
     })
 
-    const [issue] = issues
+    const [issue] = data.issues.nodes
     if (!issue) {
       return undefined
     }
@@ -89,22 +86,12 @@ export class LinearApi {
     return label || undefined
   }
 
-  public issueStatus(issue: lin.Issue): StateKey {
-    const state = this._states.find((s) => s.id === issue.stateId)
+  public issueStatus(issue: Issue): StateKey {
+    const state = this._states.find((s) => s.id === issue.state.id)
     if (!state) {
-      throw new Error(`State with ID "${issue.stateId}" not found.`)
+      throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
-  }
-
-  public async isBlockedByOtherIssues(issueA: lin.Issue): Promise<boolean> {
-    const { nodes: issues } = await this._client.issues({
-      filter: {
-        hasBlockedByRelations: { eq: true },
-        id: { eq: issueA.id },
-      },
-    })
-    return issues.length > 0
   }
 
   public get teams(): Record<TeamKey, lin.Team> {
@@ -163,5 +150,13 @@ export class LinearApi {
       cursor = response.pageInfo.endCursor
     } while (cursor)
     return states
+  }
+
+  private async _executeGraphqlQuery<K extends keyof GRAPHQL_QUERIES>(
+    queryName: K,
+    variables: GRAPHQL_QUERIES[K][QUERY_INPUT]
+  ): Promise<GRAPHQL_QUERIES[K][QUERY_RESPONSE]> {
+    return (await this._client.client.rawRequest(GRAPHQL_QUERIES[queryName].query, variables))
+      .data as GRAPHQL_QUERIES[K][QUERY_RESPONSE]
   }
 }

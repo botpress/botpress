@@ -59,7 +59,7 @@ const FILE_FILTER_PROPS = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'file-synchronizer',
-  version: '1.0.1',
+  version: '1.0.2',
   title: 'File Synchronizer',
   description: 'Synchronize files from external services to Botpress',
   icon: 'icon.svg',
@@ -70,7 +70,7 @@ export default new sdk.PluginDefinition({
         .boolean()
         .default(true)
         .describe(
-          'Enable real-time synchronization. Whever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.'
+          'Enable real-time synchronization. Whenever a file is created, updated, or deleted, synchronize it to Botpress immediately. This does not work with every integration.'
         ),
       includeFiles: FILE_FILTER_PROPS.shape.includeFiles
         .title('Include Rules')
