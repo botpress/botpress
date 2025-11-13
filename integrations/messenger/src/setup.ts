@@ -95,9 +95,7 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   const { pageId } = credentials
   if (!pageId) {
     // No page ID means the OAuth flow was probably never fully completed
-    const message = 'No page ID found - OAuth flow was probably never fully completed'
-    logger.forBot().error(message)
-    throw new RuntimeError('No page ID found - OAuth flow was probably never fully completed')
+    return
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
