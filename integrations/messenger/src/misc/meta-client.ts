@@ -247,7 +247,7 @@ export class MetaClient {
 
   public async isSubscribedToWebhooks(inputPageId?: string) {
     const subscribedFields = await this.getSubscribedWebhooks(inputPageId)
-    
+
     if (!subscribedFields) {
       return false
     }
