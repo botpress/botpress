@@ -126,7 +126,7 @@ export const getAllListsInputSchema = z.object({
   count: z.number().optional().default(100).describe('List count to retrieve').title('Count'),
 })
 
-export const getAllCampaignsInputSchema = getAllListsInputSchema
+export const getAllCampaignsInputSchema = getAllListsInputSchema.describe('List count to retrieve').title('Lists')
 
 const campaignSchema = z.object({
   id: z.string(),
@@ -155,7 +155,7 @@ const campaignSchema = z.object({
 })
 
 export const getAllCampaignsOutputSchema = z.object({
-  campaigns: z.array(campaignSchema),
-  total_items: z.number().describe('Total number of items'),
-  _links: z.array(linkSchema),
+  campaigns: z.array(campaignSchema).describe('The list of campaings').title('Campaigns'),
+  total_items: z.number().describe('Total number of items').title('Total Items'),
+  _links: z.array(linkSchema).describe('Links').title('Links'),
 })

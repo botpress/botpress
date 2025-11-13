@@ -76,11 +76,6 @@ export default new IntegrationDefinition({
       description: 'Get all available campaigns',
       input: {
         schema: getAllCampaignsInputSchema,
-        ui: {
-          count: {
-            title: 'List count to retrieve',
-          },
-        },
       },
       output: {
         schema: getAllCampaignsOutputSchema,
