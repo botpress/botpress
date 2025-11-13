@@ -16,7 +16,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.1.0',
+  version: '4.1.1',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -186,6 +186,9 @@ export default new IntegrationDefinition({
     },
     SANDBOX_INSTAGRAM_ID: {
       description: 'Instagram ID for the Sandbox Instagram profile',
+    },
+    POSTHOG_KEY: {
+      description: 'The PostHog key for the Instagram integration',
     },
   },
   user: {

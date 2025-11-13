@@ -5,7 +5,8 @@ import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
-import { parseMarkdown } from './markdown-to-twilio'
+import { transformMarkdownForTwilio } from './markdown-to-twilio'
+import { botpressEvents, sendPosthogEvent } from './posthogClient'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -399,10 +400,14 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
   let body = text
   if (body !== undefined) {
     try {
-      body = parseMarkdown(body, twilioChannel)
+      body = transformMarkdownForTwilio(body, twilioChannel)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      logger.forBot().debug('Failed to parse markdown - Error:', errMsg)
+      logger.forBot().debug('Failed to transform markdown - Error:', errMsg)
+      await sendPosthogEvent({
+        distinctId: errMsg,
+        event: botpressEvents.UNHANDLED_MARKDOWN,
+      })
     }
   }
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })

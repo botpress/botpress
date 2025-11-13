@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.48.2
-        version: 1.48.2
+        specifier: 1.52.1
+        version: 1.52.1
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1164,6 +1164,9 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.7.4
+      posthog-node:
+        specifier: ^5.10.4
+        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1357,6 +1360,9 @@ importers:
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
+      posthog-node:
+        specifier: ^5.10.4
+        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1771,6 +1777,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1780,15 +1789,12 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.8.4
+      posthog-node:
+        specifier: ^5.10.4
+        version: 5.11.1
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
-      remark:
-        specifier: ^15.0.1
-        version: 15.0.1
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1
       twilio:
         specifier: ^3.84.0
         version: 3.84.1
@@ -1796,9 +1802,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpresshub/proactive-conversation':
         specifier: workspace:*
         version: link:../../interfaces/proactive-conversation
@@ -1808,9 +1811,6 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
 
   integrations/viber:
     dependencies:
@@ -1924,7 +1924,7 @@ importers:
         version: 15.0.1
       posthog-node:
         specifier: ^5.10.4
-        version: 5.10.4
+        version: 5.11.1
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -2193,8 +2193,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@bpinternal/opapi':
-        specifier: 0.16.1
-        version: 0.16.1(openapi-types@12.1.3)
+        specifier: 1.0.0
+        version: 1.0.0(openapi-types@12.1.3)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2214,6 +2214,9 @@ importers:
       esbuild:
         specifier: ^0.25.10
         version: 0.25.10
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
 
   packages/chat-client:
     dependencies:
@@ -2294,13 +2297,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.3
+        specifier: 0.5.4
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2415,10 +2418,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2431,10 +2434,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2447,7 +2450,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2460,10 +2463,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2476,10 +2479,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.0
+        specifier: 4.18.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2586,6 +2589,16 @@ importers:
       preact-render-to-string:
         specifier: ^6.5.13
         version: 6.5.13(preact@10.26.6)
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
+    devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
 
   packages/llmz:
     dependencies:
@@ -2614,10 +2627,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.2.0
+        specifier: 0.2.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2717,7 +2730,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../client
       '@bpinternal/zui':
         specifier: 1.2.1
@@ -2754,7 +2767,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.0
+        specifier: 1.27.1
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2797,7 +2810,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.2.0
+        specifier: 0.2.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -3729,8 +3742,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.48.2':
-    resolution: {integrity: sha512-jKiZcipzYq03D/uajqWIfxnFP1KLQu7YztdJEx9R9Rq7NvbwfIx3e9IMArBtEIcqO36yMsWr/E/rgHI+JPG5Rg==}
+  '@botpress/api@1.52.1':
+    resolution: {integrity: sha512-Ymf6/qrYCdRoicECp5sNPaj+76b8C43Sf+4psI1RcpNjyyPa1khGDkVW4K6C2fzaB+AhQRcVj+2P9gBrjrj4mg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -3752,8 +3765,8 @@ packages:
   '@bpinternal/log4bot@0.0.4':
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
 
-  '@bpinternal/opapi@0.16.1':
-    resolution: {integrity: sha512-FicqYzV5+BnDO1oTyAgNut5MIqy7B3OLvAboo2o9ROQ9s6SI+kMx8rZP8OyFKJXEsEOSglZNPPIkMrmB4EvaoA==}
+  '@bpinternal/opapi@1.0.0':
+    resolution: {integrity: sha512-r38k8SZSyu0s4YKukTrHaBeb8tlL8vgJiNdawnN2cmxbqkSdsss2pWnZQU2fsSLijhcfV0tUvGCf8GfgZviYBA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/readiness@0.0.16':
@@ -4910,8 +4923,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@posthog/core@1.4.0':
-    resolution: {integrity: sha512-jmW8/I//YOHAfjzokqas+Qtc2T57Ux8d2uIJu7FLcMGxywckHsl6od59CD18jtUzKToQdjQhV6Y3429qj+KeNw==}
+  '@posthog/core@1.5.1':
+    resolution: {integrity: sha512-8fdEzfvdStr45iIncTD+gnqp45UBTUpRK/bwB4shP5usCKytnPIeilU8rIpNBOVjJPwfW+2N8yWhQ0l14x191Q==}
 
   '@react-email/body@0.0.10':
     resolution: {integrity: sha512-dMJyL9aU25ieatdPtVjCyQ/WHZYHwNc+Hy/XpF8Cc18gu21cUynVEeYQzFSeigDRMeBQ3PGAyjVDPIob7YlGwA==}
@@ -9780,8 +9793,8 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-node@5.10.4:
-    resolution: {integrity: sha512-sy020/Q4mt18eCkVo/cGEJD+wgdxeg5DTgNUaA85awBCbuEP43BOdCTOOw/K2Tvgw2oZfag3PFyhkVuQ6nJfBg==}
+  posthog-node@5.11.1:
+    resolution: {integrity: sha512-P6rtzdCVvS718r011x0W0cwmJo7gfP5YWXiWh0/S3OL+pnHtcqbWHDjrtRxN/IrMkjZWzMU4xDze5vRK/cZ23w==}
     engines: {node: '>=20'}
 
   preact-render-to-string@6.5.13:
@@ -12784,9 +12797,9 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.48.2':
+  '@botpress/api@1.52.1':
     dependencies:
-      '@bpinternal/opapi': 0.16.1(openapi-types@12.1.3)
+      '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -12822,7 +12835,7 @@ snapshots:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  '@bpinternal/opapi@0.16.1(openapi-types@12.1.3)':
+  '@bpinternal/opapi@1.0.0(openapi-types@12.1.3)':
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
       '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
@@ -13949,7 +13962,9 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@posthog/core@1.4.0': {}
+  '@posthog/core@1.5.1':
+    dependencies:
+      cross-spawn: 7.0.6
 
   '@react-email/body@0.0.10(react@18.3.1)':
     dependencies:
@@ -20134,9 +20149,9 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-node@5.10.4:
+  posthog-node@5.11.1:
     dependencies:
-      '@posthog/core': 1.4.0
+      '@posthog/core': 1.5.1
 
   preact-render-to-string@6.5.13(preact@10.26.6):
     dependencies:

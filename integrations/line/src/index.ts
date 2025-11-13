@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
+import { transformMarkdown } from '@botpress/common'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
-import { parseMarkdown } from './markdown-parser'
 import getOrCreateConversation from './proactive-conversation'
 import getOrCreateUser from './proactive-user'
 import * as bp from '.botpress'
@@ -61,11 +61,11 @@ const replyOrSendLineMessage = async (props: SendOrReplyLineProps, message: line
   }
 }
 
-const tryParseMarkdown = (text: string) => {
+const tryTransformMarkdown = (text: string) => {
   try {
-    return parseMarkdown(text)
+    return transformMarkdown(text)
   } catch {
-    console.error('Failed to parse the markdown. The message will be sent as text without parsing markdown.')
+    console.error('Failed to transform the markdown. The message will be sent as text without transfoming markdown.')
     return text
   }
 }
@@ -108,7 +108,7 @@ const integration = new bp.Integration({
             { ctx, conversation, client, ack },
             {
               type: 'text',
-              text: tryParseMarkdown(payload.text),
+              text: tryTransformMarkdown(payload.text),
             }
           )
         },
