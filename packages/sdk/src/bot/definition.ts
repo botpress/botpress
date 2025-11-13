@@ -546,7 +546,7 @@ export class BotDefinition<
       ][]
 
       for (const [interfaceAlias, pluginInterfaceExtension] of pluginInterfaceExtensions) {
-        const backingIntegration = this.integrations?.[pluginInterfaceExtension.name]
+        const backingIntegration = this.integrations?.[pluginInterfaceExtension.integrationAlias]
 
         if (!backingIntegration) {
           throw new Error(
