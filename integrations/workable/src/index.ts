@@ -13,6 +13,7 @@ import {
   toPostCandidateInTalentPoolOutputModel,
   toUpdateCandidateOutputModel,
 } from './mapping/candidate-mapper'
+import { fromGetJobQuestionsInputModel, toGetJobQuestionsOutputModel } from './mapping/jobs-mapper'
 import { WorkableClient } from './workable-api/client'
 import * as bp from '.botpress'
 
@@ -161,6 +162,17 @@ export default new bp.Integration({
       } catch (thrown: unknown) {
         const msg = thrown instanceof Error ? thrown.message : String(thrown)
         throw new RuntimeError(`Failed to update candidate: ${msg}`)
+      }
+    },
+    getJobQuestions: async (props) => {
+      const client = new WorkableClient(props.ctx.configuration.apiToken, props.ctx.configuration.subDomain)
+
+      try {
+        const raw = await client.getJobQuestions(fromGetJobQuestionsInputModel(props.input))
+        return toGetJobQuestionsOutputModel(raw)
+      } catch (thrown: unknown) {
+        const msg = thrown instanceof Error ? thrown.message : String(thrown)
+        throw new RuntimeError(`Failed to get questions: ${msg}`)
       }
     },
   },

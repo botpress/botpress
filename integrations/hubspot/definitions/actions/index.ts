@@ -1,3 +1,4 @@
+import { actions as companyActions } from './company'
 import { actions as contactActions } from './contact'
 import { actions as dealActions } from './deal'
 import { actions as leadActions } from './lead'
@@ -8,4 +9,5 @@ export const actions = {
   ...ticketActions,
   ...dealActions,
   ...leadActions,
+  ...companyActions,
 } as const

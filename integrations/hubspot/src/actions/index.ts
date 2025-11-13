@@ -1,3 +1,4 @@
+import * as companyActions from './company'
 import * as contactActions from './contact'
 import * as dealActions from './deal'
 import * as leadActions from './lead'
@@ -9,4 +10,5 @@ export default {
   ...dealActions,
   ...ticketActions,
   ...leadActions,
+  ...companyActions,
 } as const satisfies bp.IntegrationProps['actions']

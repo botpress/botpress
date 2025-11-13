@@ -19,7 +19,56 @@ const Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Generates a text of the desired length according to the prompt */
+    /**
+     * Generates text content based on a natural language prompt.
+     *
+     * This operation creates original text content using LLMs with optional length constraints.
+     * Perfect for generating descriptions, emails, articles, creative content, and more.
+     *
+     * @param prompt - Natural language description of what text to generate
+     * @param options - Optional configuration for text length
+     * @returns Response promise resolving to the generated text
+     *
+     * @example Product description
+     * ```typescript
+     * const description = await zai.text(
+     *   'Write a compelling product description for eco-friendly bamboo toothbrushes'
+     * )
+     * ```
+     *
+     * @example With length constraint
+     * ```typescript
+     * const tagline = await zai.text(
+     *   'Create a catchy tagline for a fitness app',
+     *   { length: 10 } // ~10 tokens (7-8 words)
+     * )
+     * ```
+     *
+     * @example Email generation
+     * ```typescript
+     * const email = await zai.text(`
+     *   Write a professional email to a customer explaining
+     *   that their order will be delayed by 2 days due to weather.
+     *   Apologize and offer a 10% discount on their next purchase.
+     * `, { length: 150 })
+     * ```
+     *
+     * @example Blog post
+     * ```typescript
+     * const blogPost = await zai.text(`
+     *   Write an informative blog post about the benefits of meditation
+     *   for software developers. Include practical tips and scientific research.
+     * `, { length: 500 })
+     * ```
+     *
+     * @example Social media content
+     * ```typescript
+     * const tweet = await zai.text(
+     *   'Write an engaging tweet announcing our new AI-powered chatbot feature',
+     *   { length: 30 } // Twitter-friendly length
+     * )
+     * ```
+     */
     text(prompt: string, options?: Options): Response<string>
   }
 }
@@ -67,7 +116,6 @@ ${chart}
 `.trim(),
     temperature: 0.7,
     messages: [{ type: 'text', content: prompt, role: 'user' }],
-    maxTokens: options.length,
     transform: (text) => {
       if (!text.trim().length) {
         throw new Error('The model did not return a valid summary. The response was empty.')

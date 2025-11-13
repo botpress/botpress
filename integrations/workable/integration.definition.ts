@@ -6,13 +6,14 @@ import {
   listCandidates,
   updateCandidate,
 } from 'definitions/actions/candidates'
+import { getJobQuestions } from 'definitions/actions/jobs'
 import { candidateCreated, candidateMoved } from 'definitions/events/candidates'
 
 export default new IntegrationDefinition({
   name: 'workable',
   title: 'Workable',
   description: 'Integration with Workable for Botpress',
-  version: '0.1.0',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -43,6 +44,7 @@ export default new IntegrationDefinition({
     createCandidateInJob,
     createCandidateInTalentPool,
     updateCandidate,
+    getJobQuestions,
   },
   events: {
     candidateCreated,

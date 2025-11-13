@@ -322,6 +322,28 @@ export class SlackClient {
     return response.profile
   }
 
+  @requireAllScopes(['channels:read', 'chat:write'])
+  @handleErrors('Failed to retrieve user profile')
+  public async getChannelInfo({ channelName }: { channelName: string }) {
+    const allChannels: SlackWebApi.ConversationsListResponse['channels'] = []
+    for await (const page of this._slackWebClient.paginate('conversations.list', {
+      types: 'public_channel,private_channel',
+      exclude_archived: true,
+      limit: 200,
+    }) as AsyncIterable<SlackWebApi.ConversationsListResponse>) {
+      if (page.channels) {
+        allChannels.push(...page.channels)
+      }
+    }
+    for (const channel of allChannels) {
+      if (channel.name === channelName) {
+        return channel
+      }
+    }
+
+    return undefined
+  }
+
   private _surfaceSlackErrors<TResponse extends SlackWebApi.WebAPICallResult>(response: TResponse): TResponse {
     if (response.response_metadata?.warnings?.length) {
       this._logger.forBot().warn('Slack API emitted warnings', response.response_metadata.warnings)

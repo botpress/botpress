@@ -1,5 +1,6 @@
-import { getMetaClientCredentials } from './misc/auth'
-import { MetaClient } from './misc/meta-client'
+import { getOAuthMetaClientCredentials } from './misc/auth'
+import { createAuthenticatedMetaClient } from './misc/meta-client'
+
 import * as bp from '.botpress'
 
 type RegisterProps = Parameters<bp.IntegrationProps['register']>[0]
@@ -35,15 +36,21 @@ const _registerOAuth = async ({ client }: RegisterProps) => {
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
-  const metaClient = new MetaClient(logger)
-  const credentials = await getMetaClientCredentials(client, ctx).catch(() => undefined)
+  const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
   if (!credentials) {
+    // No credentials means the OAuth flow hasn't been completed yet
     return
   }
 
-  const { pageToken, pageId } = credentials
-  if (await metaClient.isSubscribedToWebhooks(pageToken, pageId)) {
-    await metaClient.unsubscribeFromWebhooks(pageToken, pageId)
+  const { pageId } = credentials
+  if (!pageId) {
+    // No page ID means the OAuth flow was probably never fully completed
+    return
+  }
+
+  const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
+  if (await metaClient.isSubscribedToWebhooks(pageId)) {
+    await metaClient.unsubscribeFromWebhooks(pageId)
   }
 }
 
