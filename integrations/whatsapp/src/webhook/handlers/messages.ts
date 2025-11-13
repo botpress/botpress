@@ -82,12 +82,13 @@ async function _handleIncomingMessage(
     replyTo,
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-    return client.createMessage({
+    return client.getOrCreateMessage({
       tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
       conversationId: conversation.id,
+      discriminateByTags: ['id'],
     })
   }
 
