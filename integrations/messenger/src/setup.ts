@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getOAuthMetaClientCredentials } from './misc/auth'
-import { createAuthenticatedMetaClient } from './misc/meta-client'
+import { createAuthenticatedMetaClient, FIELDS_TO_SUBSCRIBE } from './misc/meta-client'
 
 import * as bp from '.botpress'
 
@@ -31,7 +31,7 @@ const _registerSandbox = async (props: RegisterProps) => {
 
 const _registerOAuth = async (props: RegisterProps) => {
   const { client } = props
-  
+
   // Only remove sandbox identifiers
   await client.configureIntegration({
     sandboxIdentifiers: null,
@@ -40,7 +40,6 @@ const _registerOAuth = async (props: RegisterProps) => {
   // Verify OAuth credentials and check if reauthorization is needed
   await _verifyOAuthCredentials(props)
 }
-
 
 const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
   const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
@@ -51,8 +50,8 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
       id: ctx.integrationId,
     })
     .catch(() => ({ state: undefined }))
-  
-  // Verify the oauth state 
+
+  // Verify the oauth state
   if (!state?.payload.accessToken) {
     const message = 'OAuth flow not completed yet. Please reauthorize.'
     logger.forBot().warn(message)
@@ -67,17 +66,28 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
 
   // Verify that we can make an authenticated request to the Meta API
   try {
-    const metaClient = await createAuthenticatedMetaClient({ 
-      configType: 'oauth', 
-      ctx, 
-      client, 
-      logger 
+    const metaClient = await createAuthenticatedMetaClient({
+      configType: 'oauth',
+      ctx,
+      client,
+      logger,
     })
-    
+
     const pageId = state.payload.pageId
-    const isSubscribed = await metaClient.isSubscribedToWebhooks(pageId)
-    
-    logger.forBot().info(`OAuth credentials verified. Webhook subscription status: ${isSubscribed ? 'active' : 'inactive'}`)
+    const subscribedWebhooks = await metaClient.getSubscribedWebhooks(pageId)
+
+    if (!subscribedWebhooks) {
+      logger.forBot().warn('OAuth credentials verified. No webhooks subscribed.')
+    } else {
+      const expectedFields = FIELDS_TO_SUBSCRIBE.sort().join(', ').toLowerCase()
+      const actualFields = subscribedWebhooks.sort().join(', ').toLowerCase()
+      const fieldsMatch = expectedFields === actualFields
+
+      if (!fieldsMatch) {
+        logger.forBot().warn('OAuth credentials verified. Webhook subscription status: inactive')
+        throw new RuntimeError(reauthorizeMessage)
+      }
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.forBot().error(`Error verifying OAuth credentials: ${errorMessage}`)
