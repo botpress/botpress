@@ -26,8 +26,7 @@ export class LinearApi {
     private _client: lin.LinearClient,
     private _viewer: lin.User,
     private _teams: lin.Team[],
-    private _states: lin.WorkflowState[],
-    private _userId: string
+    private _states: lin.WorkflowState[]
   ) {}
 
   public static async create(): Promise<LinearApi> {
@@ -39,9 +38,8 @@ export class LinearApi {
 
     const states = await this._listAllStates(client)
     const teams = await this._listAllTeams(client)
-    const userId = (await client.viewer).id
 
-    return new LinearApi(client, me, teams, states, userId)
+    return new LinearApi(client, me, teams, states)
   }
 
   public get client(): lin.LinearClient {
@@ -122,16 +120,6 @@ export class LinearApi {
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
   }
 
-  public async isBlockedByOtherIssues(issueA: lin.Issue): Promise<boolean> {
-    const { nodes: issues } = await this._client.issues({
-      filter: {
-        hasBlockedByRelations: { eq: true },
-        id: { eq: issueA.id },
-      },
-    })
-    return issues.length > 0
-  }
-
   public async resolveComments(issueId?: string): Promise<void> {
     const { nodes: comments } = await this._client.comments({
       filter: {
@@ -140,7 +128,7 @@ export class LinearApi {
         },
         user: {
           id: {
-            eq: this._userId,
+            eq: this.me.id,
           },
         },
       },
