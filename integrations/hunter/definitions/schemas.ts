@@ -1,6 +1,7 @@
 import { z } from '@botpress/sdk'
 
-export const LeadSchema = z
+export type Lead = z.infer<typeof leadSchema>
+export const leadSchema = z
   .object({
     id: z.number(),
     email: z.string().email(),
@@ -37,7 +38,8 @@ export const LeadSchema = z
   .title('Lead')
   .describe('Schema representing a lead in Hunter.io')
 
-export const LeadPayloadSchema = z
+export type LeadPayload = z.infer<typeof leadPayloadSchema>
+export const leadPayloadSchema = z
   .object({
     email: z.string().email(),
     first_name: z.string().optional(),
@@ -61,7 +63,8 @@ export const LeadPayloadSchema = z
   .title('Lead Payload')
   .describe('Schema for creating or updating a lead in Hunter.io')
 
-export const SearchLeadsPayloadSchema = z
+export type SearchLeadsPayload = z.infer<typeof searchLeadsPayloadSchema>
+export const searchLeadsPayloadSchema = z
   .object({
     leads_list_id: z.number().optional(),
     email: z.string().optional(),

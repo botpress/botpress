@@ -1,11 +1,7 @@
-import { z } from '@botpress/sdk'
 import axios, { AxiosInstance } from 'axios'
-import { LeadPayloadSchema, LeadSchema, SearchLeadsPayloadSchema } from './schemas'
+import { LeadPayload, Lead, SearchLeadsPayload } from '../definitions/schemas'
 
-type Lead = z.infer<typeof LeadSchema>
-type LeadPayload = z.infer<typeof LeadPayloadSchema>
 type LeadPayloadWithOptionalEmail = Omit<LeadPayload, 'email'> & Partial<Pick<LeadPayload, 'email'>>
-type SearchLeadsPayload = z.infer<typeof SearchLeadsPayloadSchema>
 
 export class HunterClient {
   private _client: AxiosInstance
@@ -19,14 +15,6 @@ export class HunterClient {
         'X-API-KEY': apiKey,
       },
     })
-  }
-
-  private _parseResponseData<T>(res: any, schema: z.ZodType<T>): T {
-    const result = schema.safeParse(res)
-    if (!result.success) {
-      throw new Error('Failed to parse response from Hunter.io' + ' : ' + JSON.stringify(res))
-    }
-    return result.data
   }
 
   public async getLeads(data?: SearchLeadsPayload): Promise<Lead[]> {
@@ -48,23 +36,22 @@ export class HunterClient {
     }
 
     const res = await this._client.get('leads?' + params.toString())
-
-    return this._parseResponseData(res.data.data.leads, z.array(LeadSchema))
+    return res.data.data.leads
   }
 
   public async retrieveLead(id: number): Promise<Lead> {
     const res = await this._client.get(`leads/${id}`)
-    return this._parseResponseData(res.data.data, LeadSchema)
+    return res.data.data
   }
 
   public async createLead(data: LeadPayload): Promise<Lead> {
     const res = await this._client.post('leads', data)
-    return this._parseResponseData(res.data.data, LeadSchema)
+    return res.data.data
   }
 
   public async createOrUpdateLead(data: LeadPayload): Promise<Lead> {
     const res = await this._client.put('leads', data)
-    return this._parseResponseData(res.data.data, LeadSchema)
+    return res.data.data
   }
 
   public async updateLead(id: number, data: LeadPayloadWithOptionalEmail): Promise<void> {

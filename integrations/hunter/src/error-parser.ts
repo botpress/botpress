@@ -18,15 +18,13 @@ export function parseError(error: unknown): string {
     return error.message
   }
 
-  if (typeof error === 'string') {
-    return error
+  if (typeof error === 'string' || typeof error === 'number' || typeof error === 'boolean') {
+    return String(error)
   }
 
   if (error && typeof error === 'object' && 'message' in error) {
-    const message = (error as { message: unknown }).message
-    if (typeof message === 'string') {
-      return message
-    }
+    const message = error.message
+    return parseError(message)
   }
 
   return 'An unexpected error occurred'

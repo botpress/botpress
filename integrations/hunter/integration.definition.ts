@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { LeadSchema, LeadPayloadSchema, SearchLeadsPayloadSchema } from './src/schemas'
+import { leadSchema, leadPayloadSchema, searchLeadsPayloadSchema } from './definitions/schemas'
 
 export default new IntegrationDefinition({
   name: 'hunter',
@@ -19,12 +19,12 @@ export default new IntegrationDefinition({
       description: 'Fetch leads from Hunter.io',
       input: {
         schema: z.object({
-          search: SearchLeadsPayloadSchema.title('Search filters').describe('Filters to search leads in Hunter.io'),
+          search: searchLeadsPayloadSchema.title('Search filters').describe('Filters to search leads in Hunter.io'),
         }),
       },
       output: {
         schema: z.object({
-          leads: z.array(LeadSchema).title('Leads List').describe('List of leads retrieved from Hunter.io'),
+          leads: z.array(leadSchema).title('Leads List').describe('List of leads retrieved from Hunter.io'),
         }),
       },
     },
@@ -38,7 +38,7 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          lead: LeadSchema,
+          lead: leadSchema,
         }),
       },
     },
@@ -47,12 +47,12 @@ export default new IntegrationDefinition({
       description: 'Create a new lead in Hunter.io',
       input: {
         schema: z.object({
-          lead: LeadPayloadSchema,
+          lead: leadPayloadSchema,
         }),
       },
       output: {
         schema: z.object({
-          lead: LeadSchema,
+          lead: leadSchema,
         }),
       },
     },
@@ -61,12 +61,12 @@ export default new IntegrationDefinition({
       description: 'Create or update a lead in Hunter.io',
       input: {
         schema: z.object({
-          lead: LeadPayloadSchema,
+          lead: leadPayloadSchema,
         }),
       },
       output: {
         schema: z.object({
-          lead: LeadSchema,
+          lead: leadSchema,
         }),
       },
     },
@@ -76,7 +76,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           id: z.number().title('Lead ID').describe('The ID of the lead to update'),
-          lead: LeadPayloadSchema.partial({ email: true }),
+          lead: leadPayloadSchema.partial({ email: true }),
         }),
       },
       output: {

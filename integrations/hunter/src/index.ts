@@ -10,11 +10,8 @@ export default new bp.Integration({
       await client.getLeads()
       logger.forBot().info('Hunter.io integration configured successfully')
     } catch (error) {
-      logger.forBot().error('Failed to configure Hunter.io integration, API request failed')
-      throw new RuntimeError(
-        'Invalid configuration: unable to connect to Hunter.io with the provided API key.',
-        error as Error
-      )
+      const parsed = parseError(error)
+      throw new RuntimeError(`Failed to configure Hunter.io integration. Make sure the API key is valid: ${parsed}`)
     }
   },
   unregister: async ({ logger }) => {
@@ -31,7 +28,7 @@ export default new bp.Integration({
 
         return { leads }
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
     retrieveLead: async ({ ctx, input, logger }) => {
@@ -44,7 +41,7 @@ export default new bp.Integration({
 
         return { lead }
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
     createLead: async ({ ctx, input, logger }) => {
@@ -57,7 +54,7 @@ export default new bp.Integration({
 
         return { lead }
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
     createOrUpdateLead: async ({ ctx, input, logger }) => {
@@ -70,7 +67,7 @@ export default new bp.Integration({
 
         return { lead }
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
     updateLead: async ({ ctx, input, logger }) => {
@@ -83,7 +80,7 @@ export default new bp.Integration({
 
         return {}
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
     deleteLead: async ({ ctx, input, logger }) => {
@@ -96,7 +93,7 @@ export default new bp.Integration({
 
         return {}
       } catch (error) {
-        throw new RuntimeError(parseError(error), error as Error)
+        throw new RuntimeError(parseError(error))
       }
     },
   },
