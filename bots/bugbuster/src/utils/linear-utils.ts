@@ -1,7 +1,7 @@
 import * as lin from '@linear/sdk'
 import * as genenv from '../../.genenv'
 import * as utils from '.'
-import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
+import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE, Pagination } from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -18,6 +18,8 @@ const STATE_KEYS = [
   'STALE',
 ] as const
 export type StateKey = (typeof STATE_KEYS)[number]
+
+const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
   private constructor(
@@ -54,23 +56,47 @@ export class LinearApi {
 
   public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
-    const teamExists = this._teams.some((team) => team.key === teamKey)
-    if (!teamExists) {
-      return undefined
-    }
 
-    const data = await this._executeGraphqlQuery('findIssue', {
-      filter: {
-        team: { key: { eq: teamKey } },
-        number: { eq: issueNumber },
-      },
+    const { issues } = await this.listIssues({
+      teamKeys: [teamKey],
+      issueNumber,
     })
 
-    const [issue] = data.issues.nodes
+    const [issue] = issues
     if (!issue) {
       return undefined
     }
     return issue
+  }
+
+  public async listIssues(
+    filter: {
+      teamKeys: TeamKey[]
+      issueNumber?: number
+      statusesToOmit?: StateKey[]
+    },
+    nextPage?: string
+  ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
+    const { teamKeys, issueNumber, statusesToOmit } = filter
+
+    const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
+    if (!teamsExist) {
+      return { issues: [] }
+    }
+
+    const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
+      filter: {
+        team: { key: { in: teamKeys } },
+        ...(issueNumber && { number: { eq: issueNumber } }),
+        ...(statusesToOmit && { state: { name: { nin: statusesToOmit } } }),
+      },
+      ...(nextPage && { after: nextPage }),
+      first: RESULTS_PER_PAGE,
+    }
+
+    const data = await this._executeGraphqlQuery('listIssues', queryInput)
+
+    return { issues: data.issues.nodes, pagination: data.pageInfo }
   }
 
   public async findLabel(filter: { name: string; parentName?: string }): Promise<lin.IssueLabel | undefined> {
