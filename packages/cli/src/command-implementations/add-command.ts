@@ -105,12 +105,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     let { packageName } = props
     const { targetPackage } = props
 
-    if (!targetPackage) {
-      const strRef = pkgRef.formatPackageRef(ref)
       throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
     }
-
-    packageName = ref.alias ?? targetPackage.pkg.name
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
@@ -177,6 +173,17 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     //verify if the package's checksum is the same
     await this._addSinglePackage(ref, { packageName, targetPackage })
     await this._addDependencyToPackage(packageName, targetPackage)
+  }
+
+  private async _findPackage(ref: RefWithAlias): Promise<{ packageName: string; targetPackage: InstallablePackage }> {
+    const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
+    if (!targetPackage) {
+      const strRef = pkgRef.formatPackageRef(ref)
+      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
+    }
+    const packageName = ref.alias ?? targetPackage.pkg.name
+
+    return { packageName, targetPackage }
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
