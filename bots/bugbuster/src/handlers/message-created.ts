@@ -93,7 +93,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
 }
 
 const _onError = async (thrown: unknown, botpress: BotpressApi, conversationId: string) => {
-  await botpress.respondText(conversationId, 'An error occured. See logs for details.')
   const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+  await botpress.respondText(conversationId, `An error occured: ${error.message}`)
   throw new RuntimeError(error.message)
 }
