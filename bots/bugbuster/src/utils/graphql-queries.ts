@@ -37,6 +37,15 @@ export type Issue = {
     name: string | null
     completedAt: string | null
   } | null
+  comments: {
+    nodes: {
+      id: string
+      resolvedAt: string | null
+      user: {
+        id: string
+      }
+    }[]
+  }
 }
 
 export type Pagination = {
@@ -78,6 +87,14 @@ export const GRAPHQL_QUERIES = {
               id,
               name,
               completedAt
+            }
+            comments {
+              nodes {
+                id,
+                user {
+                  id
+                }
+              }
             }
           }
         }

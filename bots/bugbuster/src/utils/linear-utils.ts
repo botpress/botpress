@@ -120,25 +120,16 @@ export class LinearApi {
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
   }
 
-  public async resolveComments(issueId?: string): Promise<void> {
-    const { nodes: comments } = await this._client.comments({
-      filter: {
-        issue: {
-          id: { eq: issueId },
-        },
-        user: {
-          id: {
-            eq: this.me.id,
-          },
-        },
-      },
-    })
+  public async resolveComments(issue: Issue): Promise<void> {
+    const comments = issue.comments.nodes
 
+    const promises: Promise<lin.CommentPayload>[] = []
     for (const comment of comments) {
-      if (!comment.resolvedAt) {
-        await this._client.commentResolve(comment.id)
+      if (comment.user.id === this.me.id && !comment.resolvedAt) {
+        promises.push(this._client.commentResolve(comment.id))
       }
     }
+    await Promise.all(promises)
   }
 
   public get teams(): Record<TeamKey, lin.Team> {
