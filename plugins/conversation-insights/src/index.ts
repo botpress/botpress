@@ -1,7 +1,6 @@
 import { isBrowser } from 'browser-or-node'
 import * as onNewMessageHandler from './onNewMessageHandler'
-import * as summaryUpdater from './tagsUpdater'
-import * as types from './types'
+import { updateAllConversations } from './updateAllConversations'
 import * as bp from '.botpress'
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000
@@ -57,13 +56,13 @@ plugin.on.event('updateAiInsight', async (props) => {
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
   props.logger.info('Starting updateAllConversations workflow')
-  await _updateAllConversations(props)
+  await updateAllConversations(props)
 
   return undefined
 })
 
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
-  await _updateAllConversations(props)
+  await updateAllConversations(props)
 
   return undefined
 })
@@ -71,29 +70,5 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
 plugin.on.workflowTimeout('updateAllConversations', async (props) => {
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 })
-
-type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations'] & { nextToken?: string }
-const _updateAllConversations = async (props: WorkflowProps) => {
-  await props.workflow.acknowledgeStartOfProcessing()
-  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  const promises: Promise<void>[] = []
-  for (const conversation of dirtyConversations.conversations) {
-    const firstMessagePage = await props.client
-      .listMessages({ conversationId: conversation.id })
-      .then((res) => res.messages)
-    const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
-    promises.push(promise)
-  }
-
-  await Promise.all(promises)
-
-  if (!dirtyConversations.meta.nextToken) {
-    await props.workflow.setCompleted()
-    props.logger.info('updateAllConversations workflow completed')
-    return
-  }
-  await _updateAllConversations({ ...props, nextToken: dirtyConversations.meta.nextToken })
-}
 
 export default plugin
