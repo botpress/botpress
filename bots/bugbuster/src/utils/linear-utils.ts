@@ -57,7 +57,7 @@ export class LinearApi {
   public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
-    const { issues } = await this.findIssues({
+    const { issues } = await this.listIssues({
       teamKeys: [teamKey],
       issueNumber,
     })
@@ -69,7 +69,7 @@ export class LinearApi {
     return issue
   }
 
-  public async findIssues(
+  public async listIssues(
     filter: {
       teamKeys: TeamKey[]
       issueNumber?: number
@@ -84,7 +84,7 @@ export class LinearApi {
       return { issues: [] }
     }
 
-    const queryInput: GRAPHQL_QUERIES['findIssues'][QUERY_INPUT] = {
+    const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
@@ -94,7 +94,7 @@ export class LinearApi {
       first: RESULTS_PER_PAGE,
     }
 
-    const data = await this._executeGraphqlQuery('findIssues', queryInput)
+    const data = await this._executeGraphqlQuery('listIssues', queryInput)
 
     return { issues: data.issues.nodes, pagination: data.pageInfo }
   }

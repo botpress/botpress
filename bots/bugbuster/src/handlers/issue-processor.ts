@@ -40,14 +40,14 @@ export async function findIssue(
   return issue
 }
 
-export async function findIssues(teams: string[], linear: LinearApi): Promise<Issue[]> {
+export async function listIssues(teams: string[], linear: LinearApi): Promise<Issue[]> {
   const validatedTeams = teams.filter((value) => linear.isTeam(value))
 
   const issues: Issue[] = []
   let pagination: Pagination | undefined
 
   do {
-    const { issues: newIssues, pagination: newPagination } = await linear.findIssues(
+    const { issues: newIssues, pagination: newPagination } = await linear.listIssues(
       {
         teamKeys: validatedTeams,
         statusesToOmit: IGNORED_STATUSES,

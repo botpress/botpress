@@ -45,7 +45,7 @@ export type Pagination = {
 }
 
 export const GRAPHQL_QUERIES = {
-  findIssues: {
+  listIssues: {
     query: `
       query FindIssue($filter: IssueFilter, $first: Int, $after: String) {
         issues(filter: $filter, first: $first, after: $after) {

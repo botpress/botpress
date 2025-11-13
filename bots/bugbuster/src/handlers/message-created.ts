@@ -1,5 +1,5 @@
 import * as utils from '../utils'
-import { findIssues, runLints } from './issue-processor'
+import { listIssues, runLints } from './issue-processor'
 import { addTeam, listTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
 
@@ -62,7 +62,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         return
       }
       const linear = await utils.linear.LinearApi.create()
-      const issues = await findIssues(teamsResult.result, linear)
+      const issues = await listIssues(teamsResult.result, linear)
       await runLints(linear, issues, logger)
       await botpress.respondText(conversation.id, 'Success: linted all issues.')
       break
