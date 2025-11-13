@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   addCustomerToCampaignInputSchema,
@@ -25,8 +24,8 @@ export default new IntegrationDefinition({
   channels: {},
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('Your API Key'),
-      serverPrefix: z.string().min(1).describe('Your Server Prefix'),
+      apiKey: z.string().min(1).describe('Your API Key').title('Api Key'),
+      serverPrefix: z.string().min(1).describe('Your Server Prefix').title('Server Prefix'),
     }),
   },
   actions: {
