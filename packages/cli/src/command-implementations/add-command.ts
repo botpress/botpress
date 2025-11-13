@@ -39,9 +39,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
-      return await this._addNewSinglePackage(ref)
+      return await this._addNewSinglePackage({ ...ref, alias: this.argv.alias })
     }
-
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
@@ -109,8 +108,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       this.logger.warn(`Package with name "${packageName}" already installed.`)
       const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
-        this.logger.log('Aborted')
-        return
+        throw new errors.AbortedOperationError()
       }
 
       await this._uninstall(installPath)
@@ -147,7 +145,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     await this._install(installPath, files)
   }
 
-  private async _addNewSinglePackage(ref: pkgRef.PackageRef) {
+  private async _addNewSinglePackage(ref: RefWithAlias) {
     await this._addSinglePackage(ref)
     const { packageName, targetPackage } = await this._findPackage(ref)
     await this._addDependencyToPackage(packageName, targetPackage)
