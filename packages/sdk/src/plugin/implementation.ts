@@ -94,7 +94,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   private _getTools(client: BotSpecificClient<any>): Tools {
-    const { configuration, interfaces, alias } = this._runtime
+    const { configuration, interfaces, integrations, alias } = this._runtime
     const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
     const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
@@ -106,6 +106,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return {
       configuration,
       interfaces,
+      integrations,
       actions,
       states,
       alias,
