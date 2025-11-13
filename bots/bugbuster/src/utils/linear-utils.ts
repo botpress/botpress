@@ -50,11 +50,11 @@ export class LinearApi {
     return this._viewer
   }
 
-  public isTeam(teamKey: string): teamKey is TeamKey {
-    return TEAM_KEYS.includes(teamKey as TeamKey)
+  public isTeam(teamKey: string) {
+    return this._teams.some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
     const { issues } = await this.listIssues({
@@ -71,7 +71,7 @@ export class LinearApi {
 
   public async listIssues(
     filter: {
-      teamKeys: TeamKey[]
+      teamKeys: string[]
       issueNumber?: number
       statusesToOmit?: StateKey[]
     },
