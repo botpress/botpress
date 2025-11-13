@@ -1,2 +1,2 @@
-export * as posthog from './client'
+export * as posthogHelper from './helper'
 export * from './events'

@@ -39,45 +39,39 @@ export const sendPosthogEvent = async (props: BotpressEventMessage, config: Post
   }
 }
 
-type Entries<T> = {
-  [K in keyof T]: [K, T[K]]
-}[keyof T][]
+export function wrapIntegration(config: PostHogConfig) {
+  return function <T extends { new (...args: any[]): sdk.Integration<any> }>(constructor: T): T {
+    return class extends constructor {
+      public constructor(...args: any[]) {
+        super(...args)
+        this.props.register = wrapFunction(this.props.register, config)
+        this.props.unregister = wrapFunction(this.props.unregister, config)
+        this.props.handler = wrapFunction(this.props.handler, config)
 
-type Tof<I extends sdk.Integration> = I extends sdk.Integration<infer T> ? T : never
+        if (this.props.actions) {
+          for (const actionType of Object.keys(this.props.actions)) {
+            const actionFn = this.props.actions[actionType]
+            if (typeof actionFn === 'function') {
+              this.props.actions[actionType] = wrapFunction(actionFn, config)
+            }
+          }
+        }
 
-export const wrapIntegration = <T extends Tof<sdk.Integration>>(
-  integration: sdk.Integration<T>,
-  config: PostHogConfig
-) => {
-  type ActionFunctions = typeof integration.props.actions
-  const actionsEntries: Entries<ActionFunctions> = Object.entries(integration.props.actions)
-  const actions = actionsEntries.reduce((acc, [actionType, action]) => {
-    acc[actionType] = wrapFunction(action, config)
-    return acc
-  }, {} as ActionFunctions)
-
-  type ChannelFunctions = typeof integration.props.channels
-  const channelEntries: Entries<ChannelFunctions> = Object.entries(integration.props.channels)
-  const channels = channelEntries.reduce((acc, [channelName, channel]) => {
-    type Messages = typeof channel.messages
-    const messageEntries: Entries<Messages> = Object.entries(channel.messages)
-    const messages = messageEntries.reduce((messagesAcc, [messageType, messageFunc]) => {
-      messagesAcc[messageType] = wrapFunction(messageFunc, config)
-      return messagesAcc
-    }, {} as Messages)
-    acc[channelName] = { messages }
-    return acc
-  }, {} as ChannelFunctions)
-
-  const integrationProps: sdk.IntegrationProps<T> = {
-    register: wrapFunction(integration.props.register, config),
-    unregister: wrapFunction(integration.props.unregister, config),
-    handler: wrapFunction(integration.props.handler, config),
-    actions,
-    channels,
+        if (this.props.channels) {
+          for (const channelName of Object.keys(this.props.channels)) {
+            const channel = this.props.channels[channelName]
+            if (!channel || !channel.messages) continue
+            Object.keys(channel.messages).forEach((messageType) => {
+              const messageFn = channel.messages[messageType]
+              if (typeof messageFn === 'function') {
+                channel.messages[messageType] = wrapFunction(messageFn, config)
+              }
+            })
+          }
+        }
+      }
+    }
   }
-
-  return new sdk.Integration<T>(integrationProps)
 }
 
 function wrapFunction(fn: Function, config: PostHogConfig) {
@@ -97,6 +91,7 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
         },
         config
       )
+      throw thrown
     }
   }
 }

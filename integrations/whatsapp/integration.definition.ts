@@ -1,4 +1,4 @@
-import { posthog } from '@botpress/common'
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
@@ -96,7 +96,7 @@ const defaultBotPhoneNumberId = {
 export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.15',
+  version: '4.5.16',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -376,7 +376,7 @@ export default new IntegrationDefinition({
   },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
-    ...posthog.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app',
     },
