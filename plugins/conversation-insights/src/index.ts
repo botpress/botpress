@@ -72,7 +72,7 @@ plugin.on.workflowTimeout('updateAllConversations', async (props) => {
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 })
 
-type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
+type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations'] & { nextToken?: string }
 const _updateAllConversations = async (props: WorkflowProps) => {
   await props.workflow.acknowledgeStartOfProcessing()
   const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
@@ -90,8 +90,10 @@ const _updateAllConversations = async (props: WorkflowProps) => {
 
   if (!dirtyConversations.meta.nextToken) {
     await props.workflow.setCompleted()
+    props.logger.info('updateAllConversations workflow completed')
+    return
   }
-  props.logger.info('updateAllConversations workflow completed')
+  await _updateAllConversations({ ...props, nextToken: dirtyConversations.meta.nextToken })
 }
 
 export default plugin
