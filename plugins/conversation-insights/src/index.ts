@@ -87,7 +87,10 @@ const _updateAllConversations = async (props: WorkflowProps) => {
   }
 
   await Promise.all(promises)
-  await props.workflow.setCompleted()
+
+  if (!dirtyConversations.meta.nextToken) {
+    await props.workflow.setCompleted()
+  }
   props.logger.info('updateAllConversations workflow completed')
 }
 
