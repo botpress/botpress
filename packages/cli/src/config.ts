@@ -238,6 +238,10 @@ const addSchema = {
     description: 'If a dev version of the package is found, use it',
     default: false,
   },
+  alias: {
+    type: 'string',
+    description: 'The alias of the dependency you want to install',
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
