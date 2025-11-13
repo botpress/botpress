@@ -43,6 +43,7 @@ const _registerOAuth = async (props: RegisterProps) => {
 
 
 const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
+  const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
   const { state } = await client
     .getState({
       type: 'integration',
@@ -50,18 +51,21 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
       id: ctx.integrationId,
     })
     .catch(() => ({ state: undefined }))
-
+  
+  // Verify the oauth state 
   if (!state?.payload.accessToken) {
-    logger.forBot().warn('No OAuth credentials found - OAuth flow not completed yet')
-    return // Not an error - user just hasn't completed OAuth yet
+    const message = 'OAuth flow not completed yet. Please reauthorize.'
+    logger.forBot().warn(message)
+    throw new RuntimeError(reauthorizeMessage)
   }
 
-  if (!state?.payload.pageToken || !state?.payload.pageId) {
-    const message = 'OAuth flow incomplete: Missing page token or page ID. Please reauthorize.'
+  if (!state?.payload.pageToken) {
+    const message = 'OAuth flow incomplete: Missing page token. Please reauthorize.'
     logger.forBot().error(message)
-    throw new RuntimeError(message)
+    throw new RuntimeError(reauthorizeMessage)
   }
 
+  // Verify that we can make an authenticated request to the Meta API
   try {
     const metaClient = await createAuthenticatedMetaClient({ 
       configType: 'oauth', 
@@ -77,7 +81,7 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     logger.forBot().error(`Error verifying OAuth credentials: ${errorMessage}`)
-    throw new RuntimeError(`Error verifying OAuth credentials: ${errorMessage}`)
+    throw new RuntimeError(reauthorizeMessage)
   }
 }
 
@@ -91,7 +95,9 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   const { pageId } = credentials
   if (!pageId) {
     // No page ID means the OAuth flow was probably never fully completed
-    return
+    const message = 'No page ID found - OAuth flow was probably never fully completed'
+    logger.forBot().error(message)
+    throw new RuntimeError('No page ID found - OAuth flow was probably never fully completed')
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
