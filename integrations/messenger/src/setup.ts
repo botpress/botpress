@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { getOAuthMetaClientCredentials } from './misc/auth'
 import { createAuthenticatedMetaClient } from './misc/meta-client'
 
@@ -28,11 +29,56 @@ const _registerSandbox = async (props: RegisterProps) => {
   await _unsubscribeFromOAuthWebhooks(props)
 }
 
-const _registerOAuth = async ({ client }: RegisterProps) => {
+const _registerOAuth = async (props: RegisterProps) => {
+  const { client } = props
+  
   // Only remove sandbox identifiers
   await client.configureIntegration({
     sandboxIdentifiers: null,
   })
+
+  // Verify OAuth credentials and check if reauthorization is needed
+  await _verifyOAuthCredentials(props)
+}
+
+
+const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
+  const { state } = await client
+    .getState({
+      type: 'integration',
+      name: 'oauth',
+      id: ctx.integrationId,
+    })
+    .catch(() => ({ state: undefined }))
+
+  if (!state?.payload.accessToken) {
+    logger.forBot().warn('No OAuth credentials found - OAuth flow not completed yet')
+    return // Not an error - user just hasn't completed OAuth yet
+  }
+
+  if (!state?.payload.pageToken || !state?.payload.pageId) {
+    const message = 'OAuth flow incomplete: Missing page token or page ID. Please reauthorize.'
+    logger.forBot().error(message)
+    throw new RuntimeError(message)
+  }
+
+  try {
+    const metaClient = await createAuthenticatedMetaClient({ 
+      configType: 'oauth', 
+      ctx, 
+      client, 
+      logger 
+    })
+    
+    const pageId = state.payload.pageId
+    const isSubscribed = await metaClient.isSubscribedToWebhooks(pageId)
+    
+    logger.forBot().info(`OAuth credentials verified. Webhook subscription status: ${isSubscribed ? 'active' : 'inactive'}`)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.forBot().error(`Error verifying OAuth credentials: ${errorMessage}`)
+    throw new RuntimeError(`Error verifying OAuth credentials: ${errorMessage}`)
+  }
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
