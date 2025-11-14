@@ -59,6 +59,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
+    const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
+    const modulesPath = utils.path.join(baseInstallPath, consts.installDirName)
+    fslib.rmdirSync(modulesPath)
+    fslib.mkdirSync(modulesPath)
+
     for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
       const parsed = pkgRef.parsePackageRef(pkgRefStr)
       if (!parsed) {
