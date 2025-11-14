@@ -5,7 +5,7 @@ import { actions, events, subdomain } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'bamboohr',
-  version: '1.0.0',
+  version: '2.0.0',
 
   title: 'BambooHR',
   description: 'Retrieve your BambooHR information',
@@ -21,8 +21,8 @@ export default new IntegrationDefinition({
   },
 
   configurations: {
-    apiKey: {
-      title: 'API Key configuration',
+    manual: {
+      title: 'Manual configuration',
       description: 'Configure manually with your BambooHR API Key',
       schema: z.object({
         apiKey: z.string().min(1).title('API Key').describe('Your BambooHR API Key, from My Account > Api Keys'),
