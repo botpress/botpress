@@ -188,6 +188,28 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  bots/drop-weaver:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/todoist':
+        specifier: workspace:*
+        version: link:../../integrations/todoist
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/echo:
     devDependencies:
       '@botpress/cli':
