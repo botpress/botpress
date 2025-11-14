@@ -6,10 +6,10 @@ import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
-/addTeam [teamName]
-/removeTeam [teamName]
-/listTeams
-/lintAll`
+#addTeam [teamName]
+#removeTeam [teamName]
+#listTeams
+#lintAll`
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
@@ -40,7 +40,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   }
 
   switch (command) {
-    case '/addTeam': {
+    case '#addTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
@@ -51,7 +51,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       await botpress.respondText(conversation.id, result.message)
       break
     }
-    case '/removeTeam': {
+    case '#removeTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
@@ -60,12 +60,12 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       await botpress.respondText(conversation.id, result.message)
       break
     }
-    case '/listTeams': {
+    case '#listTeams': {
       const result = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
       await botpress.respondText(conversation.id, result.message)
       break
     }
-    case '/lintAll': {
+    case '#lintAll': {
       const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
       if (!teamsResult.success || !teamsResult.result) {
         await botpress.respondText(conversation.id, teamsResult.message)
