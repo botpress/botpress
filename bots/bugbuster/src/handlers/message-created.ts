@@ -55,8 +55,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         isLinearHealthy = false
       }
 
-      const healthMessages = [_generateHealthMessage('Linear', isLinearHealthy)]
-      await botpress.respondText(conversation.id, healthMessages.join('\n'))
+      await botpress.respondText(conversation.id, `Linear: ${isLinearHealthy ? '' : 'un'}healthy`)
       break
     }
     case '#addTeam': {
@@ -103,8 +102,4 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
   }
-}
-
-const _generateHealthMessage = (component: string, isHealthy: boolean) => {
-  return `${component}: ${isHealthy ? '' : 'un'}healthy`
 }
