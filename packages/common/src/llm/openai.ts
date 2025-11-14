@@ -35,9 +35,10 @@ const OpenAIErrorSchema = z
   })
   .strip() // IMPORTANT: This is so we can safely log the OpenAI error log as-is, to avoid leaking other sensitive information the error response may include.
 
+export type OpenAIClient = OpenAI
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
-  openAIClient: OpenAI,
+  openAIClient: OpenAIClient,
   logger: IntegrationLogger,
   props: {
     provider: string

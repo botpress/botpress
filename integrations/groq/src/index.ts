@@ -93,33 +93,43 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger, metadata }) => {
-      const output = await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
-        provider,
-        models: languageModels,
-        defaultModel: 'llama-3.3-70b-versatile',
-        overrideRequest: (request) => {
-          if (input.model?.id === 'openai/gpt-oss-20b' || input.model?.id === 'openai/gpt-oss-120b') {
-            request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
+      const output = await llm.openai.generateContent<ModelId>(
+        <llm.GenerateContentInput>input,
+        groqClient as any, // TODO: fix mismatch of openai version
+        logger,
+        {
+          provider,
+          models: languageModels,
+          defaultModel: 'llama-3.3-70b-versatile',
+          overrideRequest: (request) => {
+            if (input.model?.id === 'openai/gpt-oss-20b' || input.model?.id === 'openai/gpt-oss-120b') {
+              request.reasoning_effort = validateGptOssReasoningEffort(input, logger)
 
-            // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
-            delete request.stop
+              // GPT-OSS models don't work well with a stop sequence, so we have to remove it from the request.
+              delete request.stop
 
-            // Reasoning models don't support temperature
-            delete request.temperature
-          }
+              // Reasoning models don't support temperature
+              delete request.temperature
+            }
 
-          return request
-        },
-      })
+            return request
+          },
+        }
+      )
       metadata.setCost(output.botpress.cost)
       return output
     },
     transcribeAudio: async ({ input, logger, metadata }) => {
-      const output = await speechToText.openai.transcribeAudio(input, groqClient, logger, {
-        provider,
-        models: speechToTextModels,
-        defaultModel: 'whisper-large-v3',
-      })
+      const output = await speechToText.openai.transcribeAudio(
+        input,
+        groqClient as any, // TODO: fix mismatch of openai version
+        logger,
+        {
+          provider,
+          models: speechToTextModels,
+          defaultModel: 'whisper-large-v3',
+        }
+      )
       metadata.setCost(output.botpress.cost)
       return output
     },

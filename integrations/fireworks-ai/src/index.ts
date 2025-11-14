@@ -201,7 +201,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger, metadata }) => {
       const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
-        fireworksAIClient,
+        fireworksAIClient as any, // TODO: fix mismatch of openai version
         logger,
         {
           provider,
@@ -255,11 +255,16 @@ export default new bp.Integration({
       return output
     },
     transcribeAudio: async ({ input, logger, metadata }) => {
-      const output = await speechToText.openai.transcribeAudio(input, fireworksAIClient, logger, {
-        provider,
-        models: speechToTextModels,
-        defaultModel: 'whisper-v3',
-      })
+      const output = await speechToText.openai.transcribeAudio(
+        input,
+        fireworksAIClient as any, // TODO: fix mismatch of openai version
+        logger,
+        {
+          provider,
+          models: speechToTextModels,
+          defaultModel: 'whisper-v3',
+        }
+      )
       metadata.setCost(output.botpress.cost)
       return output
     },
