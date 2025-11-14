@@ -70,7 +70,12 @@ const listAgents = {
   description: 'List agents',
   input: {
     schema: z.object({
-      isOnline: z.boolean().optional().default(true).title('Is Online').describe('Only return agents that are currently online'),
+      isOnline: z
+        .boolean()
+        .optional()
+        .default(true)
+        .title('Is Online')
+        .describe('Only return agents that are currently online'),
     }),
   },
   output: {
@@ -106,7 +111,10 @@ const syncKb = {
   description: 'Sync Zendesk knowledge base to bot knowledge base',
   input: {
     schema: z.object({
-      knowledgeBaseId: z.string().title('Knowledge Base ID').describe('ID of the bot knowledge base you want to sync with'),
+      knowledgeBaseId: z
+        .string()
+        .title('Knowledge Base ID')
+        .describe('ID of the bot knowledge base you want to sync with'),
     }),
   },
   output: {

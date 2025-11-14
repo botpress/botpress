@@ -30,16 +30,8 @@ export const configuration = {
       .min(1)
       .title('Organization Subdomain')
       .describe('Your zendesk organization subdomain. e.g. botpress7281'),
-    email: z
-      .string()
-      .email()
-      .title('Email')
-      .describe('Your zendesk account email. e.g. john.doe@botpress.com'),
-    apiToken: z
-      .string()
-      .min(1)
-      .title('API Token')
-      .describe('Zendesk API Token'),
+    email: z.string().email().title('Email').describe('Your zendesk account email. e.g. john.doe@botpress.com'),
+    apiToken: z.string().min(1).title('API Token').describe('Zendesk API Token'),
     syncKnowledgeBaseWithBot: z
       .boolean()
       .optional()
@@ -62,8 +54,14 @@ export const states = {
   subscriptionInfo: {
     type: 'integration',
     schema: z.object({
-      subscriptionId: z.string().title('Subscription ID').describe('The unique identifier for the Zendesk webhook subscription'),
-      triggerIds: z.array(z.string()).title('Trigger IDs').describe('Array of trigger IDs associated with the subscription'),
+      subscriptionId: z
+        .string()
+        .title('Subscription ID')
+        .describe('The unique identifier for the Zendesk webhook subscription'),
+      triggerIds: z
+        .array(z.string())
+        .title('Trigger IDs')
+        .describe('Array of trigger IDs associated with the subscription'),
     }),
   },
 } satisfies IntegrationDefinitionProps['states']
