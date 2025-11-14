@@ -120,6 +120,18 @@ export class LinearApi {
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
   }
 
+  public async resolveComments(issue: Issue): Promise<void> {
+    const comments = issue.comments.nodes
+
+    const promises: Promise<lin.CommentPayload>[] = []
+    for (const comment of comments) {
+      if (comment.user.id === this.me.id && !comment.resolvedAt) {
+        promises.push(this._client.commentResolve(comment.id))
+      }
+    }
+    await Promise.all(promises)
+  }
+
   public get teams(): Record<TeamKey, lin.Team> {
     return new Proxy({} as Record<TeamKey, lin.Team>, {
       get: (_, key: TeamKey) => {
