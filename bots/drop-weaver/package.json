@@ -1,0 +1,25 @@
+{
+  "name": "@bp-bots/drop-weaver",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e DROPBOX_A_APP_KEY -e DROPBOX_A_APP_SECRET -e DROPBOX_A_ACCESS_CODE -e DROPBOX_B_APP_KEY -e DROPBOX_B_APP_SECRET -e DROPBOX_B_ACCESS_CODE",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/dropbox": "workspace:*",
+    "@botpresshub/file-synchronizer": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "file-synchronizer": "../../plugins/file-synchronizer",
+    "dropbox": "../../integrations/dropbox"
+  }
+}
