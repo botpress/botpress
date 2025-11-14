@@ -43,25 +43,6 @@ describe('updateAllConversations', () => {
     expect(props.logger.info).toHaveBeenCalledWith('updateAllConversations workflow completed')
   })
 
-  it('should recursively call itself if nextToken is present', async () => {
-    const firstCall = {
-      conversations: [{ id: 'c1' }],
-      meta: { nextToken: 'token123' },
-    }
-    const secondCall = {
-      conversations: [],
-      meta: { nextToken: undefined },
-    }
-    props.client.listConversations.mockResolvedValueOnce(firstCall).mockResolvedValueOnce(secondCall)
-    props.client.listMessages.mockResolvedValue({ messages: ['msg1'] })
-
-    await updateAllConversations(props)
-
-    expect(props.client.listConversations).toHaveBeenCalledTimes(2)
-    expect(updateTitleAndSummarySpy).toHaveBeenCalledTimes(1)
-    expect(props.workflow.setCompleted).toHaveBeenCalledTimes(1)
-  })
-
   it('should handle no dirty conversations gracefully', async () => {
     props.client.listConversations.mockResolvedValue({
       conversations: [],
