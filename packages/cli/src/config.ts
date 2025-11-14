@@ -240,8 +240,15 @@ const addSchema = {
   },
   alias: {
     type: 'string',
-    description: 'The alias of the dependency you want to install',
+    description: 'The alias to install the package with',
   },
+} satisfies CommandSchema
+
+const removeSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  workDir,
+  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -419,6 +426,7 @@ export const schemas = {
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,
+  remove: removeSchema,
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
