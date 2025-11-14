@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 import stt from './bp_modules/speech-to-text'
@@ -18,7 +17,7 @@ export default new IntegrationDefinition({
   title: 'OpenAI',
   description:
     'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '16.0.1',
+  version: '17.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -54,15 +53,27 @@ export default new IntegrationDefinition({
   },
   actions: {
     generateSpeech: {
+      title: 'Generate Speech',
+      description: 'Generate Speech',
       billable: true,
       cacheable: true,
       input: {
         schema: z.object({
-          model: z.enum(TextToSpeechModels).optional().placeholder('tts-1'),
-          input: z.string(),
-          voice: z.enum(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']).optional().placeholder('alloy'),
-          format: z.enum(['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm']).optional().placeholder('mp3'),
-          speed: z.number().min(0.25).max(4).optional().placeholder('1'),
+          model: z.enum(TextToSpeechModels).optional().placeholder('tts-1').describe('The model used').title('Model'),
+          input: z.string().describe('The input').title('Input'),
+          voice: z
+            .enum(['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'])
+            .optional()
+            .placeholder('alloy')
+            .describe('The voice used')
+            .title('Voice'),
+          format: z
+            .enum(['mp3', 'opus', 'aac', 'flac', 'wav', 'pcm'])
+            .optional()
+            .placeholder('mp3')
+            .describe('The format used')
+            .title('Format'),
+          speed: z.number().min(0.25).max(4).optional().placeholder('1').describe('The speed used').title('Spedd'),
           expiration: z
             .number()
             .int()
@@ -71,21 +82,22 @@ export default new IntegrationDefinition({
             .optional()
             .describe(
               'Expiration of the generated audio file in days, after which the file will be automatically deleted to free up storage space in your account. The default is to keep the file indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.'
-            ),
+            )
+            .title('Expiration'),
         }),
       },
       output: {
         schema: z.object({
-          audioUrl: z.string().describe('URL to the audio file with the generated speech'),
-          botpress: z.object({
-            cost: z.number().describe('Cost of the speech generation, in U.S. dollars'),
-          }),
+          audioUrl: z.string().describe('URL to the audio file with the generated speech').title('Audio Url'),
+          botpress: z
+            .object({
+              cost: z.number().describe('Cost of the speech generation, in U.S. dollars').title('Cost'),
+            })
+            .describe('Cost of the speech generation, in U.S. dollars')
+            .title('Botpress'),
         }),
       },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

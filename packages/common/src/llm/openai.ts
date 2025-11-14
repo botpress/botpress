@@ -445,6 +445,19 @@ export function validateOpenAIReasoningEffort(
   input: { reasoningEffort?: ReasoningEffort; model?: { id: string } },
   logger: IntegrationLogger
 ): ChatCompletionReasoningEffort | undefined {
+  if (input.reasoningEffort === 'none') {
+    if (input.model?.id.startsWith('gpt-5.1-')) {
+      return 'none'
+    } else {
+      logger
+        .forBot()
+        .warn(
+          `Using "none" to disabling reasoning is not supported by the ${input.model?.id} model, falling back to "minimal" reasoning effort instead`
+        )
+      return 'minimal'
+    }
+  }
+
   // Reasoning efforts supported by commercial OpenAI models are the same as the GPT-OSS models at the moment, so we reuse the same validation logic.
   return validateGptOssReasoningEffort(input, logger)
 }

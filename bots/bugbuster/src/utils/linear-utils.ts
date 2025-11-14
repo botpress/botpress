@@ -1,7 +1,7 @@
 import * as lin from '@linear/sdk'
 import * as genenv from '../../.genenv'
 import * as utils from '.'
-import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
+import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE, Pagination } from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -18,6 +18,8 @@ const STATE_KEYS = [
   'STALE',
 ] as const
 export type StateKey = (typeof STATE_KEYS)[number]
+
+const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
   private constructor(
@@ -48,29 +50,53 @@ export class LinearApi {
     return this._viewer
   }
 
-  public isTeam(teamKey: string): teamKey is TeamKey {
-    return TEAM_KEYS.includes(teamKey as TeamKey)
+  public isTeam(teamKey: string) {
+    return this._teams.some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
-    const teamExists = this._teams.some((team) => team.key === teamKey)
-    if (!teamExists) {
-      return undefined
-    }
 
-    const data = await this._executeGraphqlQuery('findIssue', {
-      filter: {
-        team: { key: { eq: teamKey } },
-        number: { eq: issueNumber },
-      },
+    const { issues } = await this.listIssues({
+      teamKeys: [teamKey],
+      issueNumber,
     })
 
-    const [issue] = data.issues.nodes
+    const [issue] = issues
     if (!issue) {
       return undefined
     }
     return issue
+  }
+
+  public async listIssues(
+    filter: {
+      teamKeys: string[]
+      issueNumber?: number
+      statusesToOmit?: StateKey[]
+    },
+    nextPage?: string
+  ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
+    const { teamKeys, issueNumber, statusesToOmit } = filter
+
+    const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
+    if (!teamsExist) {
+      return { issues: [] }
+    }
+
+    const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
+      filter: {
+        team: { key: { in: teamKeys } },
+        ...(issueNumber && { number: { eq: issueNumber } }),
+        ...(statusesToOmit && { state: { name: { nin: statusesToOmit } } }),
+      },
+      ...(nextPage && { after: nextPage }),
+      first: RESULTS_PER_PAGE,
+    }
+
+    const data = await this._executeGraphqlQuery('listIssues', queryInput)
+
+    return { issues: data.issues.nodes, pagination: data.pageInfo }
   }
 
   public async findLabel(filter: { name: string; parentName?: string }): Promise<lin.IssueLabel | undefined> {
@@ -92,6 +118,18 @@ export class LinearApi {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
+  }
+
+  public async resolveComments(issue: Issue): Promise<void> {
+    const comments = issue.comments.nodes
+
+    const promises: Promise<lin.CommentPayload>[] = []
+    for (const comment of comments) {
+      if (comment.user.id === this.me.id && !comment.resolvedAt) {
+        promises.push(this._client.commentResolve(comment.id))
+      }
+    }
+    await Promise.all(promises)
   }
 
   public get teams(): Record<TeamKey, lin.Team> {

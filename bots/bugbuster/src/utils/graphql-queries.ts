@@ -37,13 +37,27 @@ export type Issue = {
     name: string | null
     completedAt: string | null
   } | null
+  comments: {
+    nodes: {
+      id: string
+      resolvedAt: string | null
+      user: {
+        id: string
+      }
+    }[]
+  }
+}
+
+export type Pagination = {
+  hasNextPage: boolean
+  endCursor: string
 }
 
 export const GRAPHQL_QUERIES = {
-  findIssue: {
+  listIssues: {
     query: `
-      query FindIssue($filter: IssueFilter) {
-        issues(filter: $filter) {
+      query FindIssue($filter: IssueFilter, $first: Int, $after: String) {
+        issues(filter: $filter, first: $first, after: $after) {
           nodes {
             id,
             identifier,
@@ -74,19 +88,35 @@ export const GRAPHQL_QUERIES = {
               name,
               completedAt
             }
+            comments {
+              nodes {
+                id,
+                user {
+                  id
+                }
+              }
+            }
           }
         }
       }`,
     [QUERY_INPUT]: {} as {
       filter: {
-        team: { key: { eq: string } }
-        number: { eq: number }
+        team?: { key: { in: string[] } }
+        number?: { eq: number }
+        state?: {
+          name: {
+            nin: string[]
+          }
+        }
       }
+      after?: string
+      first?: number
     },
     [QUERY_RESPONSE]: {} as {
       issues: {
         nodes: Issue[]
       }
+      pageInfo: Pagination
     },
   },
 } as const satisfies Record<string, GraphQLQuery<object, object>>

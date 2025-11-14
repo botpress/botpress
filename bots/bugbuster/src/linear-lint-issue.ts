@@ -1,19 +1,11 @@
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
-import * as utils from './utils'
 import { Issue } from './utils/graphql-queries'
 
 export type IssueLint = {
   message: string
 }
 
-const IGNORED_STATUSES: utils.linear.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
-
-export const lintIssue = async (client: utils.linear.LinearApi, issue: Issue): Promise<IssueLint[]> => {
-  const status = client.issueStatus(issue)
-  if (IGNORED_STATUSES.includes(status)) {
-    return []
-  }
-
+export const lintIssue = async (issue: Issue, status: string): Promise<IssueLint[]> => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
@@ -42,7 +34,7 @@ export const lintIssue = async (client: utils.linear.LinearApi, issue: Issue): P
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if (issue.estimate === undefined && status !== 'BLOCKED') {
+  if (issue.estimate === null && status !== 'BLOCKED') {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
