@@ -244,6 +244,14 @@ const addSchema = {
   },
 } satisfies CommandSchema
 
+const removeSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  packageRef,
+  packageType,
+  workDir,
+} satisfies CommandSchema
+
 const loginSchema = {
   ...globalSchema,
   token,
@@ -419,6 +427,7 @@ export const schemas = {
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,
+  remove: removeSchema,
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,
