@@ -1,6 +1,6 @@
-import { SDK_VERSION } from '../version'
 import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
+import { SDK_VERSION } from '../version'
 import z, { ZuiObjectSchema, GenericZuiSchema, ZodRef } from '../zui'
 
 type BaseEvents = Record<string, ZuiObjectSchema>

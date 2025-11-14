@@ -5,8 +5,8 @@ import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
-import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
 import { SDK_VERSION } from '../version'
+import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
 type BaseStates = Record<string, ZuiObjectOrRefSchema>
