@@ -203,9 +203,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/todoist':
+      '@botpresshub/dropbox':
         specifier: workspace:*
-        version: link:../../integrations/todoist
+        version: link:../../integrations/dropbox
+      '@botpresshub/file-synchronizer':
+        specifier: workspace:*
+        version: link:../../plugins/file-synchronizer
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -17436,9 +17439,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.3(picomatch@4.0.2):
+  fdir@6.4.3(picomatch@4.0.3):
     optionalDependencies:
-      picomatch: 4.0.2
+      picomatch: 4.0.3
 
   fecha@4.2.3: {}
 
@@ -20996,8 +20999,8 @@ snapshots:
 
   tinyglobby@0.2.10:
     dependencies:
-      fdir: 6.4.3(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.3(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tinypool@1.0.1: {}
 
