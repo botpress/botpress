@@ -9,9 +9,9 @@ import { ProjectCommand } from './project-command'
 export type RemoveCommandDefinition = typeof commandDefinitions.remove
 export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
   protected async run(): Promise<void> {
-    const ref = this.argv.packageRef
+    const ref = this.argv.alias
     if (!ref) {
-      throw new errors.BotpressCLIError('You have to provide a packageRef')
+      throw new errors.BotpressCLIError('You have to provide the alias of the package to remove')
     }
 
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.workDir)
