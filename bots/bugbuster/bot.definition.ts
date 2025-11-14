@@ -2,6 +2,7 @@ import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import github from './bp_modules/github'
 import linear from './bp_modules/linear'
+import slack from './bp_modules/slack'
 import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
@@ -56,5 +57,16 @@ export default new sdk.BotDefinition({
     configuration: {
       apiKey: genenv.BUGBUSTER_LINEAR_API_KEY,
       webhookSigningSecret: genenv.BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET,
+    },
+  })
+  .addIntegration(slack, {
+    enabled: true,
+    configurationType: 'refreshToken',
+    configuration: {
+      refreshToken: genenv.BUGBUSTER_SLACK_REFRESH_TOKEN,
+      clientId: genenv.BUGBUSTER_SLACK_CLIENT_ID,
+      clientSecret: genenv.BUGBUSTER_SLACK_CLIENT_SECRET,
+      signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
+      typingIndicatorEmoji: false,
     },
   })
