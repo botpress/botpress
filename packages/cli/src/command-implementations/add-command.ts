@@ -102,8 +102,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     ref: RefWithAlias,
     props: { packageName: string; targetPackage: InstallablePackage }
   ) {
-    let { packageName } = props
-    const { targetPackage } = props
+    const { packageName, targetPackage } = props
 
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
@@ -111,13 +110,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
-      this.logger.warn(`Package with name "${packageName}" already installed.`)
-      const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
-      if (!res) {
-        const newAlias = await this._chooseNewAlias()
-        packageName = newAlias
-      }
-
       await this._uninstall(installPath)
     }
 
@@ -166,9 +158,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _addNewSinglePackage(ref: RefWithAlias) {
-    //read the local package checksum, calculate the remote package checksum
     const { packageName, targetPackage } = await this._findPackage(ref)
-    //verify if the package's checksum is the same
     await this._addSinglePackage(ref, { packageName, targetPackage })
     await this._addDependencyToPackage(packageName, targetPackage)
   }
@@ -388,10 +378,16 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
     if (alreadyPresentDep) {
-      if (alreadyPresentDep[1] !== version) {
+      const alreadyPresentVersion = alreadyPresentDep[1]
+      if (alreadyPresentVersion !== version) {
         this.logger.warn(
-          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
+          `The dependency with alias ${packageName} is already present in the bpDependencies of package.json, but with version ${alreadyPresentVersion}.`
         )
+        const res = await this.prompt.confirm(`Do you want to overwrite the dependency with version ${version}?`)
+        if (!res) {
+          const newAlias = await this._chooseNewAlias()
+          packageName = newAlias
+        }
       }
       return
     }
