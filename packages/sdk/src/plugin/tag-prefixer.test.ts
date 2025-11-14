@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { unprefixTagsOwnedByPlugin, prefixTagsIfNeeded } from './tag-prefixer'
 
 describe.concurrent('unprefixTagsOwnedByPlugin', () => {
-  it('should unprefix tags owned by the plugin', () => {
+  it('should unprefix tags owned by the plugin and eliminate other tags', () => {
     // Arrange
     const pluginAlias = 'plugin1'
     const tags = {
@@ -18,8 +18,6 @@ describe.concurrent('unprefixTagsOwnedByPlugin', () => {
     // Assert
     expect(unprefixed.tags).toStrictEqual({
       foo: 'foo',
-      [`otherPlugin${PLUGIN_PREFIX_SEPARATOR}bar`]: 'bar',
-      baz: 'baz',
     })
   })
 })
