@@ -13,10 +13,14 @@ const IS_NODE = typeof process !== 'undefined' && process.versions != null && pr
 const IS_CI = typeof process !== 'undefined' && !!process?.env?.CI
 const VM_DRIVER = (typeof process !== 'undefined' && process?.env?.VM_DRIVER) ?? (IS_CI ? 'node' : 'isolated-vm')
 
-export const CAN_USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
+// Phase 2: QuickJS feature flag
+// Set USE_QUICKJS=true to use quickjs-emscripten instead of isolated-vm
+const USE_QUICKJS = typeof process !== 'undefined' && process?.env?.USE_QUICKJS === 'true'
+
+export const CAN_USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm' && !USE_QUICKJS
 const MAX_VM_EXECUTION_TIME = 60_000
 
-type Driver = 'isolated-vm' | 'node'
+type Driver = 'isolated-vm' | 'node' | 'quickjs'
 
 const requireEsm = async (id: string) => {
   // @ts-ignore
@@ -157,8 +161,16 @@ export async function runAsyncFunction(
     }
   }
 
-  let DRIVER: Driver = CAN_USE_ISOLATED_VM ? 'isolated-vm' : 'node'
+  let DRIVER: Driver = USE_QUICKJS ? 'quickjs' : CAN_USE_ISOLATED_VM ? 'isolated-vm' : 'node'
   let isolatedVm: typeof IsolatedVM | undefined
+
+  // Phase 2: QuickJS implementation
+  if (DRIVER === 'quickjs') {
+    // Delegate to QuickJS implementation
+    // runAsyncFunctionQuickJS handles runtime and vm creation/disposal internally
+    const { runAsyncFunctionQuickJS } = await import('./vm-quickjs.js')
+    return await runAsyncFunctionQuickJS(context, code, traces, signal, timeout)
+  }
 
   if (DRIVER === 'isolated-vm') {
     try {

@@ -45,6 +45,7 @@
     "lru-cache": "^11.0.2",
     "ms": "^2.1.3",
     "prettier": "^3.4.2",
+    "quickjs-emscripten": "^0.31.0",
     "ulid": "^2.3.0"
   },
   "devDependencies": {

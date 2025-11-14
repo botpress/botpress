@@ -20,7 +20,7 @@ Hi!
   }
 }
 `
-    let traces = []
+    let traces: Trace[] = []
     const result = await runAsyncFunction({}, code, traces)
 
     assert(result.success === false)
