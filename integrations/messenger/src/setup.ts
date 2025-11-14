@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getOAuthMetaClientCredentials } from './misc/auth'
-import { createAuthenticatedMetaClient, FIELDS_TO_SUBSCRIBE } from './misc/meta-client'
+import { createAuthenticatedMetaClient } from './misc/meta-client'
 
 import * as bp from '.botpress'
 
@@ -43,24 +43,12 @@ const _registerOAuth = async (props: RegisterProps) => {
 
 const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
   const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
-  const { state } = await client
-    .getState({
-      type: 'integration',
-      name: 'oauth',
-      id: ctx.integrationId,
-    })
-    .catch(() => ({ state: undefined }))
+  const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
 
   // Verify the oauth state
-  if (!state?.payload.accessToken) {
+  if (!credentials?.pageToken) {
     const message = 'OAuth flow not completed yet. Please reauthorize.'
     logger.forBot().warn(message)
-    throw new RuntimeError(reauthorizeMessage)
-  }
-
-  if (!state?.payload.pageToken) {
-    const message = 'OAuth flow incomplete: Missing page token. Please reauthorize.'
-    logger.forBot().error(message)
     throw new RuntimeError(reauthorizeMessage)
   }
 
@@ -73,20 +61,12 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
       logger,
     })
 
-    const pageId = state.payload.pageId
-    const subscribedWebhooks = await metaClient.getSubscribedWebhooks(pageId)
-
-    if (!subscribedWebhooks) {
+    const pageId = credentials.pageId
+    const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
+    
+    if (!isSubscribedToWebhooks) {
       logger.forBot().warn('OAuth credentials verified. No webhooks subscribed.')
-    } else {
-      const expectedFields = FIELDS_TO_SUBSCRIBE.sort().join(', ').toLowerCase()
-      const actualFields = subscribedWebhooks.sort().join(', ').toLowerCase()
-      const fieldsMatch = expectedFields === actualFields
-
-      if (!fieldsMatch) {
-        logger.forBot().warn('OAuth credentials verified. Webhook subscription status: inactive')
-        throw new RuntimeError(reauthorizeMessage)
-      }
+      throw new RuntimeError(reauthorizeMessage)
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -109,9 +89,7 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
-  if (await metaClient.isSubscribedToWebhooks(pageId)) {
-    await metaClient.unsubscribeFromWebhooks(pageId)
-  }
+  await metaClient.unsubscribeFromWebhooks(pageId)
 }
 
 const _clearAllIdentifiers = async ({ client }: RegisterProps) => {

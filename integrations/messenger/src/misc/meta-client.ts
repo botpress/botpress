@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
-export const FIELDS_TO_SUBSCRIBE = ['messages', 'messaging_postbacks', 'feed']
+const FIELDS_TO_SUBSCRIBE = ['messages', 'messaging_postbacks', 'feed']
 export class MetaClient {
   private _userToken?: string
   private _pageToken?: string
