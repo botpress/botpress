@@ -149,7 +149,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     await this._install(installPath, files)
   }
   private async _chooseNewAlias() {
-    const setAliasConfirmation = await this.prompt.confirm('Do you want to set an alias to the package you install')
+    const setAliasConfirmation = await this.prompt.confirm(
+      'Do you want to set an alias to the package you are installing?'
+    )
     if (!setAliasConfirmation) {
       throw new errors.AbortedOperationError()
     }
@@ -360,12 +362,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
-    const version = targetPackage.pkg.path ?? targetPackage.pkg.version
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
     }
 
+    const version =
+      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
@@ -394,7 +397,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           packageName = newAlias
         }
       }
-      return
     }
 
     pkgJson.bpDependencies = {
