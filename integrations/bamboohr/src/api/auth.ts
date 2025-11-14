@@ -1,5 +1,6 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
+import * as authWizard from '@botpress/common/src/oauth-wizard'
 import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
@@ -33,20 +34,20 @@ const fetchBambooHrOauthToken = async (
   const body = JSON.stringify({
     client_id: OAUTH_CLIENT_ID,
     client_secret: OAUTH_CLIENT_SECRET,
-    redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+    redirect_uri: authWizard.getWizardStepUrl('oauth-callback').href,
     ...('code' in oAuthInfo
       ? { grant_type: 'authorization_code', code: oAuthInfo.code }
       : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
   })
 
-  console.log('body', body)
-
   const tokenResponse = await fetch(bambooHrOauthUrl, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
     body,
   })
-
-  console.log('tokenResponse', tokenResponse.json)
 
   if (tokenResponse.status < 200 || tokenResponse.status >= 300) {
     throw new Error(
