@@ -61,7 +61,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const modulesPath = utils.path.join(baseInstallPath, consts.installDirName)
-    fslib.rmdirSync(modulesPath)
+    fslib.rmSync(modulesPath, { force: true, recursive: true })
     fslib.mkdirSync(modulesPath)
 
     for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
