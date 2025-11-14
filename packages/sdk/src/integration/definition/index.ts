@@ -18,6 +18,7 @@ import {
   MessageDefinition,
   InterfaceExtension,
 } from './types'
+import { SDK_VERSION } from '../../version'
 
 export * from './types'
 
@@ -236,6 +237,10 @@ export class IntegrationDefinition<
     this.interfaces = props.interfaces
     this.__advanced = props.__advanced
     this.attributes = props.attributes
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   public extend<P extends InterfacePackage>(

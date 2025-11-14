@@ -1,3 +1,4 @@
+import { SDK_VERSION } from '../version'
 import {
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
@@ -326,6 +327,10 @@ export class PluginDefinition<
         ]
       )
     ) as { [K in keyof TTables]: TableDefinition<TTables[K]> }
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   /**
