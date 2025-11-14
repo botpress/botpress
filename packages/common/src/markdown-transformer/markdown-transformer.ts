@@ -1,7 +1,29 @@
 import { List, Node, Table } from 'mdast'
-import { remark } from 'remark'
-import remarkGfm from 'remark-gfm'
 import { MarkdownHandlers, NodeHandler, RootNodes } from './types'
+
+// Use dynamic import() for ES modules to avoid require() issues
+let remarkProcessor: any = null
+let remarkProcessorInit: Promise<any> | null = null
+
+const getRemarkProcessor = async (): Promise<any> => {
+  if (remarkProcessor) {
+    return remarkProcessor
+  }
+  if (!remarkProcessorInit) {
+    remarkProcessorInit = (async () => {
+      const { remark } = await import('remark')
+      const remarkGfm = await import('remark-gfm')
+      const processor = remark().use(remarkGfm.default)
+      remarkProcessor = processor
+      return processor
+    })()
+  }
+  return remarkProcessorInit
+}
+
+getRemarkProcessor().catch(() => {
+  // Ignore, handled when transformMarkdown is called
+})
 
 export const stripAllHandlers: MarkdownHandlers = {
   blockquote: (node, visit) => `Quote: “${visit(node)}”\n`,
@@ -86,6 +108,11 @@ export const visitTree = (tree: RootNodes, handlers: MarkdownHandlers, parents: 
 }
 
 export const transformMarkdown = (markdown: string, handlers: MarkdownHandlers = stripAllHandlers): string => {
-  const tree = remark().use(remarkGfm).parse(markdown)
+  if (!remarkProcessor) {
+    throw new Error(
+      'Remark processor not initialized. This should not happen in normal usage. If you see this error, there may be a timing issue with module loading.'
+    )
+  }
+  const tree = remarkProcessor.parse(markdown)
   return visitTree(tree, handlers, [])
 }
