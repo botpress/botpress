@@ -30,18 +30,38 @@ const makeUsername = (email: string) => {
 }
 
 type AxiosRetryClient = Parameters<typeof axiosRetry>[0]
+type ZendeskConfig =
+  | {
+      type: 'manual'
+      organizationDomain: string
+      email: string
+      password: string
+    }
+  | {
+      type: 'OAuth'
+      accessToken: string
+    }
 
 class ZendeskApi {
   private _client: AxiosInstance
-  public constructor(organizationDomain: string, email: string, password: string) {
-    this._client = axios.create({
-      baseURL: makeBaseUrl(organizationDomain),
-      withCredentials: true,
-      auth: {
-        username: makeUsername(email),
-        password,
-      },
-    })
+  public constructor(config: ZendeskConfig) {
+    if (config.type === 'manual') {
+      this._client = axios.create({
+        baseURL: makeBaseUrl(config.organizationDomain),
+        withCredentials: true,
+        auth: {
+          username: makeUsername(config.email),
+          password: config.password,
+        },
+      })
+    } else {
+      this._client = axios.create({
+        baseURL: makeBaseUrl(bp.secrets.SUBDOMAIN),
+        headers: {
+          Authorization: `Bearer ${config.accessToken}`,
+        },
+      })
+    }
 
     axiosRetry(this._client as AxiosRetryClient, {
       retries: 3,
@@ -243,9 +263,52 @@ class ZendeskApi {
       status,
     }
   }
+
+  public async exchangeAuthorizationCodeForAccessToken(authorizationCode: string, redirect_uri: string) {
+    const url = 'https://' + bp.secrets.SUBDOMAIN + '.zendesk.com/oauth/tokens'
+    const res = await this._client.post(
+      url,
+      {
+        grant_type: 'authorization_code',
+        code: authorizationCode,
+        client_id: bp.secrets.CLIENT_ID,
+        client_secret: bp.secrets.CLIENT_SECRET,
+        redirect_uri,
+        scope: 'read',
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    const data = sdk.z
+      .object({
+        access_token: sdk.z.string(),
+      })
+      .parse(res.data)
+
+    return data.access_token
+  }
 }
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
-export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
-  new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)
+export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Promise<ZendeskApi> => {
+  if (ctx.configurationType === 'manual') {
+    return new ZendeskApi({
+      type: 'manual',
+      organizationDomain: ctx.configuration.organizationSubdomain,
+      email: ctx.configuration.email,
+      password: ctx.configuration.apiToken,
+    })
+  }
+  const { accessToken } = await client
+    .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+    .then((result) => result.state.payload)
+  if (accessToken === undefined) {
+    throw new sdk.RuntimeError('Failed to get the OAuth accessToken')
+  }
+
+  return new ZendeskApi({ type: 'OAuth', accessToken })
+}
