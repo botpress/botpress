@@ -2,6 +2,7 @@ import type * as esbuild from 'esbuild'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
+import { SDK_VERSION } from '../../version'
 import { mergeObjectSchemas, z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
@@ -18,7 +19,6 @@ import {
   MessageDefinition,
   InterfaceExtension,
 } from './types'
-import { SDK_VERSION } from '../../version'
 
 export * from './types'
 

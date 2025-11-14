@@ -1,4 +1,3 @@
-import { SDK_VERSION } from '../version'
 import {
   StateDefinition as BotStateDefinition,
   EventDefinition as BotEventDefinition,
@@ -12,6 +11,7 @@ import {
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
+import { SDK_VERSION } from '../version'
 import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
 
 export {
