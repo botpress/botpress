@@ -26,5 +26,4 @@ export const updateAllConversations = async (props: WorkflowProps) => {
     props.logger.info('updateAllConversations workflow completed')
     return
   }
-  await updateAllConversations({ ...props, nextToken: dirtyConversations.meta.nextToken })
 }
