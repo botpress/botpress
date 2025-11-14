@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { getOAuthMetaClientCredentials } from './misc/auth'
 import { createAuthenticatedMetaClient } from './misc/meta-client'
 
@@ -28,11 +29,50 @@ const _registerSandbox = async (props: RegisterProps) => {
   await _unsubscribeFromOAuthWebhooks(props)
 }
 
-const _registerOAuth = async ({ client }: RegisterProps) => {
+const _registerOAuth = async (props: RegisterProps) => {
+  const { client } = props
+
   // Only remove sandbox identifiers
   await client.configureIntegration({
     sandboxIdentifiers: null,
   })
+
+  // Verify OAuth credentials and check if reauthorization is needed
+  await _verifyOAuthCredentials(props)
+}
+
+const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
+  const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
+  const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
+
+  // Verify the oauth state
+  if (!credentials?.pageToken) {
+    const message = 'OAuth flow not completed yet. Please reauthorize.'
+    logger.forBot().warn(message)
+    throw new RuntimeError(reauthorizeMessage)
+  }
+
+  // Verify that we can make an authenticated request to the Meta API
+  try {
+    const metaClient = await createAuthenticatedMetaClient({
+      configType: 'oauth',
+      ctx,
+      client,
+      logger,
+    })
+
+    const pageId = credentials.pageId
+    const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
+    
+    if (!isSubscribedToWebhooks) {
+      logger.forBot().warn('OAuth credentials verified. No webhooks subscribed.')
+      throw new RuntimeError(reauthorizeMessage)
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logger.forBot().error(`Error verifying OAuth credentials: ${errorMessage}`)
+    throw new RuntimeError(reauthorizeMessage)
+  }
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
@@ -49,9 +89,7 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
-  if (await metaClient.isSubscribedToWebhooks(pageId)) {
-    await metaClient.unsubscribeFromWebhooks(pageId)
-  }
+  await metaClient.unsubscribeFromWebhooks(pageId)
 }
 
 const _clearAllIdentifiers = async ({ client }: RegisterProps) => {
