@@ -4,8 +4,11 @@ import pathlib from 'path'
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
   private _memoryCache: T | null = null
+  private _lockfilePath: string
 
-  public constructor(private _filepath: string) {}
+  public constructor(private _filepath: string) {
+    this._lockfilePath = `${_filepath}.lock`
+  }
 
   public async init(): Promise<void> {
     if (this._initialized) {
@@ -53,24 +56,69 @@ export class FSKeyValueCache<T extends Object> {
 
   public async set<K extends keyof T>(key: K, value: T[K]): Promise<void> {
     await this.init()
-    const data: T = await this._readJSON(this._filepath)
-    data[key] = value
-    await this._writeJSON(this._filepath, data)
-    this._memoryCache = null
+    await this._acquireLock()
+    try {
+      const data: T = await this._readJSON(this._filepath)
+      data[key] = value
+      await this._writeJSON(this._filepath, data)
+      this._memoryCache = null
+    } finally {
+      await this._releaseLock()
+    }
   }
 
   public async rm<K extends keyof T>(key: K): Promise<void> {
     await this.init()
-    const data: T = await this._readJSON(this._filepath)
-    delete data[key]
-    await this._writeJSON(this._filepath, data)
-    this._memoryCache = null
+    await this._acquireLock()
+    try {
+      const data: T = await this._readJSON(this._filepath)
+      delete data[key]
+      await this._writeJSON(this._filepath, data)
+      this._memoryCache = null
+    } finally {
+      await this._releaseLock()
+    }
   }
 
   public async clear(): Promise<void> {
     await this.init()
-    await this._writeJSON(this._filepath, {})
-    this._memoryCache = null
+    await this._acquireLock()
+    try {
+      await this._writeJSON(this._filepath, {})
+      this._memoryCache = null
+    } finally {
+      await this._releaseLock()
+    }
+  }
+
+  private async _acquireLock(): Promise<void> {
+    const maxRetries = 100
+    const retryDelay = 10
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await fs.promises.writeFile(this._lockfilePath, String(process.pid), { flag: 'wx' })
+        return
+      } catch (error: any) {
+        if (error.code === 'EEXIST') {
+          await new Promise((resolve) => setTimeout(resolve, retryDelay))
+        } else {
+          throw error
+        }
+      }
+    }
+
+    throw new Error(`Failed to acquire lock on ${this._filepath} after ${maxRetries} retries`)
+  }
+
+  private async _releaseLock(): Promise<void> {
+    try {
+      await fs.promises.unlink(this._lockfilePath)
+    } catch (error: any) {
+      if (error.code !== 'ENOENT') {
+        throw error
+      }
+    }
   }
 
   private _writeJSON = (filepath: string, data: any) => {
