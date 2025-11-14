@@ -3,6 +3,7 @@ import pathlib from 'path'
 
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
+  private _memoryCache: T | null = null
 
   public constructor(private _filepath: string) {}
 
@@ -44,27 +45,32 @@ export class FSKeyValueCache<T extends Object> {
 
   public async get<K extends keyof T>(key: K): Promise<T[K] | undefined> {
     await this.init()
-    const data: T = await this._readJSON(this._filepath)
-    return data[key]
+    if (!this._memoryCache) {
+      this._memoryCache = await this._readJSON(this._filepath)
+    }
+    return this._memoryCache![key]
   }
 
   public async set<K extends keyof T>(key: K, value: T[K]): Promise<void> {
     await this.init()
     const data: T = await this._readJSON(this._filepath)
     data[key] = value
-    return this._writeJSON(this._filepath, data)
+    await this._writeJSON(this._filepath, data)
+    this._memoryCache = null
   }
 
   public async rm<K extends keyof T>(key: K): Promise<void> {
     await this.init()
     const data: T = await this._readJSON(this._filepath)
     delete data[key]
-    return this._writeJSON(this._filepath, data)
+    await this._writeJSON(this._filepath, data)
+    this._memoryCache = null
   }
 
   public async clear(): Promise<void> {
     await this.init()
-    return this._writeJSON(this._filepath, {})
+    await this._writeJSON(this._filepath, {})
+    this._memoryCache = null
   }
 
   private _writeJSON = (filepath: string, data: any) => {
