@@ -17,14 +17,14 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/github": "workspace:*",
     "@botpresshub/linear": "workspace:*",
-    "@botpresshub/telegram": "workspace:*",
     "@botpresshub/slack": "workspace:*",
+    "@botpresshub/telegram": "workspace:*",
     "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {
     "github": "../../integrations/github",
     "linear": "../../integrations/linear",
-    "telegram": "../../integrations/telegram",
-    "slack": "../../integrations/slack"
+    "slack": "../../integrations/slack",
+    "telegram": "../../integrations/telegram"
   }
 }
