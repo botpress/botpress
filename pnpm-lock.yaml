@@ -194,9 +194,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/todoist':
+      '@botpresshub/dropbox':
         specifier: workspace:*
-        version: link:../../integrations/todoist
+        version: link:../../integrations/dropbox
+      '@botpresshub/file-synchronizer':
+        specifier: workspace:*
+        version: link:../../plugins/file-synchronizer
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -1168,6 +1171,18 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+
+  integrations/hunter:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.1
+        version: 1.13.1
 
   integrations/instagram:
     dependencies:
@@ -13650,7 +13665,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
     optionalDependencies:
-      axios: 1.11.0
+      axios: 1.13.1
     transitivePeerDependencies:
       - debug
 
@@ -17531,9 +17546,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.3(picomatch@4.0.2):
+  fdir@6.4.3(picomatch@4.0.3):
     optionalDependencies:
-      picomatch: 4.0.2
+      picomatch: 4.0.3
 
   fecha@4.2.3: {}
 
@@ -21145,8 +21160,8 @@ snapshots:
 
   tinyglobby@0.2.10:
     dependencies:
-      fdir: 6.4.3(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.3(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tinypool@1.0.1: {}
 

@@ -935,7 +935,8 @@ export class HubspotClient {
   }) {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
-    const matchingStage = Object.entries(stages).find(
+    const stageEntries = Object.entries(stages)
+    const matchingStage = stageEntries.find(
       ([id, { label }]) =>
         _getCanonicalName(id) === canonicalName ||
         _getCanonicalName(label) === canonicalName ||
@@ -944,7 +945,11 @@ export class HubspotClient {
     )
 
     if (!matchingStage) {
-      throw new sdk.RuntimeError(`Unable to find ticket pipeline stage with name or id "${nameOrLabel}"`)
+      const formattedStages = stageEntries.map(([id, { label }]) => `=> **${label}** (ID: "${id}")`).join('\n')
+      const allowedStagesMsg = `========================\nValid Pipeline Stages:\n${formattedStages}\n`
+      throw new sdk.RuntimeError(
+        `Unable to find ticket pipeline stage with name or id "${nameOrLabel}"\n${allowedStagesMsg}`
+      )
     }
 
     return {

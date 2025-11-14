@@ -24,6 +24,7 @@ export const handleEvent: bp.EventHandlers['files-readonly:fileCreated'] = async
     },
     integration: {
       ...props.interfaces['files-readonly'],
+      alias: props.interfaces['files-readonly'].integrationAlias,
       transferFileToBotpress: props.actions['files-readonly'].transferFileToBotpress,
     },
     logger: props.logger,
