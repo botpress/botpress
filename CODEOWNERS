@@ -18,9 +18,9 @@
 
 ## AI
 /packages/cognitive @allardy @slvnperron @botpress/squid @botpress/leads
-/packages/llmz @slvnperron @botpress/squid @botpress/leads
-/packages/vai @slvnperron @botpress/squid @botpress/leads
-/packages/zai @slvnperron @botpress/squid @botpress/leads
+/packages/llmz @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/vai @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/zai @allardy @slvnperron @botpress/squid @botpress/leads
 
 # Bots
 /bots @botpress/squid @botpress/kraken @botpress/leads
