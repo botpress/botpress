@@ -1147,6 +1147,18 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  integrations/hunter:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.1
+        version: 1.13.1
+
   integrations/instagram:
     dependencies:
       '@botpress/cli':
@@ -13628,7 +13640,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
     optionalDependencies:
-      axios: 1.11.0
+      axios: 1.13.1
     transitivePeerDependencies:
       - debug
 
