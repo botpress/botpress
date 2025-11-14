@@ -1,11 +1,29 @@
 # Global
 * @botpress/engineering
 
-# Client, SDK, CLI
-/packages @botpress/squid @botpress/kraken @botpress/leads
+# Packages
+
+## API / Client
+/packages/chat-api @botpress/kraken @botpress/leads
+/packages/chat-client @botpress/kraken @botpress/leads
+/packages/client @botpress/squid @botpress/kraken @botpress/leads
+
+## CLI / SDK
+/packages/cli @botpress/squid @botpress/leads
+/packages/sdk @botpress/squid @botpress/leads
+
+## Common / Utils
+/packages/common @botpress/squid @botpress/leads
+/packages/sdk-addons @botpress/squid @botpress/leads
+
+## AI
+/packages/cognitive @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/llmz @slvnperron @botpress/squid @botpress/leads
+/packages/vai @slvnperron @botpress/squid @botpress/leads
+/packages/zai @slvnperron @botpress/squid @botpress/leads
 
 # Bots
-/packages/bots @botpress/squid @botpress/kraken @botpress/leads
+/bots @botpress/squid @botpress/kraken @botpress/leads
 
 # Plugins
 /plugins @botpress/squid @botpress/kraken @botpress/leads
