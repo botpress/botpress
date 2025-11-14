@@ -29,7 +29,21 @@ export class BambooHRClient {
 
   public static async create(props: ClientProps): Promise<BambooHRClient> {
     const { authorization, expiresAt } = await getBambooHrAuthorization(props)
-    return new BambooHRClient({ subdomain: props.ctx.configuration.subdomain, authorization, expiresAt, props })
+
+    let subdomain: string
+    if (props.ctx.configurationType === 'apiKey') {
+      subdomain = props.ctx.configuration.subdomain
+    } else {
+      // OAuth mode - get subdomain from state
+      const { state } = await props.client.getState({
+        type: 'integration',
+        name: 'oauth',
+        id: props.ctx.integrationId,
+      })
+      subdomain = state.payload.domain
+    }
+
+    return new BambooHRClient({ subdomain, authorization, expiresAt, props })
   }
 
   private constructor({
