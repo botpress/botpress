@@ -162,3 +162,39 @@ test('cache should handle concurrent access from multiple instances', async () =
 
   fs.rmSync(tmpDir, { recursive: true })
 })
+
+test('cache should handle corrupted JSON file gracefully', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cache-test-'))
+  const cacheFile = path.join(tmpDir, 'test-cache.json')
+
+  fs.writeFileSync(cacheFile, '')
+
+  const cache = new FSKeyValueCache<TestCache>(cacheFile)
+
+  const token = await cache.get('token')
+  expect(token).toBeUndefined()
+
+  await cache.set('token', 'new-token')
+  const newToken = await cache.get('token')
+  expect(newToken).toBe('new-token')
+
+  fs.rmSync(tmpDir, { recursive: true })
+})
+
+test('cache should handle malformed JSON file gracefully', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cache-test-'))
+  const cacheFile = path.join(tmpDir, 'test-cache.json')
+
+  fs.writeFileSync(cacheFile, '{ invalid json }')
+
+  const cache = new FSKeyValueCache<TestCache>(cacheFile)
+
+  const token = await cache.get('token')
+  expect(token).toBeUndefined()
+
+  await cache.set('token', 'new-token')
+  const newToken = await cache.get('token')
+  expect(newToken).toBe('new-token')
+
+  fs.rmSync(tmpDir, { recursive: true })
+})
