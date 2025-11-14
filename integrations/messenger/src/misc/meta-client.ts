@@ -225,7 +225,7 @@ export class MetaClient {
     }
   }
 
-  public async getSubscribedWebhooks(inputPageId?: string): Promise<string[] | null> {
+  public async getSubscribedWebhooks(inputPageId?: string): Promise<string[] | undefined> {
     const pageId = this._getPageId(inputPageId)
     const responseData = await this._makeRequest({
       method: 'GET',
@@ -239,7 +239,7 @@ export class MetaClient {
 
     const application = applications?.find((app) => app.id === this._clientId)
     if (!application) {
-      return null
+      return undefined
     }
 
     return application.subscribed_fields
