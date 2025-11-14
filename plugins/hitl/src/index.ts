@@ -65,4 +65,8 @@ plugin.on.beforeIncomingEvent('*', async (props) => {
   return await hooks.beforeIncomingEvent.all.handleEvent(props)
 })
 
+plugin.on.stateExpired('hitl', async (props) => {
+  await hooks.stateExpired.hitlStateExpired(props)
+})
+
 export default plugin
