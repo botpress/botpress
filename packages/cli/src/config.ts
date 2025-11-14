@@ -248,7 +248,7 @@ const removeSchema = {
   ...globalSchema,
   ...credentialsSchema,
   workDir,
-  alias: { idx: 0, type: 'string', description: 'The alias of the package to uninstall' },
+  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
 } satisfies CommandSchema
 
 const loginSchema = {
