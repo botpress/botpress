@@ -26,9 +26,15 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
+  if (!message.payload.text) {
+    await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
+    return
+  }
+
   const [command, teamKey] = message.payload.text.trim().split(' ')
   if (!command) {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
+    return
   }
 
   const _handleError = (context: string) => async (thrown: unknown) => {
