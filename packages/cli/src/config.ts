@@ -248,7 +248,6 @@ const removeSchema = {
   ...globalSchema,
   ...credentialsSchema,
   packageRef,
-  packageType,
   workDir,
 } satisfies CommandSchema
 
