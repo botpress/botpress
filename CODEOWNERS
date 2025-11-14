@@ -2,15 +2,13 @@
 * @botpress/engineering
 
 # Client, SDK, CLI
-/packages @botpress/squid @botpress/leads
+/packages @botpress/squid @botpress/kraken @botpress/leads
 
 # Bots
-/packages/bots @botpress/squid @botpress/leads
+/packages/bots @botpress/squid @botpress/kraken @botpress/leads
 
 # Plugins
-/plugins @botpress/squid @botpress/leads
-/plugins/hitl @pascal-botpress @franklevasseur @botpress/squid @botpress/leads
-/plugins/file-synchronizer @pascal-botpress @botpress/squid @botpress/leads
+/plugins @botpress/squid @botpress/kraken @botpress/leads
 
 # Integrations
 /integrations @botpress/squid @botpress/leads
@@ -28,45 +26,5 @@
 /integrations/groq @botpress/shark @botpress/leads
 /integrations/openai @botpress/shark @botpress/leads
 
-## Others
-/integrations/airtable @botpress/squid @botpress/leads
-/integrations/asana @botpress/squid @botpress/leads
-/integrations/bigcommerce-sync @botpress/squid @botpress/leads
-/integrations/calendly @botpress/squid @botpress/leads
-/integrations/chat @botpress/squid @botpress/leads
-/integrations/clickup @botpress/squid @botpress/leads
-/integrations/confluence @botpress/squid @botpress/leads
-/integrations/dropbox @botpress/squid @botpress/leads
-/integrations/docusign @botpress/squid @botpress/leads
-/integrations/email @botpress/squid @botpress/leads
-/integrations/freshchat @botpress/squid @botpress/leads
-/integrations/github @botpress/squid @botpress/leads
-/integrations/gmail @botpress/squid @botpress/leads
-/integrations/googlecalendar @botpress/squid @botpress/leads
-/integrations/googledrive @botpress/squid @botpress/leads
-/integrations/gsheets @botpress/squid @botpress/leads
-/integrations/instagram @botpress/squid @botpress/leads
-/integrations/intercom @botpress/squid @botpress/leads
-/integrations/line @botpress/squid @botpress/leads
-/integrations/linear @botpress/squid @botpress/leads
-/integrations/mailchimp @botpress/squid @botpress/leads
-/integrations/messenger @botpress/squid @botpress/leads
-/integrations/monday @botpress/squid @botpress/leads
-/integrations/notion @botpress/squid @botpress/leads
-/integrations/resend @botpress/squid @botpress/leads
-/integrations/sendgrid @botpress/squid @botpress/leads
-/integrations/slack @botpress/squid @botpress/leads
-/integrations/stripe @botpress/squid @botpress/leads
-/integrations/sunco @botpress/squid @botpress/leads
-/integrations/teams @botpress/squid @botpress/leads
-/integrations/telegram @botpress/squid @botpress/leads
-/integrations/todoist @botpress/squid @botpress/leads
-/integrations/trello @botpress/squid @botpress/leads
-/integrations/twilio @botpress/squid @botpress/leads
-/integrations/viber @botpress/squid @botpress/leads
-/integrations/vonage @botpress/squid @botpress/leads
-/integrations/webhook @botpress/squid @botpress/leads
-/integrations/whatsapp @botpress/squid @botpress/leads
-/integrations/zapier @botpress/squid @botpress/leads
-/integrations/zendesk @botpress/squid @botpress/leads
-/integrations/zoho @botpress/squid @botpress/leads
+## Chat
+/integrations/chat @botpress/kraken @botpress/leads
