@@ -108,15 +108,9 @@ export class FSKeyValueCache<T extends Object> {
         return
       } catch (error: any) {
         if (error.code === 'EEXIST') {
-          try {
-            const stats = await fs.promises.stat(this._lockfilePath)
-            const age = Date.now() - stats.mtimeMs
-            if (age > 5000) {
-              await fs.promises.unlink(this._lockfilePath).catch(() => {})
-              continue
-            }
-          } catch {
-            // Ignore stat errors, continue with retry
+          const shouldContinue = await this._handleLockExists()
+          if (shouldContinue) {
+            continue
           }
           await new Promise((resolve) => setTimeout(resolve, retryDelay))
         } else {
@@ -126,6 +120,20 @@ export class FSKeyValueCache<T extends Object> {
     }
 
     throw new Error(`Failed to acquire lock on ${this._filepath} after ${maxRetries} retries`)
+  }
+
+  private async _handleLockExists(): Promise<boolean> {
+    try {
+      const stats = await fs.promises.stat(this._lockfilePath)
+      const age = Date.now() - stats.mtimeMs
+      if (age > 5000) {
+        await fs.promises.unlink(this._lockfilePath).catch(() => {})
+        return true
+      }
+    } catch {
+      // Ignore stat errors, continue with retry
+    }
+    return false
   }
 
   private async _releaseLock(): Promise<void> {
@@ -150,7 +158,7 @@ export class FSKeyValueCache<T extends Object> {
     }
     try {
       return JSON.parse(fileContent)
-    } catch (error) {
+    } catch {
       console.warn(`Warning: Cache file ${filepath} is corrupted, resetting to empty cache`)
       return {} as T
     }
