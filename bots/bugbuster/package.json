@@ -24,6 +24,7 @@
   "bpDependencies": {
     "github": "../../integrations/github",
     "linear": "../../integrations/linear",
-    "telegram": "../../integrations/telegram"
+    "telegram": "../../integrations/telegram",
+    "slack": "../../integrations/slack"
   }
 }
