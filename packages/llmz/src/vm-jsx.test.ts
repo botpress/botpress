@@ -495,4 +495,65 @@ return { action: 'listen' }
       }
     `)
   })
+
+  it('JSX with single backticks failing test', async () => {
+    const code = `
+// Provide answer using the Answer component (Message has no children)
+yield <Answer question="How to create rows in a Botpress table via the API?">
+**How to create rows in a Botpress table via the API**
+
+- **Endpoint:** \`POST /v1/tables/{table}/rows\`【4】
+- **Headers required:**
+- \`Authorization: Bearer <your-token>\`
+- \`x-bot-id: <your-bot-id>\`
+- \`Content-Type: application/json\`
+- **Request body (JSON):** \`{ "rows": [ { "name": "Alice", "age": 30 }, { "name": "Bob", "age": 25 } ], "waitComputed": true }\`
+
+**Quick checklist**
+1. Use the POST endpoint above.  
+2. Include the three authentication headers.  
+3. Provide a \`rows\` array that matches your table schema.  
+4. Optionally set \`waitComputed\` to \`true\`.  
+5. For easier integration, you can use the official Botpress TypeScript client【12】.
+
+The response returns the created rows with their IDs, timestamps, and any warnings or errors【4】.
+</Answer>
+return { action: 'listen' }
+`
+
+    const Answer = vi.fn()
+    const result = await runAsyncFunction({ Answer, user }, code)
+    expect(result.success).toBe(true)
+    expect(Answer.mock.calls.length).toBe(1)
+    expect(Answer.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+      **How to create rows in a Botpress table via the API** 
+       
+      - **Endpoint:** \`POST /v1/tables/{table}/rows\`【4】 
+      - **Headers required:** 
+      - \`Authorization: Bearer <your-token>\` 
+      - \`x-bot-id: <your-bot-id>\` 
+      - \`Content-Type: application/json\` 
+      - **Request body (JSON):** \`{ "rows": [ { "name": "Alice", "age": 30 }, { "name": "Bob", "age": 25 } ], "waitComputed": true }\` 
+       
+      **Quick checklist** 
+      1. Use the POST endpoint above. 
+      2. Include the three authentication headers. 
+      3. Provide a \`rows\` array that matches your table schema. 
+      4. Optionally set \`waitComputed\` to \`true\`. 
+      5. For easier integration, you can use the official Botpress TypeScript client【12】. 
+       
+      The response returns the created rows with their IDs, timestamps, and any warnings or errors【4】. 
+      ",
+        ],
+        "props": {
+          "question": "How to create rows in a Botpress table via the API?",
+        },
+        "type": "ANSWER",
+      }
+    `)
+  })
 })
