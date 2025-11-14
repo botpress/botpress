@@ -6,6 +6,7 @@ import { listTeams } from './teams-manager'
 import { Client } from '.botpress'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 /**
  * @returns The corresponding issue, or `undefined` if the issue is not found or not valid.
@@ -64,7 +65,7 @@ export async function listIssues(teams: string[], linear: LinearApi): Promise<Is
 
 export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger) {
   const status = linear.issueStatus(issue)
-  if (IGNORED_STATUSES.includes(status)) {
+  if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
     return
   }
 
