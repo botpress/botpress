@@ -1,3 +1,4 @@
+import { SDK_VERSION } from '../version'
 import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
 import z, { ZuiObjectSchema, GenericZuiSchema, ZodRef } from '../zui'
@@ -163,6 +164,10 @@ export class InterfaceDefinition<
     this.events = events as this['events']
     this.actions = actions as this['actions']
     this.channels = channels as this['channels']
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   private _getEntityReference = (entities: Record<string, EntityDefinition>): EntityReferences<TEntities> => {
