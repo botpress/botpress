@@ -1458,8 +1458,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        specifier: ^6.9.0
+        version: 6.9.0(ws@8.18.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2593,8 +2593,8 @@ importers:
         specifier: ^15.0.1
         version: 15.0.1
       openai:
-        specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        specifier: ^6.9.0
+        version: 6.9.0(ws@8.18.2)
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -9495,6 +9495,18 @@ packages:
     peerDependencies:
       ws: ^8.18.0
       zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+
+  openai@6.9.0:
+    resolution: {integrity: sha512-n2sJRYmM+xfJ0l3OfH8eNnIyv3nQY7L08gZQu3dw6wSdfPtKAk92L83M2NIP5SS8Cl/bsBBG3yKzEOjkx0O+7A==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.25 || ^4.0
     peerDependenciesMeta:
       ws:
         optional: true
@@ -19883,6 +19895,10 @@ snapshots:
     optionalDependencies:
       ws: 8.18.2
       zod: 3.24.2
+
+  openai@6.9.0(ws@8.18.2):
+    optionalDependencies:
+      ws: 8.18.2
 
   openapi-types@12.1.3: {}
 
