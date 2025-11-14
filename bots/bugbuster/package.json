@@ -18,6 +18,7 @@
     "@botpresshub/github": "workspace:*",
     "@botpresshub/linear": "workspace:*",
     "@botpresshub/telegram": "workspace:*",
+    "@botpresshub/slack": "workspace:*",
     "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {
