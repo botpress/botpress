@@ -1,6 +1,4 @@
 import { isSandboxCommand, meta } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
-import { sendPosthogError } from 'src/misc/posthog-client'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
 import { messengerPayloadSchema } from '../misc/types'
 import { safeJsonParse } from '../misc/utils'
@@ -61,20 +59,12 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     if (response?.status && response.status >= 400) {
       const errorMessage = `Messenger handler failed with status ${response.status}: ${response.body}`
       props.logger.error(errorMessage)
-      await sendPosthogError(props.ctx.integrationId, errorMessage, {
-        from: `${INTEGRATION_NAME}:handler`,
-        integrationName: INTEGRATION_NAME,
-      })
     }
     return response
   } catch (thrown: unknown) {
     const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
     const errorMessage = `Messenger handler failed with error: ${errorMsg}`
     props.logger.error(errorMessage)
-    await sendPosthogError(props.ctx.integrationId, errorMessage, {
-      from: `${INTEGRATION_NAME}:handler`,
-      integrationName: INTEGRATION_NAME,
-    })
     return { status: 500, body: errorMessage }
   }
 }

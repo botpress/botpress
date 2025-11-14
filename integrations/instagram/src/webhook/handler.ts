@@ -1,9 +1,7 @@
 import { isSandboxCommand } from '@botpress/common'
 import { Request } from '@botpress/sdk'
 import * as crypto from 'crypto'
-import { INTEGRATION_NAME } from 'integration.definition'
 import { getClientSecret } from 'src/misc/client'
-import { sendPosthogError } from 'src/misc/posthog-client'
 import {
   instagramPayloadSchema,
   InstagramLegacyCommentEntry,
@@ -119,19 +117,11 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     if (response && response.status !== 200) {
       const errorMessage = `Instagram handler failed with status ${response.status}: ${response.body}`
       props.logger.error(errorMessage)
-      await sendPosthogError(props.ctx.integrationId, errorMessage, {
-        from: `${INTEGRATION_NAME}:handler`,
-        integrationName: INTEGRATION_NAME,
-      })
     }
     return response
   } catch (thrown: unknown) {
     const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
     const errorMessage = `Instagram handler failed with error: ${errorMsg}`
-    await sendPosthogError(props.ctx.integrationId, errorMessage, {
-      from: `${INTEGRATION_NAME}:handler`,
-      integrationName: INTEGRATION_NAME,
-    })
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
   }

@@ -1,0 +1,97 @@
+import * as sdk from '@botpress/sdk'
+import { EventMessage, PostHog } from 'posthog-node'
+import { botpressEvents, BotpressEvent } from './events'
+
+export const COMMON_SECRET_NAMES = {
+  POSTHOG_KEY: {
+    description: 'Posthog key for error dashboards',
+  },
+} satisfies sdk.IntegrationDefinitionProps['secrets']
+
+type BotpressEventMessage = Omit<EventMessage, 'event'> & {
+  event: BotpressEvent
+}
+
+type PostHogConfig = {
+  key: string
+  integrationName: string
+}
+
+export const sendPosthogEvent = async (props: BotpressEventMessage, config: PostHogConfig): Promise<void> => {
+  const { key, integrationName } = config
+  const client = new PostHog(key, {
+    host: 'https://us.i.posthog.com',
+  })
+  try {
+    const signedProps: BotpressEventMessage = {
+      ...props,
+      properties: {
+        ...props.properties,
+        integrationName,
+      },
+    }
+    await client.captureImmediate(signedProps)
+    await client.shutdown()
+    console.info('PostHog event sent')
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
+  }
+}
+
+export function wrapIntegration(config: PostHogConfig) {
+  return function <T extends { new (...args: any[]): sdk.Integration<any> }>(constructor: T): T {
+    return class extends constructor {
+      public constructor(...args: any[]) {
+        super(...args)
+        this.props.register = wrapFunction(this.props.register, config)
+        this.props.unregister = wrapFunction(this.props.unregister, config)
+        this.props.handler = wrapFunction(this.props.handler, config)
+
+        if (this.props.actions) {
+          for (const actionType of Object.keys(this.props.actions)) {
+            const actionFn = this.props.actions[actionType]
+            if (typeof actionFn === 'function') {
+              this.props.actions[actionType] = wrapFunction(actionFn, config)
+            }
+          }
+        }
+
+        if (this.props.channels) {
+          for (const channelName of Object.keys(this.props.channels)) {
+            const channel = this.props.channels[channelName]
+            if (!channel || !channel.messages) continue
+            Object.keys(channel.messages).forEach((messageType) => {
+              const messageFn = channel.messages[messageType]
+              if (typeof messageFn === 'function') {
+                channel.messages[messageType] = wrapFunction(messageFn, config)
+              }
+            })
+          }
+        }
+      }
+    }
+  }
+}
+
+function wrapFunction(fn: Function, config: PostHogConfig) {
+  return async (...args: any[]) => {
+    try {
+      return await fn(...args)
+    } catch (thrown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      await sendPosthogEvent(
+        {
+          distinctId: errMsg,
+          event: botpressEvents.UNHANDLED_ERROR,
+          properties: {
+            from: fn.name,
+            integrationName: config.integrationName,
+          },
+        },
+        config
+      )
+      throw thrown
+    }
+  }
+}

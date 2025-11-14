@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/client'
+import { posthogHelper, botpressEvents } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as crypto from 'crypto'
+import { INTEGRATION_NAME } from 'integration.definition'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
 import { transformMarkdownForTwilio } from './markdown-to-twilio'
-import { botpressEvents, sendPosthogEvent } from './posthogClient'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -404,10 +405,13 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       logger.forBot().debug('Failed to transform markdown - Error:', errMsg)
-      await sendPosthogEvent({
-        distinctId: errMsg,
-        event: botpressEvents.UNHANDLED_MARKDOWN,
-      })
+      await posthogHelper.sendPosthogEvent(
+        {
+          distinctId: errMsg,
+          event: botpressEvents.UNHANDLED_MARKDOWN,
+        },
+        { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+      )
     }
   }
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })
