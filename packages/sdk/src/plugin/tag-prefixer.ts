@@ -11,10 +11,9 @@ export const unprefixTagsOwnedByPlugin = <T extends {} | { tags?: Record<string,
   const prefix = `${alias}${PLUGIN_PREFIX_SEPARATOR}` as const
 
   const unprefixedTags = Object.fromEntries(
-    Object.entries(obj.tags ?? {}).map(([key, value]) => [
-      key.startsWith(prefix) ? key.slice(prefix.length) : key,
-      value,
-    ])
+    Object.entries(obj.tags ?? {}).flatMap(([key, value]) =>
+      key.startsWith(prefix) ? [[key.slice(prefix.length), value]] : []
+    )
   )
 
   return {
