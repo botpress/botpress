@@ -348,27 +348,34 @@ export default new bp.Integration({
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
-            const isGPT5 = input.model?.id.startsWith('gpt-5-') || input.model?.id.startsWith('gpt-5.1-')
-
             const isReasoningModel =
-              isGPT5 ||
+              input.model?.id.startsWith('gpt-5-') ||
+              input.model?.id.startsWith('gpt-5.1-') ||
               input.model?.id.startsWith('o1-') ||
               input.model?.id.startsWith('o3-') ||
               input.model?.id.startsWith('o4-')
 
             if (isReasoningModel) {
-              if (input.reasoningEffort === undefined && isGPT5) {
-                // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
-                request.reasoning_effort = 'minimal'
-              } else {
+              if (input.reasoningEffort) {
                 request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
+              } else {
+                if (input.model?.id.startsWith('gpt-5.1-')) {
+                  // GPT-5.1 is a hybrid reasoning model that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
+                  request.reasoning_effort = 'none'
+                } else if (input.model?.id.startsWith('gpt-5-')) {
+                  // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
+                  request.reasoning_effort = 'minimal'
+                }
+                // For other reasoning models we leave the reasoning effort undefined so it uses the default effort specified by the provider.
               }
 
               // Reasoning models don't support stop sequences
               delete request.stop
 
-              // Reasoning models don't allow setting temperature
-              delete request.temperature
+              if (request.reasoning_effort !== 'none') {
+                // Temperature is not supported when using reasoning
+                delete request.temperature
+              }
             }
             return request
           },
