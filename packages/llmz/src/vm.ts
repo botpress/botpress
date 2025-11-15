@@ -195,7 +195,6 @@ export async function runAsyncFunction(
       // This includes the WASM file directly in llmz's dist/ to avoid path resolution issues
       const QuickJS = await newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant)
       const runtime = QuickJS.newRuntime()
-      runtime.setDebugMode(true)
 
       // Set memory limit (128MB)
       runtime.setMemoryLimit(128 * 1024 * 1024)

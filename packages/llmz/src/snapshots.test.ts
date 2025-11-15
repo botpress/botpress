@@ -140,10 +140,9 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     expect(result.snapshot.toolCall.name).toBe(tGetPaymentIntent().name)
     expect(result.snapshot.toolCall.input).toEqual({ amount: 10 })
 
-    const expectedInput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zInput)
-    expect(result.snapshot.toolCall.inputSchema).toEqual(expectedInput)
-    const expectedOutput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zOutput)
-    expect(result.snapshot.toolCall.outputSchema).toEqual(expectedOutput)
+    // The snapshot contains the tool's JSON schemas directly (from tool.input and tool.output)
+    expect(result.snapshot.toolCall.inputSchema).toEqual(tGetPaymentIntent().input)
+    expect(result.snapshot.toolCall.outputSchema).toEqual(tGetPaymentIntent().output)
   })
 
   test('cannot resume from a snapshot without resolving it', async () => {

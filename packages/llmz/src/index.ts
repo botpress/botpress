@@ -2,6 +2,7 @@ export { Tool } from './tool.js'
 export { Exit, ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
 export { SnapshotSignal, ThinkSignal, LoopExceededError } from './errors.js'
+export { parseExit, type ParsedExit } from './exit-parser.js'
 
 export {
   Component,

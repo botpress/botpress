@@ -50,6 +50,30 @@ describe('tools typings', () => {
     expect(typings).toMatchInlineSnapshot(`"declare function noArgsNoOutput(): Promise<void>"`)
   })
 
+  it('tool returning void is typed as void, not any', async () => {
+    const tool = new Tool({
+      name: 'performAction',
+      description: 'Performs an action with no return value',
+      input: z.object({
+        actionId: z.string(),
+      }),
+      output: z.void(),
+      handler: async ({ actionId }) => {
+        // Perform action without returning anything
+      },
+    })
+
+    const typings = await tool.getTypings()
+
+    // Verify the return type is Promise<void>, not Promise<any>
+    expect(typings).toContain('Promise<void>')
+    expect(typings).not.toContain('Promise<any>')
+    expect(typings).toMatchInlineSnapshot(`
+      "/** Performs an action with no return value */
+      declare function performAction(args: { actionId: string }): Promise<void>"
+    `)
+  })
+
   it('tool description gets added', async () => {
     const tool = new Tool({
       name: 'noArgsNoOutput',
@@ -408,18 +432,18 @@ describe('tool default values', () => {
       `"declare function anySchema(any): Promise<void>"`
     )
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function unknownSchema(any): Promise<void>"`
+      `"declare function unknownSchema(unknown): Promise<void>"`
     )
     expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function enumSchema
       ('a' | 'b' | 'c'): Promise<void>;"
     `)
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function neverSchema(any): Promise<void>"`
+      `"declare function neverSchema(never): Promise<void>"`
     )
     expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function defaultValueSchema
-      ({ a: number; b: string } | null): Promise<void>;"
+      ({ a?: number; b?: string } | null): Promise<void>;"
     `)
   })
 
@@ -482,12 +506,17 @@ describe('tool default values', () => {
       staticInputValues: {},
     })
 
-    expect(await newTool1.getTypings()).toMatchInlineSnapshot(
-      `"declare function add(args: { a: number; b: number; c: number }): Promise<number>"`
-    )
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(
-      `"declare function add(args: "null" | null): Promise<number>"`
-    )
+    expect(await newTool1.getTypings()).toMatchInlineSnapshot(`
+      "declare function add(args: {
+        a: number
+        b: number
+        c?: number
+      }): Promise<number>"
+    `)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`
+      "declare function add
+      (null): Promise<number>;"
+    `)
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )
