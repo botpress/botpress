@@ -66,6 +66,7 @@ export function formatHumanReadable(result: DiagnosticResult): string {
   const categoryNames: Record<string, string> = {
     env: 'ENVIRONMENT CHECKS',
     project: 'PROJECT CHECKS',
+    sdk: 'SDK & VERSIONING CHECKS',
     network: 'NETWORK CHECKS',
     auth: 'AUTHENTICATION CHECKS',
     dependencies: 'DEPENDENCY CHECKS',

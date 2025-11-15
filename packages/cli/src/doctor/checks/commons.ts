@@ -2,6 +2,7 @@ import { DiagnosticStatus, DiagnosticIssue, DiagnosticCategory } from '../types'
 
 export const CATEGORY_PROJECT: DiagnosticCategory = 'project'
 export const CATEGORY_ENV: DiagnosticCategory = 'env'
+export const CATEGORY_SDK: DiagnosticCategory = 'sdk'
 
 export function _createIssue(
   id: string,
