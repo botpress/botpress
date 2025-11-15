@@ -69,6 +69,7 @@ export function formatHumanReadable(result: DiagnosticResult): string {
     sdk: 'SDK & VERSIONING CHECKS',
     auth: 'AUTHENTICATION & PROFILE CHECKS',
     network: 'NETWORK CHECKS',
+    secrets: 'SECRETS CHECKS',
     dependencies: 'DEPENDENCY CHECKS',
   }
 

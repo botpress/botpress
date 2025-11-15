@@ -5,6 +5,7 @@ export const CATEGORY_ENV: DiagnosticCategory = 'env'
 export const CATEGORY_SDK: DiagnosticCategory = 'sdk'
 export const CATEGORY_AUTH: DiagnosticCategory = 'auth'
 export const CATEGORY_NETWORK: DiagnosticCategory = 'network'
+export const CATEGORY_SECRETS: DiagnosticCategory = 'secrets'
 
 export function _createIssue(
   id: string,
