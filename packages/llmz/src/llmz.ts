@@ -600,21 +600,22 @@ const executeIteration = async ({
     ended_at: Date.now(),
   })
 
+  // Check for abort first - takes precedence over other errors
+  if (controller.signal.aborted) {
+    return iteration.end({
+      type: 'aborted',
+      aborted: {
+        reason: controller.signal.reason ?? 'The operation was aborted',
+      },
+    })
+  }
+
   if (result.error && result.error instanceof CodeExecutionError) {
     return iteration.end({
       type: 'execution_error',
       execution_error: {
         message: result.error.message,
         stack: cleanStackTrace(result.error.stacktrace ?? result.error.stack ?? 'No stack trace available'),
-      },
-    })
-  }
-
-  if (controller.signal.aborted) {
-    return iteration.end({
-      type: 'aborted',
-      aborted: {
-        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }

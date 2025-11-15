@@ -48,12 +48,11 @@ export type CompiledCode = ReturnType<typeof compile>
 export function compile(code: string) {
   code = AsyncIterator.preProcessing(code)
   code = JSXMarkdown.preProcessing(code)
-
+  // console.log('Compiling code:\n', code)
   let output = Babel.transform(code, {
     parserOpts: {
       allowReturnOutsideFunction: true,
       allowAwaitOutsideFunction: true,
-      startLine: -1,
     },
     presets: ['typescript'],
     plugins: [
@@ -78,11 +77,13 @@ export function compile(code: string) {
   const variables = new Set<string>()
   const toolCalls = new Map<number, ToolCallEntry>()
 
+  // Keep this version with markers intact (before plugins transform them)
+  const codeWithMarkers = output.code!
+
   output = Babel.transform(output.code!, {
     ...DEFAULT_TRANSFORM_OPTIONS,
     parserOpts: {
       ...DEFAULT_TRANSFORM_OPTIONS.parserOpts,
-      startLine: -1,
     },
     plugins: [
       lineTrackingBabelPlugin,
@@ -90,6 +91,7 @@ export function compile(code: string) {
       variableTrackingPlugin(variables),
       toolCallTrackingPlugin(toolCalls),
     ],
+    retainLines: true,
   })
 
   let outputCode = output.code!
@@ -98,6 +100,7 @@ export function compile(code: string) {
 
   return {
     code: outputCode,
+    codeWithMarkers, // Code from before second transform, still has literal markers
     map: output.map,
     variables,
     toolCalls,

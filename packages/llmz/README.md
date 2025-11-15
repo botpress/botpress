@@ -70,14 +70,26 @@ npm install @botpress/client llmz
 
 ### Platform Support
 
-| Platform    | Support   | Notes                                   |
-| ----------- | --------- | --------------------------------------- |
-| Node.js 20+ | Full      | Includes isolated VM sandbox            |
-| Browser     | Partial\* | No sandbox (uses standard JS execution) |
-| Bun         | Partial\* | No sandbox (uses standard JS execution) |
-| Deno        | Partial\* | No sandbox (uses standard JS execution) |
+| Platform           | Support |
+| ------------------ | ------- |
+| Node.js 20+        | ✅ Full |
+| Browser            | ✅ Full |
+| AWS Lambda         | ✅ Full |
+| Cloudflare Workers | ✅ Full |
+| Bun                | ✅ Full |
+| Deno               | ✅ Full |
 
-\* A WASM-based sandbox (QuickJS) is in progress and coming soon, which will provide full sandboxed execution for Browser, Bun, and Deno environments.
+#### Sandbox Execution
+
+LLMz uses **QuickJS** (a lightweight JavaScript engine compiled to WebAssembly) to execute generated code in a secure, isolated sandbox. This provides:
+
+- **Complete isolation**: No access to filesystem, network, or host environment
+- **Memory limits**: Configurable heap size to prevent resource exhaustion
+- **Execution timeouts**: Automatic termination of runaway code
+- **Abort signals**: Support for programmatic execution cancellation
+- **Universal compatibility**: Works everywhere WebAssembly is supported
+
+The QuickJS sandbox is bundled as a singlefile variant with WASM inlined as base64, so it works out-of-the-box with any bundler (esbuild, webpack, vite, rollup) without configuration.
 
 ### Worker Mode: Autonomous Execution
 
@@ -386,7 +398,7 @@ LLMz has been running in production for over a year:
 
 - **Millions** of active users across enterprise and consumer applications
 - **Hundreds of thousands** of deployed agents handling real-world workloads
-- **Secure sandbox**: Uses `isolated-vm` for untrusted code execution
+- **Secure sandbox**: Uses QuickJS WASM for isolated code execution
 - **Type-safe**: Full TypeScript inference and Zui validation
 - **Observable**: Comprehensive tracing and error handling
 
@@ -399,14 +411,15 @@ LLMz has been running in production for over a year:
 1. **Prompt Generation**: Injects tools, schemas, and context into dual-mode prompts
 2. **Code Generation**: LLM generates TypeScript with tool calls and logic
 3. **Compilation**: Babel AST transformation with custom plugins (tracking, JSX, source maps)
-4. **Execution**: Runs in isolated VM (production) or Node.js VM (development)
+4. **Execution**: Runs in QuickJS WASM sandbox with full isolation
 5. **Result Processing**: Type-safe exit handling and error recovery
 
 **Security:**
 
-- Sandboxed execution environment (no filesystem/network access)
+- QuickJS WASM sandbox with complete isolation (no filesystem/network access)
 - Stack trace sanitization (removes internal framework details)
-- Configurable tool permissions and rate limiting
+- Configurable memory limits and execution timeouts
+- Tool-level permissions and rate limiting
 - Automatic token limit handling
 
 ---
@@ -419,7 +432,7 @@ LLMz has been running in production for over a year:
 | Multi-tool orchestration | Multiple LLM calls     | Multiple LLM calls     | Single LLM call           |
 | Complex logic            | Limited                | Limited                | Full language support     |
 | Type safety              | Partial                | Schema-based           | Full TypeScript + Zui     |
-| Execution environment    | Python/JS runtime      | Cross-process          | Isolated VM               |
+| Execution environment    | Python/JS runtime      | Cross-process          | QuickJS WASM sandbox      |
 | Cost (complex workflows) | High (many roundtrips) | High (many roundtrips) | Low (one-shot generation) |
 | Production scale         | Varies                 | Emerging               | Battle-tested (1M+ users) |
 

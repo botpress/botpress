@@ -269,7 +269,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     const res = exec(updatedContext)
     expect(res.firstIteration?.code).toContain('.age =')
     expect(res.firstIteration?.status.type).toBe('execution_error')
-    expect(res.allErrors.join('')).toContain('property')
+    expect(res.allErrors.join('')).toContain('not extensible')
   })
 
   it('object with write properties with no schema can change value', async () => {
@@ -760,9 +760,9 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
       "001 | // Calling the demo tool as per the instructions
-        002 | await demo()
-      > 003 | return { action: 'done' }
-      ...^^^^^^^^^^"
+      > 002 | await demo()
+      ...^^^^^^^^^^
+        003 | return { action: 'done' }"
     `)
   })
 
