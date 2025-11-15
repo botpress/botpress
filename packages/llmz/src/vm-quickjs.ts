@@ -94,40 +94,10 @@ export async function runAsyncFunctionQuickJS(
     }
   }
 
-  if (process.env.DEBUG_LINES) {
-    console.log(`\n=== USER CODE START MARKER found at line ${userCodeStartLine} ===`)
-    console.log('First 20 lines of code with markers (before final transform):')
-    for (let i = 0; i < Math.min(20, markerLines.length); i++) {
-      console.log(`${String(i + 1).padStart(3, '0')}: ${markerLines[i]}`)
-    }
-    console.log('=== END CODE WITH MARKERS ===\n')
-
-    console.log('First 20 lines of FINAL transformed code:')
-    const finalLines = transformed.code.split('\n')
-    for (let i = 0; i < Math.min(20, finalLines.length); i++) {
-      console.log(`${String(i + 1).padStart(3, '0')}: ${finalLines[i]}`)
-    }
-    console.log('=== END FINAL TRANSFORMED CODE ===\n')
-
-    console.log('Source map test for key lines:')
-    for (let line = 8; line <= 12; line++) {
-      // Try column 0
-      const pos0 = consumer.originalPositionFor({ line, column: 0 })
-      // Try column 1
-      const pos1 = consumer.originalPositionFor({ line, column: 1 })
-      // Try finding first non-whitespace
-      const lineText = finalLines[line - 1] || ''
-      const firstNonWs = lineText.search(/\S/)
-      const posNonWs = firstNonWs >= 0 ? consumer.originalPositionFor({ line, column: firstNonWs }) : pos0
-      console.log(`  Line ${line}: col0=${pos0.line}, col1=${pos1.line}, colNonWs=${posNonWs.line}`)
-    }
-    console.log('')
-  }
-
   context[Identifiers.LineTrackingFnIdentifier] = (line: number) => {
     // Map the transformed code line back to the original source line
     const originalLine = consumer.originalPositionFor({
-      line: line,
+      line,
       column: 0,
     })
     const mappedLine = originalLine.line ?? line
@@ -135,10 +105,6 @@ export async function runAsyncFunctionQuickJS(
     // Calculate offset: the marker line in transformed code corresponds to line 0 of user code
     // So user line = mapped line - marker line
     const userCodeLine = Math.max(1, mappedLine - userCodeStartLine)
-
-    if (process.env.DEBUG_LINES) {
-      console.log(`LineTracking: transformed ${line} -> mapped ${mappedLine} -> user ${userCodeLine}`)
-    }
 
     lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
   }
@@ -306,7 +272,7 @@ export async function runAsyncFunctionQuickJS(
           })
 
           // Schedule executePendingJobs when the promise settles
-          promise.settled.then(() => runtime.executePendingJobs())
+          void promise.settled.then(() => runtime.executePendingJobs())
 
           // Return the promise handle
           return promise.handle
@@ -798,12 +764,6 @@ const handleError = (
   // The wrapper has 10 lines before transformed.code starts (counting from scriptCode template)
   const QUICKJS_WRAPPER_OFFSET = 10
 
-  if (process.env.DEBUG_LINES) {
-    console.log(`\n=== STACK TRACE PARSING ===`)
-    console.log(`Raw stack trace: ${stackTrace}`)
-    console.log(`User code start line in preprocessed code: ${userCodeStartLine}`)
-  }
-
   const matches = Array.from(stackTrace.matchAll(regex)).map((x) => {
     // Adjust for the wrapper offset to get the line in transformed.code
     const quickjsLine = Number(x[1])
@@ -814,10 +774,6 @@ const handleError = (
     // The transformed code lines should roughly correspond to the marker code lines
     // Add +1 because QuickJS reports the line where the IIFE starts, but the actual call is on the next line
     const line = Math.max(1, transformedCodeLine - userCodeStartLine + 1)
-
-    if (process.env.DEBUG_LINES) {
-      console.log(`QuickJS line ${quickjsLine} -> transformed ${transformedCodeLine} -> user ${line}`)
-    }
     const actualLine = lines[line - LINE_OFFSET] ?? ''
     const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
     const minColumn = whiteSpacesCount
