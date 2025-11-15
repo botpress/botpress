@@ -165,8 +165,6 @@ export async function runAsyncFunctionQuickJS(
       }
 
       await context[toolName](value)
-    } catch (err) {
-      throw err
     } finally {
       traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
     }
@@ -255,7 +253,7 @@ export async function runAsyncFunctionQuickJS(
   }
 
   // Helper to bridge functions - handles both sync and async
-  const bridgeFunction = (fn: Function, fnName: string = 'anonymous') => {
+  const bridgeFunction = (fn: Function, _fnName: string = 'anonymous') => {
     return (...argHandles: any[]) => {
       const args = argHandles.map((h: any) => vm.dump(h))
       try {
@@ -591,7 +589,7 @@ ${transformed.code}
           // Get the entire value from VM (vm.dump handles deep cloning)
           const valueResult = vm.evalCode(`globalThis['${key}']`)
           const vmValue = vm.dump(valueResult.unwrap())
-          valueResult.value.dispose()
+          valueResult.unwrap().dispose()
           // Update the context with the cloned value
           try {
             context[key] = vmValue
@@ -669,20 +667,20 @@ ${transformed.code}
     // NOW check for errors - AFTER all async work is complete
     const errorResult = vm.evalCode('globalThis.__llmz_error')
     const errorValue = vm.dump(errorResult.unwrap())
-    errorResult.value.dispose()
+    errorResult.unwrap().dispose()
 
     if (errorValue !== null && errorValue !== '') {
       // Copy back context even on error
       try {
         copyBackContextFromVM()
-      } catch (copyErr) {
+      } catch {
         // Ignore errors when copying context back after an error
       }
 
       // Get the QuickJS stack trace as well
       const errorStackResult = vm.evalCode('globalThis.__llmz_error_stack')
       const errorStack = vm.dump(errorStackResult.unwrap()) || ''
-      errorStackResult.value.dispose()
+      errorStackResult.unwrap().dispose()
 
       // The error value is a string that may contain serialized signal data
       // We need to create an Error with the serialized message and QuickJS stack
@@ -697,13 +695,13 @@ ${transformed.code}
     // Get result value from global AFTER promises have settled
     const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
     const resultSet = vm.dump(resultSetResult.unwrap())
-    resultSetResult.value.dispose()
+    resultSetResult.unwrap().dispose()
 
     let returnValue: any = undefined
     if (resultSet) {
       const resultResult = vm.evalCode('globalThis.__llmz_result')
       returnValue = vm.dump(resultResult.unwrap())
-      resultResult.value.dispose()
+      resultResult.unwrap().dispose()
     }
 
     // Deserialize any signals
@@ -745,7 +743,7 @@ ${transformed.code}
 const handleError = (
   err: Error,
   code: string,
-  consumer: SourceMapConsumer,
+  _consumer: SourceMapConsumer,
   traces: Traces.Trace[],
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
