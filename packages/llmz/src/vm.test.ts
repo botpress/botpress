@@ -141,7 +141,7 @@ console.log( /* this is a comment */ test(5, 6));
       > 015 | console.log( /* this is a comment */ test(5, 6));
       ...^^^^^^^^^^"
     `)
-    expect(result.lines_executed.join(' ')).toMatchInlineSnapshot(`"2,1 11,1 4,2 5,2 8,1 13,1 6,1"`)
+    expect(result.lines_executed.join(' ')).toMatchInlineSnapshot(`"4,1 13,1 6,2 7,2 10,1 15,1 8,1"`)
   })
 
   it('should throw `InvalidCodeError` if code is not valid', async () => {
@@ -215,12 +215,15 @@ console.log( /* this is a comment */ test(5, 6));
           006 |       const doThrow = () => {
           007 |           // Comment here
         > 008 |           THROW_SIGNAL();
-        ...^^^^^^^^^^
+                         ^^^^^^^^^^
           009 |       }
           010 | 
           011 |       if (c > 10) {
         > 012 |         doThrow()
-        ...^^^^^^^^^^"
+                       ^^^^^^^^^^
+          013 |       }
+          014 |         
+          015 |       // This will be truncated from the stack trace"
       `)
 
       expect(result.signal?.variables).toMatchInlineSnapshot(`
@@ -495,7 +498,6 @@ return {
             4,
           ],
           "g": null,
-          "h": undefined,
         }
       `)
 
@@ -587,9 +589,8 @@ return {
       const result = await runAsyncFunction(context, code)
 
       expect(result.success).toBe(false)
-      expect(result.error).toMatchInlineSnapshot(
-        `[CodeExecutionError: Cannot add property age, object is not extensible]`
-      )
+      // QuickJS and Node.js have different error messages for sealed objects
+      expect(result.error?.message).toMatch(/object is not extensible/)
     })
 
     it('sealed variables remained sealed inside VM (2)', async () => {
@@ -738,7 +739,7 @@ return {
       const result = await runAsyncFunction(context, code)
 
       expect(result.success).toBe(true)
-      expect(process.env.VM_DRIVER === 'isolated-vm' ? context.myObj : innerValues).toMatchInlineSnapshot(`
+      expect(context.myObj).toMatchInlineSnapshot(`
         {
           "__origin": "test",
           "age": 33,

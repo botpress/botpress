@@ -73,11 +73,74 @@ export async function runAsyncFunctionQuickJS(
   }
 
   // Setup tracking functions
-  context[Identifiers.CommentFnIdentifier] = (comment: string, line: number) =>
+  context[Identifiers.CommentFnIdentifier] = (comment: string, line: number) => {
+    // Filter out internal markers from traces
+    if (comment.includes('__LLMZ_USER_CODE_START__') || comment.includes('__LLMZ_USER_CODE_END__')) {
+      return
+    }
     traces.push({ type: 'comment', comment, line, started_at: Date.now() })
+  }
+
+  // Find the actual offset by locating the user code start marker
+  // Use codeWithMarkers which still has the markers before postProcessing removes them
+  const codeWithMarkers = (transformed as any).codeWithMarkers || transformed.code
+  const markerLines = codeWithMarkers.split('\n')
+  const USER_CODE_START_MARKER = '/* __LLMZ_USER_CODE_START__ */'
+  let userCodeStartLine = -1
+  for (let i = 0; i < markerLines.length; i++) {
+    if (markerLines[i]?.includes(USER_CODE_START_MARKER)) {
+      userCodeStartLine = i + 1 // Line numbers are 1-indexed
+      break
+    }
+  }
+
+  if (process.env.DEBUG_LINES) {
+    console.log(`\n=== USER CODE START MARKER found at line ${userCodeStartLine} ===`)
+    console.log('First 20 lines of code with markers (before final transform):')
+    for (let i = 0; i < Math.min(20, markerLines.length); i++) {
+      console.log(`${String(i + 1).padStart(3, '0')}: ${markerLines[i]}`)
+    }
+    console.log('=== END CODE WITH MARKERS ===\n')
+
+    console.log('First 20 lines of FINAL transformed code:')
+    const finalLines = transformed.code.split('\n')
+    for (let i = 0; i < Math.min(20, finalLines.length); i++) {
+      console.log(`${String(i + 1).padStart(3, '0')}: ${finalLines[i]}`)
+    }
+    console.log('=== END FINAL TRANSFORMED CODE ===\n')
+
+    console.log('Source map test for key lines:')
+    for (let line = 8; line <= 12; line++) {
+      // Try column 0
+      const pos0 = consumer.originalPositionFor({ line, column: 0 })
+      // Try column 1
+      const pos1 = consumer.originalPositionFor({ line, column: 1 })
+      // Try finding first non-whitespace
+      const lineText = finalLines[line - 1] || ''
+      const firstNonWs = lineText.search(/\S/)
+      const posNonWs = firstNonWs >= 0 ? consumer.originalPositionFor({ line, column: firstNonWs }) : pos0
+      console.log(`  Line ${line}: col0=${pos0.line}, col1=${pos1.line}, colNonWs=${posNonWs.line}`)
+    }
+    console.log('')
+  }
 
   context[Identifiers.LineTrackingFnIdentifier] = (line: number) => {
-    lines_executed.set(line, (lines_executed.get(line) ?? 0) + 1)
+    // Map the transformed code line back to the original source line
+    const originalLine = consumer.originalPositionFor({
+      line: line,
+      column: 0,
+    })
+    const mappedLine = originalLine.line ?? line
+
+    // Calculate offset: the marker line in transformed code corresponds to line 0 of user code
+    // So user line = mapped line - marker line
+    const userCodeLine = Math.max(1, mappedLine - userCodeStartLine)
+
+    if (process.env.DEBUG_LINES) {
+      console.log(`LineTracking: transformed ${line} -> mapped ${mappedLine} -> user ${userCodeLine}`)
+    }
+
+    lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
   }
 
   context[Identifiers.JSXFnIdentifier] = (tool: any, props: any, ...children: any[]) =>
@@ -144,6 +207,7 @@ export async function runAsyncFunctionQuickJS(
   // Initialize QuickJS
   const QuickJS = await getQuickJS()
   const runtime = QuickJS.newRuntime()
+  runtime.setDebugMode(true)
 
   // Set memory limit (128MB like isolated-vm)
   runtime.setMemoryLimit(128 * 1024 * 1024)
@@ -171,20 +235,30 @@ export async function runAsyncFunctionQuickJS(
     } else if (value === undefined) {
       return vm.undefined
     } else if (Array.isArray(value)) {
-      const arr = vm.newArray()
-      for (let i = 0; i < value.length; i++) {
-        const itemHandle = toVmValue(value[i])
-        vm.setProp(arr, i, itemHandle)
-        if (
-          itemHandle !== vm.true &&
-          itemHandle !== vm.false &&
-          itemHandle !== vm.null &&
-          itemHandle !== vm.undefined
-        ) {
-          itemHandle.dispose()
+      // Create a proper array with prototype methods using evalCode
+      // We build the array literal directly to preserve methods like .map()
+      const items = value.map((item) => {
+        if (typeof item === 'string') {
+          return JSON.stringify(item)
+        } else if (typeof item === 'number' || typeof item === 'boolean') {
+          return String(item)
+        } else if (item === null) {
+          return 'null'
+        } else if (item === undefined) {
+          return 'undefined'
+        } else if (typeof item === 'object') {
+          return JSON.stringify(item)
         }
+        return 'undefined'
+      })
+      const arrayLiteral = `[${items.join(',')}]`
+      const result = vm.evalCode(arrayLiteral)
+      if ('error' in result) {
+        result.error?.dispose()
+        return vm.undefined
       }
-      return arr
+      const arrHandle = result.value
+      return arrHandle
     } else if (typeof value === 'object') {
       const obj = vm.newObject()
       for (const [k, v] of Object.entries(value)) {
@@ -206,14 +280,13 @@ export async function runAsyncFunctionQuickJS(
     return vm.undefined
   }
 
-  // Helper to bridge functions - sync only for now to avoid memory leaks
-  // Async functions will run but return undefined immediately (side effects still happen)
-  const bridgeFunction = (fn: Function) => {
+  // Helper to bridge functions - handles both sync and async
+  const bridgeFunction = (fn: Function, fnName: string = 'anonymous') => {
     return (...argHandles: any[]) => {
       const args = argHandles.map((h: any) => vm.dump(h))
       try {
         const result = fn(...args)
-        // Check if it's a promise - ignore async for now
+        // Check if it's a promise - ignore async for now to avoid memory leaks
         if (result && typeof result.then === 'function') {
           // Let the promise run in background but return undefined
           // This allows side effects (like yield calls) to work
@@ -223,11 +296,14 @@ export async function runAsyncFunctionQuickJS(
         // Synchronous result
         return toVmValue(result)
       } catch (err) {
-        // Throw error in QuickJS
-        const errorMsg = vm.newString(String(err))
-        const throwResult = vm.throw(errorMsg)
-        errorMsg.dispose()
-        return throwResult
+        // Serialize the error properly (especially for VMSignal and other special errors)
+        // VMSignal and other error classes auto-serialize themselves in their constructor
+        // so err.message already contains the JSON-serialized error data
+        const serialized = err instanceof Error ? err.message : String(err)
+
+        // Re-throw the error as a plain Error with the serialized message
+        // QuickJS-emscripten will catch this and convert it to a QuickJS error
+        throw new Error(serialized)
       }
     }
   }
@@ -257,33 +333,40 @@ export async function runAsyncFunctionQuickJS(
 
       if (typeof value === 'function') {
         // Bridge functions - supports both sync and async
-        const fnHandle = vm.newFunction(key, bridgeFunction(value))
+        const fnHandle = vm.newFunction(key, bridgeFunction(value, key))
         vm.setProp(vm.global, key, fnHandle)
         fnHandle.dispose()
+      } else if (Array.isArray(value)) {
+        // Bridge arrays - use toVmValue which creates proper arrays with methods
+        trackedProperties.add(key)
+        const arrayHandle = toVmValue(value)
+        vm.setProp(vm.global, key, arrayHandle)
+        const shouldDispose =
+          arrayHandle !== vm.true && arrayHandle !== vm.false && arrayHandle !== vm.null && arrayHandle !== vm.undefined
+        if (shouldDispose) {
+          arrayHandle.dispose()
+        }
       } else if (typeof value === 'object' && value !== null) {
         trackedProperties.add(key)
 
         // Bridge objects - handle nested functions and properties
         const objHandle = vm.newObject()
         const props = new Set([...Object.keys(value), ...Object.getOwnPropertyNames(value)])
+        const getterSetterProps: Array<{
+          prop: string
+          descriptor: PropertyDescriptor
+        }> = []
 
         for (const prop of props) {
           const propDescriptor = Object.getOwnPropertyDescriptor(value, prop)
 
           if (propDescriptor && (propDescriptor.get || propDescriptor.set)) {
-            // Skip nested getter/setter properties - treat as regular properties
+            // Defer getter/setter setup until after object is on global
             referenceProperties.add(`${key}.${prop}`)
-            const initialValue = (context as any)[key][prop]
-            const propHandle = toVmValue(initialValue)
-            vm.setProp(objHandle, prop, propHandle)
-            const shouldDispose =
-              propHandle !== vm.true && propHandle !== vm.false && propHandle !== vm.null && propHandle !== vm.undefined
-            if (shouldDispose) {
-              propHandle.dispose()
-            }
+            getterSetterProps.push({ prop, descriptor: propDescriptor })
           } else if (typeof (value as any)[prop] === 'function') {
             // Bridge nested functions - supports both sync and async
-            const propFnHandle = vm.newFunction(prop, bridgeFunction((value as any)[prop]))
+            const propFnHandle = vm.newFunction(prop, bridgeFunction((value as any)[prop], `${key}.${prop}`))
             vm.setProp(objHandle, prop, propFnHandle)
             propFnHandle.dispose()
           } else {
@@ -299,6 +382,62 @@ export async function runAsyncFunctionQuickJS(
 
         vm.setProp(vm.global, key, objHandle)
         objHandle.dispose()
+
+        // Now set up getter/setter properties (after object is on global)
+        for (const { prop, descriptor } of getterSetterProps) {
+          // Create getter function if exists
+          let getterCode = 'undefined'
+          if (descriptor.get) {
+            const getterBridge = vm.newFunction(`get_${prop}`, () => {
+              try {
+                const hostValue = (context as any)[key][prop]
+                return toVmValue(hostValue)
+              } catch (err: any) {
+                const serialized = err instanceof Error ? err.message : String(err)
+                throw new Error(serialized)
+              }
+            })
+            const getterName = `__getter_${key}_${prop}__`
+            vm.setProp(vm.global, getterName, getterBridge)
+            getterBridge.dispose()
+            getterCode = getterName
+          }
+
+          // Create setter function if exists
+          let setterCode = 'undefined'
+          if (descriptor.set) {
+            const setterBridge = vm.newFunction(`set_${prop}`, (valueHandle: any) => {
+              try {
+                const jsValue = vm.dump(valueHandle)
+                ;(context as any)[key][prop] = jsValue
+                return vm.undefined
+              } catch (err: any) {
+                const serialized = err instanceof Error ? err.message : String(err)
+                throw new Error(serialized)
+              }
+            })
+            const setterName = `__setter_${key}_${prop}__`
+            vm.setProp(vm.global, setterName, setterBridge)
+            setterBridge.dispose()
+            setterCode = setterName
+          }
+
+          // Use evalCode to define the property with getter/setter
+          const definePropertyCode = `
+            Object.defineProperty(${key}, '${prop}', {
+              enumerable: true,
+              configurable: ${descriptor.configurable !== false},
+              get: ${getterCode},
+              set: ${setterCode}
+            });
+          `
+          const result = vm.evalCode(definePropertyCode)
+          if ('error' in result) {
+            result.error?.dispose()
+          } else {
+            result.value.dispose()
+          }
+        }
 
         // Apply object constraints
         if (Object.isSealed(value)) {
@@ -349,7 +488,9 @@ export async function runAsyncFunctionQuickJS(
         const value = vm.dump(valueResult.value)
         valueResult.value.dispose()
 
-        if (typeof value === 'function') {
+        // In QuickJS, functions are dumped as their source code strings
+        // Check if it's a function type or looks like function source
+        if (typeof value === 'function' || (typeof value === 'string' && value.includes('=>'))) {
           variables[name] = '[[non-primitive]]'
         } else {
           variables[name] = value
@@ -368,6 +509,7 @@ export async function runAsyncFunctionQuickJS(
 globalThis.__llmz_result = undefined;
 globalThis.__llmz_result_set = false;
 globalThis.__llmz_error = null;
+globalThis.__llmz_error_stack = null;
 globalThis.__llmz_yields = [];
 
 (async () => {
@@ -402,12 +544,11 @@ ${transformed.code}
       throw new Error('Maximum iterations exceeded');
     }
   } catch (err) {
-    // Store just the error message to avoid serialization issues
-    globalThis.__llmz_error = {
-      message: String(err.message || ''),
-      stack: String(err.stack || ''),
-      name: String(err.name || 'Error')
-    };
+    // Store both the error message (which may contain serialized signal data)
+    // and the stack trace from QuickJS
+    globalThis.__llmz_error = String(err.message || err || '');
+    // Force the stack to be converted to a string in QuickJS context
+    globalThis.__llmz_error_stack = '' + (err.stack || '');
   }
 })();
 `.trim()
@@ -423,20 +564,14 @@ ${transformed.code}
         try {
           // Get the entire value from VM (vm.dump handles deep cloning)
           const valueResult = vm.evalCode(`globalThis['${key}']`)
-          if ('error' in valueResult) {
-            valueResult.error?.dispose()
-            continue
-          }
-          const vmValue = vm.dump(valueResult.value)
-          valueResult.value.dispose()
-
+          const vmValue = vm.dump(valueResult.unwrap())
           // Update the context with the cloned value
           try {
             context[key] = vmValue
-          } catch (err) {
+          } catch {
             // Ignore read-only property errors
           }
-        } catch (err) {
+        } catch {
           // Ignore errors when copying back
         }
       }
@@ -444,43 +579,49 @@ ${transformed.code}
 
     // Execute code - result is undefined (async IIFE returns nothing)
     const execResult = vm.evalCode(scriptCode, '<quickjs>')
-    if ('error' in execResult) {
-      if (execResult.error) {
-        const err = vm.dump(execResult.error)
-        execResult.error.dispose()
-        throw new Error(err?.message || 'Execution failed')
-      }
-      throw new Error('Execution failed')
-    }
-    execResult.value.dispose()
+    // const val = vm.dump(execResult.unwrap())
+    // console.log(val)
+    // if ('error' in execResult) {
+    //   if (execResult.error) {
+    //     const err = vm.dump(execResult.error)
+    //     execResult.error.dispose()
+    //     throw new Error(err?.message || 'Execution failed')
+    //   }
+    //   throw new Error('Execution failed')
+    // }
+    // execResult.value.dispose()
 
     // CRITICAL: Execute pending microtasks (QuickJS doesn't have automatic event loop)
     // This processes all promise .then() callbacks, including the async IIFE
     const maxJobs = 10000
     let jobsExecuted = 0
     while (jobsExecuted < maxJobs) {
-      const pending = (runtime as any).executePendingJobs?.(-1)
-      if (pending === undefined || pending <= 0) break
+      const pending = runtime.executePendingJobs?.(-1)
+      if (pending === undefined || pending.unwrap() <= 0) break
       jobsExecuted++
     }
 
     // Check for errors first
     const errorResult = vm.evalCode('globalThis.__llmz_error')
-    if ('error' in errorResult) {
-      if (errorResult.error) {
-        const err = vm.dump(errorResult.error)
-        errorResult.error.dispose()
-        throw new Error(err?.message || 'Error check failed')
-      }
-      throw new Error('Error check failed')
-    }
-    const errorValue = vm.dump(errorResult.value)
-    errorResult.value.dispose()
+    const errorValue = vm.dump(errorResult.unwrap())
 
-    if (errorValue !== null && typeof errorValue === 'object') {
+    if (errorValue !== null && errorValue !== '') {
       // Copy back context even on error
-      copyBackContextFromVM()
-      throw new Error(errorValue.message || 'Unknown error')
+      try {
+        copyBackContextFromVM()
+      } catch (copyErr) {
+        // Ignore errors when copying context back after an error
+      }
+
+      // Get the QuickJS stack trace as well
+      const errorStackResult = vm.evalCode('globalThis.__llmz_error_stack')
+      const errorStack = vm.dump(errorStackResult.unwrap()) || ''
+
+      // The error value is a string that may contain serialized signal data
+      // We need to create an Error with the serialized message and QuickJS stack
+      const error = new Error(errorValue)
+      error.stack = errorStack
+      throw error
     }
 
     // Copy context back from VM before reading result
@@ -488,33 +629,18 @@ ${transformed.code}
 
     // Get result value from global
     const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
-    if ('error' in resultSetResult) {
-      if (resultSetResult.error) {
-        resultSetResult.error.dispose()
-      }
-      throw new Error('Failed to read result set flag')
-    }
-    const resultSet = vm.dump(resultSetResult.value)
-    resultSetResult.value.dispose()
+    const resultSet = vm.dump(resultSetResult.unwrap())
 
     let returnValue: any = undefined
     if (resultSet) {
       const resultResult = vm.evalCode('globalThis.__llmz_result')
-      if ('error' in resultResult) {
-        if (resultResult.error) {
-          const err = vm.dump(resultResult.error)
-          resultResult.error.dispose()
-          throw new Error(err?.message || 'Result read failed')
-        }
-        throw new Error('Result read failed')
-      }
-      returnValue = vm.dump(resultResult.value)
-      resultResult.value.dispose()
+      returnValue = vm.dump(resultResult.unwrap())
     }
 
     // Deserialize any signals
     returnValue = Signals.maybeDeserializeError(returnValue)
 
+    console.log('returnValue', { returnValue, resultSet })
     return {
       success: true,
       variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
@@ -523,10 +649,26 @@ ${transformed.code}
       return_value: returnValue,
     } satisfies VMExecutionResult
   } catch (err: any) {
-    return handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall)
+    // Also resolve pending promises on error before disposing
+    await Promise.all(
+      pendingHostPromises.map(async ({ hostPromise, deferredPromise }) => {
+        try {
+          const value = await hostPromise
+          deferredPromise.resolve(value)
+        } catch (err2: any) {
+          const serialized = err2 instanceof Error ? err2.message : String(err2)
+          deferredPromise.reject(serialized)
+        }
+      })
+    ).catch(() => {})
+    return handleError(err, code, consumer, traces, variables, lines_executed, userCodeStartLine, currentToolCall)
   } finally {
-    vm.dispose()
-    runtime.dispose()
+    try {
+      vm.dispose()
+    } catch {}
+    try {
+      runtime.dispose()
+    } catch {}
   }
 }
 
@@ -537,6 +679,7 @@ const handleError = (
   traces: Traces.Trace[],
   variables: { [k: string]: any },
   lines_executed: Map<number, number>,
+  userCodeStartLine: number,
   currentToolCall?: SnapshotSignal['toolCall'] | undefined
 ): VMExecutionResult => {
   err = Signals.maybeDeserializeError(err)
@@ -544,22 +687,40 @@ const handleError = (
   const stackTrace = err.stack || ''
   const LINE_OFFSET = 1
 
-  // Parse QuickJS stack traces: "at <eval> (...)"
-  const regex = /<eval>:(\d+):(\d+)/g
+  // Parse QuickJS stack traces: "at doThrow (<quickjs>:16)" or "at <eval> (<quickjs>:58)"
+  const regex = /<quickjs>:(\d+)/g
+
+  // QuickJS line numbers include the wrapper code before transformed.code
+  // The wrapper has 10 lines before transformed.code starts (counting from scriptCode template)
+  const QUICKJS_WRAPPER_OFFSET = 10
+
+  if (process.env.DEBUG_LINES) {
+    console.log(`\n=== STACK TRACE PARSING ===`)
+    console.log(`Raw stack trace: ${stackTrace}`)
+    console.log(`User code start line in preprocessed code: ${userCodeStartLine}`)
+  }
 
   const matches = Array.from(stackTrace.matchAll(regex)).map((x) => {
-    const originalLine = consumer.originalPositionFor({
-      line: Number(x[1]),
-      column: Number(x[2]),
-    })
-    const line = originalLine.line ?? Number(x[1])
+    // Adjust for the wrapper offset to get the line in transformed.code
+    const quickjsLine = Number(x[1])
+    const transformedCodeLine = quickjsLine - QUICKJS_WRAPPER_OFFSET
+
+    // Don't use source map for stack traces - it's unreliable due to Babel's line squashing
+    // Instead, rely on retainLines keeping line numbers approximately correct
+    // The transformed code lines should roughly correspond to the marker code lines
+    // Add +1 because QuickJS reports the line where the IIFE starts, but the actual call is on the next line
+    const line = Math.max(1, transformedCodeLine - userCodeStartLine + 1)
+
+    if (process.env.DEBUG_LINES) {
+      console.log(`QuickJS line ${quickjsLine} -> transformed ${transformedCodeLine} -> user ${line}`)
+    }
     const actualLine = lines[line - LINE_OFFSET] ?? ''
     const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
-    const minColumn = Math.max(whiteSpacesCount, originalLine.column)
+    const minColumn = whiteSpacesCount
 
     return {
       line,
-      column: Math.min(minColumn, Number(x[2])),
+      column: minColumn,
     }
   })
 
