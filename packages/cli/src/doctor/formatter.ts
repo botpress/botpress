@@ -105,7 +105,3 @@ export function formatHumanReadable(result: DiagnosticResult): string {
 
   return lines.join('\n')
 }
-
-export function formatJSON(result: DiagnosticResult): string {
-  return JSON.stringify(result, null, 2)
-}

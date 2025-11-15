@@ -2,11 +2,11 @@ import fs from 'fs'
 import net from 'net'
 import path from 'path'
 import * as consts from '../../consts'
-import type { DiagnosticIssue, DiagnosticStatus, DiagnosticCategory } from '../types'
+import type { DiagnosticIssue } from '../types'
+import { _createIssue, CATEGORY_ENV } from './commons'
 
 const MIN_NODE_VERSION = 18
 const DEFAULT_DEV_PORT = 3000
-const CATEGORY_ENV: DiagnosticCategory = 'env'
 
 /**
  * Runs all environment checks in parallel and collects diagnostic issues
@@ -37,6 +37,7 @@ async function _checkNodeVersion(): Promise<DiagnosticIssue[]> {
     return [
       _createIssue(
         'node-version-too-old',
+        CATEGORY_ENV,
         'error',
         `Node.js version ${currentVersion} is not supported`,
         details,
@@ -45,7 +46,7 @@ async function _checkNodeVersion(): Promise<DiagnosticIssue[]> {
     ]
   }
 
-  return [_createIssue('node-version', 'ok', `Node.js version ${currentVersion} is supported`, details)]
+  return [_createIssue('node-version', CATEGORY_ENV, 'ok', `Node.js version ${currentVersion} is supported`, details)]
 }
 
 async function _checkLockfiles(workDir: string): Promise<DiagnosticIssue[]> {
@@ -63,6 +64,7 @@ async function _checkLockfiles(workDir: string): Promise<DiagnosticIssue[]> {
     return [
       _createIssue(
         'lockfile-missing',
+        CATEGORY_ENV,
         'warning',
         'No lockfile detected',
         { workDir },
@@ -75,6 +77,7 @@ async function _checkLockfiles(workDir: string): Promise<DiagnosticIssue[]> {
     return [
       _createIssue(
         'lockfile-multiple',
+        CATEGORY_ENV,
         'warning',
         'Multiple lockfiles detected',
         { lockfiles: foundLockfiles, workDir },
@@ -84,7 +87,10 @@ async function _checkLockfiles(workDir: string): Promise<DiagnosticIssue[]> {
   }
 
   return [
-    _createIssue('lockfile', 'ok', `Lockfile found: ${foundLockfiles[0]}`, { manager: foundLockfiles[0], workDir }),
+    _createIssue('lockfile', CATEGORY_ENV, 'ok', `Lockfile found: ${foundLockfiles[0]}`, {
+      manager: foundLockfiles[0],
+      workDir,
+    }),
   ]
 }
 
@@ -93,11 +99,14 @@ async function _checkProjectPermissions(workDir: string): Promise<DiagnosticIssu
 
   try {
     await fs.promises.access(workDir, fs.constants.R_OK | fs.constants.W_OK)
-    issues.push(_createIssue('workdir-permissions', 'ok', 'Work directory is readable and writable', { workDir }))
+    issues.push(
+      _createIssue('workdir-permissions', CATEGORY_ENV, 'ok', 'Work directory is readable and writable', { workDir })
+    )
   } catch (error) {
     return [
       _createIssue(
         'workdir-permissions',
+        CATEGORY_ENV,
         'error',
         'Work directory is not accessible',
         {
@@ -113,12 +122,15 @@ async function _checkProjectPermissions(workDir: string): Promise<DiagnosticIssu
   const botpressCheck = await _checkDirectoryWritable(botpressDir)
   if (botpressCheck.writable) {
     issues.push(
-      _createIssue('botpress-dir-permissions', 'ok', '.botpress/ directory is writable', { path: botpressDir })
+      _createIssue('botpress-dir-permissions', CATEGORY_ENV, 'ok', '.botpress/ directory is writable', {
+        path: botpressDir,
+      })
     )
   } else {
     issues.push(
       _createIssue(
         'botpress-dir-permissions',
+        CATEGORY_ENV,
         'error',
         '.botpress/ directory is not writable',
         { path: botpressDir, error: botpressCheck.error },
@@ -130,11 +142,14 @@ async function _checkProjectPermissions(workDir: string): Promise<DiagnosticIssu
   const distDir = path.join(workDir, consts.fromWorkDir.distDir)
   const distCheck = await _checkDirectoryWritable(distDir)
   if (distCheck.writable) {
-    issues.push(_createIssue('dist-dir-permissions', 'ok', 'dist/ directory is writable', { path: distDir }))
+    issues.push(
+      _createIssue('dist-dir-permissions', CATEGORY_ENV, 'ok', 'dist/ directory is writable', { path: distDir })
+    )
   } else {
     issues.push(
       _createIssue(
         'dist-dir-permissions',
+        CATEGORY_ENV,
         'error',
         'dist/ directory is not writable',
         { path: distDir, error: distCheck.error },
@@ -155,6 +170,7 @@ async function _checkDevPort(port: number = DEFAULT_DEV_PORT): Promise<Diagnosti
         resolve([
           _createIssue(
             'dev-port-in-use',
+            CATEGORY_ENV,
             'warning',
             `Default development port ${port} is already in use`,
             { port },
@@ -168,28 +184,11 @@ async function _checkDevPort(port: number = DEFAULT_DEV_PORT): Promise<Diagnosti
 
     server.once('listening', () => {
       server.close()
-      resolve([_createIssue('dev-port', 'ok', `Default development port ${port} is available`, { port })])
+      resolve([_createIssue('dev-port', CATEGORY_ENV, 'ok', `Default development port ${port} is available`, { port })])
     })
 
     server.listen(port)
   })
-}
-
-function _createIssue(
-  id: string,
-  status: DiagnosticStatus,
-  message: string,
-  details?: Record<string, any>,
-  suggestion?: string
-): DiagnosticIssue {
-  return {
-    id,
-    category: CATEGORY_ENV,
-    status,
-    message,
-    details,
-    suggestion,
-  }
 }
 
 function _parseNodeMajorVersion(version: string): number {

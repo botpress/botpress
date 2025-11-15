@@ -1,6 +1,7 @@
 import * as config from '../config'
 import { runEnvironmentChecks } from '../doctor/checks/environment'
-import { formatHumanReadable, formatJSON } from '../doctor/formatter'
+import { runProjectChecks } from '../doctor/checks/project'
+import { formatHumanReadable } from '../doctor/formatter'
 import type { DiagnosticIssue, DiagnosticResult } from '../doctor/types'
 import * as errors from '../errors'
 import type { CommandDefinition } from '../typings'
@@ -17,13 +18,13 @@ export class DoctorCommand extends GlobalCommand<DoctorCommandDefinition> {
 
     const allIssues: DiagnosticIssue[] = []
 
-    const envIssues = await runEnvironmentChecks(workDir)
-    allIssues.push(...envIssues)
+    const [envIssues, projectIssues] = await Promise.all([runEnvironmentChecks(workDir), runProjectChecks(workDir)])
+    allIssues.push(...envIssues, ...projectIssues)
 
     const result = this._createResult(allIssues)
 
     if (json) {
-      this.logger.json(formatJSON(result))
+      this.logger.json(result)
     } else {
       const formatted = formatHumanReadable(result)
       this.logger.log(formatted)
