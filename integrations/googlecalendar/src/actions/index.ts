@@ -1,3 +1,4 @@
+import { checkAvailability } from './implementations/check-availability'
 import { createEvent } from './implementations/create-event'
 import { deleteEvent } from './implementations/delete-event'
 import { eventCreate } from './implementations/interfaces/event-create'
@@ -17,6 +18,7 @@ export const actions = {
   eventRead,
   eventUpdate,
 
+  checkAvailability,
   createEvent,
   deleteEvent,
   listEvents,

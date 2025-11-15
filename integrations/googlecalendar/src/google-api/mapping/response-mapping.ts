@@ -2,22 +2,40 @@ import type { calendar_v3 } from 'googleapis'
 import { Event } from '../types'
 
 export namespace ResponseMapping {
-  export const mapEvent = (event: calendar_v3.Schema$Event): Event => ({
-    id: event.id ?? '',
-    description: event.description ?? '',
-    summary: event.summary ?? '',
-    location: event.location ?? '',
-    startDateTime: event.start?.dateTime ?? '',
-    endDateTime: event.end?.dateTime ?? '',
-    eventType: _mapEventType(event.eventType),
-    guestsCanInviteOthers: event.guestsCanInviteOthers ?? true,
-    guestsCanSeeOtherGuests: event.guestsCanSeeOtherGuests ?? true,
-    htmlLink: event.htmlLink ?? '',
-    recurrence: event.recurrence ?? [],
-    status: _mapEventStatus(event.status),
-    colorId: event.colorId ?? '',
-    visibility: _mapEventVisibility(event.visibility),
-  })
+  export const mapEvent = (event: calendar_v3.Schema$Event): Event => {
+    // Extract Google Meet link from conferenceData
+    const conferenceLink = event.hangoutLink ??
+      event.conferenceData?.entryPoints?.find(entry => entry.entryPointType === 'video')?.uri
+
+    // Map attendees
+    const attendees = event.attendees?.map((attendee) => ({
+      email: attendee.email ?? '',
+      displayName: attendee.displayName,
+      optional: attendee.optional,
+      responseStatus: _mapAttendeeResponseStatus(attendee.responseStatus),
+    }))
+
+    return {
+      id: event.id ?? '',
+      description: event.description ?? '',
+      summary: event.summary ?? '',
+      location: event.location ?? '',
+      startDateTime: event.start?.dateTime ?? '',
+      endDateTime: event.end?.dateTime ?? '',
+      eventType: _mapEventType(event.eventType),
+      guestsCanInviteOthers: event.guestsCanInviteOthers ?? true,
+      guestsCanSeeOtherGuests: event.guestsCanSeeOtherGuests ?? true,
+      htmlLink: event.htmlLink ?? '',
+      recurrence: event.recurrence ?? [],
+      status: _mapEventStatus(event.status),
+      colorId: event.colorId ?? '',
+      visibility: _mapEventVisibility(event.visibility),
+      enableGoogleMeet: !!conferenceLink,
+      conferenceLink: conferenceLink ?? undefined,
+      attendees: attendees && attendees.length > 0 ? attendees : undefined,
+      sendNotifications: true, // Default value for display purposes
+    }
+  }
 
   export const mapEvents = (events?: calendar_v3.Schema$Event[]): Event[] => events?.map(mapEvent) ?? []
 
@@ -56,6 +74,20 @@ export namespace ResponseMapping {
         public: 'public',
       },
       defaultValue: 'default',
+    })
+
+  const _mapAttendeeResponseStatus = (
+    responseStatus: string | null | undefined
+  ): 'needsAction' | 'declined' | 'tentative' | 'accepted' | undefined =>
+    _mapEnum({
+      value: responseStatus,
+      mapping: {
+        needsAction: 'needsAction',
+        declined: 'declined',
+        tentative: 'tentative',
+        accepted: 'accepted',
+      },
+      defaultValue: 'needsAction',
     })
 
   export const mapNextToken = (nextPageToken?: string | null) => nextPageToken ?? undefined
