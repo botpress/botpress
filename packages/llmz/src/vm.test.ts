@@ -161,7 +161,7 @@ console.log( /* this is a comment */ test(5, 6));
       },
     }
 
-    it.skipIf(process.env.CI)('signals throw with truncated code attached and variable values', async () => {
+    it('signals throw with truncated code attached and variable values', async () => {
       const code = `
       // Comment here
       const a = 10;
@@ -837,7 +837,7 @@ return {
       expect(result.error?.message).toMatchInlineSnapshot(`"Invalid city Quebec"`)
     })
 
-    it.skipIf(process.env.CI)('setters are executed before next statement (top-level)', async () => {
+    it('setters are executed before next statement (top-level)', async () => {
       const code = `
         log('1')
         age = 33
@@ -988,7 +988,7 @@ return {
       expect(result.return_value).toBe(105)
     })
 
-    it.skipIf(!CAN_USE_ISOLATED_VM)('aborting execution', async () => {
+    it('aborting execution', async () => {
       const code = `
       await longFn()
       notCalled()
@@ -1025,7 +1025,7 @@ return {
       const result = await exec
 
       expect(result.success).toBe(false)
-      expect(result.error).toMatchInlineSnapshot(`[Error: Execution was aborted]`)
+      expect(result.error).toMatchInlineSnapshot(`[CodeExecutionError: This operation was aborted]`)
       expect(called).toBe(false)
     })
   })

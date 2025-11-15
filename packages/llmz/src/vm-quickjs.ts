@@ -48,7 +48,7 @@ export async function runAsyncFunctionQuickJS(
   context: any,
   code: string,
   traces: Trace[] = [],
-  _signal: AbortSignal | null = null,
+  signal: AbortSignal | null = null,
   timeout: number = MAX_VM_EXECUTION_TIME
 ): Promise<VMExecutionResult> {
   const transformed = getCompiledCode(code, traces)
@@ -178,9 +178,18 @@ export async function runAsyncFunctionQuickJS(
   // Set memory limit (128MB like isolated-vm)
   runtime.setMemoryLimit(128 * 1024 * 1024)
 
-  // Set interrupt handler for timeout
+  // Set interrupt handler for timeout and abort signal
   const startTime = Date.now()
-  runtime.setInterruptHandler(shouldInterruptAfterDeadline(startTime + timeout))
+  const timeoutHandler = shouldInterruptAfterDeadline(startTime + timeout)
+
+  runtime.setInterruptHandler(() => {
+    // Check if execution was aborted
+    if (signal?.aborted) {
+      return true // Interrupt execution
+    }
+    // Check if timeout exceeded
+    return timeoutHandler(runtime)
+  })
 
   const vm = runtime.newContext()
 
@@ -193,6 +202,8 @@ export async function runAsyncFunctionQuickJS(
     hostPromise: Promise<any>
     deferredPromise: any
   }> = []
+
+  // No abort event listener needed - interrupt handler will catch it
 
   // Helper to convert JS value to QuickJS handle
   const toVmValue = (value: any): any => {
@@ -270,7 +281,11 @@ export async function runAsyncFunctionQuickJS(
           })
 
           // Schedule executePendingJobs when the promise settles
-          void promise.settled.then(() => runtime.executePendingJobs())
+          void promise.settled.then(() => {
+            if (runtime.alive) {
+              runtime.executePendingJobs()
+            }
+          })
 
           // Return the promise handle
           return promise.handle
@@ -637,33 +652,101 @@ ${transformed.code}
       pendingPromises.length = 0 // Clear the array for new promises
 
       if (currentPromises.length > 0) {
-        await Promise.all(
-          currentPromises.map(async ({ hostPromise, deferredPromise }) => {
-            try {
-              const value = await hostPromise
-              const vmValue = toVmValue(value)
-              deferredPromise.resolve(vmValue)
-            } catch (err: any) {
-              const serialized = err instanceof Error ? err.message : String(err)
+        // Check if aborted before processing promises
+        if (signal?.aborted) {
+          // Reject all pending promises with abort error
+          const reason = (signal as any).reason
+          const abortMessage =
+            reason instanceof Error
+              ? `${reason.name}: ${reason.message}`
+              : reason
+                ? String(reason)
+                : 'Execution was aborted'
+          for (const { deferredPromise } of currentPromises) {
+            const errValue = vm.newString(abortMessage)
+            deferredPromise.reject(errValue)
+            errValue.dispose()
+          }
+          runtime.executePendingJobs()
+          // Break out of the event loop - we're aborting
+          break
+        }
 
-              // Create an Error object in QuickJS with the serialized message
-              // This ensures the message is preserved when the error is caught
-              const createErrorResult = vm.evalCode(`new Error(${JSON.stringify(serialized)})`)
-              if ('error' in createErrorResult) {
-                // Fallback to string if error creation fails
-                const errValue = vm.newString(serialized)
-                deferredPromise.reject(errValue)
-                errValue.dispose()
-              } else {
-                const errorHandle = createErrorResult.value
-                deferredPromise.reject(errorHandle)
-                errorHandle.dispose()
-              }
+        // Create abort handler that rejects all pending promises immediately
+        let abortListener: (() => void) | null = null
+        if (signal) {
+          abortListener = () => {
+            const reason = (signal as any).reason
+            const abortMessage =
+              reason instanceof Error
+                ? `${reason.name}: ${reason.message}`
+                : reason
+                  ? String(reason)
+                  : 'Execution was aborted'
+            // Reject all pending promises immediately
+            for (const { deferredPromise } of currentPromises) {
+              const errValue = vm.newString(abortMessage)
+              deferredPromise.reject(errValue)
+              errValue.dispose()
             }
-          })
-        )
+            runtime.executePendingJobs()
+          }
+          signal.addEventListener('abort', abortListener)
+        }
+
+        try {
+          await Promise.all(
+            currentPromises.map(async ({ hostPromise, deferredPromise }) => {
+              // If abort was triggered, skip resolution
+              if (signal?.aborted) {
+                return
+              }
+
+              try {
+                const value = await hostPromise
+                // Double-check abort wasn't triggered during await
+                if (signal?.aborted) {
+                  return
+                }
+                const vmValue = toVmValue(value)
+                deferredPromise.resolve(vmValue)
+              } catch (err: any) {
+                // If abort was triggered, the abort listener already rejected the promise
+                if (signal?.aborted) {
+                  return
+                }
+
+                const serialized = err instanceof Error ? err.message : String(err)
+
+                // Create an Error object in QuickJS with the serialized message
+                const createErrorResult = vm.evalCode(`new Error(${JSON.stringify(serialized)})`)
+                if ('error' in createErrorResult) {
+                  // Fallback to string if error creation fails
+                  const errValue = vm.newString(serialized)
+                  deferredPromise.reject(errValue)
+                  errValue.dispose()
+                } else {
+                  const errorHandle = createErrorResult.value
+                  deferredPromise.reject(errorHandle)
+                  errorHandle.dispose()
+                }
+              }
+            })
+          )
+        } finally {
+          // Clean up abort listener
+          if (signal && abortListener) {
+            signal.removeEventListener('abort', abortListener)
+          }
+        }
+
         // After resolving promises, execute pending jobs to continue the async IIFE
         runtime.executePendingJobs()
+
+        // Check if abort was triggered during promise resolution
+        if (signal?.aborted) {
+          break
+        }
       }
 
       // If no jobs and no promises, we're done
@@ -683,6 +766,15 @@ ${transformed.code}
     const errorValue = vm.dump(errorResult.unwrap())
     errorResult.unwrap().dispose()
 
+    // Check if aborted - take precedence over other errors
+    if (signal?.aborted) {
+      const reason = (signal as any).reason
+      if (reason instanceof Error) {
+        throw reason
+      }
+      throw new Error(reason ? String(reason) : 'Execution was aborted')
+    }
+
     if (errorValue !== null && errorValue !== '') {
       // Copy back context even on error
       try {
@@ -700,8 +792,9 @@ ${transformed.code}
       // Deserialize to check if it's a VMSignal
       const deserializedError = Signals.maybeDeserializeError(errorValue)
 
-      // If it's a VMSignal, throw it directly
+      // If it's a VMSignal, set its stack and throw it
       if (deserializedError instanceof VMSignal) {
+        deserializedError.stack = errorStack
         throw deserializedError
       }
 
@@ -737,6 +830,23 @@ ${transformed.code}
       return_value: returnValue,
     } satisfies VMExecutionResult
   } catch (err: any) {
+    // Check if execution was aborted
+    if (signal?.aborted) {
+      // Get abort reason if available
+      const reason = (signal as any).reason
+      const abortError = reason instanceof Error ? reason : new Error(reason ? String(reason) : 'Execution was aborted')
+      return handleError(
+        abortError,
+        code,
+        consumer,
+        traces,
+        variables,
+        lines_executed,
+        userCodeStartLine,
+        currentToolCall
+      )
+    }
+
     // Also resolve pending promises on error before disposing
     await Promise.all(
       pendingPromises.map(async ({ hostPromise, deferredPromise }) => {
@@ -803,6 +913,19 @@ const handleError = (
       column: minColumn,
     }
   })
+
+  // If no matches found in stack trace (e.g., promise rejection from native function),
+  // use the last executed line from line tracking
+  if (matches.length === 0 && lines_executed.size > 0) {
+    const lastLine = Math.max(...Array.from(lines_executed.keys()))
+    const actualLine = lines[lastLine - LINE_OFFSET] ?? ''
+    const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
+
+    matches.push({
+      line: lastLine,
+      column: whiteSpacesCount,
+    })
+  }
 
   const lastLine = maxBy(matches, (x) => x.line ?? 0)?.line ?? 0
 
