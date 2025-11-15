@@ -13,9 +13,9 @@ import { newQuickJSWASMModuleFromVariant, shouldInterruptAfterDeadline } from 'q
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
-import { BundledReleaseSyncVariant } from './quickjs-variant.js'
 import { CodeExecutionError, InvalidCodeError, Signals, SnapshotSignal, VMSignal } from './errors.js'
 import { createJsxComponent, JsxComponent } from './jsx.js'
+import { BundledReleaseSyncVariant } from './quickjs-variant.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { Trace, Traces, VMExecutionResult } from './types.js'
 
