@@ -1,6 +1,7 @@
 import * as config from '../config'
 import { runAuthChecks } from '../doctor/checks/auth'
 import { runEnvironmentChecks } from '../doctor/checks/environment'
+import { runNetworkChecks } from '../doctor/checks/network'
 import { runProjectChecks } from '../doctor/checks/project'
 import { runSdkChecks } from '../doctor/checks/sdk'
 import { formatHumanReadable } from '../doctor/formatter'
@@ -20,13 +21,14 @@ export class DoctorCommand extends GlobalCommand<DoctorCommandDefinition> {
 
     const allIssues: DiagnosticIssue[] = []
 
-    const [envIssues, projectIssues, sdkIssues, authIssues] = await Promise.all([
+    const [envIssues, projectIssues, sdkIssues, authIssues, networkIssues] = await Promise.all([
       runEnvironmentChecks(workDir),
       runProjectChecks(workDir),
       runSdkChecks(workDir),
       runAuthChecks(this.argv.botpressHome, this.argv.profile),
+      runNetworkChecks(this.argv.botpressHome, this.argv.profile),
     ])
-    allIssues.push(...envIssues, ...projectIssues, ...sdkIssues, ...authIssues)
+    allIssues.push(...envIssues, ...projectIssues, ...sdkIssues, ...authIssues, ...networkIssues)
 
     const result = this._createResult(allIssues)
 
