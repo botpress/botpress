@@ -40,7 +40,6 @@
     "bytes": "^3.1.2",
     "exponential-backoff": "^3.1.1",
     "handlebars": "^4.7.8",
-    "isolated-vm": "^5.0.3",
     "lodash-es": "^4.17.21",
     "lru-cache": "^11.0.2",
     "ms": "^2.1.3",

@@ -1,8 +1,8 @@
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, InvalidCodeError, VMSignal } from './errors.js'
-import { runAsyncFunction, CAN_USE_ISOLATED_VM } from './vm.js'
 import { Trace, Traces } from './types.js'
+import { runAsyncFunction } from './vm.js'
 
 describe('llmz/vm', () => {
   it('stack traces points to original source map code', async () => {
