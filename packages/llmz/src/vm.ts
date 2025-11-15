@@ -6,6 +6,8 @@
  * 2. Node (native) - Direct execution without sandbox, for environments where QuickJS is not available
  */
 
+/* oxlint-disable max-depth */
+
 import { isFunction, mapValues, maxBy } from 'lodash-es'
 import { getQuickJS, shouldInterruptAfterDeadline } from 'quickjs-emscripten'
 import { SourceMapConsumer } from 'source-map-js'
