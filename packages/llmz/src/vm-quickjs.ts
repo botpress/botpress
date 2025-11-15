@@ -570,7 +570,9 @@ ${transformed.code}
   } catch (err) {
     // Store both the error message (which may contain serialized signal data)
     // and the stack trace from QuickJS
-    globalThis.__llmz_error = String(err.message || err || '');
+    // If err is a string (as thrown from promise rejection), use it directly
+    // Otherwise extract the message property
+    globalThis.__llmz_error = typeof err === 'string' ? err : String(err.message || err || '');
     // Force the stack to be converted to a string in QuickJS context
     globalThis.__llmz_error_stack = '' + (err.stack || '');
   }
@@ -643,8 +645,20 @@ ${transformed.code}
               deferredPromise.resolve(vmValue)
             } catch (err: any) {
               const serialized = err instanceof Error ? err.message : String(err)
-              const errValue = vm.newString(serialized)
-              deferredPromise.reject(errValue)
+
+              // Create an Error object in QuickJS with the serialized message
+              // This ensures the message is preserved when the error is caught
+              const createErrorResult = vm.evalCode(`new Error(${JSON.stringify(serialized)})`)
+              if ('error' in createErrorResult) {
+                // Fallback to string if error creation fails
+                const errValue = vm.newString(serialized)
+                deferredPromise.reject(errValue)
+                errValue.dispose()
+              } else {
+                const errorHandle = createErrorResult.value
+                deferredPromise.reject(errorHandle)
+                errorHandle.dispose()
+              }
             }
           })
         )
@@ -683,7 +697,15 @@ ${transformed.code}
       errorStackResult.unwrap().dispose()
 
       // The error value is a string that may contain serialized signal data
-      // We need to create an Error with the serialized message and QuickJS stack
+      // Deserialize to check if it's a VMSignal
+      const deserializedError = Signals.maybeDeserializeError(errorValue)
+
+      // If it's a VMSignal, throw it directly
+      if (deserializedError instanceof VMSignal) {
+        throw deserializedError
+      }
+
+      // Otherwise create an Error with the serialized message and QuickJS stack
       const error = new Error(errorValue)
       error.stack = errorStack
       throw error
