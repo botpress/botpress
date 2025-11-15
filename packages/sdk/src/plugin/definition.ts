@@ -11,6 +11,7 @@ import {
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import * as typeUtils from '../utils/type-utils'
+import { SDK_VERSION } from '../version'
 import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
 
 export {
@@ -326,6 +327,10 @@ export class PluginDefinition<
         ]
       )
     ) as { [K in keyof TTables]: TableDefinition<TTables[K]> }
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   /**

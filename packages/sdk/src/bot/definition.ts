@@ -5,6 +5,7 @@ import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import * as utils from '../utils'
 import { ValueOf, Writable, Merge, StringKeys } from '../utils/type-utils'
+import { SDK_VERSION } from '../version'
 import z, { ZuiObjectSchema, ZuiObjectOrRefSchema } from '../zui'
 
 type BaseConfig = ZuiObjectSchema
@@ -204,6 +205,10 @@ export class BotDefinition<
       tables: props.tables,
       workflows: props.workflows,
     }
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config?: IntegrationConfigInstance<I>): this {
