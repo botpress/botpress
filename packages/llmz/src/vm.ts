@@ -8,8 +8,9 @@
 
 /* oxlint-disable max-depth */
 
+import ReleaseSyncVariant from '@jitl/quickjs-wasmfile-release-sync'
 import { isFunction, mapValues, maxBy } from 'lodash-es'
-import { getQuickJS, shouldInterruptAfterDeadline } from 'quickjs-emscripten'
+import { newQuickJSWASMModuleFromVariant, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
@@ -190,8 +191,9 @@ export async function runAsyncFunction(
         }
       }
 
-      // Initialize QuickJS
-      const QuickJS = await getQuickJS()
+      // Initialize QuickJS using the RELEASE_SYNC variant for smaller package size
+      // ReleaseSyncVariant is already the default export (QuickJSSyncVariant type)
+      const QuickJS = await newQuickJSWASMModuleFromVariant(ReleaseSyncVariant as any)
       const runtime = QuickJS.newRuntime()
       runtime.setDebugMode(true)
 
