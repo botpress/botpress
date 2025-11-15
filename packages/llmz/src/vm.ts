@@ -8,12 +8,12 @@
 
 /* oxlint-disable max-depth */
 
-import ReleaseSyncVariant from '@jitl/quickjs-wasmfile-release-sync'
 import { isFunction, mapValues, maxBy } from 'lodash-es'
 import { newQuickJSWASMModuleFromVariant, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
+import { BundledReleaseSyncVariant } from './quickjs-variant.js'
 import { CodeExecutionError, InvalidCodeError, Signals, SnapshotSignal, VMSignal } from './errors.js'
 import { createJsxComponent, JsxComponent } from './jsx.js'
 import { cleanStackTrace } from './stack-traces.js'
@@ -191,9 +191,9 @@ export async function runAsyncFunction(
         }
       }
 
-      // Initialize QuickJS using the RELEASE_SYNC variant for smaller package size
-      // ReleaseSyncVariant is already the default export (QuickJSSyncVariant type)
-      const QuickJS = await newQuickJSWASMModuleFromVariant(ReleaseSyncVariant as any)
+      // Initialize QuickJS using our bundled variant
+      // This includes the WASM file directly in llmz's dist/ to avoid path resolution issues
+      const QuickJS = await newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant)
       const runtime = QuickJS.newRuntime()
       runtime.setDebugMode(true)
 
@@ -914,7 +914,20 @@ ${transformed.code}
       }
     } catch (quickjsError: any) {
       // QuickJS failed to load or initialize - fallback to node driver
-      console.warn('QuickJS failed to load, falling back to node driver:', quickjsError?.message || quickjsError)
+      const debugInfo = {
+        error: quickjsError?.message || String(quickjsError),
+        errorStack: quickjsError?.stack,
+        wasmSource: (BundledReleaseSyncVariant as any)._wasmSource,
+        wasmLoadedSuccessfully: (BundledReleaseSyncVariant as any)._wasmLoadedSuccessfully,
+        wasmSize: (BundledReleaseSyncVariant as any)._wasmSize,
+        wasmLoadError: (BundledReleaseSyncVariant as any)._wasmLoadError,
+        nodeVersion: typeof process !== 'undefined' && process.version ? process.version : 'undefined',
+        platform: typeof process !== 'undefined' && process.platform ? process.platform : 'undefined',
+      }
+
+      console.warn('QuickJS failed to load, falling back to node driver.')
+      console.warn('Error:', quickjsError?.message || quickjsError)
+      console.warn('Debug info:', JSON.stringify(debugInfo, null, 2))
       DRIVER = 'node'
     }
   }
