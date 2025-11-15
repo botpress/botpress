@@ -48,6 +48,7 @@ export default {
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
   chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },
+  doctor: { description: 'Check system dependencies and configuration', schema: config.schemas.doctor },
   profiles: {
     description: 'Commands for using CLI profiles',
     subcommands: {
