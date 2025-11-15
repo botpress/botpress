@@ -1,6 +1,6 @@
 export type DiagnosticStatus = 'ok' | 'warning' | 'error'
 
-export type DiagnosticCategory = 'env' | 'project' | 'sdk' | 'network' | 'auth' | 'dependencies'
+export type DiagnosticCategory = 'env' | 'project' | 'sdk' | 'auth' | 'network' | 'dependencies'
 
 export type DiagnosticIssue = {
   id: string

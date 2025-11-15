@@ -67,8 +67,8 @@ export function formatHumanReadable(result: DiagnosticResult): string {
     env: 'ENVIRONMENT CHECKS',
     project: 'PROJECT CHECKS',
     sdk: 'SDK & VERSIONING CHECKS',
+    auth: 'AUTHENTICATION & PROFILE CHECKS',
     network: 'NETWORK CHECKS',
-    auth: 'AUTHENTICATION CHECKS',
     dependencies: 'DEPENDENCY CHECKS',
   }
 
