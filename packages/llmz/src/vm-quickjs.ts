@@ -199,6 +199,8 @@ export async function runAsyncFunctionQuickJS(
       }
 
       await context[toolName](value)
+    } catch (err) {
+      throw err
     } finally {
       traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
     }
@@ -221,6 +223,12 @@ export async function runAsyncFunctionQuickJS(
   // Track which properties need to be copied back
   const trackedProperties = new Set<string>()
   const referenceProperties = new Set<string>()
+
+  // Track all pending promises - we need to resolve them synchronously before disposing VM
+  const pendingPromises: Array<{
+    hostPromise: Promise<any>
+    deferredPromise: any
+  }> = []
 
   // Helper to convert JS value to QuickJS handle
   const toVmValue = (value: any): any => {
@@ -286,12 +294,22 @@ export async function runAsyncFunctionQuickJS(
       const args = argHandles.map((h: any) => vm.dump(h))
       try {
         const result = fn(...args)
-        // Check if it's a promise - ignore async for now to avoid memory leaks
+        // Check if it's a promise - create a QuickJS deferred promise
         if (result && typeof result.then === 'function') {
-          // Let the promise run in background but return undefined
-          // This allows side effects (like yield calls) to work
-          result.catch(() => {}) // Prevent unhandled rejection
-          return vm.undefined
+          // Create a QuickJS deferred promise
+          const promise = vm.newPromise()
+
+          // Track this promise so we can await and resolve it synchronously
+          pendingPromises.push({
+            hostPromise: result,
+            deferredPromise: promise,
+          })
+
+          // Schedule executePendingJobs when the promise settles
+          promise.settled.then(() => runtime.executePendingJobs())
+
+          // Return the promise handle
+          return promise.handle
         }
         // Synchronous result
         return toVmValue(result)
@@ -314,19 +332,61 @@ export async function runAsyncFunctionQuickJS(
       const descriptor = Object.getOwnPropertyDescriptor(context, key)
 
       if (descriptor && (descriptor.get || descriptor.set)) {
-        // Handle getter/setter properties
+        // Handle getter/setter properties on globalThis
         referenceProperties.add(key)
-
-        // Skip getter/setter properties for now - they cause memory leaks in QuickJS
-        // Treat them as regular tracked properties instead
         trackedProperties.add(key)
-        const initialValue = context[key]
-        const valueHandle = toVmValue(initialValue)
-        vm.setProp(vm.global, key, valueHandle)
-        const shouldDispose =
-          valueHandle !== vm.true && valueHandle !== vm.false && valueHandle !== vm.null && valueHandle !== vm.undefined
-        if (shouldDispose) {
-          valueHandle.dispose()
+
+        // Create getter function if exists
+        let getterCode = 'undefined'
+        if (descriptor.get) {
+          const getterBridge = vm.newFunction(`get_${key}`, () => {
+            try {
+              const hostValue = (context as any)[key]
+              return toVmValue(hostValue)
+            } catch (err: any) {
+              const serialized = err instanceof Error ? err.message : String(err)
+              throw new Error(serialized)
+            }
+          })
+          const getterName = `__getter_${key}__`
+          vm.setProp(vm.global, getterName, getterBridge)
+          getterBridge.dispose()
+          getterCode = getterName
+        }
+
+        // Create setter function if exists
+        let setterCode = 'undefined'
+        if (descriptor.set) {
+          const setterBridge = vm.newFunction(`set_${key}`, (valueHandle: any) => {
+            try {
+              const jsValue = vm.dump(valueHandle)
+              ;(context as any)[key] = jsValue
+              return vm.undefined
+            } catch (err: any) {
+              const serialized = err instanceof Error ? err.message : String(err)
+              throw new Error(serialized)
+            }
+          })
+          const setterName = `__setter_${key}__`
+          vm.setProp(vm.global, setterName, setterBridge)
+          setterBridge.dispose()
+          setterCode = setterName
+        }
+
+        // Use evalCode to define the property with getter/setter on globalThis
+        const definePropertyCode = `
+          Object.defineProperty(globalThis, '${key}', {
+            enumerable: true,
+            configurable: ${descriptor.configurable !== false},
+            get: ${getterCode},
+            set: ${setterCode}
+          });
+        `
+        const result = vm.evalCode(definePropertyCode)
+        if ('error' in result) {
+          result.error?.dispose()
+        } else {
+          result.value.dispose()
         }
         continue
       }
@@ -565,6 +625,7 @@ ${transformed.code}
           // Get the entire value from VM (vm.dump handles deep cloning)
           const valueResult = vm.evalCode(`globalThis['${key}']`)
           const vmValue = vm.dump(valueResult.unwrap())
+          valueResult.value.dispose()
           // Update the context with the cloned value
           try {
             context[key] = vmValue
@@ -579,31 +640,70 @@ ${transformed.code}
 
     // Execute code - result is undefined (async IIFE returns nothing)
     const execResult = vm.evalCode(scriptCode, '<quickjs>')
-    // const val = vm.dump(execResult.unwrap())
-    // console.log(val)
-    // if ('error' in execResult) {
-    //   if (execResult.error) {
-    //     const err = vm.dump(execResult.error)
-    //     execResult.error.dispose()
-    //     throw new Error(err?.message || 'Execution failed')
-    //   }
-    //   throw new Error('Execution failed')
-    // }
-    // execResult.value.dispose()
+    if ('error' in execResult) {
+      if (execResult.error) {
+        const err = vm.dump(execResult.error)
+        execResult.error.dispose()
+        throw new Error(err?.message || 'Execution failed')
+      }
+      throw new Error('Execution failed')
+    }
+    execResult.value.dispose()
 
-    // CRITICAL: Execute pending microtasks (QuickJS doesn't have automatic event loop)
-    // This processes all promise .then() callbacks, including the async IIFE
-    const maxJobs = 10000
-    let jobsExecuted = 0
-    while (jobsExecuted < maxJobs) {
-      const pending = runtime.executePendingJobs?.(-1)
-      if (pending === undefined || pending.unwrap() <= 0) break
-      jobsExecuted++
+    // CRITICAL: Execute pending microtasks and host promises in a loop
+    // QuickJS doesn't have automatic event loop, so we need to manually pump it
+    const maxIterations = 1000
+    let iteration = 0
+
+    while (iteration < maxIterations) {
+      // Execute all pending QuickJS microtasks
+      let hasJobs = false
+      const maxJobs = 10000
+      for (let i = 0; i < maxJobs; i++) {
+        const pending = runtime.executePendingJobs?.(-1)
+        const jobCount = pending === undefined ? 0 : pending.unwrap()
+        if (jobCount <= 0) break
+        hasJobs = true
+      }
+
+      // Resolve all pending host promises
+      const currentPromises = [...pendingPromises]
+      pendingPromises.length = 0 // Clear the array for new promises
+
+      if (currentPromises.length > 0) {
+        await Promise.all(
+          currentPromises.map(async ({ hostPromise, deferredPromise }) => {
+            try {
+              const value = await hostPromise
+              const vmValue = toVmValue(value)
+              deferredPromise.resolve(vmValue)
+            } catch (err: any) {
+              const serialized = err instanceof Error ? err.message : String(err)
+              const errValue = vm.newString(serialized)
+              deferredPromise.reject(errValue)
+            }
+          })
+        )
+        // After resolving promises, execute pending jobs to continue the async IIFE
+        runtime.executePendingJobs()
+      }
+
+      // If no jobs and no promises, we're done
+      if (!hasJobs && pendingPromises.length === 0) {
+        break
+      }
+
+      iteration++
     }
 
-    // Check for errors first
+    if (iteration >= maxIterations) {
+      throw new Error('Maximum event loop iterations exceeded')
+    }
+
+    // NOW check for errors - AFTER all async work is complete
     const errorResult = vm.evalCode('globalThis.__llmz_error')
     const errorValue = vm.dump(errorResult.unwrap())
+    errorResult.value.dispose()
 
     if (errorValue !== null && errorValue !== '') {
       // Copy back context even on error
@@ -616,6 +716,7 @@ ${transformed.code}
       // Get the QuickJS stack trace as well
       const errorStackResult = vm.evalCode('globalThis.__llmz_error_stack')
       const errorStack = vm.dump(errorStackResult.unwrap()) || ''
+      errorStackResult.value.dispose()
 
       // The error value is a string that may contain serialized signal data
       // We need to create an Error with the serialized message and QuickJS stack
@@ -627,20 +728,21 @@ ${transformed.code}
     // Copy context back from VM before reading result
     copyBackContextFromVM()
 
-    // Get result value from global
+    // Get result value from global AFTER promises have settled
     const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
     const resultSet = vm.dump(resultSetResult.unwrap())
+    resultSetResult.value.dispose()
 
     let returnValue: any = undefined
     if (resultSet) {
       const resultResult = vm.evalCode('globalThis.__llmz_result')
       returnValue = vm.dump(resultResult.unwrap())
+      resultResult.value.dispose()
     }
 
     // Deserialize any signals
     returnValue = Signals.maybeDeserializeError(returnValue)
 
-    console.log('returnValue', { returnValue, resultSet })
     return {
       success: true,
       variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
@@ -651,13 +753,15 @@ ${transformed.code}
   } catch (err: any) {
     // Also resolve pending promises on error before disposing
     await Promise.all(
-      pendingHostPromises.map(async ({ hostPromise, deferredPromise }) => {
+      pendingPromises.map(async ({ hostPromise, deferredPromise }) => {
         try {
           const value = await hostPromise
-          deferredPromise.resolve(value)
+          const vmValue = toVmValue(value)
+          deferredPromise.resolve(vmValue)
         } catch (err2: any) {
           const serialized = err2 instanceof Error ? err2.message : String(err2)
-          deferredPromise.reject(serialized)
+          const errValue = vm.newString(serialized)
+          deferredPromise.reject(errValue)
         }
       })
     ).catch(() => {})

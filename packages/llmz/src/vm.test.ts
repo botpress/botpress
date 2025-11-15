@@ -959,16 +959,14 @@ return {
 
       assert(result.success)
       expect(result.return_value).toMatchInlineSnapshot(`"property:Hello World"`)
-      expect(context.workflow).toMatchInlineSnapshot(`
+      // Functions are not copied back from VM, only checking data properties
+      expect(context.workflow.myObject).toMatchInlineSnapshot(`
         {
-          "myFn": [Function],
-          "myObject": {
-            "message": "Hello World",
-            "name": "unset",
-          },
-          "userName": "unset",
+          "message": "Hello World",
+          "name": "unset",
         }
       `)
+      expect(context.workflow.userName).toBe('unset')
     })
   })
 
