@@ -650,7 +650,7 @@ const executeIteration = async ({
     })
   }
 
-  const validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
+  const _validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 

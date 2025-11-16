@@ -24,51 +24,32 @@ export function htmlToMarkdownPlugin(): PluginObj {
     name: 'html-to-markdown',
     visitor: {
       JSXElement(path) {
-        const { openingElement, children } = path.node
+        const { openingElement } = path.node
         const tagName = t.isJSXIdentifier(openingElement.name) ? openingElement.name.name : null
 
         if (!tagName) return
 
         // Convert based on tag type
-        switch (tagName.toLowerCase()) {
-          case 'strong':
-          case 'b':
-            convertToMarkdown(path, '**', '**')
-            break
+        const lowerTagName = tagName.toLowerCase()
 
-          case 'em':
-          case 'i':
-            convertToMarkdown(path, '*', '*')
-            break
-
-          case 'u':
-            convertToMarkdown(path, '__', '__')
-            break
-
-          case 'a':
-            convertLinkToMarkdown(path)
-            break
-
-          case 'br':
-            convertBrToNewline(path)
-            break
-
-          case 'p':
-            convertParagraphToMarkdown(path)
-            break
-
-          case 'li':
-            // List items are handled by their parent ul/ol
-            break
-
-          case 'ul':
-            convertUnorderedListToMarkdown(path)
-            break
-
-          case 'ol':
-            convertOrderedListToMarkdown(path)
-            break
+        if (lowerTagName === 'strong' || lowerTagName === 'b') {
+          convertToMarkdown(path, '**', '**')
+        } else if (lowerTagName === 'em' || lowerTagName === 'i') {
+          convertToMarkdown(path, '*', '*')
+        } else if (lowerTagName === 'u') {
+          convertToMarkdown(path, '__', '__')
+        } else if (lowerTagName === 'a') {
+          convertLinkToMarkdown(path)
+        } else if (lowerTagName === 'br') {
+          convertBrToNewline(path)
+        } else if (lowerTagName === 'p') {
+          convertParagraphToMarkdown(path)
+        } else if (lowerTagName === 'ul') {
+          convertUnorderedListToMarkdown(path)
+        } else if (lowerTagName === 'ol') {
+          convertOrderedListToMarkdown(path)
         }
+        // List items (li) are handled by their parent ul/ol
       },
     },
   }
@@ -200,9 +181,9 @@ function convertUnorderedListToMarkdown(path: any) {
         // Complex list item, don't convert
         return
       }
-    } else if (t.isJSXText(child)) {
-      // Skip whitespace
-      if (child.value.trim()) return
+    } else if (t.isJSXText(child) && child.value.trim()) {
+      // Non-whitespace text node, don't convert
+      return
     }
   }
 
@@ -231,9 +212,9 @@ function convertOrderedListToMarkdown(path: any) {
         // Complex list item, don't convert
         return
       }
-    } else if (t.isJSXText(child)) {
-      // Skip whitespace
-      if (child.value.trim()) return
+    } else if (t.isJSXText(child) && child.value.trim()) {
+      // Non-whitespace text node, don't convert
+      return
     }
   }
 

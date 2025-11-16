@@ -482,7 +482,9 @@ describe('exit parser', () => {
       })
 
       // When we provide the discriminator explicitly, it works
-      const result = parseExit({ action: 'done', value: { success: false, error: 'Something went wrong' } }, [DefaultExit])
+      const result = parseExit({ action: 'done', value: { success: false, error: 'Something went wrong' } }, [
+        DefaultExit,
+      ])
 
       expect(result.success).toBe(true)
       if (result.success) {
