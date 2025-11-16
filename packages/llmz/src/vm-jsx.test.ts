@@ -963,3 +963,550 @@ return { action: 'listen' }
     `)
   })
 })
+
+describe('undefined variable references', () => {
+  it('should handle single undefined variable in JSX expression', async () => {
+    const code = `
+      yield <Message>User: {username}</Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "User: ",
+          "username",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle multiple undefined variables in same element', async () => {
+    const code = `
+      yield <Message>
+        <div>Name: {name}</div>
+        <div>Email: {email}</div>
+        <div>Role: {role}</div>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Name: ",
+              "name",
+            ],
+            "props": {},
+            "type": "DIV",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Email: ",
+              "email",
+            ],
+            "props": {},
+            "type": "DIV",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Role: ",
+              "role",
+            ],
+            "props": {},
+            "type": "DIV",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables in attributes', async () => {
+    const code = `
+      yield <Message className={theme} data-id={userId}>
+        Content here
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              Content here 
+            ",
+        ],
+        "props": {
+          "className": "theme",
+          "data-id": "userId",
+        },
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle mix of defined and undefined variables', async () => {
+    const code = `
+      const realName = 'Alice'
+      yield <Message>
+        Real: {realName}
+        Fake: {fakeName}
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              Real: ",
+          "Alice",
+          "
+              Fake: ",
+          "fakeName",
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables in nested JSX', async () => {
+    const code = `
+      yield <Message>
+        <header>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </header>
+        <main>
+          <div>{content}</div>
+        </main>
+        <footer>{author}</footer>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "
+                ",
+              {
+                "__jsx": true,
+                "children": [
+                  "title",
+                ],
+                "props": {},
+                "type": "H1",
+              },
+              "
+                ",
+              {
+                "__jsx": true,
+                "children": [
+                  "subtitle",
+                ],
+                "props": {},
+                "type": "P",
+              },
+              "
+              ",
+            ],
+            "props": {},
+            "type": "HEADER",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "
+                ",
+              {
+                "__jsx": true,
+                "children": [
+                  "content",
+                ],
+                "props": {},
+                "type": "DIV",
+              },
+              "
+              ",
+            ],
+            "props": {},
+            "type": "MAIN",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "author",
+            ],
+            "props": {},
+            "type": "FOOTER",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables with HTML entities and special chars', async () => {
+    const code = `
+      yield <Message>
+        <code>const html = '&lt;div&gt;{content}&lt;/div&gt;';</code>
+        <p>Template: {template}</p>
+        <pre>Value: {value}</pre>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "const html = '<div>",
+              "content",
+              "</div>';",
+            ],
+            "props": {},
+            "type": "CODE",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Template: ",
+              "template",
+            ],
+            "props": {},
+            "type": "P",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Value: ",
+              "value",
+            ],
+            "props": {},
+            "type": "PRE",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables in template literal-like content', async () => {
+    const code = `
+      yield <Message>
+        <div>User \${userId} has {count} items</div>
+        <p>Price: \${price}</p>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "User $",
+              "userId",
+              " has ",
+              "count",
+              " items",
+            ],
+            "props": {},
+            "type": "DIV",
+          },
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "Price: $",
+              "price",
+            ],
+            "props": {},
+            "type": "P",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables in complex HTML structure from confusing instructions', async () => {
+    const code = `
+      yield <Message>
+        <div className="widget" id="widget-{id}">
+          <header>
+            <h3>{title}</h3>
+            <button onClick="close('{id}')">&times;</button>
+          </header>
+          <main>
+            <p>{description}</p>
+          </main>
+        </div>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "
+                ",
+              {
+                "__jsx": true,
+                "children": [
+                  "
+                  ",
+                  {
+                    "__jsx": true,
+                    "children": [
+                      "title",
+                    ],
+                    "props": {},
+                    "type": "H3",
+                  },
+                  "
+                  ",
+                  {
+                    "__jsx": true,
+                    "children": [
+                      "×",
+                    ],
+                    "props": {
+                      "onClick": "close('{id}')",
+                    },
+                    "type": "BUTTON",
+                  },
+                  "
+                ",
+                ],
+                "props": {},
+                "type": "HEADER",
+              },
+              "
+                ",
+              {
+                "__jsx": true,
+                "children": [
+                  "
+                  ",
+                  {
+                    "__jsx": true,
+                    "children": [
+                      "description",
+                    ],
+                    "props": {},
+                    "type": "P",
+                  },
+                  "
+                ",
+                ],
+                "props": {},
+                "type": "MAIN",
+              },
+              "
+              ",
+            ],
+            "props": {
+              "className": "widget",
+              "id": "widget-{id}",
+            },
+            "type": "DIV",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should not break with curly brace strings and undefined variables', async () => {
+    const code = `
+      yield <Message>
+        <pre>
+          function test() {'{'}
+            return {value};
+          {'}'}
+        </pre>
+      </Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(1)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "
+              ",
+          {
+            "__jsx": true,
+            "children": [
+              "
+                function test() ",
+              "{",
+              "
+                  return ",
+              "value",
+              "; 
+                ",
+              "}",
+              "
+              ",
+            ],
+            "props": {},
+            "type": "PRE",
+          },
+          "
+            ",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+
+  it('should handle undefined variables across multiple yields', async () => {
+    const code = `
+      yield <Message>{heading}</Message>
+      yield <Message>{body}</Message>
+      yield <Message>{footer}</Message>
+      return { action: 'listen' }
+    `
+    const Message = vi.fn()
+    const result = await runAsyncFunction({ Message }, code)
+
+    expect(result.success).toBe(true)
+    expect(Message.mock.calls.length).toBe(3)
+    expect(Message.mock.calls[0]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "heading",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+    expect(Message.mock.calls[1]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "body",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+    expect(Message.mock.calls[2]![0]).toMatchInlineSnapshot(`
+      {
+        "__jsx": true,
+        "children": [
+          "footer",
+        ],
+        "props": {},
+        "type": "MESSAGE",
+      }
+    `)
+  })
+})
