@@ -108,6 +108,7 @@ You should use these tools as needed and as instructed to interact with the syst
 - Do not put placeholder code in the response
 - If data is missing to proceed, use the appropriate return or tool to fetch it before proceeding further
 - The use of loops, conditionals, variables, Promise.all/Promise.allSettled and try-catch statements is **allowed**
+- Do not over-index on running code/logic when the task requires qualitative / jugement; instead, a visual inspection with `think` can be used
 
 ## Variables and Data
 

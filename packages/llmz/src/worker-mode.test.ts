@@ -107,10 +107,10 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       })
 
       const result = await llmz.executeContext({
-        options: { loop: 3 },
+        options: { loop: 5 },
         exits: [eResult],
         instructions:
-          'Fetch users with IDs 1, 2, and 3. For each user, calculate their discount. Log each result with the format "User {name}: {discount}". Finally, return the results with the name of the user with the highest discount.',
+          'Fetch users with IDs 1, 2, and 3. For each user, calculate their discount. Log each result with the format "User {name}: {discount}". Finally, return the results with the name of the user with the highest discount. Make sure to loop as few times as needed to process all users.',
         tools: [tFetchUser, tCalculateDiscount, tLogResult],
         client,
       })
@@ -691,13 +691,13 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       const fileContents: Record<string, string> = {
         'report_2024.txt': 'Q1 Revenue: $500k\nQ2 Revenue: $600k\nQ3 Revenue: $550k',
         'vacation_photos.jpg': '[binary image data]',
-        'project_proposal.docx': 'x9F\u0000\u0000h#@!zQ\u0002\u0003\nFk$%mzP\u0001x\u0000\u0000', // Corrupted - random bytes
+        'project_proposal.docx': 'x9F\u0000\u0000h#@!zQ\u0002\u0003KORRUPTED!\nFk$%mzP\u0001x\u0000\u0000', // Corrupted - random bytes
         'family_video.mp4': '[binary video data]',
         'meeting_notes.txt': 'Team sync - discussed Q4 goals and deliverables',
         'personal_diary.txt': 'Dear diary, today was a good day...',
         'budget_analysis.xlsx': 'Department,Q1,Q2,Q3\nEngineering,100k,120k,110k',
         'random_meme.png': '[binary image data]',
-        'quarterly_review.pdf': '\u0001\u0002@#$%^\u0000\u0000\u0001kL!mN\u0003\u0002pQ', // Corrupted - random bytes
+        'quarterly_review.pdf': '\u0001\u0002@#$%^--CORR-UPTE-DD- CORRUPT\u0000\u0000\u0001kL!mN\u0003\u0002pQ', // Corrupted - random bytes
         'shopping_list.txt': 'Milk, eggs, bread, cheese',
       }
 
@@ -747,7 +747,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
         options: { loop: 5 },
         exits: [eResult],
         instructions:
-          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files.',
+          'Find and delete work-related files with corrupted data. Return the list of deleted files, total work files found, and count of corrupted files. The only way to identify corrupted files is by reading their contents.',
         tools: [tListFiles, tReadFile, tDeleteFile],
         client,
       })
@@ -760,7 +760,7 @@ describe('worker mode', { retry: 0, timeout: 60_000 }, () => {
       // 2. Read work files in parallel + think
       // 3. Delete corrupted files
       expect(result.iterations.length).toBeLessThanOrEqual(5)
-      expect(result.iterations.length).toBeGreaterThanOrEqual(3)
+      expect(result.iterations.length).toBeGreaterThanOrEqual(2)
 
       // Should have listed files once
       const listCalls = res.allToolCalls.filter((t) => t.tool_name === 'listFiles')

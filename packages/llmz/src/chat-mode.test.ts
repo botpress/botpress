@@ -710,8 +710,6 @@ Important syntax:
 
       assertSuccess(result)
 
-      console.log(result.iterations.map((x) => x.error).join('\n\n=========\n\n'))
-
       // Should have no failed iterations
       expect(result.iterations.filter((i) => i.isFailed()).length).toBe(0)
 
@@ -1680,9 +1678,6 @@ CRITICAL: Your output must be valid HTML that includes the raw HTML from the exa
       })
 
       assertSuccess(result)
-
-      console.log(result.iterations[1]?.code)
-      console.log(result.iterations[1]?.error)
 
       expect(result.iterations.filter((i) => i.isFailed()).length).toBe(0)
       expect(result.iterations.length).toBeGreaterThanOrEqual(2)
