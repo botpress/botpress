@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { z } from '@bpinternal/zui'
+import { describe, expect, it } from 'vitest'
 
 import { Tool } from './tool.js'
 
@@ -48,6 +48,30 @@ describe('tools typings', () => {
     const typings = await tool.getTypings()
 
     expect(typings).toMatchInlineSnapshot(`"declare function noArgsNoOutput(): Promise<void>"`)
+  })
+
+  it('tool returning void is typed as void, not any', async () => {
+    const tool = new Tool({
+      name: 'performAction',
+      description: 'Performs an action with no return value',
+      input: z.object({
+        actionId: z.string(),
+      }),
+      output: z.void(),
+      handler: async () => {
+        // Perform action without returning anything
+      },
+    })
+
+    const typings = await tool.getTypings()
+
+    // Verify the return type is Promise<void>, not Promise<any>
+    expect(typings).toContain('Promise<void>')
+    expect(typings).not.toContain('Promise<any>')
+    expect(typings).toMatchInlineSnapshot(`
+      "/** Performs an action with no return value */
+      declare function performAction(args: { actionId: string }): Promise<void>"
+    `)
   })
 
   it('tool description gets added', async () => {
@@ -132,7 +156,7 @@ describe('tool default values', () => {
       },
     })
 
-    tool.execute({ a: 1, b: 2 })
+    tool.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(result).toBe(3)
   })
@@ -150,7 +174,7 @@ describe('tool default values', () => {
       },
     })
 
-    await expect(tool.execute({ a: 1, b: 2 })).rejects.toThrowErrorMatchingInlineSnapshot(`
+    await expect(tool.execute({ a: 1, b: 2 }, { callId: '' })).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Error: Tool "add" received invalid input: [
         {
           "code": "too_small",
@@ -184,7 +208,7 @@ describe('tool default values', () => {
       },
     })
 
-    const output = await tool.execute({ a: 1, b: 2 })
+    const output = await tool.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(result).toBe(3)
     expect(output).toBe(3)
@@ -209,10 +233,13 @@ describe('tool default values', () => {
       },
     })
 
-    const ret = await tool.execute({
-      a: 1, // a will be hot swapped with 10
-      b: 2, // b remains 2
-    })
+    const ret = await tool.execute(
+      {
+        a: 1, // a will be hot swapped with 10
+        b: 2, // b remains 2
+      },
+      { callId: '' }
+    )
 
     expect(result).toBe(12)
     expect(ret).toBe(12)
@@ -257,15 +284,18 @@ describe('tool default values', () => {
     })
 
     expect(
-      await tool.execute({
-        operation: 'subtract', // operation will be hot swapped with 'add'
-        strings: [],
-        options: {
-          numbers: [1, 2, 3],
-          enabled: false,
+      await tool.execute(
+        {
+          operation: 'subtract', // operation will be hot swapped with 'add'
           strings: [],
+          options: {
+            numbers: [1, 2, 3],
+            enabled: false,
+            strings: [],
+          },
         },
-      })
+        { callId: '' }
+      )
     ).toBe(60)
 
     expect(callInputs).toMatchInlineSnapshot(`
@@ -408,18 +438,18 @@ describe('tool default values', () => {
       `"declare function anySchema(any): Promise<void>"`
     )
     expect(await unknownSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function unknownSchema(any): Promise<void>"`
+      `"declare function unknownSchema(unknown): Promise<void>"`
     )
     expect(await enumSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function enumSchema
       ('a' | 'b' | 'c'): Promise<void>;"
     `)
     expect(await neverSchema.clone().getTypings()).toMatchInlineSnapshot(
-      `"declare function neverSchema(any): Promise<void>"`
+      `"declare function neverSchema(never): Promise<void>"`
     )
     expect(await defaultValueSchema.clone().getTypings()).toMatchInlineSnapshot(`
       "declare function defaultValueSchema
-      ({ a: number; b: string } | null): Promise<void>;"
+      ({ a?: number; b?: string } | null): Promise<void>;"
     `)
   })
 
@@ -482,12 +512,17 @@ describe('tool default values', () => {
       staticInputValues: {},
     })
 
-    expect(await newTool1.getTypings()).toMatchInlineSnapshot(
-      `"declare function add(args: { a: number; b: number; c: number }): Promise<number>"`
-    )
-    expect(await newTool2.getTypings()).toMatchInlineSnapshot(
-      `"declare function add(args: "null" | null): Promise<number>"`
-    )
+    expect(await newTool1.getTypings()).toMatchInlineSnapshot(`
+      "declare function add(args: {
+        a: number
+        b: number
+        c?: number
+      }): Promise<number>"
+    `)
+    expect(await newTool2.getTypings()).toMatchInlineSnapshot(`
+      "declare function add
+      (null): Promise<number>;"
+    `)
     expect(await newTool3.getTypings()).toMatchInlineSnapshot(
       `"declare function add(args: { a: number; b: number }): Promise<string>"`
     )
@@ -502,13 +537,13 @@ describe('tool default values', () => {
       `"declare function addNothing(args: {}): Promise<number>"`
     )
 
-    await tool.execute({ a: 1, b: 2 })
-    await newTool1.execute({ a: 1, b: 2, c: 3 })
-    await newTool2.execute(null)
-    await newTool3.execute({ a: 1, b: 2 })
-    await newTool4.execute({ b: 2, a: 1 })
-    await newTool5.execute({ a: 1, b: 2, c: 5 })
-    await newTool6.execute({ a: 1, b: 2 })
+    await tool.execute({ a: 1, b: 2 }, { callId: '' })
+    await newTool1.execute({ a: 1, b: 2, c: 3 }, { callId: '' })
+    await newTool2.execute(null, { callId: '' })
+    await newTool3.execute({ a: 1, b: 2 }, { callId: '' })
+    await newTool4.execute({ b: 2, a: 1 }, { callId: '' })
+    await newTool5.execute({ a: 1, b: 2, c: 5 }, { callId: '' })
+    await newTool6.execute({ a: 1, b: 2 }, { callId: '' })
 
     expect(handlers).toMatchInlineSnapshot(`
       [
@@ -546,7 +581,7 @@ describe('tool default values', () => {
       },
     })
 
-    const result = await tool.execute({ a: 3 })
+    const result = await tool.execute({ a: 3 }, { callId: '' })
     expect(result).toBe(6)
     expect(attempts).toMatchInlineSnapshot(`
       [
@@ -583,7 +618,7 @@ describe('tool default values', () => {
       },
     })
 
-    await expect(() => tool.execute({ a: 3 })).rejects.toThrow()
+    await expect(() => tool.execute({ a: 3 }, { callId: '' })).rejects.toThrow()
     expect(attempts).toMatchInlineSnapshot(`
       [
         "attempt with a=3",

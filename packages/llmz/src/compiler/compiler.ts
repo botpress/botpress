@@ -6,7 +6,9 @@ import * as Babel from '@babel/standalone'
 
 import { AsyncIterator } from './plugins/async-iterator.js'
 import { JSXMarkdown } from './plugins/braces-tsx.js'
+import { htmlToMarkdownPlugin } from './plugins/html-to-markdown.js'
 import { JSXNewLines } from './plugins/jsx-preserve-newlines.js'
+import { jsxUndefinedVarsPlugin } from './plugins/jsx-undefined-vars.js'
 
 import { LineTrackingFnIdentifier, lineTrackingBabelPlugin } from './plugins/line-tracking.js'
 import { CommentFnIdentifier, replaceCommentBabelPlugin } from './plugins/replace-comment.js'
@@ -57,6 +59,8 @@ export function compile(code: string) {
     presets: ['typescript'],
     plugins: [
       JSXNewLines.babelPlugin,
+      htmlToMarkdownPlugin, // Convert simple HTML to markdown first
+      jsxUndefinedVarsPlugin, // Must run BEFORE JSX transform
       [
         jsxPlugin,
         {
