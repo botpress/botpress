@@ -70,7 +70,9 @@ export function formatHumanReadable(result: DiagnosticResult): string {
     auth: 'AUTHENTICATION & PROFILE CHECKS',
     network: 'NETWORK CHECKS',
     secrets: 'SECRETS CHECKS',
+    configuration: 'CONFIGURATION CHECKS',
     dependencies: 'DEPENDENCY CHECKS',
+    security: 'SECURITY CHECKS',
   }
 
   for (const [category, issues] of Object.entries(categorizedIssues)) {

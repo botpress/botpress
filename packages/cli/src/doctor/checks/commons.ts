@@ -6,6 +6,9 @@ export const CATEGORY_SDK: DiagnosticCategory = 'sdk'
 export const CATEGORY_AUTH: DiagnosticCategory = 'auth'
 export const CATEGORY_NETWORK: DiagnosticCategory = 'network'
 export const CATEGORY_SECRETS: DiagnosticCategory = 'secrets'
+export const CATEGORY_CONFIGURATION: DiagnosticCategory = 'configuration'
+export const CATEGORY_DEPENDENCIES: DiagnosticCategory = 'dependencies'
+export const CATEGORY_SECURITY: DiagnosticCategory = 'security'
 
 export function _createIssue(
   id: string,
