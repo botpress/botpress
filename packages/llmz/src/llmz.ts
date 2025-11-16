@@ -8,7 +8,6 @@ import { ulid } from 'ulid'
 import { createJoinedAbortController } from './abort-signal.js'
 import { Chat } from './chat.js'
 import { Context, Iteration } from './context.js'
-import { parseExit } from './exit-parser.js'
 import {
   AssignmentError,
   CodeExecutionError,
@@ -20,6 +19,7 @@ import {
   ThinkSignal,
   VMSignal,
 } from './errors.js'
+import { parseExit } from './exit-parser.js'
 import { Exit, ExitResult } from './exit.js'
 import { ValueOrGetter } from './getter.js'
 
