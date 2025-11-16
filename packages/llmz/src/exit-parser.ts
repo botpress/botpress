@@ -17,6 +17,242 @@ export type ParsedExit =
     }
 
 /**
+ * Checks if a value is primitive (not an object or is an array/null)
+ */
+function isValuePrimitive(value: unknown): boolean {
+  return value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)
+}
+
+/**
+ * Generates possible wraps for a primitive value in an object schema
+ */
+function generatePossibleWraps(
+  value: unknown,
+  shape: Record<string, any> | undefined,
+  discriminator?: string
+): Array<Record<string, unknown>> {
+  const possibleWraps: Array<Record<string, unknown>> = []
+  const commonNames = ['result', 'value', 'data', 'message', 'error', 'output', 'response']
+
+  // First, try properties that actually exist in the schema
+  if (shape && typeof shape === 'object') {
+    for (const key of Object.keys(shape)) {
+      if (key !== discriminator) {
+        const wrap = discriminator
+          ? { [discriminator]: shape[discriminator]._def.value, [key]: value }
+          : { [key]: value }
+        possibleWraps.push(wrap)
+      }
+    }
+  }
+
+  // Then try common property names
+  for (const name of commonNames) {
+    const hasName = possibleWraps.some((w) => Object.keys(w).includes(name))
+    if (!hasName) {
+      const wrap =
+        discriminator && shape?.[discriminator]
+          ? { [discriminator]: shape[discriminator]._def.value, [name]: value }
+          : { [name]: value }
+      possibleWraps.push(wrap)
+    }
+  }
+
+  return possibleWraps
+}
+
+/**
+ * Tries to wrap a primitive value in object schemas
+ */
+function tryObjectWrapping(
+  schema: any,
+  candidateValue: unknown
+): {
+  success: boolean
+  valueToValidate: unknown
+  parsed: any
+} {
+  const possibleWraps = generatePossibleWraps(candidateValue, schema.shape)
+
+  for (const wrap of possibleWraps) {
+    const testParse = schema.safeParse(wrap)
+    if (testParse.success) {
+      return { success: true, valueToValidate: wrap, parsed: testParse }
+    }
+  }
+
+  return { success: false, valueToValidate: candidateValue, parsed: { success: false } }
+}
+
+/**
+ * Detects discriminator field from union options
+ */
+function detectDiscriminator(options: any[]): string | undefined {
+  if (options.length === 0 || options[0]._def.typeName !== 'ZodObject') {
+    return undefined
+  }
+
+  const firstShape = options[0].shape
+  for (const key in firstShape) {
+    const firstFieldType = firstShape[key]._def.typeName
+    if (firstFieldType === 'ZodLiteral') {
+      const allHaveLiteral = options.every((opt: any) => opt.shape[key]?._def.typeName === 'ZodLiteral')
+      if (allHaveLiteral) {
+        return key
+      }
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Tries to add missing discriminator to object values
+ */
+function tryAddDiscriminator(
+  schema: any,
+  options: any[],
+  discriminator: string,
+  valueToValidate: unknown
+): { success: boolean; valueToValidate: unknown; parsed: any } {
+  const matchingOptions: Array<{ wrappedValue: any }> = []
+
+  for (const option of options) {
+    if (option._def.typeName === 'ZodObject' && option.shape[discriminator]) {
+      const discriminatorValue = option.shape[discriminator]._def.value
+      const wrappedValue = { [discriminator]: discriminatorValue, ...(valueToValidate as object) }
+      const testParse = schema.safeParse(wrappedValue)
+      if (testParse.success) {
+        matchingOptions.push({ wrappedValue })
+      }
+    }
+  }
+
+  if (matchingOptions.length === 1) {
+    const wrapped = matchingOptions[0]!.wrappedValue
+    return { success: true, valueToValidate: wrapped, parsed: schema.safeParse(wrapped) }
+  }
+
+  return { success: false, valueToValidate, parsed: { success: false } }
+}
+
+/**
+ * Tries to wrap primitive in union options
+ */
+function tryUnionPrimitiveWrapping(
+  schema: any,
+  options: any[],
+  discriminator: string,
+  valueToValidate: unknown
+): { success: boolean; valueToValidate: unknown; parsed: any } {
+  const allSuccessfulWraps: Array<{ wrap: Record<string, unknown> }> = []
+
+  for (const option of options) {
+    if (option._def.typeName === 'ZodObject' && option.shape[discriminator]) {
+      const discriminatorValue = option.shape[discriminator]._def.value
+      const possibleWraps = generatePossibleWraps(valueToValidate, option.shape, discriminator)
+
+      for (const wrap of possibleWraps) {
+        const finalWrap = { [discriminator]: discriminatorValue, ...wrap }
+        const testParse = schema.safeParse(finalWrap)
+        if (testParse.success) {
+          allSuccessfulWraps.push({ wrap: finalWrap })
+          break
+        }
+      }
+    }
+  }
+
+  if (allSuccessfulWraps.length === 1) {
+    const wrapped = allSuccessfulWraps[0]!.wrap
+    return { success: true, valueToValidate: wrapped, parsed: schema.safeParse(wrapped) }
+  }
+
+  return { success: false, valueToValidate, parsed: { success: false } }
+}
+
+/**
+ * Tries smart wrapping for union schemas
+ */
+function tryUnionWrapping(
+  schema: any,
+  valueToValidate: unknown
+): { success: boolean; valueToValidate: unknown; parsed: any } {
+  const options = schema._def.options
+  let discriminator = schema._def.discriminator
+
+  if (!discriminator) {
+    discriminator = detectDiscriminator(options)
+  }
+
+  if (!discriminator) {
+    return { success: false, valueToValidate, parsed: { success: false } }
+  }
+
+  const isValueObject =
+    valueToValidate !== null && typeof valueToValidate === 'object' && !Array.isArray(valueToValidate)
+  const isPrimitive = isValuePrimitive(valueToValidate)
+
+  // Try adding discriminator to objects
+  if (isValueObject && !(discriminator in (valueToValidate as object))) {
+    const result = tryAddDiscriminator(schema, options, discriminator, valueToValidate)
+    if (result.success) {
+      return result
+    }
+  }
+
+  // Try wrapping primitives
+  if (isPrimitive) {
+    return tryUnionPrimitiveWrapping(schema, options, discriminator, valueToValidate)
+  }
+
+  return { success: false, valueToValidate, parsed: { success: false } }
+}
+
+/**
+ * Attempts various smart wrapping strategies to fit data to schema
+ */
+function trySmartWrapping(
+  schema: any,
+  schemaType: string,
+  valueToValidate: unknown,
+  alternativeValue: unknown
+): { valueToValidate: unknown; parsed: any } {
+  const valuesToTry = [valueToValidate]
+
+  if (alternativeValue !== undefined && alternativeValue !== valueToValidate) {
+    valuesToTry.push(alternativeValue)
+  }
+
+  for (const candidateValue of valuesToTry) {
+    const isPrimitive = isValuePrimitive(candidateValue)
+
+    // For ZodObject schemas, try wrapping primitives
+    if (schemaType === 'ZodObject' && isPrimitive) {
+      const result = tryObjectWrapping(schema, candidateValue)
+      if (result.success) {
+        return result
+      }
+    }
+  }
+
+  // Update valueToValidate to alternative if available
+  if (alternativeValue !== undefined && alternativeValue !== valueToValidate) {
+    valueToValidate = alternativeValue
+  }
+
+  // For union schemas, try union-specific wrapping
+  if (schemaType === 'ZodDiscriminatedUnion' || schemaType === 'ZodUnion') {
+    const result = tryUnionWrapping(schema, valueToValidate)
+    if (result.success) {
+      return result
+    }
+  }
+
+  return { valueToValidate, parsed: { success: false } }
+}
+
+/**
  * Parses and validates a return value against a list of exits.
  * Attempts to intelligently fit the data to the expected schema.
  *
@@ -113,171 +349,9 @@ export function parseExit(returnValue: { action: string; [key: string]: unknown 
 
   // If parsing failed, try smart wrapping (even for null/undefined in some cases)
   if (!parsed.success) {
-    const valuesToTry = [valueToValidate]
-
-    // Also try alternative value if available and different
-    if (alternativeValue !== undefined && alternativeValue !== valueToValidate) {
-      valuesToTry.push(alternativeValue)
-    }
-
-    for (const candidateValue of valuesToTry) {
-      const isValuePrimitive =
-        candidateValue === null ||
-        candidateValue === undefined ||
-        typeof candidateValue !== 'object' ||
-        Array.isArray(candidateValue)
-
-      // For ZodObject schemas, try wrapping primitives in property names
-      if (schemaType === 'ZodObject' && isValuePrimitive) {
-        const possibleWraps: Array<Record<string, unknown>> = []
-
-        // First, try properties that actually exist in the schema
-        const shape = schema.shape
-        if (shape && typeof shape === 'object') {
-          for (const key of Object.keys(shape)) {
-            possibleWraps.push({ [key]: candidateValue })
-          }
-        }
-
-        // Then try common property names that might not be in the schema yet
-        const commonNames = ['result', 'value', 'data', 'message', 'error', 'output', 'response']
-        for (const name of commonNames) {
-          // Avoid duplicates
-          if (!possibleWraps.some((w) => Object.keys(w)[0] === name)) {
-            possibleWraps.push({ [name]: candidateValue })
-          }
-        }
-
-        for (const wrap of possibleWraps) {
-          const testParse = schema.safeParse(wrap)
-          if (testParse.success) {
-            valueToValidate = wrap
-            parsed = testParse
-            break
-          }
-        }
-        if (parsed.success) break
-      }
-
-      // Use the candidate value for the union wrapping below if we haven't found a match yet
-      if (!parsed.success && candidateValue !== valueToValidate) {
-        valueToValidate = candidateValue
-      }
-    }
-
-    // Recalculate these after the loop since valueToValidate might have changed
-    const isValuePrimitive =
-      valueToValidate === null ||
-      valueToValidate === undefined ||
-      typeof valueToValidate !== 'object' ||
-      Array.isArray(valueToValidate)
-    const isValueObject =
-      valueToValidate !== null && typeof valueToValidate === 'object' && !Array.isArray(valueToValidate)
-
-    // For discriminated unions and regular unions (like DefaultExit), try to fit the data
-    // Note: Discriminated unions may become regular unions after JSON Schema round-trip
-    if ((schemaType === 'ZodDiscriminatedUnion' || schemaType === 'ZodUnion') && !parsed.success) {
-      const options = schema._def.options
-
-      // For ZodDiscriminatedUnion, we have an explicit discriminator
-      // For ZodUnion from a discriminated union, we need to detect it from the options
-      let discriminator = schema._def.discriminator
-
-      // If no explicit discriminator (ZodUnion), try to detect one from common literal fields
-      if (!discriminator && options.length > 0 && options[0]._def.typeName === 'ZodObject') {
-        const firstShape = options[0].shape
-        // Find fields that are literals in all options
-        for (const key in firstShape) {
-          const firstFieldType = firstShape[key]._def.typeName
-          if (firstFieldType === 'ZodLiteral') {
-            // Check if all options have this as a literal
-            const allHaveLiteral = options.every((opt: any) => opt.shape[key]?._def.typeName === 'ZodLiteral')
-            if (allHaveLiteral) {
-              discriminator = key
-              break
-            }
-          }
-        }
-      }
-
-      if (discriminator) {
-        // If the value is an object but missing the discriminator, try to add it
-        // ONLY if exactly one option matches (otherwise it's ambiguous)
-        if (isValueObject && !(discriminator in (valueToValidate as object))) {
-          const matchingOptions: Array<{ option: any; discriminatorValue: any; wrappedValue: any }> = []
-
-          // Find all options that would match if we added the discriminator
-          for (const option of options) {
-            if (option._def.typeName === 'ZodObject' && option.shape[discriminator]) {
-              const discriminatorValue = option.shape[discriminator]._def.value
-              const wrappedValue = { [discriminator]: discriminatorValue, ...(valueToValidate as object) }
-              const testParse = schema.safeParse(wrappedValue)
-              if (testParse.success) {
-                matchingOptions.push({ option, discriminatorValue, wrappedValue })
-              }
-            }
-          }
-
-          // Only apply the discriminator if exactly one option matches
-          if (matchingOptions.length === 1) {
-            valueToValidate = matchingOptions[0]!.wrappedValue
-            parsed = schema.safeParse(valueToValidate)
-          }
-          // If multiple options match, it's ambiguous - don't auto-fix, let it fail
-        }
-
-        // If the value is primitive, try wrapping it in each union option
-        // Only succeed if exactly one wrapping works (otherwise ambiguous)
-        if (isValuePrimitive && !parsed.success) {
-          const allSuccessfulWraps: Array<{ wrap: Record<string, unknown>; option: any }> = []
-
-          for (const option of options) {
-            if (option._def.typeName === 'ZodObject' && option.shape[discriminator]) {
-              const discriminatorValue = option.shape[discriminator]._def.value
-              const possibleWraps: Array<Record<string, unknown>> = []
-
-              // First, try properties that actually exist in this union option's schema
-              const shape = option.shape
-              if (shape && typeof shape === 'object') {
-                for (const key of Object.keys(shape)) {
-                  if (key !== discriminator) {
-                    // Skip the discriminator itself
-                    possibleWraps.push({ [discriminator]: discriminatorValue, [key]: valueToValidate })
-                  }
-                }
-              }
-
-              // Then try common property names
-              const commonNames = ['result', 'value', 'data', 'message', 'error', 'output', 'response']
-              for (const name of commonNames) {
-                // Avoid duplicates
-                const alreadyHas = possibleWraps.some(
-                  (w) => Object.keys(w).includes(name) && Object.keys(w).includes(discriminator)
-                )
-                if (!alreadyHas) {
-                  possibleWraps.push({ [discriminator]: discriminatorValue, [name]: valueToValidate })
-                }
-              }
-
-              for (const wrap of possibleWraps) {
-                const testParse = schema.safeParse(wrap)
-                if (testParse.success) {
-                  allSuccessfulWraps.push({ wrap, option })
-                  break // Only keep the first successful wrap per option
-                }
-              }
-            }
-          }
-
-          // Only apply if exactly one wrap succeeded (unambiguous)
-          if (allSuccessfulWraps.length === 1) {
-            valueToValidate = allSuccessfulWraps[0]!.wrap
-            parsed = schema.safeParse(valueToValidate)
-          }
-          // If multiple wraps succeeded, it's ambiguous - let it fail
-        }
-      }
-    }
+    const result = trySmartWrapping(schema, schemaType, valueToValidate, alternativeValue)
+    valueToValidate = result.valueToValidate
+    parsed = result.parsed
   }
 
   if (!parsed.success) {
