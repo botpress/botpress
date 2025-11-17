@@ -25,64 +25,69 @@ const initBot = async (props: TestProps, definitionFile: string) => {
   fslib.writeFileSync(pathlib.join(botDir, 'bot.definition.ts'), definitionFile)
   return { botDir }
 }
-
+let botDir: string | undefined = undefined
 const ALIAS = 'alias'
 export const removePackage: Test = {
   name: 'cli should allow removing a plugin',
   handler: async (props) => {
-    const botpressHomeDir = pathlib.join(props.tmpDir, '.botpresshome')
+    try {
+      const botpressHomeDir = pathlib.join(props.tmpDir, '.botpresshome')
 
-    const botDir = await initBot(
-      props,
-      ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
-    ).then((bot) => bot.botDir)
+      const initializedBot = await initBot(
+        props,
+        ['import * as sdk from "@botpress/sdk"', 'export default new sdk.BotDefinition({})'].join('\n')
+      )
+      botDir = initializedBot.botDir
 
-    const argv = {
-      ...defaults,
-      botpressHome: botpressHomeDir,
-      confirm: true,
-      ...props,
-    }
+      const argv = {
+        ...defaults,
+        botpressHome: botpressHomeDir,
+        confirm: true,
+        ...props,
+      }
 
-    await impl
-      .login({
+      await impl
+        .login({
+          ...argv,
+        })
+        .then(utils.handleExitCode)
+
+      const plugin: string = 'hitl'
+
+      props.logger.info(`Installing plugin: ${plugin}`)
+      await impl
+        .add({
+          ...argv,
+          packageRef: plugin,
+          packageType: 'plugin',
+          installPath: botDir,
+          useDev: false,
+          alias: ALIAS,
+        })
+        .then(utils.handleExitCode)
+
+      await impl.remove({
         ...argv,
-      })
-      .then(utils.handleExitCode)
-
-    const plugin: string = 'hitl'
-
-    props.logger.info(`Installing plugin: ${plugin}`)
-    await impl
-      .add({
-        ...argv,
-        packageRef: plugin,
-        packageType: 'plugin',
-        installPath: botDir,
-        useDev: false,
         alias: ALIAS,
+        workDir: botDir,
       })
-      .then(utils.handleExitCode)
 
-    await impl.remove({
-      ...argv,
-      alias: ALIAS,
-      workDir: botDir,
-    })
+      const aliasPath = pathlib.join(botDir, 'bp_modules', ALIAS)
+      const exists = await fslib.promises
+        .access(aliasPath)
+        .then(() => true)
+        .catch(() => false)
+      if (exists) {
+        throw new Error(`Expected ${aliasPath} to not exist`)
+      }
 
-    const aliasPath = pathlib.join(botDir, 'bp_modules', ALIAS)
-    const exists = await fslib.promises
-      .access(aliasPath)
-      .then(() => true)
-      .catch(() => false)
-    if (exists) {
-      throw new Error(`Expected ${aliasPath} to not exist`)
-    }
-
-    const pkgJsonPath = pathlib.join(botDir, 'package.json')
-    const pkgJson = JSON.parse(fslib.readFileSync(pkgJsonPath, 'utf-8'))
-    if (pkgJson.bpDependencies && Object.keys(pkgJson.bpDependencies).length !== 0) {
-      throw new Error('Expected bpDependencies to be empty')
+      const pkgJsonPath = pathlib.join(botDir, 'package.json')
+      const pkgJson = JSON.parse(fslib.readFileSync(pkgJsonPath, 'utf-8'))
+      if (pkgJson.bpDependencies && Object.keys(pkgJson.bpDependencies).length !== 0) {
+        throw new Error('Expected bpDependencies to be empty')
+      }
+    } finally {
+      if (botDir) fslib.rmSync(botDir, { force: true, recursive: true })
     }
   },
 }
