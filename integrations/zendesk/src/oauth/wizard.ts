@@ -1,7 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import * as bp from '.botpress'
-import axios from 'axios'
 import * as sdk from '@botpress/sdk'
+import axios from 'axios'
+import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 
