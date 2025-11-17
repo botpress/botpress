@@ -35,6 +35,7 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
       ...this._handlerProps,
       query: searchParams,
       selectedChoice: searchParams.get(consts.CHOICE_PARAM) ?? undefined,
+      inputValue: searchParams.get(consts.INPUT_PARAM) ?? undefined,
       responses: {
         displayButtons: ({ buttons, pageTitle, htmlOrMarkdownPageContents }) =>
           htmlDialogs.generateButtonDialog({
@@ -65,6 +66,20 @@ export class OAuthWizard<THandlerProps extends types.HandlerProps> {
               label: choice.label,
               value: choice.value,
             })),
+          }),
+        displayInput: ({ input, nextStepId, pageTitle, htmlOrMarkdownPageContents }) =>
+          htmlDialogs.generateInputDialog({
+            formFieldName: consts.INPUT_PARAM,
+            formSubmitUrl: getWizardStepUrl(nextStepId, this._handlerProps.ctx),
+            pageTitle,
+            helpText: htmlOrMarkdownPageContents,
+            extraHiddenParams: {
+              state: this._handlerProps.ctx.webhookId,
+            },
+            inputConfig: {
+              label: input.label,
+              type: input.type,
+            },
           }),
         redirectToStep: (stepId) => htmlDialogs.generateRedirection(getWizardStepUrl(stepId, this._handlerProps.ctx)),
         redirectToExternalUrl: (url) => htmlDialogs.generateRedirection(new URL(url)),

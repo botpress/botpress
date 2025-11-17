@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   addCustomerToCampaignInputSchema,
@@ -11,22 +10,21 @@ import {
   getAllCampaignsOutputSchema,
   getAllCampaignsInputSchema,
 } from './src/misc/custom-schemas'
-import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from './src/misc/custom-uis'
 
 const INTEGRATION_NAME = 'mailchimp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Mailchimp',
-  version: '0.3.6',
+  version: '0.3.7',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.',
   channels: {},
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('Your API Key'),
-      serverPrefix: z.string().min(1).describe('Your Server Prefix'),
+      apiKey: z.string().min(1).describe('Your API Key').title('Api Key'),
+      serverPrefix: z.string().min(1).describe('Your Server Prefix').title('Server Prefix'),
     }),
   },
   actions: {
@@ -35,7 +33,6 @@ export default new IntegrationDefinition({
       description: "Adds a Customer's Profile to a Campaign",
       input: {
         schema: addCustomerToCampaignInputSchema,
-        ui: addCustomerToCampaignUi,
       },
       output: {
         schema: addCustomerOutputSchema,
@@ -46,7 +43,6 @@ export default new IntegrationDefinition({
       description: "Add Customer's Profile to a List/Audience",
       input: {
         schema: addCustomerToListInputSchema,
-        ui: addCustomerToListUi,
       },
       output: {
         schema: addCustomerOutputSchema,
@@ -57,7 +53,6 @@ export default new IntegrationDefinition({
       description: 'Mass Mailing of the Campaign by its IDs',
       input: {
         schema: sendMassEmailCampaignInputSchema,
-        ui: sendMassEmailCampaignUi,
       },
       output: {
         schema: sendMassEmailCampaignOutputSchema,
@@ -68,11 +63,6 @@ export default new IntegrationDefinition({
       description: 'Get all available email lists/audiences',
       input: {
         schema: getAllListsInputSchema,
-        ui: {
-          count: {
-            title: 'List count to retrieve',
-          },
-        },
       },
       output: {
         schema: getAllListsOutputSchema,
@@ -83,18 +73,10 @@ export default new IntegrationDefinition({
       description: 'Get all available campaigns',
       input: {
         schema: getAllCampaignsInputSchema,
-        ui: {
-          count: {
-            title: 'List count to retrieve',
-          },
-        },
       },
       output: {
         schema: getAllCampaignsOutputSchema,
       },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })

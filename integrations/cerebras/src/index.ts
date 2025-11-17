@@ -94,7 +94,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger, metadata }) => {
       const output = await llm.openai.generateContent<ModelId>(
         <llm.GenerateContentInput>input,
-        cerebrasClient,
+        cerebrasClient as any, // TODO: fix mismatch of openai version
         logger,
         {
           provider,

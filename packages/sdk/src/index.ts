@@ -77,6 +77,8 @@ export {
   InjectedPluginHandlers as PluginHandlers,
 } from './plugin'
 
+export * as version from './version-utils'
+
 export {
   //
   IntegrationPackage,

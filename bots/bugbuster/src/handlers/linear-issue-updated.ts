@@ -5,7 +5,7 @@ import * as bp from '.botpress'
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
   const { number: issueNumber, teamKey } = props.event.payload
   const linear = await utils.linear.LinearApi.create()
-  const issue = await findIssue(issueNumber, teamKey, props.logger, 'updated', linear)
+  const issue = await findIssue(issueNumber, teamKey, props.logger, 'updated', linear, props.client, props.ctx.botId)
 
   if (!issue) {
     return

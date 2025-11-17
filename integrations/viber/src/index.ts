@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import { transformMarkdown } from '@botpress/common'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
@@ -19,7 +20,7 @@ const integration = new bp.Integration({
             ...props,
             payload: {
               type: 'text',
-              text: props.payload.text,
+              text: tryTransformMarkdown(props.payload.text, props.logger.forBot()),
             },
           })
         },
@@ -410,4 +411,13 @@ function renderChoice(payload: Choice) {
     })
   })
   return choice
+}
+
+const tryTransformMarkdown = (text: string, logger: bp.Logger) => {
+  try {
+    return transformMarkdown(text)
+  } catch {
+    logger.error('Failed to transform the markdown. The message will be sent as text without transforming markdown.')
+    return text
+  }
 }
