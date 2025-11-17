@@ -72,7 +72,7 @@ const _verifyOAuthCredentials = async (props: RegisterProps) => {
 
     const pageId = credentials?.pageId
     const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
-    
+
     if (!isSubscribedToWebhooks) {
       await handleAuthFailure('OAuth credentials verified. No webhooks subscribed.', 'warn')
     }
@@ -81,8 +81,6 @@ const _verifyOAuthCredentials = async (props: RegisterProps) => {
     await handleAuthFailure(`Error verifying OAuth credentials: ${errorMessage}`, 'error')
   }
 }
-
-
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
   const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
