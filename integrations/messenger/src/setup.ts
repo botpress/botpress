@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/sdk'
 import { getOAuthMetaClientCredentials } from './misc/auth'
 import { createAuthenticatedMetaClient } from './misc/meta-client'
 
@@ -28,11 +29,57 @@ const _registerSandbox = async (props: RegisterProps) => {
   await _unsubscribeFromOAuthWebhooks(props)
 }
 
-const _registerOAuth = async ({ client }: RegisterProps) => {
+const _registerOAuth = async (props: RegisterProps) => {
+  const { client } = props
+
   // Only remove sandbox identifiers
   await client.configureIntegration({
     sandboxIdentifiers: null,
   })
+
+  // Verify OAuth credentials and check if reauthorization is needed
+  await _verifyOAuthCredentials(props)
+}
+
+const _verifyOAuthCredentials = async (props: RegisterProps) => {
+  const { client, ctx, logger } = props
+  const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
+  const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
+
+  const handleAuthFailure = async (logMessage: string, logLevel: 'warn' | 'error' = 'warn') => {
+    logger.forBot()[logLevel](logMessage)
+    await _clearAllIdentifiers(props)
+    throw new RuntimeError(reauthorizeMessage)
+  }
+
+  if (!credentials) {
+    await handleAuthFailure('OAuth credentials not found. Please reauthorize.', 'error')
+  }
+
+  // Verify the oauth state
+  if (!credentials?.pageToken || !credentials?.pageId) {
+    await handleAuthFailure('OAuth flow not completed yet. Please reauthorize.', 'error')
+  }
+
+  // Verify that we can make an authenticated request to the Meta API
+  try {
+    const metaClient = await createAuthenticatedMetaClient({
+      configType: 'oauth',
+      ctx,
+      client,
+      logger,
+    })
+
+    const pageId = credentials?.pageId
+    const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
+
+    if (!isSubscribedToWebhooks) {
+      await handleAuthFailure('OAuth credentials verified. No webhooks subscribed.', 'warn')
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    await handleAuthFailure(`Error verifying OAuth credentials: ${errorMessage}`, 'error')
+  }
 }
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
@@ -49,9 +96,7 @@ const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterPr
   }
 
   const metaClient = await createAuthenticatedMetaClient({ configType: 'oauth', ctx, client, logger })
-  if (await metaClient.isSubscribedToWebhooks(pageId)) {
-    await metaClient.unsubscribeFromWebhooks(pageId)
-  }
+  await metaClient.unsubscribeFromWebhooks(pageId)
 }
 
 const _clearAllIdentifiers = async ({ client }: RegisterProps) => {
