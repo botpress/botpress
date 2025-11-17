@@ -50,11 +50,11 @@ export class LinearApi {
     return this._viewer
   }
 
-  public isTeam(teamKey: string): teamKey is TeamKey {
-    return TEAM_KEYS.includes(teamKey as TeamKey)
+  public isTeam(teamKey: string) {
+    return this._teams.some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: TeamKey; issueNumber: number }): Promise<Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
     const { issues } = await this.listIssues({
@@ -71,7 +71,7 @@ export class LinearApi {
 
   public async listIssues(
     filter: {
-      teamKeys: TeamKey[]
+      teamKeys: string[]
       issueNumber?: number
       statusesToOmit?: StateKey[]
     },
@@ -118,6 +118,18 @@ export class LinearApi {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
     return utils.string.toScreamingSnakeCase(state.name) as StateKey
+  }
+
+  public async resolveComments(issue: Issue): Promise<void> {
+    const comments = issue.comments.nodes
+
+    const promises: Promise<lin.CommentPayload>[] = []
+    for (const comment of comments) {
+      if (comment.user.id === this.me.id && !comment.resolvedAt) {
+        promises.push(this._client.commentResolve(comment.id))
+      }
+    }
+    await Promise.all(promises)
   }
 
   public get teams(): Record<TeamKey, lin.Team> {

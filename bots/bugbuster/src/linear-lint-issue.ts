@@ -34,7 +34,7 @@ export const lintIssue = async (issue: Issue, status: string): Promise<IssueLint
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if (issue.estimate === undefined && status !== 'BLOCKED') {
+  if (issue.estimate === null && status !== 'BLOCKED') {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
