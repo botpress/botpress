@@ -16,7 +16,7 @@ Using the Messenger App in your Meta app, subscribe to the following fields:
 
 ## Proactive Conversations
 
-The integration includes a powerful proactive conversation feature that allows you to create or retrieve direct message conversations on-demand. This feature now supports initiating private conversations from comment IDs, enabling seamless transitions from public post interactions to private support conversations. When a user comments on your Facebook page post, you can use the comment ID to automatically create a private message conversation with that user.
+The integration now supports proactive conversation creation, letting you seamlessly move from public interactions to private DMs. When someone comments on a post from your Facebook Page, you can use that comment’s ID to automatically initiate a private conversation with the user.
 
 ## Migrating from 4.x to 5.x
 
