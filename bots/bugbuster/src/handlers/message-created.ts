@@ -6,6 +6,7 @@ import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
+#health
 #addTeam [teamName]
 #removeTeam [teamName]
 #listTeams
@@ -46,6 +47,17 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   }
 
   switch (command) {
+    case '#health': {
+      let isLinearHealthy = true
+      try {
+        await utils.linear.LinearApi.create()
+      } catch {
+        isLinearHealthy = false
+      }
+
+      await botpress.respondText(conversation.id, `Linear: ${isLinearHealthy ? '' : 'un'}healthy`)
+      break
+    }
     case '#addTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
