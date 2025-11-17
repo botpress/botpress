@@ -165,9 +165,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _addNewSinglePackage(ref: RefWithAlias) {
-    const { packageName, targetPackage } = await this._findPackage(ref)
+    const foundPackage = await this._findPackage(ref)
+    const targetPackage = foundPackage.targetPackage
+    let packageName = foundPackage.packageName
+    packageName = await this._addDependencyToPackage(packageName, targetPackage)
     await this._addSinglePackage(ref, { packageName, targetPackage })
-    await this._addDependencyToPackage(packageName, targetPackage)
   }
 
   private async _findPackage(ref: RefWithAlias): Promise<{ packageName: string; targetPackage: InstallablePackage }> {
@@ -360,11 +362,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     })
   }
 
-  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
+  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage): Promise<string> {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
-      return
+      return packageName
     }
 
     const version =
@@ -373,7 +375,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
       await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
-      return
+      return packageName
     }
 
     const bpDependenciesSchema = sdk.z.record(sdk.z.string())
@@ -405,6 +407,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+    return packageName
   }
 }
 
