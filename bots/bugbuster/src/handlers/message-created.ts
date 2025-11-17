@@ -87,7 +87,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         return
       }
 
-      await props.workflows.lintAll.startNewInstance({ input: {} })
+      await props.workflows.lintAll.startNewInstance({ input: { conversationId: conversation.id } })
       await botpress.respondText(conversation.id, "Launched 'lintAll' workflow.")
       break
     }

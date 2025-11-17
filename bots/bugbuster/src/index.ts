@@ -1,4 +1,3 @@
-import { BotLogger } from '@botpress/sdk'
 import * as handlers from './handlers'
 import { lintAll } from './handlers/lint-all'
 import { BotpressApi } from './utils/botpress-utils'
@@ -22,36 +21,35 @@ bot.on.workflowContinue('lintAll', async (props) => {
 })
 
 bot.on.workflowTimeout('lintAll', async (props) => {
-  const { client, ctx, logger, conversation } = props
+  const {
+    client,
+    ctx,
+    workflow: {
+      input: { conversationId },
+    },
+  } = props
+
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 
   const botpress = new BotpressApi(client, ctx)
-  await sendMessageOrLog(botpress, logger, 'Workflow timed out', conversation?.id)
+  await botpress.respondText(conversationId, 'Workflow timed out')
 })
 
-const sendMessageOrLog = async (botpress: BotpressApi, logger: BotLogger, message: string, conversationId?: string) => {
-  if (conversationId) {
-    await botpress.respondText(conversationId, message)
-  } else {
-    logger.info(message)
-  }
-}
-
 const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) => {
-  const { client, logger, ctx, conversation, workflow } = props
+  const { client, logger, ctx, workflow } = props
+  const conversationId = workflow.input.conversationId
   await workflow.acknowledgeStartOfProcessing()
 
-  const _sendMessageOrLog = async (message: string) => sendMessageOrLog(botpress, logger, message, conversation?.id)
   const botpress = new BotpressApi(client, ctx)
 
-  const result = await lintAll(client, logger, ctx, conversation?.id)
+  const result = await lintAll(client, logger, ctx, conversationId)
 
   if (!result.success) {
     await workflow.setFailed({ failureReason: result.message })
-    await _sendMessageOrLog(LINT_ALL_ERROR_PREFIX + result.message)
+    await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
     return
   }
-  await _sendMessageOrLog('Success: ' + result.message)
+  await botpress.respondText(conversationId, 'Success: ' + result.message)
 
   await workflow.setCompleted()
 }
