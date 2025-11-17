@@ -13,8 +13,6 @@
     "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
-    "prebuild": "ts-node -T ./prebuild.ts",
-    "prepack": "pnpm prebuild",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
   },
   "keywords": [],
