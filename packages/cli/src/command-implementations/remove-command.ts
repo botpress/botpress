@@ -1,10 +1,10 @@
 import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
-import { BP_DEPENDENCIES_KEY, PKGJSON_FILE_NAME } from 'src/utils/pkgjson-utils'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import * as utils from '../utils'
+import { BP_DEPENDENCIES_KEY, PKGJSON_FILE_NAME } from '../utils/pkgjson-utils'
 import { ProjectCommand } from './project-command'
 
 export type RemoveCommandDefinition = typeof commandDefinitions.remove
