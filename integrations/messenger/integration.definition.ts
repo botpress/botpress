@@ -6,6 +6,8 @@ import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { messages } from './definitions/channels/channel/messages'
 
+export const INTEGRATION_NAME = 'messenger'
+
 const commonConfigSchema = z.object({
   downloadMedia: z
     .boolean()
@@ -33,7 +35,7 @@ const replyToCommentsSchema = z.object({
 })
 
 export default new IntegrationDefinition({
-  name: 'messenger',
+  name: INTEGRATION_NAME,
   version: '5.0.0',
   title: 'Messenger and Facebook',
   description:
@@ -198,6 +200,9 @@ export default new IntegrationDefinition({
     },
     SANDBOX_SHOULD_GET_USER_PROFILE: {
       description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
+    },
+    POSTHOG_KEY: {
+      description: 'The PostHog API key',
     },
   },
   user: {

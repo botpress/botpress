@@ -1,4 +1,4 @@
-import { api } from '@botpress/chat-api'
+import { api, signals } from '@botpress/chat-api'
 import pathlib from 'path'
 
 const main = async (argv: string[]) => {
@@ -9,7 +9,7 @@ const main = async (argv: string[]) => {
   const clientDir = pathlib.join(outDir, 'client')
   const signalsDir = pathlib.join(outDir, 'signals')
   await api.exportClient(clientDir, { generator: 'opapi' })
-  await api.signals.exportSchemas(signalsDir)
+  await signals.exportSchemas(signalsDir)
 }
 
 void main(process.argv.slice(2))

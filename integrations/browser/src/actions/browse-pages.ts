@@ -27,7 +27,6 @@ const getPageContent = async (props: {
 
   try {
     const result = await firecrawl.scrape(props.url, {
-      fastMode: true,
       onlyMainContent: true,
       maxAge: 60 * 60 * 24 * 7, // 1 week
       removeBase64Images: true,
