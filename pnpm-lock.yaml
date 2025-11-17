@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.52.1
-        version: 1.52.1
+        specifier: 1.54.0
+        version: 1.54.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2306,7 +2306,7 @@ importers:
         specifier: 1.27.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2424,7 +2424,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2440,7 +2440,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2453,7 +2453,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2469,7 +2469,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2485,7 +2485,7 @@ importers:
         specifier: 1.27.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.18.1
+        specifier: 4.19.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3751,8 +3751,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.52.1':
-    resolution: {integrity: sha512-Ymf6/qrYCdRoicECp5sNPaj+76b8C43Sf+4psI1RcpNjyyPa1khGDkVW4K6C2fzaB+AhQRcVj+2P9gBrjrj4mg==}
+  '@botpress/api@1.54.0':
+    resolution: {integrity: sha512-vfOKxzsw07s5Vvawd0CQl5qBPIKab/7NP6Rb9tiD/ULAfGLRUa8+2sE3FYZCfwK8iHfJ7oDRY0bQsqZwHxVmGA==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -12770,7 +12770,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.52.1':
+  '@botpress/api@1.54.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
