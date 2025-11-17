@@ -167,8 +167,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _addNewSinglePackage(ref: RefWithAlias) {
     const foundPackage = await this._findPackage(ref)
     const targetPackage = foundPackage.targetPackage
-    let packageName = foundPackage.packageName
-    packageName = await this._addDependencyToPackage(packageName, targetPackage)
+    const packageName = await this._addDependencyToPackage(foundPackage.packageName, targetPackage)
+    console.log(targetPackage)
     await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
