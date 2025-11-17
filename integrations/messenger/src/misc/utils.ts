@@ -1,20 +1,21 @@
 import { RuntimeError } from '@botpress/sdk'
+import axios from 'axios'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { Location, SendMessageProps } from './types'
+import { Location, SendMessengerMessageProps } from './types'
 import * as bp from '.botpress'
 
 export function getGoogleMapLinkFromLocation(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function getRecipientId(conversation: SendMessageProps['conversation']): string {
-  const recipientId = conversation.tags.id
+export function getEndUserMessengerId(messengerConversation: SendMessengerMessageProps['conversation']): string {
+  const id = messengerConversation.tags.id
 
-  if (!recipientId) {
-    throw new RuntimeError(`No recipient id found for conversation ${conversation.id}`)
+  if (!id) {
+    throw new RuntimeError(`No recipient id found for conversation ${messengerConversation.id}`)
   }
 
-  return recipientId
+  return id
 }
 
 export function safeJsonParse(x: any) {
@@ -100,5 +101,38 @@ export const tryGetUserProfile = async (
     return await messengerClient.getUserProfile(userId, { fields })
   } catch {
     return undefined
+  }
+}
+const isMetaError = (
+  error: unknown
+): error is { response: { data: { error: { message: string; error_user_msg: string } } } } => {
+  return (
+    axios.isAxiosError(error) &&
+    'error' in error.response?.data &&
+    'error_user_msg' in error.response?.data.error &&
+    'message' in error.response?.data.error &&
+    error.response?.data.error.message &&
+    error.response?.data.error.error_user_msg
+  )
+}
+
+export const makeMetaErrorHandler = (url: string) => {
+  return (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      console.debug(`Axios error when calling Meta API: ${error.toJSON()}`)
+    }
+    const urlWithoutQuery = url.split('?')[0]
+    const baseMessage = `Error calling Meta API with url ${urlWithoutQuery}`
+    let errorMessage: string
+    if (isMetaError(error)) {
+      const metaError = error.response.data.error
+      errorMessage = `${baseMessage}: ${metaError.message}, ${metaError.error_user_msg}`
+    } else if (error instanceof Error) {
+      errorMessage = `${baseMessage}: ${error.message}`
+    } else {
+      errorMessage = `${baseMessage}: Unkown error`
+    }
+    console.debug(`Meta error: ${errorMessage}`)
+    throw new RuntimeError(errorMessage)
   }
 }
