@@ -44,7 +44,7 @@ const fetchBambooHrOauthToken = async (
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
     body,
   })
@@ -54,6 +54,7 @@ const fetchBambooHrOauthToken = async (
       `Failed POST request for OAuth token: ${tokenResponse.status} ${tokenResponse.statusText} at ${bambooHrOauthUrl} with ${'code' in oAuthInfo ? oAuthInfo.code : oAuthInfo.refreshToken}`
     )
   }
+
   const tokenData = bambooHrOauthTokenResponse.safeParse(await tokenResponse.json())
   if (!tokenData.success) {
     throw new Error(`Failed parse OAuth token response: ${tokenData.error.message}`)
@@ -73,6 +74,9 @@ const fetchBambooHrOauthToken = async (
     },
   })
 
+  console.log('access_token', access_token)
+  console.log('id_token', id_token)
+
   return { accessToken: access_token, idToken: id_token }
 }
 
@@ -88,7 +92,7 @@ export const getBambooHrAuthorization = async ({
   ctx,
   client,
 }: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<{ authorization: string; expiresAt: number }> => {
-  if (ctx.configurationType === 'apiKey') {
+  if (ctx.configurationType === 'manual') {
     return {
       authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
       expiresAt: Infinity,

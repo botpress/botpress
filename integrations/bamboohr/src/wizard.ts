@@ -109,8 +109,6 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, responses, client, 
   const code = query.get('code')
   const state = query.get('state')
 
-  console.log('code', code)
-
   if (!code) {
     return responses.endWizard({
       success: false,

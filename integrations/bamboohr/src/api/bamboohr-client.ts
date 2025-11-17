@@ -31,7 +31,7 @@ export class BambooHRClient {
     const { authorization, expiresAt } = await getBambooHrAuthorization(props)
 
     let subdomain: string
-    if (props.ctx.configurationType === 'apiKey') {
+    if (props.ctx.configurationType === 'manual') {
       subdomain = props.ctx.configuration.subdomain
     } else {
       // OAuth mode - get subdomain from state

@@ -19,4 +19,3 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
     return generateRedirection(getInterstitialUrl(false, errorMessage))
   }
 }
-
