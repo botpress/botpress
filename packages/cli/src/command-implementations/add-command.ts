@@ -172,7 +172,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       return alias
     }
 
-    this.logger.warn(`The alias ${alias} is already used for dependency ${existingAlias[1]}. Choose another one.`)
+    if (
+      await this.prompt.confirm(
+        `The alias ${alias} is already used for dependency ${existingAlias[1]}. Do you want to overwrite it?`
+      )
+    ) {
+      return alias
+    }
     return this._chooseUnusedAlias(existingPackages)
   }
 
