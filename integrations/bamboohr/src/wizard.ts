@@ -95,9 +95,9 @@ const _oauthRedirectHandler: WizardHandler = async ({ inputValue, responses, ctx
 
   const oauthUrl =
     `https://${inputValue}.bamboohr.com/authorize.php?` +
-    `request=authorize` +
+    'request=authorize' +
     `&state=${ctx.webhookId}` +
-    `&response_type=code` +
+    '&response_type=code' +
     `&scope=${scopes.join('+')}` +
     `&client_id=${bp.secrets.OAUTH_CLIENT_ID}` +
     `&redirect_uri=${redirectUri.toString()}`

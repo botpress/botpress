@@ -22,12 +22,13 @@ const getHeaders = (authorization: string) => ({
 type ClientProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
 
 export class BambooHRClient {
-  public baseUrl: string
+  public baseUrl: string // chore: private
   private _headers: Record<string, string>
   private _expiresAt: number
   private _props: ClientProps
 
   public static async create(props: ClientProps): Promise<BambooHRClient> {
+    // chore: not needed
     const { authorization, expiresAt } = await getBambooHrAuthorization(props)
 
     let subdomain: string
@@ -63,6 +64,7 @@ export class BambooHRClient {
     this._props = props
   }
 
+  // chore: private
   public async _makeRequest({
     url,
     ...params

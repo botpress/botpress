@@ -1,6 +1,6 @@
+import * as authWizard from '@botpress/common/src/oauth-wizard'
 import { bambooHrOauthTokenResponse } from 'definitions'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
-import * as authWizard from '@botpress/common/src/oauth-wizard'
 import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
@@ -18,6 +18,7 @@ const fetchBambooHrOauthToken = async (
   accessToken: string
   idToken: string
 }> => {
+  // chore: that's a lot of getState calls
   const { state } = await client.getState({
     type: 'integration',
     name: 'oauth',
@@ -34,7 +35,7 @@ const fetchBambooHrOauthToken = async (
   const body = JSON.stringify({
     client_id: OAUTH_CLIENT_ID,
     client_secret: OAUTH_CLIENT_SECRET,
-    redirect_uri: authWizard.getWizardStepUrl('oauth-callback').href,
+    redirect_uri: authWizard.getWizardStepUrl('oauth-callback').href, // issue: this will call botpress webhook
     ...('code' in oAuthInfo
       ? { grant_type: 'authorization_code', code: oAuthInfo.code }
       : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
@@ -112,7 +113,7 @@ export const getBambooHrAuthorization = async ({
   }
 
   const token =
-    Date.now() < oauth.expiresAt
+    Date.now() < oauth.expiresAt // chore: redundant check
       ? oauth.accessToken
       : (await fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
 
