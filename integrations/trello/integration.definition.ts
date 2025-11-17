@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import creatable from './bp_modules/creatable'
@@ -26,9 +25,6 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(listable, ({ entities }) => ({
