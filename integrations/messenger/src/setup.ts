@@ -41,15 +41,24 @@ const _registerOAuth = async (props: RegisterProps) => {
   await _verifyOAuthCredentials(props)
 }
 
-const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) => {
+const _verifyOAuthCredentials = async (props: RegisterProps) => {
+  const { client, ctx, logger } = props
   const reauthorizeMessage = 'Authentication failed. Please reauthorize.'
   const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
 
-  // Verify the oauth state
-  if (!credentials?.pageToken) {
-    const message = 'OAuth flow not completed yet. Please reauthorize.'
-    logger.forBot().warn(message)
+  const handleAuthFailure = async (logMessage: string, logLevel: 'warn' | 'error' = 'warn') => {
+    logger.forBot()[logLevel](logMessage)
+    await _clearAllIdentifiers(props)
     throw new RuntimeError(reauthorizeMessage)
+  }
+
+  if (!credentials) {
+    await handleAuthFailure('OAuth credentials not found. Please reauthorize.', 'error')
+  }
+
+  // Verify the oauth state
+  if (!credentials?.pageToken || !credentials?.pageId) {
+    await handleAuthFailure('OAuth flow not completed yet. Please reauthorize.', 'error')
   }
 
   // Verify that we can make an authenticated request to the Meta API
@@ -61,19 +70,19 @@ const _verifyOAuthCredentials = async ({ client, ctx, logger }: RegisterProps) =
       logger,
     })
 
-    const pageId = credentials.pageId
+    const pageId = credentials?.pageId
     const isSubscribedToWebhooks = await metaClient.isSubscribedToWebhooks(pageId)
     
     if (!isSubscribedToWebhooks) {
-      logger.forBot().warn('OAuth credentials verified. No webhooks subscribed.')
-      throw new RuntimeError(reauthorizeMessage)
+      await handleAuthFailure('OAuth credentials verified. No webhooks subscribed.', 'warn')
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    logger.forBot().error(`Error verifying OAuth credentials: ${errorMessage}`)
-    throw new RuntimeError(reauthorizeMessage)
+    await handleAuthFailure(`Error verifying OAuth credentials: ${errorMessage}`, 'error')
   }
 }
+
+
 
 const _unsubscribeFromOAuthWebhooks = async ({ ctx, logger, client }: RegisterProps) => {
   const credentials = await getOAuthMetaClientCredentials(client, ctx).catch(() => undefined)
