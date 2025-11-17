@@ -30,36 +30,46 @@ export const register: bp.Integration['register'] = async (props) => {
     throw new RuntimeError('Error authorizing BambooHR integration: ' + error.message)
   }
 
-  try {
-    const { state } = await client.getOrSetState({
-      name: 'webhook',
-      type: 'integration',
-      id: ctx.integrationId,
-      payload: { id: '', privateKey: '' },
-    })
-
-    if (!state.payload.id) {
-      logger.forBot().info('Setting up webhook with BambooHR...')
-
-      const payload = await bambooHrClient.createWebhook(webhookUrl)
-
-      await client.setState({
-        type: 'integration',
+  // Webhooks are only supported in manual configuration mode
+  if (ctx.configurationType === 'manual') {
+    try {
+      const { state } = await client.getOrSetState({
         name: 'webhook',
+        type: 'integration',
         id: ctx.integrationId,
-        payload,
+        payload: { id: '', privateKey: '' },
       })
-    }
 
-    logger.forBot().info('Registered webhook.')
-  } catch (thrown) {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Error registering BambooHR webhook: ' + error.message)
+      if (!state.payload.id) {
+        logger.forBot().info('Setting up webhook with BambooHR...')
+
+        const payload = await bambooHrClient.createWebhook(webhookUrl)
+
+        await client.setState({
+          type: 'integration',
+          name: 'webhook',
+          id: ctx.integrationId,
+          payload,
+        })
+      }
+
+      logger.forBot().info('Registered webhook.')
+    } catch (thrown) {
+      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+      throw new RuntimeError('Error registering BambooHR webhook: ' + error.message)
+    }
+  } else {
+    logger.forBot().info('Webhook registration skipped: not supported in OAuth mode.')
   }
 }
 
 export const unregister: bp.Integration['unregister'] = async (props) => {
   const { client, ctx, logger } = props
+
+  if (ctx.configurationType !== 'manual') {
+    logger.forBot().info('Webhook unregistration skipped: not supported in OAuth mode.')
+    return
+  }
 
   const { state } = await client.getOrSetState({
     name: 'webhook',
