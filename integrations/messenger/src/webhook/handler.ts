@@ -2,9 +2,9 @@ import { isSandboxCommand, meta } from '@botpress/common'
 import { INTEGRATION_NAME } from 'integration.definition'
 import { sendPosthogError } from 'src/misc/posthog-client'
 import { getClientSecret, getVerifyToken } from '../misc/auth'
-import { messengerPayloadSchema } from '../misc/types'
+import { eventPayloadSchema } from '../misc/types'
 import { safeJsonParse } from '../misc/utils'
-import { oauthHandler, messageHandler, sandboxHandler } from './handlers'
+import { oauthHandler, messagingHandler, sandboxHandler, feedHandler } from './handlers'
 import * as bp from '.botpress'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -41,13 +41,13 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  const parseResult = messengerPayloadSchema.safeParse(jsonParseResult.data)
+  const parseResult = eventPayloadSchema.safeParse(jsonParseResult.data)
   if (!parseResult.success) {
     const errorMessage = `Error while parsing body as Messenger payload: ${parseResult.error.message}`
     logger.forBot().warn(errorMessage)
     return { status: 400, body: errorMessage }
   }
-  const data = messengerParseResult.data
+  const data = parseResult.data
   for (const entry of data.entry) {
     if ('messaging' in entry) {
       await messagingHandler(entry.messaging, props)
