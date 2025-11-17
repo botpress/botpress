@@ -46,7 +46,7 @@ export function wrapIntegration(config: PostHogConfig) {
         super(...args)
         this.props.register = wrapFunction(this.props.register, config)
         this.props.unregister = wrapFunction(this.props.unregister, config)
-        this.props.handler = wrapFunction(this.props.handler, config)
+        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config), config)
 
         if (this.props.actions) {
           for (const actionType of Object.keys(this.props.actions)) {
@@ -92,6 +92,29 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
         config
       )
       throw thrown
+    }
+  }
+}
+
+function wrapHandler(fn: Function, config: PostHogConfig) {
+  return async (...args: any[]) => {
+    const resp: void | Response = await fn(...args)
+    if (resp instanceof Response && resp.status === 500) {
+      if (!resp.body) {
+        console.warn(`The error message was empty in the handler of ${config.integrationName}`)
+        return
+      }
+      await sendPosthogEvent(
+        {
+          distinctId: JSON.stringify(resp.body),
+          event: botpressEvents.UNHANDLED_ERROR,
+          properties: {
+            from: fn.name,
+            integrationName: config.integrationName,
+          },
+        },
+        config
+      )
     }
   }
 }
