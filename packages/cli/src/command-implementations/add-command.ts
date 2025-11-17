@@ -59,13 +59,20 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
+    const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
+    const modulesPath = utils.path.join(baseInstallPath, consts.installDirName)
+    fslib.rmSync(modulesPath, { force: true, recursive: true })
+    fslib.mkdirSync(modulesPath)
+
     for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
       const parsed = pkgRef.parsePackageRef(pkgRefStr)
       if (!parsed) {
         throw new errors.InvalidPackageReferenceError(pkgRefStr)
       }
 
-      await this._addSinglePackage({ ...parsed, alias: pkgAlias })
+      const refWithAlias = { ...parsed, alias: pkgAlias }
+      const foundPkg = await this._findPackage(refWithAlias)
+      await this._addSinglePackage(refWithAlias, foundPkg)
     }
   }
 
@@ -96,8 +103,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     return ref
   }
 
-  private async _addSinglePackage(ref: RefWithAlias) {
-    const { packageName, targetPackage } = await this._findPackage(ref)
+  private async _addSinglePackage(
+    ref: RefWithAlias,
+    props: { packageName: string; targetPackage: InstallablePackage }
+  ) {
+    const { packageName, targetPackage } = props
 
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
@@ -105,12 +115,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
-      this.logger.warn(`Package with name "${packageName}" already installed.`)
-      const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
-      if (!res) {
-        throw new errors.AbortedOperationError()
-      }
-
       await this._uninstall(installPath)
     }
 
@@ -144,11 +148,45 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     await this._install(installPath, files)
   }
+  private async _chooseNewAlias(existingPackages: Record<string, string>) {
+    const setAliasConfirmation = await this.prompt.confirm(
+      'Do you want to set an alias to the package you are installing?'
+    )
+    if (!setAliasConfirmation) {
+      throw new errors.AbortedOperationError()
+    }
+
+    const alias = this._chooseUnusedAlias(existingPackages)
+
+    return alias
+  }
+
+  private async _chooseUnusedAlias(existingPackages: Record<string, string>): Promise<string> {
+    const alias = await this.prompt.text('Enter the new alias')
+    const existingAlias = Object.entries(existingPackages).find(([dep, _]) => dep === alias)
+
+    if (!alias) {
+      throw new errors.BotpressCLIError('You cannot set an empty alias')
+    }
+    if (!existingAlias) {
+      return alias
+    }
+
+    if (
+      await this.prompt.confirm(
+        `The alias ${alias} is already used for dependency ${existingAlias[1]}. Do you want to overwrite it?`
+      )
+    ) {
+      return alias
+    }
+    return this._chooseUnusedAlias(existingPackages)
+  }
 
   private async _addNewSinglePackage(ref: RefWithAlias) {
-    await this._addSinglePackage(ref)
-    const { packageName, targetPackage } = await this._findPackage(ref)
-    await this._addDependencyToPackage(packageName, targetPackage)
+    const foundPackage = await this._findPackage(ref)
+    const targetPackage = foundPackage.targetPackage
+    const packageName = await this._addDependencyToPackage(foundPackage.packageName, targetPackage)
+    await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
   private async _findPackage(ref: RefWithAlias): Promise<{ packageName: string; targetPackage: InstallablePackage }> {
@@ -341,20 +379,20 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     })
   }
 
-  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
+  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage): Promise<string> {
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
-    const version =
-      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
-      return
+      return packageName
     }
 
+    const version =
+      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     const { bpDependencies } = pkgJson
     if (!bpDependencies) {
       pkgJson.bpDependencies = { [packageName]: version }
       await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
-      return
+      return packageName
     }
 
     const bpDependenciesSchema = sdk.z.record(sdk.z.string())
@@ -367,12 +405,17 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
     if (alreadyPresentDep) {
-      if (alreadyPresentDep[1] !== version) {
+      const alreadyPresentVersion = alreadyPresentDep[1]
+      if (alreadyPresentVersion !== version) {
         this.logger.warn(
-          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
+          `The dependency with alias ${packageName} is already present in the bpDependencies of package.json, but with version ${alreadyPresentVersion}.`
         )
+        const res = await this.prompt.confirm(`Do you want to overwrite the dependency with version ${version}?`)
+        if (!res) {
+          const newAlias = await this._chooseNewAlias(validatedBpDeps)
+          packageName = newAlias
+        }
       }
-      return
     }
 
     pkgJson.bpDependencies = {
@@ -381,6 +424,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+    return packageName
   }
 }
 
