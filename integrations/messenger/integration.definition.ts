@@ -34,8 +34,8 @@ const replyToCommentsSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '5.0.1',
-  title: 'Facebook and Messenger',
+  version: '5.0.0',
+  title: 'Messenger and Facebook',
   description:
     'Give your bot access to one of the world’s largest messaging platforms and manage your Facebook page content in one place.',
   icon: 'icon.svg',
@@ -229,9 +229,6 @@ export default new IntegrationDefinition({
       title: 'Conversation',
       description: 'A conversation with a Messenger user',
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
