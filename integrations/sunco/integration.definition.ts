@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
@@ -7,24 +6,40 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '1.0.2',
+  version: '1.0.3',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      appId: z.string().min(1),
-      keyId: z.string().min(1),
-      keySecret: z.string().min(1),
-      webhookSecret: z.string().min(1),
+      appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
+      keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
+      keySecret: z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
+      webhookSecret: z.string().min(1).title('Webhook Secret').describe('Your Sunshine Conversations Webhook Secret'),
     }),
   },
   channels: {
     channel: {
+      title: 'Sunshine Conversations Channel',
+      description: 'Channel for a Sunshine conversation',
       messages: { ...messages.defaults, markdown: messages.markdown },
-      message: { tags: { id: {} } },
-      conversation: { tags: { id: {} } },
+      message: {
+        tags: {
+          id: {
+            title: 'Message ID',
+            description: 'The Sunshine Conversations message ID',
+          },
+        },
+      },
+      conversation: {
+        tags: {
+          id: {
+            title: 'Conversation ID',
+            description: 'The Sunshine Conversations conversation ID',
+          },
+        },
+      },
     },
   },
   actions: {},
@@ -32,7 +47,10 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
-      id: {},
+      id: {
+        title: 'User ID',
+        description: 'The Sunshine Conversations user ID',
+      },
     },
   },
   entities: {
@@ -56,9 +74,6 @@ export default new IntegrationDefinition({
         .title('Conversation')
         .describe('The conversation object fields'),
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
