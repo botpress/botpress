@@ -148,27 +148,38 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     await this._install(installPath, files)
   }
-  private async _chooseNewAlias() {
+  private async _chooseNewAlias(existingPackages: Record<string, string>) {
     const setAliasConfirmation = await this.prompt.confirm(
       'Do you want to set an alias to the package you are installing?'
     )
     if (!setAliasConfirmation) {
       throw new errors.AbortedOperationError()
     }
+
+    const alias = this._chooseUnusedAlias(existingPackages)
+
+    return alias
+  }
+
+  private async _chooseUnusedAlias(existingPackages: Record<string, string>): Promise<string> {
     const alias = await this.prompt.text('Enter the new alias')
+    const existingAlias = Object.entries(existingPackages).find(([dep, _]) => dep === alias)
 
     if (!alias) {
       throw new errors.BotpressCLIError('You cannot set an empty alias')
     }
+    if (!existingAlias) {
+      return alias
+    }
 
-    return alias
+    this.logger.warn(`The alias ${alias} is already used for dependency ${existingAlias[1]}. Choose another one.`)
+    return this._chooseUnusedAlias(existingPackages)
   }
 
   private async _addNewSinglePackage(ref: RefWithAlias) {
     const foundPackage = await this._findPackage(ref)
     const targetPackage = foundPackage.targetPackage
     const packageName = await this._addDependencyToPackage(foundPackage.packageName, targetPackage)
-    console.log(targetPackage)
     await this._addSinglePackage(ref, { packageName, targetPackage })
   }
 
@@ -395,7 +406,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
         const res = await this.prompt.confirm(`Do you want to overwrite the dependency with version ${version}?`)
         if (!res) {
-          const newAlias = await this._chooseNewAlias()
+          const newAlias = await this._chooseNewAlias(validatedBpDeps)
           packageName = newAlias
         }
       }
