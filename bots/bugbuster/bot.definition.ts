@@ -31,7 +31,12 @@ export default new sdk.BotDefinition({
       }),
     },
   },
-  workflows: { lintAll: { input: { schema: sdk.z.object({}) }, output: { schema: sdk.z.object({}) } } },
+  workflows: {
+    lintAll: {
+      input: { schema: sdk.z.object({ conversationId: sdk.z.string() }) },
+      output: { schema: sdk.z.object({}) },
+    },
+  },
   __advanced: {
     useLegacyZuiTransformer: true,
   },
