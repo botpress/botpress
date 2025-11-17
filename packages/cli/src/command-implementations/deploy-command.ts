@@ -110,6 +110,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       ...(await this.prepareCreateIntegrationBody(integrationDef)),
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       visibility: this._visibility,
+      sdkVersion: integrationDef.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
@@ -225,6 +226,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       public: this._visibility === 'public',
       icon,
       readme,
+      sdkVersion: interfaceDeclaration.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
@@ -311,6 +313,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         node: codeCJS,
         browser: codeESM,
       },
+      sdkVersion: pluginDef.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
