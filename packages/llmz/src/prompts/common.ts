@@ -52,7 +52,7 @@ export const replacePlaceholders = (prompt: string, values: Record<string, unkno
   })
 
   const remaining = Object.keys(obj).filter(
-    (key) => key !== 'is_message_enabled' && key !== 'exits' && key !== 'components'
+    (key) => key !== 'is_message_enabled' && key !== 'exits' && key !== 'components' && key !== 'transcript'
   )
 
   if (remaining.length) {
