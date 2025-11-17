@@ -1,6 +1,22 @@
 <iframe src="https://www.youtube.com/embed/pOIrLMpZZqc"></iframe>
 
-The Messenger integration empowers your chatbot to seamlessly interact with Facebook Messenger, one of the most popular messaging platforms. Connect your AI-powered chatbot to Messenger and engage with your audience in real-time conversations. With this integration, you can automate customer support, provide personalized recommendations, send notifications, and handle inquiries directly within Messenger. Leverage Messenger's rich features, including text, images, buttons, quick replies, and more, to create dynamic and engaging chatbot experiences. Take your customer engagement to the next level with the Messenger Integration for Botpress.
+The Facebook and Messenger integration empowers your chatbot to seamlessly interact across Facebook's messaging ecosystem, combining both Messenger and Facebook Page capabilities into one powerful solution. Connect your AI-powered chatbot to engage with your audience through multiple touchpoints: respond to direct messages, reply to comments on Facebook Page posts, and even initiate private conversations directly from post comments.
+
+## Configuration (Updates)
+
+### Manual configuration
+
+#### Webhook Subscriptions
+
+Using the Messenger App in your Meta app, subscribe to the following fields:
+
+- **messages**: Required to receive incoming direct messages
+- **messaging_postbacks**: Required to handle button clicks and quick replies
+- **(NEW) feed**: Required to receive and respond to comments on Facebook page posts. This field is essential for the comment interaction features and proactive conversation from comments.
+
+## Proactive Conversations
+
+The integration now supports proactive conversation creation, letting you seamlessly move from public interactions to private DMs. When someone comments on a post from your Facebook Page, you can use that comment’s ID to automatically initiate a private conversation with the user.
 
 ## Migrating from 4.x to 5.x
 
