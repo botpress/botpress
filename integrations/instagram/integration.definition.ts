@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import { dmChannelMessages } from './definitions/channel'
@@ -165,7 +165,7 @@ export default new IntegrationDefinition({
   actions: {},
   events: {},
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app.',
     },
@@ -186,9 +186,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_INSTAGRAM_ID: {
       description: 'Instagram ID for the Sandbox Instagram profile',
-    },
-    POSTHOG_KEY: {
-      description: 'The PostHog key for the Instagram integration',
     },
   },
   user: {

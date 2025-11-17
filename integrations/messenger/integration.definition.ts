@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -123,7 +123,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of your Meta app',
     },
@@ -159,9 +159,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_SHOULD_GET_USER_PROFILE: {
       description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
-    },
-    POSTHOG_KEY: {
-      description: 'The PostHog API key',
     },
   },
   user: {
