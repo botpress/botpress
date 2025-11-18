@@ -94,10 +94,10 @@ export async function runLints(
   linear: LinearApi,
   issues: Issue[],
   logger: BotLogger,
-  lastLintedIdSetter: (id: string) => Promise<any>
+  setLastLintedId: (id: string) => Promise<any>
 ) {
   for (const issue of issues) {
     await runLint(linear, issue, logger)
-    await lastLintedIdSetter(issue.id)
+    await setLastLintedId(issue.id)
   }
 }
