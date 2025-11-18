@@ -197,6 +197,28 @@ export type CreateWorkflow<TBot extends common.BaseBot> = <TWorkflowName extends
   }>
 >
 
+export type GetOrCreateWorkflow<TBot extends common.BaseBot> = <
+  TWorkflowName extends utils.StringKeys<TBot['workflows']>,
+>(
+  x: utils.Merge<
+    Arg<client.Client['getOrCreateWorkflow']>,
+    {
+      name: utils.Cast<TWorkflowName, string>
+      input: utils.Cast<TBot['workflows'][TWorkflowName], common.IntegrationInstanceActionDefinition>['input']
+      tags?: utils.AtLeastOneProperty<TBot['workflows'][TWorkflowName]['tags']>
+    }
+  >
+) => Promise<
+  Readonly<{
+    workflow: utils.Merge<
+      Awaited<Res<client.Client['getOrCreateWorkflow']>>['workflow'],
+      {
+        name: NoInfer<TWorkflowName>
+      }
+    >
+  }>
+>
+
 // FIXME: there's no way to infer types for getWorkflow, since all we have is its id
 export type GetWorkflow<_TBot extends common.BaseBot> = client.Client['getWorkflow']
 
