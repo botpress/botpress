@@ -22,18 +22,20 @@ const getHeaders = (authorization: string) => ({
 type ClientProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
 
 export class BambooHRClient {
-  public _baseUrl: string // chore: private
+  public _baseUrl: string
   private _headers: Record<string, string>
   private _expiresAt: number
   private _props: ClientProps
 
   public static async create(props: ClientProps): Promise<BambooHRClient> {
-    // chore: not needed
-    const { authorization, expiresAt } = await getBambooHrAuthorization(props)
-
     let subdomain: string
+    let authorization: string
+    let expiresAt: number
+
     if (props.ctx.configurationType === 'manual') {
       subdomain = props.ctx.configuration.subdomain
+      authorization = `Basic ${Buffer.from(props.ctx.configuration.apiKey + ':x').toString('base64')}`
+      expiresAt = Infinity
     } else {
       // OAuth mode - get subdomain from state
       const { state } = await props.client.getState({
@@ -42,6 +44,8 @@ export class BambooHRClient {
         id: props.ctx.integrationId,
       })
       subdomain = state.payload.domain
+      authorization = state.payload.accessToken
+      expiresAt = state.payload.expiresAt
     }
 
     return new BambooHRClient({ subdomain, authorization, expiresAt, props })
@@ -52,24 +56,18 @@ export class BambooHRClient {
     authorization,
     expiresAt,
     props,
-  }: {
-    subdomain: string
-    authorization: string
-    expiresAt: number
-    props: ClientProps
-  }) {
+  }: { subdomain: string; authorization: string; expiresAt: number; props: ClientProps }) {
     this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
-    this._expiresAt = expiresAt
     this._headers = getHeaders(authorization)
+    this._expiresAt = expiresAt
     this._props = props
   }
 
-  // chore: private
   private async _makeRequest({
     url,
     ...params
   }: Pick<RequestInit, 'method' | 'body'> & { url: URL }): Promise<Response> {
-    // Refresh token if too close to expiry
+    // Refresh OAuth token if too close to expiry
     if (Date.now() >= this._expiresAt) {
       const { authorization, expiresAt } = await getBambooHrAuthorization(this._props)
       this._expiresAt = expiresAt

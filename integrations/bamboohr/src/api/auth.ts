@@ -12,19 +12,12 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  */
 const fetchBambooHrOauthToken = async (
   { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
-  oAuthInfo: { code: string; redirectUri?: string } | { refreshToken: string; redirectUri?: string }
+  oAuthInfo: { code: string, domain: string, redirectUri?: string  } | { refreshToken: string; domain: string, redirectUri?: string }
 ): Promise<{
   accessToken: string
   idToken: string
 }> => {
-  // chore: that's a lot of getState calls
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-  })
-
-  const bambooHrOauthUrl = `https://${state.payload.domain}.bamboohr.com/token.php?request=token`
+  const bambooHrOauthUrl = `https://${oAuthInfo.domain}.bamboohr.com/token.php?request=token`
 
   const { OAUTH_CLIENT_SECRET, OAUTH_CLIENT_ID } = bp.secrets
 
@@ -66,7 +59,7 @@ const fetchBambooHrOauthToken = async (
     name: 'oauth',
     id: ctx.integrationId,
     payload: {
-      domain: state.payload.domain,
+      domain: oAuthInfo.domain,
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
@@ -89,13 +82,7 @@ export const getBambooHrAuthorization = async ({
   ctx,
   client,
 }: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<{ authorization: string; expiresAt: number }> => {
-  if (ctx.configurationType === 'manual') {
-    return {
-      authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
-      expiresAt: Infinity,
-    }
-  }
-
+  
   let oauth: bp.states.States['oauth']['payload']
   try {
     const { state } = await client.getState({
@@ -126,8 +113,11 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
 
   const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
   if (!redirectUri) throw new Error('Missing redirect URI')
-
-  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code, redirectUri })
+  
+  const domain = new URL(redirectUri).hostname.split('.')[0]
+  if (!domain) throw new Error('Missing domain')
+    
+  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code, domain, redirectUri })
 
   // Extract subdomain from the JWT token
   const decodedToken = jwt.decode(idToken) as JwtPayload
