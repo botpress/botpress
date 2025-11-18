@@ -818,6 +818,31 @@ importers:
         specifier: ^6.4.4
         version: 6.4.8
 
+  integrations/facebook:
+    dependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.6.2
+        version: 1.12.2
+    devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
+
   integrations/feature-base:
     dependencies:
       '@botpress/client':
@@ -2645,7 +2670,7 @@ importers:
         specifier: 1.27.1
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.2.1
+        specifier: 0.3.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2828,7 +2853,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.2.1
+        specifier: 0.3.0
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
