@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError, isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
@@ -43,7 +43,7 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
-    const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
+    const distinctId = isApiError(thrown) ? thrown.id : undefined
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',

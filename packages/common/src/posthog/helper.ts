@@ -1,3 +1,4 @@
+import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import { EventMessage, PostHog } from 'posthog-node'
 
@@ -75,7 +76,8 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      const distinctId = thrown instanceof sdk.RuntimeError ? thrown.id : undefined
+
+      const distinctId = client.isApiError(thrown) ? thrown.id : undefined
       await sendPosthogEvent(
         {
           distinctId: distinctId ?? 'no id',

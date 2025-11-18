@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import { isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
@@ -44,7 +44,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   try {
     formattedUserPhone = formatPhoneNumber(userPhone)
   } catch (thrown) {
-    const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
+    const distinctId = isApiError(thrown) ? thrown.id : undefined
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',

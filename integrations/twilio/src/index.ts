@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError, isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
@@ -405,7 +405,7 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       logger.forBot().debug('Failed to transform markdown - Error:', errMsg)
-      const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
+      const distinctId = isApiError(thrown) ? thrown.id : undefined
       await posthogHelper.sendPosthogEvent(
         {
           distinctId: distinctId ?? 'no id',
