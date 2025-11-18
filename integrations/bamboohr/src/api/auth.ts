@@ -75,9 +75,6 @@ const fetchBambooHrOauthToken = async (
     },
   })
 
-  console.log('access_token', access_token)
-  console.log('id_token', id_token)
-
   return { accessToken: access_token, idToken: id_token }
 }
 
