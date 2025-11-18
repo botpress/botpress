@@ -50,6 +50,20 @@ export default new sdk.BotDefinition({
       output: { schema: sdk.z.object({}) },
     },
   },
+  events: {
+    timeToLintAll: {
+      schema: sdk.z.object({}),
+    },
+  },
+  recurringEvents: {
+    timeToLintAll: {
+      payload: sdk.z.object({}),
+      type: 'timeToLintAll',
+      schedule: {
+        cron: '0 8 * * 1',
+      },
+    },
+  },
   __advanced: {
     useLegacyZuiTransformer: true,
   },
