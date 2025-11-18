@@ -66,9 +66,7 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
     }
     await botpress.respondText(conversationId, 'Success: ' + result.message)
     await workflow.setCompleted()
-  } catch (thrown) {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + error.message)
+  } catch {
     return
   }
 }
