@@ -80,5 +80,3 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
     return correspondingPackage
   }
 }
-
-//TODO add e2e tests
