@@ -1,6 +1,5 @@
 import * as sdk from '@botpress/sdk'
 import { EventMessage, PostHog } from 'posthog-node'
-import { botpressEvents, BotpressEvent } from './events'
 
 export const COMMON_SECRET_NAMES = {
   POSTHOG_KEY: {
@@ -8,22 +7,18 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type BotpressEventMessage = Omit<EventMessage, 'event'> & {
-  event: BotpressEvent
-}
-
 type PostHogConfig = {
   key: string
   integrationName: string
 }
 
-export const sendPosthogEvent = async (props: BotpressEventMessage, config: PostHogConfig): Promise<void> => {
+export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
   const { key, integrationName } = config
   const client = new PostHog(key, {
     host: 'https://us.i.posthog.com',
   })
   try {
-    const signedProps: BotpressEventMessage = {
+    const signedProps: EventMessage = {
       ...props,
       properties: {
         ...props.properties,
@@ -83,7 +78,7 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
       await sendPosthogEvent(
         {
           distinctId: errMsg,
-          event: botpressEvents.UNHANDLED_ERROR,
+          event: 'unhandled_error',
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
@@ -103,13 +98,23 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
       if (!resp.body) {
-        console.warn(`The error message was empty in the handler of ${config.integrationName}`)
+        await sendPosthogEvent(
+          {
+            distinctId: 'Empty Body',
+            event: 'unhandled_error_empty_body',
+            properties: {
+              from: fn.name,
+              integrationName: config.integrationName,
+            },
+          },
+          config
+        )
         return
       }
       await sendPosthogEvent(
         {
           distinctId: JSON.stringify(resp.body),
-          event: botpressEvents.UNHANDLED_ERROR,
+          event: 'unhandled_error',
           properties: {
             from: fn.name,
             integrationName: config.integrationName,

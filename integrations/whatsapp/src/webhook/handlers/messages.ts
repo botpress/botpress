@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { posthogHelper, botpressEvents } from '@botpress/common'
+import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
 import { INTEGRATION_NAME } from 'integration.definition'
@@ -46,7 +46,7 @@ async function _handleIncomingMessage(
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: userPhone,
-        event: botpressEvents.INVALID_PHONE_NUMBER,
+        event: 'invalid_phone_number',
         properties: {
           from: 'handler',
         },

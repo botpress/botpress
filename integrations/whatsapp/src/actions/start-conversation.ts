@@ -1,4 +1,4 @@
-import { posthogHelper, botpressEvents } from '@botpress/common'
+import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
@@ -46,7 +46,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: userPhone,
-        event: botpressEvents.INVALID_PHONE_NUMBER,
+        event: 'invalid_phone_number',
         properties: {
           from: 'action',
         },

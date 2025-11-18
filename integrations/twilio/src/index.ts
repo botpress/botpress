@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { posthogHelper, botpressEvents } from '@botpress/common'
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
@@ -408,7 +408,7 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
       await posthogHelper.sendPosthogEvent(
         {
           distinctId: errMsg,
-          event: botpressEvents.UNHANDLED_MARKDOWN,
+          event: 'unhandled_markdown',
         },
         { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
       )

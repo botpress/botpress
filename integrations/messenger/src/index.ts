@@ -10,7 +10,7 @@ import * as bp from '.botpress'
   integrationName: INTEGRATION_NAME,
   key: bp.secrets.POSTHOG_KEY,
 })
-class WhatsappIntegration extends bp.Integration {
+class MessengerIntegration extends bp.Integration {
   public constructor() {
     super({
       register,
@@ -22,4 +22,4 @@ class WhatsappIntegration extends bp.Integration {
   }
 }
 
-export default new WhatsappIntegration()
+export default new MessengerIntegration()
