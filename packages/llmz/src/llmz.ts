@@ -19,6 +19,7 @@ import {
   ThinkSignal,
   VMSignal,
 } from './errors.js'
+import { parseExit } from './exit-parser.js'
 import { Exit, ExitResult } from './exit.js'
 import { ValueOrGetter } from './getter.js'
 
@@ -600,21 +601,22 @@ const executeIteration = async ({
     ended_at: Date.now(),
   })
 
+  // Check for abort first - takes precedence over other errors
+  if (controller.signal.aborted) {
+    return iteration.end({
+      type: 'aborted',
+      aborted: {
+        reason: controller.signal.reason ?? 'The operation was aborted',
+      },
+    })
+  }
+
   if (result.error && result.error instanceof CodeExecutionError) {
     return iteration.end({
       type: 'execution_error',
       execution_error: {
         message: result.error.message,
         stack: cleanStackTrace(result.error.stacktrace ?? result.error.stack ?? 'No stack trace available'),
-      },
-    })
-  }
-
-  if (controller.signal.aborted) {
-    return iteration.end({
-      type: 'aborted',
-      aborted: {
-        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -648,15 +650,13 @@ const executeIteration = async ({
     })
   }
 
-  const validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
+  const _validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 
   const returnAction = returnValue?.action
-  const returnExit =
-    iteration.exits.find((x) => x.name.toLowerCase() === returnAction?.toLowerCase()) ??
-    iteration.exits.find((x) => x.aliases.some((a) => a.toLowerCase() === returnAction?.toLowerCase()))
 
+  // Handle think action separately
   if (returnAction === 'think') {
     const variables = omit(returnValue ?? {}, 'action')
     if (isPlainObject(variables) && Object.keys(variables).length > 0) {
@@ -678,42 +678,22 @@ const executeIteration = async ({
     })
   }
 
-  if (!returnAction) {
+  // Parse the exit using the extracted function
+  const parsedExit = parseExit(returnValue, iteration.exits)
+
+  if (!parsedExit.success) {
     return iteration.end({
       type: 'exit_error',
       exit_error: {
-        exit: 'n/a',
-        message: `Code did not return an action. Valid actions are: ${validActions.join(', ')}`,
+        exit: returnValue?.action ?? 'n/a',
+        message: parsedExit.error,
         return_value: returnValue,
       },
     })
   }
 
-  if (!returnExit) {
-    return iteration.end({
-      type: 'exit_error',
-      exit_error: {
-        exit: returnAction,
-        message: `Exit "${returnAction}" not found. Valid actions are: ${validActions.join(', ')}`,
-        return_value: returnValue,
-      },
-    })
-  }
-
-  if (returnExit.zSchema) {
-    const parsed = returnExit.zSchema.safeParse(returnValue?.value)
-    if (!parsed.success) {
-      return iteration.end({
-        type: 'exit_error',
-        exit_error: {
-          exit: returnExit.name,
-          message: `Invalid return value for exit ${returnExit.name}: ${getErrorMessage(parsed.error)}`,
-          return_value: returnValue,
-        },
-      })
-    }
-    returnValue = { action: returnExit.name, value: parsed.data }
-  }
+  const returnExit = parsedExit.exit
+  returnValue = { action: returnExit.name, value: parsedExit.value }
 
   try {
     await onExit?.({
@@ -751,7 +731,7 @@ type Props = {
 }
 
 function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
-  const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
+  const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
 
   return function (input: any) {
     const toolCallId = `tcall_${ulid()}`

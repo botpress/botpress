@@ -1,17 +1,17 @@
-import { describe, assert, expect, test } from 'vitest'
+import { assert, describe, expect, test } from 'vitest'
 
-import { Tool } from './tool.js'
 import * as llmz from './llmz.js'
+import { Tool } from './tool.js'
 
-import { transforms, z } from '@bpinternal/zui'
+import { z } from '@bpinternal/zui'
 
 import { getCachedCognitiveClient } from './__tests__/index.js'
-import { Exit } from './exit.js'
-import { SnapshotSignal } from './errors.js'
 import { Chat } from './chat.js'
 import { DefaultComponents } from './component.default.js'
-import { TranscriptArray } from './transcript.js'
+import { SnapshotSignal } from './errors.js'
+import { Exit } from './exit.js'
 import { ErrorExecutionResult, ExecutionResult, PartialExecutionResult } from './result.js'
+import { TranscriptArray } from './transcript.js'
 
 const client = getCachedCognitiveClient()
 
@@ -140,10 +140,9 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
     expect(result.snapshot.toolCall.name).toBe(tGetPaymentIntent().name)
     expect(result.snapshot.toolCall.input).toEqual({ amount: 10 })
 
-    const expectedInput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zInput)
-    expect(result.snapshot.toolCall.inputSchema).toEqual(expectedInput)
-    const expectedOutput = transforms.toJSONSchemaLegacy(tGetPaymentIntent().zOutput)
-    expect(result.snapshot.toolCall.outputSchema).toEqual(expectedOutput)
+    // The snapshot contains the tool's JSON schemas directly (from tool.input and tool.output)
+    expect(result.snapshot.toolCall.inputSchema).toEqual(tGetPaymentIntent().input)
+    expect(result.snapshot.toolCall.outputSchema).toEqual(tGetPaymentIntent().output)
   })
 
   test('cannot resume from a snapshot without resolving it', async () => {

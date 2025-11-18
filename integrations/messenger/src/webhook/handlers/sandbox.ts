@@ -3,8 +3,8 @@ import {
   CONVERSATION_DISCONNECTED_MESSAGE,
   extractSandboxCommand,
 } from '@botpress/common'
-import { create as createMessengerClient } from '../../misc/messenger-client'
-import { MessengerMessagingEntry, messengerPayloadSchema } from '../../misc/types'
+import { createAuthenticatedMessengerClient } from '../../misc/messenger-client'
+import { MessengerMessagingItem, eventPayloadSchema } from '../../misc/types'
 import { getErrorFromUnknown } from '../../misc/utils'
 import * as bp from '.botpress'
 
@@ -35,19 +35,19 @@ const _handleLeaveCommand = async (props: bp.HandlerProps) => {
 
 const _sendConfirmationMessage = async (props: bp.HandlerProps, message: string) => {
   const { client, ctx } = props
-  const messagingEntry = _extractMessagingEntryFromRequest(props)
-  if (!messagingEntry) {
+  const messagingItem = _extractMessagingItemFromRequest(props)
+  if (!messagingItem) {
     return NO_MESSAGE_ERROR
   }
-  const messengerClient = await createMessengerClient(client, ctx)
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   for (const action of ['typing_on', 'mark_seen'] as const) {
-    await messengerClient.sendSenderAction(messagingEntry.sender.id, action)
+    await messengerClient.sendSenderAction(messagingItem.sender.id, action)
   }
-  await messengerClient.sendText(messagingEntry.sender.id, message)
+  await messengerClient.sendText(messagingItem.sender.id, message)
   return
 }
 
-const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): MessengerMessagingEntry | undefined => {
+const _extractMessagingItemFromRequest = (props: bp.HandlerProps): MessengerMessagingItem | undefined => {
   const { req, logger } = props
   if (!req.body) {
     return undefined
@@ -55,8 +55,19 @@ const _extractMessagingEntryFromRequest = (props: bp.HandlerProps): MessengerMes
 
   try {
     const data = JSON.parse(req.body)
-    const payload = messengerPayloadSchema.parse(data)
-    return payload.entry[0]?.messaging[0]
+    const payload = eventPayloadSchema.parse(data)
+    const entry = payload.entry[0]
+    if (!entry) {
+      logger.error('No entry found in payload')
+      return undefined
+    }
+
+    if (!('messaging' in entry)) {
+      logger.error('No messaging found in entry')
+      return undefined
+    }
+
+    return entry.messaging[0]
   } catch (error) {
     logger.error('Error while extracting message from request:', getErrorFromUnknown(error).message)
     return undefined
