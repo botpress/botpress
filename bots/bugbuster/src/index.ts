@@ -40,25 +40,10 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
   const conversationId = workflow.input.conversationId
   await workflow.acknowledgeStartOfProcessing()
 
-  const lastLintedIdSetter = async (id: string) =>
-    await client.setState({
-      id: workflow.id,
-      name: 'lastLintedId',
-      type: 'workflow',
-      payload: { id },
-    })
-
   const botpress = new BotpressApi(client, ctx)
 
-  const lastLintedId = await client.getOrSetState({
-    id: workflow.id,
-    name: 'lastLintedId',
-    type: 'workflow',
-    payload: {},
-  })
-
   try {
-    const result = await lintAll(client, logger, ctx, conversationId, lastLintedIdSetter, lastLintedId.state.payload.id)
+    const result = await lintAll(client, logger, ctx, conversationId, workflow.id)
     if (!result.success) {
       await workflow.setFailed({ failureReason: result.message })
       await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
