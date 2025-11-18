@@ -1,4 +1,4 @@
-import { BotLogger, RuntimeError } from '@botpress/sdk'
+import { BotLogger } from '@botpress/sdk'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
