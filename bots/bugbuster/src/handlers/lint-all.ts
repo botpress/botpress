@@ -12,7 +12,7 @@ export const lintAll = async (
   logger: BotLogger,
   ctx: BotContext,
   conversationId: string,
-  lastLintedIdSetter: (id: string) => Promise<any>,
+  setLastLintedId: (id: string) => Promise<any>,
   lastLintedId?: string
 ): Promise<Result<void>> => {
   const _handleError = (context: string) => handleError(context, logger, botpress, conversationId)
@@ -28,6 +28,6 @@ export const lintAll = async (
     _handleError('trying to list all issues')
   )
 
-  await runLints(linear, issues, logger, lastLintedIdSetter).catch(_handleError('trying to run lints on all issues'))
+  await runLints(linear, issues, logger, setLastLintedId).catch(_handleError('trying to run lints on all issues'))
   return { success: true, message: 'linted all issues' }
 }
