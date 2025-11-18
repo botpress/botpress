@@ -89,18 +89,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (parsed.type !== 'name') {
       return parsed
     }
-
-    const argvPkgType = this.argv.packageType
-    if (!argvPkgType) {
-      return parsed
-    }
-
-    const ref = { ...parsed, pkg: argvPkgType }
-
-    const strRef = pkgRef.formatPackageRef(ref)
-    this.logger.warn(`argument --packageType is deprecated; please use the package reference format "${strRef}"`)
-
-    return ref
+    return
   }
 
   private async _addSinglePackage(

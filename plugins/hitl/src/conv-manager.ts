@@ -162,7 +162,7 @@ export class ConversationManager {
   private async _toggleTypingIndicator(payload: TypingIndicatorState): Promise<void> {
     try {
       await this._props.client.setState({
-        id: this._convId,
+        id: this._conversation.id,
         type: 'conversation',
         name: TYPING_INDICATOR_STATE_NAME,
         payload,
@@ -170,7 +170,9 @@ export class ConversationManager {
     } catch (thrown) {
       // because this state is hardcoded in the Studio / DM, it might not exist in some bot-as-code or ADK bots
       const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      this._props.logger.withConversationId(this._convId).debug(`Could not set typing indicator state: ${errorMsg}`)
+      this._props.logger
+        .withConversationId(this._conversation.id)
+        .debug(`Could not set typing indicator state: ${errorMsg}`)
     }
   }
 }
