@@ -4,11 +4,16 @@ import { articleUnpublished } from './events/article-unpublished'
 import { executeMessageReceived } from './events/message-received'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
+import { oauthCallbackHandler } from './oauth'
 import type { TriggerPayload } from './triggers'
 import { ZendeskEvent } from './webhookEvents'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client: bpClient, logger }) => {
+  if (req.path.startsWith('/oauth')) {
+    return await oauthCallbackHandler({ req, ctx, client: bpClient, logger })
+  }
+
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return

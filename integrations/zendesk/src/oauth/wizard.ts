@@ -1,6 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
+import { webcrypto } from 'crypto'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -52,13 +53,23 @@ const _startHandler: WizardHandler = ({ responses }) => {
 }
 
 const _resetHandler: WizardHandler = async ({ responses, client, ctx }) => {
-  await client.setState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-    payload: {},
-  })
-  return responses.redirectToExternalUrl(await _getOAuthAuthorizationPromptUri(ctx))
+  await _patchCredentialsState(client, ctx, { accessToken: undefined })
+  return responses.redirectToExternalUrl(
+    'https://' +
+      bp.secrets.SUBDOMAIN +
+      '.zendesk.com/oauth/authorizations/new?' +
+      'response_type=code' +
+      '&redirect_uri=' +
+      _getOAuthRedirectUri() +
+      '&state=' +
+      ctx.webhookId +
+      '&client_id=' +
+      bp.secrets.CLIENT_ID +
+      '&scope=read+write' +
+      '&code_challenge=' +
+      (await sha256(bp.secrets.CODE_CHALLENGE)) +
+      '&code_challenge_method=S256'
+  )
 }
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
@@ -71,21 +82,11 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
     })
   }
 
-  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode, ctx)
+  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode)
 
-  const currentState = await client
-    .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-    .then((result) => result.state.payload)
-
-  await client.setState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-    payload: {
-      ...currentState,
-      ...{ accessToken },
-    },
-  })
+  const credentials = await _getCredentialsState(client, ctx)
+  const newCredentials = { ...credentials, accessToken }
+  await _patchCredentialsState(client, ctx, newCredentials)
 
   return responses.redirectToStep('end')
 }
@@ -96,48 +97,25 @@ const _endHandler: WizardHandler = ({ responses }) => {
   })
 }
 
-const _getOAuthAuthorizationPromptUri = async (ctx?: bp.Context) =>
-  'https://botpress3373.zendesk.com/oauth/authorizations/new?' +
-  'response_type=code' +
-  '&redirect_uri=' +
-  _getOAuthRedirectUri(ctx) +
-  '&client_id=' +
-  bp.secrets.CLIENT_ID +
-  '&scope=tickets%3Aread+tickets%3Awrite+users%3Aread+users%3Awrite' +
-  '&code_challenge=' +
-  (await sha256(bp.secrets.CODE_CHALLENGE)) +
-  '&code_challenge_method=S256'
-
-// taken from zendesk documentation https://developer.zendesk.com/documentation/api-basics/authentication/oauth-pkce/#javascript
-const sha256 = async (base64String: string) => {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(base64String)
-  const hash = await window.crypto.subtle.digest('SHA-256', data)
-  let binary = ''
-  const bytes = new Uint8Array(hash)
-  for (const byte of bytes) {
-    if (byte === undefined) {
-      throw new sdk.RuntimeError('The hash creation failed')
-    }
-    binary += String.fromCharCode(byte)
-  }
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+const sha256 = async (str: string) => {
+  const data = new TextEncoder().encode(str)
+  const hash = await webcrypto.subtle.digest('SHA-256', data)
+  return Buffer.from(hash).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
-const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: string, ctx?: bp.Context) => {
+
+const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: string) => {
   const url = 'https://' + bp.secrets.SUBDOMAIN + '.zendesk.com/oauth/tokens'
-  const redirectUri = _getOAuthRedirectUri(ctx)
   const res = await axios.post(
     url,
     {
       grant_type: 'authorization_code',
       code: authorizationCode,
       client_id: bp.secrets.CLIENT_ID,
-      client_secret: bp.secrets.CLIENT_SECRET,
-      redirectUri,
+      redirect_uri: _getOAuthRedirectUri(),
+      scope: 'read write',
       code_verifier: bp.secrets.CODE_CHALLENGE,
-      scope: 'read',
     },
     {
       headers: {
@@ -145,6 +123,7 @@ const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: strin
       },
     }
   )
+
   const data = sdk.z
     .object({
       access_token: sdk.z.string(),
@@ -152,4 +131,39 @@ const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: strin
     .parse(res.data)
 
   return data.access_token
+}
+
+// client.patchState is not working correctly
+const _patchCredentialsState = async (
+  client: bp.Client,
+  ctx: bp.Context,
+  newState: Partial<typeof bp.states.oauth>
+) => {
+  const currentState = await _getCredentialsState(client, ctx)
+
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: {
+      ...currentState,
+      ...newState,
+    },
+  })
+}
+
+const _getCredentialsState = async (client: bp.Client, ctx: bp.Context) => {
+  try {
+    return (
+      (
+        await client.getState({
+          type: 'integration',
+          name: 'oauth',
+          id: ctx.integrationId,
+        })
+      )?.state?.payload || {}
+    )
+  } catch {
+    return {}
+  }
 }
