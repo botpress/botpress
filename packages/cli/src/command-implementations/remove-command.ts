@@ -15,21 +15,21 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
       throw new errors.BotpressCLIError('You have to provide the alias of the package to remove')
     }
 
-    const { validatedBpDeps, workDir, pkgJson } = await this._validatePkgJson()
+    const workDir = utils.path.absoluteFrom(utils.path.cwd(), this.argv.workDir)
+
+    const { validatedBpDeps, pkgJson } = await this._validatePkgJson(workDir)
 
     const correspondingPackageAlias = this._findCorrespondingPackage(alias, validatedBpDeps)
 
-    this._removeDepFromBpModules(correspondingPackageAlias, workDir, alias)
+    await this._removeDepFromBpModules(correspondingPackageAlias, workDir, alias)
 
     await this._removeDepFromPkgJson(correspondingPackageAlias, validatedBpDeps, pkgJson, workDir, alias)
   }
 
-  private async _validatePkgJson(): Promise<{
+  private async _validatePkgJson(workDir: string): Promise<{
     validatedBpDeps: Record<string, string>
-    workDir: utils.path.AbsolutePath
     pkgJson: utils.pkgJson.PackageJson
   }> {
-    const workDir = utils.path.absoluteFrom(utils.path.cwd(), this.argv.workDir)
     const pkgJson = await utils.pkgJson.readPackageJson(workDir)
     if (!pkgJson) {
       throw new errors.BotpressCLIError(`No ${PKGJSON_FILE_NAME} found in path ${workDir}`)
@@ -45,13 +45,17 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
     if (!parseResult.success) {
       throw new errors.BotpressCLIError(`Invalid ${BP_DEPENDENCIES_KEY} found in ${PKGJSON_FILE_NAME}`)
     }
-    return { validatedBpDeps: parseResult.data, workDir, pkgJson }
+    return { validatedBpDeps: parseResult.data, pkgJson }
   }
 
-  private _removeDepFromBpModules(correspondingPackageAlias: string, workDir: utils.path.AbsolutePath, alias: string) {
+  private async _removeDepFromBpModules(
+    correspondingPackageAlias: string,
+    workDir: utils.path.AbsolutePath,
+    alias: string
+  ) {
     const packageDirName = utils.casing.to.kebabCase(correspondingPackageAlias)
     const installPath = utils.path.join(workDir, consts.installDirName, packageDirName)
-    fslib.rmSync(installPath, { force: true, recursive: true })
+    await fslib.promises.rm(installPath, { force: true, recursive: true })
     this.logger.log(`Package "${alias}" was removed from bp_modules`)
   }
 
