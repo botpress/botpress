@@ -11,7 +11,9 @@ export const lintAll = async (
   client: BotClient<TBot>,
   logger: BotLogger,
   ctx: BotContext,
-  conversationId?: string
+  conversationId: string,
+  lastLintedIdSetter: (id: string) => Promise<any>,
+  lastLintedId?: string
 ): Promise<Result<void>> => {
   const _handleError = (context: string) => handleError(context, logger, botpress, conversationId)
   const botpress = new BotpressApi(client, ctx)
@@ -22,7 +24,10 @@ export const lintAll = async (
   }
 
   const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
-  const issues = await listIssues(teamsResult.result, linear).catch(_handleError('trying to list all issues'))
-  await runLints(linear, issues, logger).catch(_handleError('trying to run lints on all issues'))
+  const issues = await listIssues(teamsResult.result, linear, lastLintedId).catch(
+    _handleError('trying to list all issues')
+  )
+
+  await runLints(linear, issues, logger, lastLintedIdSetter).catch(_handleError('trying to run lints on all issues'))
   return { success: true, message: 'linted all issues' }
 }

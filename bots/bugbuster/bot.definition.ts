@@ -30,6 +30,12 @@ export default new sdk.BotDefinition({
           .describe('The keys of the teams for which BugBuster should lint issues'),
       }),
     },
+    lastLintedId: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        id: sdk.z.string().optional(),
+      }),
+    },
   },
   workflows: {
     lintAll: {
