@@ -1,4 +1,3 @@
-import * as authWizard from '@botpress/common/src/oauth-wizard'
 import { bambooHrOauthTokenResponse } from 'definitions'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import * as bp from '.botpress'
@@ -13,7 +12,7 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  */
 const fetchBambooHrOauthToken = async (
   { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
-  oAuthInfo: { code: string } | { refreshToken: string }
+  oAuthInfo: { code: string; redirectUri?: string } | { refreshToken: string; redirectUri?: string }
 ): Promise<{
   accessToken: string
   idToken: string
@@ -35,7 +34,7 @@ const fetchBambooHrOauthToken = async (
   const body = JSON.stringify({
     client_id: OAUTH_CLIENT_ID,
     client_secret: OAUTH_CLIENT_SECRET,
-    redirect_uri: authWizard.getWizardStepUrl('oauth-callback').href, // issue: this will call botpress webhook
+    ...(oAuthInfo.redirectUri ? { redirect_uri: oAuthInfo.redirectUri } : {}),
     ...('code' in oAuthInfo
       ? { grant_type: 'authorization_code', code: oAuthInfo.code }
       : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
@@ -125,7 +124,10 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   const code = new URLSearchParams(req.query).get('code')
   if (!code) throw new Error('Missing authentication code')
 
-  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code })
+  const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
+  if (!redirectUri) throw new Error('Missing redirect URI')
+
+  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code, redirectUri })
 
   // Extract subdomain from the JWT token
   const decodedToken = jwt.decode(idToken) as JwtPayload

@@ -123,11 +123,13 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, responses, client, 
     })
   }
 
+  const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback')
+
   try {
     // Complete OAuth flow with the subdomain
     await handleOauthRequest({
       req: {
-        query: `code=${code}`,
+        query: `code=${code}&redirect_uri=${redirectUri.toString()}`,
         path: '/oauth',
         body: '',
         method: 'GET',
