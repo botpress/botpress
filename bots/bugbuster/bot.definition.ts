@@ -33,13 +33,20 @@ export default new sdk.BotDefinition({
     lastLintedId: {
       type: 'workflow',
       schema: sdk.z.object({
-        id: sdk.z.string().optional(),
+        id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
       }),
     },
   },
   workflows: {
     lintAll: {
-      input: { schema: sdk.z.object({ conversationId: sdk.z.string() }) },
+      input: {
+        schema: sdk.z.object({
+          conversationId: sdk.z
+            .string()
+            .title('Conversation ID')
+            .describe('The ID of the conversation that triggered the workflow'),
+        }),
+      },
       output: { schema: sdk.z.object({}) },
     },
   },
