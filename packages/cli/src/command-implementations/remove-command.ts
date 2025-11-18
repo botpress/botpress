@@ -68,6 +68,7 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
   ) {
     const { [correspondingPackageAlias]: _, ...newBpDependencies } = validatedBpDeps
     pkgJson[BP_DEPENDENCIES_KEY] = newBpDependencies
+
     await utils.pkgJson.writePackageJson(workDir, pkgJson)
     this.logger.log(`Package with alias "${alias}" was removed from ${PKGJSON_FILE_NAME}`)
   }
