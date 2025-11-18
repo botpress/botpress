@@ -96,10 +96,12 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
   }
 }
 
+const isServerErrorStatus = (status: number): boolean => status >= 500 && status < 600
+
 function wrapHandler(fn: Function, config: PostHogConfig) {
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
-    if (resp instanceof Response && resp.status === 500) {
+    if (resp instanceof Response && isServerErrorStatus(resp.status)) {
       if (!resp.body) {
         console.warn(`The error message was empty in the handler of ${config.integrationName}`)
         return
