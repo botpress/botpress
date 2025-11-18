@@ -1,11 +1,17 @@
 import { PluginDefinition, z } from '@botpress/sdk'
 
+export const DEFAULT_UPDATE_FREQUENCY = 60
+
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.4.4',
+  version: '0.4.5',
   configuration: {
     schema: z.object({
-      aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
+      aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment AI generation'),
+      updateAiInsightFrequency: z
+        .number()
+        .default(DEFAULT_UPDATE_FREQUENCY)
+        .describe('The frequency of AI insight update in minutes'),
     }),
   },
   conversation: {
