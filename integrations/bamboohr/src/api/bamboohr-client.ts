@@ -22,7 +22,7 @@ const getHeaders = (authorization: string) => ({
 type ClientProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
 
 export class BambooHRClient {
-  public baseUrl: string // chore: private
+  public _baseUrl: string // chore: private
   private _headers: Record<string, string>
   private _expiresAt: number
   private _props: ClientProps
@@ -58,14 +58,14 @@ export class BambooHRClient {
     expiresAt: number
     props: ClientProps
   }) {
-    this.baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
+    this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
     this._expiresAt = expiresAt
     this._headers = getHeaders(authorization)
     this._props = props
   }
 
   // chore: private
-  public async _makeRequest({
+  private async _makeRequest({
     url,
     ...params
   }: Pick<RequestInit, 'method' | 'body'> & { url: URL }): Promise<Response> {
@@ -89,14 +89,14 @@ export class BambooHRClient {
   }
 
   public async testAuthorization(): Promise<boolean> {
-    const url = new URL(`${this.baseUrl}/employees/0`)
+    const url = new URL(`${this._baseUrl}/employees/0`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     return res.ok
   }
 
   public async createWebhook(webhookUrl: string): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
-    const url = new URL(`${this.baseUrl}/webhooks`)
+  const url = new URL(`${this._baseUrl}/webhooks`)
 
     const fields = bambooHrEmployeeWebhookFields.keyof().options
     const body = JSON.stringify({
@@ -123,7 +123,7 @@ export class BambooHRClient {
   }
 
   public async deleteWebhook(webhookId: string): Promise<Response> {
-    const url = new URL(`${this.baseUrl}/webhooks/${webhookId}`)
+    const url = new URL(`${this._baseUrl}/webhooks/${webhookId}`)
 
     return await this._makeRequest({ method: 'DELETE', url })
   }
@@ -131,7 +131,7 @@ export class BambooHRClient {
   // API Methods
 
   public async getCompanyInfo(): Promise<z.infer<typeof bambooHrCompanyInfo>> {
-    const url = new URL(`${this.baseUrl}/company_information`)
+    const url = new URL(`${this._baseUrl}/company_information`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrCompanyInfo)
@@ -145,7 +145,7 @@ export class BambooHRClient {
   }
 
   public async getEmployeeBasicInfo(employeeId: string): Promise<z.infer<typeof bambooHrEmployeeBasicInfoResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrEmployeeBasicInfoResponse)
@@ -162,7 +162,7 @@ export class BambooHRClient {
     employeeId: string,
     fields: string[]
   ): Promise<z.infer<typeof bambooHrEmployeeCustomInfoResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}`)
     url.searchParams.append('fields', fields.join(','))
 
     const res = await this._makeRequest({ method: 'GET', url })
@@ -177,14 +177,14 @@ export class BambooHRClient {
   }
 
   public async getEmployeePhoto(employeeId: string, size: string): Promise<Blob> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}/photo/${size}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}/photo/${size}`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     return await res.blob()
   }
 
   public async listEmployees(): Promise<z.infer<typeof bambooHrEmployeeDirectoryResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/directory`)
+    const url = new URL(`${this._baseUrl}/employees/directory`)
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrEmployeeDirectoryResponse)
 
