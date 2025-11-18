@@ -57,13 +57,6 @@ const botRef = {
   idx: 0,
 } satisfies CommandOption
 
-const packageType = {
-  type: 'string',
-  description:
-    'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface', 'plugin'] as const,
-} satisfies CommandOption
-
 const packageRef = {
   type: 'string',
   description:
@@ -227,7 +220,6 @@ const addSchema = {
   ...globalSchema,
   ...credentialsSchema,
   packageRef,
-  packageType,
   installPath: {
     type: 'string',
     description: 'The path where to install the package',

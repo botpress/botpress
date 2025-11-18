@@ -233,7 +233,6 @@ const _installAndBuild = async ({
       ...argv,
       installPath: workDir,
       packageRef: undefined,
-      packageType: undefined,
       useDev: false,
       alias: undefined,
     })

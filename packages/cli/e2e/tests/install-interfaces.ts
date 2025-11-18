@@ -38,7 +38,6 @@ export const installAllInterfaces: Test = {
         .add({
           ...argv,
           packageRef: iface,
-          packageType: 'interface',
           installPath: baseDir,
           useDev: false,
           alias: undefined,

@@ -149,7 +149,6 @@ export const addIntegration: Test = {
       await impl
         .add({
           ...argv,
-          packageType: undefined,
           installPath: botDir,
           packageRef: integration.id,
           useDev: false,
@@ -234,7 +233,6 @@ export const addPlugin: Test = {
       await impl
         .add({
           ...argv,
-          packageType: undefined,
           installPath: botDir,
           packageRef: plugin.id,
           useDev: false,
