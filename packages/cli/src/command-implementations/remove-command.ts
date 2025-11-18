@@ -45,6 +45,7 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
     if (!parseResult.success) {
       throw new errors.BotpressCLIError(`Invalid ${BP_DEPENDENCIES_KEY} found in ${PKGJSON_FILE_NAME}`)
     }
+
     return { validatedBpDeps: parseResult.data, pkgJson }
   }
 
@@ -55,6 +56,7 @@ export class RemoveCommand extends ProjectCommand<RemoveCommandDefinition> {
   ) {
     const packageDirName = utils.casing.to.kebabCase(correspondingPackageAlias)
     const installPath = utils.path.join(workDir, consts.installDirName, packageDirName)
+
     await fslib.promises.rm(installPath, { force: true, recursive: true })
     this.logger.log(`Package "${alias}" was removed from bp_modules`)
   }
