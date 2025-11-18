@@ -1,12 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
+import {
+  MessengerClientCredentials,
+  FacebookClientCredentials,
+  MetaClientCredentials,
+  MetaClientConfigType,
+} from './types'
 import * as bp from '.botpress'
 import { Oauth as OAuthState } from '.botpress/implementation/typings/states/oauth'
-
-type MessengerClientCredentials = {
-  accessToken: string
-  clientSecret: string
-  clientId: string
-}
 
 export async function getMessengerClientCredentials(
   client: bp.Client,
@@ -16,7 +16,7 @@ export async function getMessengerClientCredentials(
   if (ctx.configurationType === 'manual') {
     credentials = {
       accessToken: ctx.configuration.accessToken,
-      clientSecret: ctx.configuration.clientSecret ?? '',
+      clientSecret: ctx.configuration.clientSecret,
       clientId: ctx.configuration.clientId,
     }
   } else if (ctx.configurationType === 'sandbox') {
@@ -26,14 +26,18 @@ export async function getMessengerClientCredentials(
       clientId: bp.secrets.SANDBOX_CLIENT_ID,
     }
   } else {
-    const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+    const {
+      state: {
+        payload: { pageToken },
+      },
+    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
-    if (!state.payload.pageToken) {
-      throw new RuntimeError('There is no access token, please reauthorize')
+    if (!pageToken) {
+      throw new RuntimeError('No page token found, please reauthorize')
     }
 
     credentials = {
-      accessToken: state.payload.pageToken,
+      accessToken: pageToken,
       clientSecret: bp.secrets.CLIENT_SECRET,
       clientId: bp.secrets.CLIENT_ID,
     }
@@ -42,27 +46,74 @@ export async function getMessengerClientCredentials(
   return credentials
 }
 
-export async function getPartialMetaClientCredentials(client: bp.Client, ctx: bp.Context) {
-  return await client
-    .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-    .then((result) => result.state.payload)
-}
-
-export async function getMetaClientCredentials(client: bp.Client, ctx: bp.Context) {
-  const { accessToken, pageToken, pageId } = await getPartialMetaClientCredentials(client, ctx)
-  if (!accessToken || !pageToken || !pageId) {
-    throw new RuntimeError('Access token, page token, or page ID is missing, please reauthorize')
+export async function getFacebookClientCredentials(
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<FacebookClientCredentials> {
+  let credentials: FacebookClientCredentials
+  if (ctx.configurationType === 'manual') {
+    credentials = {
+      pageId: ctx.configuration.pageId,
+      pageToken: ctx.configuration.accessToken,
+    }
+  } else {
+    const {
+      state: {
+        payload: { pageToken, pageId },
+      },
+    } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+    if (!pageToken || !pageId) {
+      throw new RuntimeError('No page token or page id found, please reauthorize')
+    }
+    credentials = {
+      pageId,
+      pageToken,
+    }
   }
-  return { accessToken, pageToken, pageId }
+
+  return credentials
 }
 
-// client.patchState is not working correctly
-export async function patchMetaClientCredentials(
+type WritableOAuthMetaClientCredentials = Partial<Omit<OAuthState['payload'], 'accessToken'>> & { userToken?: string }
+async function _getWritableOAuthMetaClientCredentials(
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<WritableOAuthMetaClientCredentials> {
+  return await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId }).then((result) => ({
+    ...result.state.payload,
+    userToken: result.state.payload.accessToken,
+  }))
+}
+
+export async function getOAuthMetaClientCredentials(
+  client: bp.Client,
+  ctx: bp.Context
+): Promise<MetaClientCredentials> {
+  const { userToken, pageToken, pageId } = await _getWritableOAuthMetaClientCredentials(client, ctx)
+  return {
+    userToken,
+    pageToken,
+    pageId,
+    clientId: bp.secrets.CLIENT_ID,
+    clientSecret: bp.secrets.CLIENT_SECRET,
+    appToken: bp.secrets.ACCESS_TOKEN,
+  }
+}
+
+// `client.patchState` is not working correctly
+export async function patchOAuthMetaClientCredentials(
   client: bp.Client,
   ctx: bp.Context,
-  newState: Partial<OAuthState['payload']>
+  credentials: WritableOAuthMetaClientCredentials
 ) {
-  const currentState = await getPartialMetaClientCredentials(client, ctx).catch(() => ({}))
+  const {
+    state: { payload: currentState },
+  } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+  const { userToken, ...credentialsWithoutUserToken } = credentials
+  const newState: OAuthState['payload'] = credentialsWithoutUserToken
+  if (userToken) {
+    newState.accessToken = userToken
+  }
 
   await client.setState({
     type: 'integration',
@@ -73,6 +124,43 @@ export async function patchMetaClientCredentials(
       ...newState,
     },
   })
+}
+
+export async function getMetaClientCredentials({
+  configType: explicitConfigType,
+  client,
+  ctx,
+}: {
+  configType?: MetaClientConfigType
+  client: bp.Client
+  ctx: bp.Context
+}): Promise<MetaClientCredentials> {
+  const configType: MetaClientConfigType = explicitConfigType ?? ctx.configurationType
+
+  let credentials: MetaClientCredentials | undefined
+  if (configType === 'sandbox') {
+    throw new RuntimeError('Meta client credentials are not available for sandbox configuration')
+  } else if (configType === 'manual') {
+    if (ctx.configurationType !== configType) {
+      throw new RuntimeError(
+        'Meta client credentials for manual configuration only available when configured with manual configuration'
+      )
+    }
+    credentials = {
+      pageToken: ctx.configuration.accessToken,
+      pageId: ctx.configuration.pageId,
+      clientId: ctx.configuration.clientId,
+      clientSecret: ctx.configuration.clientSecret,
+    }
+  } else if (configType === 'oauth' || configType === null) {
+    credentials = await getOAuthMetaClientCredentials(client, ctx)
+  }
+
+  if (!credentials) {
+    throw new RuntimeError('Could not get Meta client credentials')
+  }
+
+  return credentials
 }
 
 export function getVerifyToken(ctx: bp.Context): string {
