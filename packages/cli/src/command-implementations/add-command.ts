@@ -41,7 +41,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (ref) {
       return await this._addNewSinglePackage({ ...ref, alias: this.argv.alias })
     }
-    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'failed to read package.json file')
+    })
+
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
