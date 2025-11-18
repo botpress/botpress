@@ -405,10 +405,12 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       logger.forBot().debug('Failed to transform markdown - Error:', errMsg)
+      const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
       await posthogHelper.sendPosthogEvent(
         {
-          distinctId: errMsg,
+          distinctId: distinctId ?? 'no id',
           event: 'unhandled_markdown',
+          properties: { errMsg },
         },
         { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
       )

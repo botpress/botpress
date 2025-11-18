@@ -43,12 +43,14 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
+    const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
     await posthogHelper.sendPosthogEvent(
       {
-        distinctId: userPhone,
+        distinctId: distinctId ?? 'no id',
         event: 'invalid_phone_number',
         properties: {
           from: 'handler',
+          phoneNumber: message.from,
         },
       },
       { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }

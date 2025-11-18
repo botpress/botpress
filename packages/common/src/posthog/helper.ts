@@ -75,13 +75,15 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      const distinctId = thrown instanceof sdk.RuntimeError ? thrown.id : undefined
       await sendPosthogEvent(
         {
-          distinctId: errMsg,
+          distinctId: distinctId ?? 'no id',
           event: 'unhandled_error',
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            errMsg,
           },
         },
         config
@@ -100,11 +102,12 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
       if (!resp.body) {
         await sendPosthogEvent(
           {
-            distinctId: 'Empty Body',
+            distinctId: 'no id',
             event: 'unhandled_error_empty_body',
             properties: {
               from: fn.name,
               integrationName: config.integrationName,
+              errMsg: 'Empty Body',
             },
           },
           config
@@ -113,11 +116,12 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
       }
       await sendPosthogEvent(
         {
-          distinctId: JSON.stringify(resp.body),
+          distinctId: 'no id',
           event: 'unhandled_error',
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            errMsg: JSON.stringify(resp.body),
           },
         },
         config

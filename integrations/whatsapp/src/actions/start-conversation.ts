@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
@@ -43,12 +44,14 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   try {
     formattedUserPhone = formatPhoneNumber(userPhone)
   } catch (thrown) {
+    const distinctId = thrown instanceof RuntimeError ? thrown.id : undefined
     await posthogHelper.sendPosthogEvent(
       {
-        distinctId: userPhone,
+        distinctId: distinctId ?? 'no id',
         event: 'invalid_phone_number',
         properties: {
           from: 'action',
+          phoneNumber: userPhone,
         },
       },
       { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
