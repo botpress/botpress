@@ -19,7 +19,7 @@ If you are migrating from version `0.x` to `1.x`, please note the following chan
 
 If you are migrating from version `1.x` to `2.x`, please note the following changes:
 
-> The integration has been refactored to remove the generic CRUD interface actions. The action names have changed from the previous interface-based naming convention. You will need to update any workflows or code that references the old action names:
+> The integration has been refactored to remove the generic CRUD interface actions and **de-duplicate redundant actions**. The action names have changed from the previous interface-based naming convention. You will need to update any workflows or code that references the old action names:
 >
 > - `eventCreate` → `createEvent`
 > - `eventDelete` → `deleteEvent`
