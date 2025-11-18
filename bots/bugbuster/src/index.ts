@@ -57,16 +57,20 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
     payload: {},
   })
 
-  const result = await lintAll(client, logger, ctx, conversationId, lastLintedIdSetter, lastLintedId.state.payload.id)
-
-  if (!result.success) {
-    await workflow.setFailed({ failureReason: result.message })
-    await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
+  try {
+    const result = await lintAll(client, logger, ctx, conversationId, lastLintedIdSetter, lastLintedId.state.payload.id)
+    if (!result.success) {
+      await workflow.setFailed({ failureReason: result.message })
+      await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
+      return
+    }
+    await botpress.respondText(conversationId, 'Success: ' + result.message)
+    await workflow.setCompleted()
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + error.message)
     return
   }
-  await botpress.respondText(conversationId, 'Success: ' + result.message)
-
-  await workflow.setCompleted()
 }
 
 export default bot

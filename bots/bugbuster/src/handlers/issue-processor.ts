@@ -99,6 +99,5 @@ export async function runLints(
   for (const issue of issues) {
     await runLint(linear, issue, logger)
     await lastLintedIdSetter(issue.id)
-    throw new RuntimeError('test error')
   }
 }
