@@ -1,4 +1,4 @@
-import { BotLogger } from '@botpress/sdk'
+import { BotLogger, RuntimeError } from '@botpress/sdk'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
@@ -41,7 +41,7 @@ export async function findIssue(
   return issue
 }
 
-export async function listIssues(teams: string[], linear: LinearApi): Promise<Issue[]> {
+export async function listIssues(teams: string[], linear: LinearApi, endCursor?: string): Promise<Issue[]> {
   const validatedTeams = teams.filter((value) => linear.isTeam(value))
 
   const issues: Issue[] = []
@@ -53,11 +53,12 @@ export async function listIssues(teams: string[], linear: LinearApi): Promise<Is
         teamKeys: validatedTeams,
         statusesToOmit: IGNORED_STATUSES,
       },
-      pagination?.endCursor
+      endCursor
     )
 
     issues.push(...newIssues)
     pagination = newPagination
+    endCursor = pagination?.endCursor
   } while (pagination?.hasNextPage)
 
   return issues
@@ -89,8 +90,15 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
   })
 }
 
-export async function runLints(linear: LinearApi, issues: Issue[], logger: BotLogger) {
+export async function runLints(
+  linear: LinearApi,
+  issues: Issue[],
+  logger: BotLogger,
+  lastLintedIdSetter: (id: string) => Promise<any>
+) {
   for (const issue of issues) {
     await runLint(linear, issue, logger)
+    await lastLintedIdSetter(issue.id)
+    throw new RuntimeError('test error')
   }
 }
