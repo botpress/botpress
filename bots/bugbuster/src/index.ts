@@ -1,5 +1,4 @@
 import * as handlers from './handlers'
-import { lintAll } from './handlers/lint-all'
 import { BotpressApi } from './utils/botpress-utils'
 import * as bp from '.botpress'
 
@@ -32,7 +31,9 @@ bot.on.workflowTimeout('lintAll', async (props) => {
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 
   const botpress = new BotpressApi(client, ctx)
-  await botpress.respondText(conversationId, 'Workflow timed out')
+  if (conversationId) {
+    await botpress.respondText(conversationId, 'Workflow timed out')
+  }
 })
 
 const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) => {
@@ -43,13 +44,17 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
   const botpress = new BotpressApi(client, ctx)
 
   try {
-    const result = await lintAll(client, logger, ctx, conversationId, workflow.id)
+    const result = await handlers.lintAll(client, logger, ctx, workflow.id, conversationId)
     if (!result.success) {
+      if (conversationId) {
+        await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
+      }
       await workflow.setFailed({ failureReason: result.message })
-      await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
       return
     }
-    await botpress.respondText(conversationId, 'Success: ' + result.message)
+    if (conversationId) {
+      await botpress.respondText(conversationId, 'Success: ' + result.message)
+    }
     await workflow.setCompleted()
   } catch {
     return

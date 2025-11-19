@@ -11,8 +11,8 @@ export const lintAll = async (
   client: BotClient<TBot>,
   logger: BotLogger,
   ctx: BotContext,
-  conversationId: string,
-  workflowId: string
+  workflowId: string,
+  conversationId?: string
 ): Promise<Result<void>> => {
   const _handleError = (context: string) => handleError(context, logger, botpress, conversationId)
   const botpress = new BotpressApi(client, ctx)
