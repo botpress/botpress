@@ -114,7 +114,7 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
           },
           config
         )
-        return
+        return resp
       }
       await sendPosthogEvent(
         {
@@ -128,6 +128,8 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
         },
         config
       )
+      return resp
     }
+    return resp
   }
 }
