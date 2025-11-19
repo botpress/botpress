@@ -75,29 +75,27 @@ export class LinearApi {
       teamKeys: string[]
       issueNumber?: number
       statusesToOmit?: StateKey[]
+      statusesToInclude?: StateKey[]
     },
     nextPage?: string
   ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
-    const { teamKeys, issueNumber, statusesToOmit } = filter
+    const { teamKeys, issueNumber, statusesToOmit, statusesToInclude } = filter
 
     const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
     if (!teamsExist) {
       return { issues: [] }
     }
 
-    const stateNamesToOmit = statusesToOmit?.map((key) => {
-      const matchingStates = this._states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
-
     const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
+        state: {
+          name: {
+            ...(statusesToOmit && { nin: this._stateKeysToStateNames(statusesToOmit) }),
+            ...(statusesToInclude && { in: this._stateKeysToStateNames(statusesToInclude) }),
+          },
+        },
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -172,6 +170,16 @@ export class LinearApi {
           },
         })
       },
+    })
+  }
+
+  private _stateKeysToStateNames = (keys: StateKey[]) => {
+    return keys.map((key) => {
+      const matchingStates = this._states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
     })
   }
 

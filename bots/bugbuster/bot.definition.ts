@@ -58,6 +58,18 @@ export default new sdk.BotDefinition({
           .describe('The Slack channel where notifications will be posted'),
       }),
     },
+    issuesInStaging: {
+      type: 'bot',
+      schema: sdk.z.object({
+        issues: sdk.z.array(
+          sdk.z.object({
+            id: sdk.z.string().title('IDs').describe('The IDs of the issues in staging'),
+            since: sdk.z.date(),
+            hasBeenNotified: sdk.z.boolean(),
+          })
+        ),
+      }),
+    },
   },
   workflows: {
     lintAll: {
@@ -77,6 +89,9 @@ export default new sdk.BotDefinition({
     timeToLintAll: {
       schema: sdk.z.object({}),
     },
+    timeToCheckIssuesStatus: {
+      schema: sdk.z.object({}),
+    },
   },
   recurringEvents: {
     timeToLintAll: {
@@ -84,6 +99,13 @@ export default new sdk.BotDefinition({
       type: 'timeToLintAll',
       schedule: {
         cron: '0 8 * * 1',
+      },
+    },
+    timeToCheckIssuesStatus: {
+      payload: sdk.z.object({}),
+      type: 'timeToCheckIssuesStatus',
+      schedule: {
+        cron: '0 8 * * *',
       },
     },
   },
