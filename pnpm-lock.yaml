@@ -2902,7 +2902,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: workspace:*
+        specifier: 0.3.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
