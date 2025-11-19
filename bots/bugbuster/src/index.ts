@@ -7,6 +7,32 @@ export const bot = new bp.Bot({ actions: {} })
 bot.on.event('github:issueOpened', handlers.handleGithubIssueOpened)
 bot.on.event('linear:issueUpdated', handlers.handleLinearIssueUpdated)
 bot.on.event('linear:issueCreated', handlers.handleLinearIssueCreated)
+bot.on.event('timeToLintAll', async (props) => {
+  const {
+    state: {
+      payload: { name },
+    },
+  } = await props.client.getOrSetState({
+    id: props.ctx.botId,
+    name: 'notificationChannelName',
+    payload: {},
+    type: 'bot',
+  })
+
+  let conversationId = undefined
+
+  if (name) {
+    const conversation = await props.client.callAction({
+      type: 'slack:startChannelConversation',
+      input: {
+        channelName: name,
+      },
+    })
+    conversationId = conversation.output.conversationId
+  }
+
+  await props.workflows.lintAll.startNewInstance({ input: { conversationId } })
+})
 bot.on.message('*', handlers.handleMessageCreated)
 
 const LINT_ALL_ERROR_PREFIX = "Error during the 'lintAll' workflow: "
