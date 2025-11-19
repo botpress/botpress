@@ -3,6 +3,10 @@ import { getTimeoutMs } from './hitl-timeout'
 import * as types from './types'
 import * as bp from '.botpress'
 
+// this state is hardcoded in the Studio/DM
+type TypingIndicatorState = { enabled: boolean }
+const TYPING_INDICATOR_STATE_NAME = 'typingIndicatorEnabled'
+
 type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
@@ -49,12 +53,14 @@ export class ConversationManager {
 
   public async setHitlActive(): Promise<void> {
     await this._setHitlState({ hitlActive: true })
+    await this._toggleTypingIndicator({ enabled: false })
   }
 
   public async setHitlInactive(reason: HitlEndReason): Promise<void> {
     await Promise.all([
       this._setHitlState({ hitlActive: false }),
       this._patchConversationTags({ hitlEndReason: reason }),
+      this._toggleTypingIndicator({ enabled: true }),
     ])
   }
 
@@ -115,5 +121,20 @@ export class ConversationManager {
       conversation: { tags },
     } = await this._props.client.getConversation({ id: this._convId })
     return tags
+  }
+
+  private async _toggleTypingIndicator(payload: TypingIndicatorState): Promise<void> {
+    try {
+      await this._props.client.setState({
+        id: this._convId,
+        type: 'conversation',
+        name: TYPING_INDICATOR_STATE_NAME,
+        payload,
+      })
+    } catch (thrown) {
+      // because this state is hardcoded in the Studio / DM, it might not exist in some bot-as-code or ADK bots
+      const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      this._props.logger.withConversationId(this._convId).debug(`Could not set typing indicator state: ${errorMsg}`)
+    }
   }
 }

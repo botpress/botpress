@@ -1,10 +1,11 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import { create as createMessengerClient } from '../../misc/messenger-client'
+import { createAuthenticatedMessengerClient } from '../../misc/messenger-client'
 import {
-  MessengerMessagingEntry,
-  MessengerMessagingEntryMessage,
-  MessengerMessagingEntryPostback,
+  MessengerMessaging,
+  MessengerMessagingItem,
+  MessengerMessagingItemMessage,
+  MessengerMessagingItemPostback,
 } from '../../misc/types'
 import {
   FileMetadata,
@@ -25,17 +26,18 @@ type IncomingMessages = {
 type IncomingMessage = IncomingMessages[IncomingMessageTypes]
 type User = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-export const handler = async (messagingEntry: MessengerMessagingEntry, props: bp.HandlerProps) => {
-  if ('message' in messagingEntry) {
-    await _messageHandler(messagingEntry, props)
+export const handler = async (messaging: MessengerMessaging, props: bp.HandlerProps) => {
+  const messagingItem = messaging[0]
+  if ('message' in messagingItem) {
+    await _messageHandler(messagingItem, props)
   }
-  if ('postback' in messagingEntry) {
-    await _postbackHandler(messagingEntry, props)
+  if ('postback' in messagingItem) {
+    await _postbackHandler(messagingItem, props)
   }
 }
 
-const _messageHandler = async (messagingEntry: MessengerMessagingEntryMessage, handlerProps: bp.HandlerProps) => {
-  const { message } = messagingEntry
+const _messageHandler = async (messagingItem: MessengerMessagingItemMessage, handlerProps: bp.HandlerProps) => {
+  const { message } = messagingItem
   const { client, ctx, logger } = handlerProps
   logger
     .forBot()
@@ -83,20 +85,20 @@ const _messageHandler = async (messagingEntry: MessengerMessagingEntryMessage, h
   await _commonMessagingHandler({
     incomingMessage,
     mid: message.mid,
-    messagingEntry,
+    messagingItem,
     handlerProps,
   })
 }
 
-const _postbackHandler = async (messagingEntry: MessengerMessagingEntryPostback, handlerProps: bp.HandlerProps) => {
-  const { postback } = messagingEntry
+const _postbackHandler = async (messagingItem: MessengerMessagingItemPostback, handlerProps: bp.HandlerProps) => {
+  const { postback } = messagingItem
   handlerProps.logger
     .forBot()
     .debug(`Received postback from Messenger: label=${postback.title}, value=${postback.payload}`)
   await _commonMessagingHandler({
     incomingMessage: { type: 'text', payload: { text: postback.payload } },
     mid: postback.mid,
-    messagingEntry,
+    messagingItem,
     handlerProps,
   })
 }
@@ -104,20 +106,20 @@ const _postbackHandler = async (messagingEntry: MessengerMessagingEntryPostback,
 const _commonMessagingHandler = async ({
   incomingMessage: { type, payload },
   mid,
-  messagingEntry,
+  messagingItem,
   handlerProps,
 }: {
   incomingMessage: IncomingMessage
   mid: string
-  messagingEntry: MessengerMessagingEntry
+  messagingItem: MessengerMessagingItem
   handlerProps: bp.HandlerProps
 }) => {
   const { client } = handlerProps
 
-  const { sender, recipient } = messagingEntry
+  const { sender, recipient } = messagingItem
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
-    tags: { id: sender.id, senderId: sender.id, recipientId: recipient.id },
+    tags: { id: sender.id },
   })
 
   const { user } = await client.getOrCreateUser({
@@ -206,9 +208,10 @@ async function _downloadMedia(params: { url: string } & FileMetadata, client: bp
 
 const _updateUserProfile = async (user: User, messengerUserId: string, props: bp.HandlerProps) => {
   const { client, ctx, logger } = props
+
   if (shouldGetUserProfile(ctx) && (!user.name || !user.pictureUrl)) {
     try {
-      const messengerClient = await createMessengerClient(client, ctx)
+      const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
       const profile = await messengerClient.getUserProfile(messengerUserId, { fields: ['id', 'name', 'profile_pic'] })
       logger.forBot().debug('Fetched latest Messenger user profile: ', profile)
 

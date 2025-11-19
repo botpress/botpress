@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import semver from 'semver'
 import hitl from './bp_modules/hitl'
 
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
@@ -231,7 +230,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    hitl: { ...hitl, version: `>=${semver.major(hitl.version)}.0.0 <${semver.major(hitl.version) + 1}.0.0` },
+    hitl: sdk.version.allWithinMajorOf(hitl),
   },
   events: {
     humanAgentAssignedTimeout: {
