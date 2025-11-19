@@ -43,6 +43,7 @@ export default new sdk.BotDefinition({
         schema: sdk.z.object({
           conversationId: sdk.z
             .string()
+            .optional()
             .title('Conversation ID')
             .describe('The ID of the conversation that triggered the workflow'),
         }),
