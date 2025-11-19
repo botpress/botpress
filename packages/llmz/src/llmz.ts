@@ -828,10 +828,22 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
             success = true
             return res
           })
-          .catch((err: any) => {
+          .catch(async (err: any) => {
             if (!handleSignals(err)) {
               success = false
               error = err
+            } else {
+              const afterRes = await afterHook?.({
+                iteration,
+                tool,
+                input,
+                output,
+                controller,
+              })
+
+              if (typeof afterRes?.output !== 'undefined') {
+                output = afterRes.output
+              }
             }
 
             // Important: we want to re-throw signals so that the VM can handle them
