@@ -24,11 +24,12 @@ export class BotpressCLIError extends VError {
       }
 
       const unknownMessage = 'An unknown API error occurred'
-      if (!thrown.message.trim()) {
+      const actualTrimmedMessage = thrown.message.trim()
+      if (!actualTrimmedMessage) {
         return new HTTPError(500, unknownMessage)
       }
 
-      const inner = new HTTPError(500, thrown.message)
+      const inner = new HTTPError(500, actualTrimmedMessage)
       return new BotpressCLIError(inner, unknownMessage)
     }
     if (isKnownApiError(thrown)) {
@@ -41,7 +42,7 @@ export class BotpressCLIError extends VError {
       const { message } = thrown
       return new BotpressCLIError(message)
     }
-    return new BotpressCLIError(`${thrown}`)
+    return new BotpressCLIError(String(thrown))
   }
 
   public constructor(error: BotpressCLIError, message: string)
