@@ -1,3 +1,4 @@
+import VError from 'verror'
 import * as errors from '../errors'
 import type { Logger } from '../logger'
 import type { CommandArgv, CommandDefinition } from '../typings'
@@ -12,6 +13,10 @@ export abstract class BaseCommand<C extends CommandDefinition> {
   protected bootstrap?(): Promise<void>
   protected teardown?(): Promise<void>
 
+  private get _cmdName(): string {
+    return this.constructor.name
+  }
+
   public async handler(): Promise<{ exitCode: number }> {
     let exitCode = 0
     try {
@@ -22,13 +27,9 @@ export abstract class BaseCommand<C extends CommandDefinition> {
     } catch (thrown) {
       const error = errors.BotpressCLIError.map(thrown)
 
-      if (error.debug) {
-        const msg = error.message + ' (Run with verbose flag (-v) to see more details)'
-        this.logger.error(msg)
-        this.logger.debug(error.debug)
-      } else {
-        this.logger.error(error.message)
-      }
+      error.message = `[${this._cmdName}] ${error.message}`
+      this.logger.error(error.message)
+      this.logger.debug(VError.fullStack(error))
 
       exitCode = 1
     } finally {

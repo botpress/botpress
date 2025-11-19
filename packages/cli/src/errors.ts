@@ -24,7 +24,6 @@ export class BotpressCLIError extends VError {
       } else {
         inst = new HTTPError(500, 'An unknown error has occurred.')
       }
-      inst.debug = thrown.message
       return inst
     }
     if (isKnownApiError(thrown)) {
@@ -40,30 +39,14 @@ export class BotpressCLIError extends VError {
     return new BotpressCLIError(`${thrown}`)
   }
 
-  private readonly _debug: string[]
-
   public constructor(error: BotpressCLIError, message: string)
   public constructor(message: string)
   public constructor(first: BotpressCLIError | string, second?: string) {
     if (typeof first === 'string') {
       super(first)
-      this._debug = []
       return
     }
     super(first, second!)
-    this._debug = [...first._debug]
-  }
-
-  public set debug(msg: string) {
-    this._debug.push(msg)
-  }
-
-  public get debug(): string {
-    const dbgMsgs = this._debug.filter((s) => s.length)
-    if (!dbgMsgs.length) {
-      return ''
-    }
-    return 'Error: \n' + dbgMsgs.map((s) => `  ${s}`).join('\n')
   }
 }
 
