@@ -1,10 +1,10 @@
 import { BotLogger } from '@botpress/sdk'
+import { BotClient } from '@botpress/sdk/dist/bot'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
 import { listTeams } from './teams-manager'
 import { Client, TBot } from '.botpress'
-import { BotClient } from '@botpress/sdk/dist/bot'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
