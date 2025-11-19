@@ -49,6 +49,11 @@ export default {
     schema: config.schemas.add,
     alias: ['i', 'install'],
   },
+  remove: {
+    description: "Remove a package from your project's dependencies",
+    schema: config.schemas.remove,
+    alias: 'rm',
+  },
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
   chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },

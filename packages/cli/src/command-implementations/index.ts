@@ -23,6 +23,7 @@ import { LogoutCommand } from './logout-command'
 import * as plugins from './plugin-commands'
 import * as profiles from './profile-commands'
 import { ReadCommand } from './read-command'
+import { RemoveCommand } from './remove-command'
 import { ServeCommand } from './serve-command'
 
 type GlobalCtor<C extends GlobalCommandDefinition> = new (
@@ -77,6 +78,7 @@ export default {
   serve: getHandler(ServeCommand),
   deploy: getHandler(DeployCommand),
   add: getHandler(AddCommand),
+  remove: getHandler(RemoveCommand),
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
   chat: getHandler(ChatCommand),
