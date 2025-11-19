@@ -55,7 +55,6 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
 
   try {
     const result = await lintAll(client, logger, ctx, conversationId, workflow.id)
-
     if (!result.success) {
       await workflow.setFailed({ failureReason: result.message })
       await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
