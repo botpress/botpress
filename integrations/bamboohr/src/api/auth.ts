@@ -12,7 +12,9 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  */
 const fetchBambooHrOauthToken = async (
   { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
-  oAuthInfo: { code: string, domain: string, redirectUri?: string  } | { refreshToken: string; domain: string, redirectUri?: string }
+  oAuthInfo:
+    | { code: string; domain: string; redirectUri?: string }
+    | { refreshToken: string; domain: string; redirectUri?: string }
 ): Promise<{
   accessToken: string
   idToken: string
@@ -81,7 +83,6 @@ export const getBambooHrAuthorization = async ({
   ctx,
   client,
 }: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<{ authorization: string; expiresAt: number }> => {
-  
   let oauth: bp.states.States['oauth']['payload']
   try {
     const { state } = await client.getState({
@@ -109,10 +110,10 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
 
   const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
   if (!redirectUri) throw new Error('Missing redirect URI')
-  
+
   const domain = new URL(redirectUri).hostname.split('.')[0]
   if (!domain) throw new Error('Missing domain')
-    
+
   const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code, domain, redirectUri })
 
   // Extract subdomain from the JWT token

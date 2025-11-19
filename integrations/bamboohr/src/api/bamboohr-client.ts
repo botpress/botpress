@@ -56,7 +56,12 @@ export class BambooHRClient {
     authorization,
     expiresAt,
     props,
-  }: { subdomain: string; authorization: string; expiresAt: number; props: ClientProps }) {
+  }: {
+    subdomain: string
+    authorization: string
+    expiresAt: number
+    props: ClientProps
+  }) {
     this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
     this._headers = getHeaders(authorization)
     this._expiresAt = expiresAt
@@ -94,7 +99,7 @@ export class BambooHRClient {
   }
 
   public async createWebhook(webhookUrl: string): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
-  const url = new URL(`${this._baseUrl}/webhooks`)
+    const url = new URL(`${this._baseUrl}/webhooks`)
 
     const fields = bambooHrEmployeeWebhookFields.keyof().options
     const body = JSON.stringify({
