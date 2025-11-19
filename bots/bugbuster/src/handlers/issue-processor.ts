@@ -1,5 +1,6 @@
 import { BotLogger } from '@botpress/sdk'
 import { BotClient } from '@botpress/sdk/dist/bot'
+import { LintResult } from 'src/types'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
@@ -65,10 +66,10 @@ export async function listIssues(teams: string[], linear: LinearApi, endCursor?:
   return issues
 }
 
-export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger) {
+export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger): Promise<LintResult> {
   const status = linear.issueStatus(issue)
   if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
-    return
+    return { identifier: issue.identifier, messages: [], result: 'ignored' }
   }
 
   const errors = await linlint.lintIssue(issue, status)
@@ -76,7 +77,7 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
   if (errors.length === 0) {
     logger.info(`Issue ${issue.identifier} passed all lint checks.`)
     await linear.resolveComments(issue)
-    return
+    return { identifier: issue.identifier, messages: [], result: 'succeeded' }
   }
 
   logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
@@ -89,7 +90,11 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
       ...errors.map((error: any) => `- ${error.message}`),
     ].join('\n'),
   })
+
+  return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
 }
+
+export type LintResults = { issues: { lintSuccess: boolean; messages: string[] }[] }
 
 export async function runLints(
   linear: LinearApi,
@@ -97,14 +102,37 @@ export async function runLints(
   logger: BotLogger,
   client: BotClient<TBot>,
   workflowId: string
-) {
+): Promise<LintResult[]> {
+  const {
+    state: {
+      payload: { issues: lintResults },
+    },
+  } = await client.getOrSetState({
+    id: workflowId,
+    name: 'lintResults',
+    type: 'workflow',
+    payload: { issues: [] },
+  })
+
   for (const issue of issues) {
-    await runLint(linear, issue, logger)
-    await client.setState({
-      id: workflowId,
-      name: 'lastLintedId',
-      type: 'workflow',
-      payload: { id: issue.id },
-    })
+    const result = await runLint(linear, issue, logger)
+    lintResults.push(result)
+
+    await Promise.all([
+      client.setState({
+        id: workflowId,
+        name: 'lastLintedId',
+        type: 'workflow',
+        payload: { id: issue.id },
+      }),
+
+      client.setState({
+        id: workflowId,
+        name: 'lintResults',
+        type: 'workflow',
+        payload: { issues: lintResults },
+      }),
+    ])
   }
+  return lintResults
 }
