@@ -6,10 +6,12 @@ import * as chat from '../src'
 
 const apiUrl = config.get('API_URL')
 const encryptionKey = config.get('ENCRYPTION_KEY')
+const conversationProtocols = ['sse', 'websocket'] as const
 
 type CheckApiCanSendAndReceiveMessagesProps = {
   client: chat.AuthenticatedClient
   conversationId: string
+  protocol: chat.ServerEventsProtocol
 }
 
 type MessagePayload = chat.AuthenticatedClientRequests['createMessage']['payload']
@@ -22,6 +24,7 @@ const checkApiCanSendAndReceiveMessages = async (
 
   const listener = await client.listenConversation({
     id: conversationId,
+    protocol: props.protocol
   })
 
   const waitForResponsePromise = new Promise<chat.Signals['message_created']>((resolve) => {
@@ -58,7 +61,7 @@ const checkApiCanSendAndReceiveMessages = async (
   return messageReceived.payload
 }
 
-test('api allows sending and receiving messages using botpress IDs', async () => {
+test.each(conversationProtocols)('api allows sending and receiving messages using botpress IDs', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
@@ -69,6 +72,7 @@ test('api allows sending and receiving messages using botpress IDs', async () =>
     {
       client,
       conversationId,
+      protocol
     },
     {
       type: 'text',
@@ -77,7 +81,7 @@ test('api allows sending and receiving messages using botpress IDs', async () =>
   )
 })
 
-test('api allows sending and receiving messages using foreign IDs', async () => {
+test.each(conversationProtocols)('api allows sending and receiving messages using foreign IDs', async (protocol) => {
   const userId = utils.getUserFid()
   const conversationId = utils.getConversationFid()
   const client = await chat.Client.connect({ apiUrl, userId })
@@ -88,6 +92,7 @@ test('api allows sending and receiving messages using foreign IDs', async () => 
     {
       client,
       conversationId,
+      protocol,
     },
     {
       type: 'text',
@@ -96,7 +101,7 @@ test('api allows sending and receiving messages using foreign IDs', async () => 
   )
 })
 
-test('api allows sending and receiving messages using remotly generated JWTs', async () => {
+test.each(conversationProtocols)('api allows sending and receiving messages using remotly generated JWTs', async (protocol) => {
   const userId = utils.getUserFid()
   const conversationId = utils.getConversationFid()
 
@@ -108,6 +113,7 @@ test('api allows sending and receiving messages using remotly generated JWTs', a
     {
       client,
       conversationId,
+      protocol
     },
     {
       type: 'text',
@@ -116,11 +122,11 @@ test('api allows sending and receiving messages using remotly generated JWTs', a
   )
 })
 
-test('api allows deleting a message', async () => {
+test.each(conversationProtocols)('api allows deleting a message', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
   const { conversation } = await client.createConversation({})
 
-  const signalListener = await client.listenConversation({ id: conversation.id })
+  const signalListener = await client.listenConversation({ id: conversation.id, protocol })
 
   const [{ isBot, ...createdMessage }] = await Promise.all([
     utils.waitFor(signalListener, 'message_created'),
@@ -155,7 +161,7 @@ test('api allows deleting a message', async () => {
   ).rejects.toThrow(chat.ResourceNotFoundError)
 })
 
-test('api allows sending and receiving messages with metadata', async () => {
+test.each(conversationProtocols)('api allows sending and receiving messages with metadata', async (protocol) => {
   type Message = Awaited<ReturnType<chat.Client['listMessages']>>['messages'][number]
   const metadata = { foo: 'bar' }
 
@@ -170,7 +176,7 @@ test('api allows sending and receiving messages with metadata', async () => {
     metadata,
   })
 
-  const listener = await client.listenConversation({ id: conversationId })
+  const listener = await client.listenConversation({ id: conversationId, protocol })
 
   const receiveSelfMessagePromise = new Promise<Message>((resolve) =>
     listener.on('message_created', (m) => {
@@ -210,7 +216,7 @@ test('api allows sending and receiving messages with metadata', async () => {
   expect(fetchedSelfMessage!.metadata).toEqual(metadata)
 })
 
-test('api allows sending bloc messages', async () => {
+test.each(conversationProtocols)('api allows sending bloc messages', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
@@ -221,6 +227,7 @@ test('api allows sending bloc messages', async () => {
     {
       client,
       conversationId,
+      protocol,
     },
     {
       type: 'bloc',
@@ -238,7 +245,7 @@ test('api allows sending bloc messages', async () => {
   )
 })
 
-test('api allows receiving bloc messages from bot', async () => {
+test.each(conversationProtocols)('api allows receiving bloc messages from bot', async (protocol) => {
   const client = await chat.Client.connect({ apiUrl })
 
   const {
@@ -246,7 +253,7 @@ test('api allows receiving bloc messages from bot', async () => {
   } = await client.createConversation({})
 
   const responsePayload: MessagePayload = await checkApiCanSendAndReceiveMessages(
-    { client, conversationId },
+    { client, conversationId, protocol },
     { type: 'text', text: 'bloc' }
   )
 

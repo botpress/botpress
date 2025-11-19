@@ -6,7 +6,9 @@ import * as chat from '../src'
 
 const apiUrl = config.get('API_URL')
 
-test('api allows adding and removing conversation participants', async () => {
+const protocols = ['sse', 'websocket'] as const
+
+test.each(protocols)('api allows adding and removing conversation participants', async (protocol) => {
   const client = new chat.Client({ apiUrl })
 
   const { key: userKey1 } = await client.createUser({})
@@ -14,7 +16,7 @@ test('api allows adding and removing conversation participants', async () => {
 
   const { conversation } = await client.createConversation({ 'x-user-key': userKey1 })
 
-  const listener = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey1 })
+  const listener = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey1, protocol })
 
   await expect(
     client.createMessage({
@@ -86,7 +88,7 @@ test('api forbids non-participants from listing participants', async () => {
   await expect(promise3).rejects.toThrow(chat.ForbiddenError)
 })
 
-test('signal listener is disconnected when participant is removed', async () => {
+test.each(protocols)('signal listener is disconnected when participant is removed', async (protocol) => {
   const client = new chat.Client({ apiUrl })
 
   const { user: user1, key: userKey1 } = await client.createUser({})
@@ -95,8 +97,8 @@ test('signal listener is disconnected when participant is removed', async () => 
   const { conversation } = await client.createConversation({ 'x-user-key': userKey1 })
   await client.addParticipant({ 'x-user-key': userKey1, conversationId: conversation.id, userId: user2.id })
 
-  const listener1 = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey1 })
-  const listener2 = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey2 })
+  const listener1 = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey1, protocol })
+  const listener2 = await client.listenConversation({ id: conversation.id, 'x-user-key': userKey2, protocol })
 
   const messages1: chat.Signals['message_created'][] = []
   const messages2: chat.Signals['message_created'][] = []

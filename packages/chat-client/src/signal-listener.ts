@@ -1,5 +1,5 @@
 import { EventEmitter } from './event-emitter'
-import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent } from './eventsource'
+import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent, ServerEventsProtocol } from './eventsource'
 import { zod as signals, Types } from './gen/signals'
 import { WatchDog } from './watchdog'
 
@@ -44,6 +44,7 @@ export type SignalListenerProps = {
   userKey: string
   conversationId: string
   debug: boolean
+  protocol?: ServerEventsProtocol
 }
 
 export class SignalListener extends EventEmitter<Events> {
@@ -100,6 +101,7 @@ export class SignalListener extends EventEmitter<Events> {
   private _connect = async (): Promise<EventSourceEmitter> => {
     const source = await listenEventSource(`${this._props.url}/conversations/${this._props.conversationId}/listen`, {
       headers: { 'x-user-key': this._props.userKey },
+      protocol: this._props.protocol,
     })
 
     const watchdog = WatchDog.init(CONNECTION_TIMEOUT)

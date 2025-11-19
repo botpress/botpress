@@ -1,3 +1,4 @@
+import type { ServerEventsProtocol } from '@botpress/chat'
 import * as consts from './consts'
 import { ProjectTemplates } from './project-templates'
 import type { CommandOption, CommandSchema } from './typings'
@@ -368,6 +369,11 @@ const chatSchema = {
     positional: true,
     idx: 0,
     description: 'The bot ID to chat with',
+  },
+  protocol: {
+    choices: ['sse', 'websocket'] satisfies ReadonlyArray<ServerEventsProtocol>,
+    default: 'sse' as const,
+    description: 'The protocol to use to join the chat server',
   },
 } satisfies CommandSchema
 
