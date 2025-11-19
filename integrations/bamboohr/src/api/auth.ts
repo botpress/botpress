@@ -72,8 +72,7 @@ const fetchBambooHrOauthToken = async (
 
 /** Gets authorization information for requests.
  *
- * Can be either API key or OAuth token, depending on configuration.
- * If OAuth token is expired or missing, fetches a new one using the refresh token.
+ * Will return OAuth token. If OAuth token is expired or missing, fetches a new one using the refresh token.
  * Users should refresh their authorization header periodically based on the `expiresAt` timestamp.
  *
  * @returns Authorization information & an expiration timestamp.
@@ -95,12 +94,9 @@ export const getBambooHrAuthorization = async ({
     throw new Error('OAuth token missing in state for OAuth-linked integration.', { cause: err })
   }
 
-  const token =
-    Date.now() < oauth.expiresAt // chore: redundant check
-      ? oauth.accessToken
-      : (await fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
+  const { accessToken } = await fetchBambooHrOauthToken({ ctx, client }, oauth)
 
-  return { authorization: `Bearer ${token}`, expiresAt: oauth.expiresAt }
+  return { authorization: `Bearer ${accessToken}`, expiresAt: oauth.expiresAt }
 }
 
 /** Handles OAuth endpoint on integration authentication.
