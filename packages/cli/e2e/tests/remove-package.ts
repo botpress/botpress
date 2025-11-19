@@ -59,7 +59,6 @@ export const removePackage: Test = {
         .add({
           ...argv,
           packageRef: plugin,
-          packageType: 'plugin',
           installPath: botDir,
           useDev: false,
           alias: ALIAS,
