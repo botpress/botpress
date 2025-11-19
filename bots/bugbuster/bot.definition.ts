@@ -36,6 +36,18 @@ export default new sdk.BotDefinition({
         id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
       }),
     },
+    lintResults: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        issues: sdk.z.array(
+          sdk.z.object({
+            identifier: sdk.z.string(),
+            result: sdk.z.enum(['succeeded', 'failed', 'ignored']),
+            messages: sdk.z.array(sdk.z.string()),
+          })
+        ),
+      }),
+    },
   },
   workflows: {
     lintAll: {

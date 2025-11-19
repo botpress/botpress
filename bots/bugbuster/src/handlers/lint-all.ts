@@ -1,5 +1,5 @@
 import { BotClient, BotContext, BotLogger } from '@botpress/sdk/dist/bot'
-import { Result } from 'src/types'
+import { LintResult, Result } from 'src/types'
 import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
 import { LinearApi } from 'src/utils/linear-utils'
@@ -34,6 +34,21 @@ export const lintAll = async (
     _handleError('trying to list all issues')
   )
 
-  await runLints(linear, issues, logger, client, workflowId).catch(_handleError('trying to run lints on all issues'))
-  return { success: true, message: 'linted all issues' }
+  const results = await runLints(linear, issues, logger, client, workflowId).catch(
+    _handleError('trying to run lints on all issues')
+  )
+  return { success: true, message: buildResultMessage(results) }
+}
+
+const buildResultMessage = (results: LintResult[]) => {
+  const failedIssuesLinks = results.filter((result) => result.result === 'failed').map((result) => result.identifier)
+
+  let messageDetail = 'No issues contained lint errors.'
+  if (failedIssuesLinks.length === 1) {
+    messageDetail = `This issue contained lint errors: ${failedIssuesLinks[0]}.`
+  } else if (failedIssuesLinks.length > 1) {
+    messageDetail = `These issues contained lint errors: ${failedIssuesLinks.join(', ')}.`
+  }
+
+  return `linted all issues. ${messageDetail}`
 }
