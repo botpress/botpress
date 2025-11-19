@@ -1,5 +1,4 @@
 import * as handlers from './handlers'
-import { lintAll } from './handlers/lint-all'
 import { BotpressApi } from './utils/botpress-utils'
 import * as bp from '.botpress'
 
@@ -71,7 +70,7 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
   const botpress = new BotpressApi(client, ctx)
 
   try {
-    const result = await lintAll(client, logger, ctx, workflow.id, conversationId)
+    const result = await handlers.lintAll(client, logger, ctx, workflow.id, conversationId)
     if (!result.success) {
       if (conversationId) {
         await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)
@@ -80,7 +79,7 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
       return
     }
     if (conversationId) {
-      await botpress.respondText(conversationId, 'Success: ' + result.message)
+      await botpress.respondText(conversationId, result.message)
     }
     await workflow.setCompleted()
   } catch {

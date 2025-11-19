@@ -50,5 +50,5 @@ const buildResultMessage = (results: LintResult[]) => {
     messageDetail = `These issues contained lint errors: ${failedIssuesLinks.join(', ')}.`
   }
 
-  return `linted all issues. ${messageDetail}`
+  return `All issues linted. ${messageDetail}`
 }
