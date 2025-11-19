@@ -53,7 +53,7 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
       return
     }
     if (conversationId) {
-      await botpress.respondText(conversationId, 'Success: ' + result.message)
+      await botpress.respondText(conversationId, result.message)
     }
     await workflow.setCompleted()
   } catch {
