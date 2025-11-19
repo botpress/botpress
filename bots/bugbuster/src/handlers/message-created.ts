@@ -130,6 +130,27 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       await botpress.respondText(conversation.id, message)
       break
     }
+    case 'a': {
+      await props.client.createEvent({ payload: {}, type: 'timeToCheckIssuesStatus' })
+      break
+    }
+    case 'b': {
+      await props.client.setState({
+        id: ctx.botId,
+        name: 'issuesInStaging',
+        payload: {
+          issues: [
+            {
+              id: '68daf53a-5837-4168-9321-aebe67883553',
+              hasBeenNotified: false,
+              sinceTimestamp: new Date(2025, 11, 27, 17).getTime(),
+            },
+          ],
+        },
+        type: 'bot',
+      })
+      break
+    }
     default: {
       await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
       break

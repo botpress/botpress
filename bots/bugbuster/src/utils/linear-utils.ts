@@ -8,7 +8,7 @@ export type TeamKey = (typeof TEAM_KEYS)[number]
 
 const STATE_KEYS = [
   'IN_PROGRESS',
-  'MERGED_STAGING',
+  'STAGING',
   'PRODUCTION_DONE',
   'BACKLOG',
   'TODO',
