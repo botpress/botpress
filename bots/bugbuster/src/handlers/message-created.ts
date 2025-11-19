@@ -11,7 +11,7 @@ const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible command
 #listTeams
 #lintAll
 #getNotifChannel
-#setNotifChannel`
+#setNotifChannel [channelName]`
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
