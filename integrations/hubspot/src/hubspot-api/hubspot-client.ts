@@ -62,16 +62,28 @@ export class HubspotClient {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
   private readonly _accessToken: string
+  private readonly _logger: bp.Logger
 
   private _crmObjectPropertiesCaches: Record<CrmObjectType, PropertiesCache>
   private _ticketPipelines: TicketPipelinesCache | undefined
   private _ticketPipelinesAlreadyRefreshed: boolean = false
 
-  public constructor({ accessToken, client, ctx }: { accessToken: string; client: bp.Client; ctx: bp.Context }) {
+  public constructor({
+    accessToken,
+    client,
+    ctx,
+    logger,
+  }: {
+    accessToken: string
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+  }) {
     this._client = client
     this._ctx = ctx
     this._accessToken = accessToken
     this._hsClient = new OfficialHubspotClient({ accessToken, numberOfApiCallRetries: 2 })
+    this._logger = logger
     this._crmObjectPropertiesCaches = {
       contact: PropertiesCache.create({ client, ctx, accessToken, type: 'contact' }),
       deal: PropertiesCache.create({ client, ctx, accessToken, type: 'deal' }),
@@ -130,7 +142,8 @@ export class HubspotClient {
     })
     const hsContact = contacts.results[0]
     if (!hsContact) {
-      throw new sdk.RuntimeError('Unable to find contact')
+      this._logger.forBot().debug(`No contact found for ${email} and ${phone}`)
+      return undefined
     }
 
     return hsContact
@@ -143,6 +156,62 @@ export class HubspotClient {
       ...(propertiesToReturn ?? []),
     ])
     return contact
+  }
+
+  @handleErrors('Failed to search company')
+  public async searchCompany({
+    name,
+    domain,
+    propertiesToReturn,
+  }: {
+    name?: string
+    domain?: string
+    propertiesToReturn?: string[]
+  }) {
+    type Filter = {
+      propertyName: 'name' | 'domain'
+      operator: ContactFilterOperator
+      value: string
+    }
+    const filters: Filter[] = []
+
+    if (name) {
+      filters.push({
+        propertyName: 'name',
+        operator: ContactFilterOperator.Eq,
+        value: name.trim(),
+      })
+    }
+
+    if (domain) {
+      filters.push({
+        propertyName: 'domain',
+        operator: ContactFilterOperator.Eq,
+        value: domain.trim(),
+      })
+    }
+
+    if (!filters.length) {
+      throw new sdk.RuntimeError('Missing required filters: name and/or domain')
+    }
+
+    const companies = await this._hsClient.crm.companies.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters,
+        },
+      ],
+      properties: [...DEFAULT_COMPANY_PROPERTIES, ...(propertiesToReturn ?? [])],
+    })
+
+    const company = companies.results[0]
+
+    if (!company) {
+      this._logger.forBot().debug(`No company found for name: ${name} and domain: ${domain}`)
+      return undefined
+    }
+
+    return company
   }
 
   @handleErrors('Failed to get company by ID')
@@ -507,7 +576,8 @@ export class HubspotClient {
     const deal = deals.results[0]
 
     if (!deal) {
-      throw new sdk.RuntimeError('Unable to find deal')
+      this._logger.forBot().debug(`No deal found for name: ${name}`)
+      return undefined
     }
 
     return deal
@@ -663,7 +733,8 @@ export class HubspotClient {
     const lead = leads.results[0]
 
     if (!lead) {
-      throw new sdk.RuntimeError('Unable to find lead')
+      this._logger.forBot().debug(`No lead found for name: ${name}`)
+      return undefined
     }
 
     return lead
@@ -864,7 +935,8 @@ export class HubspotClient {
   }) {
     const canonicalName = _getCanonicalName(nameOrLabel)
 
-    const matchingStage = Object.entries(stages).find(
+    const stageEntries = Object.entries(stages)
+    const matchingStage = stageEntries.find(
       ([id, { label }]) =>
         _getCanonicalName(id) === canonicalName ||
         _getCanonicalName(label) === canonicalName ||
@@ -873,7 +945,11 @@ export class HubspotClient {
     )
 
     if (!matchingStage) {
-      throw new sdk.RuntimeError(`Unable to find ticket pipeline stage with name or id "${nameOrLabel}"`)
+      const formattedStages = stageEntries.map(([id, { label }]) => `=> **${label}** (ID: "${id}")`).join('\n')
+      const allowedStagesMsg = `========================\nValid Pipeline Stages:\n${formattedStages}\n`
+      throw new sdk.RuntimeError(
+        `Unable to find ticket pipeline stage with name or id "${nameOrLabel}"\n${allowedStagesMsg}`
+      )
     }
 
     return {

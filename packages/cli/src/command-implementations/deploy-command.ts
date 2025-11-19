@@ -110,6 +110,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       ...(await this.prepareCreateIntegrationBody(integrationDef)),
       ...(await this.prepareIntegrationDependencies(integrationDef, api)),
       visibility: this._visibility,
+      sdkVersion: integrationDef.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
@@ -225,6 +226,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       public: this._visibility === 'public',
       icon,
       readme,
+      sdkVersion: interfaceDeclaration.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
@@ -267,12 +269,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
-    if (this._visibility === 'unlisted') {
-      throw new errors.BotpressCLIError(
-        'Unlisted visibility is not supported for plugins. Please use "public" or "private".'
-      )
-    }
-
     const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
     const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 
@@ -310,13 +306,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const createBody = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       ...(await this.preparePluginDependencies(pluginDef, api)),
-      public: this._visibility === 'public',
+      visibility: this._visibility,
       icon,
       readme,
       code: {
         node: codeCJS,
         browser: codeESM,
       },
+      sdkVersion: pluginDef.metadata?.sdkVersion,
     }
 
     const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
@@ -473,7 +470,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
 
     line.success('Bot deployed')
-    this.displayWebhookUrls(updatedBot)
+    await this.displayIntegrationUrls({ api, bot: updatedBot })
   }
 
   private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {

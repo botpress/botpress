@@ -24,8 +24,6 @@ async function main(): Promise<void> {
   const key = process.env.TOKEN
   const botId = process.env.BOT_ID
 
-  console.log('Fetching models ...')
-
   const {
     data: { models },
   } = await axios.get<{ models: RemoteModel[] }>(`${server}/models?includeDeprecated=true`, {
@@ -44,18 +42,16 @@ async function main(): Promise<void> {
     input: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     output: { costPer1MTokens: 0, maxTokens: 1_000_000 },
     tags: [],
-    lifecycle: 'live',
+    lifecycle: 'production',
   }
 
   const newFile = `import { Model } from 'src/schemas.gen'\n
-export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued' }\n
+export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued' }\n
 export const models: Record<string, RemoteModel>  = ${JSON.stringify(modelsObj, null, 2)}\n
 export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefined, 2)}
 `
 
   fs.writeFileSync(modelsListPath, newFile, 'utf8')
-
-  console.log(`Saved ${models?.length} models to ${modelsListPath}`)
 
   const withoutDeprecated = models.filter((m) => !filteredLifecycles.includes(m.lifecycle))
   const refs = Array.from(new Set(withoutDeprecated.map(toRef).filter(Boolean))).sort((a, b) => a.localeCompare(b))
@@ -83,8 +79,6 @@ export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefine
 
   const nextContent = content.slice(0, startIdx) + unionBlock + content.slice(endIdx)
   fs.writeFileSync(typesPath, nextContent, 'utf8')
-
-  console.log(`Updated Models union in ${typesPath} with ${items.length} entries`)
 }
 
 main().catch((err: unknown) => {

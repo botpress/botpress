@@ -1,7 +1,6 @@
 import { isBrowser } from 'browser-or-node'
 import * as onNewMessageHandler from './onNewMessageHandler'
-import * as summaryUpdater from './tagsUpdater'
-import * as types from './types'
+import { updateAllConversations } from './updateAllConversations'
 import * as bp from '.botpress'
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000
@@ -10,7 +9,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.beforeIncomingMessage('*', async (props) => {
+plugin.on.afterIncomingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
@@ -30,11 +29,11 @@ plugin.on.beforeIncomingMessage('*', async (props) => {
   return undefined
 })
 
-plugin.on.beforeOutgoingMessage('*', async (props) => {
+plugin.on.afterOutgoingMessage('*', async (props) => {
   if (isBrowser) {
     return
   }
-  const { conversation } = await props.client.getConversation({ id: props.data.conversationId })
+  const { conversation } = await props.client.getConversation({ id: props.data.message.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
   return undefined
 })
@@ -57,13 +56,13 @@ plugin.on.event('updateAiInsight', async (props) => {
 
 plugin.on.workflowStart('updateAllConversations', async (props) => {
   props.logger.info('Starting updateAllConversations workflow')
-  await _updateAllConversations(props)
+  await updateAllConversations(props)
 
   return undefined
 })
 
 plugin.on.workflowContinue('updateAllConversations', async (props) => {
-  await _updateAllConversations(props)
+  await updateAllConversations(props)
 
   return undefined
 })
@@ -71,24 +70,5 @@ plugin.on.workflowContinue('updateAllConversations', async (props) => {
 plugin.on.workflowTimeout('updateAllConversations', async (props) => {
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 })
-
-type WorkflowProps = types.CommonProps & bp.WorkflowHandlerProps['updateAllConversations']
-const _updateAllConversations = async (props: WorkflowProps) => {
-  await props.workflow.acknowledgeStartOfProcessing()
-  const dirtyConversations = await props.client.listConversations({ tags: { isDirty: 'true' } })
-
-  const promises: Promise<void>[] = []
-  for (const conversation of dirtyConversations.conversations) {
-    const firstMessagePage = await props.client
-      .listMessages({ conversationId: conversation.id })
-      .then((res) => res.messages)
-    const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
-    promises.push(promise)
-  }
-
-  await Promise.all(promises)
-  await props.workflow.setCompleted()
-  props.logger.info('updateAllConversations workflow completed')
-}
 
 export default plugin

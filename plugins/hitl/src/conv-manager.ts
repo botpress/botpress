@@ -1,6 +1,10 @@
 import * as types from './types'
 import * as bp from '.botpress'
 
+// this state is hardcoded in the Studio/DM
+type TypingIndicatorState = { enabled: boolean }
+const TYPING_INDICATOR_STATE_NAME = 'typingIndicatorEnabled'
+
 type HitlState = bp.states.hitl.Hitl['payload']
 
 const DEFAULT_STATE: HitlState = { hitlActive: false }
@@ -47,17 +51,28 @@ export class ConversationManager {
 
   public async setHitlActive(): Promise<void> {
     await this._setHitlState({ hitlActive: true })
+    await this._toggleTypingIndicator({ enabled: false })
   }
 
   public async setHitlInactive(reason: HitlEndReason): Promise<void> {
     await Promise.all([
       this._setHitlState({ hitlActive: false }),
       this._patchConversationTags({ hitlEndReason: reason }),
+      this._toggleTypingIndicator({ enabled: true }),
     ])
   }
 
   public async continueWorkflow(): Promise<void> {
-    await this._props.events.continueWorkflow.withConversationId(this._convId).emit({
+    const userId = await this._props.states.conversation.initiatingUser
+      .get(this._convId)
+      .then((state) => state.upstreamUserId)
+
+    let eventBuilder = this._props.events.continueWorkflow.withConversationId(this._convId)
+    if (userId) {
+      eventBuilder = eventBuilder.withUserId(userId)
+    }
+
+    await eventBuilder.emit({
       conversationId: this._convId,
     })
   }
@@ -81,6 +96,10 @@ export class ConversationManager {
     await this.respond({ type: 'text', text: errorMessage })
   }
 
+  public async setUserId(userId: string): Promise<void> {
+    return await this._props.states.conversation.initiatingUser.set(this._convId, { upstreamUserId: userId })
+  }
+
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {
     return await this._props.states.conversation.hitl.getOrSet(this._convId, DEFAULT_STATE)
   }
@@ -98,5 +117,20 @@ export class ConversationManager {
       conversation: { tags },
     } = await this._props.client.getConversation({ id: this._convId })
     return tags
+  }
+
+  private async _toggleTypingIndicator(payload: TypingIndicatorState): Promise<void> {
+    try {
+      await this._props.client.setState({
+        id: this._convId,
+        type: 'conversation',
+        name: TYPING_INDICATOR_STATE_NAME,
+        payload,
+      })
+    } catch (thrown) {
+      // because this state is hardcoded in the Studio / DM, it might not exist in some bot-as-code or ADK bots
+      const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      this._props.logger.withConversationId(this._convId).debug(`Could not set typing indicator state: ${errorMsg}`)
+    }
   }
 }

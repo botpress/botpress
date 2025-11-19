@@ -8,7 +8,7 @@ import * as consts from './consts'
 export type Primitive = string | number | boolean | null | undefined
 
 export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.Schema, name: string): Promise<string> => {
-  let code = zuiSchema.toTypescriptType()
+  let code = zuiSchema.toTypescriptType({ treatDefaultAsOptional: true })
   code = `export type ${name} = ${code}`
   code = await prettier.format(code, { parser: 'typescript' })
   return [

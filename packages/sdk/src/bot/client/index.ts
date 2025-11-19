@@ -79,6 +79,8 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
     this._run('upsertTableRows', x)) as types.UpsertTableRows<TBot>
   public createWorkflow: types.CreateWorkflow<TBot> = ((x) =>
     this._run('createWorkflow', x)) as types.CreateWorkflow<TBot>
+  public getOrCreateWorkflow: types.GetOrCreateWorkflow<TBot> = ((x) =>
+    this._run('getOrCreateWorkflow', x)) as types.GetOrCreateWorkflow<TBot>
   public getWorkflow: types.GetWorkflow<TBot> = ((x) => this._run('getWorkflow', x)) as types.GetWorkflow<TBot>
   public updateWorkflow: types.UpdateWorkflow<TBot> = ((x) =>
     this._run('updateWorkflow', x)) as types.UpdateWorkflow<TBot>

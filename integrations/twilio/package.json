@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.0",
@@ -19,6 +20,12 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/proactive-conversation": "workspace:*",
+    "@botpresshub/proactive-user": "workspace:*",
     "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "proactive-conversation": "../../interfaces/proactive-conversation",
+    "proactive-user": "../../interfaces/proactive-user"
   }
 }

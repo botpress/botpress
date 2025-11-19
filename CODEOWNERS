@@ -1,72 +1,48 @@
 # Global
 * @botpress/engineering
 
-# Client, SDK, CLI
-/packages @botpress/engineering
+# Packages
+
+## API / Client
+/packages/chat-api @botpress/kraken @botpress/leads
+/packages/chat-client @botpress/kraken @botpress/leads
+/packages/client @botpress/squid @botpress/kraken @botpress/leads
+
+## CLI / SDK
+/packages/cli @botpress/squid @botpress/leads
+/packages/sdk @botpress/squid @botpress/leads
+
+## Common / Utils
+/packages/common @botpress/squid @botpress/leads
+/packages/sdk-addons @botpress/squid @botpress/leads
+
+## AI
+/packages/cognitive @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/llmz @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/vai @allardy @slvnperron @botpress/squid @botpress/leads
+/packages/zai @allardy @slvnperron @botpress/squid @botpress/leads
 
 # Bots
-/packages/bots @botpress/engineering
+/bots @botpress/squid @botpress/kraken @botpress/leads
 
 # Plugins
-/plugins @botpress/engineering
-/plugins/hitl @pascal-botpress @franklevasseur @botpress/engineering
-/plugins/file-synchronizer @pascal-botpress @botpress/engineering
+/plugins @botpress/squid @botpress/kraken @botpress/leads
 
 # Integrations
-/integrations @botpress/engineering
+/integrations @botpress/squid @botpress/leads
 
 ## Utils
-/integrations/browser @allardy @botpress/engineering
-/integrations/charts @allardy @botpress/engineering
-/integrations/pdf-generator @allardy @botpress/engineering
+/integrations/browser @allardy @botpress/starfish @botpress/leads
+/integrations/charts @allardy @botpress/starfish @botpress/leads
+/integrations/pdf-generator @allardy @botpress/starfish @botpress/leads
 
 ## LLM
-/integrations/anthropic @AbrahamLopez10 @botpress/engineering
-/integrations/cerebras @AbrahamLopez10 @botpress/engineering
-/integrations/fireworks-ai @AbrahamLopez10 @botpress/engineering
-/integrations/google-ai @AbrahamLopez10 @botpress/engineering
-/integrations/groq @AbrahamLopez10 @botpress/engineering
-/integrations/openai @AbrahamLopez10 @botpress/engineering
+/integrations/anthropic @botpress/shark @botpress/leads
+/integrations/cerebras @botpress/shark @botpress/leads
+/integrations/fireworks-ai @botpress/shark @botpress/leads
+/integrations/google-ai @botpress/shark @botpress/leads
+/integrations/groq @botpress/shark @botpress/leads
+/integrations/openai @botpress/shark @botpress/leads
 
-## Others
-/integrations/airtable @JustinBordage @botpress/engineering
-/integrations/asana @JustinBordage @botpress/engineering
-/integrations/bigcommerce-sync @mpetruu @Nathaniel-Girard @botpress/engineering
-/integrations/calendly @JustinBordage @botpress/engineering
-/integrations/chat @franklevasseur @botpress/engineering
-/integrations/clickup @JustinBordage @botpress/engineering
-/integrations/confluence @Nathaniel-Girard @botpress/engineering
-/integrations/dropbox @pascal-botpress @botpress/engineering
-/integrations/docusign @JustinBordage @botpress/engineering
-/integrations/email @Nathaniel-Girard @botpress/engineering
-/integrations/freshchat @davidvitora @botpress/engineering
-/integrations/github @JustinBordage @pascal-botpress @botpress/engineering
-/integrations/gmail @pascal-botpress @botpress/engineering
-/integrations/googlecalendar @pascal-botpress @botpress/engineering
-/integrations/googledrive @pascal-botpress @botpress/engineering
-/integrations/gsheets @pascal-botpress @botpress/engineering
-/integrations/instagram @SebastienPoitras @botpress/engineering
-/integrations/intercom @Nathaniel-Girard @botpress/engineering
-/integrations/line @Nathaniel-Girard @botpress/engineering
-/integrations/linear @franklevasseur @botpress/engineering
-/integrations/mailchimp @JustinBordage @botpress/engineering
-/integrations/messenger @SebastienPoitras @botpress/engineering
-/integrations/monday @JustinBordage @botpress/engineering
-/integrations/notion @pascal-botpress @botpress/engineering
-/integrations/resend @JustinBordage @botpress/engineering
-/integrations/sendgrid @JustinBordage @botpress/engineering
-/integrations/slack @pascal-botpress @botpress/engineering
-/integrations/stripe @Nathaniel-Girard @botpress/engineering
-/integrations/sunco @SebastienPoitras @botpress/engineering
-/integrations/teams @JustinBordage @davidvitora @botpress/engineering
-/integrations/telegram @franklevasseur @JustinBordage @botpress/engineering
-/integrations/todoist @JustinBordage @botpress/engineering
-/integrations/trello @JustinBordage @botpress/engineering
-/integrations/twilio @SebastienPoitras @botpress/engineering
-/integrations/viber @Nathaniel-Girard @botpress/engineering
-/integrations/vonage @Nathaniel-Girard @botpress/engineering
-/integrations/webhook @franklevasseur @botpress/engineering
-/integrations/whatsapp @SebastienPoitras @botpress/engineering
-/integrations/zapier @Nathaniel-Girard @botpress/engineering
-/integrations/zendesk @pascal-botpress @franklevasseur @botpress/engineering
-/integrations/zoho @Nathaniel-Girard @botpress/engineering
+## Chat
+/integrations/chat @botpress/kraken @botpress/leads

@@ -32,15 +32,20 @@ type InstallablePackage =
       pkg: codegen.PluginInstallablePackage
     }
 
+type RefWithAlias = pkgRef.PackageRef & { alias?: string }
+
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
-      return await this._addSinglePackage(ref)
+      return await this._addNewSinglePackage({ ...ref, alias: this.argv.alias })
     }
 
-    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'failed to read package.json file')
+    })
+
     if (!pkgJson) {
       this.logger.warn('No package.json found in the install path')
       return
@@ -95,15 +100,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     return ref
   }
 
-  private async _addSinglePackage(ref: pkgRef.PackageRef & { alias?: string }): Promise<void> {
-    const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
+  private async _addSinglePackage(ref: RefWithAlias) {
+    const { packageName, targetPackage } = await this._findPackage(ref)
 
-    if (!targetPackage) {
-      const strRef = pkgRef.formatPackageRef(ref)
-      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
-    }
-
-    const packageName = ref.alias ?? targetPackage.pkg.name
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
@@ -113,8 +112,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       this.logger.warn(`Package with name "${packageName}" already installed.`)
       const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
-        this.logger.log('Aborted')
-        return
+        throw new errors.AbortedOperationError()
       }
 
       await this._uninstall(installPath)
@@ -149,6 +147,23 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     await this._install(installPath, files)
+  }
+
+  private async _addNewSinglePackage(ref: RefWithAlias) {
+    await this._addSinglePackage(ref)
+    const { packageName, targetPackage } = await this._findPackage(ref)
+    await this._addDependencyToPackage(packageName, targetPackage)
+  }
+
+  private async _findPackage(ref: RefWithAlias): Promise<{ packageName: string; targetPackage: InstallablePackage }> {
+    const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
+    if (!targetPackage) {
+      const strRef = pkgRef.formatPackageRef(ref)
+      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
+    }
+    const packageName = ref.alias ?? targetPackage.pkg.name
+
+    return { packageName, targetPackage }
   }
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
@@ -328,6 +343,48 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       ...this.argv,
       workDir,
     })
+  }
+
+  private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const version =
+      targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
+    if (!pkgJson) {
+      this.logger.warn('No package.json found in the install path')
+      return
+    }
+
+    const { bpDependencies } = pkgJson
+    if (!bpDependencies) {
+      pkgJson.bpDependencies = { [packageName]: version }
+      await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
+      return
+    }
+
+    const bpDependenciesSchema = sdk.z.record(sdk.z.string())
+    const parseResult = bpDependenciesSchema.safeParse(bpDependencies)
+    if (!parseResult.success) {
+      throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
+    }
+
+    const { data: validatedBpDeps } = parseResult
+
+    const alreadyPresentDep = Object.entries(validatedBpDeps).find(([key]) => key === packageName)
+    if (alreadyPresentDep) {
+      if (alreadyPresentDep[1] !== version) {
+        this.logger.warn(
+          `The dependency ${packageName} is already present in the bpDependencies of package.json. It will not be replaced.`
+        )
+      }
+      return
+    }
+
+    pkgJson.bpDependencies = {
+      ...validatedBpDeps,
+      [packageName]: version,
+    }
+
+    await utils.pkgJson.writePackageJson(this.argv.installPath, pkgJson)
   }
 }
 

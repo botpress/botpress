@@ -14,6 +14,7 @@ export type WizardStep<THandlerProps extends HandlerProps> = {
 
 export type WizardStepInputProps = {
   selectedChoice?: string
+  inputValue?: string
   query: URLSearchParams
   responses: {
     redirectToStep: (stepId: string) => sdk.Response
@@ -36,6 +37,15 @@ export type WizardStepInputProps = {
         | { action: 'javascript'; callFunction: string }
         | { action: 'close' }
       ))[]
+    }) => sdk.Response
+    displayInput: (props: {
+      pageTitle: string
+      htmlOrMarkdownPageContents: string
+      input: {
+        label: string
+        type: 'text' | 'number' | 'email' | 'password' | 'url'
+      }
+      nextStepId: string
     }) => sdk.Response
     endWizard: (result: { success: true } | { success: false; errorMessage: string }) => sdk.Response
   }

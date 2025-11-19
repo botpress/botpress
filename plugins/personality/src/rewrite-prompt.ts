@@ -31,7 +31,7 @@ const userPrompt = (args: PromptArgs): string => dedent`
 { "payload": ${args.payload} }
 \`\`\`
 
-type OutputFormat = ${responseSchema.toTypescriptType()}
+type OutputFormat = ${responseSchema.toTypescriptType({ treatDefaultAsOptional: true })}
 `
 
 export const prompt = (args: PromptArgs): LLMInput => ({

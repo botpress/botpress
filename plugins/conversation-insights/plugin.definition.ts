@@ -2,7 +2,7 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.4.0',
+  version: '0.4.5',
   configuration: {
     schema: z.object({
       aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
@@ -13,7 +13,7 @@ export default new PluginDefinition({
       title: { title: 'Title', description: 'The title of the conversation.' },
       summary: {
         title: 'Summary',
-        description: 'A summary of the current conversation. ',
+        description: 'A summary of the current conversation.',
       },
       message_count: {
         title: 'Message count',

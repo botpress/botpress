@@ -2,6 +2,7 @@ import type * as esbuild from 'esbuild'
 import { resolveInterface } from '../../interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
+import { SDK_VERSION } from '../../version'
 import { mergeObjectSchemas, z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
@@ -236,6 +237,10 @@ export class IntegrationDefinition<
     this.interfaces = props.interfaces
     this.__advanced = props.__advanced
     this.attributes = props.attributes
+  }
+
+  public get metadata() {
+    return { sdkVersion: SDK_VERSION } as const
   }
 
   public extend<P extends InterfacePackage>(

@@ -18,6 +18,14 @@ jobs:
           BUGBUSTER_LINEAR_API_KEY: ${{ secrets.BUGBUSTER_LINEAR_API_KEY }}
           BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET: ${{ secrets.BUGBUSTER_LINEAR_WEBHOOK_SIGNING_SECRET }}
           BUGBUSTER_TELEGRAM_BOT_TOKEN: ${{ secrets.BUGBUSTER_TELEGRAM_BOT_TOKEN }}
+          BUGBUSTER_SLACK_REFRESH_TOKEN: ${{ secrets.BUGBUSTER_SLACK_REFRESH_TOKEN }}
+          BUGBUSTER_SLACK_CLIENT_ID: ${{ secrets.BUGBUSTER_SLACK_CLIENT_ID }}
+          BUGBUSTER_SLACK_CLIENT_SECRET: ${{ secrets.BUGBUSTER_SLACK_CLIENT_SECRET }}
+          BUGBUSTER_SLACK_SIGNING_SECRET: ${{ secrets.BUGBUSTER_SLACK_SIGNING_SECRET }}
+          CLOG_SLACK_CLIENT_ID: ${{ secrets.CLOG_SLACK_CLIENT_ID }}
+          CLOG_SLACK_CLIENT_SECRET: ${{ secrets.CLOG_SLACK_CLIENT_SECRET }}
+          CLOG_SLACK_SIGNING_SECRET: ${{ secrets.CLOG_SLACK_SIGNING_SECRET }}
+          CLOG_SLACK_REFRESH_TOKEN: ${{ secrets.CLOG_SLACK_REFRESH_TOKEN }}
         uses: ./.github/actions/setup
       - name: Deploy Bots
         run: |
@@ -30,7 +38,7 @@ jobs:
 
           # deploy
 
-          bots="pnpm list -F bugbuster --json"
+          bots="pnpm list -F bugbuster -F clog --json"
           bot_paths=$(eval $bots | jq -r "map(".path") | .[]")
 
           for bot_path in $bot_paths; do
