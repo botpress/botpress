@@ -16,6 +16,10 @@ const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this comm
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   const { conversation, message, client, ctx, logger } = props
+
+  if (conversation.integration === 'slack' && conversation.channel === 'channel') {
+    return
+  }
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
