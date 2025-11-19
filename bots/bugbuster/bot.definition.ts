@@ -41,9 +41,9 @@ export default new sdk.BotDefinition({
       schema: sdk.z.object({
         issues: sdk.z.array(
           sdk.z.object({
-            identifier: sdk.z.string(),
-            result: sdk.z.enum(['succeeded', 'failed', 'ignored']),
-            messages: sdk.z.array(sdk.z.string()),
+            identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+            result: sdk.z.enum(['succeeded', 'failed', 'ignored']).title('Result').describe('The lint result'),
+            messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
           })
         ),
       }),
