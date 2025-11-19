@@ -94,8 +94,6 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
   return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
 }
 
-export type LintResults = { issues: { lintSuccess: boolean; messages: string[] }[] }
-
 export async function runLints(
   linear: LinearApi,
   issues: Issue[],
