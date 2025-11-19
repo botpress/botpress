@@ -8,7 +8,8 @@ import { devBot } from './tests/dev-bot'
 import { installAllInterfaces } from './tests/install-interfaces'
 import { addIntegration, addPlugin } from './tests/install-package'
 import { requiredSecrets } from './tests/integration-secrets'
-import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
+import { enforceWorkspaceHandle, prependWorkspaceHandle } from './tests/manage-workspace-handle'
+import { removePackage } from './tests/remove-package'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
@@ -23,6 +24,7 @@ const tests: Test[] = [
   addIntegration,
   addPlugin,
   installAllInterfaces,
+  removePackage,
 ]
 
 const timeout = (ms: number) =>
