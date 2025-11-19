@@ -48,6 +48,16 @@ export default new sdk.BotDefinition({
         ),
       }),
     },
+    notificationChannelName: {
+      type: 'bot',
+      schema: sdk.z.object({
+        name: sdk.z
+          .string()
+          .optional()
+          .title('Notification Channel Name')
+          .describe('The Slack channel where notifications will be posted'),
+      }),
+    },
   },
   workflows: {
     lintAll: {
@@ -55,6 +65,7 @@ export default new sdk.BotDefinition({
         schema: sdk.z.object({
           conversationId: sdk.z
             .string()
+            .optional()
             .title('Conversation ID')
             .describe('The ID of the conversation that triggered the workflow'),
         }),
