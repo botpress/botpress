@@ -52,5 +52,7 @@ export default {
     list: commandImplementations.profiles.subcommands.list,
     active: commandImplementations.profiles.subcommands.active,
     use: commandImplementations.profiles.subcommands.use,
+    add: commandImplementations.profiles.subcommands.add,
+    delete: commandImplementations.profiles.subcommands.delete,
   },
 } satisfies CommandHandlers<typeof commandDefinitions>

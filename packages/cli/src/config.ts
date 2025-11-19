@@ -389,6 +389,32 @@ const useProfileSchema = {
   },
 } satisfies CommandSchema
 
+const addProfileSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  profileName: {
+    type: 'string',
+    description: 'The name of the profile to add',
+    positional: true,
+    idx: 0,
+  },
+  dev: {
+    type: 'boolean',
+    description: 'Use the dev environment (api.botpress.dev)',
+    default: false,
+  },
+} satisfies CommandSchema
+
+const deleteProfileSchema = {
+  ...globalSchema,
+  profileToDelete: {
+    type: 'string',
+    description: 'The name of the profile to delete',
+    positional: true,
+    idx: 0,
+  },
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -425,4 +451,6 @@ export const schemas = {
   listProfiles: listProfilesSchema,
   activeProfile: activeProfileSchema,
   useProfile: useProfileSchema,
+  addProfile: addProfileSchema,
+  deleteProfile: deleteProfileSchema,
 } as const
