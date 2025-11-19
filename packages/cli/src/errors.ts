@@ -4,7 +4,8 @@ import { VError } from 'verror'
 import * as consts from './consts'
 
 type KnownApiError = Exclude<client.ApiError, client.UnknownError>
-const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e) && !(e instanceof client.UnknownError)
+const isUnknownApiError = (e: unknown): e is client.UnknownError => client.isApiError(e) && e.type === 'Unknown'
+const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e) && e.type !== 'Unknown'
 
 export class BotpressCLIError extends VError {
   public static wrap(thrown: unknown, message: string): BotpressCLIError {
@@ -16,15 +17,19 @@ export class BotpressCLIError extends VError {
     if (thrown instanceof BotpressCLIError) {
       return thrown
     }
-    if (thrown instanceof client.UnknownError) {
-      let inst: HTTPError
+    if (isUnknownApiError(thrown)) {
       const cause = thrown.error?.cause
-      if (cause && typeof cause === 'object' && 'code' in cause && (cause as any).code === 'ECONNREFUSED') {
-        inst = new HTTPError(500, 'The connection was refused by the server')
-      } else {
-        inst = new HTTPError(500, 'An unknown error has occurred.')
+      if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'ECONNREFUSED') {
+        return new HTTPError(500, 'The connection was refused by the server')
       }
-      return inst
+
+      const unknownMessage = 'An unknown API error occurred'
+      if (!thrown.message.trim()) {
+        return new HTTPError(500, unknownMessage)
+      }
+
+      const inner = new HTTPError(500, thrown.message)
+      return new BotpressCLIError(inner, unknownMessage)
     }
     if (isKnownApiError(thrown)) {
       return HTTPError.fromApi(thrown)

@@ -1,4 +1,3 @@
-import VError from 'verror'
 import * as errors from '../errors'
 import type { Logger } from '../logger'
 import type { CommandArgv, CommandDefinition } from '../typings'
@@ -29,7 +28,7 @@ export abstract class BaseCommand<C extends CommandDefinition> {
 
       error.message = `[${this._cmdName}] ${error.message}`
       this.logger.error(error.message)
-      this.logger.debug(VError.fullStack(error))
+      error.stack && this.logger.debug(error.stack)
 
       exitCode = 1
     } finally {
