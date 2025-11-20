@@ -75,11 +75,10 @@ export class LinearApi {
       teamKeys: string[]
       issueNumber?: number
       statusesToOmit?: StateKey[]
-      statusesToInclude?: StateKey[]
     },
     nextPage?: string
   ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
-    const { teamKeys, issueNumber, statusesToOmit, statusesToInclude } = filter
+    const { teamKeys, issueNumber, statusesToOmit } = filter
 
     const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
     if (!teamsExist) {
@@ -90,12 +89,7 @@ export class LinearApi {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        state: {
-          name: {
-            ...(statusesToOmit && { nin: this._stateKeysToStateNames(statusesToOmit) }),
-            ...(statusesToInclude && { in: this._stateKeysToStateNames(statusesToInclude) }),
-          },
-        },
+        ...(statusesToOmit && { state: { name: { nin: this._stateKeysToStateNames(statusesToOmit) } } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,

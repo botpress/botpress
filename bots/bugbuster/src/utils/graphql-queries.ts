@@ -105,8 +105,7 @@ export const GRAPHQL_QUERIES = {
         number?: { eq: number }
         state?: {
           name: {
-            nin?: string[]
-            in?: string[]
+            nin: string[]
           }
         }
       }
