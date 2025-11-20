@@ -1,15 +1,15 @@
-import { google } from 'googleapis'
 import { Event as EventEntity } from 'definitions'
+import { google } from 'googleapis'
 
-type GoogleCalendarClient = ReturnType<typeof google.calendar>
-type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
+export type GoogleCalendarClient = ReturnType<typeof google.calendar>
+export type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
 // Entities:
-type Event = EventEntity.inferredType
+export type Event = EventEntity.inferredType
 type BareMinimumEvent = PartialExcept<Event, 'startDateTime' | 'endDateTime'>
 
 // Action requests:
-type CreateEventRequest = Omit<BareMinimumEvent, 'id' | 'eventType' | 'htmlLink' | 'attendees'> & {
+export type CreateEventRequest = Omit<BareMinimumEvent, 'id' | 'eventType' | 'htmlLink' | 'attendees'> & {
   attendees?: Array<{
     email: string
     displayName?: string
@@ -17,7 +17,7 @@ type CreateEventRequest = Omit<BareMinimumEvent, 'id' | 'eventType' | 'htmlLink'
     responseStatus?: 'tentative' | 'needsAction' | 'declined' | 'accepted'
   }>
 }
-type UpdateEventRequest = Omit<BareMinimumEvent, 'eventType' | 'htmlLink' | 'attendees'> & {
+export type UpdateEventRequest = Omit<BareMinimumEvent, 'eventType' | 'htmlLink' | 'attendees'> & {
   attendees?: Array<{
     email: string
     displayName?: string
