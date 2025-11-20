@@ -105,7 +105,7 @@ export default new sdk.BotDefinition({
       payload: sdk.z.object({}),
       type: 'timeToCheckIssuesStatus',
       schedule: {
-        cron: '0 8 * * *',
+        cron: '0 * * * *',
       },
     },
   },
