@@ -9,8 +9,22 @@ type Event = EventEntity.inferredType
 type BareMinimumEvent = PartialExcept<Event, 'startDateTime' | 'endDateTime'>
 
 // Action requests:
-type CreateEventRequest = Omit<BareMinimumEvent, 'id' | 'eventType' | 'htmlLink'>
-type UpdateEventRequest = Omit<BareMinimumEvent, 'eventType' | 'htmlLink'>
+type CreateEventRequest = Omit<BareMinimumEvent, 'id' | 'eventType' | 'htmlLink' | 'attendees'> & {
+  attendees?: Array<{
+    email: string
+    displayName?: string
+    optional?: boolean
+    responseStatus?: 'tentative' | 'needsAction' | 'declined' | 'accepted'
+  }>
+}
+type UpdateEventRequest = Omit<BareMinimumEvent, 'eventType' | 'htmlLink' | 'attendees'> & {
+  attendees?: Array<{
+    email: string
+    displayName?: string
+    optional?: boolean
+    responseStatus?: 'tentative' | 'needsAction' | 'declined' | 'accepted'
+  }>
+}
 
 // Type utilities:
 
