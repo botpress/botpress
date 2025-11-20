@@ -49,8 +49,10 @@ export class ListIntegrationsCommand extends GlobalCommand<ListIntegrationsComma
       : (req: { nextToken?: string }) => api.client.listPublicIntegrations({ nextToken: req.nextToken, name, version })
 
     try {
-      const privateIntegrations = await api.listAllPages(privateLister, (r) => r.integrations)
-      const publicIntegrations = await api.listAllPages(publicLister, (r) => r.integrations)
+      const [privateIntegrations, publicIntegrations] = await Promise.all([
+        api.listAllPages(privateLister, (r) => r.integrations),
+        api.listAllPages(publicLister, (r) => r.integrations),
+      ])
       const integrations = _.uniqBy([...privateIntegrations, ...publicIntegrations], (i) => i.id)
 
       this.logger.success('Integrations:')

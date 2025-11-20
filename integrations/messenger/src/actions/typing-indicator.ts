@@ -1,6 +1,6 @@
 import { MessengerTypes } from 'messaging-api-messenger'
-import { create as createMessengerClient } from '../misc/messenger-client'
-import { getRecipientId } from '../misc/utils'
+import { createAuthenticatedMessengerClient } from '../misc/messenger-client'
+import { getEndUserMessengerId } from '../misc/utils'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async (props) => {
@@ -21,11 +21,17 @@ const sendSenderActions = async ({
   actions: MessengerTypes.SenderAction[]
 }) => {
   const { conversationId } = input
-  const messengerClient = await createMessengerClient(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
-  const recipientId = getRecipientId(conversation)
+
+  // Skip typing indicators for comment replies channel as they aren't available in Facebook comments
+  if (conversation.channel !== 'channel') {
+    return {}
+  }
+
+  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
+  const userMessengerId = getEndUserMessengerId(conversation)
   for (const action of actions) {
-    await messengerClient.sendSenderAction(recipientId, action)
+    await messengerClient.sendSenderAction(userMessengerId, action)
   }
   return {}
 }
