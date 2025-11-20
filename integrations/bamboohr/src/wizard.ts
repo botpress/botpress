@@ -95,9 +95,9 @@ const _oauthRedirectHandler: WizardHandler = async ({ inputValue, responses, ctx
 
   const oauthUrl =
     `https://${inputValue}.bamboohr.com/authorize.php?` +
-    `request=authorize` +
+    'request=authorize' +
     `&state=${ctx.webhookId}` +
-    `&response_type=code` +
+    '&response_type=code' +
     `&scope=${scopes.join('+')}` +
     `&client_id=${bp.secrets.OAUTH_CLIENT_ID}` +
     `&redirect_uri=${redirectUri.toString()}`
@@ -123,11 +123,13 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, responses, client, 
     })
   }
 
+  const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback')
+
   try {
     // Complete OAuth flow with the subdomain
     await handleOauthRequest({
       req: {
-        query: `code=${code}`,
+        query: `code=${code}&redirect_uri=${redirectUri.toString()}`,
         path: '/oauth',
         body: '',
         method: 'GET',
