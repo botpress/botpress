@@ -114,6 +114,8 @@ export type ExecutionHooks = {
     tool: Tool
     input: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ input?: any } | void>
 
   /**
@@ -131,6 +133,8 @@ export type ExecutionHooks = {
     input: any
     output: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ output?: any } | void>
 }
 
@@ -794,6 +798,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           tool,
           input,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof beforeRes?.input !== 'undefined') {
@@ -810,6 +816,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           input,
           output,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
@@ -839,6 +847,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
                 input,
                 output,
                 controller,
+                object,
+                toolCallId,
               })
 
               if (typeof afterRes?.output !== 'undefined') {
