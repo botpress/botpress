@@ -8,7 +8,7 @@ export type TeamKey = (typeof TEAM_KEYS)[number]
 
 const STATE_KEYS = [
   'IN_PROGRESS',
-  'MERGED_STAGING',
+  'STAGING',
   'PRODUCTION_DONE',
   'BACKLOG',
   'TODO',
@@ -85,19 +85,11 @@ export class LinearApi {
       return { issues: [] }
     }
 
-    const stateNamesToOmit = statusesToOmit?.map((key) => {
-      const matchingStates = this._states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
-
     const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
+        ...(statusesToOmit && { state: { name: { nin: this._stateKeysToStateNames(statusesToOmit) } } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -172,6 +164,16 @@ export class LinearApi {
           },
         })
       },
+    })
+  }
+
+  private _stateKeysToStateNames = (keys: StateKey[]) => {
+    return keys.map((key) => {
+      const matchingStates = this._states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
     })
   }
 

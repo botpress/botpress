@@ -7,6 +7,7 @@ export const bot = new bp.Bot({ actions: {} })
 bot.on.event('github:issueOpened', handlers.handleGithubIssueOpened)
 bot.on.event('linear:issueUpdated', handlers.handleLinearIssueUpdated)
 bot.on.event('linear:issueCreated', handlers.handleLinearIssueCreated)
+bot.on.event('timeToCheckIssuesStatus', handlers.handleCheckIssuesStatus)
 bot.on.event('timeToLintAll', async (props) => {
   const {
     state: {

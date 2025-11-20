@@ -9,3 +9,5 @@ export type LintResult = {
   result: 'succeeded' | 'failed' | 'ignored'
   messages: string[]
 }
+
+export type WatchedIssue = { id: string; sinceTimestamp: number; commentId?: string }

@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { issuesToCheckSchema } from 'src/definitions'
 import * as genenv from './.genenv'
 import github from './bp_modules/github'
 import linear from './bp_modules/linear'
@@ -58,6 +59,14 @@ export default new sdk.BotDefinition({
           .describe('The Slack channel where notifications will be posted'),
       }),
     },
+    issuesInStaging: {
+      type: 'bot',
+      schema: sdk.z.object({ issues: issuesToCheckSchema }).title('Issues').describe('The issues in staging'),
+    },
+    blockedIssues: {
+      type: 'bot',
+      schema: sdk.z.object({ issues: issuesToCheckSchema }).title('Issues').describe('The blocked issues'),
+    },
   },
   workflows: {
     lintAll: {
@@ -77,6 +86,9 @@ export default new sdk.BotDefinition({
     timeToLintAll: {
       schema: sdk.z.object({}),
     },
+    timeToCheckIssuesStatus: {
+      schema: sdk.z.object({}),
+    },
   },
   recurringEvents: {
     timeToLintAll: {
@@ -84,6 +96,13 @@ export default new sdk.BotDefinition({
       type: 'timeToLintAll',
       schedule: {
         cron: '0 8 * * 1',
+      },
+    },
+    timeToCheckIssuesStatus: {
+      payload: sdk.z.object({}),
+      type: 'timeToCheckIssuesStatus',
+      schedule: {
+        cron: '0 * * * *',
       },
     },
   },
