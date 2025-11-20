@@ -10,7 +10,7 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  * Saves new token in state.
  * @returns `accessToken` and `idToken` to use in Authorization header and integration configuration respectively.
  */
-const fetchBambooHrOauthToken = async (
+const _fetchBambooHrOauthToken = async (
   { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
   oAuthInfo: { code: string } | { refreshToken: string }
 ): Promise<{
@@ -100,7 +100,7 @@ export const getBambooHrAuthorization = async ({
   const token =
     Date.now() < oauth.expiresAt
       ? oauth.accessToken
-      : (await fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
+      : (await _fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
 
   return { authorization: `Bearer ${token}`, expiresAt: oauth.expiresAt }
 }
@@ -113,7 +113,7 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   const code = new URLSearchParams(req.query).get('code')
   if (!code) throw new Error('Missing authentication code')
 
-  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code })
+  const { idToken } = await _fetchBambooHrOauthToken({ ctx, client }, { code })
 
   await client.configureIntegration({
     identifier: (jwt.decode(idToken) as JwtPayload).sub,
