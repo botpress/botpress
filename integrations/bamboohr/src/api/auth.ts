@@ -64,20 +64,22 @@ const _fetchBambooHrOauthToken = async (props: {
   }
 }
 
-/** Gets authorization information for requests.
- *
- * Can be either API key or OAuth token, depending on configuration.
- * If OAuth token is expired or missing, fetches a new one using the refresh token.
- * Users should refresh their authorization header periodically based on the `expiresAt` timestamp.
- *
- * @returns Authorization information & an expiration timestamp.
- */
-export const getBambooHrAuthorization = async ({
+export type BambooHRAuthorization = { authorization: string; expiresAt: number } & (
+  | {
+      type: 'apiKey'
+    }
+  | {
+      type: 'oauth'
+      refreshToken: string
+    }
+)
+export const getCurrentBambooHrAuthorization = async ({
   ctx,
   client,
-}: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<{ authorization: string; expiresAt: number }> => {
+}: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<BambooHRAuthorization> => {
   if (ctx.configurationType === 'apiKey') {
     return {
+      type: 'apiKey',
       authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
       expiresAt: Infinity,
     }
@@ -95,9 +97,35 @@ export const getBambooHrAuthorization = async ({
     throw new Error('OAuth token missing in state for OAuth-linked integration.', { cause: err })
   }
 
+  return {
+    type: 'oauth',
+    authorization: `Bearer ${oauth.accessToken}`,
+    expiresAt: oauth.expiresAt,
+    refreshToken: oauth.refreshToken,
+  }
+}
+
+/** Gets authorization information for requests.
+ *
+ * Can be either API key or OAuth token, depending on configuration.
+ * If OAuth token is expired or missing, fetches a new one using the refresh token.
+ * Users should refresh their authorization header periodically based on the `expiresAt` timestamp.
+ *
+ * @returns Authorization information & an expiration timestamp.
+ */
+export const refreshBambooHrAuthorization = async (
+  { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
+  previousAuth: BambooHRAuthorization
+): Promise<BambooHRAuthorization> => {
+  if (previousAuth.type === 'apiKey') {
+    return previousAuth
+  }
+
+  let oauth = previousAuth
+
   const { accessToken, expiresAt, refreshToken, scopes } = await _fetchBambooHrOauthToken({
     subdomain: ctx.configuration.subdomain,
-    oAuthInfo: oauth,
+    oAuthInfo: { refreshToken: oauth.refreshToken },
   })
 
   await client.setState({
@@ -112,7 +140,12 @@ export const getBambooHrAuthorization = async ({
     },
   })
 
-  return { authorization: `Bearer ${accessToken}`, expiresAt: oauth.expiresAt }
+  return {
+    type: 'oauth',
+    authorization: `Bearer ${accessToken}`,
+    expiresAt: oauth.expiresAt,
+    refreshToken,
+  }
 }
 
 /** Handles OAuth endpoint on integration authentication.
