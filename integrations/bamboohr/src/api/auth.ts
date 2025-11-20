@@ -4,12 +4,6 @@ import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
-/** Fetches OAuth token from BambooHR.
- *
- * Can use either authorization code or refresh token.
- * Saves new token in state.
- * @returns `accessToken` and `idToken` to use in Authorization header and integration configuration respectively.
- */
 const _fetchBambooHrOauthToken = async (props: {
   subdomain?: string
   oAuthInfo: { code: string } | { refreshToken: string }
@@ -105,14 +99,6 @@ export const getCurrentBambooHrAuthorization = async ({
   }
 }
 
-/** Gets authorization information for requests.
- *
- * Can be either API key or OAuth token, depending on configuration.
- * If OAuth token is expired or missing, fetches a new one using the refresh token.
- * Users should refresh their authorization header periodically based on the `expiresAt` timestamp.
- *
- * @returns Authorization information & an expiration timestamp.
- */
 export const refreshBambooHrAuthorization = async (
   { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
   previousAuth: BambooHRAuthorization
