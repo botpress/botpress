@@ -7,8 +7,7 @@ export class StatusCheckExecutor {
   public constructor(
     private _issues: Issue[],
     private _logger: BotLogger,
-    private _linear: LinearApi,
-    private _handleError: (context: string) => (thrown: unknown) => Promise<never>
+    private _linear: LinearApi
   ) {}
 
   public executeStatusCheck = async (

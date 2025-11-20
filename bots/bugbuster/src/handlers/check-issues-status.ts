@@ -27,7 +27,7 @@ export const handleCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'
   const linear = await utils.linear.LinearApi.create()
   const issues = await linear.listIssues({ teamKeys: teams.result })
 
-  const executer = new StatusCheckExecutor(issues.issues, logger, linear, _handleError)
+  const executer = new StatusCheckExecutor(issues.issues, logger, linear)
 
   const {
     state: {
