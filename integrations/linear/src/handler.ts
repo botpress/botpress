@@ -103,8 +103,11 @@ const _isWebhookProperlyAuthenticated = ({
   const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
-
-  return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+  try {
+    return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+  } catch {
+    return false
+  }
 }
 
 const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
