@@ -138,6 +138,7 @@ async function _handleIncomingMessage(
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
     await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
+    //
   } else if (type === 'audio') {
     const audioUrl = await _getOrDownloadWhatsappMedia(message.audio.id, client, ctx)
     await createMessage({ type, payload: { audioUrl }, replyTo })
