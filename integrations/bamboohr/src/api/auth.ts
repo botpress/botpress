@@ -1,6 +1,7 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import * as bp from '.botpress'
+import * as types from '../types'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
@@ -70,7 +71,7 @@ export type BambooHRAuthorization = { authorization: string; expiresAt: number }
 export const getCurrentBambooHrAuthorization = async ({
   ctx,
   client,
-}: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<BambooHRAuthorization> => {
+}: types.CommonHandlerProps): Promise<BambooHRAuthorization> => {
   if (ctx.configurationType === 'apiKey') {
     return {
       type: 'apiKey',
@@ -100,7 +101,7 @@ export const getCurrentBambooHrAuthorization = async ({
 }
 
 export const refreshBambooHrAuthorization = async (
-  { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
+  { ctx, client }: types.CommonHandlerProps,
   previousAuth: BambooHRAuthorization
 ): Promise<BambooHRAuthorization> => {
   if (previousAuth.type === 'apiKey') {

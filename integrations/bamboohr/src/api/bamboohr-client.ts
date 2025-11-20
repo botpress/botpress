@@ -10,8 +10,7 @@ import {
 } from 'definitions'
 import { BambooHRAuthorization, getCurrentBambooHrAuthorization, refreshBambooHrAuthorization } from './auth'
 import { parseResponseWithErrors } from './utils'
-
-import * as bp from '.botpress'
+import * as types from '../types'
 
 const getHeaders = (authorization: string) => ({
   Authorization: authorization,
@@ -19,15 +18,13 @@ const getHeaders = (authorization: string) => ({
   Accept: 'application/json',
 })
 
-type HandlerProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
-
 export class BambooHRClient {
   private _baseUrl: string
   private _currentAuth: BambooHRAuthorization
-  private _props: HandlerProps
+  private _props: types.CommonHandlerProps
 
-  public static async create(props: HandlerProps): Promise<BambooHRClient> {
-    const currentAuth = await getCurrentBambooHrAuthorization({ ctx: props.ctx, client: props.client })
+  public static async create(props: types.CommonHandlerProps): Promise<BambooHRClient> {
+    const currentAuth = await getCurrentBambooHrAuthorization(props)
     return new BambooHRClient({ subdomain: props.ctx.configuration.subdomain, props, currentAuth })
   }
 
@@ -37,7 +34,7 @@ export class BambooHRClient {
     currentAuth,
   }: {
     subdomain: string
-    props: HandlerProps
+    props: types.CommonHandlerProps
     currentAuth: BambooHRAuthorization
   }) {
     this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
