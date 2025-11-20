@@ -65,7 +65,7 @@ export default new sdk.BotDefinition({
           sdk.z.object({
             id: sdk.z.string().title('IDs').describe('The IDs of the issues in staging'),
             sinceTimestamp: sdk.z.number(),
-            hasBeenNotified: sdk.z.boolean(),
+            commentId: sdk.z.string().optional(),
           })
         ),
       }),

@@ -142,8 +142,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
           issues: [
             {
               id: '68daf53a-5837-4168-9321-aebe67883553',
-              hasBeenNotified: false,
-              sinceTimestamp: new Date(2025, 11, 27, 17).getTime(),
+              sinceTimestamp: new Date(2025, 9, 27, 17).getTime(),
             },
           ],
         },
