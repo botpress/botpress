@@ -10,14 +10,18 @@ const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
  * Saves new token in state.
  * @returns `accessToken` and `idToken` to use in Authorization header and integration configuration respectively.
  */
-const _fetchBambooHrOauthToken = async (
-  { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
+const _fetchBambooHrOauthToken = async (props: {
+  subdomain?: string
   oAuthInfo: { code: string } | { refreshToken: string }
-): Promise<{
+}): Promise<{
   accessToken: string
+  refreshToken: string
+  expiresAt: number
+  scopes: string
   idToken: string
 }> => {
-  const bambooHrOauthUrl = `https://${ctx.configuration.subdomain}.bamboohr.com/token.php?request=token`
+  const { subdomain, oAuthInfo } = props
+  const bambooHrOauthUrl = `https://${subdomain}.bamboohr.com/token.php?request=token`
 
   const { OAUTH_CLIENT_SECRET, OAUTH_CLIENT_ID } = bp.secrets
 
@@ -51,19 +55,13 @@ const _fetchBambooHrOauthToken = async (
   }
   const { access_token, refresh_token, expires_in, scope, id_token } = tokenData.data
 
-  await client.setState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-    payload: {
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
-      scopes: scope,
-    },
-  })
-
-  return { accessToken: access_token, idToken: id_token }
+  return {
+    accessToken: access_token,
+    refreshToken: refresh_token,
+    expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
+    scopes: scope,
+    idToken: id_token,
+  }
 }
 
 /** Gets authorization information for requests.
@@ -97,12 +95,24 @@ export const getBambooHrAuthorization = async ({
     throw new Error('OAuth token missing in state for OAuth-linked integration.', { cause: err })
   }
 
-  const token =
-    Date.now() < oauth.expiresAt
-      ? oauth.accessToken
-      : (await _fetchBambooHrOauthToken({ ctx, client }, oauth)).accessToken
+  const { accessToken, expiresAt, refreshToken, scopes } = await _fetchBambooHrOauthToken({
+    subdomain: ctx.configuration.subdomain,
+    oAuthInfo: oauth,
+  })
 
-  return { authorization: `Bearer ${token}`, expiresAt: oauth.expiresAt }
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: {
+      accessToken,
+      refreshToken,
+      expiresAt,
+      scopes,
+    },
+  })
+
+  return { authorization: `Bearer ${accessToken}`, expiresAt: oauth.expiresAt }
 }
 
 /** Handles OAuth endpoint on integration authentication.
@@ -113,7 +123,17 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   const code = new URLSearchParams(req.query).get('code')
   if (!code) throw new Error('Missing authentication code')
 
-  const { idToken } = await _fetchBambooHrOauthToken({ ctx, client }, { code })
+  const { idToken, ...oauthState } = await _fetchBambooHrOauthToken({
+    subdomain: ctx.configuration.subdomain,
+    oAuthInfo: { code },
+  })
+
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: oauthState,
+  })
 
   await client.configureIntegration({
     identifier: (jwt.decode(idToken) as JwtPayload).sub,
