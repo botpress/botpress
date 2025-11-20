@@ -5,15 +5,15 @@ type TimeSlot = {
   end: Date
 }
 
-function addMinutes(date: Date, minutes: number): Date {
+function _addMinutes(date: Date, minutes: number): Date {
   return new Date(date.getTime() + minutes * 60_000)
 }
 
-function doTimeRangesOverlap(start1: Date, end1: Date, start2: Date, end2: Date): boolean {
+function _doTimeRangesOverlap(start1: Date, end1: Date, start2: Date, end2: Date): boolean {
   return start1 < end2 && end1 > start2
 }
 
-function formatTime(date: Date, timezone: string): string {
+function _formatTime(date: Date, timezone: string): string {
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -27,7 +27,7 @@ function generateTimeSlots(startTime: Date, endTime: Date, slotDurationMinutes: 
   let currentSlotStart = new Date(startTime)
 
   while (currentSlotStart < endTime) {
-    const currentSlotEnd = addMinutes(currentSlotStart, slotDurationMinutes)
+    const currentSlotEnd = _addMinutes(currentSlotStart, slotDurationMinutes)
 
     if (currentSlotEnd > endTime) {
       break
@@ -38,7 +38,7 @@ function generateTimeSlots(startTime: Date, endTime: Date, slotDurationMinutes: 
       end: currentSlotEnd,
     })
 
-    currentSlotStart = addMinutes(currentSlotStart, slotDurationMinutes)
+    currentSlotStart = _addMinutes(currentSlotStart, slotDurationMinutes)
   }
 
   return slots
@@ -47,7 +47,7 @@ function generateTimeSlots(startTime: Date, endTime: Date, slotDurationMinutes: 
 function filterAvailableSlots(allSlots: TimeSlot[], busyTimes: TimeSlot[]): TimeSlot[] {
   return allSlots.filter((slot) => {
     const hasConflict = busyTimes.some((busySlot) =>
-      doTimeRangesOverlap(slot.start, slot.end, busySlot.start, busySlot.end)
+      _doTimeRangesOverlap(slot.start, slot.end, busySlot.start, busySlot.end)
     )
     return !hasConflict
   })
@@ -78,7 +78,7 @@ export const checkAvailability = wrapAction(
 
     const freeSlotsHumanReadable = availableSlots.map(
       (slot) =>
-        `${formatTime(slot.start, input.timezone || 'America/Toronto')} – ${formatTime(slot.end, input.timezone || 'America/Toronto')}`
+        `${_formatTime(slot.start, input.timezone || 'America/Toronto')} – ${_formatTime(slot.end, input.timezone || 'America/Toronto')}`
     )
 
     return {
