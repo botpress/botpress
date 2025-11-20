@@ -124,7 +124,7 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   if (!code) throw new Error('Missing authentication code')
 
   const { idToken, ...oauthState } = await _fetchBambooHrOauthToken({
-    subdomain: ctx.configuration.subdomain,
+    subdomain: ctx.configuration.subdomain, // TODO: use the wizard provided value
     oAuthInfo: { code },
   })
 
