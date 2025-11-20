@@ -17,6 +17,8 @@ export const handleCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'
   const botpress = await BotpressApi.create(props)
   const _handleError = (context: string) => handleError(context, logger, botpress)
 
+  logger.info("Validating issues' statuses...")
+
   const teams = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
   if (!teams.success || !teams.result) {
     logger.error(teams.message)
@@ -45,6 +47,11 @@ export const handleCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'
       continue
     }
 
+    const fullIssue = issues.issues.filter((fullIssue) => fullIssue.id === issue.id)[0]
+    logger.warn(
+      `Linear issue ${fullIssue ? `${fullIssue.identifier}` : `with ID ${issue.id}`} has been in staging for over a week.`
+    )
+
     const result = await linear.client.createComment({
       issueId: issue.id,
       body: STAGING_ISSUE_COMMENT,
@@ -59,6 +66,7 @@ export const handleCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'
   })
 
   await _resolveComments(stagingIssues, updatedStagingIssues, linear)
+  logger.info("Finished validating issues' statuses...")
 }
 
 const _resolveComments = async (outdatedIssues: WatchedIssue[], newIssues: WatchedIssue[], linear: LinearApi) => {
