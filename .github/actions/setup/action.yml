@@ -27,4 +27,6 @@ runs:
 
     - name: Build
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      env:
+        BP_VERBOSE: 'true'
       run: pnpm build ${{ inputs.extra_filters }}

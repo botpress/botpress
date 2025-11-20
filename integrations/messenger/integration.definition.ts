@@ -1,6 +1,6 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -36,7 +36,7 @@ const replyToCommentsSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '5.0.0',
+  version: '5.0.1',
   title: 'Messenger and Facebook',
   description:
     'Give your bot access to one of the world’s largest messaging platforms and manage your Facebook page content in one place.',
@@ -164,7 +164,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of your Meta app',
     },
@@ -200,9 +200,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_SHOULD_GET_USER_PROFILE: {
       description: "Whether to get the user profile infos from Messenger when creating a new user ('true' or 'false')",
-    },
-    POSTHOG_KEY: {
-      description: 'The PostHog API key',
     },
   },
   user: {

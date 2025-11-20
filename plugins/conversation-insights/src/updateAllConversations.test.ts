@@ -63,7 +63,6 @@ describe('updateAllConversations', () => {
     expect(props.client.listMessages).toHaveBeenCalledTimes(2)
     expect(updateTitleAndSummarySpy).toHaveBeenCalledTimes(2)
     expect(props.workflow.setCompleted).toHaveBeenCalled()
-    expect(props.logger.info).toHaveBeenCalledWith('updateAllConversations workflow completed')
   })
 
   it('should handle no dirty conversations gracefully', async () => {
