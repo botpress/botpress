@@ -3,7 +3,7 @@ import { WatchedIssue } from 'src/types'
 import { Issue } from './graphql-queries'
 import { LinearApi, StateKey } from './linear-utils'
 
-export class StatusCheckExecuter {
+export class StatusCheckExecutor {
   public constructor(
     private _issues: Issue[],
     private _logger: BotLogger,

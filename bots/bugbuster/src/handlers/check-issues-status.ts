@@ -1,6 +1,6 @@
 import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
-import { StatusCheckExecuter } from 'src/utils/status-check-executer'
+import { StatusCheckExecutor } from 'src/utils/status-check-executor'
 import * as utils from '../utils'
 import { listTeams } from './teams-manager'
 import * as bp from '.botpress'
@@ -27,7 +27,7 @@ export const handleCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'
   const linear = await utils.linear.LinearApi.create()
   const issues = await linear.listIssues({ teamKeys: teams.result })
 
-  const executer = new StatusCheckExecuter(issues.issues, logger, linear, _handleError)
+  const executer = new StatusCheckExecutor(issues.issues, logger, linear, _handleError)
 
   const {
     state: {

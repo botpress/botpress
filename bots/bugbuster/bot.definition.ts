@@ -61,17 +61,11 @@ export default new sdk.BotDefinition({
     },
     issuesInStaging: {
       type: 'bot',
-      schema: sdk.z
-        .object({ issues: sdk.z.array(issuesToCheckSchema) })
-        .title('Issues')
-        .describe('The issues in staging'),
+      schema: sdk.z.object({ issues: issuesToCheckSchema }).title('Issues').describe('The issues in staging'),
     },
     blockedIssues: {
       type: 'bot',
-      schema: sdk.z
-        .object({ issues: sdk.z.array(issuesToCheckSchema) })
-        .title('Issues')
-        .describe('The blocked issues'),
+      schema: sdk.z.object({ issues: issuesToCheckSchema }).title('Issues').describe('The blocked issues'),
     },
   },
   workflows: {
