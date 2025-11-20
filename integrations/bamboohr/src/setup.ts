@@ -11,7 +11,7 @@ export const register: bp.Integration['register'] = async (props) => {
     logger.forBot().info('Integration is authorized.')
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Error authorizing BambooHR integration: ' + error.message)
+    throw new RuntimeError(`Error authorizing BambooHR integration: ${error.message}`)
   }
 
   try {
@@ -19,7 +19,7 @@ export const register: bp.Integration['register'] = async (props) => {
       name: 'webhook',
       type: 'integration',
       id: ctx.integrationId,
-      payload: { id: '', privateKey: '' },
+      payload: { id: null, privateKey: null },
     })
 
     if (!state.payload.id) {
@@ -49,7 +49,7 @@ export const unregister: bp.Integration['unregister'] = async (props) => {
     name: 'webhook',
     type: 'integration',
     id: ctx.integrationId,
-    payload: { id: '', privateKey: '' },
+    payload: { id: null, privateKey: null },
   })
 
   if (!state.payload.id) {
@@ -70,7 +70,7 @@ export const unregister: bp.Integration['unregister'] = async (props) => {
       type: 'integration',
       name: 'webhook',
       id: ctx.integrationId,
-      payload: { id: '', privateKey: '' },
+      payload: { id: null, privateKey: null },
     })
     logger.forBot().info('Unregistered webhook.')
   } catch (thrown) {
