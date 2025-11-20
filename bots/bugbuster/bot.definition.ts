@@ -64,8 +64,15 @@ export default new sdk.BotDefinition({
         issues: sdk.z.array(
           sdk.z.object({
             id: sdk.z.string().title('IDs').describe('The IDs of the issues in staging'),
-            sinceTimestamp: sdk.z.number(),
-            commentId: sdk.z.string().optional(),
+            sinceTimestamp: sdk.z
+              .number()
+              .title('Since Timestamp')
+              .describe('The timestamp of when the issue was moved in staging'),
+            commentId: sdk.z
+              .string()
+              .optional()
+              .title('Comment ID')
+              .describe('The ID of the comment made on the issue by the bot if there is one'),
           })
         ),
       }),
