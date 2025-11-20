@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { issuesToCheckSchema } from 'src/definitions'
 import * as genenv from './.genenv'
 import github from './bp_modules/github'
 import linear from './bp_modules/linear'
@@ -61,44 +62,14 @@ export default new sdk.BotDefinition({
     issuesInStaging: {
       type: 'bot',
       schema: sdk.z
-        .object({
-          issues: sdk.z.array(
-            sdk.z.object({
-              id: sdk.z.string().title('ID').describe('The ID of the issue'),
-              sinceTimestamp: sdk.z
-                .number()
-                .title('Since Timestamp')
-                .describe('The timestamp of when the issue was moved in staging'),
-              commentId: sdk.z
-                .string()
-                .optional()
-                .title('Comment ID')
-                .describe('The ID of the comment made on the issue by the bot if there is one'),
-            })
-          ),
-        })
+        .object({ issues: sdk.z.array(issuesToCheckSchema) })
         .title('Issues')
         .describe('The issues in staging'),
     },
     blockedIssues: {
       type: 'bot',
       schema: sdk.z
-        .object({
-          issues: sdk.z.array(
-            sdk.z.object({
-              id: sdk.z.string().title('ID').describe('The ID of the issue'),
-              sinceTimestamp: sdk.z
-                .number()
-                .title('Since Timestamp')
-                .describe('The timestamp of when the issue became blocked'),
-              commentId: sdk.z
-                .string()
-                .optional()
-                .title('Comment ID')
-                .describe('The ID of the comment made on the issue by the bot if there is one'),
-            })
-          ),
-        })
+        .object({ issues: sdk.z.array(issuesToCheckSchema) })
         .title('Issues')
         .describe('The blocked issues'),
     },
