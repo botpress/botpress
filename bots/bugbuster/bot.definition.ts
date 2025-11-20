@@ -80,6 +80,28 @@ export default new sdk.BotDefinition({
         .title('Issues')
         .describe('The issues in staging'),
     },
+    blockedIssues: {
+      type: 'bot',
+      schema: sdk.z
+        .object({
+          issues: sdk.z.array(
+            sdk.z.object({
+              id: sdk.z.string().title('ID').describe('The ID of the issue'),
+              sinceTimestamp: sdk.z
+                .number()
+                .title('Since Timestamp')
+                .describe('The timestamp of when the issue became blocked'),
+              commentId: sdk.z
+                .string()
+                .optional()
+                .title('Comment ID')
+                .describe('The ID of the comment made on the issue by the bot if there is one'),
+            })
+          ),
+        })
+        .title('Issues')
+        .describe('The blocked issues'),
+    },
   },
   workflows: {
     lintAll: {
