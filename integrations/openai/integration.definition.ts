@@ -13,13 +13,20 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 }
 
 export default new IntegrationDefinition({
-  name: 'openai',
-  title: 'OpenAI',
+  name: 'azureopenai',
+  title: 'Azure OpenAI',
   description:
-    'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
+    'Gain access to Azure OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
   version: '17.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration: {
+    schema: z.object({
+      url: z.string().describe('Base URL for the Azure API'),
+      apiKey: z.string().describe('Azure API key').secret(),
+      apiVersion: z.string().describe('Azure API version'),
+    }),
+  },
   entities: {
     modelRef: {
       schema: z.object({
@@ -44,11 +51,6 @@ export default new IntegrationDefinition({
           .describe('Image style - Only supported by DALL-E 3 models'),
         user: z.string().optional().describe('User ID to associate with the image, for abuse detection purposes'),
       }),
-    },
-  },
-  secrets: {
-    OPENAI_API_KEY: {
-      description: 'OpenAI API key',
     },
   },
   actions: {

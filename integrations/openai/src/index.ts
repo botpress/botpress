@@ -3,16 +3,19 @@ import { llm, speechToText, textToImage } from '@botpress/common'
 import { validateOpenAIReasoningEffort } from '@botpress/common/src/llm/openai'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
-import OpenAI from 'openai'
+import OpenAI, { AzureOpenAI } from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
 import { ChatCompletionReasoningEffort } from 'openai/resources/chat/completions'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
-const openAIClient = new OpenAI({
-  apiKey: bp.secrets.OPENAI_API_KEY,
-})
+const getOpenAIClient = (ctx: bp.Context): OpenAI =>
+  new AzureOpenAI({
+    endpoint: ctx.configuration.url,
+    apiKey: ctx.configuration.apiKey,
+    apiVersion: ctx.configuration.apiVersion,
+  })
 
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
 const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
@@ -338,7 +341,8 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger, metadata }) => {
+    generateContent: async ({ input, logger, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient(ctx)
       const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
         openAIClient,
@@ -384,7 +388,8 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    generateImage: async ({ input, client, metadata }) => {
+    generateImage: async ({ input, client, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient(ctx)
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
       const imageModel = imageModels[imageModelId]
       if (!imageModel) {
@@ -452,7 +457,8 @@ export default new bp.Integration({
         },
       }
     },
-    transcribeAudio: async ({ input, logger, metadata }) => {
+    transcribeAudio: async ({ input, logger, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient(ctx)
       const output = await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
@@ -462,7 +468,8 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    generateSpeech: async ({ input, client, metadata }) => {
+    generateSpeech: async ({ input, client, metadata, ctx }) => {
+      const openAIClient = getOpenAIClient(ctx)
       const model = input.model ?? 'tts-1'
 
       const params: SpeechCreateParams = {
