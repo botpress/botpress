@@ -1,10 +1,13 @@
 import { state } from '@botpress/api'
-import { OpenApi } from '@bpinternal/opapi'
+import { OpenApi, schema, zodSchema } from '@bpinternal/opapi'
 import { conversationSchema } from './models/conversation'
 import { eventSchema } from './models/event'
 import { messageSchema } from './models/message'
 import { userSchema } from './models/user'
 import { apiVersion } from './version'
+import { z } from 'zod'
+
+export const zodRef = (ref: { $ref: string }) => schema(z.symbol(), ref)
 
 export const { errors } = state
 
@@ -18,10 +21,10 @@ export const sections = {
 export const parameters = {} as const
 
 export const schemas = {
-  User: { schema: userSchema, section: 'user' },
-  Conversation: { schema: conversationSchema, section: 'conversation' },
-  Message: { schema: messageSchema, section: 'message' },
-  Event: { schema: eventSchema, section: 'event' },
+  User: { schema: zodSchema(userSchema), section: 'user' },
+  Conversation: { schema: zodSchema(conversationSchema), section: 'conversation' },
+  Message: { schema: zodSchema(messageSchema), section: 'message' },
+  Event: { schema: zodSchema(eventSchema), section: 'event' },
 } as const
 
 export type Schemas = typeof schemas

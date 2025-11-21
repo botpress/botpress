@@ -1,8 +1,9 @@
-import { schema } from '@bpinternal/opapi'
+import { schema, zodSchema } from '@bpinternal/opapi'
 import z from 'zod'
 import { userIdSchema } from '../models/user'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
+import { zodRef } from '../api'
 
 const section = 'user' as const
 
@@ -29,9 +30,9 @@ export const getUserOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns a [User](#schema_user) object if a valid identifier was provided',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        user: api.getModelRef('User'),
+        user: zodRef(api.getModelRef('User')),
       })
     ),
   },
@@ -44,16 +45,16 @@ export const createUserOperation: OperationFunc = (api) => ({
   path: '/users',
   requestBody: {
     description: 'User data',
-    schema: userInput.extend({ id: userIdSchema.optional() }),
+    schema: zodSchema(userInput.extend({ id: userIdSchema.optional() })),
   },
   section,
   response: {
     description: 'Returns a [User](#schema_user)',
     status: 201,
-    schema: z.object({
-      user: api.getModelRef('User'),
+    schema: zodSchema(z.object({
+      user: zodRef(api.getModelRef('User')),
       key: z.string(),
-    }),
+    })),
   },
 })
 
@@ -64,7 +65,7 @@ export const getOrCreateUserOperation: OperationFunc = (api) => ({
   path: '/users/get-or-create',
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: zodSchema(userInput),
   },
   parameters: {
     ...authHeaders,
@@ -73,9 +74,9 @@ export const getOrCreateUserOperation: OperationFunc = (api) => ({
   response: {
     description: 'Returns a [User](#schema_user)',
     status: 201,
-    schema: z.object({
-      user: api.getModelRef('User'),
-    }),
+    schema: zodSchema(z.object({
+      user: zodRef(api.getModelRef('User')),
+    })),
   },
 })
 
@@ -87,15 +88,15 @@ export const updateUserOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: zodSchema(userInput),
   },
   section,
   response: {
     description: 'Returns a [User](#schema_user)',
     status: 200,
-    schema: z.object({
-      user: api.getModelRef('User'),
-    }),
+    schema: zodSchema(z.object({
+      user: zodRef(api.getModelRef('User')),
+    })),
   },
 })
 
@@ -108,6 +109,6 @@ export const deleteUserOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns the [User](#schema_user) object that was deleted',
-    schema: z.object({}),
+    schema: zodSchema(z.object({})),
   },
 })

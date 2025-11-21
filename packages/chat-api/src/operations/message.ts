@@ -1,8 +1,9 @@
-import { schema } from '@bpinternal/opapi'
+import { schema, zodSchema } from '@bpinternal/opapi'
 import z from 'zod'
 import { messagePayloadSchema } from '../models/message'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
+import { zodRef } from '../api'
 
 const section = 'message' as const
 
@@ -22,9 +23,9 @@ export const getMessageOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns a [Message](#schema_message) object if a valid identifier was provided',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        message: api.getModelRef('Message'),
+        message: zodRef(api.getModelRef('Message')),
       })
     ),
   },
@@ -38,7 +39,7 @@ export const createMessageOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'Message data',
-    schema: z.object({
+    schema: zodSchema(z.object({
       payload: schema(messagePayloadSchema, {
         description: 'Payload is the content type of the message.',
       }),
@@ -48,15 +49,15 @@ export const createMessageOperation: OperationFunc = (api) => ({
       metadata: schema(z.record(z.any()).optional(), {
         description: 'Metadata of the message',
       }),
-    }),
+    })),
   },
   section,
   response: {
     description: 'Returns a [Message](#schema_message).',
     status: 201,
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        message: api.getModelRef('Message'),
+        message: zodRef(api.getModelRef('Message')),
       })
     ),
   },
@@ -78,6 +79,6 @@ export const deleteMessageOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns the [Message](#schema_message) object that was deleted',
-    schema: z.object({}),
+    schema: zodSchema(z.object({})),
   },
 })

@@ -1,9 +1,10 @@
-import { schema } from '@bpinternal/opapi'
+import { schema, zodSchema } from '@bpinternal/opapi'
 import z from 'zod'
 import { conversationSchema, conversationIdSchema } from '../models/conversation'
 import { authHeaders } from './auth'
 import { pagedResponseMeta, pagingParameters } from './paging'
 import { OperationFunc } from './types'
+import { zodRef } from '../api'
 
 const section = 'conversation' as const
 
@@ -23,11 +24,11 @@ export const getConversationOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns a [Conversation](#schema_conversation) object if a valid identifier was provided',
-    schema: schema(
+    schema: zodSchema(schema(
       z.object({
-        conversation: api.getModelRef('Conversation'),
+        conversation: zodRef(api.getModelRef('Conversation')),
       })
-    ),
+    )),
   },
 })
 
@@ -39,17 +40,17 @@ export const createConversationOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'Conversation data',
-    schema: z.object({
+    schema: zodSchema(z.object({
       id: conversationIdSchema.optional(),
-    }),
+    })),
   },
   section,
   response: {
     status: 201,
     description: 'Returns a [Conversation](#schema_conversation)',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        conversation: api.getModelRef('Conversation'),
+        conversation: zodRef(api.getModelRef('Conversation')),
       })
     ),
   },
@@ -63,17 +64,17 @@ export const getOrCreateConversationOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'Conversation data',
-    schema: z.object({
+    schema: zodSchema(z.object({
       id: conversationIdSchema,
-    }),
+    })),
   },
   section,
   response: {
     status: 201,
     description: 'Returns a [Conversation](#schema_conversation)',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        conversation: api.getModelRef('Conversation'),
+        conversation: zodRef(api.getModelRef('Conversation')),
       })
     ),
   },
@@ -96,7 +97,7 @@ export const deleteConversationOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns the [Conversation](#schema_conversation) object that was deleted',
-    schema: z.object({}),
+    schema: zodSchema(z.object({})),
   },
 })
 
@@ -112,11 +113,11 @@ export const listConversationsOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns a list of [Conversation](#schema_conversation) objects',
-    schema: z
+    schema: zodSchema(z
       .object({
         conversations: z.array(conversationSchema),
       })
-      .extend({ meta: pagedResponseMeta }),
+      .extend({ meta: pagedResponseMeta })),
   },
 })
 
@@ -136,7 +137,7 @@ export const listenConversationOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns nothing but a stream',
-    schema: schema(z.object({})),
+    schema: zodSchema(z.object({})),
   },
 })
 
@@ -157,11 +158,11 @@ export const listMessagesOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns a list of [Message](#schema_message) objects',
-    schema: z
+    schema: zodSchema(z
       .object({
-        messages: z.array(api.getModelRef('Message')),
+        messages: z.array(zodRef(api.getModelRef('Message'))),
       })
-      .extend({ meta: pagedResponseMeta }),
+      .extend({ meta: pagedResponseMeta })),
   },
 })
 
@@ -180,7 +181,7 @@ export const addParticipantOperation: OperationFunc = (api) => ({
   },
   requestBody: {
     description: 'Participant data',
-    schema: schema(
+    schema: zodSchema(
       z.object({
         userId: schema(z.string(), { description: 'User id' }),
       })
@@ -189,9 +190,9 @@ export const addParticipantOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns the [Participant](#schema_user) object',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        participant: api.getModelRef('User'),
+        participant: zodRef(api.getModelRef('User')),
       })
     ),
   },
@@ -218,7 +219,7 @@ export const removeParticipantOperation: OperationFunc = () => ({
   section,
   response: {
     description: 'Returns an empty object',
-    schema: z.object({}),
+    schema: zodSchema(z.object({})),
   },
 })
 
@@ -243,9 +244,9 @@ export const getParticipantOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns the [Participant](#schema_user) object',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        participant: api.getModelRef('User'),
+        participant: zodRef(api.getModelRef('User')),
       })
     ),
   },
@@ -268,10 +269,10 @@ export const listParticipantsOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns a list of [Participants](#schema_user) objects',
-    schema: z
+    schema: zodSchema(z
       .object({
-        participants: z.array(api.getModelRef('User')),
+        participants: z.array(zodRef(api.getModelRef('User'))),
       })
-      .extend({ meta: pagedResponseMeta }),
+      .extend({ meta: pagedResponseMeta })),
   },
 })
