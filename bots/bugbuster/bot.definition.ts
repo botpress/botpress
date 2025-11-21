@@ -30,6 +30,26 @@ export default new sdk.BotDefinition({
           .describe('The keys of the teams for which BugBuster should lint issues'),
       }),
     },
+    lastLintedId: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
+      }),
+    },
+  },
+  workflows: {
+    lintAll: {
+      input: {
+        schema: sdk.z.object({
+          conversationId: sdk.z
+            .string()
+            .optional()
+            .title('Conversation ID')
+            .describe('The ID of the conversation that triggered the workflow'),
+        }),
+      },
+      output: { schema: sdk.z.object({}) },
+    },
   },
   __advanced: {
     useLegacyZuiTransformer: true,

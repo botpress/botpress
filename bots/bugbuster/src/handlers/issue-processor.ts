@@ -1,9 +1,10 @@
 import { BotLogger } from '@botpress/sdk'
+import { BotClient } from '@botpress/sdk/dist/bot'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
 import { listTeams } from './teams-manager'
-import { Client } from '.botpress'
+import { Client, TBot } from '.botpress'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
@@ -41,7 +42,7 @@ export async function findIssue(
   return issue
 }
 
-export async function listIssues(teams: string[], linear: LinearApi): Promise<Issue[]> {
+export async function listIssues(teams: string[], linear: LinearApi, endCursor?: string): Promise<Issue[]> {
   const validatedTeams = teams.filter((value) => linear.isTeam(value))
 
   const issues: Issue[] = []
@@ -53,11 +54,12 @@ export async function listIssues(teams: string[], linear: LinearApi): Promise<Is
         teamKeys: validatedTeams,
         statusesToOmit: IGNORED_STATUSES,
       },
-      pagination?.endCursor
+      endCursor
     )
 
     issues.push(...newIssues)
     pagination = newPagination
+    endCursor = pagination?.endCursor
   } while (pagination?.hasNextPage)
 
   return issues
@@ -89,8 +91,20 @@ export async function runLint(linear: LinearApi, issue: Issue, logger: BotLogger
   })
 }
 
-export async function runLints(linear: LinearApi, issues: Issue[], logger: BotLogger) {
+export async function runLints(
+  linear: LinearApi,
+  issues: Issue[],
+  logger: BotLogger,
+  client: BotClient<TBot>,
+  workflowId: string
+) {
   for (const issue of issues) {
     await runLint(linear, issue, logger)
+    await client.setState({
+      id: workflowId,
+      name: 'lastLintedId',
+      type: 'workflow',
+      payload: { id: issue.id },
+    })
   }
 }
