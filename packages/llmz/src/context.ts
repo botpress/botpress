@@ -443,6 +443,12 @@ export class Iteration implements Serializable<Iteration.JSON> {
     spend: number
     output: string
     model: string
+    usage: {
+      inputCost: number
+      outputCost: number
+      inputTokens: number
+      outputTokens: number
+    }
   }
 
   public hasExited(this: this): this is this & { status: IterationStatuses.ExitSuccess } {

@@ -465,6 +465,7 @@ const executeIteration = async ({
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    usage: output.output.usage,
   }
 
   traces.push({
