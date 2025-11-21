@@ -1,11 +1,12 @@
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
 import { Issue } from './utils/graphql-queries'
+import { StateKey } from './utils/linear-utils'
 
 export type IssueLint = {
   message: string
 }
 
-export const lintIssue = async (issue: Issue, status: string): Promise<IssueLint[]> => {
+export const lintIssue = async (issue: Issue, status: StateKey): Promise<IssueLint[]> => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
