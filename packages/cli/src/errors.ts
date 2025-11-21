@@ -4,7 +4,8 @@ import { VError } from 'verror'
 import * as consts from './consts'
 
 type KnownApiError = Exclude<client.ApiError, client.UnknownError>
-const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e) && !(e instanceof client.UnknownError)
+const isUnknownApiError = (e: unknown): e is client.UnknownError => client.isApiError(e) && e.type === 'Unknown'
+const isKnownApiError = (e: unknown): e is KnownApiError => client.isApiError(e) && e.type !== 'Unknown'
 
 export class BotpressCLIError extends VError {
   public static wrap(thrown: unknown, message: string): BotpressCLIError {
@@ -16,16 +17,20 @@ export class BotpressCLIError extends VError {
     if (thrown instanceof BotpressCLIError) {
       return thrown
     }
-    if (thrown instanceof client.UnknownError) {
-      let inst: HTTPError
+    if (isUnknownApiError(thrown)) {
       const cause = thrown.error?.cause
-      if (cause && typeof cause === 'object' && 'code' in cause && (cause as any).code === 'ECONNREFUSED') {
-        inst = new HTTPError(500, 'The connection was refused by the server')
-      } else {
-        inst = new HTTPError(500, 'An unknown error has occurred.')
+      if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'ECONNREFUSED') {
+        return new HTTPError(500, 'The connection was refused by the server')
       }
-      inst.debug = thrown.message
-      return inst
+
+      const unknownMessage = 'An unknown API error occurred'
+      const actualTrimmedMessage = thrown.message.trim()
+      if (!actualTrimmedMessage) {
+        return new HTTPError(500, unknownMessage)
+      }
+
+      const inner = new HTTPError(500, actualTrimmedMessage)
+      return new BotpressCLIError(inner, unknownMessage)
     }
     if (isKnownApiError(thrown)) {
       return HTTPError.fromApi(thrown)
@@ -37,33 +42,17 @@ export class BotpressCLIError extends VError {
       const { message } = thrown
       return new BotpressCLIError(message)
     }
-    return new BotpressCLIError(`${thrown}`)
+    return new BotpressCLIError(String(thrown))
   }
-
-  private readonly _debug: string[]
 
   public constructor(error: BotpressCLIError, message: string)
   public constructor(message: string)
   public constructor(first: BotpressCLIError | string, second?: string) {
     if (typeof first === 'string') {
       super(first)
-      this._debug = []
       return
     }
     super(first, second!)
-    this._debug = [...first._debug]
-  }
-
-  public set debug(msg: string) {
-    this._debug.push(msg)
-  }
-
-  public get debug(): string {
-    const dbgMsgs = this._debug.filter((s) => s.length)
-    if (!dbgMsgs.length) {
-      return ''
-    }
-    return 'Error: \n' + dbgMsgs.map((s) => `  ${s}`).join('\n')
   }
 }
 

@@ -33,6 +33,13 @@ export const configurations = {
         .title('Service account email')
         .email()
         .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
+      impersonateEmail: z
+        .string()
+        .title('Impersonate email')
+        .email()
+        .describe(
+          "The email of the user to impersonate. This is the email of the user you want to impersonate. It's mandatory to invite people or create meetings."
+        ),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']

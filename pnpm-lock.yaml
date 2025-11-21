@@ -1179,9 +1179,6 @@ importers:
       axios:
         specifier: ^1.6.2
         version: 1.7.4
-      posthog-node:
-        specifier: ^5.10.4
-        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1375,9 +1372,6 @@ importers:
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
-      posthog-node:
-        specifier: ^5.10.4
-        version: 5.11.1
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -1804,9 +1798,6 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.8.4
-      posthog-node:
-        specifier: ^5.10.4
-        version: 5.11.1
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -1937,9 +1928,6 @@ importers:
       marked:
         specifier: ^15.0.1
         version: 15.0.1
-      posthog-node:
-        specifier: ^5.10.4
-        version: 5.11.1
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -2598,6 +2586,9 @@ importers:
       openai:
         specifier: ^6.9.0
         version: 6.9.0(ws@8.18.2)
+      posthog-node:
+        specifier: ^5.11.2
+        version: 5.11.2
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -2911,7 +2902,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: workspace:*
+        specifier: 0.3.0
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -4947,8 +4938,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@posthog/core@1.5.1':
-    resolution: {integrity: sha512-8fdEzfvdStr45iIncTD+gnqp45UBTUpRK/bwB4shP5usCKytnPIeilU8rIpNBOVjJPwfW+2N8yWhQ0l14x191Q==}
+  '@posthog/core@1.5.2':
+    resolution: {integrity: sha512-iedUP3EnOPPxTA2VaIrsrd29lSZnUV+ZrMnvY56timRVeZAXoYCkmjfIs3KBAsF8OUT5h1GXLSkoQdrV0r31OQ==}
 
   '@react-email/body@0.0.10':
     resolution: {integrity: sha512-dMJyL9aU25ieatdPtVjCyQ/WHZYHwNc+Hy/XpF8Cc18gu21cUynVEeYQzFSeigDRMeBQ3PGAyjVDPIob7YlGwA==}
@@ -9790,8 +9781,8 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-node@5.11.1:
-    resolution: {integrity: sha512-P6rtzdCVvS718r011x0W0cwmJo7gfP5YWXiWh0/S3OL+pnHtcqbWHDjrtRxN/IrMkjZWzMU4xDze5vRK/cZ23w==}
+  posthog-node@5.11.2:
+    resolution: {integrity: sha512-z+XekcBUmGePMsjPlGaEF2bJFiDHKHYPQjS4OEw4YPDQz8s7Owuim/L7xNX+6UJkyIRniBza9iC7bW8yrGTv1g==}
     engines: {node: '>=20'}
 
   preact-render-to-string@6.5.13:
@@ -13950,7 +13941,7 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@posthog/core@1.5.1':
+  '@posthog/core@1.5.2':
     dependencies:
       cross-spawn: 7.0.6
 
@@ -20109,9 +20100,9 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-node@5.11.1:
+  posthog-node@5.11.2:
     dependencies:
-      '@posthog/core': 1.5.1
+      '@posthog/core': 1.5.2
 
   preact-render-to-string@6.5.13(preact@10.26.6):
     dependencies:
