@@ -1,23 +1,15 @@
 import type { z } from '@botpress/sdk'
 import { bambooHrEmployeeWebhookEvent } from 'definitions'
-import { handleOauthRequest } from './api/auth'
 import { validateBambooHrSignature } from './api/signing'
 import { parseRequestWithErrors } from './api/utils'
 import { handleEmployeeCreatedEvent, handleEmployeeDeletedEvent, handleEmployeeUpdatedEvent } from './events'
+import { handler as oauthHandler } from './handlers/oauth'
 import * as bp from '.botpress'
-
-const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 export const handler = async (props: bp.HandlerProps) => {
   const { req, logger } = props
-  if (_isOauthRequest(props)) {
-    try {
-      await handleOauthRequest(props)
-    } catch (err) {
-      logger.forBot().error('Error in OAuth creation flow: ' + (err as Error).message)
-      return { status: 500, body: 'Error handling OAuth creation flow' }
-    }
-    return { status: 200 }
+  if (req.path.startsWith('/oauth')) {
+    return oauthHandler(props)
   }
 
   try {
