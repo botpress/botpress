@@ -6,28 +6,28 @@ const GENERIC_SHEMAS = {
     message: z.string().describe('Output message'),
   }),
   outputsMember: z.object({
-    member: MemberSchema,
+    member: MemberSchema.describe('The member object'),
   }),
   outputsMembers: z.object({
-    members: z.array(MemberSchema),
+    members: z.array(MemberSchema).describe('Array of member objects'),
   }),
   outputsCard: z.object({
-    card: CardSchema,
+    card: CardSchema.describe('The card object'),
   }),
   outputsCards: z.object({
-    cards: z.array(CardSchema),
+    cards: z.array(CardSchema).describe('Array of card objects'),
   }),
   outputsList: z.object({
-    list: ListSchema,
+    list: ListSchema.describe('The list object'),
   }),
   outputsLists: z.object({
-    lists: z.array(ListSchema),
+    lists: z.array(ListSchema).describe('Array of list objects'),
   }),
   outputsBoard: z.object({
-    board: BoardSchema,
+    board: BoardSchema.describe('The board object'),
   }),
   outputsBoards: z.object({
-    boards: z.array(BoardSchema),
+    boards: z.array(BoardSchema).describe('Array of board objects'),
   }),
 } as const
 
