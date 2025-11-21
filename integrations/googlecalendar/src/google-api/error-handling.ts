@@ -1,6 +1,9 @@
-import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } from '@botpress/common'
+import { isApiError } from '@botpress/client'
+import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator, posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { Common as GoogleApisCommon } from 'googleapis'
+import { INTEGRATION_NAME } from 'integration.definition'
+import * as bp from '.botpress'
 
 export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error, customMessage: string) => {
   if (error instanceof sdk.RuntimeError) {
@@ -9,6 +12,30 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
 
   const googleError = _extractGoogleApiError(error)
   const redactedMessage = googleError ? `${customMessage}: ${googleError}` : customMessage
+
+  const errorMessage = error.message || String(error)
+  const distinctId = isApiError(error) ? error.id : undefined
+  const statusCode = _isGaxiosError(error) ? error.response?.status : undefined
+  const errorReason = _isGaxiosError(error) ? error.response?.statusText : undefined
+
+  posthogHelper
+    .sendPosthogEvent(
+      {
+        distinctId: distinctId ?? 'no id',
+        event: 'google_calendar_api_error',
+        properties: {
+          from: 'google_calendar_client',
+          errorMessage: customMessage,
+          googleError: googleError?.substring(0, 200) || errorMessage.substring(0, 200),
+          statusCode: statusCode?.toString(),
+          errorReason: errorReason?.substring(0, 100),
+        },
+      },
+      { integrationName: INTEGRATION_NAME, key: (bp.secrets as any).POSTHOG_KEY as string }
+    )
+    .catch(() => {
+      // Silently fail if PostHog is unavailable
+    })
 
   console.warn(customMessage, error)
   return new sdk.RuntimeError(redactedMessage)

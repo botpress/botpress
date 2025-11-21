@@ -1,6 +1,8 @@
 import * as sdk from '@botpress/sdk'
 import { actions, entities, configuration, configurations, identifier, events, secrets, states } from './definitions'
 
+export const INTEGRATION_NAME = 'googlecalendar'
+
 export default new sdk.IntegrationDefinition({
   name: 'googlecalendar',
   version: '2.0.1',
