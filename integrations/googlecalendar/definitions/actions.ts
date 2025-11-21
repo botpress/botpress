@@ -44,7 +44,29 @@ export const actions = {
     description: 'Creates a new event in the calendar.',
     input: {
       schema: entities.Event.schema
-        .omit({ eventType: true, htmlLink: true, id: true })
+        .omit({ eventType: true, htmlLink: true, id: true, conferenceLink: true })
+        .extend({
+          attendees: z
+            .array(
+              z.object({
+                email: z.string().email().title('Email').describe('The email address of the attendee.'),
+                displayName: z
+                  .string()
+                  .title('Display Name')
+                  .optional()
+                  .describe('The name of the attendee. Optional.'),
+                optional: z
+                  .boolean()
+                  .title('Optional Attendee')
+                  .optional()
+                  .default(false)
+                  .describe('Whether this is an optional attendee. Optional. The default is False.'),
+              })
+            )
+            .title('Attendees')
+            .optional()
+            .describe('List of attendees for the event. Email invitations will be sent automatically.'),
+        })
         .title('New Event')
         .describe('The definition of the new event.'),
     },
@@ -57,8 +79,24 @@ export const actions = {
     title: 'Update Event',
     description: 'Updates an existing event in the calendar. Omitted properties are left unchanged.',
     input: {
-      schema: entities.Event.schema.omit({ eventType: true, htmlLink: true }).extend({
+      schema: entities.Event.schema.omit({ eventType: true, htmlLink: true, conferenceLink: true }).extend({
         id: z.string().title('Event ID').describe('The ID of the calendar event to update.'),
+        attendees: z
+          .array(
+            z.object({
+              email: z.string().email().title('Email').describe('The email address of the attendee.'),
+              displayName: z.string().title('Display Name').optional().describe('The name of the attendee. Optional.'),
+              optional: z
+                .boolean()
+                .title('Optional Attendee')
+                .optional()
+                .default(false)
+                .describe('Whether this is an optional attendee. Optional. The default is False.'),
+            })
+          )
+          .title('Attendees')
+          .optional()
+          .describe('List of attendees for the event.'),
       }),
     },
     output: {
@@ -76,6 +114,60 @@ export const actions = {
     },
     output: {
       schema: z.object({}),
+    },
+  },
+  checkAvailability: {
+    title: 'Check Availability',
+    description: 'Checks calendar availability and returns free time slots for the specified date range.',
+    input: {
+      schema: z.object({
+        timeMin: z
+          .string()
+          .title('Start Time')
+          .describe('Start of the time range to check (ISO 8601 format, e.g., "2025-11-05T09:00:00-04:00").'),
+        timeMax: z
+          .string()
+          .title('End Time')
+          .describe('End of the time range to check (ISO 8601 format, e.g., "2025-11-05T17:00:00-04:00").'),
+        slotDurationMinutes: z
+          .number()
+          .min(15)
+          .max(480)
+          .default(45)
+          .title('Slot Duration (minutes)')
+          .describe('Duration of each time slot in minutes. Defaults to 45 minutes.'),
+        timezone: z
+          .string()
+          .default('America/Toronto')
+          .title('Timezone')
+          .describe('Timezone for formatting output (e.g., "America/Toronto"). Defaults to America/Toronto.'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        freeSlots: z
+          .array(
+            z.object({
+              start: z.string().title('Start Time').describe('ISO 8601 formatted start time of the free slot.'),
+              end: z.string().title('End Time').describe('ISO 8601 formatted end time of the free slot.'),
+            })
+          )
+          .title('Free Slots')
+          .describe('Array of available time slots in ISO format.'),
+        formattedFreeSlots: z
+          .array(z.string())
+          .title('Formatted Free Slots')
+          .describe('Array of human-readable formatted free slots (e.g., "9:00 AM – 9:45 AM").'),
+        busySlots: z
+          .array(
+            z.object({
+              start: z.string().title('Start Time').describe('ISO 8601 formatted start time of the busy slot.'),
+              end: z.string().title('End Time').describe('ISO 8601 formatted end time of the busy slot.'),
+            })
+          )
+          .title('Busy Slots')
+          .describe('Array of busy time slots in ISO format.'),
+      }),
     },
   },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
