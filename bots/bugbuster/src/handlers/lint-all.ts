@@ -3,7 +3,7 @@ import { Result } from 'src/types'
 import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
 import { LinearApi } from 'src/utils/linear-utils'
-import { listIssues, runLints } from './issue-processor'
+import { IssueProcessor } from './issue-processor'
 import { listTeams } from './teams-manager'
 import { TBot } from '.botpress'
 
@@ -30,10 +30,11 @@ export const lintAll = async (
   })
 
   const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
-  const issues = await listIssues(teamsResult.result, linear, lastLintedId.state.payload.id).catch(
-    _handleError('trying to list all issues')
-  )
+  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
+  const issues = await issueProcessor
+    .listIssues(teamsResult.result, lastLintedId.state.payload.id)
+    .catch(_handleError('trying to list all issues'))
 
-  await runLints(linear, issues, logger, client, workflowId).catch(_handleError('trying to run lints on all issues'))
+  await issueProcessor.runLints(issues, workflowId).catch(_handleError('trying to run lints on all issues'))
   return { success: true, message: 'linted all issues' }
 }
