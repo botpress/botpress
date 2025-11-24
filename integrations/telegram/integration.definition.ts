@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      botToken: z.string().min(1),
+      botToken: z.string().min(1).describe('Bot Token').title('Bot Token'),
     }),
   },
   channels: {
