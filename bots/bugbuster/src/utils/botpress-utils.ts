@@ -1,4 +1,3 @@
-import { BotClient, BotContext } from '@botpress/sdk/dist/bot'
 import * as bp from '.botpress'
 
 export type BotProps = bp.EventHandlerProps | bp.MessageHandlerProps
@@ -10,12 +9,12 @@ const RECENT_THRESHOLD: number = 1000 * 60 * 10 // 10 minutes
 
 export class BotpressApi {
   public constructor(
-    private _client: BotClient<bp.TBot>,
-    private _ctx: BotContext
+    private _client: bp.Client,
+    private _botId: string
   ) {}
 
   public static async create(props: BotProps): Promise<BotpressApi> {
-    return new BotpressApi(props.client, props.ctx)
+    return new BotpressApi(props.client, props.ctx.botId)
   }
 
   public async respond(conversationId: string, msg: BotMessage): Promise<void> {
@@ -23,7 +22,7 @@ export class BotpressApi {
       type: msg.type,
       payload: msg.payload,
       conversationId,
-      userId: this._ctx.botId,
+      userId: this._botId,
       tags: {},
     })
   }
@@ -55,7 +54,7 @@ export class BotpressApi {
         payload: { issues },
       },
     } = await this._client.getOrSetState({
-      id: this._ctx.botId,
+      id: this._botId,
       type: 'bot',
       name: 'recentlyLinted',
       payload: { issues: [] },
@@ -65,7 +64,7 @@ export class BotpressApi {
 
   public async setRecentlyLinted(issues: bp.states.recentlyLinted.RecentlyLinted['payload']['issues']): Promise<void> {
     await this._client.setState({
-      id: this._ctx.botId,
+      id: this._botId,
       type: 'bot',
       name: 'recentlyLinted',
       payload: {

@@ -30,7 +30,7 @@ bot.on.workflowTimeout('lintAll', async (props) => {
 
   await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
 
-  const botpress = new BotpressApi(client, ctx)
+  const botpress = new BotpressApi(client, ctx.botId)
   if (conversationId) {
     await botpress.respondText(conversationId, 'Workflow timed out')
   }
