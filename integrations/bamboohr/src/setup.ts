@@ -5,6 +5,22 @@ import { BambooHRRuntimeError } from './error-handling'
 
 export const register: bp.Integration['register'] = async (props) => {
   const { client, ctx, logger, webhookUrl } = props
+  // For OAuth mode, verify OAuth state exists
+  if (ctx.configurationType !== 'manual') {
+    try {
+      const { state } = await client.getState({
+        type: 'integration',
+        name: 'oauth',
+        id: ctx.integrationId,
+      })
+      if (!state.payload.accessToken || !state.payload.refreshToken) {
+        throw new RuntimeError('OAuth tokens not found. Please complete OAuth flow.')
+      }
+    } catch (error) {
+      throw new RuntimeError('OAuth state not properly configured: ' + (error as Error).message)
+    }
+  }
+
   const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
   try {
     await bambooHrClient.testAuthorization()
@@ -29,10 +45,10 @@ export const register: bp.Integration['register'] = async (props) => {
       await client.setState({
         type: 'integration',
         name: 'webhook',
+        type: 'integration',
         id: ctx.integrationId,
-        payload,
+        payload: { id: '', privateKey: '' },
       })
-    }
 
     logger.forBot().info('Registered webhook.')
   } catch (thrown) {

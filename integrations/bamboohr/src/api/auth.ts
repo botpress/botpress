@@ -22,21 +22,23 @@ const _fetchBambooHrOauthToken = async (props: {
 
   // See https://documentation.bamboohr.com/docs/getting-started
   const requestTimestamp = Date.now()
+
+  const body = JSON.stringify({
+    client_id: OAUTH_CLIENT_ID,
+    client_secret: OAUTH_CLIENT_SECRET,
+    ...(oAuthInfo.redirectUri ? { redirect_uri: oAuthInfo.redirectUri } : {}),
+    ...('code' in oAuthInfo
+      ? { grant_type: 'authorization_code', code: oAuthInfo.code }
+      : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
+  })
+
   const tokenResponse = await fetch(bambooHrOauthUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      AcceptHeaderParameter: 'application/json',
     },
-    body: JSON.stringify({
-      client_id: OAUTH_CLIENT_ID,
-      client_secret: OAUTH_CLIENT_SECRET,
-      redirect_uri: 'https://webhook.botpress.cloud/oauth',
-      ...('code' in oAuthInfo
-        ? { grant_type: 'authorization_code', code: oAuthInfo.code }
-        : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
-    }),
+    body,
   })
 
   if (tokenResponse.status < 200 || tokenResponse.status >= 300) {
@@ -44,6 +46,7 @@ const _fetchBambooHrOauthToken = async (props: {
       `Failed POST request for OAuth token: ${tokenResponse.status} ${tokenResponse.statusText} at ${bambooHrOauthUrl} with ${'code' in oAuthInfo ? oAuthInfo.code : oAuthInfo.refreshToken}`
     )
   }
+
   const tokenData = bambooHrOauthTokenResponse.safeParse(await tokenResponse.json())
   if (!tokenData.success) {
     throw new Error(`Failed parse OAuth token response: ${tokenData.error.message}`)
@@ -137,7 +140,7 @@ export const refreshBambooHrAuthorization = async (
 
 /** Handles OAuth endpoint on integration authentication.
  *
- * Exchanges code for token, saves token in state, and configures integration with identifier.
+ * Exchanges code for token, saves token in state, and configures integration with identifier and subdomain.
  */
 export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.HandlerProps) => {
   const code = new URLSearchParams(req.query).get('code')
@@ -156,7 +159,7 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   })
 
   await client.configureIntegration({
-    identifier: (jwt.decode(idToken) as JwtPayload).sub,
+    identifier: subdomain,
   })
 
   logger.forBot().info('BambooHR OAuth authentication successfully set up.')

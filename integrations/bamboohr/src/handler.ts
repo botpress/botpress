@@ -1,8 +1,8 @@
 import { bambooHrEmployeeWebhookEvent } from 'definitions'
-import { handleOauthRequest } from './api/auth'
 import { validateBambooHrSignature } from './api/signing'
 import { safeParseJson } from './api/utils'
 import { handleEmployeeCreatedEvent, handleEmployeeDeletedEvent, handleEmployeeUpdatedEvent } from './events'
+import { handler as oauthHandler } from './handlers/oauth'
 import * as bp from '.botpress'
 import { BambooHRRuntimeError } from './error-handling'
 
