@@ -21,6 +21,15 @@ export const events = {
     }),
     ui: {},
   },
+  conversationStarted: {
+    title: 'Conversation Started',
+    description: 'This event occurs when a user activates the Zendesk widget, prompting the interface to appear.',
+    schema: z.object({
+      userId: z.string().title('User ID').describe('The Botpress user ID'),
+      conversationId: z.string().title('Conversation ID').describe('The Botpress conversation ID'),
+    }),
+    ui: {},
+  },
 } satisfies IntegrationDefinitionProps['events']
 
 export const configuration = {
@@ -47,6 +56,30 @@ export const configuration = {
       .optional()
       .title('Ignore non-HITL tickets')
       .describe('Ignore tickets that were not created by the startHitl action'),
+    messagingAppId: z
+      .string()
+      .min(1)
+      .optional()
+      .title('Messaging App ID')
+      .describe('App ID from your "Conversations API"'),
+    messagingKeyId: z
+      .string()
+      .min(1)
+      .optional()
+      .title('Messaging Key ID')
+      .describe('Key ID from your "Conversations API"'),
+    messagingKeySecret: z
+      .string()
+      .min(1)
+      .optional()
+      .title('Messaging Key Secret')
+      .describe('Key Secret from your "Conversations API"'),
+    messagingWebhookSecret: z
+      .string()
+      .min(1)
+      .optional()
+      .title('Messaging Webhook Secret')
+      .describe('Webhook Secret from your "Conversations Integration"'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

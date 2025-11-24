@@ -5,12 +5,18 @@ import { executeMessageReceived } from './events/message-received'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
+import { handleMessagingWebhook } from './webhook/messaging'
 import { ZendeskEvent } from './webhookEvents'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
+    return
+  }
+
+  // Handle Sunshine Conversations (Zendesk Messaging) webhooks
+  if (await handleMessagingWebhook({ req, ctx, client, logger })) {
     return
   }
 

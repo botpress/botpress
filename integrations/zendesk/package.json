@@ -13,7 +13,8 @@
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.4.0",
     "axios-retry": "^4.5.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "sunshine-conversations-client": "^9.12.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
@@ -23,6 +24,9 @@
     "@types/lodash": "^4.14.191"
   },
   "bpDependencies": {
-    "hitl": "../../interfaces/hitl"
+    "hitl": "../../interfaces/hitl",
+    "typing-indicator": "../../interfaces/typing-indicator",
+    "proactive-user": "../../interfaces/proactive-user",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }

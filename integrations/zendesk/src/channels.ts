@@ -1,7 +1,10 @@
+import { RuntimeError } from '@botpress/client'
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { getZendeskClient } from './client'
+import { getMessagingClient } from './messaging-client'
 import * as bp from '.botpress'
+const SunshineConversationsClient = require('sunshine-conversations-client')
 
 type IntegrationLogger = bp.Logger
 
@@ -33,13 +36,293 @@ class Tags<T extends Record<string, string>> {
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
     ticketId: ({ conversation, logger }) => Tags.of(conversation, logger).get('id'),
-    zendeskAuthorId: async ({ client, logger, payload, user }) =>
-      Tags.of((await client.getUser({ id: payload.userId ?? user.id })).user, logger).get('id'),
+    zendeskAuthorId: async ({ client, logger, payload, user }) => {
+      const userId = 'userId' in payload && payload.userId ? payload.userId : user.id
+      return Tags.of((await client.getUser({ id: userId })).user, logger).get('id')
+    },
     zendeskClient: ({ ctx }) => getZendeskClient(ctx.configuration),
+    messagingConversationId: ({ conversation, logger }) => Tags.of(conversation, logger).get('id'),
+    messagingClient: ({ ctx }): NonNullable<ReturnType<typeof getMessagingClient>> => {
+      const client = getMessagingClient(ctx.configuration)
+      if (!client) {
+        throw new sdk.RuntimeError('Messaging client not configured. Please provide messaging credentials.')
+      }
+      return client
+    },
+    messagingAppId: ({ ctx }): string => {
+      if (!ctx.configuration.messagingAppId) {
+        throw new sdk.RuntimeError('Messaging App ID not configured')
+      }
+      return ctx.configuration.messagingAppId
+    },
   },
 })
 
+// Types for Sunshine Conversations messaging
+type SmoochBaseAction = {
+  type: string
+  text: string
+}
+
+type SmoochLinkAction = {
+  type: 'link'
+  uri: string
+} & SmoochBaseAction
+
+type SmoochPostbackAction = {
+  type: 'postback'
+  payload: string
+} & SmoochBaseAction
+
+type SmoochReplyAction = {
+  type: 'reply'
+  payload: string
+} & SmoochBaseAction
+
+type SmoochAction = SmoochLinkAction | SmoochPostbackAction | SmoochReplyAction
+
+type SmoochCard = {
+  title: string
+  description?: string
+  mediaUrl?: string
+  actions: SmoochAction[]
+}
+
+const POSTBACK_PREFIX = 'postback::'
+const SAY_PREFIX = 'say::'
+
+type Choice = bp.channels.messaging.choice.Choice
+
+function renderChoiceMessage(payload: Choice) {
+  return {
+    type: 'text',
+    text: payload.text,
+    actions: payload.options.map((r) => ({ type: 'reply', text: r.label, payload: r.value })),
+  }
+}
+
+type Carousel = bp.channels.messaging.carousel.Carousel
+
+type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
+
+async function sendMessagingMessage(
+  props: SendMessageProps,
+  payload: any,
+  messagingClient: NonNullable<ReturnType<typeof getMessagingClient>>,
+  appId: string
+) {
+  const conversationId = props.conversation.tags.id
+
+  if (!conversationId) {
+    throw new RuntimeError('Conversation does not have a messaging identifier')
+  }
+
+  if (!messagingClient) {
+    throw new RuntimeError('Messaging client is not available')
+  }
+
+  const data = new SunshineConversationsClient.MessagePost()
+  data.content = payload
+  data.author = {
+    type: 'business',
+  }
+
+  const { messages } = await messagingClient.messages.postMessage(appId, conversationId, data)
+
+  const message = messages[0]
+
+  if (!message) {
+    throw new RuntimeError('Message not sent')
+  }
+
+  await props.ack({ tags: { id: message.id } })
+
+  if (messages.length > 1) {
+    console.warn('More than one message was sent')
+  }
+}
+
+async function sendMessagingCarousel(
+  props: SendMessageProps,
+  payload: Carousel,
+  messagingClient: NonNullable<ReturnType<typeof getMessagingClient>>,
+  appId: string
+) {
+  const items: SmoochCard[] = []
+
+  for (const card of payload.items) {
+    const actions: SmoochAction[] = []
+    for (const button of card.actions) {
+      if (button.action === 'url') {
+        actions.push({
+          type: 'link',
+          text: button.label,
+          uri: button.value,
+        })
+      } else if (button.action === 'postback') {
+        actions.push({
+          type: 'postback',
+          text: button.label,
+          payload: `${POSTBACK_PREFIX}${button.value}`,
+        })
+      } else if (button.action === 'say') {
+        actions.push({
+          type: 'postback',
+          text: button.label,
+          payload: `${SAY_PREFIX}${button.label}`,
+        })
+      }
+    }
+
+    if (actions.length === 0) {
+      actions.push({
+        type: 'postback',
+        text: card.title,
+        payload: card.title,
+      })
+    }
+
+    items.push({ title: card.title, description: card.subtitle, mediaUrl: card.imageUrl, actions })
+  }
+
+  await sendMessagingMessage(props, { type: 'carousel', items }, messagingClient, appId)
+}
+
 export default {
+  messaging: {
+    messages: {
+      text: wrapChannel(
+        { channelName: 'messaging', messageType: 'text' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            { type: 'text', text: payload.text },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      image: wrapChannel(
+        { channelName: 'messaging', messageType: 'image' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            { type: 'image', mediaUrl: payload.imageUrl },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      markdown: wrapChannel(
+        { channelName: 'messaging', messageType: 'markdown' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            { type: 'text', text: payload.markdown },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      audio: wrapChannel(
+        { channelName: 'messaging', messageType: 'audio' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            { type: 'file', mediaUrl: payload.audioUrl },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      video: wrapChannel(
+        { channelName: 'messaging', messageType: 'video' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            { type: 'file', mediaUrl: payload.videoUrl },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      file: wrapChannel(
+        { channelName: 'messaging', messageType: 'file' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          try {
+            await sendMessagingMessage(
+              { conversation, ctx, ack },
+              { type: 'file', mediaUrl: payload.fileUrl },
+              messagingClient!,
+              messagingAppId!
+            )
+          } catch (e) {
+            const err = e as any
+            // 400 errors can be sent if file has unsupported type
+            // See: https://docs.smooch.io/guide/validating-files/#rejections
+            if (err.status === 400 && err.response?.text) {
+              console.info(err.response.text)
+            }
+            throw e
+          }
+        }
+      ),
+      location: wrapChannel(
+        { channelName: 'messaging', messageType: 'location' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            {
+              type: 'location',
+              coordinates: {
+                lat: payload.latitude,
+                long: payload.longitude,
+              },
+            },
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      carousel: wrapChannel(
+        { channelName: 'messaging', messageType: 'carousel' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingCarousel({ conversation, ctx, ack }, payload, messagingClient!, messagingAppId!)
+        }
+      ),
+      card: wrapChannel(
+        { channelName: 'messaging', messageType: 'card' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingCarousel({ conversation, ctx, ack }, { items: [payload] }, messagingClient, messagingAppId)
+        }
+      ),
+      dropdown: wrapChannel(
+        { channelName: 'messaging', messageType: 'dropdown' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            renderChoiceMessage(payload),
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      choice: wrapChannel(
+        { channelName: 'messaging', messageType: 'choice' },
+        async ({ ack, payload, conversation, ctx, messagingClient, messagingAppId }) => {
+          await sendMessagingMessage(
+            { conversation, ctx, ack },
+            renderChoiceMessage(payload),
+            messagingClient,
+            messagingAppId
+          )
+        }
+      ),
+      bloc: wrapChannel({ channelName: 'messaging', messageType: 'bloc' }, async () => {
+        throw new RuntimeError('Not implemented')
+      }),
+    },
+  },
   hitl: {
     messages: {
       text: wrapChannel(
