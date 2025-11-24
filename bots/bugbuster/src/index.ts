@@ -41,7 +41,7 @@ const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) 
   const conversationId = workflow.input.conversationId
   await workflow.acknowledgeStartOfProcessing()
 
-  const botpress = new BotpressApi(client, ctx)
+  const botpress = new BotpressApi(client, ctx.botId)
 
   try {
     const result = await handlers.lintAll(client, logger, ctx, workflow.id, conversationId)
