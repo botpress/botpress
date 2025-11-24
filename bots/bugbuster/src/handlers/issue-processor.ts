@@ -3,7 +3,7 @@ import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
 import { listTeams } from './teams-manager'
-import { Client } from '.botpress'
+import { Client, WorkflowHandlerProps } from '.botpress'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
@@ -94,11 +94,12 @@ export class IssueProcessor {
     })
   }
 
-  public async runLints(issues: Issue[], workflowId: string) {
+  public async runLints(issues: Issue[], workflow: WorkflowHandlerProps['lintAll']['workflow']) {
     for (const issue of issues) {
       await this.runLint(issue)
+      await workflow.acknowledgeStartOfProcessing()
       await this._client.setState({
-        id: workflowId,
+        id: workflow.id,
         name: 'lastLintedId',
         type: 'workflow',
         payload: { id: issue.id },

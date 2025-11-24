@@ -28,23 +28,19 @@ bot.on.workflowTimeout('lintAll', async (props) => {
     },
   } = props
 
-  await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
-
   const botpress = new BotpressApi(client, ctx.botId)
   if (conversationId) {
-    await botpress.respondText(conversationId, 'Workflow timed out')
+    await botpress.respondText(conversationId, "Error: the 'lintAll' operation timed out")
   }
 })
 
 const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) => {
   const { client, logger, ctx, workflow } = props
   const conversationId = workflow.input.conversationId
-  await workflow.acknowledgeStartOfProcessing()
-
   const botpress = new BotpressApi(client, ctx.botId)
 
   try {
-    const result = await handlers.lintAll(client, logger, ctx, workflow.id, conversationId)
+    const result = await handlers.lintAll(client, logger, ctx, workflow, conversationId)
     if (!result.success) {
       if (conversationId) {
         await botpress.respondText(conversationId, LINT_ALL_ERROR_PREFIX + result.message)

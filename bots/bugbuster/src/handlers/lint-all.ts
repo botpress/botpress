@@ -5,13 +5,13 @@ import { handleError } from 'src/utils/error-handler'
 import { LinearApi } from 'src/utils/linear-utils'
 import { IssueProcessor } from './issue-processor'
 import { listTeams } from './teams-manager'
-import { TBot } from '.botpress'
+import { TBot, WorkflowHandlerProps } from '.botpress'
 
 export const lintAll = async (
   client: BotClient<TBot>,
   logger: BotLogger,
   ctx: BotContext,
-  workflowId: string,
+  workflow: WorkflowHandlerProps['lintAll']['workflow'],
   conversationId?: string
 ): Promise<Result<void>> => {
   const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
@@ -23,7 +23,7 @@ export const lintAll = async (
   }
 
   const lastLintedId = await client.getOrSetState({
-    id: workflowId,
+    id: workflow.id,
     name: 'lastLintedId',
     type: 'workflow',
     payload: {},
@@ -35,6 +35,6 @@ export const lintAll = async (
     .listIssues(teamsResult.result, lastLintedId.state.payload.id)
     .catch(_handleError('trying to list all issues'))
 
-  await issueProcessor.runLints(issues, workflowId).catch(_handleError('trying to run lints on all issues'))
+  await issueProcessor.runLints(issues, workflow).catch(_handleError('trying to run lints on all issues'))
   return { success: true, message: 'linted all issues' }
 }
