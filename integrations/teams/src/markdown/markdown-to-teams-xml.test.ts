@@ -104,19 +104,20 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
     description: "Don't apply h6 header style to text since Teams doesn't support headers larger than h3",
   },
   // ----- Horizontal Rule -----
+  // Note: For e2e tests, text is required before the horizontal rule, otherwise nothing is rendered
   {
-    input: '---',
-    expects: '<hr />',
+    input: 'Hello World\n\n---',
+    expects: 'Hello World\n<hr />',
     description: 'Insert horizontal rule using dash notation',
   },
   {
-    input: '***',
-    expects: '<hr />',
+    input: 'Hello World\n***',
+    expects: 'Hello World\n<hr />',
     description: 'Insert horizontal rule using asterisk notation',
   },
   {
-    input: '___',
-    expects: '<hr />',
+    input: 'Hello World\n___',
+    expects: 'Hello World\n<hr />',
     description: 'Insert horizontal rule using underscore notation',
   },
   // ----- Hyperlinks -----
@@ -128,19 +129,19 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
   {
     input: '[Hyperlink](https://www.botpress.com/ "Tooltip Title")',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
-    // NOTE: Teams does not support the title attribute, however, it just ignores it instead of causing a crash (This is potentially a false statement, lingering from Telegram)
+    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Markdown hyperlink title gets carried over to html link',
   },
   {
     input: '[Hyperlink][id]\n\n[id]: https://www.botpress.com/  "Tooltip Title"',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
-    // NOTE: Teams does not support the title attribute, however, it just ignores it instead of causing a crash (This is potentially a false statement, lingering from Telegram)
+    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Convert hyperlink markup using footnote style syntax to html link',
   },
   {
     input: 'https://www.botpress.com/',
     expects: '<a href="https://www.botpress.com/">https://www.botpress.com/</a>',
-    description: 'Implicit link gets auto-converted into html link', // TODO: Potentially re-write the logic, since Teams has a specific way for embedding links
+    description: 'Implicit link gets auto-converted into html link',
   },
   // ----- Telephone Hyperlinks -----
   {
