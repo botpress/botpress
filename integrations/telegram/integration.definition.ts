@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from './bp_modules/typing-indicator'
@@ -30,7 +29,7 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
-      id: {},
+      id: { title: 'ID', description: 'The id of the user' },
     },
   },
 }).extend(typingIndicator, () => ({
