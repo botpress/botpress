@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { chunk } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 
@@ -57,7 +58,80 @@ const Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Summarizes a text of any length to a summary of the desired length */
+    /**
+     * Summarizes text of any length to a target length using intelligent chunking strategies.
+     *
+     * This operation can handle documents from a few paragraphs to entire books. It uses
+     * two strategies based on document size:
+     * - **Sliding window**: For moderate documents, processes overlapping chunks iteratively
+     * - **Merge sort**: For very large documents, recursively summarizes and merges
+     *
+     * @param original - The text to summarize
+     * @param options - Configuration for length, focus, format, and chunking strategy
+     * @returns Response promise resolving to the summary text
+     *
+     * @example Basic summarization
+     * ```typescript
+     * const article = "Long article text here..."
+     * const summary = await zai.summarize(article, {
+     *   length: 100 // Target 100 tokens (~75 words)
+     * })
+     * ```
+     *
+     * @example Custom focus and format
+     * ```typescript
+     * const meetingNotes = "... detailed meeting transcript ..."
+     * const summary = await zai.summarize(meetingNotes, {
+     *   length: 200,
+     *   prompt: 'Key decisions, action items, and next steps',
+     *   format: 'Bullet points with clear sections for Decisions, Actions, and Next Steps'
+     * })
+     * ```
+     *
+     * @example Summarizing very large documents
+     * ```typescript
+     * const book = await readFile('large-book.txt', 'utf-8') // 100k+ tokens
+     * const summary = await zai.summarize(book, {
+     *   length: 500,
+     *   intermediateFactor: 4, // Intermediate summaries can be 4x target length
+     *   prompt: 'Main themes, key events, and character development'
+     * })
+     * // Automatically uses merge-sort strategy for efficiency
+     * ```
+     *
+     * @example Technical documentation summary
+     * ```typescript
+     * const docs = "... API documentation ..."
+     * const summary = await zai.summarize(docs, {
+     *   length: 300,
+     *   prompt: 'Core API endpoints, authentication methods, and rate limits',
+     *   format: 'Structured markdown with code examples where relevant'
+     * })
+     * ```
+     *
+     * @example Adjusting chunking strategy
+     * ```typescript
+     * const summary = await zai.summarize(document, {
+     *   length: 150,
+     *   sliding: {
+     *     window: 30000,  // Process 30k tokens at a time
+     *     overlap: 500    // 500 token overlap between windows
+     *   }
+     * })
+     * ```
+     *
+     * @example Progress tracking for long documents
+     * ```typescript
+     * const response = zai.summarize(veryLongDocument, { length: 400 })
+     *
+     * response.on('progress', (usage) => {
+     *   console.log(`Progress: ${Math.round(usage.requests.percentage * 100)}%`)
+     *   console.log(`Tokens used: ${usage.tokens.total}`)
+     * })
+     *
+     * const summary = await response
+     * ```
+     */
     summarize(original: string, options?: Options): Response<string>
   }
 }
@@ -115,9 +189,9 @@ ${newText}
   const chunkSize = Math.ceil(tokens.length / (parts * N))
 
   if (useMergeSort) {
-    // TODO: use pLimit here to not have too many chunks
+    const limit = pLimit(10) // Limit to 10 concurrent summarization operations
     const chunks = chunk(tokens, chunkSize).map((x) => x.join(''))
-    const allSummaries = (await Promise.allSettled(chunks.map((chunk) => summarize(chunk, options, ctx))))
+    const allSummaries = (await Promise.allSettled(chunks.map((chunk) => limit(() => summarize(chunk, options, ctx)))))
       .filter((x) => x.status === 'fulfilled')
       .map((x) => x.value)
     return summarize(allSummaries.join('\n\n============\n\n'), options, ctx)

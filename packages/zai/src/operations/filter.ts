@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { clamp } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -41,7 +42,92 @@ const _Options = z.object({
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Filters elements of an array against a condition */
+    /**
+     * Filters array elements based on a natural language condition.
+     *
+     * This operation evaluates each element against a condition using LLMs,
+     * returning only elements that match. Handles large arrays automatically
+     * by processing in parallel chunks.
+     *
+     * @param input - Array of elements to filter
+     * @param condition - Natural language description of what to keep
+     * @param options - Configuration for token limits per item and examples
+     * @returns Response promise resolving to filtered array
+     *
+     * @example Filter positive reviews
+     * ```typescript
+     * const reviews = [
+     *   "Great product, love it!",
+     *   "Terrible quality, broke immediately",
+     *   "Amazing! Exceeded expectations",
+     *   "Worst purchase ever"
+     * ]
+     *
+     * const positive = await zai.filter(reviews, 'Keep only positive reviews')
+     * // Result: ["Great product, love it!", "Amazing! Exceeded expectations"]
+     * ```
+     *
+     * @example Filter technical questions
+     * ```typescript
+     * const questions = [
+     *   "How do I deploy to production?",
+     *   "What time is lunch?",
+     *   "Why is the API returning 500 errors?",
+     *   "Can you book the conference room?"
+     * ]
+     *
+     * const technical = await zai.filter(
+     *   questions,
+     *   'Keep only technical or engineering questions'
+     * )
+     * // Result: ["How do I deploy to production?", "Why is the API returning 500 errors?"]
+     * ```
+     *
+     * @example Filter with object array
+     * ```typescript
+     * const products = [
+     *   { name: 'Laptop', category: 'Electronics', inStock: true },
+     *   { name: 'Desk', category: 'Furniture', inStock: false },
+     *   { name: 'Mouse', category: 'Electronics', inStock: true },
+     *   { name: 'Chair', category: 'Furniture', inStock: true }
+     * ]
+     *
+     * const available = await zai.filter(
+     *   products,
+     *   'Keep only products that are in stock'
+     * )
+     * // Returns products where inStock === true
+     * ```
+     *
+     * @example Complex filtering logic
+     * ```typescript
+     * const emails = [...] // Array of email objects
+     *
+     * const urgent = await zai.filter(
+     *   emails,
+     *   'Keep emails that are urgent, from the CEO, or mention "critical bug"'
+     * )
+     * ```
+     *
+     * @example With examples for consistency
+     * ```typescript
+     * const filtered = await zai.filter(items, 'Keep valid entries', {
+     *   examples: [
+     *     {
+     *       input: { status: 'active', verified: true },
+     *       filter: true,
+     *       reason: 'Active and verified'
+     *     },
+     *     {
+     *       input: { status: 'pending', verified: false },
+     *       filter: false,
+     *       reason: 'Not yet verified'
+     *     }
+     *   ],
+     *   tokensPerItem: 100 // Limit tokens per item for performance
+     * })
+     * ```
+     */
     filter<T>(input: Array<T>, condition: string, options?: Options): Response<Array<T>>
   }
 }
@@ -259,7 +345,8 @@ The condition is: "${condition}"
     return partial
   }
 
-  const filteredChunks = await Promise.all(chunks.map(filterChunk))
+  const limit = pLimit(10) // Limit to 10 concurrent filtering operations
+  const filteredChunks = await Promise.all(chunks.map((chunk) => limit(() => filterChunk(chunk))))
 
   return filteredChunks.flat()
 }

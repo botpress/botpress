@@ -1,9 +1,17 @@
 import axios, { AxiosInstance } from 'axios'
 import { backOff } from 'exponential-backoff'
+import { createNanoEvents, Unsubscribe } from 'nanoevents'
 import { defaultModel, models } from './models'
 import { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk, Model } from './types'
 
 export { CognitiveRequest, CognitiveResponse, CognitiveStreamChunk }
+
+export type BetaEvents = {
+  request: (req: { input: CognitiveRequest }) => void
+  response: (req: { input: CognitiveRequest }, res: CognitiveResponse) => void
+  error: (req: { input: CognitiveRequest }, error: any) => void
+  retry: (req: { input: CognitiveRequest }, error: any) => void
+}
 
 type ClientProps = {
   apiUrl?: string
@@ -12,7 +20,7 @@ type ClientProps = {
   token?: string
   withCredentials?: boolean
   debug?: boolean
-  headers?: Record<string, string>
+  headers?: Record<string, string | string[]>
 }
 
 type RequestOptions = {
@@ -29,8 +37,9 @@ export class CognitiveBeta {
   private readonly _apiUrl: string
   private readonly _timeout: number
   private readonly _withCredentials: boolean
-  private readonly _headers: Record<string, string>
+  private readonly _headers: Record<string, string | string[]>
   private readonly _debug: boolean = false
+  private _events = createNanoEvents<BetaEvents>()
 
   public constructor(props: ClientProps) {
     this._apiUrl = props.apiUrl || 'https://api.botpress.cloud'
@@ -68,17 +77,33 @@ export class CognitiveBeta {
     })
   }
 
+  public on<K extends keyof BetaEvents>(event: K, cb: BetaEvents[K]): Unsubscribe {
+    return this._events.on(event, cb)
+  }
+
   public async generateText(input: CognitiveRequest, options: RequestOptions = {}) {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req = { input }
 
-    const { data } = await this._withServerRetry(() =>
-      this._axiosClient.post<CognitiveResponse>('/v2/cognitive/generate-text', input, {
-        signal,
-        timeout: options.timeout ?? this._timeout,
-      })
-    )
+    this._events.emit('request', req)
 
-    return data
+    try {
+      const { data } = await this._withServerRetry(
+        () =>
+          this._axiosClient.post<CognitiveResponse>('/v2/cognitive/generate-text', input, {
+            signal,
+            timeout: options.timeout ?? this._timeout,
+          }),
+        options,
+        req
+      )
+
+      this._events.emit('response', req, data)
+      return data
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
+    }
   }
 
   public async listModels() {
@@ -94,69 +119,102 @@ export class CognitiveBeta {
     options: RequestOptions = {}
   ): AsyncGenerator<CognitiveStreamChunk, void, unknown> {
     const signal = options.signal ?? AbortSignal.timeout(this._timeout)
+    const req = { input: request }
+    const chunks: CognitiveStreamChunk[] = []
+    let lastChunk: CognitiveStreamChunk | undefined
 
-    if (isBrowser()) {
-      const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-text-stream`, {
-        method: 'POST',
-        headers: {
-          ...this._headers,
-          'Content-Type': 'application/json',
-        },
-        credentials: this._withCredentials ? 'include' : 'omit',
-        body: JSON.stringify({ ...request, stream: true }),
-        signal,
-      })
+    this._events.emit('request', req)
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
-        ;(err as any).response = { status: res.status, data: text }
-        throw err
+    try {
+      if (isBrowser()) {
+        const res = await fetch(`${this._apiUrl}/v2/cognitive/generate-text-stream`, {
+          method: 'POST',
+          headers: {
+            ...this._headers,
+            'Content-Type': 'application/json',
+          },
+          credentials: this._withCredentials ? 'include' : 'omit',
+          body: JSON.stringify({ ...request, stream: true }),
+          signal,
+        })
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => '')
+          const err = new Error(`HTTP ${res.status}: ${text || res.statusText}`)
+          ;(err as any).response = { status: res.status, data: text }
+          throw err
+        }
+
+        const body = res.body
+        if (!body) {
+          throw new Error('No response body received for streaming request')
+        }
+
+        const reader = body.getReader()
+        const iterable = (async function* () {
+          for (;;) {
+            const { value, done } = await reader.read()
+            if (done) {
+              break
+            }
+            if (value) {
+              yield value
+            }
+          }
+        })()
+
+        for await (const obj of this._ndjson<CognitiveStreamChunk>(iterable)) {
+          chunks.push(obj)
+          lastChunk = obj
+          yield obj
+        }
+
+        // Emit response event with the final chunk metadata
+        if (lastChunk?.metadata) {
+          this._events.emit('response', req, {
+            output: chunks.map((c) => c.output || '').join(''),
+            metadata: lastChunk.metadata,
+          })
+        }
+        return
       }
 
-      const body = res.body
-      if (!body) {
+      const res = await this._withServerRetry(
+        () =>
+          this._axiosClient.post(
+            '/v2/cognitive/generate-text-stream',
+            { ...request, stream: true },
+            {
+              responseType: 'stream',
+              signal,
+              timeout: options.timeout ?? this._timeout,
+            }
+          ),
+        options,
+        req
+      )
+
+      const nodeStream: AsyncIterable<Uint8Array> = res.data as any
+      if (!nodeStream) {
         throw new Error('No response body received for streaming request')
       }
 
-      const reader = body.getReader()
-      const iterable = (async function* () {
-        for (;;) {
-          const { value, done } = await reader.read()
-          if (done) {
-            break
-          }
-          if (value) {
-            yield value
-          }
-        }
-      })()
-
-      for await (const obj of this._ndjson<CognitiveStreamChunk>(iterable)) {
+      for await (const obj of this._ndjson<CognitiveStreamChunk>(nodeStream)) {
+        chunks.push(obj)
+        lastChunk = obj
         yield obj
       }
-      return
-    }
 
-    const res = await this._withServerRetry(() =>
-      this._axiosClient.post(
-        '/v2/cognitive/generate-text-stream',
-        { ...request, stream: true },
-        {
-          responseType: 'stream',
-          signal,
-          timeout: options.timeout ?? this._timeout,
-        }
-      )
-    )
-
-    const nodeStream: AsyncIterable<Uint8Array> = res.data as any
-    if (!nodeStream) {
-      throw new Error('No response body received for streaming request')
-    }
-
-    for await (const obj of this._ndjson<CognitiveStreamChunk>(nodeStream)) {
-      yield obj
+      // Emit response event with the final chunk metadata
+      if (lastChunk?.metadata) {
+        this._events.emit('response', req, {
+          output: chunks.map((c) => c.output || '').join(''),
+          metadata: lastChunk.metadata,
+        })
+      }
+    } catch (error) {
+      this._events.emit('error', req, error)
+      throw error
     }
   }
 
@@ -214,14 +272,34 @@ export class CognitiveBeta {
     return false
   }
 
-  private async _withServerRetry<T>(fn: () => Promise<T>): Promise<T> {
-    return backOff(fn, {
-      numOfAttempts: 3,
-      startingDelay: 300,
-      timeMultiple: 2,
-      jitter: 'full',
-      retry: (e) => this._isRetryableServerError(e),
-    })
+  private async _withServerRetry<T>(
+    fn: () => Promise<T>,
+    options: RequestOptions = {},
+    req?: { input: CognitiveRequest }
+  ): Promise<T> {
+    let attemptCount = 0
+    return backOff(
+      async () => {
+        try {
+          const result = await fn()
+          attemptCount = 0
+          return result
+        } catch (error) {
+          if (attemptCount > 0 && req) {
+            this._events.emit('retry', req, error)
+          }
+          attemptCount++
+          throw error
+        }
+      },
+      {
+        numOfAttempts: 3,
+        startingDelay: 300,
+        timeMultiple: 2,
+        jitter: 'full',
+        retry: (e) => !options.signal?.aborted && this._isRetryableServerError(e),
+      }
+    )
   }
 }
 

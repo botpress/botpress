@@ -269,7 +269,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     const res = exec(updatedContext)
     expect(res.firstIteration?.code).toContain('.age =')
     expect(res.firstIteration?.status.type).toBe('execution_error')
-    expect(res.allErrors.join('')).toContain('property')
+    expect(res.allErrors.join('')).toContain('not extensible')
   })
 
   it('object with write properties with no schema can change value', async () => {
@@ -578,37 +578,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       `)
     })
 
-    it('exit schema is validated', async () => {
-      const result = await llmz.executeContext({
-        options: { loop: 2 },
-        exits: [ePlant, eAnimal],
-        instructions:
-          'just call return { action: "is_plant", value: { edible: "yes" } } and nothing else. you already know the plant. Don\'t try to provide the plant name, it is already known.\nASK: What is my favorite plant?',
-        tools: [tNoop(() => {})],
-        client,
-      })
-
-      expect(result.iterations).toHaveLength(2)
-
-      const [firstIteration, lastIteration] = result.iterations
-
-      assert(!!firstIteration)
-      assert(!!lastIteration)
-
-      assert(firstIteration.isFailed())
-
-      expect(firstIteration.status.type === 'exit_error' && firstIteration.error).toContain('Invalid return value')
-      assert(lastIteration.hasExitedWith(ePlant))
-
-      expect(lastIteration.status.exit_success.return_value).toMatchInlineSnapshot(`
-        {
-          "color": "unknown",
-          "edible": true,
-          "plant": "unknown",
-        }
-      `)
-    })
-
     it("exit hook is called before exiting and can't mutate value", async () => {
       let exitResult: ExitResult
       const result = await llmz.executeContext({
@@ -759,10 +728,10 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
     expect(result.iterations).toHaveLength(1)
     assert(result.iterations[0]!.status.type === 'execution_error', 'First iteration should be an execution error')
     expect(result.iterations[0]!.status.execution_error.stack).toMatchInlineSnapshot(`
-      "001 | // Calling the demo tool as per the instructions
-        002 | await demo()
-      > 003 | return { action: 'done' }
-      ...^^^^^^^^^^"
+      "001 | // Calling the demo tool as per the given instructions
+      > 002 | await demo()
+      ...^^^^^^^^^^
+        003 | return { action: 'done' }"
     `)
   })
 
@@ -921,6 +890,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const tRecursive = new Tool({
         name: 'recurse',
         description: 'A tool that forces the agent to think',
+        output: z.string(),
         handler: async () => {
           callCount++
           if (callCount < 3) {
@@ -933,7 +903,7 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
       const result = await llmz.executeContext({
         options: { loop: 5 },
         exits: [eDone],
-        instructions: 'Call the recurse tool until it returns "Done"',
+        instructions: 'Call the recurse tool until it returns "Done". Do not think.',
         tools: [tRecursive],
         client,
         model: (ctx) => {

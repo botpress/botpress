@@ -1,12 +1,10 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
+import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
-
-// File message type unsupported both ways in DM
-const { file: _file, ...dmChannelMessages } = messages.defaults
 
 const commonConfigSchema = z.object({
   replyToComments: z
@@ -18,7 +16,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.0.0',
+  version: '4.1.2',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -105,6 +103,10 @@ export default new IntegrationDefinition({
             title: 'Recipient ID',
             description: 'The Instagram user ID of the message recipient',
           },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID under which the direct message conversation was started',
+          },
         },
       },
       conversation: {
@@ -112,6 +114,14 @@ export default new IntegrationDefinition({
           id: {
             title: 'Conversation ID',
             description: 'The Instagram user ID of the user in the conversation',
+          },
+          commentId: {
+            title: 'Comment ID',
+            description: 'The Instagram comment ID under which the direct message conversation was started',
+          },
+          lastCommentId: {
+            title: 'Last Comment ID',
+            description: 'The Instagram comment ID of the last comment from which a direct message was sent',
           },
         },
       },
@@ -144,6 +154,10 @@ export default new IntegrationDefinition({
             title: 'Post ID',
             description: 'The Instagram post ID where the comment was posted',
           },
+          userId: {
+            title: 'User ID',
+            description: 'The Instagram user ID of the user who sent the comment',
+          },
         },
       },
     },
@@ -151,7 +165,7 @@ export default new IntegrationDefinition({
   actions: {},
   events: {},
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app.',
     },
@@ -199,6 +213,11 @@ export default new IntegrationDefinition({
       schema: z
         .object({
           id: z.string().title('User ID').describe('The Instagram user ID of the user in the conversation'),
+          commentId: z
+            .string()
+            .optional()
+            .title('Comment ID')
+            .describe('The Instagram comment ID under which the direct message conversation was started'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),

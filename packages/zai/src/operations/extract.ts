@@ -1,10 +1,11 @@
 // eslint-disable consistent-type-definitions
-import { z, ZodObject } from '@bpinternal/zui'
+import { z, ZodObject, transforms } from '@bpinternal/zui'
 
 import JSON5 from 'json5'
 import { jsonrepair } from 'jsonrepair'
 
 import { chunk, isArray } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -40,14 +41,81 @@ type AnyObjectOrArray = Record<string, unknown> | Array<unknown>
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Extracts one or many elements from an arbitrary input */
+    /**
+     * Extracts structured data from unstructured text using a Zod schema.
+     *
+     * This operation uses LLMs to intelligently parse text and extract information
+     * according to your schema. It handles large inputs automatically by chunking
+     * and supports both objects and arrays.
+     *
+     * @param input - The text or data to extract information from
+     * @param schema - Zod schema defining the structure to extract
+     * @param options - Optional configuration for extraction behavior
+     * @returns A Response promise that resolves to data matching your schema
+     *
+     * @example Extract a single object
+     * ```typescript
+     * import { z } from '@bpinternal/zui'
+     *
+     * const personSchema = z.object({
+     *   name: z.string(),
+     *   age: z.number(),
+     *   email: z.string().email()
+     * })
+     *
+     * const text = "Contact John Doe (35) at john@example.com"
+     * const person = await zai.extract(text, personSchema)
+     * // Result: { name: 'John Doe', age: 35, email: 'john@example.com' }
+     * ```
+     *
+     * @example Extract an array of items
+     * ```typescript
+     * const productSchema = z.array(z.object({
+     *   name: z.string(),
+     *   price: z.number()
+     * }))
+     *
+     * const text = "We have Apple ($1.50), Banana ($0.80), and Orange ($1.20)"
+     * const products = await zai.extract(text, productSchema)
+     * // Result: [
+     * //   { name: 'Apple', price: 1.50 },
+     * //   { name: 'Banana', price: 0.80 },
+     * //   { name: 'Orange', price: 1.20 }
+     * // ]
+     * ```
+     *
+     * @example With custom instructions
+     * ```typescript
+     * const result = await zai.extract(document, schema, {
+     *   instructions: 'Only extract confirmed information, skip uncertain data',
+     *   chunkLength: 10000, // Smaller chunks for better accuracy
+     *   strict: true // Enforce strict schema validation
+     * })
+     * ```
+     *
+     * @example Track usage and cost
+     * ```typescript
+     * const response = zai.extract(text, schema)
+     *
+     * // Monitor progress
+     * response.on('progress', (usage) => {
+     *   console.log(`Tokens used: ${usage.tokens.total}`)
+     *   console.log(`Cost so far: $${usage.cost.total}`)
+     * })
+     *
+     * // Get full results
+     * const { output, usage, elapsed } = await response.result()
+     * console.log(`Extraction took ${elapsed}ms and cost $${usage.cost.total}`)
+     * ```
+     */
     extract<S extends OfType<any>>(input: unknown, schema: S, options?: Options): Response<S['_output']>
   }
 }
-
+const SPECIAL_CHAR = '■'
 const START = '■json_start■'
 const END = '■json_end■'
 const NO_MORE = '■NO_MORE_ELEMENT■'
+const ZERO_ELEMENTS = '■ZERO_ELEMENTS■'
 
 const extract = async <S extends OfType<AnyObjectOrArray>>(
   input: unknown,
@@ -56,7 +124,9 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   ctx: ZaiContext
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
-  let schema = _schema as any as z.ZodType
+
+  let schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
+
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
   const model = await ctx.getModel()
@@ -110,18 +180,21 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > options.chunkLength) {
+    const limit = pLimit(10) // Limit to 10 concurrent extraction operations
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, options.chunkLength).map((x) => x.join(''))
     const all = await Promise.allSettled(
       chunks.map((chunk) =>
-        extract(
-          chunk,
-          originalSchema,
-          {
-            ...options,
-            strict: false, // We don't want to fail on strict mode for sub-chunks
-          },
-          ctx
+        limit(() =>
+          extract(
+            chunk,
+            originalSchema,
+            {
+              ...options,
+              strict: false, // We don't want to fail on strict mode for sub-chunks
+            },
+            ctx
+          )
         )
       )
     ).then((results) =>
@@ -162,8 +235,11 @@ Merge it back into a final result.`.trim(),
     instructions.push('You may have multiple elements, or zero elements in the input.')
     instructions.push('You must extract each element separately.')
     instructions.push(`Each element must be a JSON object with exactly the format: ${START}${shape}${END}`)
+    instructions.push(`If there are no elements to extract, respond with ${ZERO_ELEMENTS}.`)
     instructions.push(`When you are done extracting all elements, type "${NO_MORE}" to finish.`)
-    instructions.push(`For example, if you have zero elements, the output should look like this: ${NO_MORE}`)
+    instructions.push(
+      `For example, if you have zero elements, the output should look like this: ${ZERO_ELEMENTS}${NO_MORE}`
+    )
     instructions.push(
       `For example, if you have two elements, the output should look like this: ${START}${abbv}${END}${START}${abbv}${END}${NO_MORE}`
     )
@@ -320,7 +396,12 @@ ${instructions.map((x) => `• ${x}`).join('\n')}
         .filter((x) => x.trim().length > 0 && x.includes('}'))
         .map((x) => {
           try {
-            const json = x.slice(0, x.indexOf(END)).trim()
+            let json = x.slice(0, x.indexOf(END)).trim()
+
+            if (json.includes(SPECIAL_CHAR)) {
+              json = json.slice(0, json.indexOf(SPECIAL_CHAR)).trim()
+            }
+
             const repairedJson = jsonrepair(json)
             const parsedJson = JSON5.parse(repairedJson)
             const safe = schema.safeParse(parsedJson)

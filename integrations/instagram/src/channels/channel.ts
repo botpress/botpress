@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/sdk'
 import { getCredentials, InstagramClient } from 'src/misc/client'
+import { InstagramRecipientId } from 'src/misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from 'src/misc/utils'
 import * as bp from '.botpress'
 
@@ -81,22 +82,48 @@ type MessageHandler = Messages[keyof Messages]
 type SendMessageProps = Parameters<MessageHandler>[0]
 async function _sendMessage(
   { ack, ctx, client, conversation, logger, payload, type }: SendMessageProps,
-  sendTypeSpecificMessage: (client: InstagramClient, toInstagramId: string) => Promise<{ message_id: string }>
+  sendTypeSpecificMessage: (
+    client: InstagramClient,
+    toInstagramId: InstagramRecipientId
+  ) => Promise<{ message_id: string }>
 ) {
+  const commentId = payload.commentId
+  let recipientId: InstagramRecipientId
+
+  logger.forBot().debug(`Received payload: ${JSON.stringify(payload)}`)
+  logger.forBot().debug(`Comment ID: ${commentId}`)
+  if (commentId) {
+    recipientId = { comment_id: commentId }
+  } else {
+    recipientId = { id: getRecipientId(conversation) }
+  }
+
   const { accessToken, instagramId } = await getCredentials(client, ctx)
   const metaClient = new InstagramClient(logger, { accessToken, instagramId })
-  const recipientId = getRecipientId(conversation)
 
-  logger.forBot().debug(`Sending message of type ${type} from bot to Instagram user ${recipientId}:`, payload)
-  const { message_id } = await sendTypeSpecificMessage(metaClient, recipientId)
+  try {
+    logger.forBot().debug(`Sending message of type ${type} from bot to Instagram user ${recipientId}:`, payload)
+    const { message_id } = await sendTypeSpecificMessage(metaClient, recipientId)
+    await ack({
+      tags: {
+        id: message_id,
+        commentId,
+      },
+    })
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    logger.forBot().error('Error while sending message to Instagram', error)
+    return
+  }
 
-  await ack({
-    tags: {
-      id: message_id,
-      senderId: instagramId,
-      recipientId,
-    },
-  })
+  if (commentId && conversation.tags.lastCommentId !== commentId) {
+    await client.updateConversation({
+      id: conversation.id,
+      tags: {
+        lastCommentId: commentId,
+      },
+    })
+  }
 }
 
 function getRecipientId(conversation: SendMessageProps['conversation']): string {

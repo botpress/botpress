@@ -1,10 +1,12 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError, isApiError } from '@botpress/client'
+import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
-import { getAccessToken, getAuthenticatedWhatsappClient } from 'src/auth'
-import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
-import { getMessageFromWhatsappMessageId } from 'src/misc/util'
+import { INTEGRATION_NAME } from 'integration.definition'
+import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
+import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
+import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
 import * as bp from '.botpress'
 
@@ -41,6 +43,18 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
+    const distinctId = isApiError(thrown) ? thrown.id : undefined
+    await posthogHelper.sendPosthogEvent(
+      {
+        distinctId: distinctId ?? 'no id',
+        event: 'invalid_phone_number',
+        properties: {
+          from: 'handler',
+          phoneNumber: message.from,
+        },
+      },
+      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+    )
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
@@ -74,12 +88,13 @@ async function _handleIncomingMessage(
     replyTo,
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-    return client.createMessage({
+    return client.getOrCreateMessage({
       tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
       conversationId: conversation.id,
+      discriminateByTags: ['id'],
     })
   }
 

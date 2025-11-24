@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "4.20.1",
+  "version": "4.26.0",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
@@ -25,11 +25,12 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/chat": "0.5.2",
-    "@botpress/client": "1.26.0",
-    "@botpress/sdk": "4.17.1",
+    "@botpress/chat": "0.5.4",
+    "@botpress/client": "1.27.1",
+    "@botpress/sdk": "4.20.0",
     "@bpinternal/const": "^0.1.0",
     "@bpinternal/tunnel": "^0.1.1",
+    "@bpinternal/verel": "^0.2.0",
     "@bpinternal/yargs-extra": "^0.0.3",
     "@parcel/watcher": "^2.1.0",
     "@stoplight/spectral-core": "^1.19.1",

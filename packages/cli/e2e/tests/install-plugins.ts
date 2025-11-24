@@ -30,6 +30,7 @@ export const installAllPlugins: Test = {
           packageType: 'plugin',
           installPath: baseDir,
           useDev: false,
+          alias: undefined,
         })
         .then(utils.handleExitCode)
     }

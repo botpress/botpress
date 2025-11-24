@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import { transformMarkdown } from '@botpress/common'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
@@ -19,7 +20,7 @@ const integration = new bp.Integration({
             ...props,
             payload: {
               type: 'text',
-              text: props.payload.text,
+              text: tryTransformMarkdown(props.payload.text, props.logger.forBot()),
             },
           })
         },
@@ -30,15 +31,6 @@ const integration = new bp.Integration({
               type: 'picture',
               text: '',
               media: props.payload.imageUrl,
-            },
-          })
-        },
-        markdown: async (props) => {
-          await sendViberMessage({
-            ...props,
-            payload: {
-              type: 'text',
-              text: props.payload.markdown,
             },
           })
         },
@@ -250,41 +242,6 @@ const integration = new bp.Integration({
 
     return
   },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const userDetails = await getUserDetails({ ctx, id: userId })
-
-    const { user } = await client.getOrCreateUser({ tags: { id: `${userDetails.id}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const userDetails = await getUserDetails({ ctx, id: userId })
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { id: `${userDetails.id}` },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
@@ -346,27 +303,6 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
     },
   })
   return data
-}
-
-async function getUserDetails({ ctx, id }: { ctx: bp.Context; id: string }) {
-  const { data } = await axios.post(
-    'https://chatapi.viber.com/pa/get_user_details',
-    { id },
-    {
-      headers: {
-        'X-Viber-Auth-Token': ctx.configuration.authToken,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-  if (!data) {
-    throw Error('Error checking user details message')
-  }
-
-  if (!data.message_token) {
-    throw Error(data.status_message)
-  }
-  return data.user
 }
 
 type Card = bp.channels.channel.card.Card
@@ -475,4 +411,13 @@ function renderChoice(payload: Choice) {
     })
   })
   return choice
+}
+
+const tryTransformMarkdown = (text: string, logger: bp.Logger) => {
+  try {
+    return transformMarkdown(text)
+  } catch {
+    logger.error('Failed to transform the markdown. The message will be sent as text without transforming markdown.')
+    return text
+  }
 }

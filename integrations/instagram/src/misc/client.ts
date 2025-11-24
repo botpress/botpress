@@ -1,9 +1,9 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
+import { InstagramRecipientId } from './types'
 import * as bp from '.botpress'
 
 type InstagramClientConfig = { accessToken?: string; instagramId?: string }
-
 export class InstagramClient {
   private _clientId: string
   private _clientSecret: string
@@ -128,15 +128,13 @@ export class InstagramClient {
     return this._authConfig.instagramId
   }
 
-  public async sendMessage(toInstagramId: string, message: any) {
+  public async sendMessage(toInstagramId: InstagramRecipientId, message: any) {
     const url = `${this._baseGraphApiUrl}/${this._version}/${this._getInstagramId()}/messages`
 
     const response = await axios.post<{ recipient_id: string; message_id: string }>(
       url,
       {
-        recipient: {
-          id: toInstagramId,
-        },
+        recipient: toInstagramId,
         message,
       },
       {
@@ -149,13 +147,13 @@ export class InstagramClient {
     return response.data
   }
 
-  public async sendTextMessage(toInstagramId: string, text: string) {
+  public async sendTextMessage(toInstagramId: InstagramRecipientId, text: string) {
     return this.sendMessage(toInstagramId, {
       text,
     })
   }
 
-  public async sendImageMessage(toInstagramId: string, imageUrl: string) {
+  public async sendImageMessage(toInstagramId: InstagramRecipientId, imageUrl: string) {
     return this.sendMessage(toInstagramId, {
       attachment: {
         type: 'image',
@@ -166,7 +164,7 @@ export class InstagramClient {
     })
   }
 
-  public async sendAudioMessage(toInstagramId: string, audioUrl: string) {
+  public async sendAudioMessage(toInstagramId: InstagramRecipientId, audioUrl: string) {
     return this.sendMessage(toInstagramId, {
       attachment: {
         type: 'audio',
@@ -177,7 +175,7 @@ export class InstagramClient {
     })
   }
 
-  public async sendVideoMessage(toInstagramId: string, videoUrl: string) {
+  public async sendVideoMessage(toInstagramId: InstagramRecipientId, videoUrl: string) {
     return this.sendMessage(toInstagramId, {
       attachment: {
         type: 'video',
@@ -188,7 +186,7 @@ export class InstagramClient {
     })
   }
 
-  public async sendFileMessage(toInstagramId: string, fileUrl: string) {
+  public async sendFileMessage(toInstagramId: InstagramRecipientId, fileUrl: string) {
     return this.sendMessage(toInstagramId, {
       attachment: {
         type: 'file',

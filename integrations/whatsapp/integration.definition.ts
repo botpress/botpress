@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 import {
@@ -7,9 +7,7 @@ import {
   WhatsAppMessageTemplateQualityUpdateValueSchema,
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
-} from 'definitions/events'
-
-export const INTEGRATION_NAME = 'whatsapp'
+} from './definitions/events'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
@@ -75,7 +73,7 @@ const startConversationProps = {
             .optional()
             .title('Message Template variables')
             .describe(
-              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template)'
+              'JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.'
             ),
           botPhoneNumberId: z
             .string()
@@ -94,9 +92,10 @@ const defaultBotPhoneNumberId = {
   description: 'Default Phone ID used by the bot for starting conversations',
 }
 
+export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.6',
+  version: '4.5.16',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -132,6 +131,12 @@ export default new IntegrationDefinition({
             .min(1)
             .title(defaultBotPhoneNumberId.title)
             .describe(defaultBotPhoneNumberId.description),
+          whatsappBusinessAccountId: z
+            .string()
+            .secret()
+            .optional() // TODO remove optional next major version
+            .title('WABA ID')
+            .describe('Your Whatsapp business Account ID (will be required on the next major update)'),
         })
         .merge(commonConfigSchema),
     },
@@ -369,7 +374,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app',
     },
@@ -399,10 +404,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PHONE_NUMBER_ID: {
       description: 'Phone number ID of the Sandbox WhatsApp Business profile',
-    },
-    SEGMENT_KEY: {
-      description: 'Tracking key for general product analytics',
-      optional: true,
     },
   },
   entities: {

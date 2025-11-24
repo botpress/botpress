@@ -20,8 +20,8 @@
 import { Client } from '@botpress/client'
 import { z } from '@bpinternal/zui'
 import { execute, Exit } from 'llmz'
-import { makeFileSystem } from '../utils/tools/file-system'
 import { printTrace } from '../utils/debug'
+import { makeFileSystem } from '../utils/tools/file-system'
 
 // Initialize Botpress client for LLM communication
 const client = new Client({

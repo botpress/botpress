@@ -178,10 +178,33 @@ export class Cognitive {
       return this._generateContent(input)
     }
 
-    const betaClient = new CognitiveBeta(this._client.config as any)
-    const response = await betaClient.generateText(input as any)
+    if (input.systemPrompt) {
+      input.messages.unshift({ role: 'system', content: input.systemPrompt } as any)
+      delete input.systemPrompt
+    }
 
-    return {
+    const betaClient = new CognitiveBeta(this._client.config)
+    const props: Request = { input }
+
+    // Forward beta client events to main client events
+    betaClient.on('request', () => {
+      this._events.emit('request', props)
+    })
+
+    betaClient.on('error', (_req, error) => {
+      this._events.emit('error', props, error)
+    })
+
+    betaClient.on('retry', (_req, error) => {
+      this._events.emit('retry', props, error)
+    })
+
+    const response = await betaClient.generateText(input as any, {
+      signal: input.signal,
+      timeout: this._timeoutMs,
+    })
+
+    const result: Response = {
       output: {
         id: 'beta-output',
         provider: response.metadata.provider,
@@ -192,7 +215,7 @@ export class Cognitive {
             content: response.output,
             role: 'assistant',
             index: 0,
-            stopReason: response.metadata.stopReason! as any,
+            stopReason: response.metadata.stopReason as any,
           },
         ],
         usage: {
@@ -219,6 +242,11 @@ export class Cognitive {
         },
       },
     }
+
+    // Emit final response event with actual data
+    this._events.emit('response', props, result)
+
+    return result
   }
 
   private async _generateContent(input: InputProps): Promise<Response> {

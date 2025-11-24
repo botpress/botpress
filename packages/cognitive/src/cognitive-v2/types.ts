@@ -3,10 +3,10 @@ export type Models =
   | 'best'
   | 'fast'
   | 'anthropic:claude-3-5-haiku-20241022'
-  | 'anthropic:claude-3-5-sonnet-20240620'
-  | 'anthropic:claude-3-5-sonnet-20241022'
   | 'anthropic:claude-3-7-sonnet-20250219'
   | 'anthropic:claude-3-haiku-20240307'
+  | 'anthropic:claude-haiku-4-5-20251001'
+  | 'anthropic:claude-haiku-4-5-reasoning-20251001'
   | 'anthropic:claude-sonnet-4-20250514'
   | 'anthropic:claude-sonnet-4-5-20250929'
   | 'cerebras:gpt-oss-120b'
@@ -22,13 +22,9 @@ export type Models =
   | 'fireworks-ai:llama-v3p3-70b-instruct'
   | 'fireworks-ai:llama4-maverick-instruct-basic'
   | 'fireworks-ai:llama4-scout-instruct-basic'
-  | 'fireworks-ai:mixtral-8x7b-instruct'
-  | 'fireworks-ai:mythomax-l2-13b'
   | 'google-ai:gemini-2.0-flash'
   | 'google-ai:gemini-2.5-flash'
   | 'google-ai:gemini-2.5-pro'
-  | 'groq:deepseek-r1-distill-llama-70b'
-  | 'groq:gemma2-9b-it'
   | 'groq:gpt-oss-120b'
   | 'groq:gpt-oss-20b'
   | 'groq:llama-3.1-8b-instant'
@@ -41,6 +37,7 @@ export type Models =
   | 'openai:gpt-5-2025-08-07'
   | 'openai:gpt-5-mini-2025-08-07'
   | 'openai:gpt-5-nano-2025-08-07'
+  | 'openai:gpt-5.1-2025-11-13'
   | 'openai:o1-2024-12-17'
   | 'openai:o1-mini-2024-09-12'
   | 'openai:o3-2025-04-16'
@@ -68,6 +65,8 @@ export type Models =
   | 'anthropic:claude-sonnet-4-5'
   | 'anthropic:claude-sonnet-4'
   | 'anthropic:claude-sonnet-4-reasoning'
+  | 'anthropic:claude-haiku-4-5'
+  | 'anthropic:claude-haiku-4-5-reasoning'
   | 'google-ai:models/gemini-2.0-flash'
   | 'groq:openai/gpt-oss-20b'
   | 'groq:openai/gpt-oss-120b'
@@ -110,13 +109,33 @@ export type CognitiveRequest = {
    * Model to query. Additional models are used as fallback if the main model is unavailable
    */
   model?: Models | Models[]
-  systemPrompt?: string
   temperature?: number
+  /**
+   * DEPRECATED: Use a message with role "system"
+   */
+  systemPrompt?: string
   maxTokens?: number
   stopSequences?: string | string[]
   stream?: boolean
+  /**
+   * json_object is deprecated, use json
+   */
   responseFormat?: 'text' | 'json' | 'json_object'
   reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
+  options?: {
+    /**
+     * Debug mode include additional metadata in the response
+     */
+    debug?: boolean
+    /**
+     * Bypass the cache and force a new request
+     */
+    skipCache?: boolean
+    /**
+     * Maximum time to wait for the first token before falling back to the next provider
+     */
+    maxTimeToFirstToken?: number
+  }
   meta?: {
     /**
      * Source of the prompt, e.g. agent/:id/:version cards/ai-generate, cards/ai-task, nodes/autonomous, etc.
@@ -129,6 +148,7 @@ export type CognitiveRequest = {
     integrationName?: string
   }
 }
+
 export type CognitiveStreamChunk = {
   output?: string
   created: number
@@ -138,16 +158,24 @@ export type CognitiveStreamChunk = {
     model?: string
     usage: {
       inputTokens: number
+      inputCost: number
       outputTokens: number
-      reasoningTokens?: number
+      outputCost: number
     }
-    cost?: number
+    cost: number
     cached?: boolean
+    /**
+     * Time it took for the provider to respond to the LLM query
+     */
     latency?: number
-    stopReason?: string
+    /**
+     * Time it took for the first token to be received from the provider
+     */
+    ttft?: number
+    stopReason?: 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
     reasoningEffort?: string
     warnings?: {
-      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'fallback_used'
+      type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'discontinued_model' | 'fallback_used'
       message: string
     }[]
     /**
@@ -155,8 +183,8 @@ export type CognitiveStreamChunk = {
      */
     fallbackPath?: string[]
     debug?: {
-      [k: string]: string
-    }
+      type: 'models_to_try' | 'provider_request' | 'provider_response'
+    }[]
   }
 }
 
@@ -172,13 +200,17 @@ export type CognitiveResponse = {
       outputTokens: number
       outputCost: number
     }
-    cost?: number
+    cost: number
     cached?: boolean
     /**
      * Time it took for the provider to respond to the LLM query
      */
     latency?: number
-    stopReason?: 'stop' | 'length' | 'content_filter' | 'error'
+    /**
+     * Time it took for the first token to be received from the provider
+     */
+    ttft?: number
+    stopReason?: 'stop' | 'max_tokens' | 'content_filter' | 'tool_calls' | 'other'
     reasoningEffort?: string
     warnings?: {
       type: 'parameter_ignored' | 'provider_limitation' | 'deprecated_model' | 'discontinued_model' | 'fallback_used'
@@ -189,8 +221,9 @@ export type CognitiveResponse = {
      */
     fallbackPath?: string[]
     debug?: {
-      [k: string]: string
-    }
+      type: 'models_to_try' | 'provider_request' | 'provider_response'
+      data?: any | null
+    }[]
   }
   error?: string
 }
@@ -234,5 +267,5 @@ export type Model = {
   /**
    * The lifecycle state of the model. Deprecated models are still available, but a warning will be shown to the user. Discontinued models will be directed to a replacement model.
    */
-  lifecycle: 'live' | 'beta' | 'deprecated' | 'discontinued'
+  lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
 }

@@ -6,7 +6,9 @@ import * as Babel from '@babel/standalone'
 
 import { AsyncIterator } from './plugins/async-iterator.js'
 import { JSXMarkdown } from './plugins/braces-tsx.js'
+import { htmlToMarkdownPlugin } from './plugins/html-to-markdown.js'
 import { JSXNewLines } from './plugins/jsx-preserve-newlines.js'
+import { jsxUndefinedVarsPlugin } from './plugins/jsx-undefined-vars.js'
 
 import { LineTrackingFnIdentifier, lineTrackingBabelPlugin } from './plugins/line-tracking.js'
 import { CommentFnIdentifier, replaceCommentBabelPlugin } from './plugins/replace-comment.js'
@@ -48,16 +50,17 @@ export type CompiledCode = ReturnType<typeof compile>
 export function compile(code: string) {
   code = AsyncIterator.preProcessing(code)
   code = JSXMarkdown.preProcessing(code)
-
+  // console.log('Compiling code:\n', code)
   let output = Babel.transform(code, {
     parserOpts: {
       allowReturnOutsideFunction: true,
       allowAwaitOutsideFunction: true,
-      startLine: -1,
     },
     presets: ['typescript'],
     plugins: [
       JSXNewLines.babelPlugin,
+      htmlToMarkdownPlugin, // Convert simple HTML to markdown first
+      jsxUndefinedVarsPlugin, // Must run BEFORE JSX transform
       [
         jsxPlugin,
         {
@@ -78,11 +81,13 @@ export function compile(code: string) {
   const variables = new Set<string>()
   const toolCalls = new Map<number, ToolCallEntry>()
 
+  // Keep this version with markers intact (before plugins transform them)
+  const codeWithMarkers = output.code!
+
   output = Babel.transform(output.code!, {
     ...DEFAULT_TRANSFORM_OPTIONS,
     parserOpts: {
       ...DEFAULT_TRANSFORM_OPTIONS.parserOpts,
-      startLine: -1,
     },
     plugins: [
       lineTrackingBabelPlugin,
@@ -90,6 +95,7 @@ export function compile(code: string) {
       variableTrackingPlugin(variables),
       toolCallTrackingPlugin(toolCalls),
     ],
+    retainLines: true,
   })
 
   let outputCode = output.code!
@@ -98,6 +104,7 @@ export function compile(code: string) {
 
   return {
     code: outputCode,
+    codeWithMarkers, // Code from before second transform, still has literal markers
     map: output.map,
     variables,
     toolCalls,

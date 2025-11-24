@@ -18,12 +18,12 @@
  */
 
 import { Client } from '@botpress/client'
-import { execute, Tool } from 'llmz'
 import { z } from '@bpinternal/zui'
+import chalk from 'chalk'
+import { execute, Tool } from 'llmz'
 
 import { CLIChat } from '../utils/cli-chat'
 import { printTrace } from '../utils/debug'
-import chalk from 'chalk'
 
 // Initialize Botpress client
 const client = new Client({
@@ -133,7 +133,7 @@ login.getTypings()
 // Define dynamic instructions based on user state
 // Instructions change based on authentication status
 const InstructionsForUser: Record<Identity, string> = {
-  unknown: `The user is not authenticated. Please ask them to log in before proceeding. Use buttons to list users.`,
+  unknown: 'The user is not authenticated. Please ask them to log in before proceeding. Use buttons to list users.',
   admin: `User is logged in as "${userId}". At every turn, send a <Message> to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
   customer: `User is logged in as "${userId}". At every turn, send a <Message> to the user with the list of all the tools available for the user and ask them to choose one. Use buttons to list tools.`,
 }

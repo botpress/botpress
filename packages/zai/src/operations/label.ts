@@ -2,6 +2,7 @@
 import { z } from '@bpinternal/zui'
 
 import { chunk, clamp } from 'lodash-es'
+import pLimit from 'p-limit'
 import { ZaiContext } from '../context'
 import { Response } from '../response'
 import { getTokenizer } from '../tokenizer'
@@ -81,7 +82,125 @@ const _Labels = z.record(z.string().min(1).max(250), z.string()).superRefine((la
 
 declare module '@botpress/zai' {
   interface Zai {
-    /** Tags the provided input with a list of predefined labels */
+    /**
+     * Tags input with multiple labels, each with explanation, value, and confidence level.
+     *
+     * This operation evaluates input against multiple categories simultaneously, providing
+     * nuanced confidence levels (ABSOLUTELY_YES, PROBABLY_YES, AMBIGUOUS, PROBABLY_NOT, ABSOLUTELY_NOT).
+     * Perfect for content classification, intent detection, and multi-criteria evaluation.
+     *
+     * @param input - The data to label (text, object, or any value)
+     * @param labels - Object mapping label keys to their descriptions
+     * @param options - Configuration for examples, instructions, and chunking
+     * @returns Response with detailed results per label (explanation, value, confidence), simplified to booleans
+     *
+     * @example Content moderation
+     * ```typescript
+     * const comment = "This is a great article! Click here for cheap products!"
+     *
+     * const result = await zai.label(comment, {
+     *   spam: 'Is this spam or promotional content?',
+     *   helpful: 'Is this comment helpful and constructive?',
+     *   profanity: 'Does this contain profanity or offensive language?'
+     * }).result()
+     *
+     * // result.output:
+     * // {
+     * //   spam: { value: true, confidence: 0.5, explanation: 'Contains promotional link...' },
+     * //   helpful: { value: true, confidence: 1, explanation: 'Positive feedback...' },
+     * //   profanity: { value: false, confidence: 1, explanation: 'No offensive language' }
+     * // }
+     *
+     * // Simplified (when awaited directly):
+     * const simple = await zai.label(comment, { spam: 'Is this spam?' })
+     * // simple: { spam: true }
+     * ```
+     *
+     * @example Intent classification
+     * ```typescript
+     * const message = "I can't log in to my account"
+     *
+     * const intents = await zai.label(message, {
+     *   technical_issue: 'Is this a technical problem?',
+     *   urgent: 'Does this require immediate attention?',
+     *   needs_human: 'Should this be escalated to a human agent?',
+     *   billing_related: 'Is this about billing or payments?'
+     * })
+     * // Returns boolean for each intent
+     * ```
+     *
+     * @example Sentiment analysis with nuance
+     * ```typescript
+     * const review = "The product is okay, but shipping was slow"
+     *
+     * const { output } = await zai.label(review, {
+     *   positive: 'Is the overall sentiment positive?',
+     *   negative: 'Is the overall sentiment negative?',
+     *   mixed: 'Does this express mixed feelings?'
+     * }).result()
+     *
+     * // Check confidence levels
+     * if (output.mixed.confidence > 0.5) {
+     *   console.log('Mixed sentiment detected:', output.mixed.explanation)
+     * }
+     * ```
+     *
+     * @example Product categorization
+     * ```typescript
+     * const product = {
+     *   name: 'Wireless Headphones',
+     *   description: 'Noise-canceling Bluetooth headphones for music lovers',
+     *   price: 199
+     * }
+     *
+     * const categories = await zai.label(product, {
+     *   electronics: 'Is this an electronic device?',
+     *   audio: 'Is this audio equipment?',
+     *   premium: 'Is this a premium/luxury product?',
+     *   portable: 'Is this portable/mobile?'
+     * })
+     * // Returns: { electronics: true, audio: true, premium: true, portable: true }
+     * ```
+     *
+     * @example With examples for consistency
+     * ```typescript
+     * const result = await zai.label(email, {
+     *   urgent: 'Requires immediate response',
+     *   complaint: 'Customer is dissatisfied'
+     * }, {
+     *   examples: [
+     *     {
+     *       input: 'ASAP! System is down!',
+     *       labels: {
+     *         urgent: { label: 'ABSOLUTELY_YES', explanation: 'Critical issue' },
+     *         complaint: { label: 'PROBABLY_YES', explanation: 'Implicit complaint' }
+     *       }
+     *     }
+     *   ],
+     *   instructions: 'Consider tone, urgency keywords, and context'
+     * })
+     * ```
+     *
+     * @example Understanding confidence levels
+     * ```typescript
+     * const { output } = await zai.label(text, labels).result()
+     *
+     * // Confidence values:
+     * // ABSOLUTELY_YES: confidence = 1.0, value = true
+     * // PROBABLY_YES: confidence = 0.5, value = true
+     * // AMBIGUOUS: confidence = 0, value = false
+     * // PROBABLY_NOT: confidence = 0.5, value = false
+     * // ABSOLUTELY_NOT: confidence = 1.0, value = false
+     *
+     * Object.entries(output).forEach(([key, result]) => {
+     *   if (result.value && result.confidence === 1) {
+     *     console.log(`Definitely ${key}:`, result.explanation)
+     *   } else if (result.value && result.confidence === 0.5) {
+     *     console.log(`Probably ${key}:`, result.explanation)
+     *   }
+     * })
+     * ```
+     */
     label<T extends string>(
       input: unknown,
       labels: Labels<T>,
@@ -162,9 +281,10 @@ const label = async <T extends string>(
   const inputAsString = stringify(input)
 
   if (tokenizer.count(inputAsString) > CHUNK_INPUT_MAX_TOKENS) {
+    const limit = pLimit(10) // Limit to 10 concurrent labeling operations
     const tokens = tokenizer.split(inputAsString)
     const chunks = chunk(tokens, CHUNK_INPUT_MAX_TOKENS).map((x) => x.join(''))
-    const allLabels = await Promise.all(chunks.map((chunk) => label(chunk, _labels, _options, ctx)))
+    const allLabels = await Promise.all(chunks.map((chunk) => limit(() => label(chunk, _labels, _options, ctx))))
 
     // Merge all the labels together (those who are true will remain true)
     return allLabels.reduce((acc, x) => {

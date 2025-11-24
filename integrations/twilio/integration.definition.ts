@@ -1,18 +1,20 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
 
+export const INTEGRATION_NAME = 'twilio'
 export default new IntegrationDefinition({
-  name: 'twilio',
-  version: '0.5.0',
+  name: INTEGRATION_NAME,
+  version: '1.0.2',
   title: 'Twilio',
   description: 'Send and receive messages, voice calls, emails, SMS, and more.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      accountSID: z.string().min(1),
-      authToken: z.string().min(1),
+      accountSID: z.string().min(1).describe('The account SID').title('Account SID'),
+      authToken: z.string().min(1).describe('The token for authentication').title('Authorization token'),
       downloadMedia: z
         .boolean()
         .default(true)
@@ -32,31 +34,78 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      title: 'Conversation Channel',
+      description: 'A channel for sending and receiving messages through Twilio Conversations',
+      messages: messages.defaults,
       message: {
         tags: {
-          id: {},
+          id: {
+            title: 'Message ID',
+            description: 'The Twilio message ID',
+          },
         },
       },
       conversation: {
         tags: {
-          userPhone: {},
-          activePhone: {},
+          userPhone: {
+            title: 'User Phone',
+            description: 'The phone number of the user',
+          },
+          activePhone: {
+            title: 'Active Phone',
+            description: 'The phone number of the active user',
+          },
         },
-        creation: { enabled: true, requiredTags: ['userPhone', 'activePhone'] },
       },
     },
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    POSTHOG_KEY: {
+      description: 'Posthog key for error dashboards',
+    },
+  },
   user: {
     tags: {
-      userPhone: {},
+      userPhone: {
+        title: 'User Phone',
+        description: 'The phone number of the user',
+      },
     },
-    creation: { enabled: true, requiredTags: ['userPhone'] },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  entities: {
+    user: {
+      schema: z.object({ userPhone: z.string().describe('The phone number of the user').title('User Phone Number') }),
+    },
+    conversation: {
+      schema: z.object({
+        userPhone: z.string().describe('The phone number of the user').title('User Phone Number'),
+        activePhone: z.string().describe('The Phone number the message was sent from').title('Active Phone Number'),
+      }),
+    },
   },
 })
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.conversation,
+    },
+    actions: {
+      getOrCreateConversation: {
+        name: 'startConversation',
+        title: 'Start proactive conversation',
+        description: 'Start a proactive conversation given a user',
+      },
+    },
+  }))
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: { user: entities.user },
+    actions: {
+      getOrCreateUser: {
+        name: 'getOrCreateUser',
+        title: 'Get or create user',
+        description: 'Get or create a user in the Twilio channel',
+      },
+    },
+  }))

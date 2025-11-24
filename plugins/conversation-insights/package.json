@@ -6,15 +6,12 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/cognitive": "workspace:*",
+    "@botpress/cognitive": "0.3.0",
     "@botpress/sdk": "workspace:*",
     "browser-or-node": "^2.1.1",
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
     "@botpresshub/llm": "workspace:*"
-  },
-  "bpDependencies": {
-    "llm": "../../interfaces/llm"
   }
 }

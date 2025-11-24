@@ -7,17 +7,14 @@ import { apiVersion } from './version'
 
 export { messagePayloadSchema } from './models/message'
 
-const _api = chatApi()
-const _operations = createOperations(_api)
+export const api = chatApi()
+const _operations = createOperations(api)
 
 for (const op of _.values(_operations)) {
-  _api.addOperation(op)
+  api.addOperation(op)
 }
 
-export const api = {
-  ..._api,
-  version: apiVersion,
-  signals: {
-    exportSchemas: exportZodSchemas(signalSchemas),
-  },
+export const version = apiVersion
+export const signals = {
+  exportSchemas: exportZodSchemas(signalSchemas),
 }

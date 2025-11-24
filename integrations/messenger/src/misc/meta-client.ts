@@ -1,48 +1,141 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
+import { getMetaClientCredentials } from './auth'
+import { MetaClientCredentials, MetaClientConfigType } from './types'
+import { makeMetaErrorHandler } from './utils'
 import * as bp from '.botpress'
 
 const ERROR_SUBSCRIBE_TO_WEBHOOKS = 'Failed to subscribe to webhooks'
 const ERROR_UNSUBSCRIBE_FROM_WEBHOOKS = 'Failed to unsubscribe from webhooks'
-
+const FIELDS_TO_SUBSCRIBE = ['messages', 'messaging_postbacks', 'feed']
 export class MetaClient {
+  private _userToken?: string
+  private _pageToken?: string
+  private _pageId?: string
   private _clientId: string
-  private _clientSecret: string
-  private _version: string = 'v19.0'
-  private _baseGraphApiUrl = 'https://graph.facebook.com'
+  private _baseUrl = 'https://graph.facebook.com/v23.0'
+  private _clientSecret?: string
+  private _appToken?: string
+  private _logger?: bp.Logger
 
-  public constructor(private _logger: bp.Logger) {
-    this._clientId = bp.secrets.CLIENT_ID
-    this._clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor(config: MetaClientCredentials, logger?: bp.Logger) {
+    this._userToken = config.userToken
+    this._pageToken = config.pageToken
+    this._pageId = config.pageId
+    this._clientId = config.clientId
+    this._clientSecret = config.clientSecret
+    this._appToken = config.appToken
+    this._logger = logger
   }
 
+  // Helper method for making Facebook API requests
+  private async _makeRequest<T = any>({
+    method,
+    endpoint,
+    customHeaders,
+    data,
+    tokenType,
+  }: {
+    method: 'GET' | 'POST' | 'DELETE'
+    endpoint: string
+    customHeaders?: Record<string, string>
+    data?: any
+    tokenType?: 'user' | 'page' | 'none'
+  }): Promise<T> {
+    const url = endpoint.startsWith('http') ? endpoint : `${this._baseUrl}/${endpoint}`
+    let authHeader
+    if (tokenType === 'page') {
+      authHeader = this._getPageTokenAuthorizationHeader()
+    } else if (tokenType === 'none') {
+      authHeader = {}
+    } else {
+      authHeader = this._getUserTokenAuthorizationHeader()
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...authHeader,
+      ...(customHeaders ?? {}),
+    }
+
+    const response = await axios({
+      method,
+      url,
+      data,
+      headers,
+    }).catch(makeMetaErrorHandler(url))
+
+    return response.data
+  }
+
+  // OAuth Methods
   public async exchangeAuthorizationCodeForAccessToken(code: string, redirectUri: string) {
     const query = new URLSearchParams({
       client_id: this._clientId,
-      client_secret: this._clientSecret,
+      client_secret: this._getClientSecret(),
       redirect_uri: redirectUri,
       code,
     })
 
-    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/oauth/access_token?${query.toString()}`)
-    const data = z
+    const data = await this._makeRequest({
+      method: 'GET',
+      endpoint: `oauth/access_token?${query.toString()}`,
+      tokenType: 'none',
+    }).catch(() => {
+      // Don't log original error, client secret is in the URL
+      const errorMsg = 'Error exchanging authorization code for access token'
+      this._logger?.forBot().error(errorMsg)
+      throw new RuntimeError(errorMsg)
+    })
+    const parsedData = z
       .object({
         access_token: z.string(),
       })
-      .parse(res.data)
+      .parse(data)
 
-    return data.access_token
+    return parsedData.access_token
+  }
+
+  public setPageToken(pageToken: string) {
+    this._pageToken = pageToken
+  }
+
+  public async getPageToken(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
+    const query = new URLSearchParams({
+      fields: 'access_token',
+      access_token: this._getUserToken(),
+    })
+
+    const data = await this._makeRequest({
+      method: 'GET',
+      endpoint: `${pageId}?${query.toString()}`,
+      tokenType: 'none',
+    })
+    const parsedData = z
+      .object({
+        access_token: z.string(),
+      })
+      .parse(data)
+
+    if (!parsedData.access_token) {
+      throw new RuntimeError('Unable to find the page token for the specified page')
+    }
+
+    return parsedData.access_token
   }
 
   public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
     const query = new URLSearchParams({
       input_token: inputToken,
-      access_token: bp.secrets.ACCESS_TOKEN,
+      access_token: this._getAppToken(),
     })
 
-    const { data: dataDebugToken } = await axios.get(
-      `${this._baseGraphApiUrl}/${this._version}/debug_token?${query.toString()}`
-    )
+    const dataDebugToken = await this._makeRequest({
+      method: 'GET',
+      endpoint: `debug_token?${query.toString()}`,
+      tokenType: 'none',
+    })
 
     const scope = dataDebugToken.data.granular_scopes.find(
       (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
@@ -51,109 +144,35 @@ export class MetaClient {
     if (scope.target_ids) {
       const ids = scope.target_ids
 
-      const { data: dataBusinesses } = await axios.get(
-        `${this._baseGraphApiUrl}/${this._version}/?ids=${ids.join()}&fields=id,name`,
-        {
-          headers: {
-            Authorization: `Bearer ${inputToken}`,
-          },
-        }
-      )
+      const dataBusinesses = await this._makeRequest({
+        method: 'GET',
+        endpoint: `?ids=${ids.join()}&fields=id,name`,
+        tokenType: 'none',
+        customHeaders: {
+          Authorization: `Bearer ${inputToken}`,
+        },
+      })
 
       return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
     } else {
-      return this.getUserManagedPages(inputToken)
+      return this.getUserManagedPagesFromToken(inputToken)
     }
   }
 
-  public async getPageToken(accessToken: string, pageId: string) {
-    const query = new URLSearchParams({
-      access_token: accessToken,
-      fields: 'access_token,name',
-    })
-
-    const res = await axios.get(`${this._baseGraphApiUrl}/${pageId}?${query.toString()}`)
-    const data = z
-      .object({
-        access_token: z.string(),
-        name: z.string(),
-        id: z.string(),
-      })
-      .parse(res.data)
-
-    if (!data.access_token) {
-      throw new RuntimeError('Unable to find the page token for the specified page')
-    }
-
-    return data.access_token
-  }
-
-  public async subscribeToWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios
-      .post(
-        `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
-        {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
-        },
-        {
-          headers: {
-            Authorization: 'Bearer ' + pageToken,
-          },
-        }
-      )
-      .catch((err) => {
-        this._logger.error(`Error subscribing to webhooks for Page ${pageId}: ${err}`)
-        throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
-      })
-
-    if (!responseData.success) {
-      throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
-    }
-  }
-
-  public async unsubscribeFromWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios
-      .delete(`${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`, {
-        headers: {
-          Authorization: 'Bearer ' + pageToken,
-        },
-      })
-      .catch((err) => {
-        this._logger.error(`Error unsubscribing from webhooks for Page ${pageId}: ${err}`)
-        throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
-      })
-
-    if (!responseData.success) {
-      throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
-    }
-  }
-
-  public async isSubscribedToWebhooks(pageToken: string, pageId: string) {
-    const { data: responseData } = await axios.get(
-      `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
-      {
-        headers: {
-          Authorization: 'Bearer ' + pageToken,
-        },
-      }
-    )
-    const { data: applications } = z.array(z.object({ id: z.string() })).safeParse(responseData.data)
-    return applications?.some((app) => app.id === this._clientId) ?? false
-  }
-
-  public async getUserManagedPages(userToken: string) {
+  public async getUserManagedPagesFromToken(userToken: string) {
     let allPages: { id: string; name: string }[] = []
 
     const query = new URLSearchParams({
       access_token: userToken,
       fields: 'id,name',
     })
-    let url = `${this._baseGraphApiUrl}/${this._version}/me/accounts?${query.toString()}`
+    let url = `${this._baseUrl}/me/accounts?${query.toString()}`
 
     while (url) {
-      const response = await axios.get(url).catch((err) => {
-        this._logger.error(`Error fetching pages: ${err}`)
-        throw new RuntimeError('Error fetching pages')
+      const response = await this._makeRequest({
+        method: 'GET',
+        endpoint: url,
+        tokenType: 'none',
       })
 
       // Add the pages to the allPages array
@@ -165,4 +184,143 @@ export class MetaClient {
 
     return allPages
   }
+
+  // Webhook Methods
+  public async subscribeToWebhooks(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
+    try {
+      const responseData = await this._makeRequest({
+        method: 'POST',
+        endpoint: `${pageId}/subscribed_apps`,
+        tokenType: 'page',
+        data: {
+          subscribed_fields: FIELDS_TO_SUBSCRIBE,
+        },
+      })
+
+      if (!responseData.success) {
+        throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
+      }
+    } catch (error) {
+      this._logger?.error(`Error subscribing to webhooks for Page ${pageId}: ${error}`)
+      throw new RuntimeError(ERROR_SUBSCRIBE_TO_WEBHOOKS)
+    }
+  }
+
+  public async unsubscribeFromWebhooks(inputPageId?: string) {
+    const pageId = this._getPageId(inputPageId)
+    try {
+      const responseData = await this._makeRequest({
+        method: 'DELETE',
+        endpoint: `${pageId}/subscribed_apps`,
+        tokenType: 'page',
+      })
+
+      if (!responseData || !responseData.success) {
+        throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+      }
+    } catch (error) {
+      this._logger?.error(`Error unsubscribing from webhooks for Page ${pageId}: ${error}`)
+      throw new RuntimeError(ERROR_UNSUBSCRIBE_FROM_WEBHOOKS)
+    }
+  }
+
+  public async getSubscribedWebhooks(inputPageId?: string): Promise<string[] | undefined> {
+    const pageId = this._getPageId(inputPageId)
+    const responseData = await this._makeRequest({
+      method: 'GET',
+      endpoint: `${pageId}/subscribed_apps`,
+      tokenType: 'page',
+    })
+
+    const { data: applications } = z
+      .array(z.object({ id: z.string(), subscribed_fields: z.array(z.string()) }))
+      .safeParse(responseData.data)
+
+    const application = applications?.find((app) => app.id === this._clientId)
+    if (!application) {
+      return undefined
+    }
+
+    return application.subscribed_fields
+  }
+
+  public async isSubscribedToWebhooks(inputPageId?: string) {
+    const subscribedFields = await this.getSubscribedWebhooks(inputPageId)
+
+    if (!subscribedFields) {
+      return false
+    }
+
+    if (!FIELDS_TO_SUBSCRIBE.every((f) => subscribedFields.includes(f))) {
+      return false
+    }
+
+    return true
+  }
+
+  // Helper Methods
+  private _getPageId(inputPageId?: string) {
+    const pageId = inputPageId ?? this._pageId
+    if (!pageId) {
+      throw new RuntimeError('Page ID is not set and no page ID was provided')
+    }
+    return pageId
+  }
+
+  private _getClientSecret() {
+    if (!this._clientSecret) {
+      throw new RuntimeError('Client secret is not set')
+    }
+    return this._clientSecret
+  }
+
+  private _getUserToken() {
+    if (!this._userToken) {
+      throw new RuntimeError('User token is not set')
+    }
+    return this._userToken
+  }
+
+  private _getPageToken() {
+    if (!this._pageToken) {
+      throw new RuntimeError('Page token is not set')
+    }
+    return this._pageToken
+  }
+
+  private _getPageTokenAuthorizationHeader() {
+    return {
+      Authorization: `Bearer ${this._getPageToken()}`,
+    }
+  }
+
+  private _getUserTokenAuthorizationHeader() {
+    return {
+      Authorization: `Bearer ${this._getUserToken()}`,
+    }
+  }
+
+  private _getAppToken() {
+    if (!this._appToken) {
+      throw new RuntimeError('App token is not set')
+    }
+    return this._appToken
+  }
+}
+
+// Factory Function
+export async function createAuthenticatedMetaClient({
+  configType,
+  ctx,
+  client,
+  logger,
+}: {
+  configType?: MetaClientConfigType
+  ctx: bp.Context
+  client: bp.Client
+  logger?: bp.Logger
+}): Promise<MetaClient> {
+  const credentials = await getMetaClientCredentials({ configType, client, ctx })
+  return new MetaClient(credentials, logger)
 }
