@@ -17,10 +17,23 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
+      title: 'Channel',
+      description: 'Telegram Channel',
       messages: telegramMessageChannels,
-      message: { tags: { id: {}, chatId: {} } },
+      message: {
+        tags: {
+          id: { title: 'ID', description: 'The message id' },
+          chatId: { title: 'Chat ID', description: 'The message Chat id' },
+        },
+      },
       conversation: {
-        tags: { id: {}, fromUserId: {}, fromUserUsername: {}, fromUserName: {}, chatId: {} },
+        tags: {
+          id: { title: 'ID', description: 'The conversation ID' },
+          fromUserId: { title: 'From User ID', description: 'The conversation From User id' },
+          fromUserUsername: { title: 'From User UserName', description: 'The converstation from user username' },
+          fromUserName: { title: 'From User Name', description: 'The conversation from user name' },
+          chatId: { title: 'Chat ID', description: 'The conversation Chat id' },
+        },
       },
     },
   },
