@@ -162,23 +162,17 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
   {
     input: '[Botpress Email](mailto:test@botpress.com)',
     expects: '<a href="mailto:test@botpress.com">Botpress Email</a>',
-    description:
-      // TBD if MS Teams supports "mailto" links
-      'Convert email markdown to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)', // TODO: Rewrite description
+    description: 'Convert email link markdown to mailto email link',
   },
   {
     input: '[Botpress Email](mailto:test@botpress.com "Tooltip Title")',
     expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
-    description:
-      // TBD if MS Teams supports "mailto" links
-      'Convert email markdown with title attribute to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)', // TODO: Rewrite description
+    description: 'Convert email link markdown with title attribute to mailto email link',
   },
   {
     input: '[Botpress Email][id]\n\n[id]: mailto:test@botpress.com  "Tooltip Title"',
     expects: '<a href="mailto:test@botpress.com" title="Tooltip Title">Botpress Email</a>',
-    description:
-      // TBD if MS Teams supports "mailto" links
-      'Convert email markdown using footnote style syntax to plain text email address (Telegram does not support "mailto" links, but will convert email addresses into links for us)', // TODO: Rewrite description
+    description: 'Convert email link markdown using footnote style syntax to mailto email link',
   },
   // ----- Images -----
   {
