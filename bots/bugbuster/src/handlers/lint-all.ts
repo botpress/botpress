@@ -14,7 +14,7 @@ export const lintAll = async (
   workflowId: string,
   conversationId?: string
 ): Promise<Result<void>> => {
-  const _handleError = (context: string) => handleError(context, logger, botpress, conversationId)
+  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
   const botpress = new BotpressApi(client, ctx.botId)
 
   const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))

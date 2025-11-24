@@ -37,7 +37,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const _handleError = (context: string) => handleError(context, logger, botpress, conversation.id)
+  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId: conversation.id })
 
   switch (command) {
     case '#health': {
