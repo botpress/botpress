@@ -62,10 +62,12 @@ export default new IntegrationDefinition({
       schema: z.object({
         privateKey: z
           .string()
+          .nullable()
           .title('Private Key')
           .describe('The private key provided by BambooHR to validate the webhook.'),
         id: z
           .string()
+          .nullable()
           .title('Webhook ID')
           .describe('The ID of the webhook as provided by BambooHR when the webhook was created.'),
       }),

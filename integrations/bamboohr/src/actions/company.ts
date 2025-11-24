@@ -8,6 +8,6 @@ export const getCompanyInfo: bp.IntegrationProps['actions']['getCompanyInfo'] = 
     return await bambooHrClient.getCompanyInfo()
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to get company info', error)
+    throw new RuntimeError(`Failed to get company info: ${error.message}`)
   }
 }

@@ -14,7 +14,7 @@ export const getEmployeeBasicInfo: bp.IntegrationProps['actions']['getEmployeeBa
     return await bambooHrClient.getEmployeeBasicInfo(input.id)
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to get employee basic info', error)
+    throw new RuntimeError(`Failed to get employee basic info: ${error.message}`)
   }
 }
 
@@ -30,7 +30,7 @@ export const getEmployeeCustomInfo: bp.IntegrationProps['actions']['getEmployeeC
     return await bambooHrClient.getEmployeeCustomInfo(input.id, input.fields)
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to get employee custom info', error)
+    throw new RuntimeError(`Failed to get employee custom info: ${error.message}`)
   }
 }
 
@@ -41,6 +41,6 @@ export const listEmployees: bp.IntegrationProps['actions']['listEmployees'] = as
     return await bambooHrClient.listEmployees()
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to list employees', error)
+    throw new RuntimeError(`Failed to list employees: ${error.message}`)
   }
 }

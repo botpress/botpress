@@ -21,6 +21,7 @@ export const handleEmployeeCreatedEvent = async (
     },
   })
 }
+
 export const handleEmployeeDeletedEvent = async (
   { client }: bp.HandlerProps,
   event: z.output<typeof bambooHrEmployeeDeletedEvent>
