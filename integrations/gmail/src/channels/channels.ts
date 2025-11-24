@@ -157,7 +157,6 @@ const _sendEmailReply = async ({
 }) => {
   const { threadId, email, subject, references, cc } = _getConversationInfo(conversation)
 
-  console.info('Creating mail')
   const raw = await composeRawEmail({
     to: email,
     subject,
@@ -168,10 +167,8 @@ const _sendEmailReply = async ({
     references: references ?? inReplyTo,
     cc,
   })
-  console.info('Sending mail', raw)
 
   const res = await googleClient.sendRawEmail(raw, threadId)
-  console.info('Response', res)
 
   await ack({ tags: { id: `${res.id}` } })
 }
@@ -181,7 +178,6 @@ const _getConversationInfo = (conversation: bp.AnyMessageProps['conversation']) 
   const { id: threadId, subject, email, references, cc } = tags
 
   if (!(threadId && subject && email)) {
-    console.info(`No valid information found for conversation ${id}`)
     throw new Error(`No valid information found for conversation ${id}`)
   }
 
