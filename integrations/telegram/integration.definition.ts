@@ -33,9 +33,6 @@ export default new IntegrationDefinition({
       id: {},
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(typingIndicator, () => ({
   entities: {},
 }))
