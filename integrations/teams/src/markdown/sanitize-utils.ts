@@ -1,6 +1,6 @@
 import SanitizeHTML from 'sanitize-html'
 
-const _sanitizeConfig = Object.assign({}, SanitizeHTML.defaults, {
+export const defaultSanitizeConfig = Object.assign({}, SanitizeHTML.defaults, {
   allowedTags: [
     'strong',
     'b',
@@ -27,6 +27,12 @@ const _sanitizeConfig = Object.assign({}, SanitizeHTML.defaults, {
     'br',
     'span',
     'p',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
   ],
   allowedAttributes: {
     a: ['href', 'title'],
@@ -34,12 +40,13 @@ const _sanitizeConfig = Object.assign({}, SanitizeHTML.defaults, {
     code: ['class'],
     p: ['class'],
     span: ['style'],
-    img: ['src', 'srcset', 'alt', 'title'],
+    img: ['src', 'srcset', 'alt', 'title', 'width', 'height'],
   },
-  allowedSchemes: ['http', 'https', 'ftp', 'mailto'],
+  allowedSchemes: ['http', 'https', 'mailto'],
 } satisfies SanitizeHTML.IOptions)
 
-export const sanitizeHtml = (html: string) => SanitizeHTML(html, _sanitizeConfig)
+export const sanitizeHtml = (html: string, options?: Partial<SanitizeHTML.IOptions>) =>
+  SanitizeHTML(html, options ? Object.assign({}, defaultSanitizeConfig, options) : defaultSanitizeConfig)
 
 /** Avoid false positives with .__proto__, .hasOwnProperty, etc.
  *
@@ -81,18 +88,18 @@ export function isNaughtyUrl(tagName: string, href: string) {
   if (!scheme) {
     // Protocol-relative URL starting with any combination of '/' and '\'
     if (href.match(/^[/\\]{2}/)) {
-      return !_sanitizeConfig.allowProtocolRelative
+      return !defaultSanitizeConfig.allowProtocolRelative
     }
 
     // No scheme
     return false
   }
 
-  if (has(_sanitizeConfig.allowedSchemesByTag, tagName)) {
-    return _sanitizeConfig.allowedSchemesByTag[tagName]?.indexOf(scheme) === -1
+  if (has(defaultSanitizeConfig.allowedSchemesByTag, tagName)) {
+    return defaultSanitizeConfig.allowedSchemesByTag[tagName]?.indexOf(scheme) === -1
   }
 
-  return !_sanitizeConfig.allowedSchemes || _sanitizeConfig.allowedSchemes.indexOf(scheme) === -1
+  return !defaultSanitizeConfig.allowedSchemes || defaultSanitizeConfig.allowedSchemes.indexOf(scheme) === -1
 }
 
 export const escapeAndSanitizeHtml = (html: string) => {
