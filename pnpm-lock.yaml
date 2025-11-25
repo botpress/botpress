@@ -1665,6 +1665,9 @@ importers:
       sanitize-html:
         specifier: ^2.17.0
         version: 2.17.0
+      turndown:
+        specifier: ^7.2.2
+        version: 7.2.2
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1684,6 +1687,9 @@ importers:
       '@types/sanitize-html':
         specifier: ^2.16.0
         version: 2.16.0
+      '@types/turndown':
+        specifier: ^5.0.6
+        version: 5.0.6
 
   integrations/telegram:
     dependencies:
@@ -4749,6 +4755,9 @@ packages:
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
 
+  '@mixmark-io/domino@2.2.0':
+    resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
+
   '@mswjs/interceptors@0.40.0':
     resolution: {integrity: sha512-EFd6cVbHsgLa6wa4RljGj6Wk75qoHxUSyc5asLyyPSyuhIcdS2Q3Phw6ImS1q+CkALthJRShiYfKANcQMuMqsQ==}
     engines: {node: '>=18'}
@@ -6004,6 +6013,9 @@ packages:
   '@types/triple-beam@1.3.2':
     resolution: {integrity: sha512-txGIh+0eDFzKGC25zORnswy+br1Ha7hj5cMVwKIU7+s0U2AxxJru/jZSMU6OC9MJWP6+pc/hc6ZjyZShpsyY2g==}
 
+  '@types/turndown@5.0.6':
+    resolution: {integrity: sha512-ru00MoyeeouE5BX4gRL+6m/BsDfbRayOskWqUvh7CLGW+UXxHQItqALa38kKnOiZPqJrtzJUgAC2+F0rL1S4Pg==}
+
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
@@ -7167,9 +7179,6 @@ packages:
   domhandler@5.0.3:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
-
-  domutils@3.1.0:
-    resolution: {integrity: sha512-H78uMmQtI2AhgDJjWeQmHwJJ2bLPD3GMmO7Zja/ZZh84wkm+4ut+IUnUdRa8uCGX88DiVx1j6FRe1XfxEgjEZA==}
 
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
@@ -10741,6 +10750,9 @@ packages:
     resolution: {integrity: sha512-DUHWQAcC8BTiUZDRzAYGvpSpGLiaOQPfYXlCieQbwUvmml/LRGIe3raKdrOPOoiX0DYlzxs2nH6BoWJoZrj8hA==}
     hasBin: true
 
+  turndown@7.2.2:
+    resolution: {integrity: sha512-1F7db8BiExOKxjSMU2b7if62D/XOyQyZbPKq/nUwopfgnHlqXHqQ0lvfUTeUIr1lZJzOPFn43dODyMSIfvWRKQ==}
+
   tweetnacl@0.14.5:
     resolution: {integrity: sha512-KXXFFdAbFXY4geFIwoyNK+f5Z1b7swfXABfL7HXCmoIWMKU3dmS26672A4EeQtDzLKy7SXmfBu51JolvEKwtGA==}
 
@@ -13579,6 +13591,8 @@ snapshots:
 
   '@microsoft/tsdoc@0.15.1': {}
 
+  '@mixmark-io/domino@2.2.0': {}
+
   '@mswjs/interceptors@0.40.0':
     dependencies:
       '@open-draft/deferred-promise': 2.2.0
@@ -15191,6 +15205,8 @@ snapshots:
 
   '@types/triple-beam@1.3.2': {}
 
+  '@types/turndown@5.0.6': {}
+
   '@types/unist@3.0.3': {}
 
   '@types/urijs@1.19.25': {}
@@ -15716,7 +15732,7 @@ snapshots:
 
   axios@1.13.1:
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.1)
+      follow-redirects: 1.15.6
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -16420,7 +16436,7 @@ snapshots:
       boolbase: 1.0.0
       css-what: 6.1.0
       domhandler: 5.0.3
-      domutils: 3.1.0
+      domutils: 3.2.2
       nth-check: 2.1.1
 
   css-what@6.1.0: {}
@@ -16628,12 +16644,6 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
-
-  domutils@3.1.0:
-    dependencies:
-      dom-serializer: 2.0.0
-      domelementtype: 2.3.0
-      domhandler: 5.0.3
 
   domutils@3.2.2:
     dependencies:
@@ -17418,6 +17428,8 @@ snapshots:
   follow-redirects@1.15.2: {}
 
   follow-redirects@1.15.5: {}
+
+  follow-redirects@1.15.6: {}
 
   follow-redirects@1.15.6(debug@4.4.1):
     optionalDependencies:
@@ -21112,6 +21124,10 @@ snapshots:
       turbo-linux-arm64: 2.3.3
       turbo-windows-64: 2.3.3
       turbo-windows-arm64: 2.3.3
+
+  turndown@7.2.2:
+    dependencies:
+      '@mixmark-io/domino': 2.2.0
 
   tweetnacl@0.14.5: {}
 
