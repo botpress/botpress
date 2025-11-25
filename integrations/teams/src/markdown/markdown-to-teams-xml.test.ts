@@ -129,13 +129,13 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
   {
     input: '[Hyperlink](https://www.botpress.com/ "Tooltip Title")',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
-    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
+    // NOTE: Teams does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Markdown hyperlink title gets carried over to html link',
   },
   {
     input: '[Hyperlink][id]\n\n[id]: https://www.botpress.com/  "Tooltip Title"',
     expects: '<a href="https://www.botpress.com/" title="Tooltip Title">Hyperlink</a>',
-    // NOTE: Telegram does not support the title attribute, however, it just ignores it instead of causing a crash
+    // NOTE: Teams does not support the title attribute, however, it just ignores it instead of causing a crash
     description: 'Convert hyperlink markup using footnote style syntax to html link',
   },
   {
