@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-const SunshineConversationsClient = require('sunshine-conversations-client')
 import * as bp from '.botpress'
+const SunshineConversationsClient = require('sunshine-conversations-client')
 
 export function getMessagingClient(config: bp.configuration.Configuration) {
   if (!config.messagingKeyId || !config.messagingKeySecret || !config.messagingAppId) {

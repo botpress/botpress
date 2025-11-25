@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
-import SunshineConversationsClient from 'sunshine-conversations-client'
 import { getMessagingClient } from '../messaging-client'
 import type { Carousel, Choice, SendMessageProps, SmoochAction, SmoochCard } from '../types/messaging'
 import { wrapChannel } from './shared'
+const SunshineConversationsClient = require('sunshine-conversations-client')
 
 export const messaging = {
   messages: {
