@@ -14,8 +14,8 @@ import * as bp from '.botpress'
 type Choice = bp.channels.channel.choice.Choice
 type Alternative = Choice['options'][number]
 
-type Card = bp.channels.channel.card.Card
-type Action = Card['actions'][number]
+type BotpressCard = bp.channels.channel.card.Card
+type Action = BotpressCard['actions'][number]
 type ActionType = Action['action']
 
 const renderTeams = async (
@@ -73,7 +73,7 @@ const mapChoice = (choice: Alternative): CardAction => ({
   text: choice.label,
 })
 
-const makeCard = (card: Card): Attachment => {
+const makeCard = (card: BotpressCard): Attachment => {
   const { actions, imageUrl, subtitle, title } = card
   const buttons: CardAction[] = actions.map(mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
