@@ -114,6 +114,16 @@ const _processMessage = async (
     },
   })
 
+  await client.updateConversation({
+    id: conversation.id,
+    tags: {
+      subject: message.headers['subject'],
+      email: userEmail,
+      references: message.headers['references'],
+      cc: message.headers['cc'],
+    },
+  })
+
   if (!userEmail) {
     throw new Error('Handler received an empty from id')
   }
