@@ -76,7 +76,6 @@ export const configuration = {
       .describe('Key Secret from your "Conversations API"'),
     messagingWebhookSecret: z
       .string()
-      .min(1)
       .optional()
       .title('Messaging Webhook Secret')
       .describe('Webhook Secret from your "Conversations Integration"'),
