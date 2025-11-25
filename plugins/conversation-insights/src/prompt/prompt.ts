@@ -42,4 +42,5 @@ export const createPrompt = (args: PromptArgs): LLMInput => ({
   temperature: 0,
   systemPrompt: args.systemPrompt.trim(),
   messages: formatMessages(args.messages, args.context, args.botId),
+  model: 'fast',
 })
