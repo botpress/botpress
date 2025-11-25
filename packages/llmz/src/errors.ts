@@ -1,7 +1,7 @@
 import { JSONSchema7 } from 'json-schema'
 import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 import { cleanStackTrace } from './stack-traces.js'
-import { Context } from './context.js'
+import { Models } from '@botpress/cognitive'
 
 type ErrorConstructor = new (...args: any[]) => Error
 
@@ -134,7 +134,7 @@ export class ThinkSignal extends VMLoopSignal {
     public reason: string,
     public context?: any,
     public options?: {
-      modelOverride?: Context['model']
+      modelOverride?: Models
     }
   ) {
     super('Think signal received: ' + reason)
