@@ -66,10 +66,7 @@ function isHeadingRow(tr: HTMLElement) {
 
   return (
     parentNode?.nodeName === 'THEAD' ||
-    (parentNode?.firstChild === tr && (parentNode.nodeName === 'TABLE' || isFirstTbody(parentNode))) //&&
-    // Array.from(tr.children).every(function (node) {
-    //   return isElementOfType(node, 'th')
-    // })
+    (parentNode?.firstChild === tr && (parentNode.nodeName === 'TABLE' || isFirstTbody(parentNode)))
   )
 }
 
@@ -89,7 +86,6 @@ function cell(content: string, node: Element) {
   return prefix + content + ' |'
 }
 
-// TODO: Revisit this function later
 export const tables = (turndownService: TurndownService) => {
   turndownService.keep((node) => !isElementOfType(node, 'table'))
   for (const [key, rule] of Object.entries(rules)) {
