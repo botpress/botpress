@@ -271,12 +271,23 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
   })
 
   try {
+    let prevIteration: Iteration | undefined
+    let iteration: Iteration | undefined
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
         return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
-      const iteration = await ctx.nextIteration()
+      prevIteration = iteration
+      iteration = await ctx.nextIteration()
+
+      if (
+        prevIteration &&
+        prevIteration.status.type === 'thinking_requested' &&
+        prevIteration.status.thinking_requested.model
+      ) {
+        iteration.model = prevIteration.status.thinking_requested.model
+      }
 
       if (controller.signal.aborted) {
         iteration.end({
@@ -642,6 +653,7 @@ const executeIteration = async ({
       thinking_requested: {
         variables: result.signal.context,
         reason: result.signal.reason,
+        model: result.signal.options?.modelOverride,
       },
     })
   }
@@ -655,7 +667,6 @@ const executeIteration = async ({
     })
   }
 
-  const _validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 

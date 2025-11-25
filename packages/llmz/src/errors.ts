@@ -1,6 +1,7 @@
 import { JSONSchema7 } from 'json-schema'
 import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 import { cleanStackTrace } from './stack-traces.js'
+import { Context } from './context.js'
 
 type ErrorConstructor = new (...args: any[]) => Error
 
@@ -131,7 +132,10 @@ export class VMLoopSignal extends VMSignal {
 export class ThinkSignal extends VMLoopSignal {
   public constructor(
     public reason: string,
-    public context?: any
+    public context?: any,
+    public options?: {
+      modelOverride?: Context['model']
+    }
   ) {
     super('Think signal received: ' + reason)
     this.message = Signals.serializeError(this)
