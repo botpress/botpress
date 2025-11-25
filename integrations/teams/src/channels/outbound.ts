@@ -9,6 +9,7 @@ import {
   MessageFactory,
 } from 'botbuilder'
 import { getAdapter } from '../utils'
+import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
 type Choice = bp.channels.channel.choice.Choice
@@ -78,6 +79,34 @@ const makeCard = (card: Card): Attachment => {
   const buttons: CardAction[] = actions.map(mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
   return CardFactory.heroCard(title, images, buttons, { subtitle })
+}
+
+const makeDropdownCard = (text: string, choices: { title: string; value: string }[]): Attachment => {
+  return CardFactory.adaptiveCard({
+    // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
+    body: [
+      {
+        type: 'TextBlock',
+        text,
+        wrap: true,
+        weight: 'Bolder',
+      },
+      {
+        id: DROPDOWN_VALUE_ID,
+        type: 'Input.ChoiceSet',
+        placeholder: 'Select...',
+        style: 'compact',
+        choices,
+      },
+    ],
+    actions: [
+      {
+        type: 'Action.Submit',
+        title: 'Submit',
+        data: { kind: DROPDOWN_VALUE_KIND },
+      },
+    ],
+  })
 }
 
 const channel = {
@@ -160,17 +189,11 @@ const channel = {
       await renderTeams(props, activity)
     },
     dropdown: async (props) => {
-      // TODO: actually implement a dropdown and not a choice
-      //       requires:
-      //           - a submit button text
-      //           - a dropdown placeholder
-      //           - patience to mess around with adaptive cards
-
       const { options, text } = props.payload
-      const buttons: CardAction[] = options.map(mapChoice)
+      const choices = options.map((option) => ({ title: option.label, value: option.value }))
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [CardFactory.heroCard(text, [], buttons)],
+        attachments: [makeDropdownCard(text, choices)],
       }
       await renderTeams(props, activity)
     },

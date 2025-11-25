@@ -1,5 +1,6 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { getAdapter, sleep } from '../utils'
+import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
 export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.HandlerProps, activity: Activity) => {
@@ -46,15 +47,24 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         },
       })
 
+      const message = _extractDropdownValue(activity) ?? activity.text
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
-        payload: { text: activity.text },
+        payload: { text: message },
       })
       break
     default:
       return
   }
+}
+
+const _extractDropdownValue = (activity: Activity): string | undefined => {
+  if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
+    return activity.value[DROPDOWN_VALUE_ID]
+  }
+
+  return undefined
 }
