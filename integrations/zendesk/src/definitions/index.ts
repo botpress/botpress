@@ -26,8 +26,8 @@ export const events = {
     title: 'Article Published',
     description: 'Triggered when an article is published',
     schema: z.object({
-      articleId: z.string(),
-      articleTitle: z.string(),
+      articleId: z.string().title('Article ID').describe('The unique identifier of the published article'),
+      articleTitle: z.string().title('Article Title').describe('The title of the published article'),
     }),
     ui: {},
   },
@@ -35,7 +35,7 @@ export const events = {
     title: 'Article Unpublished',
     description: 'Triggered when an article is unpublished',
     schema: z.object({
-      articleId: z.string(),
+      articleId: z.string().title('Article ID').describe('The unique identifier of the unpublished article'),
     }),
     ui: {},
   },
@@ -82,8 +82,14 @@ export const states = {
   subscriptionInfo: {
     type: 'integration',
     schema: z.object({
-      subscriptionId: z.string(),
-      triggerIds: z.array(z.string()),
+      subscriptionId: z
+        .string()
+        .title('Subscription ID')
+        .describe('The unique identifier for the Zendesk webhook subscription'),
+      triggerIds: z
+        .array(z.string())
+        .title('Trigger IDs')
+        .describe('Array of trigger IDs associated with the subscription'),
     }),
   },
   oauth: {
@@ -96,8 +102,17 @@ export const states = {
 
 export const user = {
   tags: {
-    id: {},
-    email: {},
-    role: {},
+    id: {
+      title: 'User ID',
+      description: 'The unique identifier of the Zendesk user',
+    },
+    email: {
+      title: 'Email',
+      description: 'The email address of the Zendesk user',
+    },
+    role: {
+      title: 'Role',
+      description: 'The role of the Zendesk user (end-user, agent, or admin)',
+    },
   },
 } satisfies IntegrationDefinitionProps['user']

@@ -42,8 +42,10 @@ export class ListInterfacesCommand extends GlobalCommand<ListInterfacesCommandDe
     const publicLister = (req: { nextToken?: string }) => api.client.listPublicInterfaces({ nextToken: req.nextToken })
 
     try {
-      const privateInterfaces = await api.listAllPages(privateLister, (r) => r.interfaces)
-      const publicInterfaces = await api.listAllPages(publicLister, (r) => r.interfaces)
+      const [privateInterfaces, publicInterfaces] = await Promise.all([
+        api.listAllPages(privateLister, (r) => r.interfaces),
+        api.listAllPages(publicLister, (r) => r.interfaces),
+      ])
       const interfaces = _.uniqBy([...privateInterfaces, ...publicInterfaces], (i) => i.id)
 
       this.logger.success('Interfaces:')

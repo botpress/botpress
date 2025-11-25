@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
@@ -6,32 +5,34 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '1.0.0',
+  version: '1.0.1',
   title: 'Vonage',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1),
-      apiSecret: z.string().min(1),
-      signatureSecret: z.string().min(1),
-      useTestingApi: z.boolean(),
+      apiKey: z.string().min(1).describe('The API Key').title('API Key'),
+      apiSecret: z.string().min(1).describe('The API Secret').title('API Secret'),
+      signatureSecret: z.string().min(1).describe('The signature secret').title('Signature Secret'),
+      useTestingApi: z.boolean().describe('Chooses if we should use the test api').title('Use Testing API'),
     }),
   },
   channels: {
     channel: {
+      title: 'Channel',
+      description: 'The vonage Channel',
       messages: { ...messages.defaults },
       message: {
         tags: {
-          id: {},
+          id: { title: 'ID', description: 'The id of the message' },
         },
       },
       conversation: {
         tags: {
-          userId: {},
-          channel: {},
-          channelId: {},
+          userId: { title: 'User ID', description: 'The User id' },
+          channel: { title: 'Channel', description: 'The conversation channel' },
+          channelId: { title: 'Channel ID', description: 'The channel id' },
         },
       },
     },
@@ -39,8 +40,8 @@ export default new IntegrationDefinition({
   events: {},
   user: {
     tags: {
-      userId: {},
-      channel: {},
+      userId: { title: 'User ID', description: 'The user id' },
+      channel: { title: 'Channel', description: 'The channel of the user' },
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
@@ -53,11 +54,11 @@ export default new IntegrationDefinition({
       }),
     },
     user: {
-      schema: z.object({ channel: z.string(), userId: z.string() }),
+      schema: z.object({
+        channel: z.string().describe('The channel of the user').title('Channel'),
+        userId: z.string().describe('The user id').title('User ID'),
+      }),
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(proactiveConversation, ({ entities }) => ({

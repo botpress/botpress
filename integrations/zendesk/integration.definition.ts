@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
@@ -57,9 +56,6 @@ export default new sdk.IntegrationDefinition({
       }),
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(hitl, (self) => ({
   entities: {
     hitlSession: self.entities.hitlTicket,
@@ -67,10 +63,12 @@ export default new sdk.IntegrationDefinition({
   channels: {
     hitl: {
       title: 'Zendesk Ticket',
+      description: 'Human in the loop channel for managing Zendesk tickets',
       conversation: {
         tags: {
           id: {
             title: 'Zendesk Ticket ID',
+            description: 'The unique identifier of the Zendesk ticket associated with this conversation',
           },
         },
       },
