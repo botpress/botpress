@@ -77,17 +77,14 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
     case '#lintAll': {
-      const workflows = await props.client.listWorkflows({
+      await client.getOrCreateWorkflow({
         name: 'lintAll',
-        statuses: ['in_progress', 'listening', 'pending'],
+        input: {},
+        discriminateByStatusGroup: 'active',
+        conversationId: conversation.id,
+        status: 'pending',
       })
 
-      if (workflows.workflows.length > 0) {
-        await botpress.respondText(conversation.id, "Error: a 'lintAll' workflow is already in progress.")
-        return
-      }
-
-      await props.workflows.lintAll.startNewInstance({ input: { conversationId: conversation.id } })
       await botpress.respondText(conversation.id, "Launched 'lintAll' workflow.")
       break
     }

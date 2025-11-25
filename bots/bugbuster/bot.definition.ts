@@ -39,15 +39,7 @@ export default new sdk.BotDefinition({
   },
   workflows: {
     lintAll: {
-      input: {
-        schema: sdk.z.object({
-          conversationId: sdk.z
-            .string()
-            .optional()
-            .title('Conversation ID')
-            .describe('The ID of the conversation that triggered the workflow'),
-        }),
-      },
+      input: { schema: sdk.z.object({}) },
       output: { schema: sdk.z.object({}) },
     },
   },

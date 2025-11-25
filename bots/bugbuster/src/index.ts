@@ -35,8 +35,8 @@ bot.on.workflowTimeout('lintAll', async (props) => {
 })
 
 const handleLintAllWorkflow = async (props: bp.WorkflowHandlerProps['lintAll']) => {
-  const { client, logger, ctx, workflow } = props
-  const conversationId = workflow.input.conversationId
+  const { client, logger, ctx, workflow, conversation } = props
+  const conversationId = conversation?.id
   const botpress = new BotpressApi(client, ctx.botId)
 
   try {
