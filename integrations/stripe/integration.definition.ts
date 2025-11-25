@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
@@ -35,7 +34,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.5.1',
+  version: '0.5.2',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -207,8 +206,5 @@ export default new IntegrationDefinition({
         schema: retrieveCustomerByIdOutputSchema,
       },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
