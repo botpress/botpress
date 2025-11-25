@@ -431,10 +431,7 @@ export type InjectedBotHandlers<TBot extends common.BaseBot> = {
   }
   workflowHandlers: {
     [TWorkflowUpdateType in WorkflowUpdateType]: {
-      [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: {
-        handler: WorkflowHandlers<TBot>[TWorkflowName]
-        order: number
-      }[]
+      [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot>[TWorkflowName][]
     }
   }
 }
