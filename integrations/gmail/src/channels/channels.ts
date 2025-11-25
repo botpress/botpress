@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { RuntimeError } from '@botpress/sdk'
 import { GoogleClient } from '../google-api'
 import {
   composeRawEmail,
@@ -181,8 +182,7 @@ const _getConversationInfo = (conversation: bp.AnyMessageProps['conversation']) 
   const { id: threadId, subject, email, references, cc } = tags
 
   if (!(threadId && subject && email)) {
-    console.info(`No valid information found for conversation ${id}`)
-    throw new Error(`No valid information found for conversation ${id}`)
+    throw new RuntimeError(`No valid information found for conversation ${id}`)
   }
 
   return { threadId, subject, email, references, cc }
