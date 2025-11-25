@@ -1,4 +1,5 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
+import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
 import { getAdapter, sleep } from '../utils'
 import * as bp from '.botpress'
 
@@ -46,15 +47,32 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         },
       })
 
+      const message = _attemptRichTextExtractionAndConversion(activity)
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
-        payload: { text: activity.text },
+        payload: { text: message },
       })
       break
     default:
       return
   }
+}
+
+/** Attempts to extract & convert the rich text if it can find it, otherwise it falls back to plain text */
+const _attemptRichTextExtractionAndConversion = (activity: Activity): string => {
+  if (activity.attachments) {
+    const htmlAttachment = activity.attachments.find((attachment) => attachment.contentType === 'text/html')
+    if (htmlAttachment && typeof htmlAttachment.content === 'string') {
+      return transformTeamsHtmlToStdMarkdown(htmlAttachment.content)
+    }
+  }
+
+  /** Fallback to plain text
+   *
+   *  @remark Using coalescence operator (??) since messages
+   *   with no text can happen (e.g. image only messages) */
+  return activity.text ?? ''
 }
