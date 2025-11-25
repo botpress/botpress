@@ -8,6 +8,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
+import { transformMarkdownToTeamsXml } from '../markdown/markdown-to-teams-xml'
 import { getAdapter } from '../utils'
 import * as bp from '.botpress'
 
@@ -96,18 +97,11 @@ const channel = {
     },
     markdown: async (props) => {
       const { markdown } = props.payload
+      const xml = transformMarkdownToTeamsXml(markdown)
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [
-          CardFactory.adaptiveCard({
-            body: [
-              {
-                type: 'TextBlock',
-                text: markdown,
-              }, // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
-            ],
-          }),
-        ],
+        textFormat: 'xml',
+        text: xml,
       }
       await renderTeams(props, activity)
     },
