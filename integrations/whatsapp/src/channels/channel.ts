@@ -33,7 +33,26 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
         return
       }
       const text = convertMarkdownToWhatsApp(payload.text)
-      await _send({ ...props, message: new Text(text) })
+      const messagesToSend = splitTextMessageIfNeeded(text)
+
+      if (messagesToSend.length > 1) {
+        for (let i = 0; i < messagesToSend.length; i++) {
+          await _sendSingleMessage({
+            client: props.client,
+            ctx: props.ctx,
+            conversation: props.conversation,
+            message: messagesToSend[i],
+            ack: props.ack,
+            logger: props.logger,
+          })
+
+          // Add a small delay between parts to ensure proper ordering
+          if (i < messagesToSend.length - 1) {
+            await sleep(1000)
+          }
+        }
+        return
+      }
     },
     image: async ({ payload, logger, ...props }) => {
       await _send({
@@ -110,7 +129,11 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       if (!payload.items) {
         return
       }
-      for (const item of payload.items) {
+      for (let i = 0; i < payload.items.length; i++) {
+        const item = payload.items[i]
+        if (!item) {
+          continue
+        }
         switch (item.type) {
           case 'text':
             if (item.payload.text.trim().length === 0) {
@@ -121,7 +144,21 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
                 )
               break
             }
-            await _send({ ...props, message: new Text(convertMarkdownToWhatsApp(item.payload.text)) })
+            const blocText = convertMarkdownToWhatsApp(item.payload.text)
+            const blocMessagesToSend = splitTextStringIfNeeded(blocText)
+            for (const message of blocMessagesToSend) {
+              await _sendSingleMessage({
+                client: props.client,
+                ctx: props.ctx,
+                conversation: props.conversation,
+                message,
+                ack: props.ack,
+                logger: props.logger,
+              })
+              if (blocMessagesToSend.length > 1) {
+                await sleep(1000)
+              }
+            }
             break
           case 'image':
             await _send({
@@ -159,6 +196,23 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       }
     },
   },
+}
+
+function splitTextStringIfNeeded(text: string): Text[] {
+  if (text.length <= WHATSAPP_MAX_TEXT_LENGTH) {
+    return [new Text(text)]
+  }
+
+  const numChunks = Math.ceil(text.length / WHATSAPP_MAX_TEXT_LENGTH)
+  const chunks = Array.from({ length: numChunks }, (_, i) => {
+    const start = i * WHATSAPP_MAX_TEXT_LENGTH
+    const end = (i + 1) * WHATSAPP_MAX_TEXT_LENGTH
+    const chunkText = text.slice(start, end)
+    const chunk = new Text(chunkText)
+    return chunk
+  })
+
+  return chunks
 }
 
 type OutgoingMessage =
@@ -200,10 +254,35 @@ function backoffDelayMs(attempt: number) {
 }
 
 const MAX_ATTEMPT = 3
+const WHATSAPP_MAX_TEXT_LENGTH = 4096
+
+function splitTextMessageIfNeeded(message: string): OutgoingMessage[] {
+  const textLength = message.length
+  if (textLength <= WHATSAPP_MAX_TEXT_LENGTH) {
+    return [new Text(message)]
+  }
+
+  const numChunks = Math.ceil(textLength / WHATSAPP_MAX_TEXT_LENGTH)
+  const chunks = Array.from({ length: numChunks }, (_, i) => {
+    const start = i * WHATSAPP_MAX_TEXT_LENGTH
+    const end = (i + 1) * WHATSAPP_MAX_TEXT_LENGTH
+    const chunk = new Text(message.slice(start, end))
+    return chunk
+  })
+
+  return chunks
+}
 
 async function _send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
   if (!message) {
-    logger.forBot().debug('No message to send')
+    return
+  }
+
+  await _sendSingleMessage({ client, ctx, conversation, message, ack, logger })
+}
+
+async function _sendSingleMessage({ client, ctx, conversation, logger, message, ack }: SendMessageProps) {
+  if (!message) {
     return
   }
 
