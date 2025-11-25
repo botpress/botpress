@@ -115,6 +115,7 @@ export class GoogleClient {
       requestBody: {
         timeMin,
         timeMax,
+        items: [{ id: this._calendarId }],
       },
     })
 
