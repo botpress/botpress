@@ -3,7 +3,7 @@ import { defaultSanitizeConfig, sanitizeHtml } from './sanitize-utils'
 import { customPlugin } from './turndown-rules/custom'
 import { gfm } from './turndown-rules/gfm'
 
-export function teamsHtmlToStdMarkdown(teamsHtml: string) {
+export function transformTeamsHtmlToStdMarkdown(teamsHtml: string) {
   const turndownService = new TurndownService({
     codeBlockStyle: 'fenced',
     headingStyle: 'atx',

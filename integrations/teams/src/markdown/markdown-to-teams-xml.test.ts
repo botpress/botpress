@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import type { TestCase } from '../../tests/types'
-import { transformMarkdown } from './markdown-to-teams-xml'
+import { transformMarkdownToTeamsXml } from './markdown-to-teams-xml'
 import dedent from 'dedent'
 
 type MarkdownToTeamsHtmlTestCase = TestCase<string, string>
@@ -292,28 +292,30 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
 describe('Standard Markdown to Teams HTML Conversion', () => {
   markdownToTeamsHtmlTestCases.forEach(({ input, expects, description, skip = false }: MarkdownToTeamsHtmlTestCase) => {
     test.skipIf(skip)(description, () => {
-      const html = transformMarkdown(input)
+      const html = transformMarkdownToTeamsXml(input)
       expect(html).toBe(expects)
     })
   })
 
   test('Ensure javascript injection via markdown link is not possible', () => {
-    const html = transformMarkdown("[click me](javascript:alert('XSS'))")
+    const html = transformMarkdownToTeamsXml("[click me](javascript:alert('XSS'))")
     expect(html).toBe('click me')
   })
 
   test('Ensure javascript injection via markdown link reference is not possible', () => {
-    const html = transformMarkdown('[click me][id]\n\n[id]: javascript:alert(\'LinkReferenceXSS\')  "Tooltip Title"')
+    const html = transformMarkdownToTeamsXml(
+      '[click me][id]\n\n[id]: javascript:alert(\'LinkReferenceXSS\')  "Tooltip Title"'
+    )
     expect(html).toBe('click me')
   })
 
   test('Ensure javascript injection via html anchor tag is not possible', () => {
-    const html = transformMarkdown('<a href="javascript:alert(\'XSS\')">click me</a>')
+    const html = transformMarkdownToTeamsXml('<a href="javascript:alert(\'XSS\')">click me</a>')
     expect(html).toBe('&lt;a href="javascript:alert(\'XSS\')"&gt;click me&lt;/a&gt;')
   })
 
   test('Ensure javascript injection via html image tag is not possible', () => {
-    const html = transformMarkdown('<img src="image.jpg" alt="alt text" onerror="alert(\'xss\')">')
+    const html = transformMarkdownToTeamsXml('<img src="image.jpg" alt="alt text" onerror="alert(\'xss\')">')
 
     expect(html).toBe('&lt;img src="image.jpg" alt="alt text" onerror="alert(\'xss\')"&gt;')
   })

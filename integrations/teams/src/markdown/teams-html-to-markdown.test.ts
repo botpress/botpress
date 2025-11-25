@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { TestCase } from '../../tests/types'
-import { teamsHtmlToStdMarkdown } from './teams-html-to-markdown'
+import { transformTeamsHtmlToStdMarkdown } from './teams-html-to-markdown'
 
 type TeamsHtmlToMarkdownTestCase = TestCase<string, string> | TestCase<string[], string>
 
@@ -306,7 +306,7 @@ const teamsHtmlToMarkdownTestCases: TestCase<string, string>[] = (
 
 describe('Teams Html to Markdown Conversion', () => {
   test.each(teamsHtmlToMarkdownTestCases)('$description', ({ input, expects }: TestCase<string, string>) => {
-    const markdown = teamsHtmlToStdMarkdown(input)
+    const markdown = transformTeamsHtmlToStdMarkdown(input)
     expect(markdown).toBe(expects)
   })
 })

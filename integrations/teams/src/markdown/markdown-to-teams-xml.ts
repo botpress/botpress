@@ -175,7 +175,10 @@ export const visitTree = (
   return `${tmp}${footnoteTmp}`
 }
 
-export const transformMarkdown = (markdown: string, handlers: MarkdownHandlers = stripAllHandlers): string => {
+export const transformMarkdownToTeamsXml = (
+  markdown: string,
+  handlers: MarkdownHandlers = stripAllHandlers
+): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
   const definitions = _extractDefinitions(tree)
   let html = visitTree(tree, handlers, [], definitions).trim()
