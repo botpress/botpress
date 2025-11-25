@@ -2022,8 +2022,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       sunshine-conversations-client:
-        specifier: ^9.12.0
-        version: 9.15.0(@babel/core@7.28.5)
+        specifier: ^15.5.2
+        version: 15.5.2(@babel/core@7.28.5)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -9880,6 +9880,9 @@ packages:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==, tarball: https://registry.npmjs.org/sucrase/-/sucrase-3.35.1.tgz}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
+
+  sunshine-conversations-client@15.5.2:
+    resolution: {integrity: sha512-LBGFnA9E1XCLHHe/aWycsQmq4ANeQB1cYcjL+VQn6x78X9+tw1UXzUh1JglglZX9qyX7AyNw4rOvgKWSXhRdGA==, tarball: https://registry.npmjs.org/sunshine-conversations-client/-/sunshine-conversations-client-15.5.2.tgz}
 
   sunshine-conversations-client@9.15.0:
     resolution: {integrity: sha512-7jY+ybMisDQ4GINvEv1c6+wCCWXf1okeePqiOP8+UdPNxvVOEa6fx93VnD5F5KwVnaXTaVvJ5cgavupGqvCj1w==, tarball: https://registry.npmjs.org/sunshine-conversations-client/-/sunshine-conversations-client-9.15.0.tgz}
@@ -19041,6 +19044,14 @@ snapshots:
       pirates: 4.0.7
       tinyglobby: 0.2.15
       ts-interface-checker: 0.1.13
+
+  sunshine-conversations-client@15.5.2(@babel/core@7.28.5):
+    dependencies:
+      '@babel/cli': 7.28.3(@babel/core@7.28.5)
+      superagent: 5.3.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
 
   sunshine-conversations-client@9.15.0(@babel/core@7.28.5):
     dependencies:
