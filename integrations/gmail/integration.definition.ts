@@ -13,7 +13,7 @@ import {
 
 export default new sdk.IntegrationDefinition({
   name: 'gmail',
-  version: '0.6.2',
+  version: '0.6.3',
   title: 'Gmail',
   description: "Send, receive, and manage emails directly within your bot's workflow.",
   icon: 'icon.svg',
