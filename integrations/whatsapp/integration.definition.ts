@@ -95,7 +95,7 @@ const defaultBotPhoneNumberId = {
 export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.16',
+  version: '4.5.17',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -188,6 +188,11 @@ export default new IntegrationDefinition({
         file: {
           schema: messages.defaults.file.schema.extend({
             filename: z.string().optional(),
+          }),
+        },
+        image: {
+          schema: messages.defaults.image.schema.extend({
+            caption: z.string().optional(),
           }),
         },
         bloc: {
