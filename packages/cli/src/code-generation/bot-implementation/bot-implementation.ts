@@ -62,7 +62,7 @@ export class BotImplementationModule extends Module {
       '',
       'type AsyncFunction = (...args: any[]) => Promise<any>',
       '',
-      'export type BotHandlers = sdk.BotHandlers<TBot>',
+      'export type BotHandlers = sdk.InjectedBotHandlers<TBot>',
       '',
       'export type EventHandlers = Required<{',
       "  [K in keyof BotHandlers['eventHandlers']]: NonNullable<BotHandlers['eventHandlers'][K]>[number]",

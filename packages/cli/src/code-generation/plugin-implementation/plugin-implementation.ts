@@ -38,7 +38,7 @@ export class PluginImplementationModule extends Module {
       'type ValueOf<T> = T[keyof T]',
       'type AsyncFunction = (...args: any[]) => Promise<any>',
       '',
-      'export type PluginHandlers = sdk.PluginHandlers<TPlugin>',
+      'export type PluginHandlers = sdk.InjectedPluginHandlers<TPlugin>',
       '',
       'export type EventHandlers = Required<{',
       "  [K in keyof PluginHandlers['eventHandlers']]: NonNullable<PluginHandlers['eventHandlers'][K]>[number]",
