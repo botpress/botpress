@@ -201,7 +201,7 @@ export default new IntegrationDefinition({
                   }),
                 }),
                 z.object({
-                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  type: z.literal('markdown'), // TODO Remove for 5.0.0
                   payload: z.object({
                     markdown: z.string(),
                   }),
