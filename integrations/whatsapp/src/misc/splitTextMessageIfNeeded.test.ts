@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Text } from 'whatsapp-api-js/messages'
-import { splitTextMessageIfNeeded } from '../channels/channel'
+import { splitTextMessageIfNeeded } from './split-text-message'
 
 const WHATSAPP_MAX_TEXT_LENGTH = 4096
 
