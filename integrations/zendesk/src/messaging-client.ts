@@ -2,11 +2,14 @@ import { RuntimeError } from '@botpress/client'
 import SunshineConversationsClient from 'sunshine-conversations-client'
 import * as bp from '.botpress'
 
-export function createMessagingClient(keyId: string, keySecret: string) {
+export function getMessagingClient(config: bp.configuration.Configuration) {
+  if (!config.messagingKeyId || !config.messagingKeySecret || !config.messagingAppId) {
+    throw new RuntimeError('Messaging client not configured')
+  }
   const client = new SunshineConversationsClient.ApiClient()
   const auth = client.authentications['basicAuth']
-  auth.username = keyId
-  auth.password = keySecret
+  auth.username = config.messagingKeyId
+  auth.password = config.messagingKeySecret
 
   return {
     messages: new SunshineConversationsClient.MessagesApi(client),
@@ -15,13 +18,4 @@ export function createMessagingClient(keyId: string, keySecret: string) {
     conversations: new SunshineConversationsClient.ConversationsApi(client),
     users: new SunshineConversationsClient.UsersApi(client),
   }
-}
-
-export type MessagingClient = ReturnType<typeof createMessagingClient>
-
-export function getMessagingClient(config: bp.configuration.Configuration): MessagingClient {
-  if (!config.messagingKeyId || !config.messagingKeySecret || !config.messagingAppId) {
-    throw new RuntimeError('Messaging client not configured')
-  }
-  return createMessagingClient(config.messagingKeyId, config.messagingKeySecret)
 }
