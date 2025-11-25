@@ -1,7 +1,8 @@
+import type { ConversationCreateEvent } from '../../types/messaging-events'
 import { Logger, Client } from '.botpress'
 
 export const executeConversationStarted = async (props: {
-  event: { payload: any }
+  event: ConversationCreateEvent
   client: Client
   logger: Logger
 }) => {
@@ -11,7 +12,7 @@ export const executeConversationStarted = async (props: {
   const conversationId = payload.conversation?.id
   const userId = payload.user?.id
 
-  if (!conversationId || !userId) {
+  if (!conversationId?.length || !userId?.length) {
     logger.forBot().warn('conversation:create event missing conversation ID or user ID')
     return
   }

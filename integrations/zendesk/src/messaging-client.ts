@@ -1,4 +1,5 @@
-const SunshineConversationsClient = require('sunshine-conversations-client')
+import { RuntimeError } from '@botpress/client'
+import SunshineConversationsClient from 'sunshine-conversations-client'
 import * as bp from '.botpress'
 
 export function createMessagingClient(keyId: string, keySecret: string) {
@@ -18,10 +19,9 @@ export function createMessagingClient(keyId: string, keySecret: string) {
 
 export type MessagingClient = ReturnType<typeof createMessagingClient>
 
-export function getMessagingClient(config: bp.configuration.Configuration): MessagingClient | null {
-  if (!config.messagingKeyId || !config.messagingKeySecret) {
-    return null
+export function getMessagingClient(config: bp.configuration.Configuration): MessagingClient {
+  if (!config.messagingKeyId || !config.messagingKeySecret || !config.messagingAppId) {
+    throw new RuntimeError('Messaging client not configured')
   }
   return createMessagingClient(config.messagingKeyId, config.messagingKeySecret)
 }
-

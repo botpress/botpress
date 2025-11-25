@@ -1,10 +1,10 @@
 import { RuntimeError } from '@botpress/client'
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
+import SunshineConversationsClient from 'sunshine-conversations-client'
 import { getZendeskClient } from './client'
 import { getMessagingClient } from './messaging-client'
 import * as bp from '.botpress'
-const SunshineConversationsClient = require('sunshine-conversations-client')
 
 type IntegrationLogger = bp.Logger
 
@@ -42,12 +42,8 @@ const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
     },
     zendeskClient: ({ ctx }) => getZendeskClient(ctx.configuration),
     messagingConversationId: ({ conversation, logger }) => Tags.of(conversation, logger).get('id'),
-    messagingClient: ({ ctx }): NonNullable<ReturnType<typeof getMessagingClient>> => {
-      const client = getMessagingClient(ctx.configuration)
-      if (!client) {
-        throw new sdk.RuntimeError('Messaging client not configured. Please provide messaging credentials.')
-      }
-      return client
+    messagingClient: ({ ctx }): ReturnType<typeof getMessagingClient> => {
+      return getMessagingClient(ctx.configuration)
     },
     messagingAppId: ({ ctx }): string => {
       if (!ctx.configuration.messagingAppId) {
