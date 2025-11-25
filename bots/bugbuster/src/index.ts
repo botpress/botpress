@@ -7,6 +7,7 @@ export const bot = new bp.Bot({ actions: {} })
 bot.on.event('github:issueOpened', handlers.handleGithubIssueOpened)
 bot.on.event('linear:issueUpdated', handlers.handleLinearIssueUpdated)
 bot.on.event('linear:issueCreated', handlers.handleLinearIssueCreated)
+bot.on.event('timeToLintAll', handlers.handleTimeToLintAll)
 bot.on.message('*', handlers.handleMessageCreated)
 
 const LINT_ALL_ERROR_PREFIX = "Error during the 'lintAll' workflow: "

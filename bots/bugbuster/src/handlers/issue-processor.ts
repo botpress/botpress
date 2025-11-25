@@ -1,4 +1,5 @@
 import { BotLogger } from '@botpress/sdk'
+import { LintResult } from 'src/types'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
@@ -68,10 +69,10 @@ export class IssueProcessor {
     return issues
   }
 
-  public async runLint(issue: Issue) {
+  public async runLint(issue: Issue): Promise<LintResult> {
     const status = this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
-      return
+      return { identifier: issue.identifier, messages: [], result: 'ignored' }
     }
 
     const errors = await linlint.lintIssue(issue, status)
@@ -79,7 +80,7 @@ export class IssueProcessor {
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
       await this._linear.resolveComments(issue)
-      return
+      return { identifier: issue.identifier, messages: [], result: 'succeeded' }
     }
 
     this._logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
@@ -92,18 +93,41 @@ export class IssueProcessor {
         ...errors.map((error: any) => `- ${error.message}`),
       ].join('\n'),
     })
+    return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
 
-  public async runLints(issues: Issue[], workflow: WorkflowHandlerProps['lintAll']['workflow']) {
+  public async runLints(issues: Issue[], workflow: WorkflowHandlerProps['lintAll']['workflow']): Promise<LintResult[]> {
+    const {
+      state: {
+        payload: { issues: lintResults },
+      },
+    } = await this._client.getOrSetState({
+      id: workflow.id,
+      name: 'lintResults',
+      type: 'workflow',
+      payload: { issues: [] },
+    })
+
     for (const issue of issues) {
-      await this.runLint(issue)
-      await workflow.acknowledgeStartOfProcessing()
-      await this._client.setState({
-        id: workflow.id,
-        name: 'lastLintedId',
-        type: 'workflow',
-        payload: { id: issue.id },
-      })
+      const result = await this.runLint(issue)
+      lintResults.push(result)
+
+      await Promise.all([
+        this._client.setState({
+          id: workflow.id,
+          name: 'lastLintedId',
+          type: 'workflow',
+          payload: { id: issue.id },
+        }),
+
+        this._client.setState({
+          id: workflow.id,
+          name: 'lintResults',
+          type: 'workflow',
+          payload: { issues: lintResults },
+        }),
+      ])
     }
+    return lintResults
   }
 }
