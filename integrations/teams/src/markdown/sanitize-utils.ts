@@ -43,6 +43,9 @@ export const defaultSanitizeConfig = Object.assign({}, SanitizeHTML.defaults, {
     img: ['src', 'srcset', 'alt', 'title', 'width', 'height'],
   },
   allowedSchemes: ['http', 'https', 'mailto'],
+  exclusiveFilter(frame) {
+    return frame.tag === 'a' && !frame.attribs.href?.trim() ? 'excludeTag' : false
+  },
 } satisfies SanitizeHTML.IOptions)
 
 export const sanitizeHtml = (html: string, options?: Partial<SanitizeHTML.IOptions>) =>
