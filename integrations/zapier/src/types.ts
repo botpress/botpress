@@ -12,7 +12,7 @@ export type TriggerSubscriber = z.infer<typeof TriggerSubscriberSchema>
 export const ZapierTriggersStateName = 'triggers' as const
 
 export const ZapierTriggersStateSchema = z.object({
-  subscribers: z.array(TriggerSubscriberSchema),
+  subscribers: z.array(TriggerSubscriberSchema).describe('The subscribers').title('Subscribers'),
 })
 
 export type ZapierTriggersState = z.infer<typeof ZapierTriggersStateSchema>
@@ -25,9 +25,14 @@ export const IntegrationEventSchema = z.object({
 export type IntegrationEvent = z.infer<typeof IntegrationEventSchema>
 
 export const TriggerSchema = z.object({
-  data: z.string().describe('The data you want to send to Zapier trigger. Can be any string including JSON.'),
+  data: z
+    .string()
+    .placeholder('{ "message": "Hello Zapier!" }')
+    .describe('The data you want to send to Zapier trigger. Can be any string including JSON.')
+    .title('Trigger Data to send to Zapier'),
   correlationId: z
     .string()
+    .title('Correlation ID')
     .describe('Can be used to receive a response back from Zapier by listening for an `event.correlationId`')
     .optional(),
 })
@@ -39,9 +44,14 @@ export type TriggerRequestBody = Trigger & {
 }
 
 export const EventSchema = z.object({
-  data: z.string().describe('The data the Zapier action sent. Can be any string including JSON.'),
+  data: z
+    .string()
+    .placeholder('{ "message": "Hello Botpress!" }')
+    .describe('The data the Zapier action sent. Can be any string including JSON.')
+    .title('Event Data received from Zapier'),
   correlationId: z
     .string()
+    .title('Correlation ID')
     .describe('Can be used to correlate the response from Zapier when used with an `action.correlationId`')
     .optional(),
 })

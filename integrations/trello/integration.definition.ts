@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import creatable from './bp_modules/creatable'
@@ -13,7 +12,7 @@ import { integrationName } from './package.json'
 export default new sdk.IntegrationDefinition({
   name: integrationName,
   title: 'Trello',
-  version: '1.1.2',
+  version: '1.1.3',
   readme: 'hub.md',
   description: 'Update cards, add comments, create new cards, and read board members from your chatbot.',
   icon: 'icon.svg',
@@ -26,9 +25,6 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })
   .extend(listable, ({ entities }) => ({
