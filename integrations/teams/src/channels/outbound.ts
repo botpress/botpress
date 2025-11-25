@@ -84,7 +84,13 @@ const makeCard = (card: BotpressCard): Attachment => {
 const channel = {
   messages: {
     text: async (props) => {
-      const activity: Partial<Activity> = { type: 'message', text: props.payload.text }
+      const { text } = props.payload
+      const xml = transformMarkdownToTeamsXml(text)
+      const activity: Partial<Activity> = {
+        type: 'message',
+        textFormat: 'xml',
+        text: xml,
+      }
       await renderTeams(props, activity)
     },
     image: async (props) => {
@@ -92,16 +98,6 @@ const channel = {
       const activity: Partial<Activity> = {
         type: 'message',
         attachments: [CardFactory.heroCard('', [{ url: imageUrl }])],
-      }
-      await renderTeams(props, activity)
-    },
-    markdown: async (props) => {
-      const { markdown } = props.payload
-      const xml = transformMarkdownToTeamsXml(markdown)
-      const activity: Partial<Activity> = {
-        type: 'message',
-        textFormat: 'xml',
-        text: xml,
       }
       await renderTeams(props, activity)
     },

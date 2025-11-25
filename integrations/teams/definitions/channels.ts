@@ -4,7 +4,7 @@ export const channels = {
   channel: {
     title: 'Channel',
     description: 'Teams conversation channel',
-    messages: { ...messages.defaults, markdown: messages.markdown },
+    messages: { ...messages.defaults },
     message: {
       tags: {
         id: {
