@@ -2590,8 +2590,8 @@ importers:
         specifier: ^6.9.0
         version: 6.9.1(ws@8.18.3)(zod@3.25.76)
       posthog-node:
-        specifier: ^5.11.2
-        version: 5.14.0
+        specifier: 5.11.2
+        version: 5.11.2
       preact:
         specifier: ^10.26.6
         version: 10.27.2
@@ -4682,8 +4682,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==, tarball: https://registry.npmjs.org/@pkgr/core/-/core-0.2.9.tgz}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@posthog/core@1.6.0':
-    resolution: {integrity: sha512-Tbh8UACwbb7jFdDC7wwXHtfNzO+4wKh3VbyMHmp2UBe6w1jliJixexTJNfkqdGZm+ht3M10mcKvGGPnoZ2zLBg==, tarball: https://registry.npmjs.org/@posthog/core/-/core-1.6.0.tgz}
+  '@posthog/core@1.5.2':
+    resolution: {integrity: sha512-iedUP3EnOPPxTA2VaIrsrd29lSZnUV+ZrMnvY56timRVeZAXoYCkmjfIs3KBAsF8OUT5h1GXLSkoQdrV0r31OQ==, tarball: https://registry.npmjs.org/@posthog/core/-/core-1.5.2.tgz}
 
   '@react-email/body@0.0.10':
     resolution: {integrity: sha512-dMJyL9aU25ieatdPtVjCyQ/WHZYHwNc+Hy/XpF8Cc18gu21cUynVEeYQzFSeigDRMeBQ3PGAyjVDPIob7YlGwA==, tarball: https://registry.npmjs.org/@react-email/body/-/body-0.0.10.tgz}
@@ -9206,8 +9206,8 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==, tarball: https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz}
     engines: {node: '>=0.10.0'}
 
-  posthog-node@5.14.0:
-    resolution: {integrity: sha512-cKY2Wdtjx5wlIWL9/Im5/FT+zeKaYjtG94rfrIFKTVoCdwV7S9PaU8frLD/8TpGx1SwOFgw7QTjhpa/vnxTlww==, tarball: https://registry.npmjs.org/posthog-node/-/posthog-node-5.14.0.tgz}
+  posthog-node@5.11.2:
+    resolution: {integrity: sha512-z+XekcBUmGePMsjPlGaEF2bJFiDHKHYPQjS4OEw4YPDQz8s7Owuim/L7xNX+6UJkyIRniBza9iC7bW8yrGTv1g==, tarball: https://registry.npmjs.org/posthog-node/-/posthog-node-5.11.2.tgz}
     engines: {node: '>=20'}
 
   preact-render-to-string@6.6.3:
@@ -12678,7 +12678,7 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@posthog/core@1.6.0':
+  '@posthog/core@1.5.2':
     dependencies:
       cross-spawn: 7.0.6
 
@@ -18275,9 +18275,9 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-node@5.14.0:
+  posthog-node@5.11.2:
     dependencies:
-      '@posthog/core': 1.6.0
+      '@posthog/core': 1.5.2
 
   preact-render-to-string@6.6.3(preact@10.27.2):
     dependencies:
