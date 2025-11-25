@@ -2587,7 +2587,7 @@ importers:
         specifier: ^6.9.0
         version: 6.9.0(ws@8.18.2)
       posthog-node:
-        specifier: ^5.11.2
+        specifier: 5.11.2
         version: 5.11.2
       preact:
         specifier: ^10.26.6
