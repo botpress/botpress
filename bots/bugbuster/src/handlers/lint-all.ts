@@ -2,10 +2,11 @@ import { BotClient, BotContext, BotLogger } from '@botpress/sdk/dist/bot'
 import { Result } from 'src/types'
 import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
+import { Issue } from 'src/utils/graphql-queries'
 import { LinearApi } from 'src/utils/linear-utils'
 import { IssueProcessor } from './issue-processor'
 import { listTeams } from './teams-manager'
-import { TBot, WorkflowHandlerProps } from '.botpress'
+import { TBot, WorkflowHandlerProps, Client } from '.botpress'
 
 export const lintAll = async (
   client: BotClient<TBot>,
@@ -35,6 +36,24 @@ export const lintAll = async (
     .listIssues(teamsResult.result, lastLintedId.state.payload.id)
     .catch(_handleError('trying to list all issues'))
 
-  await issueProcessor.runLints(issues, workflow).catch(_handleError('trying to run lints on all issues'))
+  await _runLints(issues, issueProcessor, client, workflow).catch(_handleError('trying to run lints on all issues'))
   return { success: true, message: 'linted all issues' }
+}
+
+const _runLints = async (
+  issues: Issue[],
+  issueProcessor: IssueProcessor,
+  client: Client,
+  workflow: WorkflowHandlerProps['lintAll']['workflow']
+) => {
+  for (const issue of issues) {
+    await issueProcessor.runLint(issue)
+    await workflow.acknowledgeStartOfProcessing()
+    await client.setState({
+      id: workflow.id,
+      name: 'lastLintedId',
+      type: 'workflow',
+      payload: { id: issue.id },
+    })
+  }
 }
