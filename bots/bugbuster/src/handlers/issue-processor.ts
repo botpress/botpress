@@ -89,7 +89,7 @@ export class IssueProcessor {
       body: [
         `BugBuster Bot found the following problems with ${issue.identifier}:`,
         '',
-        ...errors.map((error: any) => `- ${error.message}`),
+        ...errors.map((error) => `- ${error.message}`),
       ].join('\n'),
     })
   }

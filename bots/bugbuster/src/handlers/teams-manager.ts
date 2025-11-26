@@ -44,6 +44,7 @@ export async function addTeam(client: bp.Client, botId: string, key: string, lin
   await _setWatchedTeams(client, botId, [...teamKeys, key])
   return {
     success: true,
+    result: undefined,
     message: `Success: the team with the key '${key}' has been added to the watched team list.`,
   }
 }

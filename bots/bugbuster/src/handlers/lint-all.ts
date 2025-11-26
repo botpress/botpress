@@ -36,5 +36,5 @@ export const lintAll = async (
     .catch(_handleError('trying to list all issues'))
 
   await issueProcessor.runLints(issues, workflow).catch(_handleError('trying to run lints on all issues'))
-  return { success: true, message: 'linted all issues' }
+  return { success: true, result: undefined, message: 'linted all issues' }
 }

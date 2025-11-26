@@ -1,5 +1,12 @@
 export type Result<T> = {
-  success: boolean
   message: string
-  result?: T
-}
+} & (
+  | {
+      success: true
+      result: T
+    }
+  | {
+      success: false
+      result?: undefined
+    }
+)
