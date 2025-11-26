@@ -297,7 +297,22 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           Object.assign(iteration, hookRes)
         }
       } catch (err) {
-        console.error('Error in onIterationStart hook:', err)
+        if (err instanceof ThinkSignal) {
+          iteration.end({
+            type: 'thinking_requested',
+            thinking_requested: {
+              variables: err.context,
+              reason: err.reason,
+            },
+          })
+        }
+        iteration.end({
+          type: 'execution_error',
+          execution_error: {
+            message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
+            stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+          },
+        })
       }
 
       if (controller.signal.aborted) {
