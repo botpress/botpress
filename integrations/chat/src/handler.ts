@@ -29,9 +29,9 @@ export const makeHandler =
       }
     }
 
-    if (websocket.isPushpinWebSocketRequest(args.req) && args.req.body) {
+    if (websocket.isWebSocketRequest(args.req) && args.req.body) {
       try {
-        return websocket.handlePushpinWebSocketRequest(props, args.req)
+        return websocket.handleWebSocketRequest(props, args.req)
       } catch {
         return {
           status: 400,

@@ -10,6 +10,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "@botpress/sdk": "workspace:*",
+    "@bpinternal/pingrip": "link:../../../packages/pingrip",
     "ajv": "^8.12.0",
     "axios": "1.2.5",
     "chalk": "^4.1.2",
