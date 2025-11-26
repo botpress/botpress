@@ -20,4 +20,12 @@ export default {
   startHitl,
   stopHitl,
   syncKb,
+  startMessagingHitl: async () => {
+    console.info('Messaging HITL is not supported in the Zendesk integration yet.')
+    return { conversationId: '1234' }
+  },
+  stopMessagingHitl: async () => {
+    console.info('Messaging HITL is not supported in the Zendesk integration yet.')
+    return {}
+  },
 } satisfies bp.IntegrationProps['actions']

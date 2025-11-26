@@ -40,31 +40,76 @@ export default new sdk.IntegrationDefinition({
           .optional(),
       }),
     },
+    hitlConversation: {
+      schema: sdk.z.object({}),
+    },
   },
-}).extend(hitl, (self) => ({
-  entities: {
-    hitlSession: self.entities.hitlTicket,
-  },
-  channels: {
-    hitl: {
-      title: 'Zendesk Ticket',
-      description: 'Human in the loop channel for managing Zendesk tickets',
-      conversation: {
-        tags: {
-          id: {
-            title: 'Zendesk Ticket ID',
-            description: 'The unique identifier of the Zendesk ticket associated with this conversation',
+})
+  .extend(hitl, (self) => ({
+    entities: {
+      hitlSession: self.entities.hitlTicket,
+    },
+    channels: {
+      hitl: {
+        title: 'Zendesk Ticket',
+        description: 'Human in the loop channel for managing Zendesk tickets',
+        conversation: {
+          tags: {
+            id: {
+              title: 'Zendesk Ticket ID',
+              description: 'The unique identifier of the Zendesk ticket associated with this conversation',
+            },
           },
         },
-      },
-      message: {
-        tags: {
-          zendeskCommentId: {
-            title: 'Zendesk Comment ID',
-            description: 'The ID of the comment in Zendesk',
+        message: {
+          tags: {
+            zendeskCommentId: {
+              title: 'Zendesk Comment ID',
+              description: 'The ID of the comment in Zendesk',
+            },
           },
         },
       },
     },
-  },
-}))
+  }))
+  .extend(hitl, (self) => ({
+    entities: {
+      hitlSession: self.entities.hitlConversation,
+    },
+    channels: {
+      hitl: {
+        name: 'messaging',
+        title: 'Zendesk Messaging (Sunco)',
+        description: 'Human in the loop channel for Zendesk Messaging',
+        conversation: {
+          tags: {
+            id: {
+              title: 'Zendesk Conversation ID',
+              description:
+                'The unique identifier of the Zendesk messaging conversation associated with this conversation',
+            },
+          },
+        },
+        message: {
+          tags: {
+            zendeskMessageId: {
+              title: 'Zendesk Message ID',
+              description: 'The unique identifier of the Zendesk messaging message associated with this message',
+            },
+          },
+        },
+      },
+    },
+    actions: {
+      startHitl: {
+        name: 'startMessagingHitl',
+        title: 'Start Zendesk Messaging HITL',
+        description: 'Starts a human in the loop session using Zendesk Messaging',
+      },
+      stopHitl: {
+        name: 'stopMessagingHitl',
+        title: 'Stop Zendesk Messaging HITL',
+        description: 'Stops a human in the loop session using Zendesk Messaging',
+      },
+    },
+  }))
