@@ -68,6 +68,19 @@ export type ExecutionHooks = {
   /**
    * BLOCKING HOOK
    *   This hook will block the execution of the iteration until it resolves.
+   *
+   * This hook will be called before each iteration starts, regardless of the status.
+   * This is useful for logging or dynamically change model arguments
+   */
+  onIterationStart?: (
+    iteration: Iteration,
+    controller: AbortController,
+    context: Context
+  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
    * NON-MUTATION HOOK
    *   This hook can't mutate the result or status of the iteration.
    *
@@ -253,7 +266,7 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
-  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+  const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
   const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -271,23 +284,29 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
   })
 
   try {
-    let prevIteration: Iteration | undefined
-    let iteration: Iteration | undefined
     while (true) {
       if (ctx.iterations.length >= ctx.loop) {
         return new ErrorExecutionResult(ctx, new LoopExceededError())
       }
 
-      prevIteration = iteration
-      iteration = await ctx.nextIteration()
+      const iteration = await ctx.nextIteration()
 
-      if (
-        prevIteration &&
-        prevIteration.status.type === 'thinking_requested' &&
-        prevIteration.status.thinking_requested.model
-      ) {
-        iteration.model = prevIteration.status.thinking_requested.model
+      try {
+        const hookRes = await onIterationStart?.(iteration, controller, ctx)
+        if (hookRes) {
+          Object.assign(iteration, hookRes)
+        }
+      } catch (err) {
+        console.error('Error in onIterationStart hook:', err)
       }
+
+      // if (
+      //   prevIteration &&
+      //   prevIteration.status.type === 'thinking_requested' &&
+      //   prevIteration.status.thinking_requested.model
+      // ) {
+      //   iteration.model = prevIteration.status.thinking_requested.model
+      // }
 
       if (controller.signal.aborted) {
         iteration.end({
@@ -653,7 +672,7 @@ const executeIteration = async ({
       thinking_requested: {
         variables: result.signal.context,
         reason: result.signal.reason,
-        model: result.signal.options?.modelOverride,
+        metadata: result.signal.metadata,
       },
     })
   }

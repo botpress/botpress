@@ -71,7 +71,7 @@ export namespace IterationStatuses {
     thinking_requested: {
       reason?: string
       variables: Record<string, unknown>
-      model?: Models
+      metadata?: Record<string, unknown>
     }
   }
 
