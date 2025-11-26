@@ -81,7 +81,7 @@ const makeCard = (card: Card): Attachment => {
   return CardFactory.heroCard(title, images, buttons, { subtitle })
 }
 
-const makeDropdownCard = (text: string, choices: { title: string; value: string }[]): Attachment => {
+const _makeDropdownCard = (text: string, choices: { title: string; value: string }[]): Attachment => {
   return CardFactory.adaptiveCard({
     // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
     body: [
@@ -193,7 +193,7 @@ const channel = {
       const choices = options.map((option) => ({ title: option.label, value: option.value }))
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [makeDropdownCard(text, choices)],
+        attachments: [_makeDropdownCard(text, choices)],
       }
       await renderTeams(props, activity)
     },
