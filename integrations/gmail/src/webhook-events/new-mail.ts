@@ -10,7 +10,6 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const bodyContent = JSON.parse(req.body || '{}')
 
   const data = bodyContent.message?.data
-  console.info('data', data)
 
   if (!data) {
     console.warn('Handler received an invalid body (no data)')
@@ -18,11 +17,9 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   }
 
   const messageData = JSON.parse(decodeBase64URL(data))
-  console.info('messageData', messageData)
 
   const { historyId: historyIdNumber, emailAddress } = messageData
   const historyId = `${historyIdNumber}`
-  console.info('historyId', historyId)
 
   if (!historyId) {
     console.warn('Handler received an invalid body (no historyId)')
@@ -30,7 +27,6 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   }
 
   // Only proceed if the incoming historyId is greater that the latest processed historyId
-  console.info('creating gmail client')
   const googleClient = await GoogleClient.create({ client, ctx })
 
   const {
@@ -56,8 +52,6 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   }
 
   const history = await googleClient.getMyHistory(lastHistoryId)
-
-  console.info(JSON.stringify(history, null, 2))
 
   const messageIds = history.history?.reduce((acc, h) => {
     h.messagesAdded?.forEach((m) => {
@@ -95,12 +89,8 @@ const _processMessage = async (
   googleClient: GoogleClient,
   emailAddress: string
 ) => {
-  console.info('getting history')
   const gmailMessage = await googleClient.getMessageById(messageId)
-
   const message = parseMessage(gmailMessage)
-  console.info('message', message)
-
   const threadId = message.threadId
 
   if (!threadId) {
@@ -112,13 +102,11 @@ const _processMessage = async (
   const inReplyTo = message.headers['message-id']
   const from = message.headers['from']
   const { name: senderName, email: userEmail } = _extractNameAndEmailFromSender(replyTo ?? from)
-  console.info('userEmail', userEmail)
 
   if (userEmail === emailAddress) {
     return
   }
 
-  console.info('threadId', threadId)
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
@@ -126,9 +114,7 @@ const _processMessage = async (
     },
   })
 
-  console.info('conversation', conversation)
-
-  const { conversation: updatedConversation } = await client.updateConversation({
+  await client.updateConversation({
     id: conversation.id,
     tags: {
       subject: message.headers['subject'],
@@ -138,13 +124,10 @@ const _processMessage = async (
     },
   })
 
-  console.info('updatedConversation', updatedConversation)
-
   if (!userEmail) {
     throw new Error('Handler received an empty from id')
   }
 
-  console.info('userEmail', userEmail)
   const { user } = await client.getOrCreateUser({
     tags: {
       id: `${userEmail}`,
@@ -171,7 +154,6 @@ const _processMessage = async (
     }
   }
 
-  console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
   await client.getOrCreateMessage({
     tags: { id: messageId },
     type: 'text',

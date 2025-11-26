@@ -73,7 +73,8 @@ export async function generateOutgoingMessage({
 function _generateImage(payload: Image, logger: bp.Logger): WhatsappMessages.Image | undefined {
   logger.forBot().debug('Sending WhatsApp Image')
   const url = payload.imageUrl.trim()
-  return new WhatsappMessages.Image(url, false)
+  const caption = payload.caption
+  return new WhatsappMessages.Image(url, false, caption)
 }
 
 async function _generateSticker(payload: Image, logger: bp.Logger): Promise<WhatsappMessages.Sticker | undefined> {
