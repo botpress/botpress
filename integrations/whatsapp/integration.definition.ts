@@ -95,7 +95,7 @@ const defaultBotPhoneNumberId = {
 export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.17',
+  version: '4.5.18',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -206,7 +206,7 @@ export default new IntegrationDefinition({
                   }),
                 }),
                 z.object({
-                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  type: z.literal('markdown'), // TODO Remove for 5.0.0
                   payload: z.object({
                     markdown: z.string(),
                   }),
