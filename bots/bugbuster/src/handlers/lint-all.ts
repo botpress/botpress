@@ -6,7 +6,7 @@ import { Issue } from 'src/utils/graphql-queries'
 import { LinearApi } from 'src/utils/linear-utils'
 import { IssueProcessor } from './issue-processor'
 import { listTeams } from './teams-manager'
-import { TBot, WorkflowHandlerProps, Client } from '.botpress'
+import { TBot, WorkflowHandlerProps } from '.botpress'
 
 export const lintAll = async (
   client: BotClient<TBot>,
@@ -43,7 +43,7 @@ export const lintAll = async (
 const _runLints = async (
   issues: Issue[],
   issueProcessor: IssueProcessor,
-  client: Client,
+  client: BotClient<TBot>,
   workflow: WorkflowHandlerProps['lintAll']['workflow']
 ) => {
   for (const issue of issues) {
