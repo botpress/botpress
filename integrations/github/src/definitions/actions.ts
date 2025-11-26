@@ -14,8 +14,8 @@ export const actions = {
     description: 'Find a target in a repository',
     input: {
       schema: z.object({
-        query: z.string().title('Query').describe('The query used to find the target'),
-        channel: z.enum(Channels).title('Channel').describe('The channel of the target'),
+        query: z.string().title('Query').describe('The search query'),
+        channel: z.enum(Channels).title('Channel').describe('The channel in which to execute the query'),
         repo: z.string().title('Repository').describe('The repository name'),
       }),
     },
@@ -25,8 +25,8 @@ export const actions = {
           .array(
             z.object({
               displayName: z.string().title('Display Name').describe('The display name'),
-              tags: z.record(z.string()).title('Tags').describe('The tags associated with the target'),
-              channel: z.enum(Channels).title('Channel').describe('The channel of the target'),
+              tags: z.record(z.string()).title('Tags').describe('The tags'),
+              channel: z.enum(Channels).title('Channel').describe('The channel'),
             })
           )
           .title('Targets')
