@@ -1,7 +1,6 @@
 /* bplint-disable */
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-
 import { INTEGRATION_NAME } from './src/const'
 import { actions, events, configuration, configurations, channels, user, secrets, states } from './src/definitions'
 
@@ -22,7 +21,7 @@ export default new sdk.IntegrationDefinition({
   identifier: {
     extractScript: 'extract.vrl',
   },
-  secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
+  secrets: { ...secrets, ...posthogHelper.COMMON_SECRET_NAMES },
   __advanced: {
     useLegacyZuiTransformer: true,
   },
