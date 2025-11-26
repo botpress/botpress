@@ -1,6 +1,7 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
 import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
 import { getAdapter, sleep } from '../utils'
+import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
 export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.HandlerProps, activity: Activity) => {
@@ -48,6 +49,8 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
       })
 
       const message = _attemptRichTextExtractionAndConversion(activity)
+      // Will be fixed in next commit
+      const _message = _extractDropdownValue(activity) ?? activity.text
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
@@ -75,4 +78,12 @@ const _attemptRichTextExtractionAndConversion = (activity: Activity): string => 
    *  @remark Using coalescence operator (??) since messages
    *   with no text can happen (e.g. image only messages) */
   return activity.text ?? ''
+}
+
+const _extractDropdownValue = (activity: Activity): string | undefined => {
+  if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
+    return activity.value[DROPDOWN_VALUE_ID]
+  }
+
+  return undefined
 }
