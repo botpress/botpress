@@ -19,7 +19,7 @@ type BotpressCard = bp.channels.channel.card.Card
 type Action = BotpressCard['actions'][number]
 type ActionType = Action['action']
 
-const renderTeams = async (
+const _renderTeams = async (
   { ctx, ack, conversation, client, logger }: bp.AnyMessageProps,
   activity: Partial<Activity>
 ) => {
@@ -45,7 +45,7 @@ const renderTeams = async (
   })
 }
 
-const mapActionType = (action: ActionType): ActionTypes => {
+const _mapActionType = (action: ActionType): ActionTypes => {
   if (action === 'postback') {
     return ActionTypes.MessageBack
   }
@@ -58,15 +58,15 @@ const mapActionType = (action: ActionType): ActionTypes => {
   return ActionTypes.MessageBack
 }
 
-const mapAction = (action: Action): CardAction => ({
-  type: mapActionType(action.action),
+const _mapAction = (action: Action): CardAction => ({
+  type: _mapActionType(action.action),
   title: action.label,
   value: action.value,
   text: action.label,
   displayText: action.label,
 })
 
-const mapChoice = (choice: Alternative): CardAction => ({
+const _mapChoice = (choice: Alternative): CardAction => ({
   type: ActionTypes.MessageBack,
   title: choice.label,
   displayText: choice.label,
@@ -74,9 +74,9 @@ const mapChoice = (choice: Alternative): CardAction => ({
   text: choice.label,
 })
 
-const makeCard = (card: BotpressCard): Attachment => {
+const _makeCard = (card: Card): Attachment => {
   const { actions, imageUrl, subtitle, title } = card
-  const buttons: CardAction[] = actions.map(mapAction)
+  const buttons: CardAction[] = actions.map(_mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
   return CardFactory.heroCard(title, images, buttons, { subtitle })
 }
@@ -91,7 +91,7 @@ const channel = {
         textFormat: 'xml',
         text: xml,
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     image: async (props) => {
       const { imageUrl } = props.payload
@@ -99,7 +99,7 @@ const channel = {
         type: 'message',
         attachments: [CardFactory.heroCard('', [{ url: imageUrl }])],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     audio: async (props) => {
       const { audioUrl } = props.payload
@@ -107,7 +107,7 @@ const channel = {
         type: 'message',
         attachments: [CardFactory.audioCard('', [{ url: audioUrl }])],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     video: async (props) => {
       const { videoUrl } = props.payload
@@ -115,39 +115,39 @@ const channel = {
         type: 'message',
         attachments: [CardFactory.videoCard('', [{ url: videoUrl }])],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     file: async (props) => {
       const { fileUrl } = props.payload
       const activity: Partial<Activity> = { type: 'message', text: fileUrl }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     location: async (props) => {
       const { latitude, longitude } = props.payload
       const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
       const activity: Partial<Activity> = { type: 'message', text: googleMapsLink }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     carousel: async (props) => {
       const { items } = props.payload
-      const activity = MessageFactory.carousel(items.map(makeCard))
-      await renderTeams(props, activity)
+      const activity = MessageFactory.carousel(items.map(_makeCard))
+      await _renderTeams(props, activity)
     },
     card: async (props) => {
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [makeCard(props.payload)],
+        attachments: [_makeCard(props.payload)],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     choice: async (props) => {
       const { options, text } = props.payload
-      const buttons: CardAction[] = options.map(mapChoice)
+      const buttons: CardAction[] = options.map(_mapChoice)
       const activity: Partial<Activity> = {
         type: 'message',
         attachments: [CardFactory.heroCard(text, [], buttons)],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     dropdown: async (props) => {
       // TODO: actually implement a dropdown and not a choice
@@ -157,12 +157,12 @@ const channel = {
       //           - patience to mess around with adaptive cards
 
       const { options, text } = props.payload
-      const buttons: CardAction[] = options.map(mapChoice)
+      const buttons: CardAction[] = options.map(_mapChoice)
       const activity: Partial<Activity> = {
         type: 'message',
         attachments: [CardFactory.heroCard(text, [], buttons)],
       }
-      await renderTeams(props, activity)
+      await _renderTeams(props, activity)
     },
     bloc: () => {
       throw new RuntimeError('Not implemented')
