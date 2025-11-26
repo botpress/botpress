@@ -190,6 +190,11 @@ export default new IntegrationDefinition({
             filename: z.string().optional(),
           }),
         },
+        image: {
+          schema: messages.defaults.image.schema.extend({
+            caption: z.string().optional(),
+          }),
+        },
         bloc: {
           schema: z.object({
             items: z.array(
