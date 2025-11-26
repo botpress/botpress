@@ -300,14 +300,6 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
         console.error('Error in onIterationStart hook:', err)
       }
 
-      // if (
-      //   prevIteration &&
-      //   prevIteration.status.type === 'thinking_requested' &&
-      //   prevIteration.status.thinking_requested.model
-      // ) {
-      //   iteration.model = prevIteration.status.thinking_requested.model
-      // }
-
       if (controller.signal.aborted) {
         iteration.end({
           type: 'aborted',

@@ -1,4 +1,3 @@
-import { Models } from '@botpress/cognitive'
 import { JSONSchema7 } from 'json-schema'
 import { type Assignment } from './compiler/plugins/track-tool-calls.js'
 import { cleanStackTrace } from './stack-traces.js'
