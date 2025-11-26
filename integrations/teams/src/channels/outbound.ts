@@ -13,7 +13,9 @@ import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
 type Choice = bp.channels.channel.choice.Choice
-type Alternative = Choice['options'][number]
+type ChoiceOption = Choice['options'][number]
+type Dropdown = bp.channels.channel.dropdown.Dropdown
+type DropdownOption = Dropdown['options'][number]
 
 type Card = bp.channels.channel.card.Card
 type Action = Card['actions'][number]
@@ -66,7 +68,7 @@ const _mapAction = (action: Action): CardAction => ({
   displayText: action.label,
 })
 
-const _mapChoice = (choice: Alternative): CardAction => ({
+const _mapChoice = (choice: ChoiceOption): CardAction => ({
   type: ActionTypes.MessageBack,
   title: choice.label,
   displayText: choice.label,
@@ -81,7 +83,12 @@ const _makeCard = (card: Card): Attachment => {
   return CardFactory.heroCard(title, images, buttons, { subtitle })
 }
 
-const _makeDropdownCard = (text: string, choices: { title: string; value: string }[]): Attachment => {
+const _makeDropdownCard = (text: string, options: DropdownOption[]): Attachment => {
+  const choices = options.map((option: DropdownOption) => ({
+    title: option.label,
+    value: option.value,
+  }))
+
   return CardFactory.adaptiveCard({
     // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
     body: [
@@ -190,10 +197,9 @@ const channel = {
     },
     dropdown: async (props) => {
       const { options, text } = props.payload
-      const choices = options.map((option) => ({ title: option.label, value: option.value }))
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [_makeDropdownCard(text, choices)],
+        attachments: [_makeDropdownCard(text, options)],
       }
       await _renderTeams(props, activity)
     },
