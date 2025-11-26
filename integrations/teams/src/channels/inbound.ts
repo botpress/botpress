@@ -48,9 +48,7 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         },
       })
 
-      const message = _attemptRichTextExtractionAndConversion(activity)
-      // Will be fixed in next commit
-      const _message = _extractDropdownValue(activity) ?? activity.text
+      const message = _extractMessage(activity)
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
@@ -64,8 +62,13 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   }
 }
 
-/** Attempts to extract & convert the rich text if it can find it, otherwise it falls back to plain text */
-const _attemptRichTextExtractionAndConversion = (activity: Activity): string => {
+const _extractMessage = (activity: Activity): string => {
+  // Handle dropdown value
+  if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
+    return String(activity.value[DROPDOWN_VALUE_ID])
+  }
+
+  // Handle HTML attachment (Any richtext/markdown will convert/show up as HTML)
   if (activity.attachments) {
     const htmlAttachment = activity.attachments.find((attachment) => attachment.contentType === 'text/html')
     if (htmlAttachment && typeof htmlAttachment.content === 'string') {
@@ -78,12 +81,4 @@ const _attemptRichTextExtractionAndConversion = (activity: Activity): string => 
    *  @remark Using coalescence operator (??) since messages
    *   with no text can happen (e.g. image only messages) */
   return activity.text ?? ''
-}
-
-const _extractDropdownValue = (activity: Activity): string | undefined => {
-  if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
-    return activity.value[DROPDOWN_VALUE_ID]
-  }
-
-  return undefined
 }
