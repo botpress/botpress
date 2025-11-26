@@ -9,10 +9,13 @@ import {
   MessageFactory,
 } from 'botbuilder'
 import { getAdapter } from '../utils'
+import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
 type Choice = bp.channels.channel.choice.Choice
-type Alternative = Choice['options'][number]
+type ChoiceOption = Choice['options'][number]
+type Dropdown = bp.channels.channel.dropdown.Dropdown
+type DropdownOption = Dropdown['options'][number]
 
 type Card = bp.channels.channel.card.Card
 type Action = Card['actions'][number]
@@ -65,7 +68,7 @@ const _mapAction = (action: Action): CardAction => ({
   displayText: action.label,
 })
 
-const _mapChoice = (choice: Alternative): CardAction => ({
+const _mapChoice = (choice: ChoiceOption): CardAction => ({
   type: ActionTypes.MessageBack,
   title: choice.label,
   displayText: choice.label,
@@ -78,6 +81,39 @@ const _makeCard = (card: Card): Attachment => {
   const buttons: CardAction[] = actions.map(_mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
   return CardFactory.heroCard(title, images, buttons, { subtitle })
+}
+
+const _makeDropdownCard = (text: string, options: DropdownOption[]): Attachment => {
+  const choices = options.map((option: DropdownOption) => ({
+    title: option.label,
+    value: option.value,
+  }))
+
+  return CardFactory.adaptiveCard({
+    // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
+    body: [
+      {
+        type: 'TextBlock',
+        text,
+        wrap: true,
+        weight: 'Bolder',
+      },
+      {
+        id: DROPDOWN_VALUE_ID,
+        type: 'Input.ChoiceSet',
+        placeholder: 'Select...',
+        style: 'compact',
+        choices,
+      },
+    ],
+    actions: [
+      {
+        type: 'Action.Submit',
+        title: 'Submit',
+        data: { kind: DROPDOWN_VALUE_KIND },
+      },
+    ],
+  })
 }
 
 const channel = {
@@ -160,17 +196,10 @@ const channel = {
       await _renderTeams(props, activity)
     },
     dropdown: async (props) => {
-      // TODO: actually implement a dropdown and not a choice
-      //       requires:
-      //           - a submit button text
-      //           - a dropdown placeholder
-      //           - patience to mess around with adaptive cards
-
       const { options, text } = props.payload
-      const buttons: CardAction[] = options.map(_mapChoice)
       const activity: Partial<Activity> = {
         type: 'message',
-        attachments: [CardFactory.heroCard(text, [], buttons)],
+        attachments: [_makeDropdownCard(text, options)],
       }
       await _renderTeams(props, activity)
     },
