@@ -1,3 +1,5 @@
+import { posthogHelper } from '@botpress/common'
+import { INTEGRATION_NAME } from 'integration.definition'
 import {
   Text,
   Audio,
@@ -24,6 +26,8 @@ import * as dropdown from './message-types/dropdown'
 import * as image from './message-types/image'
 import * as bp from '.botpress'
 
+const PART_DELAY_MS = 1000
+
 export const channel: bp.IntegrationProps['channels']['channel'] = {
   messages: {
     text: async ({ payload, ...props }) => {
@@ -37,34 +41,35 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       const messagesToSend = splitTextMessageIfNeeded(text)
 
       if (messagesToSend.length === 0) {
+        await posthogHelper.sendPosthogEvent(
+          {
+            distinctId: props.conversation.tags.userPhone ?? props.conversation.id ?? props.message.id ?? 'no id',
+            event: 'no_message_to_send',
+            properties: {
+              from: 'channel',
+              messageId: props.message.id,
+            },
+          },
+          { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+        )
         props.logger.forBot().warn(`Message ${props.message.id} skipped: no message to send.`)
         return
       }
 
-      if (messagesToSend.length === 1) {
-        await _send({
-          client: props.client,
-          ctx: props.ctx,
-          conversation: props.conversation,
-          message: messagesToSend[0],
-          ack: props.ack,
-          logger: props.logger,
-        })
-
-        return
-      }
-
       for (let i = 0; i < messagesToSend.length; i++) {
+        if (i > 0) {
+          // Adding delay between parts to avoid messages being sent out of order
+          await sleep(PART_DELAY_MS)
+        }
+
         await _send({
           client: props.client,
           ctx: props.ctx,
           conversation: props.conversation,
-          message: messagesToSend[i],
+          message: new Text(messagesToSend[i]!),
           ack: props.ack,
           logger: props.logger,
         })
-
-        await waitForNextPart(i < messagesToSend.length - 1)
       }
     },
     image: async ({ payload, logger, ...props }) => {
@@ -157,18 +162,21 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
               break
             }
             const blocText = convertMarkdownToWhatsApp(item.payload.text)
-            const blocMessagesToSend = splitTextMessageIfNeeded(blocText)
-            for (let i = 0; i < blocMessagesToSend.length; i++) {
+            const messagesToSend = splitTextMessageIfNeeded(blocText)
+            for (let i = 0; i < messagesToSend.length; i++) {
+              if (i > 0) {
+                // Adding delay between parts to avoid messages being sent out of order
+                await sleep(PART_DELAY_MS)
+              }
+
               await _send({
                 client: props.client,
                 ctx: props.ctx,
                 conversation: props.conversation,
-                message: blocMessagesToSend[i],
+                message: new Text(messagesToSend[i]!),
                 ack: props.ack,
                 logger: props.logger,
               })
-
-              await waitForNextPart(i < blocMessagesToSend.length - 1)
             }
             break
           case 'image':
@@ -207,14 +215,6 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
       }
     },
   },
-}
-
-const PART_DELAY_MS = 1000
-
-async function waitForNextPart(shouldWait: boolean) {
-  if (shouldWait) {
-    await sleep(PART_DELAY_MS)
-  }
 }
 
 type OutgoingMessage =
@@ -259,6 +259,7 @@ const MAX_ATTEMPT = 3
 
 async function _send({ client, ctx, conversation, logger, message, ack }: SendMessageProps) {
   if (!message) {
+    logger.forBot().debug('No message to send')
     return
   }
 
