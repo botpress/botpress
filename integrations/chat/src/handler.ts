@@ -3,6 +3,7 @@ import * as api from './api'
 import { extraRoutes } from './extra-routes'
 import { handleRequest } from './gen/handler'
 import { Handler } from './types'
+import * as websocket from './websocket'
 
 const isPushpinRequest = (req: Request) => 'grip-sig' in req.headers
 
@@ -28,7 +29,19 @@ export const makeHandler =
       }
     }
 
+    if (websocket.isPushpinWebSocketRequest(args.req) && args.req.body) {
+      try {
+        return websocket.handlePushpinWebSocketRequest(props, args.req)
+      } catch {
+        return {
+          status: 400,
+          body: JSON.stringify({ message: 'Malformed request payload' }),
+        }
+      }
+    }
+
     const { auth, signals, convIdStore, userIdStore, apiUtils } = props
+
     return handleRequest(routes, {
       ...args,
       auth,
