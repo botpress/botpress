@@ -1,4 +1,3 @@
-// oxlint-disable-next-line no-unused-vars
 import type { Node, LinkReference, Parent, Nodes, Definition, TableCell } from 'mdast'
 
 export type Merge<T, R> = Omit<T, keyof R> & R
