@@ -12,8 +12,8 @@ export type Target = {
 const findTarget = {
   input: {
     schema: z.object({
-      query: z.string(),
-      channel: z.enum(Channels),
+      query: z.string().title('Query').describe('The search query'),
+      channel: z.enum(Channels).title('Channel').describe('The channel in which to execute the query'),
       repo: z.string().title('Repository').describe('The repository name'),
     }),
   },
@@ -21,9 +21,9 @@ const findTarget = {
     schema: z.object({
       targets: z.array(
         z.object({
-          displayName: z.string(),
-          tags: z.record(z.string()),
-          channel: z.enum(Channels),
+          displayName: z.string().title('Display Name').describe('The display name'),
+          tags: z.record(z.string()).title('Tags').describe('The tags'),
+          channel: z.enum(Channels).title('Channel').describe('The channel'),
         })
       ),
     }),
