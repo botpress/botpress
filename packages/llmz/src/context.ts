@@ -71,6 +71,7 @@ export namespace IterationStatuses {
     thinking_requested: {
       reason?: string
       variables: Record<string, unknown>
+      metadata?: Record<string, unknown>
     }
   }
 
@@ -416,6 +417,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return this._parameters.model
   }
 
+  public set model(value: Models | Models[]) {
+    this._parameters.model = value
+  }
+
   public get temperature() {
     return this._parameters.temperature
   }
@@ -443,6 +448,12 @@ export class Iteration implements Serializable<Iteration.JSON> {
     spend: number
     output: string
     model: string
+    usage: {
+      inputCost: number
+      outputCost: number
+      inputTokens: number
+      outputTokens: number
+    }
   }
 
   public hasExited(this: this): this is this & { status: IterationStatuses.ExitSuccess } {
