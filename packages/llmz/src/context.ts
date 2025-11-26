@@ -417,6 +417,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return this._parameters.model
   }
 
+  public set model(value: Models | Models[]) {
+    this._parameters.model = value
+  }
+
   public get temperature() {
     return this._parameters.temperature
   }
