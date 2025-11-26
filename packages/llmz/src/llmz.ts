@@ -305,7 +305,16 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
               reason: err.reason,
             },
           })
+
+          try {
+            await onIterationEnd?.(iteration, controller)
+          } catch (err) {
+            console.error(err)
+          }
+
+          continue
         }
+
         iteration.end({
           type: 'execution_error',
           execution_error: {
