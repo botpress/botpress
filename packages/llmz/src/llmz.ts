@@ -292,36 +292,17 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       const iteration = await ctx.nextIteration()
 
       try {
-        const hookRes = await onIterationStart?.(iteration, controller, ctx)
-        if (hookRes) {
-          Object.assign(iteration, hookRes)
-        }
+        await executeOnIterationStartHook({
+          iteration,
+          ctx,
+          onIterationStart,
+          controller,
+          onIterationEnd,
+        })
       } catch (err) {
         if (err instanceof ThinkSignal) {
-          iteration.end({
-            type: 'thinking_requested',
-            thinking_requested: {
-              variables: err.context,
-              reason: err.reason,
-            },
-          })
-
-          try {
-            await onIterationEnd?.(iteration, controller)
-          } catch (err) {
-            console.error(err)
-          }
-
           continue
         }
-
-        iteration.end({
-          type: 'execution_error',
-          execution_error: {
-            message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
-            stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
-          },
-        })
       }
 
       if (controller.signal.aborted) {
@@ -956,5 +937,48 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
     }
 
     return output
+  }
+}
+
+const executeOnIterationStartHook = async (props: {
+  iteration: Iteration
+  ctx: Context
+  onIterationStart?: ExecutionHooks['onIterationStart']
+  onIterationEnd?: ExecutionHooks['onIterationEnd']
+  controller: AbortController
+}) => {
+  const { iteration, ctx, onIterationStart, controller, onIterationEnd } = props
+
+  try {
+    const hookRes = await onIterationStart?.(iteration, controller, ctx)
+    if (hookRes) {
+      Object.assign(iteration, hookRes)
+    }
+  } catch (err) {
+    if (err instanceof ThinkSignal) {
+      iteration.end({
+        type: 'thinking_requested',
+        thinking_requested: {
+          variables: err.context,
+          reason: err.reason,
+        },
+      })
+
+      try {
+        await onIterationEnd?.(iteration, controller)
+      } catch (err) {
+        console.error(err)
+      }
+    } else {
+      iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
+          stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+        },
+      })
+    }
+
+    throw err
   }
 }
