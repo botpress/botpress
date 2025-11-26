@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { RuntimeError } from '@botpress/sdk'
 import { GoogleClient } from '../google-api'
 import {
   composeRawEmail,
@@ -144,7 +145,6 @@ export const channels = {
 
 const _sendEmailReply = async ({
   conversation,
-  logger,
   ack,
   textContent,
   htmlContent,
@@ -157,7 +157,7 @@ const _sendEmailReply = async ({
   inReplyTo: string
   googleClient: GoogleClient
 }) => {
-  const { threadId, email, subject, references, cc } = _getConversationInfo(conversation, logger)
+  const { threadId, email, subject, references, cc } = _getConversationInfo(conversation)
 
   const raw = await composeRawEmail({
     to: email,
@@ -175,13 +175,12 @@ const _sendEmailReply = async ({
   await ack({ tags: { id: `${res.id}` } })
 }
 
-const _getConversationInfo = (conversation: bp.AnyMessageProps['conversation'], logger: bp.Logger) => {
+const _getConversationInfo = (conversation: bp.AnyMessageProps['conversation']) => {
   const { id, tags } = conversation
   const { id: threadId, subject, email, references, cc } = tags
 
   if (!(threadId && subject && email)) {
-    logger.forBot().error(`No valid information found for conversation ${id}`)
-    throw new Error(`No valid information found for conversation ${id}`)
+    throw new RuntimeError(`No valid information found for conversation ${id}`)
   }
 
   return { threadId, subject, email, references, cc }
