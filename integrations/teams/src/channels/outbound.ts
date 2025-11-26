@@ -74,7 +74,7 @@ const _mapChoice = (choice: Alternative): CardAction => ({
   text: choice.label,
 })
 
-const _makeCard = (card: Card): Attachment => {
+const _makeCard = (card: BotpressCard): Attachment => {
   const { actions, imageUrl, subtitle, title } = card
   const buttons: CardAction[] = actions.map(_mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
