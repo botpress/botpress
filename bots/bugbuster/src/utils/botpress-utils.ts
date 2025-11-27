@@ -12,6 +12,8 @@ export type ErrorHandlerProps = {
   context: string
   conversationId?: string
 }
+
+// TODO: most of this class is not really meant to be in utils, consider moving it in services like the teams-manager class
 export class BotpressApi {
   private constructor(
     private _client: bp.Client,
