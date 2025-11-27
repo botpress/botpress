@@ -31,7 +31,7 @@ const pullRequestOpened = {
     targets: z
       .object({
         pullRequest: z.string().optional().title('DEPRECATED: pullRequest').describe('use pullRequest.number instead'),
-        issue: z.string().optional().title('DEPRECATED: issue').describe('not needed'),
+        issue: z.string().optional().title('DEPRECATED: issue').describe('Not needed'),
         discussion: z.string().optional().title('DEPRECATED: discussion').describe('Not needed'),
       })
       .title('DEPRECATED: targets')

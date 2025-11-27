@@ -30,7 +30,7 @@ export const actions = {
             })
           )
           .title('Targets')
-          .describe('The list of target received'),
+          .describe('The list of received target'),
       }),
     },
   },
