@@ -33,12 +33,8 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
     .catch(_handleError('trying to list all issues'))
 
   for (const issue of issues) {
-    try {
-      await issueProcessor.runLint(issue)
-      await workflow.acknowledgeStartOfProcessing()
-    } catch {
-      return
-    }
+    await issueProcessor.runLint(issue)
+    await workflow.acknowledgeStartOfProcessing()
     await client.setState({
       id: workflow.id,
       name: 'lastLintedId',
