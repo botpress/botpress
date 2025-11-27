@@ -5,8 +5,10 @@ export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] =
   const { event } = props
   const { number: issueNumber, teamKey } = event.payload
 
-  const { issueProcessor } = await bootstrap(props)
-  const issue = await issueProcessor.findIssue(issueNumber, teamKey, 'created')
+  const { botpress, issueProcessor } = await bootstrap(props)
+  const issue = await issueProcessor
+    .findIssue(issueNumber, teamKey, 'created')
+    .catch((thrown) => botpress.handleError({ context: 'trying to find the created Linear issue' }, thrown))
 
   if (!issue) {
     return
