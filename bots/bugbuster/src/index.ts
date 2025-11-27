@@ -1,5 +1,4 @@
 import * as handlers from './handlers'
-import * as utils from './utils'
 import * as bp from '.botpress'
 
 export const bot = new bp.Bot({ actions: {} })
@@ -11,13 +10,6 @@ bot.on.message('*', handlers.handleMessageCreated)
 
 bot.on.workflowStart('lintAll', handlers.handleLintAll)
 bot.on.workflowContinue('lintAll', handlers.handleLintAll)
-bot.on.workflowTimeout('lintAll', async (props) => {
-  const { conversation } = props
-
-  const botpress = utils.botpress.BotpressApi.create(props)
-  if (conversation?.id) {
-    await botpress.respondText(conversation.id, "Error: the 'lintAll' operation timed out")
-  }
-})
+bot.on.workflowTimeout('lintAll', handlers.handleLintAllTimeout)
 
 export default bot
