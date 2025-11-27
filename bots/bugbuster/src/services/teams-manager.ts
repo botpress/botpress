@@ -1,4 +1,4 @@
-import * as lin from 'src/utils/linear-utils'
+import * as lin from '../utils/linear-utils'
 import * as bp from '.botpress'
 
 export class TeamsManager {
