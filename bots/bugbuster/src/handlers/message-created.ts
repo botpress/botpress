@@ -1,5 +1,5 @@
 import * as bp from '.botpress'
-import { bootstrap } from 'src/bootstrap'
+import * as boot from 'src/bootstrap'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
@@ -17,7 +17,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const { botpress, teamsManager } = await bootstrap(props, conversation.id)
+  const { botpress, teamsManager } = await boot.bootstrap(props, conversation.id)
 
   if (message.type !== 'text') {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)

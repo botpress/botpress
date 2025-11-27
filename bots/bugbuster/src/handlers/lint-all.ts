@@ -1,12 +1,12 @@
-import { WorkflowHandlerProps } from '.botpress'
-import { bootstrap } from 'src/bootstrap'
+import * as bp from '.botpress'
+import * as boot from 'src/bootstrap'
 
-export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Promise<void> => {
+export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, conversation } = props
 
   const conversationId = conversation?.id
 
-  const { botpress, teamsManager, issueProcessor } = await bootstrap(props, conversationId)
+  const { botpress, teamsManager, issueProcessor } = await boot.bootstrap(props, conversationId)
 
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
