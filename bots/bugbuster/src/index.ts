@@ -12,17 +12,11 @@ bot.on.message('*', handlers.handleMessageCreated)
 bot.on.workflowStart('lintAll', handlers.handleLintAll)
 bot.on.workflowContinue('lintAll', handlers.handleLintAll)
 bot.on.workflowTimeout('lintAll', async (props) => {
-  const {
-    client,
-    ctx,
-    workflow: {
-      input: { conversationId },
-    },
-  } = props
+  const { client, ctx, conversation } = props
 
   const botpress = new BotpressApi(client, ctx.botId)
-  if (conversationId) {
-    await botpress.respondText(conversationId, "Error: the 'lintAll' operation timed out")
+  if (conversation?.id) {
+    await botpress.respondText(conversation.id, "Error: the 'lintAll' operation timed out")
   }
 })
 
