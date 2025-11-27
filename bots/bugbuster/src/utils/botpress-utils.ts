@@ -19,7 +19,7 @@ export class BotpressApi {
     private _logger: sdk.BotLogger
   ) {}
 
-  public static async create(props: types.CommonHandlerProps): Promise<BotpressApi> {
+  public static create(props: types.CommonHandlerProps): BotpressApi {
     return new BotpressApi(props.client, props.ctx.botId, props.logger)
   }
 

@@ -14,7 +14,7 @@ bot.on.workflowContinue('lintAll', handlers.handleLintAll)
 bot.on.workflowTimeout('lintAll', async (props) => {
   const { conversation } = props
 
-  const botpress = await BotpressApi.create(props)
+  const botpress = BotpressApi.create(props)
   if (conversation?.id) {
     await botpress.respondText(conversation.id, "Error: the 'lintAll' operation timed out")
   }
