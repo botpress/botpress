@@ -5,6 +5,7 @@ import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
+import { Result } from './misc/types'
 import { getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -23,13 +24,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const linearEvent: LinearEvent = JSON.parse(req.body)
   linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
-  if (!_isWebhookProperlyAuthenticated({ req, linearEvent, ctx })) {
-    logger
-      .forBot()
-      .error(
-        'Received a webhook event that is not properly authenticated. Please ensure the webhook signing secret is correct.'
-      )
-    throw new Error('Webhook event is not properly authenticated: the signing secret is invalid.')
+  const result = _isWebhookProperlyAuthenticated({ req, linearEvent, ctx })
+  if (!result.success) {
+    const message = `Error while verifying webhook signature: ${result.message}`
+    logger.forBot().error(message)
+    throw new Error(message)
   }
 
   // ============ EVENTS ==============
@@ -93,20 +92,28 @@ const _isWebhookProperlyAuthenticated = ({
   req: Request
   linearEvent: LinearEvent
   ctx: bp.Context
-}) => {
+}): Result<void> => {
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
 
   if (!webhookSignatureHeader || !req.body) {
-    return
+    return { success: false, message: 'missing signature header or request body', result: undefined }
   }
 
   const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
   try {
-    return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
-  } catch {
-    return false
+    const result = webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+    if (result) {
+      return { success: true, message: undefined, result: undefined }
+    }
+    return { success: false, message: 'webhook signature verification failed', result: undefined }
+  } catch (thrown) {
+    return {
+      success: false,
+      message: thrown instanceof Error ? thrown.message : 'webhook signature verification failed',
+      result: undefined,
+    }
   }
 }
 

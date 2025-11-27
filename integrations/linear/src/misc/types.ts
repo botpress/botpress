@@ -20,3 +20,15 @@ export type MessageDefinition = sdk.MessageDefinition
 export type ActionProps = bp.AnyActionProps
 export type MessageHandlerProps = bp.AnyMessageProps
 export type AckFunction = bp.AnyAckFunction
+
+export type Result<T> =
+  | {
+      success: true
+      result: T
+      message?: undefined
+    }
+  | {
+      success: false
+      result?: undefined
+      message: string
+    }
