@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import hitl from './bp_modules/hitl'
@@ -7,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '2.8.4',
+  version: '2.8.5',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -42,9 +41,6 @@ export default new sdk.IntegrationDefinition({
       }),
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(hitl, (self) => ({
   entities: {
     hitlSession: self.entities.hitlTicket,
@@ -52,10 +48,12 @@ export default new sdk.IntegrationDefinition({
   channels: {
     hitl: {
       title: 'Zendesk Ticket',
+      description: 'Human in the loop channel for managing Zendesk tickets',
       conversation: {
         tags: {
           id: {
             title: 'Zendesk Ticket ID',
+            description: 'The unique identifier of the Zendesk ticket associated with this conversation',
           },
         },
       },

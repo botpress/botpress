@@ -189,7 +189,7 @@ const deploySchema = {
     type: 'string',
     choices: ['public', 'private', 'unlisted'] as const,
     description:
-      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations.',
+      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations and plugins.',
     default: 'private',
   },
   public: {
@@ -237,6 +237,10 @@ const addSchema = {
     type: 'boolean',
     description: 'If a dev version of the package is found, use it',
     default: false,
+  },
+  alias: {
+    type: 'string',
+    description: 'The alias of the dependency you want to install',
   },
 } satisfies CommandSchema
 
@@ -291,6 +295,9 @@ const listIntegrationsSchema = {
   ...credentialsSchema,
   name: { type: 'string', description: 'The name filter when listing integrations' },
   versionNumber: { type: 'string', description: 'The version filter when listing integrations' },
+  owned: { type: 'boolean', description: 'List only owned integrations' },
+  public: { type: 'boolean', description: 'List only public integrations' },
+  limit: { type: 'number', description: 'Limit the number of integrations returned' },
   dev,
 } satisfies CommandSchema
 

@@ -81,35 +81,39 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   }
 
   protected async getAuthenticatedClient(credentials: Partial<YargsConfig<typeof config.schemas.credentials>>) {
-    const cache = this.globalCache
+    try {
+      const cache = this.globalCache
 
-    let token: string | undefined
-    let workspaceId: string | undefined
-    let apiUrl: string | undefined
+      let token: string | undefined
+      let workspaceId: string | undefined
+      let apiUrl: string | undefined
 
-    if (this.argv.profile) {
-      if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
-        this.logger.warn(
-          'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
-        )
+      if (this.argv.profile) {
+        if (credentials.token || credentials.workspaceId || credentials.apiUrl) {
+          this.logger.warn(
+            'You are currently using credential command line arguments or environment variables as well as a profile. Your profile has overwritten the variables'
+          )
+        }
+        ;({ token, workspaceId, apiUrl } = await this.readProfileFromFS(this.argv.profile))
+        this.logger.log(`Using profile "${this.argv.profile}"`, { prefix: '👤' })
+      } else {
+        token = credentials.token ?? (await cache.get('token'))
+        workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
+        apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
       }
-      ;({ token, workspaceId, apiUrl } = await this.readProfileFromFS(this.argv.profile))
-      this.logger.log(`Using profile "${this.argv.profile}"`, { prefix: '👤' })
-    } else {
-      token = credentials.token ?? (await cache.get('token'))
-      workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
-      apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
-    }
 
-    if (!(token && workspaceId && apiUrl)) {
-      return null
-    }
+      if (!(token && workspaceId && apiUrl)) {
+        return null
+      }
 
-    if (apiUrl !== consts.defaultBotpressApiUrl) {
-      this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
-    }
+      if (apiUrl !== consts.defaultBotpressApiUrl) {
+        this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
+      }
 
-    return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+      return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
+    } catch (thrown) {
+      throw errors.BotpressCLIError.wrap(thrown, 'failed to create authenticated client')
+    }
   }
 
   protected async readProfileFromFS(profile: string): Promise<ProfileCredentials> {
