@@ -1,25 +1,21 @@
-import { BotClient, BotContext, BotLogger } from '@botpress/sdk/dist/bot'
-import { Result } from 'src/types'
 import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
 import { LinearApi } from 'src/utils/linear-utils'
 import { IssueProcessor } from './issue-processor'
 import { listTeams } from './teams-manager'
-import { TBot, WorkflowHandlerProps } from '.botpress'
+import { WorkflowHandlerProps } from '.botpress'
 
-export const lintAll = async (
-  client: BotClient<TBot>,
-  logger: BotLogger,
-  ctx: BotContext,
-  workflow: WorkflowHandlerProps['lintAll']['workflow'],
-  conversationId?: string
-): Promise<Result<void>> => {
+export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Promise<void> => {
+  const { client, logger, ctx, workflow, conversation } = props
   const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
-  const botpress = new BotpressApi(client, ctx.botId)
 
+  const conversationId = conversation?.id
+  const botpress = new BotpressApi(client, ctx.botId)
   const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
+
   if (!teamsResult.success || !teamsResult.result) {
-    return { success: false, message: teamsResult.message }
+    await _handleError(teamsResult.message)
+    return
   }
 
   const lastLintedId = await client.getOrSetState({
@@ -35,6 +31,23 @@ export const lintAll = async (
     .listIssues(teamsResult.result, lastLintedId.state.payload.id)
     .catch(_handleError('trying to list all issues'))
 
-  await issueProcessor.runLints(issues, workflow).catch(_handleError('trying to run lints on all issues'))
-  return { success: true, message: 'linted all issues' }
+  for (const issue of issues) {
+    try {
+      await issueProcessor.runLint(issue)
+      await workflow.acknowledgeStartOfProcessing()
+    } catch {
+      return
+    }
+    await client.setState({
+      id: workflow.id,
+      name: 'lastLintedId',
+      type: 'workflow',
+      payload: { id: issue.id },
+    })
+  }
+
+  if (conversationId) {
+    await botpress.respondText(conversationId, 'linted all issues')
+  }
+  await workflow.setCompleted()
 }
