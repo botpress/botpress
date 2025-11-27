@@ -1,6 +1,6 @@
 import { BotLogger } from '@botpress/sdk'
 import { Issue, Pagination, LinearApi, StateKey } from 'src/utils/linear-utils'
-import * as linlint from '../linear-lint-issue'
+import * as linlint from './issue-linter'
 import { TeamsManager } from './teams-manager'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
