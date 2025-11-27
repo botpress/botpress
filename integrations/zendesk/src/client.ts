@@ -21,49 +21,27 @@ export type Trigger = {
   id: string
 }
 
-const makeBaseUrl = (organizationDomain: string) => {
+const _makeBaseUrl = (organizationDomain: string) => {
   return organizationDomain.startsWith('https') ? organizationDomain : `https://${organizationDomain}.zendesk.com`
 }
 
-const makeUsername = (email: string) => {
-  return email.endsWith('/token') ? email : `${email}/token`
-}
-
 type AxiosRetryClient = Parameters<typeof axiosRetry>[0]
-type ZendeskConfig =
-  | {
-      type: 'manual'
-      subdomain: string
-      email: string
-      password: string
-    }
-  | {
-      type: 'OAuth'
-      accessToken: string
-      subdomain: string
-    }
+type ZendeskConfig = {
+  type: 'OAuth'
+  accessToken: string
+  subdomain: string
+}
 
 class ZendeskApi {
   private _client: AxiosInstance
   private _subdomain: string
   public constructor(config: ZendeskConfig) {
-    if (config.type === 'manual') {
-      this._client = axios.create({
-        baseURL: makeBaseUrl(config.subdomain),
-        withCredentials: true,
-        auth: {
-          username: makeUsername(config.email),
-          password: config.password,
-        },
-      })
-    } else {
-      this._client = axios.create({
-        baseURL: makeBaseUrl(config.subdomain),
-        headers: {
-          Authorization: `Bearer ${config.accessToken}`,
-        },
-      })
-    }
+    this._client = axios.create({
+      baseURL: _makeBaseUrl(config.subdomain),
+      headers: {
+        Authorization: `Bearer ${config.accessToken}`,
+      },
+    })
 
     axiosRetry(this._client as AxiosRetryClient, {
       retries: 3,
@@ -298,14 +276,6 @@ class ZendeskApi {
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
 export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Promise<ZendeskApi> => {
-  if (ctx.configurationType === 'manual') {
-    return new ZendeskApi({
-      type: 'manual',
-      subdomain: ctx.configuration.organizationSubdomain,
-      email: ctx.configuration.email,
-      password: ctx.configuration.apiToken,
-    })
-  }
   const { accessToken, subdomain } = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .then((result) => result.state.payload)
