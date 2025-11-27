@@ -46,8 +46,10 @@ export class ListPluginsCommand extends GlobalCommand<ListPluginsCommandDefiniti
       api.client.listPublicPlugins({ nextToken: req.nextToken, name, version })
 
     try {
-      const privatePlugins = await api.listAllPages(privateLister, (r) => r.plugins)
-      const publicPlugins = await api.listAllPages(publicLister, (r) => r.plugins)
+      const [privatePlugins, publicPlugins] = await Promise.all([
+        api.listAllPages(privateLister, (r) => r.plugins),
+        api.listAllPages(publicLister, (r) => r.plugins),
+      ])
       const plugins = _.uniqBy([...privatePlugins, ...publicPlugins], (p) => p.id)
 
       this.logger.success('Plugins:')

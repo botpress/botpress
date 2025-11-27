@@ -15,6 +15,18 @@ If you are migrating from version `0.x` to `1.x`, please note the following chan
 
 > When creating or updating events, the ISO 8601 date-time format is now fully supported and it is no longer necessary to input dates as RFC 3339 strings.
 
+## Migrating from version `1.x` to `2.x`
+
+If you are migrating from version `1.x` to `2.x`, please note the following changes:
+
+> The integration has been refactored to remove the generic CRUD interface actions and **de-duplicate redundant actions**. The action names have changed from the previous interface-based naming convention. You will need to update any workflows or code that references the old action names:
+>
+> - `eventCreate` → `createEvent`
+> - `eventDelete` → `deleteEvent`
+> - `eventList` → `listEvents`
+> - `eventUpdate` → `updateEvent`
+> - `eventRead` has been removed (use `listEvents`instead)
+
 ## Configuration
 
 ### Automatic configuration with OAuth (recommended)

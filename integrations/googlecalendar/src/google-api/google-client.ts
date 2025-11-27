@@ -48,6 +48,8 @@ export class GoogleClient {
     const { data } = await this._calendarClient.events.insert({
       calendarId: this._calendarId,
       requestBody: RequestMapping.mapCreateEvent(event),
+      conferenceDataVersion: event.enableGoogleMeet ? 1 : undefined,
+      sendUpdates: event.sendNotifications !== false && event.attendees && event.attendees.length > 0 ? 'all' : 'none',
     })
 
     return ResponseMapping.mapEvent(data)
@@ -59,6 +61,8 @@ export class GoogleClient {
       calendarId: this._calendarId,
       eventId: event.id,
       requestBody: RequestMapping.mapUpdateEvent(event),
+      conferenceDataVersion: event.enableGoogleMeet ? 1 : undefined,
+      sendUpdates: event.sendNotifications !== false && event.attendees && event.attendees.length > 0 ? 'all' : 'none',
     })
 
     return ResponseMapping.mapEvent(data)
@@ -102,6 +106,26 @@ export class GoogleClient {
     return {
       events: ResponseMapping.mapEvents(data.items),
       nextPageToken: ResponseMapping.mapNextToken(data.nextPageToken),
+    }
+  }
+
+  @handleErrors('Failed to check calendar availability')
+  public async getBusySlots({ timeMin, timeMax }: { timeMin: string; timeMax: string }) {
+    const { data } = await this._calendarClient.freebusy.query({
+      requestBody: {
+        timeMin,
+        timeMax,
+        items: [{ id: this._calendarId }],
+      },
+    })
+
+    const calendarBusy = data.calendars?.[this._calendarId]?.busy || []
+
+    return {
+      busySlots: calendarBusy.map((slot) => ({
+        start: slot.start || '',
+        end: slot.end || '',
+      })),
     }
   }
 }
