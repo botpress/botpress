@@ -60,7 +60,7 @@ export class IssueProcessor {
     return issues
   }
 
-  public async runLint(issue: lin.Issue) {
+  public async lintIssue(issue: lin.Issue) {
     const status = this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return
