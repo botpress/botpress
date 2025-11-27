@@ -22,7 +22,7 @@ export default new IntegrationDefinition({
             .min(1)
             .endsWith('.pdf')
             .describe('The filename of the PDF')
-            .title('filename')
+            .title('Filename')
             .optional()
             .default('generated.pdf'),
         }),
