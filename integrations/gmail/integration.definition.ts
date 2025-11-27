@@ -11,6 +11,8 @@ import {
   secrets,
 } from './definitions'
 
+export const INTEGRATION_NAME = 'gmail'
+
 export default new sdk.IntegrationDefinition({
   name: 'gmail',
   version: '0.6.5',

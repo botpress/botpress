@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
@@ -46,6 +47,7 @@ export class GoogleClient {
     return GoogleClient.create({ client, ctx, refreshToken })
   }
 
+  @handleErrors('Failed to watch incoming mail')
   public async watchIncomingMail() {
     await this._gmail.users.watch({
       userId: 'me',
@@ -53,6 +55,7 @@ export class GoogleClient {
     })
   }
 
+  @handleErrors('Failed to get email address')
   public async getMyEmail() {
     const profile = await this._gmail.users.getProfile({
       userId: 'me',
@@ -61,6 +64,7 @@ export class GoogleClient {
     return profile.data.emailAddress
   }
 
+  @handleErrors('Failed to get history')
   public async getMyHistory(startHistoryId?: string) {
     const history = await this._gmail.users.history.list({
       startHistoryId,
@@ -71,18 +75,21 @@ export class GoogleClient {
     return history.data
   }
 
+  @handleErrors('Failed to get message')
   public async getMessageById(messageId: string) {
     const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
 
     return message.data
   }
 
+  @handleErrors('Failed to send email')
   public async sendRawEmail(raw: string, threadId?: string) {
     const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
 
     return newMail.data
   }
 
+  @handleErrors('Failed to list messages')
   public async listMessages({
     query,
     maxResults,
@@ -100,6 +107,11 @@ export class GoogleClient {
     })
 
     return response.data
+  }
+
+  @handleErrors('Failed to delete message')
+  public async deleteMessage(messageId: string) {
+    await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
   }
 
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
