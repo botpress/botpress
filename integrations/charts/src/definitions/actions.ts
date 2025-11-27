@@ -22,7 +22,7 @@ const generateLinePlot = {
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -40,16 +40,16 @@ const generateBarChart = {
       yData: z
         .array(z.number())
         .catch(() => [1, 2, 3, 4, 5])
-        .describe('the data for the y axis')
+        .describe('The data for the y axis')
         .title('Y Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the Bar Chart').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -69,12 +69,12 @@ const generatePieChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the pie chart').title('Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -93,14 +93,14 @@ export const generateScatterPlot = {
         ])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the scatter plot').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -120,12 +120,12 @@ const generateDoughnutChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the doughnut chart').title('Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -145,13 +145,13 @@ const generateRadarChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the radar chart').title('Title'),
       axisTitle: z.string().optional().describe('The title of the axis').title('Axis Title'),
     }),
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -183,7 +183,7 @@ const generateBubbleChart = {
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
@@ -210,7 +210,7 @@ const generateHorizontalBarChart = {
   },
   output: {
     schema: z.object({
-      imageUrl: z.string().describe('The url of the image generated').title('Image Url'),
+      imageUrl: z.string().describe('The url of the generated image').title('Image Url'),
     }),
   },
 }
