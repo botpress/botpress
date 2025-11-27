@@ -1,38 +1,27 @@
-import IsolatedVM, { type Isolate } from 'isolated-vm'
+/**
+ * LLMz VM Implementation
+ *
+ * Supports two execution drivers:
+ * 1. QuickJS (quickjs-emscripten) - Sandboxed execution with memory limits and timeout
+ * 2. Node (native) - Direct execution without sandbox, for environments where QuickJS is not available
+ */
+
+/* oxlint-disable max-depth */
+
 import { isFunction, mapValues, maxBy } from 'lodash-es'
+import { newQuickJSWASMModuleFromVariant, shouldInterruptAfterDeadline } from 'quickjs-emscripten-core'
 import { SourceMapConsumer } from 'source-map-js'
 
 import { compile, CompiledCode, Identifiers } from './compiler/index.js'
-import { AssignmentError, CodeExecutionError, InvalidCodeError, Signals, SnapshotSignal, VMSignal } from './errors.js'
+import { CodeExecutionError, InvalidCodeError, Signals, SnapshotSignal, VMSignal } from './errors.js'
 import { createJsxComponent, JsxComponent } from './jsx.js'
+import { BundledReleaseSyncVariant } from './quickjs-variant.js'
 import { cleanStackTrace } from './stack-traces.js'
 import { Trace, Traces, VMExecutionResult } from './types.js'
 
-// We do this because we want it to work in the browser
-const IS_NODE = typeof process !== 'undefined' && process.versions != null && process.versions.node != null
-const IS_CI = typeof process !== 'undefined' && !!process?.env?.CI
-const VM_DRIVER = (typeof process !== 'undefined' && process?.env?.VM_DRIVER) ?? (IS_CI ? 'node' : 'isolated-vm')
-
-export const CAN_USE_ISOLATED_VM = IS_NODE && VM_DRIVER === 'isolated-vm'
 const MAX_VM_EXECUTION_TIME = 60_000
 
-type Driver = 'isolated-vm' | 'node'
-
-const requireEsm = async (id: string) => {
-  // @ts-ignore
-  if (typeof globalThis.window === 'undefined' && typeof globalThis.require !== 'undefined') {
-    // Node environment: use eval to bypass bundler detection
-    // eslint-disable
-    return eval('require')(id)
-  } else {
-    // Browser environment
-    return await import(id).then((m) => m.default ?? m)
-  }
-}
-
-// We do this because we want it to work in the browser and isolated-vm is only used when running in NodeJS
-
-const getIsolatedVm = async () => (await requireEsm('isolated-vm')) as typeof import('isolated-vm')
+type Driver = 'quickjs' | 'node'
 
 // These are the identifiers that we want to exclude from the variable tracking system
 const NO_TRACKING = [
@@ -58,8 +47,6 @@ function getCompiledCode(code: string, traces: Trace[] = []): CompiledCode {
   }
 }
 
-// TODO: use debug() to log what's going on, remove console.log and also log which driver is being used
-
 export async function runAsyncFunction(
   context: any,
   code: string,
@@ -69,7 +56,7 @@ export async function runAsyncFunction(
 ): Promise<VMExecutionResult> {
   const transformed = getCompiledCode(code, traces)
   const lines_executed = new Map<number, number>()
-  const variables: { [k: string]: () => any } = {}
+  const variables: { [k: string]: any } = {}
 
   const consumer = new SourceMapConsumer({
     version: transformed.map!.version.toString(),
@@ -81,94 +68,941 @@ export async function runAsyncFunction(
     sourceRoot: transformed.map!.sourceRoot!,
   })
 
-  // TODO: we should throw an error if the context is not a plain object (unless it's null or undefined)
   context ??= {}
 
-  for (const name of transformed.variables) {
-    // TODO: warn here as we're overwriting the context
+  // Remove variables that will be tracked
+  for (const name of Array.from(transformed.variables)) {
     delete context[name]
   }
 
-  context[Identifiers.CommentFnIdentifier] = (comment: string, line: number) =>
-    traces.push({ type: 'comment', comment, line, started_at: Date.now() })
+  // Determine which driver to use - try QuickJS first, fallback to node if it fails
+  let DRIVER: Driver = 'quickjs'
 
-  context[Identifiers.LineTrackingFnIdentifier] = (line: number) => {
-    lines_executed.set(line, (lines_executed.get(line) ?? 0) + 1)
+  // Check if user explicitly disabled QuickJS
+  if (typeof process !== 'undefined' && process?.env?.USE_QUICKJS === 'false') {
+    DRIVER = 'node'
   }
 
-  context[Identifiers.JSXFnIdentifier] = (tool: any, props: any, ...children: any[]) =>
-    createJsxComponent({
-      type: tool,
-      props,
-      children,
-    })
-
-  context[Identifiers.VariableTrackingFnIdentifier] = (name: string, getter: () => any) => {
-    if (NO_TRACKING.includes(name)) {
-      return
-    }
-    variables[name] = () => {
-      try {
-        const value = getter()
-        if (typeof value === 'function') {
-          return '[[non-primitive]]'
+  // ============================================================================
+  // QuickJS Driver
+  // ============================================================================
+  if (DRIVER === 'quickjs') {
+    // Try to load QuickJS - if it fails, fallback to node driver
+    try {
+      // Setup tracking functions
+      context[Identifiers.CommentFnIdentifier] = (comment: string, line: number) => {
+        // Filter out internal markers from traces
+        if (comment.includes('__LLMZ_USER_CODE_START__') || comment.includes('__LLMZ_USER_CODE_END__')) {
+          return
         }
-        return value
-      } catch {
-        return '[[non-primitive]]'
+        traces.push({ type: 'comment', comment, line, started_at: Date.now() })
       }
+
+      // Find the actual offset by locating the user code start marker
+      // Use codeWithMarkers which still has the markers before postProcessing removes them
+      const codeWithMarkers = (transformed as any).codeWithMarkers || transformed.code
+      const markerLines = codeWithMarkers.split('\n')
+      const USER_CODE_START_MARKER = '/* __LLMZ_USER_CODE_START__ */'
+      let userCodeStartLine = -1
+      for (let i = 0; i < markerLines.length; i++) {
+        if (markerLines[i]?.includes(USER_CODE_START_MARKER)) {
+          userCodeStartLine = i + 1 // Line numbers are 1-indexed
+          break
+        }
+      }
+
+      context[Identifiers.LineTrackingFnIdentifier] = (line: number) => {
+        // Map the transformed code line back to the original source line
+        const originalLine = consumer.originalPositionFor({
+          line,
+          column: 0,
+        })
+        const mappedLine = originalLine.line ?? line
+
+        // Calculate offset: the marker line in transformed code corresponds to line 0 of user code
+        // So user line = mapped line - marker line
+        const userCodeLine = Math.max(1, mappedLine - userCodeStartLine)
+
+        lines_executed.set(userCodeLine, (lines_executed.get(userCodeLine) ?? 0) + 1)
+      }
+
+      context[Identifiers.JSXFnIdentifier] = (tool: any, props: any, ...children: any[]) =>
+        createJsxComponent({
+          type: tool,
+          props,
+          children,
+        })
+
+      context[Identifiers.VariableTrackingFnIdentifier] = (name: string, getter: () => any) => {
+        if (NO_TRACKING.includes(name)) {
+          return
+        }
+        variables[name] = () => {
+          try {
+            const value = getter()
+            if (typeof value === 'function') {
+              return '[[non-primitive]]'
+            }
+            return value
+          } catch {
+            return '[[non-primitive]]'
+          }
+        }
+      }
+
+      let currentToolCall: SnapshotSignal['toolCall'] | undefined
+      context[Identifiers.ToolCallTrackerFnIdentifier] = (
+        callId: number,
+        type: 'start' | 'end',
+        outputOrError?: any
+      ) => {
+        const temp = Signals.maybeDeserializeError(outputOrError?.message)
+        if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
+          currentToolCall = {
+            ...temp.toolCall,
+            assignment: transformed.toolCalls.get(callId)?.assignment,
+          }
+        }
+      }
+
+      context[Identifiers.ConsoleObjIdentifier] = {
+        log: (...args: any[]) => {
+          const message = args.shift()
+          traces.push({ type: 'log', message, args, started_at: Date.now() })
+        },
+      }
+
+      context[Identifiers.AsyncIterYieldFnIdentifier] = async function (value: JsxComponent) {
+        const startedAt = Date.now()
+        try {
+          if (typeof value.type !== 'string' || value.type.trim().length === 0) {
+            throw new Error('A yield statement must yield a valid tool')
+          }
+
+          const toolName = Object.keys(context).find((x) => x.toUpperCase() === value.type.toUpperCase())
+
+          if (!toolName) {
+            throw new Error(`Yield tool "${value.type}", but tool is not found`)
+          }
+
+          await context[toolName](value)
+        } finally {
+          traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
+        }
+      }
+
+      // Initialize QuickJS using our bundled variant
+      // This includes the WASM file directly in llmz's dist/ to avoid path resolution issues
+      const QuickJS = await newQuickJSWASMModuleFromVariant(BundledReleaseSyncVariant)
+      const runtime = QuickJS.newRuntime()
+
+      // Set memory limit (128MB)
+      runtime.setMemoryLimit(128 * 1024 * 1024)
+
+      // Set interrupt handler for timeout and abort signal
+      const startTime = Date.now()
+      const timeoutHandler = shouldInterruptAfterDeadline(startTime + timeout)
+
+      runtime.setInterruptHandler(() => {
+        // Check if execution was aborted
+        if (signal?.aborted) {
+          return true // Interrupt execution
+        }
+        // Check if timeout exceeded
+        return timeoutHandler(runtime)
+      })
+
+      const vm = runtime.newContext()
+
+      // Track which properties need to be copied back
+      const trackedProperties = new Set<string>()
+      const referenceProperties = new Set<string>()
+
+      // Track all pending promises - we need to resolve them synchronously before disposing VM
+      const pendingPromises: Array<{
+        hostPromise: Promise<any>
+        deferredPromise: any
+      }> = []
+
+      // Helper to convert JS value to QuickJS handle
+      const toVmValue = (value: any): any => {
+        if (typeof value === 'string') {
+          return vm.newString(value)
+        } else if (typeof value === 'number') {
+          return vm.newNumber(value)
+        } else if (typeof value === 'boolean') {
+          return value ? vm.true : vm.false
+        } else if (value === null) {
+          return vm.null
+        } else if (value === undefined) {
+          return vm.undefined
+        } else if (Array.isArray(value)) {
+          // Create a proper array with prototype methods using evalCode
+          // We build the array literal directly to preserve methods like .map()
+          const items = value.map((item) => {
+            if (typeof item === 'string') {
+              return JSON.stringify(item)
+            } else if (typeof item === 'number' || typeof item === 'boolean') {
+              return String(item)
+            } else if (item === null) {
+              return 'null'
+            } else if (item === undefined) {
+              return 'undefined'
+            } else if (typeof item === 'object') {
+              return JSON.stringify(item)
+            }
+            return 'undefined'
+          })
+          const arrayLiteral = `[${items.join(',')}]`
+          const result = vm.evalCode(arrayLiteral)
+          if ('error' in result) {
+            result.error?.dispose()
+            return vm.undefined
+          }
+          const arrHandle = result.value
+          return arrHandle
+        } else if (typeof value === 'object') {
+          const obj = vm.newObject()
+          for (const [k, v] of Object.entries(value)) {
+            if (typeof v !== 'function') {
+              const propHandle = toVmValue(v)
+              vm.setProp(obj, k, propHandle)
+              if (
+                propHandle !== vm.true &&
+                propHandle !== vm.false &&
+                propHandle !== vm.null &&
+                propHandle !== vm.undefined
+              ) {
+                propHandle.dispose()
+              }
+            }
+          }
+          return obj
+        }
+        return vm.undefined
+      }
+
+      // Helper to bridge functions - handles both sync and async
+      const bridgeFunction = (fn: Function, _fnName: string = 'anonymous') => {
+        return (...argHandles: any[]) => {
+          const args = argHandles.map((h: any) => vm.dump(h))
+          try {
+            const result = fn(...args)
+            // Check if it's a promise - create a QuickJS deferred promise
+            if (result && typeof result.then === 'function') {
+              // Create a QuickJS deferred promise
+              const promise = vm.newPromise()
+
+              // Track this promise so we can await and resolve it synchronously
+              pendingPromises.push({
+                hostPromise: result,
+                deferredPromise: promise,
+              })
+
+              // Schedule executePendingJobs when the promise settles
+              void promise.settled.then(() => {
+                if (runtime.alive) {
+                  runtime.executePendingJobs()
+                }
+              })
+
+              // Return the promise handle
+              return promise.handle
+            }
+            // Synchronous result
+            return toVmValue(result)
+          } catch (err) {
+            // Serialize the error properly (especially for VMSignal and other special errors)
+            // VMSignal and other error classes auto-serialize themselves in their constructor
+            // so err.message already contains the JSON-serialized error data
+            const serialized = err instanceof Error ? err.message : String(err)
+
+            // Re-throw the error as a plain Error with the serialized message
+            // QuickJS-emscripten will catch this and convert it to a QuickJS error
+            throw new Error(serialized)
+          }
+        }
+      }
+
+      try {
+        // Bridge context values to QuickJS
+        for (const [key, value] of Object.entries(context)) {
+          const descriptor = Object.getOwnPropertyDescriptor(context, key)
+
+          if (descriptor && (descriptor.get || descriptor.set)) {
+            // Handle getter/setter properties on globalThis
+            referenceProperties.add(key)
+            trackedProperties.add(key)
+
+            // Create getter function if exists
+            let getterCode = 'undefined'
+            if (descriptor.get) {
+              const getterBridge = vm.newFunction(`get_${key}`, () => {
+                try {
+                  const hostValue = (context as any)[key]
+                  return toVmValue(hostValue)
+                } catch (err: any) {
+                  const serialized = err instanceof Error ? err.message : String(err)
+                  throw new Error(serialized)
+                }
+              })
+              const getterName = `__getter_${key}__`
+              vm.setProp(vm.global, getterName, getterBridge)
+              getterBridge.dispose()
+              getterCode = getterName
+            }
+
+            // Create setter function if exists
+            let setterCode = 'undefined'
+            if (descriptor.set) {
+              const setterBridge = vm.newFunction(`set_${key}`, (valueHandle: any) => {
+                try {
+                  const jsValue = vm.dump(valueHandle)
+                  ;(context as any)[key] = jsValue
+                  return vm.undefined
+                } catch (err: any) {
+                  const serialized = err instanceof Error ? err.message : String(err)
+                  throw new Error(serialized)
+                }
+              })
+              const setterName = `__setter_${key}__`
+              vm.setProp(vm.global, setterName, setterBridge)
+              setterBridge.dispose()
+              setterCode = setterName
+            }
+
+            // Use evalCode to define the property with getter/setter on globalThis
+            const definePropertyCode = `
+          Object.defineProperty(globalThis, '${key}', {
+            enumerable: true,
+            configurable: ${descriptor.configurable !== false},
+            get: ${getterCode},
+            set: ${setterCode}
+          });
+        `
+            const result = vm.evalCode(definePropertyCode)
+            if ('error' in result) {
+              result.error?.dispose()
+            } else {
+              result.value.dispose()
+            }
+            continue
+          }
+
+          if (typeof value === 'function') {
+            // Bridge functions - supports both sync and async
+            const fnHandle = vm.newFunction(key, bridgeFunction(value, key))
+            vm.setProp(vm.global, key, fnHandle)
+            fnHandle.dispose()
+          } else if (Array.isArray(value)) {
+            // Bridge arrays - use toVmValue which creates proper arrays with methods
+            trackedProperties.add(key)
+            const arrayHandle = toVmValue(value)
+            vm.setProp(vm.global, key, arrayHandle)
+            const shouldDispose =
+              arrayHandle !== vm.true &&
+              arrayHandle !== vm.false &&
+              arrayHandle !== vm.null &&
+              arrayHandle !== vm.undefined
+            if (shouldDispose) {
+              arrayHandle.dispose()
+            }
+          } else if (typeof value === 'object' && value !== null) {
+            trackedProperties.add(key)
+
+            // Bridge objects - handle nested functions and properties
+            const objHandle = vm.newObject()
+            const props = new Set([...Object.keys(value), ...Object.getOwnPropertyNames(value)])
+            const getterSetterProps: Array<{
+              prop: string
+              descriptor: PropertyDescriptor
+            }> = []
+
+            for (const prop of props) {
+              const propDescriptor = Object.getOwnPropertyDescriptor(value, prop)
+
+              if (propDescriptor && (propDescriptor.get || propDescriptor.set)) {
+                // Defer getter/setter setup until after object is on global
+                referenceProperties.add(`${key}.${prop}`)
+                getterSetterProps.push({ prop, descriptor: propDescriptor })
+              } else if (typeof (value as any)[prop] === 'function') {
+                // Bridge nested functions - supports both sync and async
+                const propFnHandle = vm.newFunction(prop, bridgeFunction((value as any)[prop], `${key}.${prop}`))
+                vm.setProp(objHandle, prop, propFnHandle)
+                propFnHandle.dispose()
+              } else {
+                const propHandle = toVmValue((value as any)[prop])
+                vm.setProp(objHandle, prop, propHandle)
+                const shouldDispose =
+                  propHandle !== vm.true &&
+                  propHandle !== vm.false &&
+                  propHandle !== vm.null &&
+                  propHandle !== vm.undefined
+                if (shouldDispose) {
+                  propHandle.dispose()
+                }
+              }
+            }
+
+            vm.setProp(vm.global, key, objHandle)
+            objHandle.dispose()
+
+            // Now set up getter/setter properties (after object is on global)
+            for (const { prop, descriptor } of getterSetterProps) {
+              // Create getter function if exists
+              let getterCode = 'undefined'
+              if (descriptor.get) {
+                const getterBridge = vm.newFunction(`get_${prop}`, () => {
+                  try {
+                    const hostValue = (context as any)[key][prop]
+                    return toVmValue(hostValue)
+                  } catch (err: any) {
+                    const serialized = err instanceof Error ? err.message : String(err)
+                    throw new Error(serialized)
+                  }
+                })
+                const getterName = `__getter_${key}_${prop}__`
+                vm.setProp(vm.global, getterName, getterBridge)
+                getterBridge.dispose()
+                getterCode = getterName
+              }
+
+              // Create setter function if exists
+              let setterCode = 'undefined'
+              if (descriptor.set) {
+                const setterBridge = vm.newFunction(`set_${prop}`, (valueHandle: any) => {
+                  try {
+                    const jsValue = vm.dump(valueHandle)
+                    ;(context as any)[key][prop] = jsValue
+                    return vm.undefined
+                  } catch (err: any) {
+                    const serialized = err instanceof Error ? err.message : String(err)
+                    throw new Error(serialized)
+                  }
+                })
+                const setterName = `__setter_${key}_${prop}__`
+                vm.setProp(vm.global, setterName, setterBridge)
+                setterBridge.dispose()
+                setterCode = setterName
+              }
+
+              // Use evalCode to define the property with getter/setter
+              const definePropertyCode = `
+            Object.defineProperty(${key}, '${prop}', {
+              enumerable: true,
+              configurable: ${descriptor.configurable !== false},
+              get: ${getterCode},
+              set: ${setterCode}
+            });
+          `
+              const result = vm.evalCode(definePropertyCode)
+              if ('error' in result) {
+                result.error?.dispose()
+              } else {
+                result.value.dispose()
+              }
+            }
+
+            // Apply object constraints
+            if (Object.isSealed(value)) {
+              const sealResult = vm.evalCode(`Object.seal(globalThis['${key}']);`)
+              if ('error' in sealResult) {
+                sealResult.error?.dispose()
+              } else {
+                sealResult.value.dispose()
+              }
+            }
+            if (!Object.isExtensible(value)) {
+              const preventResult = vm.evalCode(`Object.preventExtensions(globalThis['${key}']);`)
+              if ('error' in preventResult) {
+                preventResult.error?.dispose()
+              } else {
+                preventResult.value.dispose()
+              }
+            }
+          } else {
+            // Bridge primitives
+            trackedProperties.add(key)
+            const valueHandle = toVmValue(value)
+            vm.setProp(vm.global, key, valueHandle)
+            const shouldDispose =
+              valueHandle !== vm.true &&
+              valueHandle !== vm.false &&
+              valueHandle !== vm.null &&
+              valueHandle !== vm.undefined
+            if (shouldDispose) {
+              valueHandle.dispose()
+            }
+          }
+        }
+
+        // Setup variable tracking bridge
+        const varTrackFnHandle = vm.newFunction(
+          Identifiers.VariableTrackingFnIdentifier,
+          (nameHandle, getterHandle) => {
+            const name = vm.getString(nameHandle)
+
+            if (NO_TRACKING.includes(name)) {
+              return
+            }
+
+            // Try to get the value
+            try {
+              const valueResult = vm.callFunction(getterHandle, vm.undefined)
+              if ('error' in valueResult) {
+                variables[name] = '[[non-primitive]]'
+                valueResult.error?.dispose()
+                return
+              }
+              const value = vm.dump(valueResult.value)
+              valueResult.value.dispose()
+
+              // In QuickJS, functions are dumped as their source code strings
+              // Check if it's a function type or looks like function source
+              if (typeof value === 'function' || (typeof value === 'string' && value.includes('=>'))) {
+                variables[name] = '[[non-primitive]]'
+              } else {
+                variables[name] = value
+              }
+            } catch {
+              variables[name] = '[[non-primitive]]'
+            }
+          }
+        )
+        vm.setProp(vm.global, Identifiers.VariableTrackingFnIdentifier, varTrackFnHandle)
+        varTrackFnHandle.dispose()
+
+        // Wrap code in async generator - QuickJS pattern with global variables
+        // This avoids promise resolution issues by storing results in globalThis
+        const scriptCode = `
+"use strict";
+globalThis.__llmz_result = undefined;
+globalThis.__llmz_result_set = false;
+globalThis.__llmz_error = null;
+globalThis.__llmz_error_stack = null;
+globalThis.__llmz_yields = [];
+
+(async () => {
+  try {
+    async function* __fn__() {
+${transformed.code}
     }
-  }
 
-  let currentToolCall: SnapshotSignal['toolCall'] | undefined
-  context[Identifiers.ToolCallTrackerFnIdentifier] = (callId: number, type: 'start' | 'end', outputOrError?: any) => {
-    const temp = Signals.maybeDeserializeError(outputOrError?.message)
-    if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
-      currentToolCall = {
-        ...temp.toolCall,
-        assignment: transformed.toolCalls.get(callId)?.assignment,
+    const fn = __fn__();
+    let iteration = 0;
+    const maxIterations = 10000; // Safety limit
+
+    while (iteration < maxIterations) {
+      const { value, done } = await fn.next();
+
+      if (done) {
+        globalThis.__llmz_result = value;
+        globalThis.__llmz_result_set = true;
+        break;
       }
+
+      // Store yielded value
+      globalThis.__llmz_yields.push(value);
+
+      // Call yield handler
+      await ${Identifiers.AsyncIterYieldFnIdentifier}(value);
+
+      iteration++;
     }
-  }
 
-  context[Identifiers.ConsoleObjIdentifier] = {
-    log: (...args: any[]) => {
-      const message = args.shift()
-      traces.push({ type: 'log', message, args, started_at: Date.now() })
-    },
-  }
-
-  context[Identifiers.AsyncIterYieldFnIdentifier] = async function (value: JsxComponent) {
-    const startedAt = Date.now()
-    try {
-      if (typeof value.type !== 'string' || value.type.trim().length === 0) {
-        throw new Error('A yield statement must yield a valid tool')
-      }
-
-      const toolName = Object.keys(context).find((x) => x.toUpperCase() === value.type.toUpperCase())
-
-      if (!toolName) {
-        throw new Error(`Yield tool "${value.type}", but tool is not found`)
-      }
-
-      await context[toolName](value)
-    } finally {
-      traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
+    if (iteration >= maxIterations) {
+      throw new Error('Maximum iterations exceeded');
     }
+  } catch (err) {
+    // Store both the error message (which may contain serialized signal data)
+    // and the stack trace from QuickJS
+    // If err is a string (as thrown from promise rejection), use it directly
+    // Otherwise extract the message property
+    globalThis.__llmz_error = typeof err === 'string' ? err : String(err.message || err || '');
+    // Force the stack to be converted to a string in QuickJS context
+    globalThis.__llmz_error_stack = '' + (err.stack || '');
   }
+})();
+`.trim()
 
-  let DRIVER: Driver = CAN_USE_ISOLATED_VM ? 'isolated-vm' : 'node'
-  let isolatedVm: typeof IsolatedVM | undefined
+        // Helper to copy context back from VM - uses vm.dump which handles deep cloning
+        const copyBackContextFromVM = () => {
+          for (const key of trackedProperties) {
+            if (referenceProperties.has(key)) {
+              // Skip reference properties (getters/setters) - they update in real-time
+              continue
+            }
 
-  if (DRIVER === 'isolated-vm') {
-    try {
-      isolatedVm = await getIsolatedVm()
-    } catch {
+            try {
+              // Get the entire value from VM (vm.dump handles deep cloning)
+              const valueResult = vm.evalCode(`globalThis['${key}']`)
+              const vmValue = vm.dump(valueResult.unwrap())
+              valueResult.unwrap().dispose()
+              // Update the context with the cloned value
+              try {
+                context[key] = vmValue
+              } catch {
+                // Ignore read-only property errors
+              }
+            } catch {
+              // Ignore errors when copying back
+            }
+          }
+        }
+
+        // Execute code - result is undefined (async IIFE returns nothing)
+        const execResult = vm.evalCode(scriptCode, '<quickjs>')
+        if ('error' in execResult) {
+          if (execResult.error) {
+            const err = vm.dump(execResult.error)
+            execResult.error.dispose()
+            throw new Error(err?.message || 'Execution failed')
+          }
+          throw new Error('Execution failed')
+        }
+        execResult.value.dispose()
+
+        // CRITICAL: Execute pending microtasks and host promises in a loop
+        // QuickJS doesn't have automatic event loop, so we need to manually pump it
+        const maxIterations = 1000
+        let iteration = 0
+
+        while (iteration < maxIterations) {
+          // Execute all pending QuickJS microtasks
+          let hasJobs = false
+          const maxJobs = 10000
+          for (let i = 0; i < maxJobs; i++) {
+            const pending = runtime.executePendingJobs?.(-1)
+            const jobCount = pending === undefined ? 0 : pending.unwrap()
+            if (jobCount <= 0) break
+            hasJobs = true
+          }
+
+          // Resolve all pending host promises
+          const currentPromises = [...pendingPromises]
+          pendingPromises.length = 0 // Clear the array for new promises
+
+          if (currentPromises.length > 0) {
+            // Check if aborted before processing promises
+            if (signal?.aborted) {
+              // Reject all pending promises with abort error
+              const reason = (signal as any).reason
+              const abortMessage =
+                reason instanceof Error
+                  ? `${reason.name}: ${reason.message}`
+                  : reason
+                    ? String(reason)
+                    : 'Execution was aborted'
+              for (const { deferredPromise } of currentPromises) {
+                const errValue = vm.newString(abortMessage)
+                deferredPromise.reject(errValue)
+                errValue.dispose()
+              }
+              runtime.executePendingJobs()
+              // Break out of the event loop - we're aborting
+              break
+            }
+
+            // Create abort handler that rejects all pending promises immediately
+            let abortListener: (() => void) | null = null
+            if (signal) {
+              abortListener = () => {
+                const reason = (signal as any).reason
+                const abortMessage =
+                  reason instanceof Error
+                    ? `${reason.name}: ${reason.message}`
+                    : reason
+                      ? String(reason)
+                      : 'Execution was aborted'
+                // Reject all pending promises immediately
+                for (const { deferredPromise } of currentPromises) {
+                  const errValue = vm.newString(abortMessage)
+                  deferredPromise.reject(errValue)
+                  errValue.dispose()
+                }
+                runtime.executePendingJobs()
+              }
+              signal.addEventListener('abort', abortListener)
+            }
+
+            try {
+              await Promise.all(
+                currentPromises.map(async ({ hostPromise, deferredPromise }) => {
+                  // If abort was triggered, skip resolution
+                  if (signal?.aborted) {
+                    return
+                  }
+
+                  try {
+                    const value = await hostPromise
+                    // Double-check abort wasn't triggered during await
+                    if (signal?.aborted) {
+                      return
+                    }
+                    const vmValue = toVmValue(value)
+                    deferredPromise.resolve(vmValue)
+                  } catch (err: any) {
+                    // If abort was triggered, the abort listener already rejected the promise
+                    if (signal?.aborted) {
+                      return
+                    }
+
+                    const serialized = err instanceof Error ? err.message : String(err)
+
+                    // Create an Error object in QuickJS with the serialized message
+                    const createErrorResult = vm.evalCode(`new Error(${JSON.stringify(serialized)})`)
+                    if ('error' in createErrorResult) {
+                      // Fallback to string if error creation fails
+                      const errValue = vm.newString(serialized)
+                      deferredPromise.reject(errValue)
+                      errValue.dispose()
+                    } else {
+                      const errorHandle = createErrorResult.value
+                      deferredPromise.reject(errorHandle)
+                      errorHandle.dispose()
+                    }
+                  }
+                })
+              )
+            } finally {
+              // Clean up abort listener
+              if (signal && abortListener) {
+                signal.removeEventListener('abort', abortListener)
+              }
+            }
+
+            // After resolving promises, execute pending jobs to continue the async IIFE
+            runtime.executePendingJobs()
+
+            // Check if abort was triggered during promise resolution
+            if (signal?.aborted) {
+              break
+            }
+          }
+
+          // If no jobs and no promises, we're done
+          if (!hasJobs && pendingPromises.length === 0) {
+            break
+          }
+
+          iteration++
+        }
+
+        if (iteration >= maxIterations) {
+          throw new Error('Maximum event loop iterations exceeded')
+        }
+
+        // NOW check for errors - AFTER all async work is complete
+        const errorResult = vm.evalCode('globalThis.__llmz_error')
+        const errorValue = vm.dump(errorResult.unwrap())
+        errorResult.unwrap().dispose()
+
+        // Check if aborted - take precedence over other errors
+        if (signal?.aborted) {
+          const reason = (signal as any).reason
+          if (reason instanceof Error) {
+            throw reason
+          }
+          throw new Error(reason ? String(reason) : 'Execution was aborted')
+        }
+
+        if (errorValue !== null && errorValue !== '') {
+          // Copy back context even on error
+          try {
+            copyBackContextFromVM()
+          } catch {
+            // Ignore errors when copying context back after an error
+          }
+
+          // Get the QuickJS stack trace as well
+          const errorStackResult = vm.evalCode('globalThis.__llmz_error_stack')
+          const errorStack = vm.dump(errorStackResult.unwrap()) || ''
+          errorStackResult.unwrap().dispose()
+
+          // The error value is a string that may contain serialized signal data
+          // Deserialize to check if it's a VMSignal
+          const deserializedError = Signals.maybeDeserializeError(errorValue)
+
+          // If it's a VMSignal, set its stack and throw it
+          if (deserializedError instanceof VMSignal) {
+            deserializedError.stack = errorStack
+            throw deserializedError
+          }
+
+          // Otherwise create an Error with the serialized message and QuickJS stack
+          const error = new Error(errorValue)
+          error.stack = errorStack
+          throw error
+        }
+
+        // Copy context back from VM before reading result
+        copyBackContextFromVM()
+
+        // Get result value from global AFTER promises have settled
+        const resultSetResult = vm.evalCode('globalThis.__llmz_result_set')
+        const resultSet = vm.dump(resultSetResult.unwrap())
+        resultSetResult.unwrap().dispose()
+
+        let returnValue: any = undefined
+        if (resultSet) {
+          const resultResult = vm.evalCode('globalThis.__llmz_result')
+          returnValue = vm.dump(resultResult.unwrap())
+          resultResult.unwrap().dispose()
+        }
+
+        // Deserialize any signals
+        returnValue = Signals.maybeDeserializeError(returnValue)
+
+        return {
+          success: true,
+          variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
+          signal: returnValue instanceof VMSignal ? returnValue : undefined,
+          lines_executed: Array.from(lines_executed),
+          return_value: returnValue,
+        } satisfies VMExecutionResult
+      } catch (err: any) {
+        // Check if execution was aborted
+        if (signal?.aborted) {
+          // Get abort reason if available
+          const reason = (signal as any).reason
+          const abortError =
+            reason instanceof Error ? reason : new Error(reason ? String(reason) : 'Execution was aborted')
+          return handleErrorQuickJS(
+            abortError,
+            code,
+            consumer,
+            traces,
+            variables,
+            lines_executed,
+            userCodeStartLine,
+            currentToolCall
+          )
+        }
+
+        // Also resolve pending promises on error before disposing
+        await Promise.all(
+          pendingPromises.map(async ({ hostPromise, deferredPromise }) => {
+            try {
+              const value = await hostPromise
+              const vmValue = toVmValue(value)
+              deferredPromise.resolve(vmValue)
+            } catch (err2: any) {
+              const serialized = err2 instanceof Error ? err2.message : String(err2)
+              const errValue = vm.newString(serialized)
+              deferredPromise.reject(errValue)
+            }
+          })
+        ).catch(() => {})
+        return handleErrorQuickJS(
+          err,
+          code,
+          consumer,
+          traces,
+          variables,
+          lines_executed,
+          userCodeStartLine,
+          currentToolCall
+        )
+      } finally {
+        try {
+          vm.dispose()
+        } catch {}
+        try {
+          runtime.dispose()
+        } catch {}
+      }
+    } catch (quickjsError: any) {
+      // QuickJS failed to load or initialize - fallback to node driver
+      const debugInfo = {
+        error: quickjsError?.message || String(quickjsError),
+        errorStack: quickjsError?.stack,
+        wasmSource: (BundledReleaseSyncVariant as any)._wasmSource,
+        wasmLoadedSuccessfully: (BundledReleaseSyncVariant as any)._wasmLoadedSuccessfully,
+        wasmSize: (BundledReleaseSyncVariant as any)._wasmSize,
+        wasmLoadError: (BundledReleaseSyncVariant as any)._wasmLoadError,
+        nodeVersion: typeof process !== 'undefined' && process.version ? process.version : 'undefined',
+        platform: typeof process !== 'undefined' && process.platform ? process.platform : 'undefined',
+      }
+
+      console.warn('QuickJS failed to load, falling back to node driver.')
+      console.warn('Error:', quickjsError?.message || quickjsError)
+      console.warn('Debug info:', JSON.stringify(debugInfo, null, 2))
       DRIVER = 'node'
     }
   }
 
+  // ============================================================================
+  // Node Driver (No VM)
+  // ============================================================================
   if (DRIVER === 'node') {
+    context[Identifiers.CommentFnIdentifier] = (comment: string, line: number) =>
+      traces.push({ type: 'comment', comment, line, started_at: Date.now() })
+
+    context[Identifiers.LineTrackingFnIdentifier] = (line: number) => {
+      lines_executed.set(line, (lines_executed.get(line) ?? 0) + 1)
+    }
+
+    context[Identifiers.JSXFnIdentifier] = (tool: any, props: any, ...children: any[]) =>
+      createJsxComponent({
+        type: tool,
+        props,
+        children,
+      })
+
+    context[Identifiers.VariableTrackingFnIdentifier] = (name: string, getter: () => any) => {
+      if (NO_TRACKING.includes(name)) {
+        return
+      }
+      variables[name] = () => {
+        try {
+          const value = getter()
+          if (typeof value === 'function') {
+            return '[[non-primitive]]'
+          }
+          return value
+        } catch {
+          return '[[non-primitive]]'
+        }
+      }
+    }
+
+    let currentToolCall: SnapshotSignal['toolCall'] | undefined
+    context[Identifiers.ToolCallTrackerFnIdentifier] = (callId: number, type: 'start' | 'end', outputOrError?: any) => {
+      const temp = Signals.maybeDeserializeError(outputOrError?.message)
+      if (type === 'end' && temp instanceof SnapshotSignal && temp?.toolCall) {
+        currentToolCall = {
+          ...temp.toolCall,
+          assignment: transformed.toolCalls.get(callId)?.assignment,
+        }
+      }
+    }
+
+    context[Identifiers.ConsoleObjIdentifier] = {
+      log: (...args: any[]) => {
+        const message = args.shift()
+        traces.push({ type: 'log', message, args, started_at: Date.now() })
+      },
+    }
+
+    context[Identifiers.AsyncIterYieldFnIdentifier] = async function (value: JsxComponent) {
+      const startedAt = Date.now()
+      try {
+        if (typeof value.type !== 'string' || value.type.trim().length === 0) {
+          throw new Error('A yield statement must yield a valid tool')
+        }
+
+        const toolName = Object.keys(context).find((x) => x.toUpperCase() === value.type.toUpperCase())
+
+        if (!toolName) {
+          throw new Error(`Yield tool "${value.type}", but tool is not found`)
+        }
+
+        await context[toolName](value)
+      } finally {
+        traces.push({ type: 'yield', value, started_at: startedAt, ended_at: Date.now() })
+      }
+    }
+
     const AsyncFunction: (...args: unknown[]) => (...args: unknown[]) => AsyncGenerator<JsxComponent> =
       async function* () {}.constructor as any
 
@@ -207,6 +1041,7 @@ export async function runAsyncFunction(
           return value
         }
         await context[Identifiers.AsyncIterYieldFnIdentifier](value)
+        // oxlint-disable-next-line no-constant-condition
       } while (true)
     })()
       .then((res) => {
@@ -219,364 +1054,167 @@ export async function runAsyncFunction(
           return_value: res,
         } satisfies VMExecutionResult
       })
-      .catch((err) => handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall, DRIVER))
+      .catch((err) => handleErrorNode(err, code, consumer, traces, variables, lines_executed, currentToolCall))
       .catch((err) => handleCatch(err, traces, variables, lines_executed))
   }
 
-  if (!isolatedVm) {
-    throw new Error('isolated-vm is not available')
-  }
+  throw new Error(`Unknown driver: ${DRIVER}`)
+}
 
-  const isolate: Isolate = new isolatedVm.Isolate({ memoryLimit: 128 })
-  const isolatedContext = await isolate.createContext()
-  const jail = isolatedContext.global
-  const trackedProperties = new Set<string>()
-  const referenceProperties = new Set<string>()
+// ============================================================================
+// QuickJS Error Handler
+// ============================================================================
+const handleErrorQuickJS = (
+  err: Error,
+  code: string,
+  _consumer: SourceMapConsumer,
+  traces: Traces.Trace[],
+  variables: { [k: string]: any },
+  lines_executed: Map<number, number>,
+  userCodeStartLine: number,
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined
+): VMExecutionResult => {
+  err = Signals.maybeDeserializeError(err)
+  const lines = code.split('\n')
+  const stackTrace = err.stack || ''
+  const LINE_OFFSET = 1
 
-  const abort = () => {
-    if (DRIVER === 'isolated-vm') {
-      isolate.dispose()
-      isolatedContext.release()
+  // Parse QuickJS stack traces: "at doThrow (<quickjs>:16)" or "at <eval> (<quickjs>:58)"
+  const regex = /<quickjs>:(\d+)/g
+
+  // QuickJS line numbers include the wrapper code before transformed.code
+  // The wrapper has 10 lines before transformed.code starts (counting from scriptCode template)
+  const QUICKJS_WRAPPER_OFFSET = 10
+
+  const matches = Array.from(stackTrace.matchAll(regex)).map((x) => {
+    // Adjust for the wrapper offset to get the line in transformed.code
+    const quickjsLine = Number(x[1])
+    const transformedCodeLine = quickjsLine - QUICKJS_WRAPPER_OFFSET
+
+    // Don't use source map for stack traces - it's unreliable due to Babel's line squashing
+    // Instead, rely on retainLines keeping line numbers approximately correct
+    // The transformed code lines should roughly correspond to the marker code lines
+    // Add +1 because QuickJS reports the line where the IIFE starts, but the actual call is on the next line
+    const line = Math.max(1, transformedCodeLine - userCodeStartLine + 1)
+    const actualLine = lines[line - LINE_OFFSET] ?? ''
+    const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
+    const minColumn = whiteSpacesCount
+
+    return {
+      line,
+      column: minColumn,
     }
-  }
-
-  if (signal) {
-    signal.addEventListener('abort', abort)
-  }
-
-  await jail.set('global', jail.derefInto())
-
-  for (const key of Object.keys(context)) {
-    // Re-hydrate functions on Objects
-    // Arguments to the function are copied (copy: true), so function arguments need to be Transferable
-    // The result of is copied back using ExternalCopy, so the return value of the function needs to be Transferable as well
-
-    if (typeof context[key] === 'function') {
-      await isolatedContext.evalClosure(
-        `global['${key}'] = (...args) => $0.applySyncPromise(null, args, {arguments: {copy: true}});`,
-        [async (...args: any[]) => new isolatedVm.ExternalCopy(await context[key](...args)).copyInto()],
-        {
-          arguments: { reference: true },
-        }
-      )
-    } else if (typeof context[key] === 'object' && !Object.getOwnPropertyDescriptor(context, key)?.get) {
-      // TODO: this should be recursive, so we can copy objects with nested objects and functions
-      try {
-        trackedProperties.add(key)
-        const initial = Array.isArray(context[key]) ? new Array(context[key].length) : {}
-        await jail.set(key, initial, { copy: true })
-        const props = new Set([...Object.keys(context[key]), ...Object.getOwnPropertyNames(context[key])])
-
-        for (const prop of props) {
-          try {
-            if (typeof context[key][prop] === 'function') {
-              await isolatedContext.evalClosure(
-                `global['${key}']['${prop}'] = (...args) => $0.applySyncPromise(null, args, {arguments: {copy: true}});`,
-                [async (...args: any[]) => new isolatedVm.ExternalCopy(await context[key][prop](...args)).copyInto()],
-                {
-                  arguments: { reference: true },
-                }
-              )
-            } else {
-              const descriptor = Object.getOwnPropertyDescriptor(context[key], prop)
-              if (descriptor && (descriptor.get || descriptor.set)) {
-                // Handle getters/setters
-                referenceProperties.add(`${key}.${prop}`)
-                await isolatedContext.evalClosure(
-                  `Object.defineProperty(global['${key}'], '${prop}', {
-                    get: () => $0.applySync(null, [], {arguments: {copy: true}}),
-                    set: (value) => $1.applySync(null, [value], {arguments: {copy: true}})
-                  });`,
-                  [
-                    () => context[key][prop],
-                    (value: any) => {
-                      context[key][prop] = value
-                      return value
-                    },
-                  ],
-                  { arguments: { reference: true } }
-                )
-              } else {
-                // Regular property
-                await isolatedContext.evalClosure(`global['${key}']['${prop}'] = $0;`, [context[key][prop]], {
-                  arguments: { copy: true },
-                })
-              }
-            }
-          } catch (err) {
-            console.error(`Could not copy "${key}.${prop}" (typeof = ${typeof context[key][prop]}) to the sandbox`, err)
-          }
-        }
-      } catch (err) {
-        console.error(`Could not create object "${key}" (typeof = ${typeof context[key]}) in the sandbox`, err)
-      }
-    } else {
-      try {
-        const descriptor = Object.getOwnPropertyDescriptor(context, key)
-        if (descriptor && (descriptor.get || descriptor.set)) {
-          // Handle getters/setters
-          referenceProperties.add(key)
-          await isolatedContext.evalClosure(
-            `Object.defineProperty(global, '${key}', {
-              get: () => $0.applySync(null, [], {arguments: {copy: true}}),
-              set: (value) => $1.applySync(null, [value], {arguments: {copy: true}})
-            });`,
-            [
-              () => context[key],
-              (value: any) => {
-                context[key] = value
-                return value
-              },
-            ],
-            { arguments: { reference: true } }
-          )
-        } else {
-          await jail.set(key, context[key], { copy: true })
-        }
-        trackedProperties.add(key)
-      } catch (err) {
-        console.error(`Could not copy "${key}" to the sandbox (typeof = ${typeof context[key]})`, err)
-      }
-    }
-  }
-
-  for (const key of Object.keys(context)) {
-    if (Object.isSealed(context[key])) {
-      await isolatedContext.evalClosure(`Object.seal(global['${key}']);`, [])
-    }
-
-    if (!Object.isExtensible(context[key])) {
-      await isolatedContext.evalClosure(`Object.preventExtensions(global['${key}']);`, [])
-    }
-  }
-
-  // LLMz-specific Objects
-  // Seal back the objects that were sealed (such as LLMz namespaces and objects)
-  // This is used to throw when trying to assign new properties or change readonly variables
-
-  const Console = await jail.get(Identifiers.ConsoleObjIdentifier, { reference: true })
-  await Console.set('log', (...args: any[]) => {
-    const message = args.shift()
-    traces.push({ type: 'log', message, args, started_at: Date.now() })
   })
 
-  await isolatedContext.evalClosure(
-    `${Identifiers.VariableTrackingFnIdentifier} = (name, getter) => {
-        const value = getter();
-        try {
-          $0.applySync(null, [name, getter()], { arguments: { copy: true } });
-        } catch {
-          $0.applySync(null, [name, '[[non-primitive]]'], { arguments: { copy: true } });
-        }
-      };`,
+  // If no matches found in stack trace (e.g., promise rejection from native function),
+  // use the last executed line from line tracking
+  if (matches.length === 0 && lines_executed.size > 0) {
+    const lastLine = Math.max(...Array.from(lines_executed.keys()))
+    const actualLine = lines[lastLine - LINE_OFFSET] ?? ''
+    const whiteSpacesCount = actualLine.length - actualLine.trimStart().length
 
-    [
-      (name: string, value: any) => {
-        variables[name] = value
-      },
-    ],
-    {
-      arguments: { reference: true },
-    }
-  )
-
-  const scriptCode = `
-"use strict";
-new Promise(async (resolve) => {
-
-async function* __fn__() {
-${transformed.code}
-}
-
-const fn = __fn__();
-do {
-  const { value, done } = await fn.next();
-  if (done) {
-    const ret = await value;
-    return resolve(ret);
+    matches.push({
+      line: lastLine,
+      column: whiteSpacesCount,
+    })
   }
-  await ${Identifiers.AsyncIterYieldFnIdentifier}(value);
-} while(true);
 
-})`.trim()
+  const lastLine = maxBy(matches, (x) => x.line ?? 0)?.line ?? 0
 
-  const script = await isolate.compileScript(scriptCode, { filename: '<isolated-vm>', columnOffset: 0, lineOffset: 0 })
-
-  const copyErrors: Error[] = []
-  let copied = false
-
-  const copyBackContextFromJail = () => {
-    if (copied) {
-      return
-    }
-    copied = true
-
-    for (const key of trackedProperties) {
-      if (typeof context[key] === 'object' && !referenceProperties.has(key)) {
-        try {
-          let properties: string[] = []
-
-          try {
-            properties =
-              isolatedContext.evalClosureSync(`return Object.getOwnPropertyNames(global['${key}'])`, [], {
-                result: { copy: true },
-              }) ?? []
-          } catch (err) {
-            console.error(`Could not get properties of object "${key}" from the sandbox`, err)
-          }
-
-          const propsToDelete = Object.getOwnPropertyNames(context[key]).filter((x) => !properties.includes(x))
-
-          for (const prop of propsToDelete) {
-            delete context[key][prop]
-          }
-
-          for (const prop of properties) {
-            if (typeof context[key][prop] === 'function' || referenceProperties.has(`${key}.${prop}`)) {
-              // We don't copy back known functions, as they are already defined in the context and they can't be copied back from the VM
-              continue
-            }
-
-            try {
-              // TODO: ideally we would do this recursively, so we can copy objects with nested objects and functions
-              const obj = isolatedContext.evalClosureSync(`return global['${key}']['${prop}']`, [], {
-                result: { copy: true },
-              })
-              try {
-                Object.assign(context[key], { [prop]: obj })
-              } catch (err) {
-                if (err instanceof AssignmentError) {
-                  traces.push({
-                    type: 'code_execution_exception',
-                    position: [0, 0],
-                    message: err.message,
-                    stackTrace: '',
-                    started_at: Date.now(),
-                    ended_at: Date.now(),
-                  })
-                  copyErrors.push(err)
-                }
-                // if the variable is read-only, we can't assign to it
-                // this is OK, we don't want to log this
-              }
-            } catch (err) {
-              console.error(`Could not copy back "${key}.${prop}" from the sandbox`, err)
-            }
-          }
-        } catch (err) {
-          console.error(`Could not copy back object "${key}" from the sandbox`, err)
-        }
-      } else {
-        try {
-          if (referenceProperties.has(key)) {
-            // If the property is a reference, we can't copy it back, so we just skip it
-            continue
-          }
-          const value = jail.getSync(key, { copy: true })
-          try {
-            Object.assign(context, { [key]: value })
-          } catch (err) {
-            if (err instanceof AssignmentError) {
-              traces.push({
-                type: 'code_execution_exception',
-                position: [0, 0],
-                message: err.message,
-                stackTrace: '',
-                started_at: Date.now(),
-                ended_at: Date.now(),
-              })
-              copyErrors.push(err)
-            }
-            // if the variable is read-only, we can't assign to it
-            // this is OK, we don't want to log this
-          }
-        } catch (err) {
-          console.error(`Could not copy back "${key}" from the sandbox`, err)
-        }
-      }
+  let debugUserCode = ''
+  let truncatedCode = ''
+  let truncated = false
+  const appendCode = (line: string) => {
+    debugUserCode += line
+    if (!truncated) {
+      truncatedCode += line
     }
   }
 
-  const final = await script
-    .run(isolatedContext, {
-      timeout,
-      copy: true,
-      promise: true,
-    })
-    .then((res) => {
-      copyBackContextFromJail()
-      if (copyErrors.length) {
-        throw new CodeExecutionError(copyErrors.map((x) => x.message).join(', '), code, '')
+  for (let i = 0; i < lines.length; i++) {
+    const VM_OFFSET = 2
+    const DISPLAY_OFFSET = 0
+    const line = lines[i]
+    const correctedStackLineIndex = i + LINE_OFFSET + VM_OFFSET
+    const match = matches.find((x) => x.line + VM_OFFSET === correctedStackLineIndex)
+    const paddedLineNumber = String(correctedStackLineIndex - VM_OFFSET - DISPLAY_OFFSET).padStart(3, '0')
+
+    if (match) {
+      appendCode(`> ${paddedLineNumber} | ${line}\n`)
+      appendCode(`    ${' '.repeat(paddedLineNumber.length + match.column)}^^^^^^^^^^\n`)
+      if (match.line >= lastLine) {
+        truncated = true
       }
-      return res
+    } else {
+      appendCode(`  ${paddedLineNumber} | ${line}\n`)
+    }
+  }
+
+  debugUserCode = cleanStackTrace(debugUserCode).trim()
+  truncatedCode = cleanStackTrace(truncatedCode).trim()
+
+  if (err instanceof VMSignal) {
+    // Add properties to VMSignal (these properties exist on the error in the original vm.ts)
+    const signalError = err as VMSignal & {
+      stack: string
+      truncatedCode: string
+      variables: any
+      toolCall?: SnapshotSignal['toolCall']
+    }
+    signalError.stack = debugUserCode
+    signalError.truncatedCode = truncatedCode
+    signalError.variables = mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter))
+    signalError.toolCall = currentToolCall
+
+    return {
+      success: true,
+      variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
+      signal: err,
+      lines_executed: Array.from(lines_executed),
+    }
+  } else {
+    traces.push({
+      type: 'code_execution_exception',
+      position: [matches[0]?.line ?? 0, matches[0]?.column ?? 0],
+      message: err.message,
+      stackTrace: debugUserCode,
+      started_at: Date.now(),
     })
-    .then(
-      (res) => {
-        res = Signals.maybeDeserializeError(res)
 
-        return {
-          success: true,
-          variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
-          signal: res instanceof VMSignal ? res : undefined,
-          lines_executed: Array.from(lines_executed),
-          return_value: res,
-        } satisfies VMExecutionResult
-      },
-      (err) => {
-        return handleError(err, code, consumer, traces, variables, lines_executed, currentToolCall, DRIVER)
-      }
-    )
-    .catch((err) => {
-      if (signal?.aborted) {
-        return handleCatch(new Error('Execution was aborted'), traces, variables, lines_executed)
-      } else {
-        copyBackContextFromJail() // Copy back even when there's an error in the middle of the execution
-      }
+    // Create error and deserialize to get proper message format
+    const codeError = new CodeExecutionError(err.message, code, debugUserCode)
+    const deserializedError = Signals.maybeDeserializeError(codeError)
 
-      return handleCatch(err, traces, variables, lines_executed)
-    })
-
-  signal?.removeEventListener('abort', abort)
-
-  try {
-    isolate.dispose()
-  } catch {}
-
-  try {
-    isolatedContext.release()
-  } catch {}
-
-  return final
+    return {
+      success: false,
+      variables: mapValues(variables, (getter) => (isFunction(getter) ? getter() : getter)),
+      error: deserializedError,
+      traces,
+      lines_executed: Array.from(lines_executed),
+    }
+  }
 }
 
-const handleError = (
+// ============================================================================
+// Node Error Handler
+// ============================================================================
+const handleErrorNode = (
   err: Error,
   code: string,
   consumer: SourceMapConsumer,
   traces: Traces.Trace[],
   variables: { [k: string]: () => any },
-  // @ts-ignore
-  lines_executed: Map<number, number>,
-  /**
-   * The current tool call that the error is associated with
-   */
-  currentToolCall?: SnapshotSignal['toolCall'] | undefined,
-  driver: Driver = 'isolated-vm'
+  _lines_executed: Map<number, number>,
+  currentToolCall?: SnapshotSignal['toolCall'] | undefined
 ) => {
   err = Signals.maybeDeserializeError(err)
   const lines = code.split('\n')
   const stackTrace = err.stack || ''
-  const LINE_OFFSET = driver === 'isolated-vm' ? 3 : 1
+  const LINE_OFFSET = 1
 
-  let regex = /\(<isolated-vm>:(\d+):(\d+)/g
-  // at __fn__ (<isolated-vm>:13:269)
-  //           ~~~~~~~~~~~~~~~~~~~~~~
-
-  if (driver === 'node') {
-    regex = /<anonymous>:(\d+):(\d+)/g
-    // <anonymous>:13:269)
-    // ~~~~~~~~~~~~~~~~~~
-  }
+  const regex = /<anonymous>:(\d+):(\d+)/g
+  // <anonymous>:13:269)
+  // ~~~~~~~~~~~~~~~~~~
 
   const matches = [...stackTrace.matchAll(regex)].map((x) => {
     const originalLine = consumer.originalPositionFor({
@@ -607,8 +1245,8 @@ const handleError = (
   }
 
   for (let i = 0; i < lines.length; i++) {
-    const VM_OFFSET = driver === 'isolated-vm' ? 2 : 2
-    const DISPLAY_OFFSET = driver === 'isolated-vm' ? 2 : 0
+    const VM_OFFSET = 2
+    const DISPLAY_OFFSET = 0
     const line = lines[i]
     const correctedStackLineIndex = i + LINE_OFFSET + VM_OFFSET // 1 for the array index starting at 0, then 2 is the number of lines added by the sandbox
     const match = matches.find((x) => x.line + VM_OFFSET === correctedStackLineIndex)

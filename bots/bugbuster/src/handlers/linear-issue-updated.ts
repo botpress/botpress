@@ -1,11 +1,14 @@
 import * as utils from '../utils'
-import { findIssue, runLint } from './issue-processor'
+import { IssueProcessor } from './issue-processor'
 import * as bp from '.botpress'
 
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
-  const { number: issueNumber, teamKey } = props.event.payload
+  const { client, ctx, event, logger } = props
+  const { number: issueNumber, teamKey } = event.payload
   const linear = await utils.linear.LinearApi.create()
-  const issue = await findIssue(issueNumber, teamKey, props.logger, 'updated', linear, props.client, props.ctx.botId)
+  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
+
+  const issue = await issueProcessor.findIssue(issueNumber, teamKey, 'updated')
 
   if (!issue) {
     return
@@ -15,10 +18,10 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
   const recentlyLinted = await botpress.getRecentlyLinted()
 
   if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
-    props.logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
+    logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
     return
   }
 
-  await runLint(linear, issue, props.logger)
+  await issueProcessor.runLint(issue)
   await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
 }
