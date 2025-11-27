@@ -230,6 +230,32 @@ const markdownToTeamsHtmlTestCases: MarkdownToTeamsHtmlTestCase[] = [
   },
   // ==== Advanced Tests & Edge Cases ====
   {
+    input: '- Item 1\n\t- Item A\n\t- Item B\n- Item 2\n- Item 3',
+    expects:
+      '<ul>\n<li>\nItem 1<ul>\n<li>\nItem A\n</li>\n<li>\nItem B\n</li>\n</ul>\n\n</li>\n<li>\nItem 2\n</li>\n<li>\nItem 3\n</li>\n</ul>',
+    description: 'Nested markdown unordered lists convert to nested html unordered lists',
+  },
+  {
+    input: '1) Item 1\n\t1) Item A\n\t2) Item B\n2) Item 2\n3) Item 3',
+    expects:
+      '<ol>\n<li>\nItem 1<ol>\n<li>\nItem A\n</li>\n<li>\nItem B\n</li>\n</ol>\n\n</li>\n<li>\nItem 2\n</li>\n<li>\nItem 3\n</li>\n</ol>',
+    description: 'Nested markdown ordered lists convert to nested html ordered lists',
+  },
+  {
+    input: '1) Ordered Item 1\n\t- Unordered Item A\n\t- Unordered Item B\n2) Ordered Item 2\n3) Ordered Item 3',
+    expects:
+      '<ol>\n<li>\nOrdered Item 1<ul>\n<li>\nUnordered Item A\n</li>\n<li>\nUnordered Item B\n</li>\n</ul>\n\n</li>\n<li>\nOrdered Item 2\n</li>\n<li>\nOrdered Item 3\n</li>\n</ol>',
+    description:
+      'Unordered markdown (md) list nested in ordered md list convert to unordered html list nested in ordered html list',
+  },
+  {
+    input: '- Unordered Item 1\n\t1) Ordered Item A\n\t2) Ordered Item B\n- Unordered Item 2\n- Unordered Item 3',
+    expects:
+      '<ul>\n<li>\nUnordered Item 1<ol>\n<li>\nOrdered Item A\n</li>\n<li>\nOrdered Item B\n</li>\n</ol>\n\n</li>\n<li>\nUnordered Item 2\n</li>\n<li>\nUnordered Item 3\n</li>\n</ul>',
+    description:
+      'Ordered markdown (md) list nested in unordered md list converts to ordered html list nested in unordered html list',
+  },
+  {
     input: '> Blockquote Layer 1\n> > Blockquote Layer 2\n> > > Blockquote Layer 3',
     expects:
       '<blockquote>\n\nBlockquote Layer 1<blockquote>\n\nBlockquote Layer 2<blockquote>\n\nBlockquote Layer 3\n</blockquote>\n</blockquote>\n</blockquote>',
