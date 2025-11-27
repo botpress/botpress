@@ -1,17 +1,15 @@
-import { BotpressApi } from 'src/utils/botpress-utils'
 import { handleError } from 'src/utils/error-handler'
-import { LinearApi } from 'src/utils/linear-utils'
-import { IssueProcessor } from './issue-processor'
-import { listTeams } from './teams-manager'
 import { WorkflowHandlerProps } from '.botpress'
+import { bootstrap } from 'src/bootstrap'
 
 export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Promise<void> => {
-  const { client, logger, ctx, workflow, conversation } = props
+  const { client, logger, workflow, conversation } = props
   const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
 
   const conversationId = conversation?.id
-  const botpress = new BotpressApi(client, ctx.botId)
-  const teams = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
+
+  const { botpress, teamsManager, issueProcessor } = await bootstrap(props, conversationId)
+  const teams = await teamsManager.listTeams().catch(_handleError('trying to lint all issues'))
 
   const {
     state: {
@@ -24,8 +22,6 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
     payload: {},
   })
 
-  const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
-  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
   const issues = await issueProcessor
     .listIssues(teams, lastLintedId) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
     .catch(_handleError('trying to list all issues'))
@@ -44,5 +40,6 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
   if (conversationId) {
     await botpress.respondText(conversationId, 'linted all issues')
   }
+
   await workflow.setCompleted()
 }
