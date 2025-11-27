@@ -1,3 +1,4 @@
+/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -22,4 +23,7 @@ export default new sdk.IntegrationDefinition({
     extractScript: 'extract.vrl',
   },
   secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
