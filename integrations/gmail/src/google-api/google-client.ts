@@ -19,9 +19,9 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken?: string
   }) {
-    const token = refreshToken ?? (await this._getRefreshTokenFromStates({ client, ctx }))
+    const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
-    const oauth2Client = this._getOAuthClient({ ctx })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
     oauth2Client.setCredentials({ refresh_token: token })
 
     const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
@@ -39,11 +39,11 @@ export class GoogleClient {
     ctx: bp.Context
     authorizationCode: string
   }) {
-    const refreshToken = await this._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
+    const refreshToken = await GoogleClient._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
 
-    await this._saveRefreshTokenIntoStates({ client, ctx, refreshToken })
+    await GoogleClient._saveRefreshTokenIntoStates({ client, ctx, refreshToken })
 
-    return this.create({ client, ctx, refreshToken })
+    return GoogleClient.create({ client, ctx, refreshToken })
   }
 
   public async watchIncomingMail() {
@@ -83,6 +83,25 @@ export class GoogleClient {
     return newMail.data
   }
 
+  public async listMessages({
+    query,
+    maxResults,
+    pageToken,
+  }: {
+    query?: string
+    maxResults?: number
+    pageToken?: string
+  } = {}) {
+    const response = await this._gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults,
+      pageToken,
+    })
+
+    return response.data
+  }
+
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
     const { state } = await client.getState({
       type: 'integration',
@@ -117,7 +136,7 @@ export class GoogleClient {
     ctx: bp.Context
     authorizationCode: string
   }) {
-    const refreshToken = await this._getRefreshToken({ ctx, authorizationCode })
+    const refreshToken = await GoogleClient._getRefreshToken({ ctx, authorizationCode })
 
     if (!refreshToken) {
       throw new sdk.RuntimeError('Unable to obtain refresh token. Please try the OAuth flow again.')
@@ -127,13 +146,13 @@ export class GoogleClient {
   }
 
   private static async _getRefreshToken({ ctx, authorizationCode }: { ctx: bp.Context; authorizationCode: string }) {
-    const oauth2Client = this._getOAuthClient({ ctx })
+    const oauth2Client = GoogleClient._getOAuthClient({ ctx })
 
     try {
       const response = await oauth2Client.getToken(authorizationCode)
       return response.tokens.refresh_token ?? null
     } catch (thrown) {
-      this._handleRefreshTokenError({ ctx, thrown })
+      GoogleClient._handleRefreshTokenError({ ctx, thrown })
     }
 
     return null
