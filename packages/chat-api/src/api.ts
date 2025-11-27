@@ -30,7 +30,7 @@ export type Sections = typeof sections
 export type ChatApi = OpenApi<keyof Schemas, keyof Parameters, keyof Sections>
 
 export const chatApi = (): ChatApi =>
-  OpenApi(
+  new OpenApi(
     {
       metadata: {
         title: 'Chat API',

@@ -8,19 +8,21 @@ export type IssueLintEntry = bp.states.recentlyLinted.RecentlyLinted['payload'][
 const RECENT_THRESHOLD: number = 1000 * 60 * 10 // 10 minutes
 
 export class BotpressApi {
-  private constructor(private _props: BotProps) {}
+  public constructor(
+    private _client: bp.Client,
+    private _botId: string
+  ) {}
 
   public static async create(props: BotProps): Promise<BotpressApi> {
-    return new BotpressApi(props)
+    return new BotpressApi(props.client, props.ctx.botId)
   }
 
   public async respond(conversationId: string, msg: BotMessage): Promise<void> {
-    const { client, ctx } = this._props
-    await client.createMessage({
+    await this._client.createMessage({
       type: msg.type,
       payload: msg.payload,
       conversationId,
-      userId: ctx.botId,
+      userId: this._botId,
       tags: {},
     })
   }
@@ -35,7 +37,7 @@ export class BotpressApi {
   public listGithubIssues = async (): Promise<GithubIssue[]> => {
     const {
       output: { targets: githubIssues },
-    } = await this._props.client.callAction({
+    } = await this._client.callAction({
       type: 'github:findTarget',
       input: {
         channel: 'issue',
@@ -47,13 +49,12 @@ export class BotpressApi {
   }
 
   public async getRecentlyLinted(): Promise<bp.states.recentlyLinted.RecentlyLinted['payload']['issues']> {
-    const { client } = this._props
     const {
       state: {
         payload: { issues },
       },
-    } = await client.getOrSetState({
-      id: this._props.ctx.botId,
+    } = await this._client.getOrSetState({
+      id: this._botId,
       type: 'bot',
       name: 'recentlyLinted',
       payload: { issues: [] },
@@ -62,8 +63,8 @@ export class BotpressApi {
   }
 
   public async setRecentlyLinted(issues: bp.states.recentlyLinted.RecentlyLinted['payload']['issues']): Promise<void> {
-    await this._props.client.setState({
-      id: this._props.ctx.botId,
+    await this._client.setState({
+      id: this._botId,
       type: 'bot',
       name: 'recentlyLinted',
       payload: {

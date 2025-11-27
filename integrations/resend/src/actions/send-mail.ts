@@ -13,6 +13,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ ctx
     bcc: input.bcc,
     subject: input.subject,
     html: markdownToHtml(input.body),
+    replyTo: input.replyTo,
   })
 
   if (thrown) {

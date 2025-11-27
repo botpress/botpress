@@ -48,13 +48,15 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   }
   const { data, success } = safeJsonParse(req.body)
   if (!success) {
-    return { status: 400, body: 'Invalid payload body' }
+    const errorMsg = 'Unable to parse request payload as JSON'
+    return { status: 400, body: errorMsg }
   }
 
   // Parse payload once with entry-level union schema
   const payloadResult = instagramPayloadSchema.safeParse(data)
   if (!payloadResult.success) {
-    props.logger.warn('Received invalid Instagram payload:', payloadResult.error.message)
+    const errorMsg = `Received invalid Instagram payload: ${payloadResult.error.message}`
+    props.logger.warn(errorMsg)
     return { status: 400, body: 'Invalid payload' }
   }
 
@@ -113,14 +115,15 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
     if (response && response.status !== 200) {
-      props.logger.error(`Instagram handler failed with status ${response.status}: ${response.body}`)
+      const errorMessage = `Instagram handler failed with status ${response.status}: ${response.body}`
+      props.logger.error(errorMessage)
     }
     return response
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    const logMessage = `Instagram handler failed with error: ${errorMessage ?? 'Unknown error thrown'}`
-    props.logger.error(logMessage)
-    return { status: 500, body: logMessage }
+  } catch (thrown: unknown) {
+    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Instagram handler failed with error: ${errorMsg}`
+    props.logger.error(errorMessage)
+    return { status: 500, body: errorMessage }
   }
 }
 

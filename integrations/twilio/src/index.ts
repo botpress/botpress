@@ -1,11 +1,13 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError, isApiError } from '@botpress/client'
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as crypto from 'crypto'
+import { INTEGRATION_NAME } from 'integration.definition'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
-import { parseMarkdown } from './markdown-to-twilio'
+import { transformMarkdownForTwilio } from './markdown-to-twilio'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -399,10 +401,19 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
   let body = text
   if (body !== undefined) {
     try {
-      body = parseMarkdown(body, twilioChannel)
+      body = transformMarkdownForTwilio(body, twilioChannel)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      logger.forBot().debug('Failed to parse markdown - Error:', errMsg)
+      logger.forBot().debug('Failed to transform markdown - Error:', errMsg)
+      const distinctId = isApiError(thrown) ? thrown.id : undefined
+      await posthogHelper.sendPosthogEvent(
+        {
+          distinctId: distinctId ?? 'no id',
+          event: 'unhandled_markdown',
+          properties: { errMsg },
+        },
+        { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+      )
     }
   }
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })

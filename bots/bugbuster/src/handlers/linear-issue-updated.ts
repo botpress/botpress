@@ -1,26 +1,16 @@
-import * as linlint from '../linear-lint-issue'
 import * as utils from '../utils'
+import { IssueProcessor } from './issue-processor'
 import * as bp from '.botpress'
 
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
-  const { number: issueNumber, teamKey } = props.event.payload
-  if (!issueNumber || !teamKey) {
-    props.logger.error('Missing issueNumber or teamKey in event payload')
-    return
-  }
-
-  props.logger.info('Linear issue updated event received', `${teamKey}-${issueNumber}`)
-
+  const { client, ctx, event, logger } = props
+  const { number: issueNumber, teamKey } = event.payload
   const linear = await utils.linear.LinearApi.create()
+  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
 
-  if (!linear.isTeam(teamKey) || teamKey !== 'SQD') {
-    props.logger.error(`Ignoring issue of team "${teamKey}"`)
-    return
-  }
+  const issue = await issueProcessor.findIssue(issueNumber, teamKey, 'updated')
 
-  const issue = await linear.findIssue({ teamKey, issueNumber })
   if (!issue) {
-    props.logger.error(`Issue with number ${issueNumber} not found in team ${teamKey}`)
     return
   }
 
@@ -28,26 +18,10 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
   const recentlyLinted = await botpress.getRecentlyLinted()
 
   if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
-    props.logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
+    logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
     return
   }
 
-  const errors = await linlint.lintIssue(linear, issue)
-  if (errors.length === 0) {
-    props.logger.info(`Issue ${issue.identifier} passed all lint checks.`)
-    return
-  }
-
-  props.logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
-
-  await linear.client.createComment({
-    issueId: issue.id,
-    body: [
-      `BugBuster Bot found the following problems with ${issue.identifier}:`,
-      '',
-      ...errors.map((error) => `- ${error.message}`),
-    ].join('\n'),
-  })
-
+  await issueProcessor.runLint(issue)
   await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
 }

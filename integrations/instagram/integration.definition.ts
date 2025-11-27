@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import { dmChannelMessages } from './definitions/channel'
@@ -16,7 +16,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.1.0',
+  version: '4.1.2',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
@@ -165,7 +165,7 @@ export default new IntegrationDefinition({
   actions: {},
   events: {},
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app.',
     },

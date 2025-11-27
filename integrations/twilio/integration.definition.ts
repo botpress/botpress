@@ -3,9 +3,10 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
+export const INTEGRATION_NAME = 'twilio'
 export default new IntegrationDefinition({
-  name: 'twilio',
-  version: '1.0.0',
+  name: INTEGRATION_NAME,
+  version: '1.0.2',
   title: 'Twilio',
   description: 'Send and receive messages, voice calls, emails, SMS, and more.',
   icon: 'icon.svg',
@@ -60,7 +61,12 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    POSTHOG_KEY: {
+      description: 'Posthog key for error dashboards',
+    },
+  },
   user: {
     tags: {
       userPhone: {

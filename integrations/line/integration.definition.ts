@@ -1,10 +1,12 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '1.0.3',
+  version: '2.0.2',
   title: 'Line',
   description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
@@ -27,7 +29,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Line conversation',
       description: 'Channel for a Line conversation',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: { ...messages.defaults },
       message: {
         tags: {
           msgId: {
@@ -47,12 +49,20 @@ export default new IntegrationDefinition({
             description: 'Line user ID of the bot',
           },
         },
-        creation: { enabled: true, requiredTags: ['usrId', 'destId'] },
       },
     },
   },
   actions: {},
-  events: {},
+  events: {
+    followed: {
+      title: 'Followed',
+      description: 'The bot was followed by someone.',
+      schema: z.object({
+        destinationId: z.string().title('Destination ID').describe('The Line user ID of the bot'),
+        userId: z.string().title('User ID').describe('The Line ID of the user'),
+      }),
+    },
+  },
   states: {
     conversation: {
       type: 'conversation',
@@ -73,9 +83,39 @@ export default new IntegrationDefinition({
         description: 'Line user ID',
       },
     },
-    creation: { enabled: true, requiredTags: ['usrId'] },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  entities: {
+    user: {
+      schema: z
+        .object({
+          id: z.string().title('User ID').describe('The Line ID of the user'),
+        })
+        .title('User')
+        .describe('The user object fields'),
+      title: 'User',
+      description: 'A Line user',
+    },
+    conversation: {
+      schema: z
+        .object({
+          id: z.string().title('User ID').describe('The Line ID of the user in the conversation'),
+          destinationId: z.string().title('Destination ID').describe('Line user ID of the bot'),
+        })
+        .title('Conversation')
+        .describe('The conversation object fields'),
+      title: 'Conversation',
+      description: 'A conversation with a Line user',
+    },
   },
-}).extend(typingIndicator, ({}) => ({ entities: {} }))
+})
+  .extend(typingIndicator, ({}) => ({ entities: {} }))
+  .extend(proactiveUser, ({ entities }) => ({
+    entities: {
+      user: entities.user,
+    },
+  }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.conversation,
+    },
+  }))

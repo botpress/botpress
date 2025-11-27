@@ -19,6 +19,7 @@ import {
   ThinkSignal,
   VMSignal,
 } from './errors.js'
+import { parseExit } from './exit-parser.js'
 import { Exit, ExitResult } from './exit.js'
 import { ValueOrGetter } from './getter.js'
 
@@ -63,6 +64,19 @@ export type ExecutionHooks = {
    * It is useful for logging, debugging, or monitoring the execution of the iteration.
    */
   onTrace?: (event: { trace: Trace; iteration: number }) => void
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
+   *
+   * This hook will be called before each iteration starts, regardless of the status.
+   * This is useful for logging or dynamically change model arguments
+   */
+  onIterationStart?: (
+    iteration: Iteration,
+    controller: AbortController,
+    context: Context
+  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
 
   /**
    * BLOCKING HOOK
@@ -113,6 +127,8 @@ export type ExecutionHooks = {
     tool: Tool
     input: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ input?: any } | void>
 
   /**
@@ -130,6 +146,8 @@ export type ExecutionHooks = {
     input: any
     output: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ output?: any } | void>
 }
 
@@ -248,7 +266,7 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
-  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+  const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
   const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -272,6 +290,20 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       const iteration = await ctx.nextIteration()
+
+      try {
+        await executeOnIterationStartHook({
+          iteration,
+          ctx,
+          onIterationStart,
+          controller,
+          onIterationEnd,
+        })
+      } catch (err) {
+        if (err instanceof ThinkSignal) {
+          continue
+        }
+      }
 
       if (controller.signal.aborted) {
         iteration.end({
@@ -460,6 +492,7 @@ const executeIteration = async ({
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    usage: output.output.usage,
   }
 
   traces.push({
@@ -600,21 +633,22 @@ const executeIteration = async ({
     ended_at: Date.now(),
   })
 
+  // Check for abort first - takes precedence over other errors
+  if (controller.signal.aborted) {
+    return iteration.end({
+      type: 'aborted',
+      aborted: {
+        reason: controller.signal.reason ?? 'The operation was aborted',
+      },
+    })
+  }
+
   if (result.error && result.error instanceof CodeExecutionError) {
     return iteration.end({
       type: 'execution_error',
       execution_error: {
         message: result.error.message,
         stack: cleanStackTrace(result.error.stacktrace ?? result.error.stack ?? 'No stack trace available'),
-      },
-    })
-  }
-
-  if (controller.signal.aborted) {
-    return iteration.end({
-      type: 'aborted',
-      aborted: {
-        reason: controller.signal.reason ?? 'The operation was aborted',
       },
     })
   }
@@ -635,6 +669,7 @@ const executeIteration = async ({
       thinking_requested: {
         variables: result.signal.context,
         reason: result.signal.reason,
+        metadata: result.signal.metadata,
       },
     })
   }
@@ -648,15 +683,12 @@ const executeIteration = async ({
     })
   }
 
-  const validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 
   const returnAction = returnValue?.action
-  const returnExit =
-    iteration.exits.find((x) => x.name.toLowerCase() === returnAction?.toLowerCase()) ??
-    iteration.exits.find((x) => x.aliases.some((a) => a.toLowerCase() === returnAction?.toLowerCase()))
 
+  // Handle think action separately
   if (returnAction === 'think') {
     const variables = omit(returnValue ?? {}, 'action')
     if (isPlainObject(variables) && Object.keys(variables).length > 0) {
@@ -678,42 +710,22 @@ const executeIteration = async ({
     })
   }
 
-  if (!returnAction) {
+  // Parse the exit using the extracted function
+  const parsedExit = parseExit(returnValue, iteration.exits)
+
+  if (!parsedExit.success) {
     return iteration.end({
       type: 'exit_error',
       exit_error: {
-        exit: 'n/a',
-        message: `Code did not return an action. Valid actions are: ${validActions.join(', ')}`,
+        exit: returnValue?.action ?? 'n/a',
+        message: parsedExit.error,
         return_value: returnValue,
       },
     })
   }
 
-  if (!returnExit) {
-    return iteration.end({
-      type: 'exit_error',
-      exit_error: {
-        exit: returnAction,
-        message: `Exit "${returnAction}" not found. Valid actions are: ${validActions.join(', ')}`,
-        return_value: returnValue,
-      },
-    })
-  }
-
-  if (returnExit.zSchema) {
-    const parsed = returnExit.zSchema.safeParse(returnValue?.value)
-    if (!parsed.success) {
-      return iteration.end({
-        type: 'exit_error',
-        exit_error: {
-          exit: returnExit.name,
-          message: `Invalid return value for exit ${returnExit.name}: ${getErrorMessage(parsed.error)}`,
-          return_value: returnValue,
-        },
-      })
-    }
-    returnValue = { action: returnExit.name, value: parsed.data }
-  }
+  const returnExit = parsedExit.exit
+  returnValue = { action: returnExit.name, value: parsedExit.value }
 
   try {
     await onExit?.({
@@ -751,7 +763,7 @@ type Props = {
 }
 
 function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, controller }: Props) {
-  const getToolInput = (input: any) => tool.zInput.safeParse(input).data ?? input
+  const getToolInput = (input: any) => (tool.zInput as any).safeParse(input).data ?? input
 
   return function (input: any) {
     const toolCallId = `tcall_${ulid()}`
@@ -814,6 +826,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           tool,
           input,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof beforeRes?.input !== 'undefined') {
@@ -830,6 +844,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           input,
           output,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
@@ -848,10 +864,24 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
             success = true
             return res
           })
-          .catch((err: any) => {
+          .catch(async (err: any) => {
             if (!handleSignals(err)) {
               success = false
               error = err
+            } else {
+              const afterRes = await afterHook?.({
+                iteration,
+                tool,
+                input,
+                output,
+                controller,
+                object,
+                toolCallId,
+              })
+
+              if (typeof afterRes?.output !== 'undefined') {
+                output = afterRes.output
+              }
             }
 
             // Important: we want to re-throw signals so that the VM can handle them
@@ -907,5 +937,48 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
     }
 
     return output
+  }
+}
+
+const executeOnIterationStartHook = async (props: {
+  iteration: Iteration
+  ctx: Context
+  onIterationStart?: ExecutionHooks['onIterationStart']
+  onIterationEnd?: ExecutionHooks['onIterationEnd']
+  controller: AbortController
+}) => {
+  const { iteration, ctx, onIterationStart, controller, onIterationEnd } = props
+
+  try {
+    const hookRes = await onIterationStart?.(iteration, controller, ctx)
+    if (hookRes) {
+      Object.assign(iteration, hookRes)
+    }
+  } catch (err) {
+    if (err instanceof ThinkSignal) {
+      iteration.end({
+        type: 'thinking_requested',
+        thinking_requested: {
+          variables: err.context,
+          reason: err.reason,
+        },
+      })
+
+      try {
+        await onIterationEnd?.(iteration, controller)
+      } catch (err) {
+        console.error(err)
+      }
+    } else {
+      iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
+          stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+        },
+      })
+    }
+
+    throw err
   }
 }

@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 import {
@@ -7,7 +7,7 @@ import {
   WhatsAppMessageTemplateQualityUpdateValueSchema,
   WhatsAppMessageTemplateStatusUpdateValueSchema,
   WhatsAppTemplateCategoryUpdateValueSchema,
-} from 'definitions/events'
+} from './definitions/events'
 
 const MAX_BUTTON_LABEL_LENGTH = 20
 
@@ -92,9 +92,10 @@ const defaultBotPhoneNumberId = {
   description: 'Default Phone ID used by the bot for starting conversations',
 }
 
+export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
-  name: 'whatsapp',
-  version: '4.5.13',
+  name: INTEGRATION_NAME,
+  version: '4.5.18',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -189,6 +190,11 @@ export default new IntegrationDefinition({
             filename: z.string().optional(),
           }),
         },
+        image: {
+          schema: messages.defaults.image.schema.extend({
+            caption: z.string().optional(),
+          }),
+        },
         bloc: {
           schema: z.object({
             items: z.array(
@@ -200,7 +206,7 @@ export default new IntegrationDefinition({
                   }),
                 }),
                 z.object({
-                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  type: z.literal('markdown'), // TODO Remove for 5.0.0
                   payload: z.object({
                     markdown: z.string(),
                   }),
@@ -373,7 +379,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app',
     },

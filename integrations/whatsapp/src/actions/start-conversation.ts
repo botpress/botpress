@@ -1,9 +1,12 @@
-import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
-import { getTemplateText, parseTemplateVariablesJSON } from 'src/misc/template-utils'
-import { TemplateVariables } from 'src/misc/types'
-import { hasAtleastOne, logForBotAndThrow } from 'src/misc/util'
+import { isApiError } from '@botpress/client'
+import { posthogHelper } from '@botpress/common'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
+import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
+import { getTemplateText, parseTemplateVariablesJSON } from '../misc/template-utils'
+import { TemplateVariables } from '../misc/types'
+import { hasAtleastOne, logForBotAndThrow } from '../misc/util'
 import * as bp from '.botpress'
 
 export const sendTemplateMessage: bp.IntegrationProps['actions']['sendTemplateMessage'] = async (props) => {
@@ -41,8 +44,20 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
   try {
     formattedUserPhone = formatPhoneNumber(userPhone)
   } catch (thrown) {
+    const distinctId = isApiError(thrown) ? thrown.id : undefined
+    await posthogHelper.sendPosthogEvent(
+      {
+        distinctId: distinctId ?? 'no id',
+        event: 'invalid_phone_number',
+        properties: {
+          from: 'action',
+          phoneNumber: userPhone,
+        },
+      },
+      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+    )
     const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
-    logForBotAndThrow(`Failed to parse phone number (error: ${errorMessage}).`, logger)
+    logForBotAndThrow(`Failed to parse phone number "${userPhone}": ${errorMessage}`, logger)
   }
 
   const { conversation } = await client.getOrCreateConversation({

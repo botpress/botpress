@@ -10,8 +10,14 @@
     "@botpress/sdk": "workspace:*",
     "dedent": "^1.6.0",
     "marked": "^15.0.1",
-    "openai": "^5.12.1",
+    "openai": "^6.9.0",
+    "posthog-node": "5.11.2",
     "preact": "^10.26.6",
-    "preact-render-to-string": "^6.5.13"
+    "preact-render-to-string": "^6.5.13",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4"
   }
 }

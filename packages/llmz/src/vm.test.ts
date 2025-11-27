@@ -1,8 +1,8 @@
 import { assert, describe, expect, it, vi } from 'vitest'
 
 import { CodeExecutionError, InvalidCodeError, VMSignal } from './errors.js'
-import { runAsyncFunction, CAN_USE_ISOLATED_VM } from './vm.js'
 import { Trace, Traces } from './types.js'
+import { runAsyncFunction } from './vm.js'
 
 describe('llmz/vm', () => {
   it('stack traces points to original source map code', async () => {
@@ -20,7 +20,7 @@ Hi!
   }
 }
 `
-    let traces = []
+    let traces: Trace[] = []
     const result = await runAsyncFunction({}, code, traces)
 
     assert(result.success === false)
@@ -141,7 +141,7 @@ console.log( /* this is a comment */ test(5, 6));
       > 015 | console.log( /* this is a comment */ test(5, 6));
       ...^^^^^^^^^^"
     `)
-    expect(result.lines_executed.join(' ')).toMatchInlineSnapshot(`"2,1 11,1 4,2 5,2 8,1 13,1 6,1"`)
+    expect(result.lines_executed.join(' ')).toMatchInlineSnapshot(`"4,1 13,1 6,2 7,2 10,1 15,1 8,1"`)
   })
 
   it('should throw `InvalidCodeError` if code is not valid', async () => {
@@ -161,7 +161,7 @@ console.log( /* this is a comment */ test(5, 6));
       },
     }
 
-    it.skipIf(process.env.CI)('signals throw with truncated code attached and variable values', async () => {
+    it('signals throw with truncated code attached and variable values', async () => {
       const code = `
       // Comment here
       const a = 10;
@@ -215,12 +215,15 @@ console.log( /* this is a comment */ test(5, 6));
           006 |       const doThrow = () => {
           007 |           // Comment here
         > 008 |           THROW_SIGNAL();
-        ...^^^^^^^^^^
+                         ^^^^^^^^^^
           009 |       }
           010 | 
           011 |       if (c > 10) {
         > 012 |         doThrow()
-        ...^^^^^^^^^^"
+                       ^^^^^^^^^^
+          013 |       }
+          014 |         
+          015 |       // This will be truncated from the stack trace"
       `)
 
       expect(result.signal?.variables).toMatchInlineSnapshot(`
@@ -495,7 +498,6 @@ return {
             4,
           ],
           "g": null,
-          "h": undefined,
         }
       `)
 
@@ -587,9 +589,8 @@ return {
       const result = await runAsyncFunction(context, code)
 
       expect(result.success).toBe(false)
-      expect(result.error).toMatchInlineSnapshot(
-        `[CodeExecutionError: Cannot add property age, object is not extensible]`
-      )
+      // QuickJS and Node.js have different error messages for sealed objects
+      expect(result.error?.message).toMatch(/object is not extensible/)
     })
 
     it('sealed variables remained sealed inside VM (2)', async () => {
@@ -738,7 +739,7 @@ return {
       const result = await runAsyncFunction(context, code)
 
       expect(result.success).toBe(true)
-      expect(process.env.VM_DRIVER === 'isolated-vm' ? context.myObj : innerValues).toMatchInlineSnapshot(`
+      expect(context.myObj).toMatchInlineSnapshot(`
         {
           "__origin": "test",
           "age": 33,
@@ -836,7 +837,7 @@ return {
       expect(result.error?.message).toMatchInlineSnapshot(`"Invalid city Quebec"`)
     })
 
-    it.skipIf(process.env.CI)('setters are executed before next statement (top-level)', async () => {
+    it('setters are executed before next statement (top-level)', async () => {
       const code = `
         log('1')
         age = 33
@@ -958,16 +959,14 @@ return {
 
       assert(result.success)
       expect(result.return_value).toMatchInlineSnapshot(`"property:Hello World"`)
-      expect(context.workflow).toMatchInlineSnapshot(`
+      // Functions are not copied back from VM, only checking data properties
+      expect(context.workflow.myObject).toMatchInlineSnapshot(`
         {
-          "myFn": [Function],
-          "myObject": {
-            "message": "Hello World",
-            "name": "unset",
-          },
-          "userName": "unset",
+          "message": "Hello World",
+          "name": "unset",
         }
       `)
+      expect(context.workflow.userName).toBe('unset')
     })
   })
 
@@ -989,7 +988,7 @@ return {
       expect(result.return_value).toBe(105)
     })
 
-    it.skipIf(!CAN_USE_ISOLATED_VM)('aborting execution', async () => {
+    it('aborting execution', async () => {
       const code = `
       await longFn()
       notCalled()
@@ -1026,7 +1025,7 @@ return {
       const result = await exec
 
       expect(result.success).toBe(false)
-      expect(result.error).toMatchInlineSnapshot(`[Error: Execution was aborted]`)
+      expect(result.error).toMatchInlineSnapshot(`[CodeExecutionError: This operation was aborted]`)
       expect(called).toBe(false)
     })
   })
