@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
@@ -61,5 +62,8 @@ export default new IntegrationDefinition({
     PDFSHIFT_API_KEY: {
       description: 'The API key to use PDFShift (https://app.pdfshift.io/env/apikeys)',
     },
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
