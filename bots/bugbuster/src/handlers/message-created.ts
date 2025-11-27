@@ -72,8 +72,8 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
     case '#listTeams': {
-      const result = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
-      await botpress.respondText(conversation.id, result.message)
+      const teams = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
+      await botpress.respondText(conversation.id, teams.join(', '))
       break
     }
     case '#lintAll': {
