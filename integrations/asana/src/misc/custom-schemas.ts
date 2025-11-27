@@ -41,7 +41,7 @@ export const createTaskInputSchema = z.object({
 })
 
 export const taskOutputSchema = z.object({
-  permalink_url: z.string().describe('The permalink url').title('Permaling Url'),
+  permalink_url: z.string().describe('The permalink url').title('Permalink Url'),
 })
 export const createTaskOutputSchema = taskOutputSchema
 
@@ -51,7 +51,7 @@ export const updateTaskInputSchema = createTaskInputSchema
     parent: true,
   })
   .extend({
-    taskId: z.string().describe('Task ID to update').title('Task ID to update'),
+    taskId: z.string().describe('Task ID to update').title('Task ID'),
     name: z.string().optional().describe('The name of the task (Optional) (e.g. "My Test Task")').title('Name'),
     assignee: z
       .string()
