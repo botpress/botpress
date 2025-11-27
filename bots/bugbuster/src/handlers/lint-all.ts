@@ -11,13 +11,7 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
 
   const conversationId = conversation?.id
   const botpress = new BotpressApi(client, ctx.botId)
-  const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
-
-  if (!teamsResult.success || !teamsResult.result) {
-    const error = new Error(teamsResult.message)
-    await _handleError('listing teams')(error)
-    return
-  }
+  const teams = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
 
   const lastLintedId = await client.getOrSetState({
     id: workflow.id,
@@ -29,7 +23,7 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
   const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
   const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
   const issues = await issueProcessor
-    .listIssues(teamsResult.result, lastLintedId.state.payload.id)
+    .listIssues(teams, lastLintedId.state.payload.id)
     .catch(_handleError('trying to list all issues'))
 
   for (const issue of issues) {
