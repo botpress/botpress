@@ -6,12 +6,10 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
   const conversationId = conversation?.id
 
-  const { botpress, teamsManager, issueProcessor } = await boot.bootstrap(props, conversationId)
+  const { botpress, issueProcessor } = await boot.bootstrap(props, conversationId)
 
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
-
-  const teams = await teamsManager.listTeams().catch(_handleError('trying to lint all issues'))
 
   const {
     state: {
@@ -27,7 +25,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     .catch(_handleError('trying to get last linted issue ID'))
 
   const issues = await issueProcessor
-    .listIssues(teams, lastLintedId) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
+    .listRelevantIssues(lastLintedId) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
     .catch(_handleError('trying to list all issues'))
 
   for (const issue of issues) {

@@ -45,7 +45,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         return
       }
 
-      await teamsManager.addTeam(teamKey).catch(_handleError('trying to add a team'))
+      await teamsManager.addWatchedTeam(teamKey).catch(_handleError('trying to add a team'))
 
       await botpress.respondText(
         conversation.id,
@@ -59,7 +59,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         return
       }
 
-      await teamsManager.removeTeam(teamKey).catch(_handleError('trying to remove a team'))
+      await teamsManager.removeWatchedTeam(teamKey).catch(_handleError('trying to remove a team'))
       await botpress.respondText(
         conversation.id,
         `Success: the team with the key '${teamKey}' has been removed from the watched team list.`
@@ -67,7 +67,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
     case '#listTeams': {
-      const teams = await teamsManager.listTeams().catch(_handleError('trying to list teams'))
+      const teams = await teamsManager.listWatchedTeams().catch(_handleError('trying to list teams'))
       await botpress.respondText(conversation.id, teams.join(', '))
       break
     }
