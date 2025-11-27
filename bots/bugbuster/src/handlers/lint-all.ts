@@ -14,7 +14,8 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
   const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
 
   if (!teamsResult.success || !teamsResult.result) {
-    await _handleError(teamsResult.message)
+    const error = new Error(teamsResult.message)
+    await _handleError('listing teams')(error)
     return
   }
 
