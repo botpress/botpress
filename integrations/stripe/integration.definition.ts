@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
@@ -221,5 +222,8 @@ export default new IntegrationDefinition({
         schema: retrieveCustomerByIdOutputSchema,
       },
     },
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
