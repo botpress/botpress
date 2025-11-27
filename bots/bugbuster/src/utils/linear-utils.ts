@@ -18,6 +18,7 @@ const STATE_KEYS = [
   'STALE',
 ] as const
 export type StateKey = (typeof STATE_KEYS)[number]
+type State = { state: lin.WorkflowState; key: StateKey }
 
 const RESULTS_PER_PAGE = 200
 
@@ -26,7 +27,7 @@ export class LinearApi {
     private _client: lin.LinearClient,
     private _viewer: lin.User,
     private _teams: lin.Team[],
-    private _states: lin.WorkflowState[]
+    private _states: State[]
   ) {}
 
   public static async create(): Promise<LinearApi> {
@@ -39,7 +40,7 @@ export class LinearApi {
     const states = await this._listAllStates(client)
     const teams = await this._listAllTeams(client)
 
-    return new LinearApi(client, me, teams, states)
+    return new LinearApi(client, me, teams, this._toStateObjects(states))
   }
 
   public get client(): lin.LinearClient {
@@ -84,11 +85,19 @@ export class LinearApi {
       return { issues: [] }
     }
 
+    const stateNamesToOmit = statusesToOmit?.map((key) => {
+      const matchingStates = this._states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
+    })
+
     const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(statusesToOmit && { state: { name: { nin: statusesToOmit } } }),
+        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -113,11 +122,11 @@ export class LinearApi {
   }
 
   public issueStatus(issue: Issue): StateKey {
-    const state = this._states.find((s) => s.id === issue.state.id)
+    const state = this._states.find((s) => s.state.id === issue.state.id)
     if (!state) {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
-    return utils.string.toScreamingSnakeCase(state.name) as StateKey
+    return state.key
   }
 
   public async resolveComments(issue: Issue): Promise<void> {
@@ -154,9 +163,7 @@ export class LinearApi {
 
         return new Proxy({} as Record<StateKey, lin.WorkflowState>, {
           get: (_, stateKey: StateKey) => {
-            const state = this._states.find(
-              (s) => utils.string.toScreamingSnakeCase(s.name) === stateKey && s.teamId === teamId
-            )
+            const state = this._states.find((s) => s.key === stateKey && s.state.teamId === teamId)
 
             if (!state) {
               throw new Error(`State with key "${stateKey}" not found.`)
@@ -188,6 +195,15 @@ export class LinearApi {
       cursor = response.pageInfo.endCursor
     } while (cursor)
     return states
+  }
+
+  private static _toStateObjects(states: lin.WorkflowState[]): State[] {
+    const stateObjects: State[] = []
+    for (const state of states) {
+      const key = utils.string.toScreamingSnakeCase(state.name) as StateKey
+      stateObjects.push({ key, state })
+    }
+    return stateObjects
   }
 
   private async _executeGraphqlQuery<K extends keyof GRAPHQL_QUERIES>(

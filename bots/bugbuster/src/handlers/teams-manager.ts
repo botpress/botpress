@@ -1,11 +1,6 @@
+import { Result } from 'src/types'
 import { LinearApi } from 'src/utils/linear-utils'
 import * as bp from '.botpress'
-
-export type Result<T> = {
-  success: boolean
-  message: string
-  result?: T
-}
 
 const _getWatchedTeams = async (client: bp.Client, botId: string) => {
   return (
