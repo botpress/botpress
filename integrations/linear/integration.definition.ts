@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import deletable from './bp_modules/deletable'
@@ -34,6 +35,9 @@ export default new IntegrationDefinition({
       description: 'The signing secret of your Linear webhook.',
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
   .extend(listable, ({ entities }) => ({
