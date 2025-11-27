@@ -1,12 +1,12 @@
 import * as utils from '../utils'
-import { IssueProcessor } from './issue-processor'
 import * as bp from '.botpress'
+import { bootstrap } from 'src/bootstrap'
 
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
-  const { client, ctx, event, logger } = props
+  const { event, logger } = props
   const { number: issueNumber, teamKey } = event.payload
-  const linear = await utils.linear.LinearApi.create()
-  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
+
+  const { issueProcessor } = await bootstrap(props)
 
   const issue = await issueProcessor.findIssue(issueNumber, teamKey, 'updated')
 

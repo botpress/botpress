@@ -2,8 +2,7 @@ import { BotLogger } from '@botpress/sdk'
 import { Issue, Pagination } from 'src/utils/graphql-queries'
 import { LinearApi, StateKey } from 'src/utils/linear-utils'
 import * as linlint from '../linear-lint-issue'
-import { listTeams } from './teams-manager'
-import { Client } from '.botpress'
+import { TeamsManager } from './teams-manager'
 
 const IGNORED_STATUSES: StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
@@ -12,8 +11,7 @@ export class IssueProcessor {
   public constructor(
     private _logger: BotLogger,
     private _linear: LinearApi,
-    private _client: Client,
-    private _botId: string
+    private _teamsManager: TeamsManager
   ) {}
 
   /**
@@ -31,7 +29,7 @@ export class IssueProcessor {
 
     this._logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
 
-    const teams = await listTeams(this._client, this._botId)
+    const teams = await this._teamsManager.listTeams()
     if (!this._linear.isTeam(teamKey) || !teams.includes(teamKey)) {
       this._logger.error(`Ignoring issue of team "${teamKey}"`)
       return

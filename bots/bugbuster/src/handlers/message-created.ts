@@ -1,7 +1,7 @@
 import { handleError } from 'src/utils/error-handler'
 import * as utils from '../utils'
-import { addTeam, listTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
+import { bootstrap } from 'src/bootstrap'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
@@ -13,7 +13,7 @@ const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible command
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
-  const { conversation, message, client, ctx, logger } = props
+  const { conversation, message, client, logger } = props
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
@@ -56,8 +56,8 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const linear = await utils.linear.LinearApi.create().catch(_handleError('trying to add a team'))
-      const result = await addTeam(client, ctx.botId, teamKey, linear).catch(_handleError('trying to add a team'))
+      const { teamsManager } = await bootstrap(props, conversation.id)
+      const result = await teamsManager.addTeam(teamKey).catch(_handleError('trying to add a team'))
 
       await botpress.respondText(conversation.id, result.message)
       break
@@ -67,12 +67,14 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const result = await removeTeam(client, ctx.botId, teamKey).catch(_handleError('trying to remove a team'))
+      const { teamsManager } = await bootstrap(props, conversation.id)
+      const result = await teamsManager.removeTeam(teamKey).catch(_handleError('trying to remove a team'))
       await botpress.respondText(conversation.id, result.message)
       break
     }
     case '#listTeams': {
-      const teams = await listTeams(client, ctx.botId).catch(_handleError('trying to list teams'))
+      const { teamsManager } = await bootstrap(props, conversation.id)
+      const teams = await teamsManager.listTeams().catch(_handleError('trying to list teams'))
       await botpress.respondText(conversation.id, teams.join(', '))
       break
     }
