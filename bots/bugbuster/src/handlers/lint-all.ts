@@ -23,7 +23,7 @@ export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Pro
   const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
   const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
   const issues = await issueProcessor
-    .listIssues(teams, lastLintedId.state.payload.id)
+    .listIssues(teams, lastLintedId.state.payload.id) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
     .catch(_handleError('trying to list all issues'))
 
   for (const issue of issues) {
