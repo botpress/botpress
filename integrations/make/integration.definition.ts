@@ -40,7 +40,7 @@ export default new IntegrationDefinition({
             .describe(
               'Data received from Make.com, will be the string `Accepted` if successful and no data is returned'
             )
-            .title('Reponse')
+            .title('Response')
             .nullable(),
         }),
       },
