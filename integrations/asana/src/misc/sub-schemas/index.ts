@@ -3,7 +3,7 @@ import { z } from '@botpress/sdk'
 const workspaceSchema = z.object({
   gid: z.string().describe('The GID of the workspace').title('GID'),
   name: z.string().describe('The name of the workspace').title('Name'),
-  resource_type: z.string().describe('The resource type of the workspace').title('resource Type'),
+  resource_type: z.string().describe('The resource type of the workspace').title('Resource Type'),
 })
 
 const photoSchema = z
