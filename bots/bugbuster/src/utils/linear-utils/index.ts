@@ -1,2 +1,2 @@
 export * from './client'
-export * from './graphql-queries'
+export { Issue, Pagination } from './graphql-queries'
