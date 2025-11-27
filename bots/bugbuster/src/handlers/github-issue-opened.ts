@@ -1,4 +1,4 @@
-import { bootstrap } from 'src/bootstrap'
+import * as boot from 'src/bootstrap'
 import * as bp from '.botpress'
 
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
@@ -6,7 +6,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   props.logger.info('Received GitHub issue', githubIssue)
 
-  const { linear } = await bootstrap(props)
+  const { linear } = await boot.bootstrap(props)
 
   const githubLabel = await linear.findLabel({ name: 'github', parentName: 'origin' })
   if (!githubLabel) {
