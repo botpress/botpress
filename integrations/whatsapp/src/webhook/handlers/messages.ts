@@ -134,7 +134,14 @@ async function _handleIncomingMessage(
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl }, replyTo })
+    await createMessage({
+      type,
+      payload: {
+        imageUrl,
+        ...(message.image.caption && { caption: message.image.caption }),
+      },
+      replyTo,
+    })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
     await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })

@@ -68,6 +68,19 @@ export type ExecutionHooks = {
   /**
    * BLOCKING HOOK
    *   This hook will block the execution of the iteration until it resolves.
+   *
+   * This hook will be called before each iteration starts, regardless of the status.
+   * This is useful for logging or dynamically change model arguments
+   */
+  onIterationStart?: (
+    iteration: Iteration,
+    controller: AbortController,
+    context: Context
+  ) => Promise<void | Partial<Iteration>> | void | Partial<Iteration>
+
+  /**
+   * BLOCKING HOOK
+   *   This hook will block the execution of the iteration until it resolves.
    * NON-MUTATION HOOK
    *   This hook can't mutate the result or status of the iteration.
    *
@@ -114,6 +127,8 @@ export type ExecutionHooks = {
     tool: Tool
     input: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ input?: any } | void>
 
   /**
@@ -131,6 +146,8 @@ export type ExecutionHooks = {
     input: any
     output: any
     controller: AbortController
+    toolCallId: string
+    object?: string
   }) => Promise<{ output?: any } | void>
 }
 
@@ -249,7 +266,7 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
-  const { onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
+  const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
   const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
   const cleanups: (() => void)[] = []
 
@@ -273,6 +290,20 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
       }
 
       const iteration = await ctx.nextIteration()
+
+      try {
+        await executeOnIterationStartHook({
+          iteration,
+          ctx,
+          onIterationStart,
+          controller,
+          onIterationEnd,
+        })
+      } catch (err) {
+        if (err instanceof ThinkSignal) {
+          continue
+        }
+      }
 
       if (controller.signal.aborted) {
         iteration.end({
@@ -461,6 +492,7 @@ const executeIteration = async ({
     spend: output.meta.cost.input + output.meta.cost.output,
     output: assistantResponse.raw,
     model: `${output.meta.model.integration}:${output.meta.model.model}`,
+    usage: output.output.usage,
   }
 
   traces.push({
@@ -637,6 +669,7 @@ const executeIteration = async ({
       thinking_requested: {
         variables: result.signal.context,
         reason: result.signal.reason,
+        metadata: result.signal.metadata,
       },
     })
   }
@@ -650,7 +683,6 @@ const executeIteration = async ({
     })
   }
 
-  const _validActions = [...iteration.exits.map((x) => x.name.toLowerCase()), 'think']
   let returnValue: { action: string; value?: unknown } | null =
     result.success && result.return_value ? result.return_value : null
 
@@ -794,6 +826,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           tool,
           input,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof beforeRes?.input !== 'undefined') {
@@ -810,6 +844,8 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
           input,
           output,
           controller,
+          object,
+          toolCallId,
         })
 
         if (typeof afterRes?.output !== 'undefined') {
@@ -828,10 +864,24 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
             success = true
             return res
           })
-          .catch((err: any) => {
+          .catch(async (err: any) => {
             if (!handleSignals(err)) {
               success = false
               error = err
+            } else {
+              const afterRes = await afterHook?.({
+                iteration,
+                tool,
+                input,
+                output,
+                controller,
+                object,
+                toolCallId,
+              })
+
+              if (typeof afterRes?.output !== 'undefined') {
+                output = afterRes.output
+              }
             }
 
             // Important: we want to re-throw signals so that the VM can handle them
@@ -887,5 +937,48 @@ function wrapTool({ tool, traces, object, iteration, beforeHook, afterHook, cont
     }
 
     return output
+  }
+}
+
+const executeOnIterationStartHook = async (props: {
+  iteration: Iteration
+  ctx: Context
+  onIterationStart?: ExecutionHooks['onIterationStart']
+  onIterationEnd?: ExecutionHooks['onIterationEnd']
+  controller: AbortController
+}) => {
+  const { iteration, ctx, onIterationStart, controller, onIterationEnd } = props
+
+  try {
+    const hookRes = await onIterationStart?.(iteration, controller, ctx)
+    if (hookRes) {
+      Object.assign(iteration, hookRes)
+    }
+  } catch (err) {
+    if (err instanceof ThinkSignal) {
+      iteration.end({
+        type: 'thinking_requested',
+        thinking_requested: {
+          variables: err.context,
+          reason: err.reason,
+        },
+      })
+
+      try {
+        await onIterationEnd?.(iteration, controller)
+      } catch (err) {
+        console.error(err)
+      }
+    } else {
+      iteration.end({
+        type: 'execution_error',
+        execution_error: {
+          message: `Error in onIterationStart hook: ${getErrorMessage(err)}`,
+          stack: cleanStackTrace((err as Error).stack ?? 'No stack trace available'),
+        },
+      })
+    }
+
+    throw err
   }
 }
