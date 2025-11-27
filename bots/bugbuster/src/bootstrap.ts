@@ -6,7 +6,7 @@ import * as types from './types'
 
 export const bootstrap = async (props: types.CommonHandlerProps, conversationId?: string) => {
   const { client, logger, ctx } = props
-  const botpress = await BotpressApi.create(props)
+  const botpress = BotpressApi.create(props)
 
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
