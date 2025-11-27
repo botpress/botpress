@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const INTEGRATION_NAME = 'make'
@@ -44,5 +45,8 @@ export default new IntegrationDefinition({
         }),
       },
     },
+  },
+  __advanced: {
+    useLegacyZuiTransformer: true,
   },
 })
