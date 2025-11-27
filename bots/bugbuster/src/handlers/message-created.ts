@@ -1,4 +1,3 @@
-import { handleError } from 'src/utils/error-handler'
 import * as utils from '../utils'
 import * as bp from '.botpress'
 import { bootstrap } from 'src/bootstrap'
@@ -13,7 +12,7 @@ const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible command
 const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
-  const { conversation, message, client, logger } = props
+  const { conversation, message, client } = props
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
@@ -37,7 +36,8 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId: conversation.id })
+  const _handleError = (context: string) => (thrown: unknown) =>
+    botpress.handleError({ context, conversationId: conversation.id }, thrown)
 
   switch (command) {
     case '#health': {

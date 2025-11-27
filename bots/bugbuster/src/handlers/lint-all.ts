@@ -1,14 +1,15 @@
-import { handleError } from 'src/utils/error-handler'
 import { WorkflowHandlerProps } from '.botpress'
 import { bootstrap } from 'src/bootstrap'
 
 export const handleLintAll = async (props: WorkflowHandlerProps['lintAll']): Promise<void> => {
-  const { client, logger, workflow, conversation } = props
-  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
+  const { client, workflow, conversation } = props
 
   const conversationId = conversation?.id
 
   const { botpress, teamsManager, issueProcessor } = await bootstrap(props, conversationId)
+
+  const _handleError = (context: string) => (thrown: unknown) =>
+    botpress.handleError({ context, conversationId }, thrown)
   const teams = await teamsManager.listTeams().catch(_handleError('trying to lint all issues'))
 
   const {
