@@ -18,5 +18,5 @@ export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] =
     return
   }
 
-  await issueProcessor.runLint(issue).catch(_handleError('trying to lint the created Linear issue'))
+  await issueProcessor.lintIssue(issue).catch(_handleError('trying to lint the created Linear issue'))
 }

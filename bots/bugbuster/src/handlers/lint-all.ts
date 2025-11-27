@@ -30,7 +30,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     .catch(_handleError('trying to list all issues'))
 
   for (const issue of issues) {
-    await issueProcessor.runLint(issue).catch(_handleError(`trying to lint issue ${issue.identifier}`))
+    await issueProcessor.lintIssue(issue).catch(_handleError(`trying to lint issue ${issue.identifier}`))
     await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
     await client
       .setState({

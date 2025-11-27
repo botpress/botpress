@@ -25,7 +25,7 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
-  await issueProcessor.runLint(issue).catch(_handleError('trying to lint the updated Linear issue'))
+  await issueProcessor.lintIssue(issue).catch(_handleError('trying to lint the updated Linear issue'))
   await botpress
     .setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
     .catch(_handleError('trying to update recently linted issues'))
