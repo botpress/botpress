@@ -50,7 +50,6 @@ export const configuration = {
 
 export const identifier = {
   extractScript: 'extract.vrl',
-  fallbackHandlerScript: 'fallbackHandler.vrl',
 } as const satisfies IntegrationDefinitionProps['identifier']
 
 export const configurations = {

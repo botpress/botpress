@@ -44,7 +44,7 @@ const _startHandler: WizardHandler = (props) => {
       {
         action: 'navigate',
         label: 'Yes',
-        navigateToStep: 'reset',
+        navigateToStep: 'get-subdomain',
         buttonType: 'primary',
       },
       {
@@ -61,7 +61,7 @@ const _getSubdomain: WizardHandler = async (props) => {
   return responses.displayInput({
     pageTitle: 'Get Zendesk Subdomain',
     htmlOrMarkdownPageContents: "To continue, you need to enter your Zendesk's subdomain",
-    input: { label: 'e.g. abc1234', type: 'text' },
+    input: { label: 'e.g. https://{subdomain}.zendesk.com', type: 'text' },
     nextStepId: 'reset',
   })
 }
@@ -149,6 +149,7 @@ const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: strin
   const data = sdk.z
     .object({
       access_token: sdk.z.string(),
+      refresh_token: sdk.z.string(),
     })
     .parse(res.data)
 
