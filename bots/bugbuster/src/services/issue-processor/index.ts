@@ -16,29 +16,24 @@ export class IssueProcessor {
   /**
    * @returns The corresponding issue, or `undefined` if the issue is not found or not valid.
    */
-  public async findIssue(
-    issueNumber: number,
-    teamKey: string | undefined,
-    eventName: string
-  ): Promise<lin.Issue | undefined> {
+  public async findIssue(issueNumber: number, teamKey: string | undefined): Promise<lin.Issue | undefined> {
     if (!issueNumber || !teamKey) {
       this._logger.error('Missing issueNumber or teamKey in event payload')
       return
     }
 
-    this._logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
-
     const watchedTeams = await this._teamsManager.listWatchedTeams()
     if (!this._linear.isTeam(teamKey) || !watchedTeams.includes(teamKey)) {
-      this._logger.error(`Ignoring issue of team "${teamKey}"`)
+      this._logger.info(`Ignoring issue of team "${teamKey}"`)
       return
     }
 
     const issue = await this._linear.findIssue({ teamKey, issueNumber })
     if (!issue) {
-      this._logger.error(`Issue with number ${issueNumber} not found in team ${teamKey}`)
+      this._logger.warn(`Issue with number ${issueNumber} not found in team ${teamKey}`)
       return
     }
+
     return issue
   }
 
