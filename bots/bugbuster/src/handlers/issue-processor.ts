@@ -32,7 +32,7 @@ export class IssueProcessor {
     this._logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
 
     const teams = await listTeams(this._client, this._botId)
-    if (!this._linear.isTeam(teamKey) || !teams.result?.includes(teamKey)) {
+    if (!this._linear.isTeam(teamKey) || !teams.includes(teamKey)) {
       this._logger.error(`Ignoring issue of team "${teamKey}"`)
       return
     }
