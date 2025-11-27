@@ -1,5 +1,5 @@
 import { BotLogger } from '@botpress/sdk'
-import { Issue, Pagination, LinearApi, StateKey } from 'src/utils/linear-utils'
+import { Issue, Pagination, LinearApi, StateKey } from '../utils/linear-utils'
 import * as linlint from './issue-linter'
 import { TeamsManager } from './teams-manager'
 

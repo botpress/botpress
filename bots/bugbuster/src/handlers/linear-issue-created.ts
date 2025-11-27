@@ -1,5 +1,5 @@
 import * as bp from '.botpress'
-import * as boot from 'src/bootstrap'
+import * as boot from '../bootstrap'
 
 export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] = async (props) => {
   const { event } = props

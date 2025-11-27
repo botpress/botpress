@@ -1,5 +1,5 @@
 import * as bp from '.botpress'
-import * as boot from 'src/bootstrap'
+import * as boot from '../bootstrap'
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, conversation } = props

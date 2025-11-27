@@ -1,4 +1,4 @@
-import * as boot from 'src/bootstrap'
+import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {

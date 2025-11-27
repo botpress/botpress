@@ -1,5 +1,5 @@
 import * as bp from '.botpress'
-import * as boot from 'src/bootstrap'
+import * as boot from '../bootstrap'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
 const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
