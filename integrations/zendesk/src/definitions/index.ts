@@ -92,10 +92,11 @@ export const states = {
         .describe('Array of trigger IDs associated with the subscription'),
     }),
   },
-  oauth: {
+  credentials: {
     type: 'integration',
     schema: z.object({
       accessToken: z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
+      subdomain: z.string().optional().title('Subdomain').describe('The bot subdomain'),
     }),
   },
 } satisfies IntegrationDefinitionProps['states']

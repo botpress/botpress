@@ -20,9 +20,6 @@ export default new sdk.IntegrationDefinition({
   events,
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
-    SUBDOMAIN: {
-      description: 'The botpress subdomain',
-    },
     CLIENT_ID: {
       description: 'The client ID of your app',
     },

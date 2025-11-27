@@ -33,21 +33,23 @@ type AxiosRetryClient = Parameters<typeof axiosRetry>[0]
 type ZendeskConfig =
   | {
       type: 'manual'
-      organizationDomain: string
+      subdomain: string
       email: string
       password: string
     }
   | {
       type: 'OAuth'
       accessToken: string
+      subdomain: string
     }
 
 class ZendeskApi {
   private _client: AxiosInstance
+  private _subdomain: string
   public constructor(config: ZendeskConfig) {
     if (config.type === 'manual') {
       this._client = axios.create({
-        baseURL: makeBaseUrl(config.organizationDomain),
+        baseURL: makeBaseUrl(config.subdomain),
         withCredentials: true,
         auth: {
           username: makeUsername(config.email),
@@ -56,7 +58,7 @@ class ZendeskApi {
       })
     } else {
       this._client = axios.create({
-        baseURL: makeBaseUrl(bp.secrets.SUBDOMAIN),
+        baseURL: makeBaseUrl(config.subdomain),
         headers: {
           Authorization: `Bearer ${config.accessToken}`,
         },
@@ -71,6 +73,7 @@ class ZendeskApi {
         return axiosRetry.isNetworkOrIdempotentRequestError(error) || rateLimitReached
       },
     })
+    this._subdomain = config.subdomain
   }
 
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
@@ -265,7 +268,7 @@ class ZendeskApi {
   }
 
   public async exchangeAuthorizationCodeForAccessToken(authorizationCode: string, redirect_uri: string) {
-    const url = 'https://' + bp.secrets.SUBDOMAIN + '.zendesk.com/oauth/tokens'
+    const url = 'https://' + this._subdomain + '.zendesk.com/oauth/tokens'
     const res = await this._client.post(
       url,
       {
@@ -298,17 +301,20 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Prom
   if (ctx.configurationType === 'manual') {
     return new ZendeskApi({
       type: 'manual',
-      organizationDomain: ctx.configuration.organizationSubdomain,
+      subdomain: ctx.configuration.organizationSubdomain,
       email: ctx.configuration.email,
       password: ctx.configuration.apiToken,
     })
   }
-  const { accessToken } = await client
-    .getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+  const { accessToken, subdomain } = await client
+    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .then((result) => result.state.payload)
   if (accessToken === undefined) {
     throw new sdk.RuntimeError('Failed to get the OAuth accessToken')
   }
+  if (subdomain === undefined) {
+    throw new sdk.RuntimeError('Failed to get the subdomain')
+  }
 
-  return new ZendeskApi({ type: 'OAuth', accessToken })
+  return new ZendeskApi({ type: 'OAuth', accessToken, subdomain })
 }

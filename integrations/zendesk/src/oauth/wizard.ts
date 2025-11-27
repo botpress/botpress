@@ -13,6 +13,10 @@ export const handler = async (props: bp.HandlerProps) => {
       handler: _startHandler,
     })
     .addStep({
+      id: 'get-subdomain',
+      handler: _getSubdomain,
+    })
+    .addStep({
       id: 'reset',
       handler: _resetHandler,
     })
@@ -30,12 +34,12 @@ export const handler = async (props: bp.HandlerProps) => {
   return response
 }
 
-const _startHandler: WizardHandler = ({ responses }) => {
+const _startHandler: WizardHandler = (props) => {
+  const { responses } = props
   return responses.displayButtons({
     pageTitle: 'Reset Configuration',
-    htmlOrMarkdownPageContents: `
-    This wizard will reset your configuration, so the bot will stop working on Messenger until a new configuration is put in place, continue?
-  `,
+    htmlOrMarkdownPageContents:
+      'This wizard will reset your configuration, so the bot will stop working on Zendesk until a new configuration is put in place, continue?',
     buttons: [
       {
         action: 'navigate',
@@ -52,11 +56,25 @@ const _startHandler: WizardHandler = ({ responses }) => {
   })
 }
 
-const _resetHandler: WizardHandler = async ({ responses, client, ctx }) => {
-  await _patchCredentialsState(client, ctx, { accessToken: undefined })
+const _getSubdomain: WizardHandler = async (props) => {
+  const { responses } = props
+  return responses.displayInput({
+    pageTitle: 'Get Zendesk Subdomain',
+    htmlOrMarkdownPageContents: "To continue, you need to enter your Zendesk's subdomain",
+    input: { label: 'e.g. abc1234', type: 'text' },
+    nextStepId: 'reset',
+  })
+}
+
+const _resetHandler: WizardHandler = async (props) => {
+  const { responses, client, ctx, inputValue } = props
+  if (inputValue === undefined) {
+    throw new sdk.RuntimeError('The subdomain given was empty')
+  }
+  await _patchCredentialsState(client, ctx, { accessToken: undefined, subdomain: inputValue })
   return responses.redirectToExternalUrl(
     'https://' +
-      bp.secrets.SUBDOMAIN +
+      inputValue +
       '.zendesk.com/oauth/authorizations/new?' +
       'response_type=code' +
       '&redirect_uri=' +
@@ -82,9 +100,13 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
     })
   }
 
-  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode)
-
   const credentials = await _getCredentialsState(client, ctx)
+  const subdomain = credentials.subdomain
+  if (subdomain === undefined) {
+    throw new sdk.RuntimeError('The subdomain given was empty')
+  }
+  const accessToken = await _exchangeAuthorizationCodeForAccessToken(authorizationCode, subdomain)
+
   const newCredentials = { ...credentials, accessToken }
   await _patchCredentialsState(client, ctx, newCredentials)
 
@@ -105,8 +127,8 @@ const sha256 = async (str: string) => {
 
 const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
 
-const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: string) => {
-  const url = 'https://' + bp.secrets.SUBDOMAIN + '.zendesk.com/oauth/tokens'
+const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: string, subdomain: string) => {
+  const url = 'https://' + subdomain + '.zendesk.com/oauth/tokens'
   const res = await axios.post(
     url,
     {
@@ -137,13 +159,13 @@ const _exchangeAuthorizationCodeForAccessToken = async (authorizationCode: strin
 const _patchCredentialsState = async (
   client: bp.Client,
   ctx: bp.Context,
-  newState: Partial<typeof bp.states.oauth>
+  newState: Partial<typeof bp.states.credentials>
 ) => {
   const currentState = await _getCredentialsState(client, ctx)
 
   await client.setState({
     type: 'integration',
-    name: 'oauth',
+    name: 'credentials',
     id: ctx.integrationId,
     payload: {
       ...currentState,
@@ -158,7 +180,7 @@ const _getCredentialsState = async (client: bp.Client, ctx: bp.Context) => {
       (
         await client.getState({
           type: 'integration',
-          name: 'oauth',
+          name: 'credentials',
           id: ctx.integrationId,
         })
       )?.state?.payload || {}
