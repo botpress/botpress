@@ -1,8 +1,8 @@
 import * as bp from '.botpress'
 
 export type Result<T> = {
-  success: boolean
   message: string
+  success: boolean
   result?: T
 }
 

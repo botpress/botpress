@@ -9,30 +9,6 @@ export class TeamsManager {
     private _botId: string
   ) {}
 
-  private _getWatchedTeams = async () => {
-    return (
-      await this._client.getOrSetState({
-        id: this._botId,
-        name: 'watchedTeams',
-        type: 'bot',
-        payload: {
-          teamKeys: [],
-        },
-      })
-    ).state.payload.teamKeys
-  }
-
-  private _setWatchedTeams = async (teamKeys: string[]) => {
-    await this._client.setState({
-      id: this._botId,
-      name: 'watchedTeams',
-      type: 'bot',
-      payload: {
-        teamKeys,
-      },
-    })
-  }
-
   public async addTeam(key: string): Promise<Result<void>> {
     const teamKeys = await this._getWatchedTeams()
     if (teamKeys.includes(key)) {
@@ -77,5 +53,29 @@ export class TeamsManager {
       throw new Error('You have no watched teams.')
     }
     return teamKeys
+  }
+
+  private _getWatchedTeams = async () => {
+    return (
+      await this._client.getOrSetState({
+        id: this._botId,
+        name: 'watchedTeams',
+        type: 'bot',
+        payload: {
+          teamKeys: [],
+        },
+      })
+    ).state.payload.teamKeys
+  }
+
+  private _setWatchedTeams = async (teamKeys: string[]) => {
+    await this._client.setState({
+      id: this._botId,
+      name: 'watchedTeams',
+      type: 'bot',
+      payload: {
+        teamKeys,
+      },
+    })
   }
 }
