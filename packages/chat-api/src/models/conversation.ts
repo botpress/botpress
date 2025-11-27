@@ -5,7 +5,7 @@ export const conversationIdSchema = schema(z.string(), {
   description: 'Identifier of the [Conversation](#schema_conversation)',
 })
 
-export const conversationSchema = z.object({
+export const conversationSchema = schema(z.object({
   id: conversationIdSchema,
   createdAt: schema(z.date(), {
     description: 'Creation date of the [Conversation](#schema_conversation) in ISO 8601 format',
@@ -13,4 +13,4 @@ export const conversationSchema = z.object({
   updatedAt: schema(z.date(), {
     description: 'Updating date of the [Conversation](#schema_conversation) in ISO 8601 format',
   }),
-})
+}))

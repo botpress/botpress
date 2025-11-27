@@ -1,8 +1,9 @@
-import { schema } from '@bpinternal/opapi'
+import { schema, zodSchema } from '@bpinternal/opapi'
 import z from 'zod'
 import { eventPayloadSchema } from '../models/event'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
+import { zodRef } from '../api'
 
 const section = 'event' as const
 
@@ -22,9 +23,9 @@ export const getEventOperation: OperationFunc = (api) => ({
   section,
   response: {
     description: 'Returns an [Event](#schema_event) object if a valid identifier was provided',
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        event: api.getModelRef('Event'),
+        event: zodRef(api.getModelRef('Event')),
       })
     ),
   },
@@ -38,7 +39,7 @@ export const createEventOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'Event data',
-    schema: schema(
+    schema: zodSchema(
       z.object({
         payload: eventPayloadSchema,
         conversationId: schema(z.string(), {
@@ -51,9 +52,9 @@ export const createEventOperation: OperationFunc = (api) => ({
   response: {
     description: 'Returns a [Event](#schema_event).',
     status: 201,
-    schema: schema(
+    schema: zodSchema(
       z.object({
-        event: api.getModelRef('Event'),
+        event: zodRef(api.getModelRef('Event')),
       })
     ),
   },

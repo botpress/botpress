@@ -18,7 +18,7 @@ importers:
         version: 3.709.0
       '@botpress/api':
         specifier: 1.54.0
-        version: 1.54.0
+        version: 1.54.0(openapi-types@12.1.3)
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -1456,7 +1456,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.18.2)(zod@3.22.4)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2196,8 +2196,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@bpinternal/opapi':
-        specifier: 1.0.0
-        version: 1.0.0(openapi-types@12.1.3)
+        specifier: link:../../../packages/opapi/
+        version: link:../../../packages/opapi
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -2585,7 +2585,7 @@ importers:
         version: 15.0.1
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.18.2)(zod@3.22.4)
       posthog-node:
         specifier: 5.11.2
         version: 5.11.2
@@ -12770,7 +12770,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.54.0':
+  '@botpress/api@1.54.0(openapi-types@12.1.3)':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -19819,9 +19819,10 @@ snapshots:
       ws: 8.18.2
       zod: 3.24.2
 
-  openai@6.9.0(ws@8.18.2):
+  openai@6.9.0(ws@8.18.2)(zod@3.22.4):
     optionalDependencies:
       ws: 8.18.2
+      zod: 3.22.4
 
   openapi-types@12.1.3: {}
 
