@@ -299,7 +299,16 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal
    */
   public get zInput() {
-    let input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : z.any()
+    let input: ZuiType
+    if (this.input) {
+      try {
+        input = transforms.fromJSONSchema(this.input)
+      } catch {
+        input = transforms.fromJSONSchemaLegacy(this.input)
+      }
+    } else {
+      input = z.any()
+    }
 
     if (!isEmpty(this._staticInputValues)) {
       const inputExtensions = convertObjectToZuiLiterals(this._staticInputValues)
@@ -323,7 +332,14 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal
    */
   public get zOutput() {
-    return this.output ? transforms.fromJSONSchemaLegacy(this.output) : z.void()
+    if (!this.output) {
+      return z.void()
+    }
+    try {
+      return transforms.fromJSONSchema(this.output)
+    } catch {
+      return transforms.fromJSONSchemaLegacy(this.output)
+    }
   }
 
   /**
@@ -425,8 +441,23 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
     }> = {}
   ): Tool<IX, OX> {
     try {
-      const zInput = this.input ? (transforms.fromJSONSchemaLegacy(this.input) as unknown as I) : undefined
-      const zOutput = this.output ? (transforms.fromJSONSchemaLegacy(this.output) as unknown as O) : undefined
+      let zInput: I | undefined
+      if (this.input) {
+        try {
+          zInput = transforms.fromJSONSchema(this.input) as unknown as I
+        } catch {
+          zInput = transforms.fromJSONSchemaLegacy(this.input) as unknown as I
+        }
+      }
+
+      let zOutput: O | undefined
+      if (this.output) {
+        try {
+          zOutput = transforms.fromJSONSchema(this.output) as unknown as O
+        } catch {
+          zOutput = transforms.fromJSONSchemaLegacy(this.output) as unknown as O
+        }
+      }
 
       return <Tool<IX, OX>>new Tool({
         name: props.name ?? this.name,
@@ -578,7 +609,11 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
 
     if (typeof props.input !== 'undefined') {
       if (isZuiSchema(props.input)) {
-        this.input = transforms.toJSONSchemaLegacy(props.input)
+        try {
+          this.input = transforms.toJSONSchema(props.input)
+        } catch {
+          this.input = transforms.toJSONSchemaLegacy(props.input)
+        }
       } else if (isJsonSchema(props.input)) {
         this.input = props.input
       } else {
@@ -590,7 +625,11 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
 
     if (typeof props.output !== 'undefined') {
       if (isZuiSchema(props.output)) {
-        this.output = transforms.toJSONSchemaLegacy(props.output)
+        try {
+          this.output = transforms.toJSONSchema(props.output)
+        } catch {
+          this.output = transforms.toJSONSchemaLegacy(props.output)
+        }
       } else if (isJsonSchema(props.output)) {
         this.output = props.output
       } else {
@@ -634,7 +673,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal This method is primarily used internally by the LLMz execution engine
    */
   public async execute(input: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
-    const pInput = this.zInput.safeParse(input)
+    const pInput = (this.zInput as any).safeParse(input)
 
     if (!pInput.success) {
       throw new Error(`Tool "${this.name}" received invalid input: ${pInput.error.message}`)
@@ -645,7 +684,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
     while (attempt < this.MAX_RETRIES) {
       try {
         const result = (await this._handler(pInput.data, ctx)) as any
-        const pOutput = this.zOutput.safeParse(result)
+        const pOutput = (this.zOutput as any).safeParse(result)
         return pOutput.success ? pOutput.data : result
       } catch (err) {
         const shouldRetry = await this.retry?.({
@@ -675,11 +714,31 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @returns Promise resolving to TypeScript declaration string
    */
   public async getTypings(): Promise<string> {
-    let input = this.input ? transforms.fromJSONSchemaLegacy(this.input) : undefined
-    const output = this.output ? transforms.fromJSONSchemaLegacy(this.output) : z.void()
+    // Try newer fromJSONSchema first, fallback to legacy if it fails
+    let input: ZuiType | undefined
+    if (this.input) {
+      try {
+        input = transforms.fromJSONSchema(this.input)
+      } catch {
+        input = transforms.fromJSONSchemaLegacy(this.input)
+      }
+    }
+
+    // Handle void output specially - when z.void() is converted to JSON Schema ({}),
+    // it becomes z.any() when converted back. Check if the JSON Schema is empty.
+    let output: ZuiType
+    if (!this.output || Object.keys(this.output).length === 0) {
+      output = z.void()
+    } else {
+      try {
+        output = transforms.fromJSONSchema(this.output)
+      } catch {
+        output = transforms.fromJSONSchemaLegacy(this.output)
+      }
+    }
 
     if (
-      input?.naked() instanceof ZodObject &&
+      (input as any)?.naked() instanceof ZodObject &&
       typeof this._staticInputValues === 'object' &&
       !isEmpty(this._staticInputValues)
     ) {
@@ -691,7 +750,7 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
     }
 
     const fnType = z
-      .function(input as any, z.promise(output))
+      .function(input as any, z.promise(output as any))
       .title(this.name)
       .describe(this.description ?? '')
 

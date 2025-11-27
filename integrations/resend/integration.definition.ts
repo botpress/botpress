@@ -14,7 +14,7 @@ import {
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.1.5',
+  version: '0.1.6',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the Resend email service.',

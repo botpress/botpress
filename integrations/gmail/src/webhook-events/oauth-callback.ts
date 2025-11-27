@@ -10,8 +10,6 @@ export const handleOAuthCallback = async ({ req, client, ctx }: bp.HandlerProps)
     return
   }
 
-  console.info('code', authorizationCode)
-
   const googleClient = await GoogleClient.createFromAuthorizationCode({
     client,
     ctx,
@@ -19,14 +17,12 @@ export const handleOAuthCallback = async ({ req, client, ctx }: bp.HandlerProps)
   })
 
   const userEmail = await googleClient.getMyEmail()
-  console.info('userEmail', userEmail)
 
   if (!userEmail) {
     console.error('Error extracting email from profile')
     return
   }
 
-  console.info('configureIntegration')
   await client.configureIntegration({
     identifier: userEmail,
   })

@@ -1,4 +1,4 @@
-import { api } from '@botpress/chat-api'
+import { api, signals, version } from '@botpress/chat-api'
 import fs from 'fs'
 import path from 'path'
 
@@ -13,10 +13,10 @@ const main = async (argv: string[]) => {
   await api.exportHandler(outDir)
 
   const signalsDir = path.join(outDir, 'signals')
-  await api.signals.exportSchemas(signalsDir, { includeZodSchemas: false })
+  await signals.exportSchemas(signalsDir, { includeZodSchemas: false })
 
   const versionDir = path.join(outDir, 'version.ts')
-  await fs.promises.writeFile(versionDir, `export const apiVersion = "${api.version}"`)
+  await fs.promises.writeFile(versionDir, `export const apiVersion = "${version}"`)
 
   console.info('OpenAPI server generated')
 }

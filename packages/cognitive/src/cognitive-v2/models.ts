@@ -6,11 +6,11 @@ export type RemoteModel = Model & {
 }
 
 export const models: Record<string, RemoteModel> = {
-  'openai:gpt-5-2025-08-07': {
-    id: 'openai:gpt-5-2025-08-07',
-    name: 'GPT-5',
+  'openai:gpt-5.1-2025-11-13': {
+    id: 'openai:gpt-5.1-2025-11-13',
+    name: 'GPT-5.1',
     description:
-      "GPT-5 is OpenAI's latest and most advanced AI model. It is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.",
+      "GPT-5.1 is OpenAI's latest and most advanced AI model. It is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5.1 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.",
     input: {
       maxTokens: 400000,
       costPer1MTokens: 1.25,
@@ -20,6 +20,22 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 10,
     },
     tags: ['recommended', 'reasoning', 'general-purpose'],
+    lifecycle: 'production',
+  },
+  'openai:gpt-5-2025-08-07': {
+    id: 'openai:gpt-5-2025-08-07',
+    name: 'GPT-5',
+    description:
+      'GPT-5 is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.25,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 10,
+    },
+    tags: ['reasoning', 'general-purpose'],
     lifecycle: 'production',
     aliases: ['gpt-5'],
   },
@@ -95,7 +111,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:gpt-4.1-2025-04-14',
     name: 'GPT 4.1',
     description:
-      'GPT 4.1 is our flagship model for complex tasks. It is well suited for problem solving across domains. The knowledge cutoff is June 2024.',
+      'GPT 4.1 is a model suited for complex tasks and problem solving across domains. The knowledge cutoff is June 2024.',
     input: {
       maxTokens: 1047576,
       costPer1MTokens: 2,
@@ -145,7 +161,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:o3-mini-2025-01-31',
     name: 'GPT o3-mini',
     description:
-      'o3-mini is the most recent small reasoning model from OpenAI, providing high intelligence at the same cost and latency targets of o1-mini. Also supports key developer features like Structured Outputs and function calling.',
+      'o3-mini is a small reasoning model, providing high intelligence at the same cost and latency targets of o1-mini. Also supports key developer features like Structured Outputs and function calling.',
     input: {
       maxTokens: 200000,
       costPer1MTokens: 1.1,
@@ -195,7 +211,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:gpt-4o-mini-2024-07-18',
     name: 'GPT-4o Mini',
     description:
-      "GPT-4o mini is OpenAI's most advanced model in the small models category, and their cheapest model yet. Multimodal with higher intelligence than gpt-3.5-turbo but just as fast.",
+      'GPT-4o mini is an advanced model in the small models category, and their cheapest model yet. Multimodal with higher intelligence than gpt-3.5-turbo but just as fast.',
     input: {
       maxTokens: 128000,
       costPer1MTokens: 0.15,
@@ -212,7 +228,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:gpt-4o-2024-11-20',
     name: 'GPT-4o (November 2024)',
     description:
-      "GPT-4o is OpenAI's most advanced model. Multimodal with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.",
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
     input: {
       maxTokens: 128000,
       costPer1MTokens: 2.5,
@@ -229,7 +245,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:gpt-4o-2024-08-06',
     name: 'GPT-4o (August 2024)',
     description:
-      "GPT-4o is OpenAI's most advanced model. Multimodal with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.",
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
     input: {
       maxTokens: 128000,
       costPer1MTokens: 2.5,
@@ -245,7 +261,7 @@ export const models: Record<string, RemoteModel> = {
     id: 'openai:gpt-4o-2024-05-13',
     name: 'GPT-4o (May 2024)',
     description:
-      "GPT-4o is OpenAI's most advanced model. Multimodal with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.",
+      'GPT-4o is an advanced multimodal model with the same high intelligence as GPT-4 Turbo but cheaper and more efficient.',
     input: {
       maxTokens: 128000,
       costPer1MTokens: 5,
@@ -340,6 +356,40 @@ export const models: Record<string, RemoteModel> = {
     lifecycle: 'deprecated',
     aliases: ['claude-sonnet-4-reasoning'],
   },
+  'anthropic:claude-haiku-4-5-20251001': {
+    id: 'anthropic:claude-haiku-4-5-20251001',
+    name: 'Claude Haiku 4.5',
+    description:
+      "Claude Haiku 4.5 is Anthropic's fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4's performance across reasoning, coding, and computer-use tasks, Haiku 4.5 brings frontier-level capability to real-time and high-volume applications.",
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 5,
+    },
+    tags: ['recommended', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    aliases: ['claude-haiku-4-5'],
+  },
+  'anthropic:claude-haiku-4-5-reasoning-20251001': {
+    id: 'anthropic:claude-haiku-4-5-reasoning-20251001',
+    name: 'Claude Haiku 4.5 (Reasoning Mode)',
+    description:
+      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude Haiku 4.5 is Anthropic\'s fastest and most efficient model, delivering near-frontier intelligence at a fraction of the cost and latency of larger Claude models. Matching Claude Sonnet 4\'s performance across reasoning, coding, and computer-use tasks, Haiku 4.5 brings frontier-level capability to real-time and high-volume applications.',
+    input: {
+      maxTokens: 200000,
+      costPer1MTokens: 1,
+    },
+    output: {
+      maxTokens: 64000,
+      costPer1MTokens: 5,
+    },
+    tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
+    lifecycle: 'production',
+    aliases: ['claude-haiku-4-5-reasoning'],
+  },
   'anthropic:claude-3-7-sonnet-20250219': {
     id: 'anthropic:claude-3-7-sonnet-20250219',
     name: 'Claude 3.7 Sonnet',
@@ -402,7 +452,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
   },
   'anthropic:claude-3-5-sonnet-20240620': {
     id: 'anthropic:claude-3-5-sonnet-20240620',
@@ -418,7 +468,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
   },
   'anthropic:claude-3-haiku-20240307': {
     id: 'anthropic:claude-3-haiku-20240307',
@@ -1116,7 +1166,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.5,
     },
     tags: ['low-cost', 'general-purpose'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
   'fireworks-ai:mythomax-l2-13b': {
@@ -1133,7 +1183,7 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 0.2,
     },
     tags: ['roleplay', 'storytelling', 'low-cost'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
   'fireworks-ai:gemma2-9b-it': {
