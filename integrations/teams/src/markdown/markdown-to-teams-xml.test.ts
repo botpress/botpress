@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import type { TestCase } from '../../tests/types'
+import type { TestCase } from '../types'
 import { transformMarkdownToTeamsXml } from './markdown-to-teams-xml'
 import dedent from 'dedent'
 

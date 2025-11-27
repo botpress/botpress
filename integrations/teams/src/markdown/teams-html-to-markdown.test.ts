@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { TestCase } from '../../tests/types'
+import { TestCase } from '../types'
 import { transformTeamsHtmlToStdMarkdown } from './teams-html-to-markdown'
 
 type TeamsHtmlToMarkdownTestCase = TestCase<string, string> | TestCase<string[], string>
