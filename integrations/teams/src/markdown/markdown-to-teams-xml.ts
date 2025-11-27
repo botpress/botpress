@@ -109,7 +109,7 @@ const _createSanitizedImage = (props: ImageProps): string => {
   return `<img src="${url}"${optionalAttrs} />`
 }
 
-const isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
+const _isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
 
 const _extractDefinitions = (parentNode: Parent): Record<string, DefinitionNodeData> => {
   let definitions: Record<string, DefinitionNodeData> = {}
@@ -133,7 +133,7 @@ const _extractDefinitions = (parentNode: Parent): Record<string, DefinitionNodeD
   return definitions
 }
 
-export const visitTree = (
+const _visitTree = (
   tree: Parent,
   handlers: MarkdownHandlers,
   parents: Parent[],
@@ -144,7 +144,7 @@ export const visitTree = (
   parents.push(tree)
 
   for (const node of tree.children) {
-    if (!isNodeType(node.type, handlers)) {
+    if (!_isNodeType(node.type, handlers)) {
       throw new Error(`The Markdown node type [${node.type}] is not supported`)
     }
 
@@ -157,7 +157,7 @@ export const visitTree = (
 
       tmp += handler(
         linkReferenceNode,
-        (n) => visitTree(n, handlers, parents, definitions),
+        (n) => _visitTree(n, handlers, parents, definitions),
         parents,
         handlers,
         definitions
@@ -166,10 +166,10 @@ export const visitTree = (
     }
 
     if (node.type === 'footnoteDefinition') {
-      footnoteTmp += handler(node, (n) => visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
+      footnoteTmp += handler(node, (n) => _visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
       continue
     }
-    tmp += handler(node, (n) => visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
+    tmp += handler(node, (n) => _visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
   }
   parents.pop()
   return `${tmp}${footnoteTmp}`
@@ -181,7 +181,7 @@ export const transformMarkdownToTeamsXml = (
 ): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
   const definitions = _extractDefinitions(tree)
-  let html = visitTree(tree, handlers, [], definitions).trim()
+  let html = _visitTree(tree, handlers, [], definitions).trim()
   _replacers.forEach((replacer) => {
     html = replacer(html)
   })
