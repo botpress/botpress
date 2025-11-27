@@ -39,7 +39,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.1.1',
+  version: '3.1.2',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -175,8 +175,5 @@ export default new IntegrationDefinition({
       input: { schema: getFileInputSchema },
       output: { schema: getFileOutputSchema },
     },
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
   },
 })

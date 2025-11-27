@@ -1,11 +1,6 @@
+import { Result } from 'src/types'
 import { LinearApi } from 'src/utils/linear-utils'
 import * as bp from '.botpress'
-
-export type Result<T> = {
-  success: boolean
-  message: string
-  result?: T
-}
 
 const _getWatchedTeams = async (client: bp.Client, botId: string) => {
   return (
@@ -73,7 +68,7 @@ export async function removeTeam(client: bp.Client, botId: string, key: string):
   }
 }
 
-export async function listTeams(client: bp.Client, botId: string): Promise<Result<readonly string[]>> {
+export async function listTeams(client: bp.Client, botId: string): Promise<Result<string[]>> {
   const teamKeys = await _getWatchedTeams(client, botId)
   if (teamKeys.length === 0) {
     return {

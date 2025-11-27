@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import typingIndicator from 'bp_modules/typing-indicator'
 import {
@@ -95,7 +95,7 @@ const defaultBotPhoneNumberId = {
 export const INTEGRATION_NAME = 'whatsapp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.5.14',
+  version: '4.5.18',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -190,6 +190,11 @@ export default new IntegrationDefinition({
             filename: z.string().optional(),
           }),
         },
+        image: {
+          schema: messages.defaults.image.schema.extend({
+            caption: z.string().optional(),
+          }),
+        },
         bloc: {
           schema: z.object({
             items: z.array(
@@ -201,7 +206,7 @@ export default new IntegrationDefinition({
                   }),
                 }),
                 z.object({
-                  type: z.literal('markdown'), // TODO Remove for 4.0.0
+                  type: z.literal('markdown'), // TODO Remove for 5.0.0
                   payload: z.object({
                     markdown: z.string(),
                   }),
@@ -374,7 +379,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID of the OAuth Meta app',
     },
@@ -404,9 +409,6 @@ export default new IntegrationDefinition({
     },
     SANDBOX_PHONE_NUMBER_ID: {
       description: 'Phone number ID of the Sandbox WhatsApp Business profile',
-    },
-    POSTHOG_KEY: {
-      description: 'Posthog key for error dashboards',
     },
   },
   entities: {

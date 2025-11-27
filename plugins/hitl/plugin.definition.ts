@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import semver from 'semver'
 import hitl from './bp_modules/hitl'
 
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
@@ -93,7 +92,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.0.1',
+  version: '1.1.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
@@ -225,7 +224,7 @@ export default new sdk.PluginDefinition({
     },
   },
   interfaces: {
-    hitl: { ...hitl, version: `>=${semver.major(hitl.version)}.0.0 <${semver.major(hitl.version) + 1}.0.0` },
+    hitl: sdk.version.allWithinMajorOf(hitl),
   },
   events: {
     humanAgentAssignedTimeout: {

@@ -1,10 +1,9 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '1.1.1',
+  version: '1.1.2',
   title: 'Webhook',
   description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',
@@ -27,19 +26,21 @@ export default new IntegrationDefinition({
   },
   events: {
     event: {
+      title: 'Event',
+      description: 'The event triggered in the webhook',
       schema: z
         .object({
-          body: z.any(),
-          query: z.record(z.any()),
-          path: z.string(),
-          headers: z.record(z.union([z.string(), z.string().array()])),
-          method: z.enum(['GET', 'POST']),
+          body: z.any().describe('The body of the event').title('Body'),
+          query: z.record(z.any()).describe('The query of the event').title('Query'),
+          path: z.string().describe('The path of the event').title('Path'),
+          headers: z
+            .record(z.union([z.string(), z.string().array()]))
+            .describe('The headers of the event')
+            .title('Headers'),
+          method: z.enum(['GET', 'POST']).describe('The method of the event').title('Method'),
         })
         .passthrough(),
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })

@@ -1,9 +1,10 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError, isApiError } from '@botpress/client'
+import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
 import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
-import { sendPosthogEvent, botpressEvents } from '../../misc/posthogClient'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
 import { getMessageFromWhatsappMessageId } from '../../misc/util'
 import { getMediaInfos } from '../../misc/whatsapp-utils'
@@ -42,13 +43,18 @@ async function _handleIncomingMessage(
   try {
     userPhone = formatPhoneNumber(message.from)
   } catch (thrown) {
-    await sendPosthogEvent({
-      distinctId: userPhone,
-      event: botpressEvents.INVALID_PHONE_NUMBER,
-      properties: {
-        from: 'handler',
+    const distinctId = isApiError(thrown) ? thrown.id : undefined
+    await posthogHelper.sendPosthogEvent(
+      {
+        distinctId: distinctId ?? 'no id',
+        event: 'invalid_phone_number',
+        properties: {
+          from: 'handler',
+          phoneNumber: message.from,
+        },
       },
-    })
+      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+    )
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
   }
@@ -82,12 +88,13 @@ async function _handleIncomingMessage(
     replyTo,
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-    return client.createMessage({
+    return client.getOrCreateMessage({
       tags: { id: message.id, replyTo },
       type,
       payload,
       userId: user.id,
       conversationId: conversation.id,
+      discriminateByTags: ['id'],
     })
   }
 
@@ -127,7 +134,14 @@ async function _handleIncomingMessage(
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl }, replyTo })
+    await createMessage({
+      type,
+      payload: {
+        imageUrl,
+        ...(message.image.caption && { caption: message.image.caption }),
+      },
+      replyTo,
+    })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
     await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })
@@ -166,13 +180,6 @@ async function _handleIncomingMessage(
     const errors = message.errors?.map((err) => `${err.message} (${err.error_data.details})`).join('\n')
     logger.forBot().warn(`Received message type ${message.type} by WhatsApp, errors: ${errors ?? 'none'}`)
   } else {
-    await sendPosthogEvent({
-      distinctId: 'WhatsApp',
-      event: botpressEvents.UNHANDLED_MESSAGE_TYPE,
-      properties: {
-        type,
-      },
-    })
     logger.forBot().warn(`Unhandled message type ${type}: ${JSON.stringify(message)}`)
   }
 }
