@@ -79,12 +79,12 @@ export class BotpressApi {
     })
   }
 
-  public handleError = async (props: ErrorHandlerProps, thrown: unknown) => {
+  public handleError = async (props: ErrorHandlerProps, thrown: unknown): Promise<never> => {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     const message = `An error occured while ${props.context}: ${error.message}`
     this._logger.error(message)
     if (props.conversationId) {
-      await this.respondText(props.conversationId, message)
+      await this.respondText(props.conversationId, message).catch(() => {}) // if this fails, there's nothing we can do
     }
     throw new sdk.RuntimeError(error.message)
   }

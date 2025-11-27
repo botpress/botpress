@@ -7,21 +7,25 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
 
   const { botpress, issueProcessor } = await boot.bootstrap(props)
 
+  const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
+
   const issue = await issueProcessor
     .findIssue(issueNumber, teamKey, 'updated')
-    .catch((thrown) => botpress.handleError({ context: 'trying to find the updated Linear issue' }, thrown))
+    .catch(_handleError('trying to find the updated Linear issue'))
 
   if (!issue) {
     return
   }
 
-  const recentlyLinted = await botpress.getRecentlyLinted()
+  const recentlyLinted = await botpress.getRecentlyLinted().catch(_handleError('trying to get recently linted issues'))
 
   if (recentlyLinted.some(({ id: issueId }) => issue.id === issueId)) {
     logger.info(`Issue ${issue.identifier} has already been linted recently, skipping...`)
     return
   }
 
-  await issueProcessor.runLint(issue)
-  await botpress.setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
+  await issueProcessor.runLint(issue).catch(_handleError('trying to lint the updated Linear issue'))
+  await botpress
+    .setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
+    .catch(_handleError('trying to update recently linted issues'))
 }
