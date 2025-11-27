@@ -10,14 +10,14 @@ import type {
   TableCellWithHeaderInfo,
 } from './types'
 
-export const stripAllHandlers: MarkdownHandlers = {
+export const defaultHandlers: MarkdownHandlers = {
   blockquote: (node, visit) => `<blockquote>\n\n${visit(node)}\n</blockquote>`,
-  break: (_node, _visit) => '<br />\n',
-  code: (node, _visit) => `<pre${node.lang ? ` class="language-${node.lang}"` : ''}><code>${node.value}\n</code></pre>`,
+  break: () => '<br />\n',
+  code: (node) => `<pre${node.lang ? ` class="language-${node.lang}"` : ''}><code>${node.value}\n</code></pre>`,
   delete: (node, visit) => `<s>${visit(node)}</s>`,
   emphasis: (node, visit) => `<em>${visit(node)}</em>`,
   footnoteDefinition: (node, visit) => `[${node.identifier}] ${visit(node)}\n`,
-  footnoteReference: (node, _visit) => `[${node.identifier}]`,
+  footnoteReference: (node) => `[${node.identifier}]`,
   heading: (node, visit) => {
     // This approach of using font-size with bold is more
     // consistent cross-platform than using <h1>, <h2>, <h3>.
@@ -34,9 +34,9 @@ export const stripAllHandlers: MarkdownHandlers = {
         return `${nodeContent}\n`
     }
   },
-  html: (node, _visit) => escapeAndSanitizeHtml(node.value),
-  image: (node, _visit) => _createSanitizedImage(node),
-  inlineCode: (node, _visit) => `<code>${node.value}</code>`,
+  html: (node) => escapeAndSanitizeHtml(node.value),
+  image: (node) => _createSanitizedImage(node),
+  inlineCode: (node) => `<code>${node.value}</code>`,
   link: (node, visit) => _createSanitizedHyperlink(node, visit(node)),
   linkReference: (node, visit) => {
     const { linkDefinition } = node
@@ -74,9 +74,9 @@ export const stripAllHandlers: MarkdownHandlers = {
     const tag = node.isHeader === true ? 'th' : 'td'
     return `<${tag}>${visit(node)}</${tag}>\n`
   },
-  text: (node, _visit) => node.value,
-  thematicBreak: (_node, _visit) => '<hr />\n',
-  definition: (_node, _visit) => '',
+  text: (node) => node.value,
+  thematicBreak: () => '<hr />\n',
+  definition: (_node) => '',
 }
 
 type HyperlinkProps = {
@@ -175,10 +175,7 @@ const _visitTree = (
   return `${tmp}${footnoteTmp}`
 }
 
-export const transformMarkdownToTeamsXml = (
-  markdown: string,
-  handlers: MarkdownHandlers = stripAllHandlers
-): string => {
+export const transformMarkdownToTeamsXml = (markdown: string, handlers: MarkdownHandlers = defaultHandlers): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
   const definitions = _extractDefinitions(tree)
   let html = _visitTree(tree, handlers, [], definitions).trim()
@@ -188,7 +185,7 @@ export const transformMarkdownToTeamsXml = (
   return sanitizeHtml(html)
 }
 
-// ==== Remark Textr replacer functions ====
+// ==== Replacer functions ====
 function ellipses(input: string): string {
   return input.replace(/\.{3}/gim, '…')
 }
