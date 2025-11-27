@@ -1,6 +1,5 @@
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
-import { Issue } from './utils/graphql-queries'
-import { StateKey } from './utils/linear-utils'
+import { Issue, StateKey } from './utils/linear-utils'
 
 export type IssueLint = {
   message: string
