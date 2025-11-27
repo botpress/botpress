@@ -176,7 +176,7 @@ const generateBubbleChart = {
         ])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the bubble chart').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
@@ -203,7 +203,7 @@ const generateHorizontalBarChart = {
         .catch(() => [1, 2, 3, 4, 5])
         .describe('The data for the y axis')
         .title('Y Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the bar chart').title('Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
