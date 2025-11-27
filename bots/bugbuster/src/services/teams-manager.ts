@@ -8,7 +8,7 @@ export class TeamsManager {
     private _botId: string
   ) {}
 
-  public async addTeam(key: string): Promise<void> {
+  public async addWatchedTeam(key: string): Promise<void> {
     const teamKeys = await this._getWatchedTeams()
     if (teamKeys.includes(key)) {
       throw new Error(`The team with the key '${key}' is already being watched.`)
@@ -20,14 +20,14 @@ export class TeamsManager {
     await this._setWatchedTeams([...teamKeys, key])
   }
 
-  public async removeTeam(key: string): Promise<void> {
+  public async removeWatchedTeam(key: string): Promise<void> {
     const teamKeys = await this._getWatchedTeams()
     if (!teamKeys.includes(key)) {
       throw new Error(`The team with the key '${key}' is not currently being watched.`)
     }
   }
 
-  public async listTeams(): Promise<string[]> {
+  public async listWatchedTeams(): Promise<string[]> {
     const teamKeys = await this._getWatchedTeams()
     if (teamKeys.length === 0) {
       throw new Error('You have no watched teams.')

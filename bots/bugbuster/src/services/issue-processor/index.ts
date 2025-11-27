@@ -28,8 +28,8 @@ export class IssueProcessor {
 
     this._logger.info(`Linear issue ${eventName} event received`, `${teamKey}-${issueNumber}`)
 
-    const teams = await this._teamsManager.listTeams()
-    if (!this._linear.isTeam(teamKey) || !teams.includes(teamKey)) {
+    const watchedTeams = await this._teamsManager.listWatchedTeams()
+    if (!this._linear.isTeam(teamKey) || !watchedTeams.includes(teamKey)) {
       this._logger.error(`Ignoring issue of team "${teamKey}"`)
       return
     }
@@ -42,8 +42,8 @@ export class IssueProcessor {
     return issue
   }
 
-  public async listIssues(teams: string[], endCursor?: string): Promise<lin.Issue[]> {
-    const validatedTeams = teams.filter((value) => this._linear.isTeam(value))
+  public async listRelevantIssues(endCursor?: string): Promise<lin.Issue[]> {
+    const watchedTeams = await this._teamsManager.listWatchedTeams()
 
     const issues: lin.Issue[] = []
     let pagination: lin.Pagination | undefined
@@ -51,7 +51,7 @@ export class IssueProcessor {
     do {
       const { issues: newIssues, pagination: newPagination } = await this._linear.listIssues(
         {
-          teamKeys: validatedTeams,
+          teamKeys: watchedTeams,
           statusesToOmit: IGNORED_STATUSES,
         },
         endCursor
