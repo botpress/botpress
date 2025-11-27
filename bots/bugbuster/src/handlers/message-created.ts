@@ -1,4 +1,3 @@
-import * as utils from '../utils'
 import * as bp from '.botpress'
 import { bootstrap } from 'src/bootstrap'
 
@@ -18,7 +17,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const botpress = await utils.botpress.BotpressApi.create(props)
+  const { botpress, teamsManager } = await bootstrap(props, conversation.id)
 
   if (message.type !== 'text') {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
@@ -40,23 +39,12 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     botpress.handleError({ context, conversationId: conversation.id }, thrown)
 
   switch (command) {
-    case '#health': {
-      let isLinearHealthy = true
-      try {
-        await utils.linear.LinearApi.create()
-      } catch {
-        isLinearHealthy = false
-      }
-
-      await botpress.respondText(conversation.id, `Linear: ${isLinearHealthy ? '' : 'un'}healthy`)
-      break
-    }
     case '#addTeam': {
       if (!teamKey) {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const { teamsManager } = await bootstrap(props, conversation.id)
+
       await teamsManager.addTeam(teamKey).catch(_handleError('trying to add a team'))
 
       await botpress.respondText(
@@ -70,7 +58,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
         await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
         return
       }
-      const { teamsManager } = await bootstrap(props, conversation.id)
+
       await teamsManager.removeTeam(teamKey).catch(_handleError('trying to remove a team'))
       await botpress.respondText(
         conversation.id,
@@ -79,7 +67,6 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
     case '#listTeams': {
-      const { teamsManager } = await bootstrap(props, conversation.id)
       const teams = await teamsManager.listTeams().catch(_handleError('trying to list teams'))
       await botpress.respondText(conversation.id, teams.join(', '))
       break
