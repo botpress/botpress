@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -17,4 +18,7 @@ export default new IntegrationDefinition({
   actions,
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  __advanced: {
+    useLegacyZuiTransformer: true,
+  },
 })
