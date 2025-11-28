@@ -37,6 +37,9 @@ importers:
       '@bpinternal/retry-cli':
         specifier: ^0.1.1
         version: 0.1.1
+      '@linear/sdk':
+        specifier: ^55.0.0
+        version: 55.2.1
       '@stylistic/eslint-plugin':
         specifier: ^5.3.1
         version: 5.3.1(eslint@9.34.0(jiti@2.4.2))
@@ -4703,6 +4706,10 @@ packages:
 
   '@linear/sdk@50.0.0':
     resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
+    engines: {node: '>=12.x', yarn: 1.x}
+
+  '@linear/sdk@55.2.1':
+    resolution: {integrity: sha512-0+xjyphwdMMeGIV5O1Q7/AhS/tyTv+J0azE/WPbVXJHCDkBdgoHERvBgNXM0nRjcVt2RKUl8V0o+Fly2CJRlOA==}
     engines: {node: '>=12.x', yarn: 1.x}
 
   '@mailchimp/mailchimp_marketing@3.0.80':
@@ -13620,6 +13627,14 @@ snapshots:
       - encoding
 
   '@linear/sdk@50.0.0':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
+      graphql: 15.8.0
+      isomorphic-unfetch: 3.1.0
+    transitivePeerDependencies:
+      - encoding
+
+  '@linear/sdk@55.2.1':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
       graphql: 15.8.0
