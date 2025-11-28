@@ -18,7 +18,7 @@ if (!TARGET_LABEL) {
   throw new Error('No TARGET_LABEL environment variable')
 }
 
-await updateLinearIssues()
+void updateLinearIssues()
 
 async function getTeam(): Promise<Team> {
   const client = new LinearClient({ apiKey: LINEAR_API_KEY })
