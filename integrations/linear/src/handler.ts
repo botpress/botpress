@@ -5,7 +5,7 @@ import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
-import { getUserAndConversation } from './misc/utils'
+import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -30,6 +30,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
         'Received a webhook event that is not properly authenticated. Please ensure the webhook signing secret is correct.'
       )
     throw new Error('Webhook event is not properly authenticated: the signing secret is invalid.')
+  }
+
+  const linearBotId = await _getLinearBotId({ client, ctx })
+  if (linearEvent.data.userId === linearBotId || linearEvent.data.user?.id === linearBotId) {
+    logger.forBot().debug('Received a webhook event from the bot itself, skipping...')
+    return
   }
 
   // ============ EVENTS ==============
@@ -109,3 +115,9 @@ const _isWebhookProperlyAuthenticated = ({
 
 const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
   ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
+
+const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
+  const linearClient = await getLinearClient({ client, ctx }, ctx.integrationId)
+  const me = await linearClient.viewer
+  return me.id
+}
