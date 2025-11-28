@@ -3,7 +3,7 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'pdf-generator',
-  version: '0.0.2',
+  version: '0.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Converts markdown content to PDF using PDFShift',
@@ -16,20 +16,21 @@ export default new IntegrationDefinition({
       description: 'Converts a markdown content to a PDF file',
       input: {
         schema: z.object({
-          markdown: z.string().min(1).describe('The markdown content to convert to PDF'),
+          markdown: z.string().min(1).describe('The markdown content to convert to PDF').title('Markdown'),
           filename: z
             .string()
             .min(1)
             .endsWith('.pdf')
             .describe('The filename of the PDF')
+            .title('Filename')
             .optional()
             .default('generated.pdf'),
         }),
       },
       output: {
         schema: z.object({
-          fileId: z.string().describe('The generated PDF file ID'),
-          fileUrl: z.string().describe('The public URL to download the PDF'),
+          fileId: z.string().describe('The generated PDF file ID').title('File ID'),
+          fileUrl: z.string().describe('The public URL to download the PDF').title('File URL'),
         }),
       },
     },
@@ -38,20 +39,21 @@ export default new IntegrationDefinition({
       description: 'Converts an HTML document to a PDF file',
       input: {
         schema: z.object({
-          html: z.string().min(1).describe('The HTML content to convert to PDF'),
+          html: z.string().min(1).describe('The HTML content to convert to PDF').title('HTML'),
           filename: z
             .string()
             .min(1)
             .endsWith('.pdf')
             .describe('The filename of the PDF')
+            .title('Filename')
             .optional()
             .default('generated.pdf'),
         }),
       },
       output: {
         schema: z.object({
-          fileId: z.string().describe('The generated PDF file ID'),
-          fileUrl: z.string().describe('The public URL to download the PDF'),
+          fileId: z.string().describe('The generated PDF file ID').title('File ID'),
+          fileUrl: z.string().describe('The public URL to download the PDF').title('File URL'),
         }),
       },
     },
