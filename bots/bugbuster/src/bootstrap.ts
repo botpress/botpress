@@ -4,11 +4,11 @@ import { TeamsManager } from './services/teams-manager'
 import * as types from './types'
 import * as utils from './utils'
 
-export const bootstrap = async (props: types.CommonHandlerProps) => {
+export const bootstrap = (props: types.CommonHandlerProps) => {
   const { client, logger, ctx } = props
   const botpress = utils.botpress.BotpressApi.create(props)
 
-  const linear = await utils.linear.LinearApi.create()
+  const linear = utils.linear.LinearApi.create()
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
   const recentlyLintedManager = new RecentlyLintedManager(client, ctx.botId)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)

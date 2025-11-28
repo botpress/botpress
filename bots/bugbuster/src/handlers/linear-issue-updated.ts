@@ -5,7 +5,7 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
   const { event, logger } = props
   const { number: issueNumber, teamKey } = event.payload
 
-  const { botpress, issueProcessor, recentlyLintedManager } = await boot.bootstrap(props)
+  const { botpress, issueProcessor, recentlyLintedManager } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
   logger.info('Linear issue updated event received', `${teamKey}-${issueNumber}`)

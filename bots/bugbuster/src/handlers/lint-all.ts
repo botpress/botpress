@@ -7,7 +7,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
   const conversationId = conversation?.id
 
-  const { botpress, issueProcessor } = await boot.bootstrap(props, conversationId)
+  const { botpress, issueProcessor } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)

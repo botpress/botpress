@@ -6,7 +6,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   props.logger.info('Received GitHub issue', githubIssue)
 
-  const { linear, botpress } = await boot.bootstrap(props)
+  const { linear, botpress } = boot.bootstrap(props)
 
   const _handleError =
     (context: string) =>

@@ -29,7 +29,7 @@ export class LinearApi {
 
   private constructor(private _client: lin.LinearClient) {}
 
-  public static async create(): Promise<LinearApi> {
+  public static create(): LinearApi {
     const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
 
     return new LinearApi(client)
