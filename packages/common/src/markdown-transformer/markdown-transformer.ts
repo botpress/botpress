@@ -86,7 +86,7 @@ export const visitTree = (
   tree: Parent,
   handlers: MarkdownHandlers,
   parents: Parent[],
-  state: Record<string, unknown>
+  data: Record<string, unknown>
 ): string => {
   let tmp = ''
   let footnoteTmp = ''
@@ -97,26 +97,26 @@ export const visitTree = (
     }
 
     const handler = handlers[node.type] as NodeHandler
-    const visitHandler = (n: Parent) => visitTree(n, handlers, parents, state)
+    const visitHandler = (n: Parent) => visitTree(n, handlers, parents, data)
 
     switch (node.type) {
       case 'list':
         const listNode = _applyListLevelAndItemIndices(node, parents)
-        tmp += handler(listNode, visitHandler, parents, handlers, state)
+        tmp += handler(listNode, visitHandler, parents, handlers, data)
         break
       case 'listItem':
         node.checked = node.checked ?? null
-        tmp += handler(node, visitHandler, parents, handlers, state)
+        tmp += handler(node, visitHandler, parents, handlers, data)
         break
       case 'table':
         const extendedTableNode = _applyExtendedTableProps(node)
-        tmp += handler(extendedTableNode, visitHandler, parents, handlers, state)
+        tmp += handler(extendedTableNode, visitHandler, parents, handlers, data)
         break
       case 'footnoteDefinition':
-        footnoteTmp += handler(node, visitHandler, parents, handlers, state)
+        footnoteTmp += handler(node, visitHandler, parents, handlers, data)
         break
       default:
-        tmp += handler(node, visitHandler, parents, handlers, state)
+        tmp += handler(node, visitHandler, parents, handlers, data)
         break
     }
   }
@@ -124,7 +124,11 @@ export const visitTree = (
   return `${tmp}${footnoteTmp}`
 }
 
-export const transformMarkdown = (markdown: string, handlers: MarkdownHandlers = stripAllHandlers): string => {
+export const transformMarkdown = (
+  markdown: string,
+  handlers: MarkdownHandlers = stripAllHandlers,
+  data: Record<string, unknown> = {}
+): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
-  return visitTree(tree, handlers, [], {})
+  return visitTree(tree, handlers, [], data)
 }
