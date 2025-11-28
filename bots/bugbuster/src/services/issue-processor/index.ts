@@ -51,7 +51,7 @@ export class IssueProcessor {
     return { issues, pagination }
   }
 
-  public async lintIssue(issue: lin.Issue, isRecentlyLinted: boolean) {
+  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean) {
     const status = await this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return
