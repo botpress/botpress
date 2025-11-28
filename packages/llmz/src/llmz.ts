@@ -513,7 +513,7 @@ const executeIteration = async ({
       internalValues[name] = value
 
       const initialValue = value
-      const schema = type ?? z.any()
+      const schema = (type ?? z.any()) as z.ZodType
 
       Object.defineProperty(instance, name, {
         enumerable: true,
