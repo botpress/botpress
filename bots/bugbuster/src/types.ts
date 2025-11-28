@@ -1,5 +1,3 @@
-export type Result<T> = {
-  success: boolean
-  message: string
-  result?: T
-}
+import * as bp from '.botpress'
+
+export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHandlerProps | bp.MessageHandlerProps
