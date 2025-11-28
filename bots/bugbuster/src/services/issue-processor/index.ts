@@ -23,7 +23,7 @@ export class IssueProcessor {
     }
 
     const watchedTeams = await this._teamsManager.listWatchedTeams()
-    if (!this._linear.isTeam(teamKey) || !watchedTeams.includes(teamKey)) {
+    if (!(await this._linear.isTeam(teamKey)) || !watchedTeams.includes(teamKey)) {
       this._logger.info(`Ignoring issue of team "${teamKey}"`)
       return
     }
@@ -52,7 +52,7 @@ export class IssueProcessor {
   }
 
   public async lintIssue(issue: lin.Issue) {
-    const status = this._linear.issueStatus(issue)
+    const status = await this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return
     }

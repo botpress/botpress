@@ -11,8 +11,7 @@ export const bootstrap = async (props: types.CommonHandlerProps, conversationId?
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
 
-  // TODO: make this synchronous so it won't slow down bootstraping or throw
-  const linear = await utils.linear.LinearApi.create().catch(_handleError('trying to initialize Linear API'))
+  const linear = await utils.linear.LinearApi.create()
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
   const recentlyLintedManager = new RecentlyLintedManager(client, ctx.botId)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
