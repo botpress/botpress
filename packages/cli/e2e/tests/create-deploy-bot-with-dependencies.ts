@@ -22,7 +22,7 @@ type ARGV = typeof defaults & {
 }
 
 export const createDeployBotWithDependencies: Test = {
-  name: 'cli should allow creating, building, deploying and mannaging a bot that has nested dependencies',
+  name: 'cli should allow creating, building, deploying and managing a bot that has nested dependencies',
   handler: async ({ tmpDir, dependencies, logger, ...creds }) => {
     if (!_isBotpressWorkspace(creds.workspaceHandle, creds.workspaceId)) {
       // Unfortunately, only the botpress workspace can deploy interfaces
@@ -233,7 +233,6 @@ const _installAndBuild = async ({
       ...argv,
       installPath: workDir,
       packageRef: undefined,
-      packageType: undefined,
       useDev: false,
       alias: undefined,
     })

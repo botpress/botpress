@@ -98,3 +98,5 @@ export type DeepPartial<T> = T extends (...args: infer A) => infer R
 export type SafeOmit<T, K extends keyof T> = Omit<T, K>
 
 export type StringKeys<T> = Extract<keyof T, string>
+
+export type DistributivePick<T, K extends keyof T> = T extends any ? Pick<T, K> : never

@@ -15,7 +15,7 @@ export type CommandArgv<C extends CommandDefinition = CommandDefinition> = Yargs
 export type CommandDefinition<S extends CommandSchema = CommandSchema> = {
   schema: S
   description?: string
-  alias?: string
+  alias?: string | string[]
 }
 
 export type CommandImplementation<C extends CommandDefinition = CommandDefinition> = (

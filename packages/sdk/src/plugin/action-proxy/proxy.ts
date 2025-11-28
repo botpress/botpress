@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
-import { BotSpecificClient } from '../../bot'
-import { BasePlugin, PluginInterfaceExtensions, PluginRuntimeProps } from '../common'
-import { resolveAction, formatActionRef } from '../interface-resolution'
+import { BotSpecificClient, EnumerateActions } from '../../bot'
+import type * as typeUtils from '../../utils/type-utils'
+import { BasePlugin, PluginRuntimeProps } from '../common'
 import { ActionProxy } from './types'
 
 export const proxyActions = <TPlugin extends BasePlugin>(
@@ -11,45 +11,26 @@ export const proxyActions = <TPlugin extends BasePlugin>(
   new Proxy<Partial<ActionProxy<TPlugin>>>(
     {},
     {
-      get: (_target, prop1) => {
-        return new Proxy(
+      get: (_target, integrationOrInterfaceAlias: string) =>
+        new Proxy(
           {},
           {
-            get: (_target, prop2) => {
-              return (input: Record<string, any>) =>
-                _callAction({
-                  client,
-                  interfaces: props.interfaces,
-                  integrationOrInterfaceName: prop1 as string,
-                  methodName: prop2 as string,
-                  input,
-                })
+            get: (_target, actionName: string) => (input: Record<string, any>) => {
+              const integrationAlias = (
+                props.integrations[integrationOrInterfaceAlias] ?? props.interfaces[integrationOrInterfaceAlias]
+              )?.integrationAlias
+              const actualActionName =
+                props.interfaces[integrationOrInterfaceAlias]?.actions?.[actionName]?.name ?? actionName
+
+              return client.callAction({
+                type: `${integrationAlias}:${actualActionName}` as typeUtils.Cast<
+                  keyof EnumerateActions<TPlugin>,
+                  string
+                >,
+                input,
+              })
             },
           }
-        )
-      },
+        ),
     }
   ) as ActionProxy<TPlugin>
-
-type CallActionsProps = {
-  client: BotSpecificClient<any> | Client
-  interfaces: PluginInterfaceExtensions<any>
-  integrationOrInterfaceName: string
-  methodName: string
-  input: Record<string, any>
-}
-const _callAction = async ({ client, interfaces, integrationOrInterfaceName, methodName, input }: CallActionsProps) => {
-  const resolvedAction = resolveAction(
-    {
-      namespace: integrationOrInterfaceName,
-      actionName: methodName,
-    },
-    interfaces
-  )
-  const type = formatActionRef(resolvedAction)
-  const response = await client.callAction({
-    type,
-    input,
-  })
-  return response.output
-}

@@ -1,7 +1,7 @@
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
-export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
+export const handleGithubIssueOpened: bp.EventHandlers['foo/github:issueOpened'] = async (props): Promise<void> => {
   const githubIssue = props.event.payload
 
   props.logger.info('Received GitHub issue', githubIssue)

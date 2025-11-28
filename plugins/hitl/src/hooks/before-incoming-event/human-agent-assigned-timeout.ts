@@ -15,15 +15,17 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['humanAgentAs
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
-  const isAgentAlreadyAssigned = await upstreamCm.isHumanAgentAssigned()
+  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
 
-  if (isAgentAlreadyAssigned) {
+  if (upstreamCm.isHumanAgentAssigned()) {
     props.logger.info('Human agent assigned timeout event ignored because the agent is already assigned')
     return consts.STOP_EVENT_HANDLING
   }
 
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+  const downstreamConversation = await props.conversations.hitl.hitl.getById({ id: downstreamConversationId })
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
+
   const isHitlActive = (await upstreamCm.isHitlActive()) && (await downstreamCm.isHitlActive())
 
   if (!isHitlActive) {

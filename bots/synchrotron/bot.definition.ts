@@ -5,8 +5,6 @@ import chat from './bp_modules/chat'
 import dropbox from './bp_modules/dropbox'
 import fileSynchronizer from './bp_modules/file-synchronizer'
 
-const dropboxFilesReadonly = dropbox.definition.interfaces['files-readonly']
-
 export default new sdk.BotDefinition({
   configuration: {
     schema: sdk.z.object({}),
@@ -42,15 +40,10 @@ export default new sdk.BotDefinition({
       ],
       excludeFiles: [],
     },
-    interfaces: {
+    dependencies: {
       'files-readonly': {
-        id: dropbox.id,
-        name: dropbox.name,
-        version: dropbox.version,
-        entities: dropboxFilesReadonly.entities,
-        actions: dropboxFilesReadonly.actions,
-        events: dropboxFilesReadonly.events,
-        channels: dropboxFilesReadonly.channels,
+        integrationAlias: 'dropbox',
+        integrationInterfaceAlias: 'files-readonly',
       },
     },
   })

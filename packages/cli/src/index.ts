@@ -45,6 +45,7 @@ export default {
   serve: commandImplementations.serve,
   deploy: commandImplementations.deploy,
   add: commandImplementations.add,
+  remove: commandImplementations.remove,
   dev: commandImplementations.dev,
   lint: commandImplementations.lint,
   chat: commandImplementations.chat,

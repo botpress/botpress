@@ -1,4 +1,3 @@
-import { Workflow } from '@botpress/client'
 import type {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
@@ -13,9 +12,10 @@ import type {
 import { WorkflowProxy, proxyWorkflows, wrapWorkflowInstance } from '../bot/workflow-proxy'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
-import { BasePlugin, PluginConfiguration, PluginInterfaceExtensions, PluginRuntimeProps } from './common'
+import { BasePlugin, PluginRuntimeProps } from './common'
+import { ConversationFinder, proxyConversation, proxyConversations } from './conversation-proxy'
 import { EventProxy, proxyEvents } from './event-proxy'
-import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
+import { proxyMessage, proxyMessages } from './message-proxy'
 import {
   ActionHandlers,
   MessageHandlers,
@@ -23,9 +23,6 @@ import {
   StateExpiredHandlers,
   HookHandlers,
   WorkflowHandlers,
-  MessageHandlersMap,
-  EventHandlersMap,
-  StateExpiredHandlersMap,
   HookHandlersMap,
   WorkflowHandlersMap,
   OrderedMessageHandlersMap,
@@ -33,24 +30,23 @@ import {
   OrderedStateExpiredHandlersMap,
   OrderedHookHandlersMap,
   OrderedWorkflowHandlersMap,
-  HookInputs as HookPayloads,
+  HookInputsWithoutInjectedProps,
+  ActionHandlerPayloadsWithoutInjectedProps,
+  StateExpiredPayloadsWithoutInjectedProps,
+  MessagePayloadsWithoutInjectedProps,
+  EventPayloadsWithoutInjectedProps,
+  WorkflowPayloadsWithoutInjectedProps,
   InjectedHandlerProps,
 } from './server/types'
 import { proxyStates, StateProxy } from './state-proxy'
+import { unprefixTagsOwnedByPlugin } from './tag-prefixer'
+import { proxyUser, proxyUsers, type UserFinder } from './user-proxy'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
 }
 
-type Tools<TPlugin extends BasePlugin = BasePlugin> = {
-  configuration: PluginConfiguration<TPlugin>
-  interfaces: PluginInterfaceExtensions<TPlugin>
-  actions: ActionProxy<TPlugin>
-  events: EventProxy<TPlugin>
-  states: StateProxy<TPlugin>
-  workflows: WorkflowProxy<TPlugin>
-  alias?: string
-}
+type Tools<TPlugin extends BasePlugin = BasePlugin> = InjectedHandlerProps<TPlugin>
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
@@ -98,20 +94,27 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   private _getTools(client: BotSpecificClient<any>): Tools {
-    const { configuration, interfaces, alias } = this._runtime
+    const { configuration, interfaces, integrations, alias } = this._runtime
     const actions = proxyActions(client, this._runtime) as ActionProxy<BasePlugin>
     const states = proxyStates(client, this._runtime) as StateProxy<BasePlugin>
-    const workflows = proxyWorkflows(client) as WorkflowProxy<BasePlugin>
+    const workflows = proxyWorkflows({ client }) as WorkflowProxy<BasePlugin>
     const events = proxyEvents(client, this._runtime) as EventProxy<BasePlugin>
+    const users = proxyUsers({ client, pluginAlias: this._runtime.alias }) as UserFinder<BasePlugin>
+    const conversations = proxyConversations({ client, plugin: this._runtime }) as ConversationFinder<BasePlugin>
+    const messages = proxyMessages({ client, plugin: this._runtime })
 
     return {
       configuration,
       interfaces,
+      integrations,
       actions,
       states,
       alias,
       workflows,
       events,
+      users,
+      conversations,
+      messages,
     }
   }
 
@@ -126,7 +129,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             return undefined
           }
           return utils.functions.setName(
-            (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
+            (input: utils.types.ValueOf<ActionHandlerPayloadsWithoutInjectedProps<TPlugin>>) =>
               handler({ ...input, ...this._getTools(input.client) }),
             handler.name
           )
@@ -141,15 +144,33 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       {
         get: (_: unknown, messageName: string) => {
           messageName = this._stripAliasPrefix(messageName as string)
-          const specificHandlers = this._messageHandlers[messageName] ?? []
+          const specificHandlers = messageName === '*' ? [] : (this._messageHandlers[messageName] ?? [])
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = utils.arrays
             .unique([...specificHandlers, ...globalHandlers])
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
-                handler({ ...input, message: input.message, ...this._getTools(input.client) }),
+              (input: utils.types.ValueOf<MessagePayloadsWithoutInjectedProps<TPlugin>>) =>
+                handler({
+                  ...input,
+                  user: proxyUser({
+                    ...input,
+                    conversationId: input.conversation.id,
+                    pluginAlias: this._runtime.alias,
+                  }),
+                  message: proxyMessage<BasePlugin>({
+                    ...input,
+                    plugin: this._runtime,
+                    message: input.message,
+                  }),
+                  conversation: proxyConversation({
+                    ...input,
+                    plugin: this._runtime,
+                    conversation: input.conversation,
+                  }),
+                  ...this._getTools(input.client),
+                }),
               handler.name
             )
           )
@@ -167,7 +188,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           // if prop is "github:prOpened", include both "github:prOpened" and "creatable:itemCreated"
 
-          const specificHandlers = this._eventHandlers[eventName] ?? []
+          const specificHandlers = eventName === '*' ? [] : (this._eventHandlers[eventName] ?? [])
 
           const interfaceHandlers = Object.entries(this._eventHandlers)
             .filter(([e]) => this._eventResolvesTo(e, eventName))
@@ -180,8 +201,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
-                handler({ ...input, event: input.event, ...this._getTools(input.client) }),
+              (input: utils.types.ValueOf<EventPayloadsWithoutInjectedProps<TPlugin>>) =>
+                handler({ ...input, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -197,15 +218,15 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         get: (_: unknown, stateName: string) => {
           stateName = this._stripAliasPrefix(stateName)
 
-          const specificHandlers = this._stateExpiredHandlers[stateName] ?? []
+          const specificHandlers = stateName === '*' ? [] : (this._stateExpiredHandlers[stateName] ?? [])
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
           const allHandlers = utils.arrays
             .unique([...specificHandlers, ...globalHandlers])
             .sort((a, b) => a.order - b.order)
           return allHandlers.map(({ handler }) =>
             utils.functions.setName(
-              (input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin>>) =>
-                handler({ ...input, state: input.state as any, ...this._getTools(input.client) }),
+              (input: utils.types.ValueOf<StateExpiredPayloadsWithoutInjectedProps<TPlugin>>) =>
+                handler({ ...input, ...this._getTools(input.client) }),
               handler.name
             )
           )
@@ -229,7 +250,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
               get: (_: unknown, hookDataName: string) => {
                 hookDataName = this._stripAliasPrefix(hookDataName)
 
-                const specificHandlers = hooks[hookDataName] ?? []
+                const specificHandlers = hookDataName === '*' ? [] : (hooks[hookDataName] ?? [])
 
                 // for "before_incoming_event", "after_incoming_event" and other event related hooks
                 const interfaceHandlers = Object.entries(hooks)
@@ -243,8 +264,12 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return handlers.map(({ handler }) =>
                   utils.functions.setName(
-                    (input: HookPayloads<TPlugin>[utils.types.StringKeys<HookHandlersMap<TPlugin>>]['*']) =>
-                      handler({ ...input, data: input.data, ...this._getTools(input.client) }),
+                    (input: utils.types.ValueOf<HookInputsWithoutInjectedProps<TPlugin>>['*']) =>
+                      handler({
+                        ...input,
+                        data: unprefixTagsOwnedByPlugin(input.data, { alias: this._runtime.alias }),
+                        ...this._getTools(input.client),
+                      }),
                     handler.name
                   )
                 )
@@ -274,19 +299,17 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
                 return selfHandlers.map(({ handler }) =>
                   utils.functions.setName(
-                    async (
-                      input: Omit<Parameters<typeof handler>[0], keyof InjectedHandlerProps<TPlugin> | 'workflow'> & {
-                        workflow: Workflow
-                      }
-                    ) => {
+                    async (input: utils.types.ValueOf<WorkflowPayloadsWithoutInjectedProps<TPlugin>>) => {
                       let currentWorkflowState = input.workflow
                       await handler({
                         ...input,
                         workflow: wrapWorkflowInstance({
                           ...input,
+                          workflow: currentWorkflowState,
                           onWorkflowUpdate(newState) {
                             currentWorkflowState = newState
                           },
+                          pluginAlias: this._runtime.alias,
                         }),
                         ...this._getTools(input.client),
                       })
@@ -304,32 +327,32 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   public readonly on = {
-    message: <T extends utils.types.StringKeys<MessageHandlersMap<TPlugin>>>(
+    message: <T extends utils.types.StringKeys<MessageHandlers<TPlugin>>>(
       type: T,
       handler: MessageHandlers<TPlugin>[T]
     ): void => {
       this._messageHandlers[type] = utils.arrays.safePush(this._messageHandlers[type], {
-        handler: handler as MessageHandlers<any>[string],
+        handler: handler as unknown as MessageHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
 
-    event: <T extends utils.types.StringKeys<EventHandlersMap<TPlugin>>>(
+    event: <T extends utils.types.StringKeys<EventHandlers<TPlugin>>>(
       type: T,
       handler: EventHandlers<TPlugin>[T]
     ): void => {
       this._eventHandlers[type] = utils.arrays.safePush(this._eventHandlers[type], {
-        handler: handler as EventHandlers<any>[string],
+        handler: handler as unknown as EventHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
 
-    stateExpired: <T extends utils.types.StringKeys<StateExpiredHandlersMap<TPlugin>>>(
+    stateExpired: <T extends utils.types.StringKeys<StateExpiredHandlers<TPlugin>>>(
       type: T,
       handler: StateExpiredHandlers<TPlugin>[T]
     ): void => {
       this._stateExpiredHandlers[type] = utils.arrays.safePush(this._stateExpiredHandlers[type], {
-        handler: handler as StateExpiredHandlers<any>[string],
+        handler: handler as unknown as StateExpiredHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -340,7 +363,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
         this._hookHandlers.before_incoming_event[type],
-        { handler: handler as HookHandlers<any>['before_incoming_event'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['before_incoming_event'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -350,7 +376,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
         this._hookHandlers.before_incoming_message[type],
-        { handler: handler as HookHandlers<any>['before_incoming_message'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['before_incoming_message'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -360,7 +389,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
         this._hookHandlers.before_outgoing_message[type],
-        { handler: handler as HookHandlers<any>['before_outgoing_message'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['before_outgoing_message'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -372,7 +404,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
         this._hookHandlers.before_outgoing_call_action[type],
-        { handler: handler as HookHandlers<any>['before_outgoing_call_action'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['before_outgoing_call_action'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -388,7 +423,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_incoming_call_action[type] = utils.arrays.safePush(
         this._hookHandlers.before_incoming_call_action[type],
-        { handler: handler as HookHandlers<any>['before_incoming_call_action'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['before_incoming_call_action'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -398,7 +436,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
         this._hookHandlers.after_incoming_event[type],
-        { handler: handler as HookHandlers<any>['after_incoming_event'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['after_incoming_event'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -408,7 +449,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
         this._hookHandlers.after_incoming_message[type],
-        { handler: handler as HookHandlers<any>['after_incoming_message'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['after_incoming_message'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -418,7 +462,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_message[type],
-        { handler: handler as HookHandlers<any>['after_outgoing_message'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['after_outgoing_message'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -428,7 +475,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_call_action[type],
-        { handler: handler as HookHandlers<any>['after_outgoing_call_action'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['after_outgoing_call_action'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -442,7 +492,10 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_incoming_call_action[type] = utils.arrays.safePush(
         this._hookHandlers.after_incoming_call_action[type],
-        { handler: handler as HookHandlers<any>['after_incoming_call_action'][string], order: this._registerOrder++ }
+        {
+          handler: handler as unknown as HookHandlers<any>['after_incoming_call_action'][string],
+          order: this._registerOrder++,
+        }
       )
     },
 
@@ -455,7 +508,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.started[type] = utils.arrays.safePush(this._workflowHandlers.started[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -469,7 +522,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.continued[type] = utils.arrays.safePush(this._workflowHandlers.continued[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -483,7 +536,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
       handler: WorkflowHandlers<TPlugin>[T]
     ): void => {
       this._workflowHandlers.timed_out[type] = utils.arrays.safePush(this._workflowHandlers.timed_out[type], {
-        handler: handler as WorkflowHandlers<any>[string],
+        handler: handler as unknown as WorkflowHandlers<any>[string],
         order: this._registerOrder++,
       })
     },
@@ -493,13 +546,30 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
    * checks if the actual event resolves to the target event
    */
   private _eventResolvesTo = (actualEventRef: string, targetEventRef: string) => {
-    const parsedRef = parseEventRef(actualEventRef)
-    if (!parsedRef) {
+    const NAMESPACE_SEPARATOR = ':'
+    const [pluginIfaceOrIntAlias, ifaceOrIntEvent] = actualEventRef.split(NAMESPACE_SEPARATOR)
+    if (!pluginIfaceOrIntAlias || !ifaceOrIntEvent) {
       return false
     }
-    const resolvedRef = resolveEvent(parsedRef, this._runtime.interfaces)
-    const formattedRef = formatEventRef(resolvedRef)
-    return formattedRef === targetEventRef
+
+    // match '<plugin-iface-alias>:<iface-event>' => '<bot-int-alias>:<int-event>':
+    const iface = this._runtime.interfaces[pluginIfaceOrIntAlias]
+
+    if (
+      iface &&
+      targetEventRef === `${iface.integrationAlias}${NAMESPACE_SEPARATOR}${iface?.events?.[ifaceOrIntEvent]?.name}`
+    ) {
+      return true
+    }
+
+    const integration = this._runtime.integrations[pluginIfaceOrIntAlias]
+
+    // match '<plugin-int-alias>:<int-event>' => '<bot-int-alias>:<int-event>':
+    if (integration && targetEventRef === `${integration.integrationAlias}${NAMESPACE_SEPARATOR}${ifaceOrIntEvent}`) {
+      return true
+    }
+
+    return false
   }
 
   private _stripAliasPrefix = (prop: string) => {

@@ -90,8 +90,12 @@ export class ProjectDefinitionContext {
   }
 }
 
+type ResolvedDependency = { id: string }
+type DependencyCacheKey = `${'integration' | 'plugin' | 'interface'}:${string}@${string}`
+
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
   protected projectContext: ProjectDefinitionContext = new ProjectDefinitionContext()
+  private _dependencyCache = new Map<DependencyCacheKey, ResolvedDependency>()
 
   public setProjectContext(projectContext: ProjectDefinitionContext) {
     this.projectContext = projectContext
@@ -599,21 +603,30 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     botDef: sdk.BotDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.UpdateBotRequestBody>> {
-    const integrations = await this._fetchDependencies(botDef.integrations ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
-    )
+    const integrations = await this._fetchDependencies({
+      deps: botDef.integrations ?? {},
+      fetcher: ({ name, version }) => api.getPublicOrPrivateIntegration({ type: 'name', name, version }),
+      cacheKey: ({ name, version }) => `integration:${name}@${version}`,
+    })
 
-    const plugins = await this._fetchDependencies(
-      botDef.plugins ?? {},
-      async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version })
-    )
+    const plugins = await this._fetchDependencies({
+      deps: botDef.plugins ?? {},
+      fetcher: async ({ name, version }) => await api.getPublicOrPrivatePlugin({ type: 'name', name, version }),
+      cacheKey: ({ name, version }) => `plugin:${name}@${version}`,
+    })
 
     const pluginsWithBackingIntegrations = await utils.records.mapValuesAsync(plugins, async (plugin) => ({
       ...plugin,
-      interfaces: await this._fetchDependencies(
-        plugin.interfaces ?? {},
-        async (interfaceExtension) => await api.getPublicOrPrivateIntegration({ ...interfaceExtension, type: 'name' })
-      ),
+      interfaces: await this._fetchDependencies({
+        deps: plugin.interfaces ?? {},
+        fetcher: async ({ name, version }) => await api.getPublicOrPrivateIntegration({ name, version, type: 'name' }),
+        cacheKey: ({ name, version }) => `interface:${name}@${version}`,
+      }),
+      integrations: await this._fetchDependencies({
+        deps: plugin.integrations ?? {},
+        fetcher: async ({ name, version }) => await api.getPublicOrPrivateIntegration({ name, version, type: 'name' }),
+        cacheKey: ({ name, version }) => `integration:${name}@${version}`,
+      }),
     }))
 
     return {
@@ -630,10 +643,27 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       ),
       plugins: utils.records.mapValues(pluginsWithBackingIntegrations, (plugin) => ({
         ...plugin,
-        interfaces: utils.records.mapValues(plugin.interfaces ?? {}, (iface) => ({
-          ...iface,
-          integrationId: iface.id,
-        })),
+        interfaces: utils.records.mapValues(
+          plugin.interfaces ?? {},
+          (iface) =>
+            ({
+              integrationId: iface.id,
+              integrationAlias: iface.integrationAlias,
+              integrationInterfaceAlias: iface.integrationInterfaceAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['interfaces']
+            >[string]
+        ),
+        integrations: utils.records.mapValues(
+          plugin.integrations ?? {},
+          (integration) =>
+            ({
+              integrationId: integration.id,
+              integrationAlias: integration.integrationAlias,
+            }) satisfies NonNullable<
+              NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['plugins']>[string]>['integrations']
+            >[string]
+        ),
       })),
     }
   }
@@ -642,9 +672,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     integrationDef: sdk.IntegrationDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreateIntegrationRequestBody>> {
-    const interfaces = await this._fetchDependencies(integrationDef.interfaces ?? {}, ({ name, version }) =>
-      api.getPublicInterface({ type: 'name', name, version })
-    )
+    const interfaces = await this._fetchDependencies({
+      deps: integrationDef.interfaces ?? {},
+      fetcher: ({ name, version }) => api.getPublicInterface({ type: 'name', name, version }),
+      cacheKey: (dep) => `interface:${dep.name}@${dep.version}`,
+    })
     return { interfaces }
   }
 
@@ -652,12 +684,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     pluginDef: sdk.PluginDefinition,
     api: apiUtils.ApiClient
   ): Promise<Partial<apiUtils.CreatePluginRequestBody>> {
-    const integrations = await this._fetchDependencies(pluginDef.integrations ?? {}, ({ name, version }) =>
-      api.getPublicOrPrivateIntegration({ type: 'name', name, version })
-    )
-    const interfaces = await this._fetchDependencies(pluginDef.interfaces ?? {}, ({ name, version }) =>
-      api.getPublicInterface({ type: 'name', name, version })
-    )
+    const integrations = await this._fetchDependencies({
+      deps: pluginDef.integrations ?? {},
+      fetcher: ({ name, version }) => api.getPublicOrPrivateIntegration({ type: 'name', name, version }),
+      cacheKey: (dep) => `integration:${dep.name}@${dep.version}`,
+    })
+    const interfaces = await this._fetchDependencies({
+      deps: pluginDef.interfaces ?? {},
+      fetcher: ({ name, version }) => api.getPublicInterface({ type: 'name', name, version }),
+      cacheKey: (dep) => `interface:${dep.name}@${dep.version}`,
+    })
     return {
       dependencies: {
         integrations,
@@ -666,16 +702,31 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  private _fetchDependencies = async <T extends { id?: string; name: string; version: string }>(
-    deps: Record<string, T>,
-    fetcher: (dep: T) => Promise<{ id: string }>
-  ): Promise<Record<string, T & { id: string }>> => {
-    const isRemote = (dep: T): dep is T & { id: string } => dep.id !== undefined
-    return utils.records.mapValuesAsync(deps, async (dep): Promise<T & { id: string }> => {
+  private _fetchDependencies = async <T extends { id?: string; name: string; version: string }>({
+    deps,
+    fetcher,
+    cacheKey: getCacheKey,
+  }: {
+    deps: Record<string, T>
+    fetcher: (dep: T) => Promise<ResolvedDependency>
+    cacheKey: (dep: T) => DependencyCacheKey
+  }): Promise<Record<string, T & ResolvedDependency>> => {
+    const isRemote = (dep: T): dep is T & ResolvedDependency => dep.id !== undefined
+    return utils.records.mapValuesAsync(deps, async (dep): Promise<T & ResolvedDependency> => {
       if (isRemote(dep)) {
         return dep
       }
+
+      const cacheKey = getCacheKey(dep)
+      const cached = this._dependencyCache.get(cacheKey)
+
+      if (cached) {
+        return { ...dep, id: cached.id }
+      }
+
       const { id } = await fetcher(dep)
+      this._dependencyCache.set(cacheKey, { id })
+
       return { ...dep, id }
     })
   }

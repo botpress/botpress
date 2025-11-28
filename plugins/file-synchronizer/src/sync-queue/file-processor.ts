@@ -12,6 +12,7 @@ export type ProcessFileProps = {
   }
   integration: {
     name: string
+    alias: string
     transferFileToBotpress: (params: {
       file: models.FileWithPath
       fileKey: string
@@ -45,6 +46,8 @@ const _getExistingFileFromFilesApi = async (
   const { files: existingFiles } = await props.fileRepository.listFiles({
     tags: {
       externalId: fileToSync.id,
+      integrationName: props.integration.name,
+      integrationAlias: props.integration.alias,
     },
   })
 
@@ -117,7 +120,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
   try {
     const { botpressFileId } = await props.integration.transferFileToBotpress({
       file: fileToSync,
-      fileKey: `${props.integration.name}:${fileToSync.absolutePath}`,
+      fileKey: `${props.integration.alias}:${fileToSync.absolutePath}`,
       shouldIndex: fileToSync.shouldIndex,
     })
 
@@ -125,6 +128,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
       id: botpressFileId,
       tags: {
         integrationName: props.integration.name,
+        integrationAlias: props.integration.alias,
         externalId: fileToSync.id,
         externalModifiedDate: fileToSync.lastModifiedDate ?? null,
         externalSize: fileToSync.sizeInBytes?.toString() ?? null,

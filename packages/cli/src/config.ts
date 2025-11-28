@@ -57,13 +57,6 @@ const botRef = {
   idx: 0,
 } satisfies CommandOption
 
-const packageType = {
-  type: 'string',
-  description:
-    'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface', 'plugin'] as const,
-} satisfies CommandOption
-
 const packageRef = {
   type: 'string',
   description:
@@ -227,7 +220,6 @@ const addSchema = {
   ...globalSchema,
   ...credentialsSchema,
   packageRef,
-  packageType,
   installPath: {
     type: 'string',
     description: 'The path where to install the package',
@@ -240,8 +232,15 @@ const addSchema = {
   },
   alias: {
     type: 'string',
-    description: 'The alias of the dependency you want to install',
+    description: 'The alias to install the package with',
   },
+} satisfies CommandSchema
+
+const removeSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  workDir,
+  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -422,6 +421,7 @@ export const schemas = {
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,
+  remove: removeSchema,
   dev: devSchema,
   lint: lintSchema,
   chat: chatSchema,

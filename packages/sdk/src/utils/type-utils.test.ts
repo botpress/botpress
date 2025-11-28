@@ -338,3 +338,17 @@ test('Normalize Function should not change function type', () => {
 
   type _assertion = utils.AssertTrue<utils.IsIdentical<Actual, Expected>>
 })
+
+describe.concurrent('DistributivePick<T, K>', () => {
+  test('should pick properties distributively over union types', () => {
+    // Arrange
+    type A = { a: 1; b: 2; c: 'a' } | { a: 3; b: 4; c: 'b' }
+    type Expected = { a: 1; b: 2 } | { a: 3; b: 4 }
+
+    // Act
+    type B = utils.DistributivePick<A, 'a' | 'b'>
+
+    // Assert
+    type _assertion = utils.AssertTrue<utils.IsIdentical<B, Expected>>
+  })
+})
