@@ -1,7 +1,7 @@
 import * as lin from '@linear/sdk'
-import * as genenv from '../../.genenv'
-import * as utils from '.'
-import { Issue, GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE, Pagination } from './graphql-queries'
+import * as utils from '..'
+import * as genenv from '../../../.genenv'
+import * as graphql from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
 export type TeamKey = (typeof TEAM_KEYS)[number]
@@ -55,7 +55,7 @@ export class LinearApi {
     return this._teams.some((team) => team.key === teamKey)
   }
 
-  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<Issue | undefined> {
+  public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<graphql.Issue | undefined> {
     const { teamKey, issueNumber } = filter
 
     const { issues } = await this.listIssues({
@@ -77,7 +77,7 @@ export class LinearApi {
       statusesToOmit?: StateKey[]
     },
     nextPage?: string
-  ): Promise<{ issues: Issue[]; pagination?: Pagination }> {
+  ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
     const { teamKeys, issueNumber, statusesToOmit } = filter
 
     const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
@@ -93,7 +93,7 @@ export class LinearApi {
       return ''
     })
 
-    const queryInput: GRAPHQL_QUERIES['listIssues'][QUERY_INPUT] = {
+    const queryInput: graphql.GRAPHQL_QUERIES['listIssues'][graphql.QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
@@ -121,7 +121,7 @@ export class LinearApi {
     return label || undefined
   }
 
-  public issueStatus(issue: Issue): StateKey {
+  public issueStatus(issue: graphql.Issue): StateKey {
     const state = this._states.find((s) => s.state.id === issue.state.id)
     if (!state) {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
@@ -129,7 +129,7 @@ export class LinearApi {
     return state.key
   }
 
-  public async resolveComments(issue: Issue): Promise<void> {
+  public async resolveComments(issue: graphql.Issue): Promise<void> {
     const comments = issue.comments.nodes
 
     const promises: Promise<lin.CommentPayload>[] = []
@@ -206,11 +206,11 @@ export class LinearApi {
     return stateObjects
   }
 
-  private async _executeGraphqlQuery<K extends keyof GRAPHQL_QUERIES>(
+  private async _executeGraphqlQuery<K extends keyof graphql.GRAPHQL_QUERIES>(
     queryName: K,
-    variables: GRAPHQL_QUERIES[K][QUERY_INPUT]
-  ): Promise<GRAPHQL_QUERIES[K][QUERY_RESPONSE]> {
-    return (await this._client.client.rawRequest(GRAPHQL_QUERIES[queryName].query, variables))
-      .data as GRAPHQL_QUERIES[K][QUERY_RESPONSE]
+    variables: graphql.GRAPHQL_QUERIES[K][graphql.QUERY_INPUT]
+  ): Promise<graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]> {
+    return (await this._client.client.rawRequest(graphql.GRAPHQL_QUERIES[queryName].query, variables))
+      .data as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
 }
