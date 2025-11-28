@@ -9,7 +9,6 @@ import {
   addCommentToTaskInputSchema,
   addCommentToTaskOutputSchema,
 } from '../misc/custom-schemas'
-import { createTaskUi, updateTaskUi, findUserUi, addCommentToTaskUi } from '../misc/custom-uis'
 
 type SdkActions = NonNullable<sdk.IntegrationDefinitionProps['actions']>
 type SdkAction = SdkActions[string]
@@ -19,7 +18,6 @@ const createTask = {
   description: 'Create Task',
   input: {
     schema: createTaskInputSchema,
-    ui: createTaskUi,
   },
   output: {
     schema: createTaskOutputSchema,
@@ -31,7 +29,6 @@ const updateTask = {
   description: 'Update Task by taskId',
   input: {
     schema: updateTaskInputSchema,
-    ui: updateTaskUi,
   },
   output: {
     schema: updateTaskOutputSchema,
@@ -43,7 +40,6 @@ const findUser = {
   description: 'Find User by userId',
   input: {
     schema: findUserInputSchema,
-    ui: findUserUi,
   },
   output: {
     schema: findUserOutputSchema,
@@ -55,7 +51,6 @@ const addCommentToTask = {
   description: 'Add Comment to Task, by task ID',
   input: {
     schema: addCommentToTaskInputSchema,
-    ui: addCommentToTaskUi,
   },
   output: {
     schema: addCommentToTaskOutputSchema,
