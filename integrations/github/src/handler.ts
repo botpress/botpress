@@ -136,5 +136,6 @@ const _dispatchEvent = async (props: bp.HandlerProps) => {
     }
   }
 
-  console.warn('Unsupported github event', event)
+  const action = 'action' in event ? event.action : undefined
+  props.logger.debug('Unsupported github event:', action ?? event)
 }
