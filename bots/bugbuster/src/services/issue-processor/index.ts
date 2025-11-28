@@ -40,15 +40,13 @@ export class IssueProcessor {
   public async listRelevantIssues(endCursor?: string): Promise<{ issues: lin.Issue[]; pagination?: lin.Pagination }> {
     const watchedTeams = await this._teamsManager.listWatchedTeams()
 
-    const { issues, pagination } = await this._linear.listIssues(
+    return await this._linear.listIssues(
       {
         teamKeys: watchedTeams,
         statusesToOmit: IGNORED_STATUSES,
       },
       endCursor
     )
-
-    return { issues, pagination }
   }
 
   public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean) {
