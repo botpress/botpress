@@ -1,40 +1,59 @@
-import { BotClient, BotContext, BotLogger } from '@botpress/sdk/dist/bot'
-import { Result } from 'src/types'
-import { BotpressApi } from 'src/utils/botpress-utils'
-import { handleError } from 'src/utils/error-handler'
-import { LinearApi } from 'src/utils/linear-utils'
-import { IssueProcessor } from './issue-processor'
-import { listTeams } from './teams-manager'
-import { TBot, WorkflowHandlerProps } from '.botpress'
+import * as boot from '../bootstrap'
+import * as utils from '../utils'
+import * as bp from '.botpress'
 
-export const lintAll = async (
-  client: BotClient<TBot>,
-  logger: BotLogger,
-  ctx: BotContext,
-  workflow: WorkflowHandlerProps['lintAll']['workflow'],
-  conversationId?: string
-): Promise<Result<void>> => {
-  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId })
-  const botpress = new BotpressApi(client, ctx.botId)
+export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
+  const { client, workflow, conversation } = props
 
-  const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
-  if (!teamsResult.success || !teamsResult.result) {
-    return { success: false, message: teamsResult.message }
-  }
+  const conversationId = conversation?.id
 
-  const lastLintedId = await client.getOrSetState({
-    id: workflow.id,
-    name: 'lastLintedId',
-    type: 'workflow',
-    payload: {},
-  })
+  const { botpress, issueProcessor } = await boot.bootstrap(props, conversationId)
 
-  const linear = await LinearApi.create().catch(_handleError('trying to lint all issues'))
-  const issueProcessor = new IssueProcessor(logger, linear, client, ctx.botId)
+  const _handleError = (context: string) => (thrown: unknown) =>
+    botpress.handleError({ context, conversationId }, thrown)
+
+  const {
+    state: {
+      payload: { id: lastLintedId },
+    },
+  } = await client
+    .getOrSetState({
+      id: workflow.id,
+      name: 'lastLintedId',
+      type: 'workflow',
+      payload: {},
+    })
+    .catch(_handleError('trying to get last linted issue ID'))
+
   const issues = await issueProcessor
-    .listIssues(teamsResult.result, lastLintedId.state.payload.id)
+    .listRelevantIssues(lastLintedId) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
     .catch(_handleError('trying to list all issues'))
 
-  await issueProcessor.runLints(issues, workflow).catch(_handleError('trying to run lints on all issues'))
-  return { success: true, message: 'linted all issues' }
+  for (const issue of issues) {
+    await issueProcessor.lintIssue(issue).catch(_handleError(`trying to lint issue ${issue.identifier}`))
+    await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+    await client
+      .setState({
+        id: workflow.id,
+        name: 'lastLintedId',
+        type: 'workflow',
+        payload: { id: issue.id },
+      })
+      .catch(_handleError('trying to update last linted issue ID'))
+  }
+
+  if (conversationId) {
+    await botpress.respondText(conversationId, 'linted all issues').catch(() => {})
+  }
+
+  await workflow.setCompleted()
+}
+
+export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props) => {
+  const { conversation } = props
+
+  const botpress = utils.botpress.BotpressApi.create(props)
+  if (conversation?.id) {
+    await botpress.respondText(conversation.id, "Error: the 'lintAll' operation timed out")
+  }
 }
