@@ -13,6 +13,7 @@ export const sections = {
   conversation: { description: '', title: 'Conversation' },
   message: { description: '', title: 'Message' },
   event: { description: '', title: 'Event' },
+  initialize: { description: 'Initialize a user, conversation and send a message', title: 'Initialize' },
 } as const
 
 export const parameters = {} as const
