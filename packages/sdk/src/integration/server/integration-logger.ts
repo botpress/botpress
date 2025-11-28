@@ -5,6 +5,7 @@ type IntegrationLogOptions = {
   conversationId?: string
   traceId?: string
   visibleToBotOwners?: boolean
+  isOnlyVisibleToBotOwners?: boolean
 }
 
 export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
@@ -37,8 +38,18 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     })
   }
 
+  public withOnlyVisibleToBotOwners(isOnlyVisibleToBotOwners: boolean) {
+    return this.with({
+      isOnlyVisibleToBotOwners,
+    })
+  }
+
   public forBot() {
     return this.withVisibleToBotOwners(true)
+  }
+
+  public forBotOnly() {
+    return this.withOnlyVisibleToBotOwners(true)
   }
 
   protected override getJsonMessage(msg: string) {
