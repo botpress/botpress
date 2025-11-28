@@ -1,7 +1,7 @@
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
-export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
+export const handleLinearIssueUpdated: bp.EventHandlers['bar/linear:issueUpdated'] = async (props) => {
   const { event, logger } = props
   const { number: issueNumber, teamKey } = event.payload
 

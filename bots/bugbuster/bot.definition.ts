@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
-import github from './bp_modules/github'
-import linear from './bp_modules/linear'
+import github from './bp_modules/foo-github'
+import linear from './bp_modules/bar-linear'
 import slack from './bp_modules/slack'
 import telegram from './bp_modules/telegram'
 
@@ -45,6 +45,7 @@ export default new sdk.BotDefinition({
   },
 })
   .addIntegration(github, {
+    alias: 'foo/github',
     enabled: true,
     configurationType: 'manualPAT',
     configuration: {
@@ -60,6 +61,7 @@ export default new sdk.BotDefinition({
     },
   })
   .addIntegration(linear, {
+    alias: 'bar/linear',
     enabled: true,
     configurationType: 'apiKey',
     configuration: {

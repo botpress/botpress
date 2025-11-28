@@ -3,7 +3,7 @@ import * as types from '../types'
 import * as bp from '.botpress'
 
 export type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
-export type GithubIssue = bp.integrations.github.actions.findTarget.output.Output['targets'][number]
+export type GithubIssue = bp.integrations.foo__github.actions.findTarget.output.Output['targets'][number]
 export type IssueLintEntry = bp.states.recentlyLinted.RecentlyLinted['payload']['issues'][number]
 
 const RECENT_THRESHOLD: number = 1000 * 60 * 10 // 10 minutes
@@ -46,7 +46,7 @@ export class BotpressApi {
     const {
       output: { targets: githubIssues },
     } = await this._client.callAction({
-      type: 'github:findTarget',
+      type: 'foo/github:findTarget',
       input: {
         channel: 'issue',
         repo: 'botpress',
