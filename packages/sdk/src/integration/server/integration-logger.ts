@@ -10,7 +10,7 @@ type IntegrationLogOptions = {
 export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   public constructor(options?: IntegrationLogOptions) {
     super({
-      visibleToBotOwners: true,
+      visibleToBotOwners: false,
       ...options,
     })
   }
