@@ -51,7 +51,7 @@ export class IssueProcessor {
     return { issues, pagination }
   }
 
-  public async lintIssue(issue: lin.Issue) {
+  public async lintIssue(issue: lin.Issue, isRecentlyLinted: boolean) {
     const status = await this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return
@@ -65,7 +65,13 @@ export class IssueProcessor {
       return
     }
 
-    this._logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
+    const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
+    if (isRecentlyLinted) {
+      this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
+      return
+    }
+
+    this._logger.warn(warningMessage)
 
     await this._linear.client.createComment({
       issueId: issue.id,
