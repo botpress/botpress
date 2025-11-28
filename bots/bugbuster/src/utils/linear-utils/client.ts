@@ -1,6 +1,6 @@
 import * as lin from '@linear/sdk'
-import * as genenv from '../../../.genenv'
 import * as utils from '..'
+import * as genenv from '../../../.genenv'
 import * as graphql from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const

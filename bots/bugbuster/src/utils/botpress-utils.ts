@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
 import * as types from '../types'
+import * as bp from '.botpress'
 
 export type BotMessage = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
 export type GithubIssue = bp.integrations.github.actions.findTarget.output.Output['targets'][number]

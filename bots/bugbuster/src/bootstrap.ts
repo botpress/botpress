@@ -1,7 +1,7 @@
 import { IssueProcessor } from './services/issue-processor'
 import { TeamsManager } from './services/teams-manager'
-import * as utils from './utils'
 import * as types from './types'
+import * as utils from './utils'
 
 export const bootstrap = async (props: types.CommonHandlerProps, conversationId?: string) => {
   const { client, logger, ctx } = props

@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import * as boot from '../bootstrap'
+import * as bp from '.botpress'
 
 export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] = async (props) => {
   const { event, logger } = props
@@ -9,7 +9,7 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
 
-  props.logger.info(`Linear issue updated event received`, `${teamKey}-${issueNumber}`)
+  props.logger.info('Linear issue updated event received', `${teamKey}-${issueNumber}`)
   const issue = await issueProcessor
     .findIssue(issueNumber, teamKey)
     .catch(_handleError('trying to find the updated Linear issue'))
