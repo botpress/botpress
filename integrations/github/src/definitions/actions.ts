@@ -8,28 +8,30 @@ export type Target = {
   tags: { [key: string]: string }
   channel: (typeof Channels)[number]
 }
-
-const findTarget = {
-  input: {
-    schema: z.object({
-      query: z.string(),
-      channel: z.enum(Channels),
-      repo: z.string().title('Repository').describe('The repository name'),
-    }),
-  },
-  output: {
-    schema: z.object({
-      targets: z.array(
-        z.object({
-          displayName: z.string(),
-          tags: z.record(z.string()),
-          channel: z.enum(Channels),
-        })
-      ),
-    }),
-  },
-}
-
 export const actions = {
-  findTarget,
-} satisfies sdk.IntegrationDefinitionProps['actions']
+  findTarget: {
+    title: 'Find Target',
+    description: 'Find a target in a repository',
+    input: {
+      schema: z.object({
+        query: z.string().title('Query').describe('The query used to find the target'),
+        channel: z.enum(Channels).title('Channel').describe('The channel of the target'),
+        repo: z.string().title('Repository').describe('The repository name'),
+      }),
+    },
+    output: {
+      schema: z.object({
+        targets: z
+          .array(
+            z.object({
+              displayName: z.string().title('Display Name').describe('The display name'),
+              tags: z.record(z.string()).title('Tags').describe('The tags associated with the target'),
+              channel: z.enum(Channels).title('Channel').describe('The channel of the target'),
+            })
+          )
+          .title('Targets')
+          .describe('The list of received target'),
+      }),
+    },
+  },
+} as const satisfies sdk.IntegrationDefinitionProps['actions']

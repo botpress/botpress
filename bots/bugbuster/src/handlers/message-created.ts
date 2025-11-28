@@ -1,6 +1,5 @@
-import { RuntimeError } from '@botpress/sdk'
+import { handleError } from 'src/utils/error-handler'
 import * as utils from '../utils'
-import { listIssues, runLints } from './issue-processor'
 import { addTeam, listTeams, removeTeam } from './teams-manager'
 import * as bp from '.botpress'
 
@@ -38,13 +37,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const _handleError = (context: string) => async (thrown: unknown) => {
-    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    const message = `An error occured while ${context}: ${error.message}`
-    logger.error(message)
-    await botpress.respondText(conversation.id, message)
-    throw new RuntimeError(error.message)
-  }
+  const _handleError = (context: string) => handleError({ context, logger, botpress, conversationId: conversation.id })
 
   switch (command) {
     case '#health': {
@@ -84,17 +77,15 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
       break
     }
     case '#lintAll': {
-      const teamsResult = await listTeams(client, ctx.botId).catch(_handleError('trying to lint all issues'))
-      if (!teamsResult.success || !teamsResult.result) {
-        await botpress.respondText(conversation.id, teamsResult.message)
-        return
-      }
+      await client.getOrCreateWorkflow({
+        name: 'lintAll',
+        input: {},
+        discriminateByStatusGroup: 'active',
+        conversationId: conversation.id,
+        status: 'pending',
+      })
 
-      const linear = await utils.linear.LinearApi.create().catch(_handleError('trying to lint all issues'))
-      const issues = await listIssues(teamsResult.result, linear).catch(_handleError('trying to list all issues'))
-      await runLints(linear, issues, logger).catch(_handleError('trying to run lints on all issues'))
-
-      await botpress.respondText(conversation.id, 'Success: linted all issues.')
+      await botpress.respondText(conversation.id, "Launched 'lintAll' workflow.")
       break
     }
     default: {
