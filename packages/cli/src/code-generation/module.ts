@@ -67,7 +67,6 @@ export abstract class Module {
   }
 
   public unshift(...basePath: string[]): this {
-    basePath = basePath.map(strings.dirName)
     this._def = {
       ...this._def,
       path: pathlib.join(...basePath, this._def.path),
