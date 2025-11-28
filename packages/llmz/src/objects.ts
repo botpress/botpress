@@ -3,7 +3,7 @@ import { z } from '@bpinternal/zui'
 import { formatTypings } from './formatting.js'
 import { hoistTypings } from './hoist.js'
 import { Tool } from './tool.js'
-import { Serializable } from './types.js'
+import { Serializable, ZuiType } from './types.js'
 import { getTypings } from './typings.js'
 import { escapeString, getMultilineComment, isValidIdentifier } from './utils.js'
 
@@ -34,7 +34,7 @@ export type ObjectProperty = {
   /** The current value of the property */
   value: any
   /** Optional Zod schema for validation when the property is modified */
-  type?: z.Schema
+  type?: ZuiType
   /** Optional human-readable description of the property */
   description?: string
   /** Whether the LLM can modify this property (default: false) */
@@ -486,7 +486,7 @@ function getObjectTypings(obj: ObjectInstance) {
         let type = 'unknown'
 
         if (prop.type) {
-          type = await getTypings(prop.type, {})
+          type = await getTypings(prop.type as z.ZodType, {})
         } else if (prop.value !== undefined) {
           type = typeof prop.value
         }
