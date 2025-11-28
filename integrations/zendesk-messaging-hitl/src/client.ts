@@ -452,6 +452,48 @@ class SuncoClient {
     }
   }
 
+  public async switchboardActionsOfferControl(
+    conversationId: string,
+    switchboardIntegrationId: string,
+    metadata?: Record<string, any>
+  ): Promise<void> {
+    try {
+      const offerControlBody: any = {
+        switchboardIntegration: switchboardIntegrationId,
+        metadata: metadata || {},
+      }
+
+      this._logger
+        .forBot()
+        .info(
+          `Offering control of conversation ${conversationId} to switchboard integration ${switchboardIntegrationId}`
+        )
+
+      // Use the switchboard API to offer control
+      await this._client.switchboardActions.offerControl(this._appId, conversationId, offerControlBody)
+
+      this._logger.forBot().info(`Successfully offered control to switchboard integration ${switchboardIntegrationId}`)
+    } catch (error: any) {
+      const errorMessage =
+        error?.message ||
+        error?.response?.data?.error?.description ||
+        error?.response?.data?.message ||
+        JSON.stringify(error?.response?.data) ||
+        'Unknown error'
+      const errorDetails = {
+        message: errorMessage,
+        status: error?.response?.status,
+        statusText: error?.response?.statusText,
+        data: error?.response?.data,
+        conversationId,
+        switchboardIntegrationId,
+        stack: error?.stack,
+      }
+      this._logger.forBot().error('Failed to offer control to switchboard', errorDetails)
+      throw new sdk.RuntimeError(`Failed to offer control to switchboard: ${errorMessage}`)
+    }
+  }
+
   public async switchboardActionsReleaseControl(conversationId: string, reason?: string): Promise<void> {
     try {
       const releaseControlBody: any = {

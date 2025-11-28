@@ -19,6 +19,25 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
     }
 
     for (const event of data.events) {
+      const suncoConversationId = event.payload.conversation?.id
+
+      const { conversations } = await client.listConversations({
+        channel: 'hitl',
+        tags: {
+          id: suncoConversationId,
+        },
+      })
+      const conversation = conversations[0]
+
+      if (!conversation) {
+        logger
+          .forBot()
+          .warn(
+            `Ignoring Sunshine conversation ${suncoConversationId} because it was not created by the startHitl action`
+          )
+        continue
+      }
+
       // Handle switchboard:releaseControl events - close HITL when control is released
       if (event.type === 'switchboard:releaseControl') {
         const payload = event.payload
@@ -36,12 +55,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           )
 
         try {
-          const { conversation } = await client.getOrCreateConversation({
-            channel: 'hitl',
-            tags: {
-              id: suncoConversationId,
-            },
-          })
 
           // Emit hitlStopped event to close the HITL session
           await client.createEvent({
@@ -81,13 +94,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           logger.forBot().warn('Received a message that is not a text message')
           continue
         }
-
-        const { conversation } = await client.getOrCreateConversation({
-          channel: 'hitl',
-          tags: {
-            id: payload.conversation.id,
-          },
-        })
 
         const { user } = await client.getOrCreateUser({
           tags: {

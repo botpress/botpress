@@ -84,6 +84,11 @@ Description: ${description || 'No description provided'}
       origin_source_type: 'whatsapp',
     })
 
+    // Offer control to our integration so our webhook can receive messages from the agent workspace, even if we don't control it
+    // In theory we could skip this if deliverStandbyEvents was enabled on our Switchboard Integration record but this way we prevent
+    // all bots that use this HITL integration from receiving webhook events from all conversations
+    await suncoClient.switchboardActionsOfferControl(suncoConversation.id, HARDCODED_INTEGRATION_ID)
+
     return {
       conversationId: conversation.id,
     }
