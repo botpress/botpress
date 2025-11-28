@@ -80,9 +80,9 @@ const _applyExtendedTableProps = (tableNode: Table): Table => {
   return tableNode
 }
 
-const isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
+const _isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
 
-export const visitTree = (
+const _visitTree = (
   tree: Parent,
   handlers: MarkdownHandlers,
   parents: Parent[],
@@ -92,12 +92,12 @@ export const visitTree = (
   let footnoteTmp = ''
   parents.push(tree)
   for (const node of tree.children) {
-    if (!isNodeType(node.type, handlers)) {
+    if (!_isNodeType(node.type, handlers)) {
       throw new Error(`The Markdown node type [${node.type}] is not supported`)
     }
 
     const handler = handlers[node.type] as NodeHandler
-    const visitHandler = (n: Parent) => visitTree(n, handlers, parents, data)
+    const visitHandler = (n: Parent) => _visitTree(n, handlers, parents, data)
 
     switch (node.type) {
       case 'list':
@@ -130,5 +130,5 @@ export const transformMarkdown = (
   data: Record<string, unknown> = {}
 ): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
-  return visitTree(tree, handlers, [], data)
+  return _visitTree(tree, handlers, [], data)
 }
