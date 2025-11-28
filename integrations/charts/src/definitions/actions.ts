@@ -15,7 +15,7 @@ const generateLinePlot = {
         .catch(() => [1, 2, 3, 4, 5])
         .describe('the data for the y axis')
         .title('Y Data'),
-      title: z.string().optional().describe('The title of the plot').title('Title'),
+      title: z.string().optional().describe('The title of the plot').title('Line Plot Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
@@ -42,7 +42,7 @@ const generateBarChart = {
         .catch(() => [1, 2, 3, 4, 5])
         .describe('The data for the y axis')
         .title('Y Data'),
-      title: z.string().optional().describe('The title of the Bar Chart').title('Title'),
+      title: z.string().optional().describe('The title of the Bar Chart').title('Bar Chart Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
@@ -69,7 +69,7 @@ const generatePieChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the pie chart').title('Title'),
+      title: z.string().optional().describe('The title of the pie chart').title('Pie Chart Title'),
     }),
   },
   output: {
@@ -93,7 +93,7 @@ export const generateScatterPlot = {
         ])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the scatter plot').title('Title'),
+      title: z.string().optional().describe('The title of the scatter plot').title('Scatter Plot Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
@@ -120,7 +120,7 @@ const generateDoughnutChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the doughnut chart').title('Title'),
+      title: z.string().optional().describe('The title of the doughnut chart').title('Doughnut Chart Title'),
     }),
   },
   output: {
@@ -145,7 +145,7 @@ const generateRadarChart = {
         .catch(() => [10, 20, 30])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the radar chart').title('Title'),
+      title: z.string().optional().describe('The title of the radar chart').title('Radar Chart Title'),
       axisTitle: z.string().optional().describe('The title of the axis').title('Axis Title'),
     }),
   },
@@ -176,7 +176,7 @@ const generateBubbleChart = {
         ])
         .describe('The data to plot')
         .title('Data'),
-      title: z.string().optional().describe('The title of the bubble chart').title('Title'),
+      title: z.string().optional().describe('The title of the bubble chart').title('Bubble Chart Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
@@ -203,7 +203,7 @@ const generateHorizontalBarChart = {
         .catch(() => [1, 2, 3, 4, 5])
         .describe('The data for the y axis')
         .title('Y Data'),
-      title: z.string().optional().describe('The title of the bar chart').title('Title'),
+      title: z.string().optional().describe('The title of the bar chart').title('Bar Chart Title'),
       xAxisTitle: z.string().optional().describe('The title of the x axis').title('X Axis Title'),
       yAxisTitle: z.string().optional().describe('The title of the y axis').title('Y Axis Title'),
     }),
