@@ -44,11 +44,11 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     })
   }
 
-  public forBot() {
+  public forBoth() {
     return this.withVisibleToBotOwners(true)
   }
 
-  public forBotOnly() {
+  public forBot() {
     return this.withOnlyVisibleToBotOwners(true)
   }
 
