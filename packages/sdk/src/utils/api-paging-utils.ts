@@ -68,6 +68,13 @@ class AsyncCollection<T> implements AsyncIterableIterator<T> {
     return this.take(Number.POSITIVE_INFINITY)
   }
 
+  /**
+   * Returns true if there are no more elements to fetch in the collection.
+   */
+  public get isExhausted() {
+    return this._isExhausted
+  }
+
   private async _fetchNextPageIntoBuffer(): Promise<void> {
     const { items, meta } = await this._list({ nextToken: this._nextToken })
 

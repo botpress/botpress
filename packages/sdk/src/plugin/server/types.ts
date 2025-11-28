@@ -526,10 +526,9 @@ export type PluginHandlers<TPlugin extends common.BasePlugin> = {
   }
   workflowHandlers: {
     [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
-      [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-        handler: WorkflowHandlersWithoutInjectedProps<TPlugin>[TWorkflowName]
-        order: number
-      }[]
+      [TWorkflowName in utils.StringKeys<
+        TPlugin['workflows']
+      >]?: WorkflowHandlersWithoutInjectedProps<TPlugin>[TWorkflowName][]
     }
   }
 }
@@ -554,10 +553,7 @@ export type InjectedPluginHandlers<TPlugin extends common.BasePlugin> = {
   }
   workflowHandlers: {
     [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
-      [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-        handler: WorkflowHandlers<TPlugin>[TWorkflowName]
-        order: number
-      }[]
+      [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: WorkflowHandlers<TPlugin>[TWorkflowName][]
     }
   }
 }
