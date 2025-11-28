@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
+import { composeRawEmail } from 'src/utils/mail-composing'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
@@ -82,7 +83,6 @@ export class GoogleClient {
     return message.data
   }
 
-  @handleErrors('Failed to send email')
   public async sendRawEmail(raw: string, threadId?: string) {
     const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
 
@@ -112,6 +112,56 @@ export class GoogleClient {
   @handleErrors('Failed to delete message')
   public async deleteMessage(messageId: string) {
     await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
+  }
+
+  @handleErrors('Failed to trash message')
+  public async trashMessage(messageId: string) {
+    await this._gmail.users.messages.trash({ id: messageId, userId: 'me' })
+  }
+
+  @handleErrors('Failed to untrash message')
+  public async untrashMessage(messageId: string) {
+    await this._gmail.users.messages.untrash({ id: messageId, userId: 'me' })
+  }
+
+  @handleErrors('Failed to change message labels')
+  public async changeMessageLabels(messageId: string, addLabelIds?: string[], removeLabelIds?: string[]) {
+    await this._gmail.users.messages.modify({
+      id: messageId,
+      userId: 'me',
+      requestBody: { addLabelIds, removeLabelIds },
+    })
+  }
+
+  @handleErrors('Failed to get message attachment')
+  public async getMessageAttachment(messageId?: string, attachmentId?: string) {
+    const attachment = await this._gmail.users.messages.attachments.get({ id: attachmentId, messageId, userId: 'me' })
+    return attachment.data
+  }
+
+  // @handleErrors('Failed to send email')
+  // public async forwardMessage(to: string, subject: string, body: string) {
+  //   // await this._gmail.users.messages.({ id: messageId, userId: 'me', requestBody: { to, subject, body } })
+  // }
+
+  @handleErrors('Failed to send email')
+  public async sendMail(raw: string, threadId?: string) {
+    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
+
+    return newMail.data
+  }
+
+  @handleErrors('Failed to compose raw email')
+  public async composeRawEmail(to: string, subject: string, body: string) {
+    const raw = await composeRawEmail({
+      to,
+      subject,
+      text: body,
+      html: body,
+      textEncoding: 'base64',
+    })
+
+    return raw
   }
 
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
