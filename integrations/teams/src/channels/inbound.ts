@@ -1,4 +1,5 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
+import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
 import { getAdapter, sleep } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
@@ -47,7 +48,7 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
         },
       })
 
-      const message = _extractDropdownValue(activity) ?? activity.text
+      const message = _extractMessage(activity)
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
@@ -61,10 +62,23 @@ export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.H
   }
 }
 
-const _extractDropdownValue = (activity: Activity): string | undefined => {
+const _extractMessage = (activity: Activity): string => {
+  // Handle dropdown value
   if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
-    return activity.value[DROPDOWN_VALUE_ID]
+    return String(activity.value[DROPDOWN_VALUE_ID])
   }
 
-  return undefined
+  // Handle HTML attachment (Any richtext/markdown will convert/show up as HTML)
+  if (activity.attachments) {
+    const htmlAttachment = activity.attachments.find((attachment) => attachment.contentType === 'text/html')
+    if (htmlAttachment && typeof htmlAttachment.content === 'string') {
+      return transformTeamsHtmlToStdMarkdown(htmlAttachment.content)
+    }
+  }
+
+  /** Fallback to plain text
+   *
+   *  @remark Using coalescence operator (??) since messages
+   *   with no text can happen (e.g. image only messages) */
+  return activity.text ?? ''
 }

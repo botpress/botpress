@@ -8,6 +8,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
+import { transformMarkdownToTeamsXml } from '../markdown/markdown-to-teams-xml'
 import { getAdapter } from '../utils'
 import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
@@ -17,8 +18,8 @@ type ChoiceOption = Choice['options'][number]
 type Dropdown = bp.channels.channel.dropdown.Dropdown
 type DropdownOption = Dropdown['options'][number]
 
-type Card = bp.channels.channel.card.Card
-type Action = Card['actions'][number]
+type BotpressCard = bp.channels.channel.card.Card
+type Action = BotpressCard['actions'][number]
 type ActionType = Action['action']
 
 const _renderTeams = async (
@@ -76,7 +77,7 @@ const _mapChoice = (choice: ChoiceOption): CardAction => ({
   text: choice.label,
 })
 
-const _makeCard = (card: Card): Attachment => {
+const _makeCard = (card: BotpressCard): Attachment => {
   const { actions, imageUrl, subtitle, title } = card
   const buttons: CardAction[] = actions.map(_mapAction)
   const images = imageUrl ? [{ url: imageUrl }] : []
@@ -119,7 +120,13 @@ const _makeDropdownCard = (text: string, options: DropdownOption[]): Attachment 
 const channel = {
   messages: {
     text: async (props) => {
-      const activity: Partial<Activity> = { type: 'message', text: props.payload.text }
+      const { text } = props.payload
+      const xml = transformMarkdownToTeamsXml(text)
+      const activity: Partial<Activity> = {
+        type: 'message',
+        textFormat: 'xml',
+        text: xml,
+      }
       await _renderTeams(props, activity)
     },
     image: async (props) => {
@@ -127,23 +134,6 @@ const channel = {
       const activity: Partial<Activity> = {
         type: 'message',
         attachments: [CardFactory.heroCard('', [{ url: imageUrl }])],
-      }
-      await _renderTeams(props, activity)
-    },
-    markdown: async (props) => {
-      const { markdown } = props.payload
-      const activity: Partial<Activity> = {
-        type: 'message',
-        attachments: [
-          CardFactory.adaptiveCard({
-            body: [
-              {
-                type: 'TextBlock',
-                text: markdown,
-              }, // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
-            ],
-          }),
-        ],
       }
       await _renderTeams(props, activity)
     },
