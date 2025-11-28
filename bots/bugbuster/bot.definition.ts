@@ -43,9 +43,6 @@ export default new sdk.BotDefinition({
       output: { schema: sdk.z.object({}) },
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(github, {
     enabled: true,
@@ -55,7 +52,6 @@ export default new sdk.BotDefinition({
       githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
     },
   })
-  // TODO: replace Telegram with Slack when available
   .addIntegration(telegram, {
     enabled: true,
     configurationType: null,
