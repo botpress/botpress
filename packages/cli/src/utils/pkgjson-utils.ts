@@ -28,6 +28,29 @@ export const readPackageJson = async (path: string): Promise<PackageJson | undef
   return jsonContent
 }
 
+export type ReadPackageJsonResult =
+  | {
+      success: true
+      pkgJson?: PackageJson
+    }
+  | {
+      success: false
+      error: Error
+    }
+
+export const safeReadPackageJson = async (path: string): Promise<ReadPackageJsonResult> => {
+  try {
+    const pkgJson = await readPackageJson(path)
+    if (!pkgJson) {
+      return { success: true }
+    }
+    return { success: true, pkgJson }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    return { success: false, error }
+  }
+}
+
 export const findDependency = (pkgJson: PackageJson, name: string): string | undefined => {
   const { dependencies, devDependencies, peerDependencies } = pkgJson
   const allDependencies = { ...(dependencies ?? {}), ...(devDependencies ?? {}), ...(peerDependencies ?? {}) }
