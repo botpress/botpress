@@ -29,15 +29,15 @@ export const configuration = {
   },
   schema: z.object({
     syncKnowledgeBaseWithBot: z
-      .boolean({
-        description: 'Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?',
-      })
-      .optional(),
+      .boolean()
+      .optional()
+      .title('Sync Knowledge Base With Bot')
+      .describe('Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?'),
     knowledgeBaseId: z
-      .string({
-        description: 'ID of the Knowledge Base you wish to synchronize with your Zendesk KB',
-      })
-      .optional(),
+      .string()
+      .optional()
+      .title('Knowledge Base ID')
+      .describe('ID of the Knowledge Base you wish to synchronize with your Zendesk KB'),
     ignoreNonHitlTickets: z
       .boolean()
       .optional()
@@ -45,10 +45,6 @@ export const configuration = {
       .describe('Ignore tickets that were not created by the startHitl action'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
-
-export const identifier = {
-  extractScript: 'extract.vrl',
-} as const satisfies IntegrationDefinitionProps['identifier']
 
 export const states = {
   subscriptionInfo: {

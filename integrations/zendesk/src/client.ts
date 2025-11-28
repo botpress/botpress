@@ -34,7 +34,6 @@ type ZendeskConfig = {
 
 class ZendeskApi {
   private _client: AxiosInstance
-  private _subdomain: string
   public constructor(config: ZendeskConfig) {
     this._client = axios.create({
       baseURL: _makeBaseUrl(config.subdomain),
@@ -51,7 +50,6 @@ class ZendeskApi {
         return axiosRetry.isNetworkOrIdempotentRequestError(error) || rateLimitReached
       },
     })
-    this._subdomain = config.subdomain
   }
 
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
@@ -243,33 +241,6 @@ class ZendeskApi {
       headers: headers as Record<string, string>,
       status,
     }
-  }
-
-  public async exchangeAuthorizationCodeForAccessToken(authorizationCode: string, redirect_uri: string) {
-    const url = 'https://' + this._subdomain + '.zendesk.com/oauth/tokens'
-    const res = await this._client.post(
-      url,
-      {
-        grant_type: 'authorization_code',
-        code: authorizationCode,
-        client_id: bp.secrets.CLIENT_ID,
-        client_secret: bp.secrets.CLIENT_SECRET,
-        redirect_uri,
-        scope: 'read',
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-    const data = sdk.z
-      .object({
-        access_token: sdk.z.string(),
-      })
-      .parse(res.data)
-
-    return data.access_token
   }
 }
 

@@ -1,13 +1,4 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
-env = to_string!(.env)
-hash = encode_base16(hmac("{{webhookId}}", "super-secret-key"))
 
-clientId = "integration-staging"
-
-if env == "production" {
-  clientId = "integration-production"
-}
-
-"https://botpress3373.zendesk.com/oauth/authorizations/new?response_type=code&redirect_uri={{webhookUrl}}/oauth&client_id={{clientId}}&scope=tickets%3Aread+tickets%3Awrite+users%3Aread+users%3Awrite&state={{webhookId}}&code_challenge={{hash}}&&code_challenge_method=S256"
 "{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"
