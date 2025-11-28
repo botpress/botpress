@@ -43,7 +43,12 @@ export class GitHubClient {
 
   public async getAuthenticatedEntity() {
     if (!this._authenticatedEntity) {
-      this._authenticatedEntity = await this._getGithubAuthenticatedEntity()
+      try {
+        this._authenticatedEntity = await this._getGithubAuthenticatedEntity()
+      } catch (thrown) {
+        const message = thrown instanceof Error ? `: ${thrown.message}` : ''
+        throw new sdk.RuntimeError(`An error occured while trying to authenticate to GitHub${message}.`)
+      }
     }
 
     return this._authenticatedEntity
