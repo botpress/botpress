@@ -39,6 +39,7 @@
     "@bpinternal/depsynky": "0.2.0",
     "@bpinternal/readiness": "^0.0.16",
     "@bpinternal/retry-cli": "^0.1.1",
+    "@linear/sdk": "^55.0.0",
     "@stylistic/eslint-plugin": "^5.3.1",
     "@types/node": "^22.16.4",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
