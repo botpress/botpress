@@ -9,7 +9,7 @@ export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] =
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
 
-  props.logger.info(`Linear issue created event received`, `${teamKey}-${issueNumber}`)
+  props.logger.info('Linear issue created event received', `${teamKey}-${issueNumber}`)
   const issue = await issueProcessor
     .findIssue(issueNumber, teamKey)
     .catch(_handleError('trying to find the created Linear issue'))
