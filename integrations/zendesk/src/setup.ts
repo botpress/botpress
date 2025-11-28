@@ -6,9 +6,10 @@ import { deleteKbArticles } from './misc/utils'
 import { Triggers } from './triggers'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async ({ client: bpClient, ctx, webhookUrl, logger }) => {
+export const register: bp.IntegrationProps['register'] = async (props) => {
+  const { client: bpClient, ctx, webhookUrl, logger } = props
   try {
-    await unregister({ ctx, client: bpClient, webhookUrl, logger })
+    await _unsubscribeWebhooks(props)
   } catch {
     // silent catch since if it's the first time, there's nothing to unregister
   }
@@ -79,7 +80,17 @@ export const register: bp.IntegrationProps['register'] = async ({ client: bpClie
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client: bpClient, logger }) => {
+export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
+  const { client: bpClient } = props
+  await bpClient.configureIntegration({ identifier: null })
+  await _unsubscribeWebhooks(props)
+}
+
+type RegisterOrUnregisterProps =
+  | Parameters<bp.IntegrationProps['register']>[number]
+  | Parameters<bp.IntegrationProps['unregister']>[number]
+const _unsubscribeWebhooks = async (props: RegisterOrUnregisterProps) => {
+  const { ctx, client: bpClient, logger } = props
   const zendeskClient = await getZendeskClient(bpClient, ctx)
 
   const { state } = await bpClient
