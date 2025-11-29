@@ -6,14 +6,15 @@ import { deleteKbArticles } from './misc/utils'
 import { Triggers } from './triggers'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
+export const register: bp.IntegrationProps['register'] = async (props) => {
+  const { client: bpClient, ctx, webhookUrl, logger } = props
   try {
-    await unregister({ ctx, client, webhookUrl, logger })
+    await _unsubscribeWebhooks(props)
   } catch {
     // silent catch since if it's the first time, there's nothing to unregister
   }
 
-  const zendeskClient = getZendeskClient(ctx.configuration)
+  const zendeskClient = await getZendeskClient(bpClient, ctx)
   const subscriptionId = await zendeskClient
     .subscribeWebhook(webhookUrl)
     .catch(_throwRuntimeError('Failed to create webhook subscription'))
@@ -36,7 +37,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     })
     .catch(_throwRuntimeError('Failed to create or update user'))
 
-  await client
+  await bpClient
     .updateUser({
       id: ctx.botUserId,
       pictureUrl: 'https://app.botpress.dev/favicon/bp.svg',
@@ -56,7 +57,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
       triggersCreated.push(triggerId)
     }
   } finally {
-    await client
+    await bpClient
       .setState({
         type: 'integration',
         id: ctx.integrationId,
@@ -73,16 +74,26 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
     if (!ctx.configuration.knowledgeBaseId) {
       throw new sdk.RuntimeError('Knowledge base id was not provided')
     }
-    await uploadArticlesToKb({ ctx, client, logger, kbId: ctx.configuration.knowledgeBaseId }).catch(
+    await uploadArticlesToKb({ ctx, client: bpClient, logger, kbId: ctx.configuration.knowledgeBaseId }).catch(
       _throwRuntimeError('Failed uploading articles to knowledge base')
     )
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
-  const zendeskClient = getZendeskClient(ctx.configuration)
+export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
+  const { client: bpClient } = props
+  await bpClient.configureIntegration({ identifier: null })
+  await _unsubscribeWebhooks(props)
+}
 
-  const { state } = await client
+type RegisterOrUnregisterProps =
+  | Parameters<bp.IntegrationProps['register']>[number]
+  | Parameters<bp.IntegrationProps['unregister']>[number]
+const _unsubscribeWebhooks = async (props: RegisterOrUnregisterProps) => {
+  const { ctx, client: bpClient, logger } = props
+  const zendeskClient = await getZendeskClient(bpClient, ctx)
+
+  const { state } = await bpClient
     .getState({
       id: ctx.integrationId,
       name: 'subscriptionInfo',
@@ -136,7 +147,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
       logger.forBot().error('Knowledge base id was not provided')
       return
     }
-    await deleteKbArticles(ctx.configuration.knowledgeBaseId, client).catch(
+    await deleteKbArticles(ctx.configuration.knowledgeBaseId, bpClient).catch(
       _logError(logger, 'Failed to delete knowledge base articles')
     )
   }
