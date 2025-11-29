@@ -134,9 +134,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.BotpressCLIError(`Profile file not found at "${this.globalPaths.abs.profilesPath}"`)
     }
     const fileContent = await fs.promises.readFile(this.globalPaths.abs.profilesPath, 'utf-8')
-    const parsedProfiles = JSON.parse(fileContent)
+    const jsonParseResult = utils.json.safeParseJson(fileContent)
+    if (!jsonParseResult.success) {
+      throw new errors.BotpressCLIError(`Error parsing profiles file: ${jsonParseResult.error.message}`)
+    }
 
-    const zodParseResult = z.record(profileCredentialSchema).safeParse(parsedProfiles)
+    const zodParseResult = z.record(profileCredentialSchema).safeParse(jsonParseResult.data)
     if (!zodParseResult.success) {
       throw errors.BotpressCLIError.wrap(zodParseResult.error, 'Error parsing profiles: ')
     }

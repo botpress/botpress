@@ -198,13 +198,15 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
 
     await fs.promises.cp(srcDir, destination, { recursive: true })
 
-    const pkgJsonPath = pathlib.join(destination, 'package.json')
-    const strContent = await fs.promises.readFile(pkgJsonPath, 'utf-8')
-    const json = JSON.parse(strContent)
+    const json = await utils.pkgJson.readPackageJson(destination).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
+    })
 
     const pkgJsonName = utils.casing.to.snakeCase(name)
     const updatedJson = { name: pkgJsonName, ...json, ...pkgJson }
-    await fs.promises.writeFile(pkgJsonPath, JSON.stringify(updatedJson, null, 2))
+    await utils.pkgJson.writePackageJson(destination, updatedJson).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Failed to write package.json file')
+    })
   }
 
   private _checkIfDestinationCanBeUsed = async (destination: string) => {
