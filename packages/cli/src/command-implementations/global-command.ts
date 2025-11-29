@@ -208,7 +208,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     }
     const { cliRootDir } = this.globalPaths.abs
     const pkgJson = await utils.pkgJson.readPackageJson(cliRootDir).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'failed to read package.json file')
+      throw errors.BotpressCLIError.wrap(thrown, `Failed to read CLI package.json file at "${cliRootDir}"`)
     })
 
     if (!pkgJson) {
