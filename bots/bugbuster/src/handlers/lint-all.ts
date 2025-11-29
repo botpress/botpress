@@ -7,7 +7,7 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
   const conversationId = conversation?.id
 
-  const { botpress, issueProcessor } = await boot.bootstrap(props, conversationId)
+  const { botpress, issueProcessor } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
@@ -25,22 +25,28 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     })
     .catch(_handleError('trying to get last linted issue ID'))
 
-  const issues = await issueProcessor
-    .listRelevantIssues(lastLintedId) // TODO: we should not list all issues at first, bug fetch next page and lint progressively
-    .catch(_handleError('trying to list all issues'))
+  let hasNextPage = false
+  let endCursor: string | undefined = lastLintedId
+  do {
+    const pagedIssues = await issueProcessor
+      .listRelevantIssues(endCursor)
+      .catch(_handleError('trying to list all issues'))
 
-  for (const issue of issues) {
-    await issueProcessor.lintIssue(issue).catch(_handleError(`trying to lint issue ${issue.identifier}`))
-    await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
-    await client
-      .setState({
-        id: workflow.id,
-        name: 'lastLintedId',
-        type: 'workflow',
-        payload: { id: issue.id },
-      })
-      .catch(_handleError('trying to update last linted issue ID'))
-  }
+    for (const issue of pagedIssues.issues) {
+      await issueProcessor.lintIssue(issue).catch(_handleError(`trying to lint issue ${issue.identifier}`))
+      await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+      await client
+        .setState({
+          id: workflow.id,
+          name: 'lastLintedId',
+          type: 'workflow',
+          payload: { id: issue.id },
+        })
+        .catch(_handleError('trying to update last linted issue ID'))
+    }
+    hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
+    endCursor = pagedIssues.pagination?.endCursor
+  } while (hasNextPage)
 
   if (conversationId) {
     await botpress.respondText(conversationId, 'linted all issues').catch(() => {})

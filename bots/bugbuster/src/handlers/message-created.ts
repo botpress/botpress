@@ -17,7 +17,7 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  const { botpress, teamsManager } = await boot.bootstrap(props, conversation.id)
+  const { botpress, teamsManager } = boot.bootstrap(props)
 
   if (message.type !== 'text') {
     await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)

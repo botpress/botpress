@@ -5,7 +5,7 @@ export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] =
   const { event } = props
   const { number: issueNumber, teamKey } = event.payload
 
-  const { botpress, issueProcessor } = await boot.bootstrap(props)
+  const { botpress, issueProcessor } = boot.bootstrap(props)
 
   const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
 

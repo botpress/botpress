@@ -6,7 +6,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   props.logger.info('Received GitHub issue', githubIssue)
 
-  const { linear, botpress } = await boot.bootstrap(props)
+  const { linear, botpress } = boot.bootstrap(props)
 
   const _handleError =
     (context: string) =>
@@ -21,10 +21,13 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
     props.logger.error('Label origin/github not found in engineering team')
   }
 
+  const teams = await linear.getTeamRecords().catch(_handleError('trying to get Linear teams'))
+  const states = await linear.getStateRecords().catch(_handleError('trying to get Linear states'))
+
   const linearResponse = await linear.client
     .createIssue({
-      teamId: linear.teams.ENG.id,
-      stateId: linear.states.ENG.TRIAGE.id,
+      teamId: teams.ENG.id,
+      stateId: states.ENG.TRIAGE.id,
       title: githubIssue.issue.name,
       description: githubIssue.issue.body,
       labelIds: githubLabel ? [githubLabel.id] : [],
