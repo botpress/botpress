@@ -25,7 +25,7 @@ const _canReplyToComments = (ctx: bp.Context) => {
 }
 
 const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  const { req, logger } = props
+  const { req } = props
 
   if (req.path.startsWith('/oauth')) {
     return await oauthCallbackHandler(props)
@@ -39,8 +39,6 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
   if (queryParams.has('hub.mode')) {
     return await subscribeHandler(props)
   }
-
-  logger.forBot().debug('Received request with body:', req.body ?? '[empty]')
 
   const validationResult = _validateRequestAuthentication(req, props)
   if (validationResult.error) {
