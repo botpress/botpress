@@ -1,10 +1,13 @@
 import { DEFAULT_HITL_STOPPED_MESSAGE } from '../../../plugin.definition'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
+import * as types from '../../types'
 import * as consts from '../consts'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlStopped'] = async (props) => {
+export const handleEvent = async (
+  props: types.AnyHandlerProps & { data: { payload: { conversationId: string } } }
+): ReturnType<bp.HookHandlers['before_incoming_event']['hitl:hitlStopped']> => {
   const { conversationId: downstreamConversationId } = props.data.payload
   const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
   const isHitlActive = await downstreamCm.isHitlActive()
