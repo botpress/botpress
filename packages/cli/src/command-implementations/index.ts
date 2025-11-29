@@ -12,6 +12,7 @@ import { BundleCommand } from './bundle-command'
 import { ChatCommand } from './chat-command'
 import { DeployCommand } from './deploy-command'
 import { DevCommand } from './dev-command'
+import { DoctorCommand } from './doctor-command'
 import { GenerateCommand } from './gen-command'
 import type { GlobalCommand, GlobalCommandDefinition } from './global-command'
 import { InitCommand } from './init-command'
@@ -80,6 +81,7 @@ export default {
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
   chat: getHandler(ChatCommand),
+  doctor: getHandler(DoctorCommand),
   profiles: {
     subcommands: {
       list: getHandler(profiles.ListProfilesCommand),
