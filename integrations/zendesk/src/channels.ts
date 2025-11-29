@@ -149,4 +149,26 @@ export default {
       ),
     },
   },
+  messaging: {
+    messages: {
+      text: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+      audio: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+      video: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+      image: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+      file: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+      bloc: async () => {
+        console.info('Zendesk Messaging does not support sending messages via the API yet.')
+      },
+    },
+  },
 } satisfies bp.IntegrationProps['channels']
