@@ -12,39 +12,39 @@
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/chat#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/sdk#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/cognitive#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/vai#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/zai#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "llmz#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["^generate", "^build"]
+      "dependsOn": ["generate", "^build"]
     },
     "check:type": {},
     "check:bplint": {}
