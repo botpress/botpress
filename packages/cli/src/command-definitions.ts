@@ -60,6 +60,15 @@ export default {
         description: 'Set the current profile',
         schema: config.schemas.useProfile,
       },
+      add: {
+        description: 'Add a new profile',
+        schema: config.schemas.addProfile,
+      },
+      delete: {
+        description: 'Delete a profile',
+        schema: config.schemas.deleteProfile,
+        alias: 'rm',
+      },
     },
   },
 } satisfies DefinitionTree
