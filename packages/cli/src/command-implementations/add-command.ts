@@ -43,7 +43,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
 
     const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'failed to read package.json file')
+      throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
     })
 
     if (!pkgJson) {
@@ -346,7 +346,10 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _addDependencyToPackage(packageName: string, targetPackage: InstallablePackage) {
-    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
+    })
+
     const version =
       targetPackage.pkg.path ?? `${targetPackage.type}:${targetPackage.pkg.name}@${targetPackage.pkg.version}`
     if (!pkgJson) {
