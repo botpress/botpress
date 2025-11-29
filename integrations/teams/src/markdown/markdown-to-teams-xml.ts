@@ -1,14 +1,15 @@
 import type { Parent } from 'mdast'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
+import { transformMarkdown, type MarkdownHandlers } from './markdown-transformer' // This is a 1-to-1 copy of the common markdown-transformer
 import { escapeAndSanitizeHtml, isNaughtyUrl, sanitizeHtml } from './sanitize-utils'
-import type {
-  DefinedLinkReference,
-  DefinitionNodeData,
-  MarkdownHandlers,
-  NodeHandler,
-  TableCellWithHeaderInfo,
-} from './types'
+
+type DefinitionNodeData = {
+  identifier: string
+  url: string
+  label?: string | null
+  title?: string | null
+}
 
 export const defaultHandlers: MarkdownHandlers = {
   blockquote: (node, visit) => `<blockquote>\n\n${visit(node)}\n</blockquote>`,
@@ -38,8 +39,10 @@ export const defaultHandlers: MarkdownHandlers = {
   image: (node) => _createSanitizedImage(node),
   inlineCode: (node) => `<code>${node.value}</code>`,
   link: (node, visit) => _createSanitizedHyperlink(node, visit(node)),
-  linkReference: (node, visit) => {
-    const { linkDefinition } = node
+  linkReference: (node, visit, _parents, _handlers, data) => {
+    // An unsafe cast, that can be addressed later since this is just for the sake of the demo
+    const linkDefinitions = (data.linkDefinitions ?? {}) as Record<string, DefinitionNodeData>
+    const linkDefinition = linkDefinitions[node.identifier]
     const nodeContent = visit(node)
     if (!linkDefinition) {
       return nodeContent
@@ -61,14 +64,7 @@ export const defaultHandlers: MarkdownHandlers = {
   },
   paragraph: (node, visit, parents) => `${visit(node)}${parents.at(-1)?.type === 'root' ? '\n' : ''}`,
   strong: (node, visit) => `<strong>${visit(node)}</strong>`,
-  table: (node, visit) => {
-    const headerRow = node.children[0]
-    headerRow?.children.forEach((cell: TableCellWithHeaderInfo) => {
-      cell.isHeader = true
-    })
-
-    return `<table>\n${visit(node)}</table>`
-  },
+  table: (node, visit) => `<table>\n${visit(node)}</table>`,
   tableRow: (node, visit) => `<tr>\n${visit(node)}</tr>\n`,
   tableCell: (node, visit) => {
     const tag = node.isHeader === true ? 'th' : 'td'
@@ -109,8 +105,6 @@ const _createSanitizedImage = (props: ImageProps): string => {
   return `<img src="${url}"${optionalAttrs} />`
 }
 
-const _isNodeType = (s: string, handlers: MarkdownHandlers): s is keyof MarkdownHandlers => s in handlers
-
 const _extractDefinitions = (parentNode: Parent): Record<string, DefinitionNodeData> => {
   let definitions: Record<string, DefinitionNodeData> = {}
   for (const node of parentNode.children) {
@@ -133,52 +127,13 @@ const _extractDefinitions = (parentNode: Parent): Record<string, DefinitionNodeD
   return definitions
 }
 
-const _visitTree = (
-  tree: Parent,
-  handlers: MarkdownHandlers,
-  parents: Parent[],
-  definitions: Record<string, DefinitionNodeData>
-): string => {
-  let tmp = ''
-  let footnoteTmp = ''
-  parents.push(tree)
-
-  for (const node of tree.children) {
-    if (!_isNodeType(node.type, handlers)) {
-      throw new Error(`The Markdown node type [${node.type}] is not supported`)
-    }
-
-    const handler = handlers[node.type] as NodeHandler
-
-    if (node.type === 'linkReference') {
-      const linkReferenceNode = node as DefinedLinkReference
-      const def = definitions[node.identifier]
-      linkReferenceNode.linkDefinition = def
-
-      tmp += handler(
-        linkReferenceNode,
-        (n) => _visitTree(n, handlers, parents, definitions),
-        parents,
-        handlers,
-        definitions
-      )
-      continue
-    }
-
-    if (node.type === 'footnoteDefinition') {
-      footnoteTmp += handler(node, (n) => _visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
-      continue
-    }
-    tmp += handler(node, (n) => _visitTree(n, handlers, parents, definitions), parents, handlers, definitions)
-  }
-  parents.pop()
-  return `${tmp}${footnoteTmp}`
-}
-
-export const transformMarkdownToTeamsXml = (markdown: string, handlers: MarkdownHandlers = defaultHandlers): string => {
+export const transformMarkdownToTeamsXml = (markdown: string): string => {
+  // I know this gets called twice, I'll have to adjust the common transformMarkdown to allow
+  // access to the root "tree" for linkDefinitions. I'm thinking like a preProcessor handler parameter
   const tree = remark().use(remarkGfm).parse(markdown)
-  const definitions = _extractDefinitions(tree)
-  let html = _visitTree(tree, handlers, [], definitions).trim()
+  const linkDefinitions = _extractDefinitions(tree)
+
+  let html = transformMarkdown(markdown, defaultHandlers, { linkDefinitions }).trim()
   _replacers.forEach((replacer) => {
     html = replacer(html)
   })
