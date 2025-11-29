@@ -79,6 +79,6 @@ export class FSKeyValueCache<T extends Object> {
     if (!parseResult.success) {
       throw new Error(`Failed to parse JSON file at ${filepath}: ${parseResult.error.message}`)
     }
-    return parseResult.data
+    return parseResult.data as T
   }
 }
