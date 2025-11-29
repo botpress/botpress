@@ -12,6 +12,8 @@
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/llm": "workspace:*"
   }
 }
