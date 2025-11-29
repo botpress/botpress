@@ -1,9 +1,10 @@
 import { isBrowser } from 'browser-or-node'
+import { DEFAULT_UPDATE_FREQUENCY } from 'plugin.definition'
 import * as onNewMessageHandler from './onNewMessageHandler'
 import { updateAllConversations } from './updateAllConversations'
 import * as bp from '.botpress'
 
-const HOUR_MILLISECONDS = 60 * 60 * 1000
+const MINUTE_MILLISECONDS = 1000 * 60
 
 const plugin = new bp.Plugin({
   actions: {},
@@ -21,7 +22,8 @@ plugin.on.afterIncomingMessage('*', async (props) => {
     const events = await props.client.listEvents({ type: eventType, status: 'scheduled' })
 
     if (events.events.length === 0) {
-      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
+      const timeDelta = (props.configuration.updateAiInsightFrequency ?? DEFAULT_UPDATE_FREQUENCY) * MINUTE_MILLISECONDS
+      const dateTime = new Date(Date.now() + timeDelta).toISOString()
       await props.events.updateAiInsight.schedule({}, { dateTime })
     }
   }
