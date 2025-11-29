@@ -15,16 +15,24 @@
     "@botpress/sdk-addons": "workspace:*",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "axios": "^1.5.1",
-    "botbuilder": "^4.18.0",
+    "botbuilder": "^4.23.3",
+    "dedent": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.1.0"
+    "jwks-rsa": "^3.1.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "sanitize-html": "^2.17.0",
+    "turndown": "^7.2.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1",
-    "@types/jsonwebtoken": "^9.0.3"
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/mdast": "^4.0.4",
+    "@types/sanitize-html": "^2.16.0",
+    "@types/turndown": "^5.0.6"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"

@@ -1,23 +1,10 @@
 import { Activity, ConversationReference, TurnContext, TeamsInfo, TeamsChannelAccount } from 'botbuilder'
-import { authorizeRequest } from './signature'
-import { getAdapter, sleep } from './utils'
+import { transformTeamsHtmlToStdMarkdown } from '../markdown/teams-html-to-markdown'
+import { getAdapter, sleep } from '../utils'
+import { DROPDOWN_VALUE_ID, DROPDOWN_VALUE_KIND } from './constants'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
-  await authorizeRequest(req)
-
-  if (!req.body) {
-    console.warn('Handler received an empty body')
-    return
-  }
-
-  const activity: Activity = JSON.parse(req.body)
-  console.info(`Handler received event of type ${activity.type}`)
-
-  if (!activity.id) {
-    return
-  }
-
+export const processInboundChannelMessage = async ({ client, ctx, logger }: bp.HandlerProps, activity: Activity) => {
   const convRef: Partial<ConversationReference> = TurnContext.getConversationReference(activity)
 
   const senderChannelAccount = activity.from!
@@ -61,15 +48,37 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
         },
       })
 
+      const message = _extractMessage(activity)
       await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
-        payload: { text: activity.text },
+        payload: { text: message },
       })
       break
     default:
       return
   }
+}
+
+const _extractMessage = (activity: Activity): string => {
+  // Handle dropdown value
+  if (activity.value && activity.value.kind === DROPDOWN_VALUE_KIND) {
+    return String(activity.value[DROPDOWN_VALUE_ID])
+  }
+
+  // Handle HTML attachment (Any richtext/markdown will convert/show up as HTML)
+  if (activity.attachments) {
+    const htmlAttachment = activity.attachments.find((attachment) => attachment.contentType === 'text/html')
+    if (htmlAttachment && typeof htmlAttachment.content === 'string') {
+      return transformTeamsHtmlToStdMarkdown(htmlAttachment.content)
+    }
+  }
+
+  /** Fallback to plain text
+   *
+   *  @remark Using coalescence operator (??) since messages
+   *   with no text can happen (e.g. image only messages) */
+  return activity.text ?? ''
 }

@@ -6,7 +6,7 @@ const jwksClient = new JwksClient({
   jwksUri: 'https://login.botframework.com/v1/.well-known/keys',
 })
 
-const getKey = (header: JwtHeader, callback: SigningKeyCallback) => {
+const _getKey = (header: JwtHeader, callback: SigningKeyCallback) => {
   jwksClient.getSigningKey(header.kid, function (err, key) {
     if (key) {
       callback(null, key.getPublicKey())
@@ -27,7 +27,7 @@ export const authorizeRequest = async (req: Request) => {
   }
 
   return new Promise((resolve, reject) => {
-    jwt.verify(token, getKey, (err, decoded) => {
+    jwt.verify(token, _getKey, (err, decoded) => {
       if (err) {
         reject(err)
       } else {
