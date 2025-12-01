@@ -78,9 +78,6 @@ export default new sdk.IntegrationDefinition({
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },
   channels: {
