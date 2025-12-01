@@ -233,21 +233,9 @@ const _handleBlocMessage = async ({ payload, ...rest }: MessageHandlerProps<'blo
       case 'location':
         await _handleLocationMessage(messageProps)
         continue
-      case 'carousel':
-        await _handleCarouselMessage(messageProps)
-        continue
-      case 'card':
-        await _handleCardMessage(messageProps)
-        continue
-      case 'choice':
-        await _handleChoiceMessage(messageProps)
-        continue
-      case 'dropdown':
-        await _handleDropdownMessage(messageProps)
-        continue
       default:
-        // @ts-ignore
-        throw new RuntimeError(`Unsupported message type: ${messageProps?.type ?? 'Unknown'}`)
+        messageProps satisfies never
+        throw new RuntimeError(`Unsupported message type: ${(messageProps as any)?.type ?? 'Unknown'}`)
     }
   }
 }
