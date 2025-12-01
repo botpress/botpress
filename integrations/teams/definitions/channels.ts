@@ -1,5 +1,6 @@
 import { IntegrationDefinitionProps, messages, z } from '@botpress/sdk'
 
+// Remove the override once we remove the "markdown" message type from bloc items default in the sdk
 const _blocSchema = z.union([
   z.object({ type: z.literal('text'), payload: messages.defaults.text.schema }),
   z.object({ type: z.literal('image'), payload: messages.defaults.image.schema }),
@@ -7,10 +8,6 @@ const _blocSchema = z.union([
   z.object({ type: z.literal('video'), payload: messages.defaults.video.schema }),
   z.object({ type: z.literal('file'), payload: messages.defaults.file.schema }),
   z.object({ type: z.literal('location'), payload: messages.defaults.location.schema }),
-  z.object({ type: z.literal('carousel'), payload: messages.defaults.carousel.schema }),
-  z.object({ type: z.literal('card'), payload: messages.defaults.card.schema }),
-  z.object({ type: z.literal('choice'), payload: messages.defaults.choice.schema }),
-  z.object({ type: z.literal('dropdown'), payload: messages.defaults.dropdown.schema }),
 ])
 
 const _blocMessageDefinition = {
