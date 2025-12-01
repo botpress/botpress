@@ -59,10 +59,19 @@ export default new sdk.IntegrationDefinition({
         assigneeId: sdk.z.string().title('Assignee Id').describe('The assignee ID to assign the ticket to.').optional(),
         tags: sdk.z.array(sdk.z.string()).title('Tags').describe('Tags to add to the ticket.').optional(),
         customTicketFields: sdk.z
-          .record(sdk.z.string())
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().min(1).title('Custom Field ID').describe('The ID of the custom field in Zendesk'),
+              value: sdk.z
+                .string()
+                .min(1)
+                .title('Custom Field Value')
+                .describe('The value to set for this custom field'),
+            })
+          )
           .title('Custom Ticket Fields')
           .describe(
-            'Custom ticket fields to set on the ticket. The key should be the ticket field ID, and the value should be the field value. Example: { "40033266756891": "value" }'
+            'Custom ticket fields to set on the ticket. The id should be the ticket field ID, and the value should be the field value. Example: { "40033266756891": "value" }'
           )
           .optional(),
       }),

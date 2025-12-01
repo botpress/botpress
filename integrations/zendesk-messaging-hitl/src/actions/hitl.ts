@@ -73,46 +73,41 @@ Description: ${description || 'No description provided'}
       { type: 'text', text: 'HITL Conversation Initiated' },
     ])
 
-    // Build metadata object from input fields
     const metadata: Record<string, string> = {}
 
-    // Add priority if provided
-    if (input.hitlSession?.priority) {
-      metadata.priority = input.hitlSession.priority
+    if (input.hitlSession?.priority?.length) {
+      metadata['dataCapture.systemField.priority'] = input.hitlSession.priority
     }
 
-    // Add organization_id if provided
-    if (input.hitlSession?.organizationId) {
-      metadata.organization_id = input.hitlSession.organizationId
+    if (input.hitlSession?.organizationId?.length) {
+      metadata['dataCapture.systemField.organization_id'] = input.hitlSession.organizationId
     }
 
-    // Add brand_id if provided
-    if (input.hitlSession?.brandId) {
-      metadata.brand_id = input.hitlSession.brandId
+    if (input.hitlSession?.brandId?.length) {
+      metadata['dataCapture.systemField.brand_id'] = input.hitlSession.brandId
     }
 
-    // Add group_id if provided
-    if (input.hitlSession?.groupId) {
-      metadata.group_id = input.hitlSession.groupId
+    if (input.hitlSession?.groupId?.length) {
+      metadata['dataCapture.systemField.group_id'] = input.hitlSession.groupId
     }
 
-    // Add assignee_id if provided
-    if (input.hitlSession?.assigneeId) {
-      metadata.assignee_id = input.hitlSession.assigneeId
+    if (input.hitlSession?.assigneeId?.length) {
+      metadata['dataCapture.systemField.assignee_id'] = input.hitlSession.assigneeId
     }
 
-    // Add tags if provided (join array with comma)
     if (input.hitlSession?.tags && input.hitlSession.tags.length > 0) {
-      metadata.tags = input.hitlSession.tags.join(',')
+      metadata['dataCapture.systemField.tags'] = input.hitlSession.tags.join(',')
     }
 
-    // Add custom ticket fields if provided (transform fieldId to dataCapture.ticketField.<fieldId>)
-    if (input.hitlSession && 'customTicketFields' in input.hitlSession && input.hitlSession.customTicketFields) {
-      const customTicketFields = input.hitlSession.customTicketFields as Record<string, string>
-      for (const [fieldId, value] of Object.entries(customTicketFields)) {
-        metadata[`dataCapture.ticketField.${fieldId}`] = value
+    if (input.hitlSession?.customTicketFields && input.hitlSession.customTicketFields.length > 0) {
+      for (const field of input.hitlSession.customTicketFields) {
+        if (field.value) {
+          metadata[`dataCapture.ticketField.${field.id}`] = field.value
+        }
       }
     }
+
+    logger.forBot().info('Metadata: ' + JSON.stringify({ metadata }))
 
     // Pass control to the agent workspace with the metadata to correctly create fields
     await suncoClient.switchboardActionsPassControl(
