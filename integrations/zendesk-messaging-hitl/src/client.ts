@@ -62,13 +62,15 @@ class SuncoClient {
         return await this._createUser(props)
       } catch (createError: any) {
         // If user already exists (409 conflict or similar), try to find it
-        // For now, we'll create a new user each time with the externalId
-        // The externalId should be unique per botpress user, so this should work
-        // If there's a conflict, we'll throw the error
         if (createError.status === 409 || createError.response?.status === 409) {
-          // User might already exist, but we can't easily search by externalId
-          // So we'll throw an error asking to handle this case
-          this._logger.forBot().warn('User with externalId already exists, but cannot retrieve it easily')
+          // Try to get the existing user by externalId
+          const existingUser = await this._getUserByIdOrExternalId(props.botpressUserId)
+          if (existingUser) {
+            this._logger.forBot().info(`Found existing user with ID: ${existingUser.id}`)
+            return existingUser
+          }
+          // If we can't find it, throw the original error
+          this._logger.forBot().warn('User with externalId already exists but could not be retrieved')
           throw new RuntimeError('User with this externalId may already exist')
         }
         throw createError
@@ -90,6 +92,24 @@ class SuncoClient {
       }
       this._logger.forBot().error('Failed to get or create user', errorDetails)
       throw new RuntimeError(`Failed to get or create user: ${errorMessage}`)
+    }
+  }
+
+  private async _getUserByIdOrExternalId(userIdOrExternalId: string): Promise<SuncoUser | null> {
+    try {
+      // Use getUser endpoint which accepts both userId and externalId
+      const result = await this._client.users.getUser(this._appId, userIdOrExternalId)
+      return {
+        id: result.user.id,
+        profile: result.user.profile,
+      }
+    } catch (error: any) {
+      // If user not found (404), return null
+      if (error.status === 404 || error.response?.status === 404) {
+        return null
+      }
+      this._logger.forBot().error('Failed to get user by ID or externalId: ' + error.message, error?.response?.data)
+      return null
     }
   }
 
