@@ -1,11 +1,10 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/types'
 
 export default new IntegrationDefinition({
   name: 'zapier',
-  version: '0.3.5',
+  version: '0.3.6',
   title: 'Zapier',
   description:
     "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
@@ -17,7 +16,7 @@ export default new IntegrationDefinition({
   channels: {},
   user: {
     tags: {
-      id: {},
+      id: { title: 'ID', description: 'The user id' },
     },
   },
   states: {
@@ -31,7 +30,6 @@ export default new IntegrationDefinition({
       title: 'Event from Zapier',
       description: 'This is called when a Zap sends an event to the Zapier webhook of your bot.',
       schema: EventSchema,
-      ui: { data: { title: 'Event Data received from Zapier', examples: ['{ "message": "Hello Botpress!" }'] } },
     },
   },
   actions: {
@@ -40,7 +38,6 @@ export default new IntegrationDefinition({
       description: 'This sends a trigger to Zapier which you can use to start a Zap.',
       input: {
         schema: TriggerSchema,
-        ui: { data: { title: 'Trigger Data to send to Zapier', examples: ['{ "message": "Hello Zapier!" }'] } },
       },
       output: {
         schema: z.object({}),
@@ -48,7 +45,4 @@ export default new IntegrationDefinition({
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })

@@ -29,4 +29,4 @@ runs:
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:
         BP_VERBOSE: 'true'
-      run: pnpm build ${{ inputs.extra_filters }}
+      run: pnpm turbo run build ${{ inputs.extra_filters }}

@@ -295,6 +295,9 @@ const listIntegrationsSchema = {
   ...credentialsSchema,
   name: { type: 'string', description: 'The name filter when listing integrations' },
   versionNumber: { type: 'string', description: 'The version filter when listing integrations' },
+  owned: { type: 'boolean', description: 'List only owned integrations' },
+  public: { type: 'boolean', description: 'List only public integrations' },
+  limit: { type: 'number', description: 'Limit the number of integrations returned' },
   dev,
 } satisfies CommandSchema
 

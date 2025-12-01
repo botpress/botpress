@@ -30,9 +30,18 @@ export default new sdk.BotDefinition({
           .describe('The keys of the teams for which BugBuster should lint issues'),
       }),
     },
+    lastLintedId: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
+      }),
+    },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  workflows: {
+    lintAll: {
+      input: { schema: sdk.z.object({}) },
+      output: { schema: sdk.z.object({}) },
+    },
   },
 })
   .addIntegration(github, {
@@ -43,7 +52,6 @@ export default new sdk.BotDefinition({
       githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
     },
   })
-  // TODO: replace Telegram with Slack when available
   .addIntegration(telegram, {
     enabled: true,
     configurationType: null,
