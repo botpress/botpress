@@ -1,6 +1,5 @@
 import * as types from 'src/types'
 import * as boot from '../bootstrap'
-import * as utils from '../utils'
 import * as bp from '.botpress'
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
@@ -92,8 +91,8 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
 
 export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { conversation } = props
+  const { botpress } = boot.bootstrap(props)
 
-  const botpress = utils.botpress.BotpressApi.create(props)
   if (conversation?.id) {
     await botpress.respondText(conversation.id, "Error: the 'lintAll' operation timed out")
   }
