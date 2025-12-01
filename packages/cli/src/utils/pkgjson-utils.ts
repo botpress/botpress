@@ -1,5 +1,6 @@
 import fs from 'fs'
 import pathlib from 'path'
+import * as json from './json-utils'
 
 type JSON = string | number | boolean | null | JSON[] | { [key: string]: JSON }
 
@@ -24,8 +25,35 @@ export const readPackageJson = async (path: string): Promise<PackageJson | undef
   }
 
   const strContent: string = await fs.promises.readFile(filePath, 'utf8')
-  const jsonContent = JSON.parse(strContent)
-  return jsonContent
+  const parseResult = json.safeParseJson(strContent)
+  if (!parseResult.success) {
+    throw new Error(`Failed to parse JSON at ${filePath}: ${parseResult.error.message}`)
+  }
+
+  return parseResult.data as PackageJson
+}
+
+export type ReadPackageJsonResult =
+  | {
+      success: true
+      pkgJson?: PackageJson
+    }
+  | {
+      success: false
+      error: Error
+    }
+
+export const safeReadPackageJson = async (path: string): Promise<ReadPackageJsonResult> => {
+  try {
+    const pkgJson = await readPackageJson(path)
+    if (!pkgJson) {
+      return { success: true }
+    }
+    return { success: true, pkgJson }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    return { success: false, error }
+  }
 }
 
 export const findDependency = (pkgJson: PackageJson, name: string): string | undefined => {
