@@ -17,11 +17,11 @@ export default new sdk.IntegrationDefinition({
     }),
   },
   states: {
-    suncoIntegrationInfo: {
+    integrationIds: {
       type: 'integration',
       schema: sdk.z.object({
-        webhookId: sdk.z.string().optional(),
-        integrationId: sdk.z.string().optional(),
+        switchboardIntegrationId: sdk.z.string().optional(),
+        agentWorkspaceSwitchboardIntegrationId: sdk.z.string().optional(),
       }),
     },
   },
