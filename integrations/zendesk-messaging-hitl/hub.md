@@ -17,21 +17,40 @@ You will need to have access to your **Zendesk Account** account to configure th
 ### Automatic Setup
 
 When you register this integration, it will automatically:
-1. Create a Integration in Zendesk Account with the name `{botId}-hitl`
+1. Create a Integration in Zendesk Account with the name `botpress-hitl-{webhookId}`
 2. Configure the webhook to receive events from Zendesk Messaging
 3. Set up the integration to handle messages and switchboard events
 
 The webhook URL is automatically configured during registration
 
-### Events handled
 
-- **conversation:message**: Receives messages from agents and forwards them to the bot
-- **switchboard:releaseControl**: Automatically closes the HITL session when control is released (e.g., when a ticket is closed)
+## Enabling Multi Conversations
 
-## Features
+Please enable multi conversations in Zendesk Messaging, you need to configure your Zendesk account settings:
 
-- Automatic webhook and integration setup
-- Seamless handover to Zendesk Agent Workspace
-- Automatic HITL session closure when tickets are closed
-- Support for conversation transcripts and metadata
-- Full message type support (text, image, file, audio, video)
+1. Go to your Zendesk Admin Center
+2. Navigate to **Channels** > **Messaging and social** > **Manage Settings**
+3. Enable **Multi conversations**
+
+When multi conversations is enabled, each new HITL session will create a separate conversation in Zendesk, allowing for better organization and handling of multiple support requests from the same customer.
+
+## Ending Sessions
+
+### Overview
+
+Ending messaging sessions allows you to stop further interaction via messaging without closing tickets. This is useful to end a hitl session so the user can get back to the bot.
+
+Please allow the agent to end sessions for a better hitl experience, otherwise, only the user will be able to do it
+
+1. Go to your Zendesk Admin Center
+2. Navigate to **Channels** > **Messaging and social** > **Manage Settings**
+3. Enable **Ending messaging sessions**
+
+### Agent Actions
+
+Agents can end messaging sessions at any time through the Zendesk Agent Workspace interface. When a session is ended:
+
+1. The messaging channel for that conversation is closed and user is sent back to the bot
+2. The ticket remains open for email follow-up.
+3. A new hitl sessions from the customer will create a new ticket
+4. The agent's capacity is automatically released
