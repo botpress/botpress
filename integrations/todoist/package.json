@@ -15,6 +15,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/creatable": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },

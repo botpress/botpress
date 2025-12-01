@@ -13,6 +13,7 @@
     "@hubspot/api-client": "^13.1.0"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

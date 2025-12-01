@@ -1,5 +1,5 @@
 import { posthogHelper } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import {
   Text,
   Audio,
@@ -50,7 +50,7 @@ export const channel: bp.IntegrationProps['channels']['channel'] = {
               messageId: props.message.id,
             },
           },
-          { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+          { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
         )
         props.logger.forBot().warn(`Message ${props.message.id} skipped: no message to send.`)
         return
