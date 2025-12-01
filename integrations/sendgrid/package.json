@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/markdown-it": "^14.1.2"
   }
 }

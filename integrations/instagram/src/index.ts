@@ -1,5 +1,5 @@
 import { posthogHelper } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import actions from './actions'
 import channels from './channels'
 import { register, unregister } from './setup'
@@ -8,6 +8,7 @@ import * as bp from '.botpress'
 
 @posthogHelper.wrapIntegration({
   integrationName: INTEGRATION_NAME,
+  integrationVersion: INTEGRATION_VERSION,
   key: bp.secrets.POSTHOG_KEY,
 })
 class InstagramIntegration extends bp.Integration {

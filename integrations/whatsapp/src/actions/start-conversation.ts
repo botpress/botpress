@@ -1,6 +1,6 @@
 import { isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
 import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
@@ -54,7 +54,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
           phoneNumber: userPhone,
         },
       },
-      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+      { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
     )
     const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
     logForBotAndThrow(`Failed to parse phone number "${userPhone}": ${errorMessage}`, logger)
