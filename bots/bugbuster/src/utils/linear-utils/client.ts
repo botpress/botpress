@@ -8,7 +8,7 @@ export type TeamKey = (typeof TEAM_KEYS)[number]
 
 const STATE_KEYS = [
   'IN_PROGRESS',
-  'MERGED_STAGING',
+  'STAGING',
   'PRODUCTION_DONE',
   'BACKLOG',
   'TODO',
@@ -86,20 +86,11 @@ export class LinearApi {
       return { issues: [] }
     }
 
-    const states = await this.getStates()
-    const stateNamesToOmit = statusesToOmit?.map((key) => {
-      const matchingStates = states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
-
     const queryInput: graphql.GRAPHQL_QUERIES['listIssues'][graphql.QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
+        ...(statusesToOmit && { state: { name: { nin: await this._stateKeysToStateNames(statusesToOmit) } } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -243,5 +234,16 @@ export class LinearApi {
   ): Promise<graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]> {
     return (await this._client.client.rawRequest(graphql.GRAPHQL_QUERIES[queryName].query, variables))
       .data as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
+  }
+
+  private async _stateKeysToStateNames(keys: StateKey[]) {
+    const states = await this.getStates()
+    return keys.map((key) => {
+      const matchingStates = states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
+    })
   }
 }
