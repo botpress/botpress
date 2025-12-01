@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.54.0
-        version: 1.54.0
+        specifier: 1.55.1
+        version: 1.55.1
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -37,6 +37,9 @@ importers:
       '@bpinternal/retry-cli':
         specifier: ^0.1.1
         version: 0.1.1
+      '@linear/sdk':
+        specifier: ^55.0.0
+        version: 55.2.1
       '@stylistic/eslint-plugin':
         specifier: ^5.3.1
         version: 5.3.1(eslint@9.34.0(jiti@2.4.2))
@@ -156,6 +159,9 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/slack':
         specifier: workspace:*
         version: link:../../integrations/slack
@@ -486,6 +492,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -508,6 +517,9 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/jsonwebtoken':
         specifier: ^9.0.3
         version: 9.0.3
@@ -583,6 +595,10 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/canny:
     dependencies:
@@ -595,6 +611,10 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/cerebras:
     dependencies:
@@ -770,6 +790,9 @@ importers:
         specifier: ^8.4.0
         version: 8.4.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/docusign-esign':
         specifier: ^5.19.9
         version: 5.19.9
@@ -811,6 +834,9 @@ importers:
         specifier: ^6.7.2
         version: 6.9.3
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/imap':
         specifier: ^0.8.42
         version: 0.8.42
@@ -830,6 +856,9 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -1161,6 +1190,10 @@ importers:
       axios:
         specifier: ^1.13.1
         version: 1.13.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/instagram:
     dependencies:
@@ -1392,6 +1425,9 @@ importers:
         specifier: ^1.13.1
         version: 1.13.1
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -1508,6 +1544,9 @@ importers:
         specifier: ^1.69.0
         version: 1.69.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -1879,6 +1918,10 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/webhook:
     dependencies:
@@ -1954,6 +1997,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -2303,10 +2349,10 @@ importers:
         specifier: 0.5.4
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2421,10 +2467,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2437,10 +2483,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2453,7 +2499,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2466,10 +2512,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2482,10 +2528,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.0
+        specifier: 4.20.2
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2587,8 +2633,8 @@ importers:
         specifier: ^6.9.0
         version: 6.9.0(ws@8.18.2)
       posthog-node:
-        specifier: ^5.11.2
-        version: 5.11.2
+        specifier: 5.14.1
+        version: 5.14.1
       preact:
         specifier: ^10.26.6
         version: 10.26.6
@@ -2633,10 +2679,10 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.5
@@ -2739,7 +2785,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../client
       '@bpinternal/zui':
         specifier: 1.2.1
@@ -2776,7 +2822,7 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.27.1
+        specifier: 1.27.2
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
@@ -2819,7 +2865,7 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
@@ -2902,7 +2948,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -2914,6 +2960,9 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -3751,8 +3800,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.54.0':
-    resolution: {integrity: sha512-vfOKxzsw07s5Vvawd0CQl5qBPIKab/7NP6Rb9tiD/ULAfGLRUa8+2sE3FYZCfwK8iHfJ7oDRY0bQsqZwHxVmGA==}
+  '@botpress/api@1.55.1':
+    resolution: {integrity: sha512-Nq37hVSTXQhc1/1SSxGurKIYpajUWiYIQPQ56dEToG9vrw25Guvh9JhVFiDqSOk44HaQR++r/5rNFrQ4fvQCHg==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -4705,6 +4754,10 @@ packages:
     resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
     engines: {node: '>=12.x', yarn: 1.x}
 
+  '@linear/sdk@55.2.1':
+    resolution: {integrity: sha512-0+xjyphwdMMeGIV5O1Q7/AhS/tyTv+J0azE/WPbVXJHCDkBdgoHERvBgNXM0nRjcVt2RKUl8V0o+Fly2CJRlOA==}
+    engines: {node: '>=12.x', yarn: 1.x}
+
   '@mailchimp/mailchimp_marketing@3.0.80':
     resolution: {integrity: sha512-Cgz0xPb+1DUjmrl5whAsmqfAChBko+Wf4/PLQE4RvwfPlcq2agfHr1QFiXEhZ8e+GQwQ3hZQn9iLGXwIXwxUCg==}
     engines: {node: '>=10.0.0'}
@@ -4938,8 +4991,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@posthog/core@1.5.2':
-    resolution: {integrity: sha512-iedUP3EnOPPxTA2VaIrsrd29lSZnUV+ZrMnvY56timRVeZAXoYCkmjfIs3KBAsF8OUT5h1GXLSkoQdrV0r31OQ==}
+  '@posthog/core@1.6.0':
+    resolution: {integrity: sha512-Tbh8UACwbb7jFdDC7wwXHtfNzO+4wKh3VbyMHmp2UBe6w1jliJixexTJNfkqdGZm+ht3M10mcKvGGPnoZ2zLBg==}
 
   '@react-email/body@0.0.10':
     resolution: {integrity: sha512-dMJyL9aU25ieatdPtVjCyQ/WHZYHwNc+Hy/XpF8Cc18gu21cUynVEeYQzFSeigDRMeBQ3PGAyjVDPIob7YlGwA==}
@@ -9781,8 +9834,8 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-node@5.11.2:
-    resolution: {integrity: sha512-z+XekcBUmGePMsjPlGaEF2bJFiDHKHYPQjS4OEw4YPDQz8s7Owuim/L7xNX+6UJkyIRniBza9iC7bW8yrGTv1g==}
+  posthog-node@5.14.1:
+    resolution: {integrity: sha512-NbqZMCwHectzfeFOeLqes1fPg/V5bsKhrBfyH1qHEcDb4ZHcbDARcqLE6JDhwMDQKa4YHkInXHITYscMuPylFw==}
     engines: {node: '>=20'}
 
   preact-render-to-string@6.5.13:
@@ -12770,7 +12823,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.54.0':
+  '@botpress/api@1.55.1':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -13627,6 +13680,14 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  '@linear/sdk@55.2.1':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
+      graphql: 15.8.0
+      isomorphic-unfetch: 3.1.0
+    transitivePeerDependencies:
+      - encoding
+
   '@mailchimp/mailchimp_marketing@3.0.80':
     dependencies:
       dotenv: 8.6.0
@@ -13941,7 +14002,7 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@posthog/core@1.5.2':
+  '@posthog/core@1.6.0':
     dependencies:
       cross-spawn: 7.0.6
 
@@ -20100,9 +20161,9 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-node@5.11.2:
+  posthog-node@5.14.1:
     dependencies:
-      '@posthog/core': 1.5.2
+      '@posthog/core': 1.6.0
 
   preact-render-to-string@6.5.13(preact@10.26.6):
     dependencies:

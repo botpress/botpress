@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'viber',
-  version: '1.0.2',
+  version: '1.0.3',
   title: 'Viber',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Viber conversation',
       description: 'Channel for a Viber conversation',
-      messages: { ...messages.defaults },
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: { title: 'Message ID', description: 'Viber message ID' },

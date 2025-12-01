@@ -44,7 +44,7 @@ export abstract class BaseLogger<TOptions extends object> {
     return JSON.stringify({ msg, options: this.defaultOptions })
   }
 
-  private _getConsoleMethod(level: LogLevel): (...args: any[]) => void {
+  private _getConsoleMethod(level: LogLevel): (...args: unknown[]) => void {
     switch (level) {
       case 'debug':
         return console.debug

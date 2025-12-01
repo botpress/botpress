@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }
