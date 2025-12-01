@@ -5,7 +5,7 @@ import {
   ZapierTriggersStateSchema,
   ZapierTriggersState,
   Client,
-} from './types'
+} from '../types'
 import * as bp from '.botpress'
 
 export async function unsubscribeZapierHook(url: string, ctx: bp.Context, client: Client) {

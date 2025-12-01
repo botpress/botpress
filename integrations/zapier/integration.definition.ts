@@ -1,10 +1,13 @@
+import { posthogHelper } from '@botpress/common'
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/types'
 
+export const INTEGRATION_NAME = 'zapier'
+
 export default new IntegrationDefinition({
-  name: 'zapier',
-  version: '0.3.6',
+  name: INTEGRATION_NAME,
+  version: '0.4.0',
   title: 'Zapier',
   description:
     "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
@@ -44,5 +47,8 @@ export default new IntegrationDefinition({
       },
     },
   },
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
+  },
 })

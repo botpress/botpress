@@ -2,8 +2,27 @@
 
 ---
 
-The Zapier integration enables seamless integration between your AI-powered chatbot and Zapier, a powerful automation platform. Connect your chatbot to Zapier and unlock endless possibilities for automating workflows and integrating with various third-party apps and services.
+The Zapier integration provides bidirectional webhook-based connectivity between your Botpress chatbot and Zapier, enabling you to trigger Zaps from your bot and receive events from Zapier workflows.
 
-With this integration, you can easily create custom workflows, automate tasks, and streamline data transfers between your chatbot and other apps. Leverage Zapier's extensive library of supported apps to connect your chatbot with CRMs, email marketing platforms, project management tools, and much more.
+## Key Features
 
-Simplify your workflows and enhance the capabilities of your chatbot with the Zapier Integration for Botpress.
+**Botpress → Zapier (Trigger Zaps)**
+
+- Use the `trigger` action in your bot workflows to send data to Zapier REST hooks
+- Automatically manages webhook subscriptions when Zaps are created or removed
+- Supports correlation IDs for request/response tracking between Botpress and Zapier
+- Automatically cleans up invalid webhook subscriptions (HTTP 410 Gone)
+
+**Zapier → Botpress (Receive Events)**
+
+- Receive events from Zapier workflows via webhook
+- Events are automatically converted to Botpress events that can trigger your bot workflows
+- Supports correlation IDs to correlate responses with trigger requests
+
+## Use Cases
+
+- **Trigger Zaps from your bot**: When a user completes an action in your chatbot, automatically trigger a Zap to update a CRM, send an email, create a task, etc.
+- **Receive data from Zaps**: When a Zap runs (e.g., new lead in CRM, new email received), send that data to your bot to trigger conversations or updates
+- **Bidirectional workflows**: Create complex automation flows where your bot and Zapier workflows work together seamlessly
+
+This integration uses Zapier's REST hooks (webhooks) to enable real-time, event-driven communication between your Botpress chatbot and thousands of apps available in Zapier's ecosystem.
