@@ -111,9 +111,16 @@ async function _sendMessage(
     .debug(
       `Sending ${type} message ${commentId ? 'as private reply ' : ''}from bot to Messenger: ${_formatPayloadToStr(payload)}`
     )
-  const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
-  const { messageId } = await send(messengerClient, recipient)
-  await ack({ tags: { id: messageId, commentId } })
+
+  try {
+    const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
+    const { messageId } = await send(messengerClient, recipient)
+    await ack({ tags: { id: messageId, commentId } })
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    const errorMessage = `Failed to send ${type} message to Messenger: ${error.message}`
+    logger.forBot().error(errorMessage)
+  }
 
   if (commentId && conversation.tags.lastCommentId !== commentId) {
     await client.updateConversation({
