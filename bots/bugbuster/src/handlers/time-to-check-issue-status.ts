@@ -2,6 +2,7 @@ import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 const STAGING_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been left in staging for over a week'
+const MAX_TIME_IN_STAGING = 7 * 24 * 60 * 60 * 1000 // 1 week in milliseconds
 
 export const handleTimeToCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'] = async (props) => {
   const { logger, client, ctx } = props
@@ -29,10 +30,10 @@ export const handleTimeToCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesS
 
   const issues = await linear.listIssues({ teamKeys: teams })
   const updatedStagingIssues = await issueStatusChecker
-    .getUpdatedStagingIssues(previousStagingIssues, issues.issues)
+    .getUpdatedIssuesOfState(previousStagingIssues, issues.issues, 'STAGING')
     .catch(_handleError('trying to get updated staging issues'))
 
-  const problematicIssues = issueStatusChecker.getProblematicIssues(updatedStagingIssues)
+  const problematicIssues = issueStatusChecker.getProblematicIssues(updatedStagingIssues, MAX_TIME_IN_STAGING)
 
   for (const issue of problematicIssues) {
     const fullIssue = issues.issues.filter((fullIssue) => fullIssue.id === issue.id)[0]

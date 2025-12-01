@@ -1,13 +1,15 @@
 import * as types from '../types'
 import * as lin from '../utils/linear-utils'
 
-const MAX_TIME_IN_STAGING = 7 * 24 * 60 * 60 * 1000 // 1 week in milliseconds
-
 export class IssueStatusChecker {
   public constructor(private _linear: lin.LinearApi) {}
 
-  public async getUpdatedStagingIssues(previousStagingIssues: types.WatchedIssue[], currentStagingIssues: lin.Issue[]) {
-    const currentIds = await this._getIdsOfIssuesInStaging(currentStagingIssues)
+  public async getUpdatedIssuesOfState(
+    previousStagingIssues: types.WatchedIssue[],
+    currentStagingIssues: lin.Issue[],
+    state: lin.StateKey
+  ) {
+    const currentIds = await this._getIdsOfIssuesOfState(currentStagingIssues, state)
 
     const newIssues: types.WatchedIssue[] = []
     for (const issue of previousStagingIssues) {
@@ -23,10 +25,10 @@ export class IssueStatusChecker {
     return newIssues
   }
 
-  public getProblematicIssues(watchedIssues: types.WatchedIssue[]): types.WatchedIssue[] {
+  public getProblematicIssues(watchedIssues: types.WatchedIssue[], maxTimeInStateInMs: number): types.WatchedIssue[] {
     const problematicIssues: types.WatchedIssue[] = []
     for (const issue of watchedIssues) {
-      if (this._isIssueProblematic(issue)) {
+      if (this._isIssueProblematic(issue, maxTimeInStateInMs)) {
         problematicIssues.push(issue)
       }
     }
@@ -41,19 +43,19 @@ export class IssueStatusChecker {
     }
   }
 
-  private _getIdsOfIssuesInStaging = async (issues: lin.Issue[]): Promise<string[]> => {
+  private _getIdsOfIssuesOfState = async (issues: lin.Issue[], state: lin.StateKey): Promise<string[]> => {
     const ids: string[] = []
     for (const issue of issues) {
       const issueState = await this._linear.issueStatus(issue)
-      if (issueState === 'STAGING') {
+      if (issueState === state) {
         ids.push(issue.id)
       }
     }
     return ids
   }
 
-  private _isIssueProblematic(issue: types.WatchedIssue): boolean {
-    return !issue.commentId && !this._isDateValid(issue.sinceTimestamp, new Date().getTime(), MAX_TIME_IN_STAGING)
+  private _isIssueProblematic(issue: types.WatchedIssue, maxTimeInStateInMs: number): boolean {
+    return !issue.commentId && !this._isDateValid(issue.sinceTimestamp, new Date().getTime(), maxTimeInStateInMs)
   }
 
   private _isDateValid(initialTimestamp: number, currentTimestamp: number, maxIntervalMs: number) {
