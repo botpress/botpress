@@ -138,16 +138,7 @@ class SuncoClient {
     }
   }
 
-  public async createConversation(args: {
-    userId: string
-    messages: Array<{
-      role: 'appUser' | 'appMaker'
-      type: string
-      text?: string
-      mediaUrl?: string
-      mediaType?: string
-    }>
-  }): Promise<SuncoConversation> {
+  public async createConversation(args: { userId: string }): Promise<SuncoConversation> {
     try {
       // Create conversation with participant directly in the payload
       const conversationPost: any = {
@@ -167,36 +158,6 @@ class SuncoClient {
       if (!conversation?.conversation?.id) {
         throw new RuntimeError('Conversation creation succeeded but no ID returned')
       }
-
-      /*// Send messages
-      for (const message of args.messages) {
-        const messagePost: any = {
-          author: {
-            type: message.role === 'appUser' ? 'user' : 'business',
-            userId: message.role === 'appUser' ? args.userId : undefined,
-          },
-        }
-
-        if (message.type === 'text' && message.text) {
-          messagePost.content = {
-            type: 'text',
-            text: message.text,
-          }
-        } else if (message.type === 'image' && message.mediaUrl) {
-          messagePost.content = {
-            type: 'image',
-            mediaUrl: message.mediaUrl,
-          }
-        } else if (message.type === 'file' && message.mediaUrl) {
-          messagePost.content = {
-            type: 'file',
-            mediaUrl: message.mediaUrl,
-            mediaType: message.mediaType,
-          }
-        }
-
-        await this._client.messages.postMessage(this._appId, conversation.conversation.id, messagePost)
-      }*/
 
       return conversation.conversation
     } catch (error: any) {

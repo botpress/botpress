@@ -18,38 +18,8 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const { title, description, messageHistory } = input
 
-    const messages = [
-      {
-        role: 'appMaker' as const,
-        type: 'text',
-        text: `New Conversation Started
-
-Title: ${title || 'Untitled'}
-Description: ${description || 'No description provided'}
-        `,
-      },
-    ]
-
-    // Add conversation transcript
-    const transcript = await buildConversationTranscript({
-      ctx,
-      client,
-      messages: messageHistory,
-      customTranscriptFormatter: (msgs) =>
-        msgs.map((msg) => (msg.isBot ? 'Bot: ' : 'User: ') + msg.text.join('\n')).join('\n\n'),
-    })
-
-    if (transcript.length > 0) {
-      messages.push({
-        role: 'appMaker' as const,
-        type: 'text',
-        text: 'Transcript:\n\n' + transcript,
-      })
-    }
-
     const suncoConversation = await suncoClient.createConversation({
       userId: user.tags.id as string,
-      messages,
     })
 
     const { conversation } = await client.getOrCreateConversation({
@@ -67,12 +37,32 @@ Description: ${description || 'No description provided'}
     // Reason: If the ticket is created because of the initial message, we can't specify ticket metadata anymore (ticket fields, priority, etc.)
     await suncoClient.switchboardActionsPassControl(suncoConversation.id, switchboardIntegrationId)
 
-    // Send a initial message
+    // Send a initial message with the conversation title, description and transcript
     // Having a message will allow us to pass control to the agent workspace without requiring a 'reason'
+    const transcript = await buildConversationTranscript({
+      ctx,
+      client,
+      messages: messageHistory,
+      customTranscriptFormatter: (msgs) =>
+        msgs.map((msg) => (msg.isBot ? 'Bot: ' : 'User: ') + msg.text.join('\n')).join('\n\n'),
+    })
+
     await suncoClient.sendMessage(suncoConversation.id, { displayName: 'HITL Session' }, [
-      { type: 'text', text: 'HITL Conversation Initiated' },
+      {
+        type: 'text',
+        text: `New Conversation Started
+
+Title: ${title || 'Untitled'}
+Description: ${description || 'No description provided'}
+        `,
+      },
+      {
+        type: 'text',
+        text: 'Transcript:\n\n' + transcript,
+      },
     ])
 
+    // Build metadata object from input fields
     const metadata: Record<string, string> = {}
 
     if (input.hitlSession?.priority?.length) {
