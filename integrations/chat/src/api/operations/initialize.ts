@@ -21,7 +21,7 @@ type InitialEvent = {
 
 export const initialize: types.AuthenticatedOperations['initializeConversation'] = async (props, req) => {
   let conversationId = req.query.conversationId
-  let userKey = req.headers['x-user-key']
+  const userKey = req.headers['x-user-key']
 
   let user: User
   try {
