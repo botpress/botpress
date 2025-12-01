@@ -98,11 +98,11 @@ const _isWebhookProperlyAuthenticated = ({
   req: Request
   linearEvent: LinearEvent
   ctx: bp.Context
-}): Result<void> => {
+}): Result<undefined> => {
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
 
   if (!webhookSignatureHeader || !req.body) {
-    return { success: false, message: 'missing signature header or request body', result: undefined }
+    return { success: false, message: 'missing signature header or request body' }
   }
 
   const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
@@ -111,14 +111,13 @@ const _isWebhookProperlyAuthenticated = ({
   try {
     const result = webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
     if (result) {
-      return { success: true, message: undefined, result: undefined }
+      return { success: true, result: undefined }
     }
-    return { success: false, message: 'webhook signature verification failed', result: undefined }
+    return { success: false, message: 'webhook signature verification failed' }
   } catch (thrown) {
     return {
       success: false,
       message: thrown instanceof Error ? thrown.message : 'webhook signature verification failed',
-      result: undefined,
     }
   }
 }

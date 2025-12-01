@@ -25,10 +25,8 @@ export type Result<T> =
   | {
       success: true
       result: T
-      message?: undefined
     }
   | {
       success: false
-      result?: undefined
       message: string
     }
