@@ -20,8 +20,8 @@ const channelMessages = {
   card: { schema: sdk.messages.defaults.card.schema.merge(commentIdSchema) },
   dropdown: { schema: sdk.messages.defaults.dropdown.schema.merge(commentIdSchema) },
   choice: { schema: sdk.messages.defaults.choice.schema.merge(commentIdSchema) },
-  bloc: { schema: sdk.messages.defaults.bloc.schema.merge(commentIdSchema) },
-} as const satisfies typeof sdk.messages.defaults
+  bloc: { schema: sdk.messages.markdownBloc.schema.merge(commentIdSchema) },
+} as const satisfies Record<string, { schema: z.ZodTypeAny }>
 
 type ValueOf<T> = T[keyof T]
 type ChannelMessageDefinition = ValueOf<typeof channelMessages>
