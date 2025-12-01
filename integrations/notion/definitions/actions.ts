@@ -80,6 +80,21 @@ export const actions = {
       }),
     },
   },
+  getPage: {
+    title: 'Get Page',
+    description: 'Get a page from Notion',
+    input: {
+      schema: sdk.z.object({
+        pageId: sdk.z.string().min(1).title('Page ID').describe('The ID of the page to fetch. Can be found in the URL of the page'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        object: sdk.z.string().title('Page Object').describe('A stringified representation of the page'),
+        properties: sdk.z.record(sdk.z.string(), sdk.z.object({}).passthrough()).title('Page Properties').describe('Schema of properties for the page as they appear in Notion'),
+      }),
+    },
+  },
   addCommentToDiscussion: {
     title: 'Add Comment to Discussion',
     description: 'Add a comment to a discussion in Notion',
