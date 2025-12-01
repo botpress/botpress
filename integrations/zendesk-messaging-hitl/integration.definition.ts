@@ -101,6 +101,16 @@ export default new sdk.IntegrationDefinition({
             'Custom ticket fields to set on the ticket. The id should be the ticket field ID, and the value should be the field value. Example: { "40033266756891": "value" }'
           )
           .optional(),
+        additionalMetadata: sdk.z
+          .array(
+            sdk.z.object({
+              key: sdk.z.string().min(1).title('Metadata Key').describe('The metadata key to add'),
+              value: sdk.z.string().min(1).title('Metadata Value').describe('The value to set for this metadata key'),
+            })
+          )
+          .title('Additional Metadata')
+          .describe('Additional metadata fields to add directly to the metadata object.')
+          .optional(),
       }),
     },
   },

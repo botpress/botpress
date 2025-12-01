@@ -93,10 +93,18 @@ Description: ${description || 'No description provided'}
       metadata['dataCapture.systemField.tags'] = input.hitlSession.tags.join(',')
     }
 
-    if (input.hitlSession?.customTicketFields && input.hitlSession.customTicketFields.length > 0) {
+    if (input.hitlSession?.customTicketFields?.length) {
       for (const field of input.hitlSession.customTicketFields) {
-        if (field.value) {
+        if (field.id?.length && field.value?.length) {
           metadata[`dataCapture.ticketField.${field.id}`] = field.value
+        }
+      }
+    }
+
+    if (input.hitlSession?.additionalMetadata?.length) {
+      for (const field of input.hitlSession.additionalMetadata) {
+        if (field.key?.length && field.value?.length) {
+          metadata[field.key] = field.value
         }
       }
     }
