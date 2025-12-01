@@ -42,3 +42,10 @@ export type MiddleWare<I, O> = (props: OperationProps, input: I) => Promise<O>
 export type MiddleWares<I extends Record<OperationName, any>, O extends Record<OperationName, any>> = {
   [K in OperationName]: MiddleWare<I[K], O[K]>
 }
+
+export type AuthRes = {
+  user:
+    | { id: string; name?: string; pictureUrl?: string; profile?: string; createdAt: string; updatedAt: string }
+    | undefined
+  userId: any
+}
