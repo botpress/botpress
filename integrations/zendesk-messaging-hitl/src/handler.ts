@@ -70,10 +70,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           logger.forBot().error(`Failed to handle switchboard:releaseControl event: ${error.message}`, error)
         }
         continue
-      }
-
-      // Handle conversation:message events
-      if (event.type === 'conversation:message') {
+      } else if (event.type === 'conversation:message') {
         const payload = event.payload
 
         // Agent messages will come as business
@@ -81,7 +78,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           continue
         }
 
-        const zendeskAgentId: string | undefined = payload.message.metadata['__zendesk_msg.agent.id']
+        const zendeskAgentId: string | undefined = payload.message?.metadata['__zendesk_msg.agent.id']
 
         if (!zendeskAgentId?.length) {
           logger.forBot().warn('Received a message from a non-agent user, ignoring message')
