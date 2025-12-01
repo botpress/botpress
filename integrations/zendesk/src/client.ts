@@ -21,25 +21,24 @@ export type Trigger = {
   id: string
 }
 
-const makeBaseUrl = (organizationDomain: string) => {
+const _makeBaseUrl = (organizationDomain: string) => {
   return organizationDomain.startsWith('https') ? organizationDomain : `https://${organizationDomain}.zendesk.com`
 }
 
-const makeUsername = (email: string) => {
-  return email.endsWith('/token') ? email : `${email}/token`
-}
-
 type AxiosRetryClient = Parameters<typeof axiosRetry>[0]
+type ZendeskConfig = {
+  type: 'OAuth'
+  accessToken: string
+  subdomain: string
+}
 
 class ZendeskApi {
   private _client: AxiosInstance
-  public constructor(organizationDomain: string, email: string, password: string) {
+  public constructor(config: ZendeskConfig) {
     this._client = axios.create({
-      baseURL: makeBaseUrl(organizationDomain),
-      withCredentials: true,
-      auth: {
-        username: makeUsername(email),
-        password,
+      baseURL: _makeBaseUrl(config.subdomain),
+      headers: {
+        Authorization: `Bearer ${config.accessToken}`,
       },
     })
 
@@ -247,5 +246,16 @@ class ZendeskApi {
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
-export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
-  new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)
+export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Promise<ZendeskApi> => {
+  const { accessToken, subdomain } = await client
+    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    .then((result) => result.state.payload)
+  if (accessToken === undefined) {
+    throw new sdk.RuntimeError('Failed to get the OAuth accessToken')
+  }
+  if (subdomain === undefined) {
+    throw new sdk.RuntimeError('Failed to get the subdomain')
+  }
+
+  return new ZendeskApi({ type: 'OAuth', accessToken, subdomain })
+}

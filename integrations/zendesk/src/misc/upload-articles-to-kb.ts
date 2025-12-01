@@ -4,7 +4,7 @@ import { getUploadArticlePayload } from 'src/misc/utils'
 import { Client, Context, Logger } from '.botpress'
 
 export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; logger: Logger; kbId: string }) => {
-  const { ctx, client, logger, kbId } = props
+  const { ctx, client: bpClient, logger, kbId } = props
 
   logger.forBot().info('Attempting to sync Zendesk KB to BP KB')
 
@@ -12,7 +12,7 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
 
   try {
     const fetchArticles = async (url: string) => {
-      const zendeskClient = getZendeskClient(ctx.configuration)
+      const zendeskClient = await getZendeskClient(bpClient, ctx)
       const response: { data: { articles: ZendeskArticle[]; next_page?: string } } = await zendeskClient.makeRequest({
         method: 'get',
         url,
@@ -43,7 +43,7 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
 
       const payload = getUploadArticlePayload({ kbId, article })
 
-      await client.uploadFile(payload)
+      await bpClient.uploadFile(payload)
 
       logger.forBot().info(`Successfully uploaded article ${article.title} to BP KB`)
     }
