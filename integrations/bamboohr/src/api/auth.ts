@@ -75,7 +75,7 @@ export const getCurrentBambooHrAuthorization = async ({
   ctx,
   client,
 }: types.CommonHandlerProps): Promise<BambooHRAuthorization> => {
-  if (ctx.configurationType === 'apiKey') {
+  if (ctx.configurationType === 'manual') {
     return {
       type: 'apiKey',
       authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
