@@ -10,7 +10,7 @@ export const initializeConversationOperation: OperationFunc = () => ({
   method: 'get',
   path: '/initialize',
   parameters: {
-    'x-user-key': { ...authHeaders['x-user-key'], required: false },
+    'x-user-key': { ...authHeaders['x-user-key'], required: true },
     userId: {
       in: 'query',
       type: 'string',

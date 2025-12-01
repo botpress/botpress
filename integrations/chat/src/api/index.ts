@@ -45,6 +45,7 @@ export const operations: types.Operations = {
   deleteMessage: pipe(authenticate, ops.deleteMessage),
   createEvent: pipe(authenticate, ops.createEvent),
   getEvent: pipe(authenticate, ops.getEvent),
+  initializeConversation: pipe(authenticate, ops.initializeConversation),
 }
 
 export const routes = createRouteTree(operations)
