@@ -19,14 +19,12 @@ const _wrapActionAndInjectTools = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     octokit: ({ ctx, client }) => GitHubClient.create({ ctx, client }),
     owner: async ({ ctx, client, input }) => {
-      console.log(input.organization)
       if (input.organization) {
         return input.organization
       }
       const user = await client.getUser({
         id: ctx.botUserId,
       })
-      console.log(user.user.name)
       if (!user.user.name) {
         throw new RuntimeError('No user or organization was provided. Cannot query the repository.')
       }
