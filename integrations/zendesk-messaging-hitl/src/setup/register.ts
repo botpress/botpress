@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
-import { getBotpressIntegrationName, fetchAndCacheSwitchboardIntegrationsIdOrThrow } from './utils'
+import { getBotpressIntegrationDisplayName, fetchAndCacheSwitchboardIntegrationsIdOrThrow } from './utils'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUrl, logger, client }) => {
   try {
@@ -16,18 +16,18 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     logger.forBot().info('Sunco client initialized successfully')
     logger.forBot().info('Setting up webhook and integration in Sunshine Conversations...')
 
-    const integrationName = getBotpressIntegrationName(ctx.webhookId)
-    logger.forBot().info(`Integration name: ${integrationName}`)
+    const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
+    logger.forBot().info(`Integration Display name: ${integrationDisplayName}`)
 
     // Check if integration already exists by name
     logger.forBot().info('Checking for existing integration by name...')
     let integrationId: string
     try {
-      integrationId = (await suncoClient.findIntegrationByNameOrThrow(integrationName)).id
+      integrationId = (await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)).id
     } catch {
       logger.forBot().info('No existing integration found. Creating new integration with webhook...')
       logger.forBot().info(`Webhook target URL: ${webhookUrl}`)
-      integrationId = (await suncoClient.createIntegration(integrationName, webhookUrl)).integrationId
+      integrationId = (await suncoClient.createIntegration(integrationDisplayName, webhookUrl)).integrationId
       logger.forBot().info(`✅ Integration created successfully with ID: ${integrationId}`)
     }
 
@@ -41,7 +41,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     let switchboardIntegrationId: string
     try {
       switchboardIntegrationId = (
-        await suncoClient.findSwitchboardIntegrationByNameOrThrow(switchboardId, integrationName)
+        await suncoClient.findSwitchboardIntegrationByNameOrThrow(switchboardId, integrationDisplayName)
       ).id
     } catch {
       logger.forBot().info('No switchboard integration found. Creating new switchboard integration...')
@@ -50,7 +50,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
       switchboardIntegrationId = await suncoClient.createSwitchboardIntegration(
         switchboardId,
         integrationId,
-        integrationName,
+        integrationDisplayName,
         false
       )
       logger.forBot().info(`✅ Switchboard integration created successfully with ID: ${switchboardIntegrationId}`)

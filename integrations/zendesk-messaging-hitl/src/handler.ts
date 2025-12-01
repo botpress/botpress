@@ -55,7 +55,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
           )
 
         try {
-
           // Emit hitlStopped event to close the HITL session
           await client.createEvent({
             type: 'hitlStopped',

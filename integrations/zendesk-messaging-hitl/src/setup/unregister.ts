@@ -1,23 +1,23 @@
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
-import { getBotpressIntegrationName } from './utils'
+import { getBotpressIntegrationDisplayName } from './utils'
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logger }) => {
   try {
     const suncoClient = getSuncoClient(ctx.configuration, logger)
 
-    const switchboardId = await suncoClient.getSwitchboardId()
+    const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
 
-    const integrationName = getBotpressIntegrationName(ctx.webhookId)
-
-    const { id: integrationId } = await suncoClient.findIntegrationByNameOrThrow(integrationName)
+    const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
 
     const { id: switchboardIntegrationId } = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
       switchboardId,
-      integrationName
+      integrationDisplayName
     )
 
     await suncoClient.deleteSwitchboardIntegration(switchboardId, switchboardIntegrationId)
+
+    const { id: integrationId } = await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)
 
     await suncoClient.deleteIntegration(integrationId)
 

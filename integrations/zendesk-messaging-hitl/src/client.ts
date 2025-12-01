@@ -393,13 +393,13 @@ class SuncoClient {
     }
   }
 
-  public async listIntegrations(): Promise<Array<{ id: string; name: string }>> {
+  public async listIntegrations(): Promise<Array<{ id: string; displayName: string }>> {
     try {
       const result = await this._client.integrations.listIntegrations(this._appId)
       return (
         result.integrations?.map((integration: any) => ({
           id: integration.id,
-          name: integration.name,
+          displayName: integration.displayName,
         })) || []
       )
     } catch (error: any) {
@@ -408,9 +408,9 @@ class SuncoClient {
     }
   }
 
-  public async findIntegrationByNameOrThrow(name: string): Promise<{ id: string }> {
+  public async findIntegrationByDisplayNameOrThrow(displayName: string): Promise<{ id: string }> {
     const integrations = await this.listIntegrations()
-    const integration = integrations.find((int) => int.name === name)
+    const integration = integrations.find((int) => int.displayName === displayName)
     if (!integration) {
       throw new RuntimeError('Integration not found')
     }

@@ -1,7 +1,7 @@
 export { register } from './register'
 export { unregister } from './unregister'
 export {
-  getBotpressIntegrationName,
+  getBotpressIntegrationDisplayName,
   getSwitchboardIntegrationId,
   getAgentWorkspaceSwitchboardIntegrationId,
 } from './utils'

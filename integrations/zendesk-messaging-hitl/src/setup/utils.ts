@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
 
-export function getBotpressIntegrationName(webhookId: string): string {
+export function getBotpressIntegrationDisplayName(webhookId: string): string {
   return `botpress-hitl-${webhookId}`
 }
 
@@ -13,13 +13,13 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
 ): Promise<{ switchboardIntegrationId: string; agentWorkspaceSwitchboardIntegrationId: string }> {
   logger.forBot().info('Fetching switchboard integration IDs from API...')
   const suncoClient = getSuncoClient(ctx.configuration, logger)
-  const integrationName = getBotpressIntegrationName(ctx.webhookId)
+  const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
   const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
 
   // Find both switchboard integrations
   const switchboardIntegration = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
     switchboardId,
-    integrationName
+    integrationDisplayName
   )
   const agentWorkspaceIntegration = await suncoClient.findAgentWorkspaceIntegrationOrThrow(switchboardId)
 
