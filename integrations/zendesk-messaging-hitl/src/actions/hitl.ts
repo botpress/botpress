@@ -69,6 +69,10 @@ Description: ${description || 'No description provided'}
       metadata['dataCapture.systemField.priority'] = input.hitlSession.priority
     }
 
+    if (input.hitlSession?.originSourceType?.length) {
+      metadata.origin_source_type = input.hitlSession.originSourceType
+    }
+
     if (input.hitlSession?.organizationId?.length) {
       metadata['dataCapture.systemField.organization_id'] = input.hitlSession.organizationId
     }

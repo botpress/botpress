@@ -49,6 +49,33 @@ export default new sdk.IntegrationDefinition({
           .title('Priority')
           .describe('Priority of the conversation. Leave empty for default priority.')
           .optional(),
+        originSourceType: sdk.z
+          .enum([
+            'android',
+            'ios',
+            'web',
+            'sdk',
+            'apple',
+            'googlercs',
+            'instagram',
+            'kakao',
+            'line',
+            'mailgun',
+            'messagebird',
+            'messenger',
+            'slackconnect',
+            'telegram',
+            'twilio',
+            'twitter',
+            'viber',
+            'wechat',
+            'whatsapp',
+          ])
+          .title('Origin Source Type')
+          .describe(
+            'The channel where this conversation originated from. Leave empty to default to SUNSHINE CONVERSATIONS API.'
+          )
+          .optional(),
         organizationId: sdk.z
           .string()
           .title('Organization Id')
