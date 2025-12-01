@@ -24,7 +24,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const linearEvent: LinearEvent = JSON.parse(req.body)
   linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
-  const result = _isWebhookProperlyAuthenticated({ req, linearEvent, ctx })
+  const result = _safeCheckWebhookSignature({ req, linearEvent, ctx })
   if (!result.success) {
     const message = `Error while verifying webhook signature: ${result.message}`
     logger.forBot().error(message)
@@ -90,7 +90,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 }
 
-const _isWebhookProperlyAuthenticated = ({
+const _safeCheckWebhookSignature = ({
   req,
   linearEvent,
   ctx,
@@ -115,9 +115,10 @@ const _isWebhookProperlyAuthenticated = ({
     }
     return { success: false, message: 'webhook signature verification failed' }
   } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     return {
       success: false,
-      message: thrown instanceof Error ? thrown.message : 'webhook signature verification failed',
+      message: `Webhook signature verification failed: ${errorMessage}`,
     }
   }
 }
