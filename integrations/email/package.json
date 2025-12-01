@@ -13,6 +13,8 @@
     "nodemailer": "^6.7.2"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/imap": "^0.8.42",
     "@types/nodemailer": "^6.4.4"
   }

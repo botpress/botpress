@@ -2,7 +2,7 @@ import { RuntimeError, isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { ValueOf } from '@botpress/sdk/dist/utils/type-utils'
 import axios from 'axios'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { getAccessToken, getAuthenticatedWhatsappClient } from '../../auth'
 import { formatPhoneNumber } from '../../misc/phone-number-to-whatsapp'
 import { WhatsAppMessage, WhatsAppMessageValue } from '../../misc/types'
@@ -53,7 +53,7 @@ async function _handleIncomingMessage(
           phoneNumber: message.from,
         },
       },
-      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+      { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
     )
     const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
     logger.error(`Failed to parse phone number "${message.from}": ${errorMessage}`)
@@ -134,7 +134,14 @@ async function _handleIncomingMessage(
     })
   } else if (type === 'image') {
     const imageUrl = await _getOrDownloadWhatsappMedia(message.image.id, client, ctx)
-    await createMessage({ type, payload: { imageUrl }, replyTo })
+    await createMessage({
+      type,
+      payload: {
+        imageUrl,
+        ...(message.image.caption && { caption: message.image.caption }),
+      },
+      replyTo,
+    })
   } else if (type === 'sticker') {
     const stickerUrl = await _getOrDownloadWhatsappMedia(message.sticker.id, client, ctx)
     await createMessage({ type: 'image', payload: { imageUrl: stickerUrl }, replyTo })

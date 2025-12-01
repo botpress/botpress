@@ -11,10 +11,11 @@ export const COMMON_SECRET_NAMES = {
 type PostHogConfig = {
   key: string
   integrationName: string
+  integrationVersion: string
 }
 
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName } = config
+  const { key, integrationName, integrationVersion } = config
   const client = new PostHog(key, {
     host: 'https://us.i.posthog.com',
   })
@@ -24,6 +25,7 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
       properties: {
         ...props.properties,
         integrationName,
+        integrationVersion,
       },
     }
     await client.captureImmediate(signedProps)
@@ -85,6 +87,7 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg,
           },
         },
@@ -109,6 +112,7 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
             properties: {
               from: fn.name,
               integrationName: config.integrationName,
+              integrationVersion: config.integrationVersion,
               errMsg: 'Empty Body',
             },
           },
@@ -123,6 +127,7 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg: JSON.stringify(resp.body),
           },
         },

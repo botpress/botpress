@@ -2,6 +2,8 @@ import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
 export const channels = {
   cardComments: {
+    title: 'Card Comments',
+    description: 'Channel for managing comments on Trello cards',
     messages: {
       text: messages.defaults.text,
     },

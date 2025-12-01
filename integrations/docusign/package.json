@@ -13,6 +13,8 @@
     "docusign-esign": "^8.4.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/docusign-esign": "^5.19.9"
   }
 }
