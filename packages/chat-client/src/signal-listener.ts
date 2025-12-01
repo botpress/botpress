@@ -39,12 +39,12 @@ type Events = Signals & {
 
 export type SignalListenerStatus = SignalListenerState['status']
 
-export type SignalListenerProps = {
-  url: string
-  userKey: string
+export type InitializeProps = { url: string; userKey: string; debug: boolean }
+export type ListenProps = InitializeProps & {
   conversationId: string
-  debug: boolean
 }
+
+export type SignalListenerProps = { url: URL; headers: Record<string, string>; debug?: boolean }
 
 export class SignalListener extends EventEmitter<Events> {
   private _state: SignalListenerState = { status: 'disconnected' }
@@ -53,8 +53,11 @@ export class SignalListener extends EventEmitter<Events> {
     super()
   }
 
-  public static listen = async (props: SignalListenerProps): Promise<SignalListener> => {
-    const inst = new SignalListener(props)
+  public static listen = async (props: ListenProps): Promise<SignalListener> => {
+    const url = new URL(`${props.url}/conversations/${props.conversationId}/listen`)
+    const headers = { 'x-user-key': props.userKey }
+
+    const inst = new SignalListener({ url, headers })
     await inst.connect()
     return inst
   }
@@ -97,9 +100,22 @@ export class SignalListener extends EventEmitter<Events> {
     this._disconnectSync(source, watchdog)
   }
 
+  public static initialize = async (props: InitializeProps): Promise<SignalListener> => {
+    const url = new URL(`${props.url}/initialize`)
+    const headers = { 'x-user-key': props.userKey }
+
+    const inst = new SignalListener({
+      url,
+      headers,
+      debug: props.debug,
+    })
+    await inst.connect()
+    return inst
+  }
+
   private _connect = async (): Promise<EventSourceEmitter> => {
-    const source = await listenEventSource(`${this._props.url}/conversations/${this._props.conversationId}/listen`, {
-      headers: { 'x-user-key': this._props.userKey },
+    const source = await listenEventSource(this._props.url.toString(), {
+      headers: this._props.headers,
     })
 
     const watchdog = WatchDog.init(CONNECTION_TIMEOUT)
