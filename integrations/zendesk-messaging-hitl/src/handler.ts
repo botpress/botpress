@@ -69,7 +69,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
         } catch (error: any) {
           logger.forBot().error(`Failed to handle switchboard:releaseControl event: ${error.message}`, error)
         }
-        continue
       } else if (event.type === 'conversation:message') {
         const payload = event.payload
 
