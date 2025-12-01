@@ -15,6 +15,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/knowledge": "workspace:*",
     "@botpresshub/openai": "workspace:*",
     "@botpresshub/personality": "workspace:*",

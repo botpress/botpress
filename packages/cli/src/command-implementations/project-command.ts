@@ -713,12 +713,18 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       this.logger.debug('Checking if sdk is up to date')
 
       const { workDir } = this.projectPaths.abs
-      const projectPkgJson = await utils.pkgJson.readPackageJson(workDir)
-      if (!projectPkgJson) {
+      const readProjectPkgJsonResult = await utils.pkgJson.safeReadPackageJson(workDir)
+      if (!readProjectPkgJsonResult.success) {
+        this.logger.debug(`Could not read package.json at "${workDir}": ${readProjectPkgJsonResult.error.message}`)
+        return
+      }
+
+      if (!readProjectPkgJsonResult.pkgJson) {
         this.logger.debug(`Could not find package.json at "${workDir}"`)
         return
       }
 
+      const { pkgJson: projectPkgJson } = readProjectPkgJsonResult
       const sdkPackageName = '@botpress/sdk'
       const actualSdkVersion = utils.pkgJson.findDependency(projectPkgJson, sdkPackageName)
       if (!actualSdkVersion) {
@@ -736,7 +742,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
 
-      const cliPkgJson = await this.readPkgJson()
+      const cliPkgJson = await this.readCLIPkgJson()
       const expectedSdkVersion = utils.pkgJson.findDependency(cliPkgJson, sdkPackageName)
       if (!expectedSdkVersion) {
         this.logger.debug(`Could not find dependency "${sdkPackageName}" in cli package.json`)

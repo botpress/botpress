@@ -17,7 +17,10 @@ export type ApiClientFactory = {
 export type PublicOrUnlistedIntegration = client.Integration & { visibility: 'public' | 'unlisted' }
 export type PrivateIntegration = client.Integration & { workspaceId: string }
 export type PublicOrPrivateIntegration = client.Integration & { workspaceId?: string }
-export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integrations'][number]
+export type IntegrationSummary = (
+  | client.ClientOutputs['listIntegrations']
+  | client.ClientOutputs['listPublicIntegrations']
+)['integrations'][number]
 export type BotSummary = client.ClientOutputs['listBots']['bots'][number]
 export type PublicInterface = client.Interface & { public: true }
 export type PrivateInterface = client.Interface & { workspaceId: string }
