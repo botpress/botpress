@@ -6,7 +6,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 export const INTEGRATION_NAME = 'twilio'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '1.0.2',
+  version: '1.0.3',
   title: 'Twilio',
   description: 'Send and receive messages, voice calls, emails, SMS, and more.',
   icon: 'icon.svg',

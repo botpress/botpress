@@ -16,7 +16,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.1.2',
+  version: '4.1.3',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',

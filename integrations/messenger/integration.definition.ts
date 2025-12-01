@@ -36,7 +36,7 @@ const replyToCommentsSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '5.0.2',
+  version: '5.0.3',
   title: 'Messenger and Facebook',
   description:
     'Give your bot access to one of the world’s largest messaging platforms and manage your Facebook page content in one place.',
