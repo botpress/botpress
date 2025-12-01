@@ -5,7 +5,8 @@ import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
-import { getUserAndConversation } from './misc/utils'
+import { Result } from './misc/types'
+import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -23,13 +24,17 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const linearEvent: LinearEvent = JSON.parse(req.body)
   linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
-  if (!_isWebhookProperlyAuthenticated({ req, linearEvent, ctx })) {
-    logger
-      .forBot()
-      .error(
-        'Received a webhook event that is not properly authenticated. Please ensure the webhook signing secret is correct.'
-      )
-    throw new Error('Webhook event is not properly authenticated: the signing secret is invalid.')
+  const result = _safeCheckWebhookSignature({ req, linearEvent, ctx })
+  if (!result.success) {
+    const message = `Error while verifying webhook signature: ${result.message}`
+    logger.forBot().error(message)
+    throw new Error(message)
+  }
+
+  const linearBotId = await _getLinearBotId({ client, ctx })
+  if (linearEvent.data.userId === linearBotId || linearEvent.data.user?.id === linearBotId) {
+    logger.forBot().debug('Received a webhook event from the bot itself, skipping...')
+    return
   }
 
   // ============ EVENTS ==============
@@ -85,7 +90,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   }
 }
 
-const _isWebhookProperlyAuthenticated = ({
+const _safeCheckWebhookSignature = ({
   req,
   linearEvent,
   ctx,
@@ -93,19 +98,36 @@ const _isWebhookProperlyAuthenticated = ({
   req: Request
   linearEvent: LinearEvent
   ctx: bp.Context
-}) => {
+}): Result<undefined> => {
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
 
   if (!webhookSignatureHeader || !req.body) {
-    return
+    return { success: false, message: 'missing signature header or request body' }
   }
 
   const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
-
-  return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+  try {
+    const result = webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+    if (result) {
+      return { success: true, result: undefined }
+    }
+    return { success: false, message: 'webhook signature verification failed' }
+  } catch (thrown) {
+    const errorMessage = thrown instanceof Error ? thrown.message : String(thrown)
+    return {
+      success: false,
+      message: `Webhook signature verification failed: ${errorMessage}`,
+    }
+  }
 }
 
 const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
   ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
+
+const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
+  const linearClient = await getLinearClient({ client, ctx }, ctx.integrationId)
+  const me = await linearClient.viewer
+  return me.id
+}

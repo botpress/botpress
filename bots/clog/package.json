@@ -14,6 +14,8 @@
     "cheerio": "^1.1.2"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/slack": "workspace:*"
   },
   "bpDependencies": {
