@@ -1,6 +1,6 @@
-import * as signals from '../../gen/signals'
-import { isApiError, Message as ApiMessage, ClientOutputs } from '@botpress/client'
+import { Message as ApiMessage, ClientOutputs, isApiError } from '@botpress/client'
 import * as errors from '../../gen/errors'
+import * as signals from '../../gen/signals'
 import * as types from '../types'
 import * as model from './model'
 import { Client } from '.botpress'
