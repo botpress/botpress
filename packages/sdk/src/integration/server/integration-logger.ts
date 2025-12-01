@@ -12,6 +12,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   public constructor(options?: IntegrationLogOptions) {
     super({
       visibleToBotOwners: false,
+      isOnlyVisibleToBotOwners: false,
       ...options,
     })
   }
@@ -32,23 +33,35 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     })
   }
 
+  /**
+   * Used to *also* send the log to the bot owner
+   */
   public withVisibleToBotOwners(visibleToBotOwners: boolean) {
     return this.with({
       visibleToBotOwners,
     })
   }
 
+  /**
+   * Used to *not* send the log to the integration owner
+   */
   public withOnlyVisibleToBotOwners(isOnlyVisibleToBotOwners: boolean) {
     return this.with({
       isOnlyVisibleToBotOwners,
     })
   }
 
-  public forBoth() {
+  /**
+   * Used to *also* send the log to the bot owner
+   */
+  public forBot() {
     return this.withVisibleToBotOwners(true)
   }
 
-  public forBot() {
+  /**
+   * Used to *not* send the log to the integration owner
+   */
+  public forBotOnly() {
     return this.withOnlyVisibleToBotOwners(true)
   }
 
@@ -57,6 +70,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
       msg,
       //We need to have snake case 'visible_to_bot_owner' since that is how we used to differentiate between bot and integration logs
       visible_to_bot_owner: this.defaultOptions.visibleToBotOwners,
+      is_only_visible_to_bot_owner: this.defaultOptions.isOnlyVisibleToBotOwners,
       options: this.defaultOptions,
     })
   }
