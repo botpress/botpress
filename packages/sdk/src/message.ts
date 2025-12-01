@@ -6,6 +6,13 @@ const textMessageSchema = z.object({
   text: NonEmptyString,
 })
 
+/**
+ * @deprecated
+ */
+const markdownMessageSchema = z.object({
+  markdown: NonEmptyString,
+})
+
 const imageMessageSchema = z.object({
   imageUrl: NonEmptyString,
 })
@@ -74,9 +81,7 @@ const blocSchema = z.object({
  * @deprecated use `text` instead
  */
 export const markdown = {
-  schema: z.object({
-    markdown: NonEmptyString,
-  }),
+  schema: markdownMessageSchema,
 }
 
 /**
@@ -90,7 +95,7 @@ export const markdownBloc = {
       z.union([
         //
         ...blocItemSchema.options,
-        z.object({ type: z.literal('markdown'), payload: markdown.schema }),
+        z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
       ])
     ),
   }),
