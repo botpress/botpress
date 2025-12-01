@@ -1,6 +1,4 @@
 import type { Parent } from 'mdast'
-import { remark } from 'remark'
-import remarkGfm from 'remark-gfm'
 import { transformMarkdown, type MarkdownHandlers } from './markdown-transformer' // This is a 1-to-1 copy of the common markdown-transformer
 import { escapeAndSanitizeHtml, isNaughtyUrl, sanitizeHtml } from './sanitize-utils'
 
