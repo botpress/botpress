@@ -16,7 +16,8 @@
     "unified": "^11.0.5"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly",

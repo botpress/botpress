@@ -1,11 +1,11 @@
+import * as lin from '../../utils/linear-utils'
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
-import { Issue } from './utils/graphql-queries'
 
 export type IssueLint = {
   message: string
 }
 
-export const lintIssue = async (issue: Issue, status: string): Promise<IssueLint[]> => {
+export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise<IssueLint[]> => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
@@ -67,6 +67,6 @@ export const lintIssue = async (issue: Issue, status: string): Promise<IssueLint
   return lints.map((message) => ({ message }))
 }
 
-const _hasLabelOfCategory = (issue: Issue, category: string) => {
+const _hasLabelOfCategory = (issue: lin.Issue, category: string) => {
   return issue.labels.nodes.some((label) => label.parent?.name === category)
 }

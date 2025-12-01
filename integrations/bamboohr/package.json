@@ -13,6 +13,8 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpress/common": "workspace:*",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/lodash": "^4.14.191",
