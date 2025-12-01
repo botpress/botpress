@@ -19,7 +19,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Viber conversation',
       description: 'Channel for a Viber conversation',
-      messages: { ...messages.defaults },
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: { title: 'Message ID', description: 'Viber message ID' },

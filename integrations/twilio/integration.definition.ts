@@ -36,7 +36,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Conversation Channel',
       description: 'A channel for sending and receiving messages through Twilio Conversations',
-      messages: messages.defaults,
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: {

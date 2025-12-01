@@ -53,7 +53,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Intercom conversation',
       description: 'Channel for a Intercom conversation',
-      messages: messages.defaults,
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: {

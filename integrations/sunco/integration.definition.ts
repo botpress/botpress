@@ -23,7 +23,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Sunshine Conversations Channel',
       description: 'Channel for a Sunshine conversation',
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: { ...messages.defaults, markdown: messages.markdown, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: {

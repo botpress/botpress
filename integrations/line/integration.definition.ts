@@ -29,7 +29,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Line conversation',
       description: 'Channel for a Line conversation',
-      messages: { ...messages.defaults },
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           msgId: {

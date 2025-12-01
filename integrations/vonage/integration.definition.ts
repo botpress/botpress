@@ -22,7 +22,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Channel',
       description: 'The vonage Channel',
-      messages: { ...messages.defaults },
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: { title: 'ID', description: 'The id of the message' },

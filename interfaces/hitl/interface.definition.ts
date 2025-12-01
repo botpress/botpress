@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 
-type AnyMessageType = (typeof sdk.messages.defaults)[keyof typeof sdk.messages.defaults]
+type AnyMessageType = { schema: sdk.z.ZodObject }
 const withUserId = (s: AnyMessageType) => ({
   ...s,
   schema: () =>
@@ -182,7 +182,7 @@ export default new sdk.InterfaceDefinition({
         audio: withUserId(sdk.messages.defaults.audio),
         video: withUserId(sdk.messages.defaults.video),
         file: withUserId(sdk.messages.defaults.file),
-        bloc: withUserId(sdk.messages.defaults.bloc),
+        bloc: withUserId(sdk.messages.markdownBloc), // TODO: use the actual bloc message when bumping a version of the interface
       },
     },
   },
