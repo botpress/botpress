@@ -109,7 +109,9 @@ Description: ${description || 'No description provided'}
       }
     }
 
-    logger.forBot().info('Metadata: ' + JSON.stringify({ metadata }))
+    logger
+      .forBot()
+      .info('Passing control to the agent workspace with the following metadata: ' + JSON.stringify({ metadata }))
 
     // Pass control to the agent workspace with the metadata to correctly create fields
     await suncoClient.switchboardActionsPassControl(
@@ -148,15 +150,10 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ inp
     const suncoClient = getSuncoClient(ctx.configuration, logger)
 
     logger.forBot().info(`Releasing control from switchboard for conversation ${suncoConversationId}`)
-    await suncoClient.sendMessage(suncoConversationId, { displayName: 'HITL Session' }, [
-      { type: 'text', text: 'HITL Session Closed' },
-      { type: 'text', text: JSON.stringify({ input }) },
-    ])
     await suncoClient.switchboardActionsReleaseControl(suncoConversationId, 'ticketClosed')
     logger.forBot().info(`HITL conversation ${suncoConversationId} stopped and control released`)
   } catch (error: any) {
     logger.forBot().error(`Failed to release control for conversation ${suncoConversationId}: ${error.message}`, error)
-    // Don't throw - we still want to return success even if releaseControl fails
   }
 
   return {}
