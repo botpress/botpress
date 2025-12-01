@@ -18,12 +18,14 @@ export const handleTimeToCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesS
     state: {
       payload: { issues: previousStagingIssues },
     },
-  } = await client.getOrSetState({
-    id: ctx.botId,
-    name: 'issuesInStaging',
-    payload: { issues: [] },
-    type: 'bot',
-  })
+  } = await client
+    .getOrSetState({
+      id: ctx.botId,
+      name: 'issuesInStaging',
+      payload: { issues: [] },
+      type: 'bot',
+    })
+    .catch(_handleError('trying to get previous staging issues'))
 
   const issues = await linear.listIssues({ teamKeys: teams })
   const updatedStagingIssues = await issueStatusChecker
@@ -48,13 +50,18 @@ export const handleTimeToCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesS
     issue.commentId = commentResult.commentId
   }
 
-  await props.client.setState({
-    id: ctx.botId,
-    name: 'issuesInStaging',
-    payload: { issues: updatedStagingIssues },
-    type: 'bot',
-  })
+  await props.client
+    .setState({
+      id: ctx.botId,
+      name: 'issuesInStaging',
+      payload: { issues: updatedStagingIssues },
+      type: 'bot',
+    })
+    .catch(_handleError('trying to set the updated staging issues'))
 
-  await issueStatusChecker.resolveComments(previousStagingIssues, updatedStagingIssues)
+  await issueStatusChecker
+    .resolveComments(previousStagingIssues, updatedStagingIssues)
+    .catch(_handleError('trying to resolve comments'))
+
   logger.info("Finished validating issues' statuses...")
 }
