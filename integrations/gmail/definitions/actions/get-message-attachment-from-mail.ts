@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { attachmentSchema } from './get-message-attachment'
 import { ActionDef } from './interfaces'
 
 export const getMessageAttachmentFromMail = {
@@ -11,21 +12,7 @@ export const getMessageAttachmentFromMail = {
   },
   output: {
     schema: z.object({
-      attachment: z.object({
-        size: z.number().nullable().optional().title('Size').describe('The size of the attachment in bytes.'),
-        data: z
-          .string()
-          .nullable()
-          .optional()
-          .title('Data')
-          .describe('The body data of a MIME message part as a base64url encoded string.'),
-        attachmentId: z
-          .string()
-          .nullable()
-          .optional()
-          .title('Attachment ID')
-          .describe('The immutable ID of the attachment.'),
-      }),
+      attachment: attachmentSchema,
     }),
   },
 } as const satisfies ActionDef

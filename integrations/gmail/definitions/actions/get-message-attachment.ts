@@ -1,6 +1,25 @@
 import { z } from '@botpress/sdk'
 import { ActionDef } from './interfaces'
 
+export const attachmentSchema = z
+  .object({
+    size: z.number().nullable().optional().title('Size').describe('The size of the attachment in bytes.'),
+    data: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Data')
+      .describe('The body data of a MIME message part as a base64url encoded string.'),
+    attachmentId: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Attachment ID')
+      .describe('The immutable ID of the attachment.'),
+  })
+  .title('Attachment')
+  .describe('The attachment retrieved from the message.')
+
 export const getMessageAttachment = {
   title: 'Get Message Attachment',
   description: 'Gets the specified message attachment by its ID.',
@@ -12,21 +31,7 @@ export const getMessageAttachment = {
   },
   output: {
     schema: z.object({
-      attachment: z.object({
-        size: z.number().nullable().optional().title('Size').describe('The size of the attachment in bytes.'),
-        data: z
-          .string()
-          .nullable()
-          .optional()
-          .title('Data')
-          .describe('The body data of a MIME message part as a base64url encoded string.'),
-        attachmentId: z
-          .string()
-          .nullable()
-          .optional()
-          .title('Attachment ID')
-          .describe('The immutable ID of the attachment.'),
-      }),
+      attachment: attachmentSchema,
     }),
   },
 } as const satisfies ActionDef

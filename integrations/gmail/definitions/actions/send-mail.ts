@@ -22,16 +22,14 @@ export const sendMail = {
   },
   output: {
     schema: z.object({
-      id: z.string().nullable().optional().title('Message ID').describe('The ID of the sent message.'),
+      id: z.union([z.string(), z.null()]).optional().title('Message ID').describe('The ID of the sent message.'),
       threadId: z
-        .string()
-        .nullable()
+        .union([z.string(), z.null()])
         .optional()
         .title('Thread ID')
         .describe('The ID of the thread the message belongs to.'),
       labelIds: z
-        .array(z.string())
-        .nullable()
+        .union([z.array(z.string()), z.null()])
         .optional()
         .title('Label IDs')
         .describe('List of IDs of labels applied to this message.'),
