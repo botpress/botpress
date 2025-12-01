@@ -128,12 +128,10 @@ const _extractDefinitions = (parentNode: Parent): Record<string, DefinitionNodeD
 }
 
 export const transformMarkdownToTeamsXml = (markdown: string): string => {
-  // I know this gets called twice, I'll have to adjust the common transformMarkdown to allow
-  // access to the root "tree" for linkDefinitions. I'm thinking like a preProcessor handler parameter
-  const tree = remark().use(remarkGfm).parse(markdown)
-  const linkDefinitions = _extractDefinitions(tree)
-
-  let html = transformMarkdown(markdown, defaultHandlers, { linkDefinitions }).trim()
+  let html = transformMarkdown(markdown, defaultHandlers, (root) => {
+    const linkDefinitions = _extractDefinitions(root)
+    return { linkDefinitions }
+  }).trim()
   _replacers.forEach((replacer) => {
     html = replacer(html)
   })

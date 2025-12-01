@@ -1,4 +1,4 @@
-import { List, Table, Parent } from 'mdast'
+import { List, Table, Parent, Root } from 'mdast'
 import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { ExtendedList, ExtendedListItem, ExtendedTableRow, MarkdownHandlers, NodeHandler } from './types'
@@ -127,8 +127,9 @@ export const visitTree = (
 export const transformMarkdown = (
   markdown: string,
   handlers: MarkdownHandlers = stripAllHandlers,
-  data: Record<string, unknown> = {}
+  preProcessor?: (root: Root) => Record<string, unknown>
 ): string => {
   const tree = remark().use(remarkGfm).parse(markdown)
+  const data = preProcessor?.(tree) ?? {}
   return visitTree(tree, handlers, [], data)
 }
