@@ -73,11 +73,53 @@ Description: ${description || 'No description provided'}
       { type: 'text', text: 'HITL Conversation Initiated' },
     ])
 
+    // Build metadata object from input fields
+    const metadata: Record<string, string> = {}
+
+    // Add priority if provided
+    if (input.hitlSession?.priority) {
+      metadata.priority = input.hitlSession.priority
+    }
+
+    // Add organization_id if provided
+    if (input.hitlSession?.organizationId) {
+      metadata.organization_id = input.hitlSession.organizationId
+    }
+
+    // Add brand_id if provided
+    if (input.hitlSession?.brandId) {
+      metadata.brand_id = input.hitlSession.brandId
+    }
+
+    // Add group_id if provided
+    if (input.hitlSession?.groupId) {
+      metadata.group_id = input.hitlSession.groupId
+    }
+
+    // Add assignee_id if provided
+    if (input.hitlSession?.assigneeId) {
+      metadata.assignee_id = input.hitlSession.assigneeId
+    }
+
+    // Add tags if provided (join array with comma)
+    if (input.hitlSession?.tags && input.hitlSession.tags.length > 0) {
+      metadata.tags = input.hitlSession.tags.join(',')
+    }
+
+    // Add custom ticket fields if provided (transform fieldId to dataCapture.ticketField.<fieldId>)
+    if (input.hitlSession && 'customTicketFields' in input.hitlSession && input.hitlSession.customTicketFields) {
+      const customTicketFields = input.hitlSession.customTicketFields as Record<string, string>
+      for (const [fieldId, value] of Object.entries(customTicketFields)) {
+        metadata[`dataCapture.ticketField.${fieldId}`] = value
+      }
+    }
+
     // Pass control to the agent workspace with the metadata to correctly create fields
-    await suncoClient.switchboardActionsPassControl(suncoConversation.id, agentWorkspaceSwitchboardIntegrationId, {
-      'dataCapture.ticketField.40033266756891': 'LLLLLLL',
-      origin_source_type: 'whatsapp',
-    })
+    await suncoClient.switchboardActionsPassControl(
+      suncoConversation.id,
+      agentWorkspaceSwitchboardIntegrationId,
+      metadata
+    )
 
     // Offer control to our integration so our webhook can receive messages from the agent workspace, even if we don't control it
     // In theory we could skip this if deliverStandbyEvents was enabled on our Switchboard Integration record but this way we prevent

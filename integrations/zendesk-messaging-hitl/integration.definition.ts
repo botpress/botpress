@@ -46,8 +46,24 @@ export default new sdk.IntegrationDefinition({
       schema: sdk.z.object({
         priority: sdk.z
           .enum(['Low', 'Medium', 'High', 'Urgent'])
-          .title('Conversation Priority')
+          .title('Priority')
           .describe('Priority of the conversation. Leave empty for default priority.')
+          .optional(),
+        organizationId: sdk.z
+          .string()
+          .title('Organization Id')
+          .describe('The organization ID to assign the ticket to.')
+          .optional(),
+        brandId: sdk.z.string().title('Brand Id').describe('The brand ID to assign the ticket to.').optional(),
+        groupId: sdk.z.string().title('Group Id').describe('The group ID to assign the ticket to.').optional(),
+        assigneeId: sdk.z.string().title('Assignee Id').describe('The assignee ID to assign the ticket to.').optional(),
+        tags: sdk.z.array(sdk.z.string()).title('Tags').describe('Tags to add to the ticket.').optional(),
+        customTicketFields: sdk.z
+          .record(sdk.z.string())
+          .title('Custom Ticket Fields')
+          .describe(
+            'Custom ticket fields to set on the ticket. The key should be the ticket field ID, and the value should be the field value. Example: { "40033266756891": "value" }'
+          )
           .optional(),
       }),
     },
