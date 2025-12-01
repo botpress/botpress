@@ -1,7 +1,7 @@
+import { RuntimeError } from '@botpress/client'
 import { createActionWrapper } from '@botpress/common'
 import { wrapAsyncFnWithTryCatch } from './error-handling'
 import { GitHubClient } from './github-client'
-import { GithubSettings } from './github-settings'
 import * as bp from '.botpress'
 
 export const wrapActionAndInjectOctokit: typeof _wrapActionAndInjectTools = (meta, actionImpl) =>
@@ -18,7 +18,18 @@ export const wrapActionAndInjectOctokit: typeof _wrapActionAndInjectTools = (met
 const _wrapActionAndInjectTools = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     octokit: ({ ctx, client }) => GitHubClient.create({ ctx, client }),
-    owner: ({ ctx, client }) => GithubSettings.getOrganizationHandle({ ctx, client }),
+    owner: async ({ ctx, client, input }) => {
+      if (input.organization) {
+        return input.organization
+      }
+      const user = await client.getUser({
+        id: ctx.botUserId,
+      })
+      if (!user.user.name) {
+        throw new RuntimeError('No user or organization was provided. Cannot query the repository.')
+      }
+      return user.user.name
+    },
   },
   extraMetadata: {} as {
     errorMessage: string
