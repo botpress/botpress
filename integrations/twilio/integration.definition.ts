@@ -4,7 +4,7 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'twilio'
-export const INTEGRATION_VERSION = '1.0.2'
+export const INTEGRATION_VERSION = '1.0.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
