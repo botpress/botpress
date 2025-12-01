@@ -1,3 +1,4 @@
+import * as signals from '../../gen/signals'
 import { isApiError, Message as ApiMessage, ClientOutputs } from '@botpress/client'
 import * as errors from '../../gen/errors'
 import * as types from '../types'
@@ -9,15 +10,7 @@ type Conversation = Awaited<ReturnType<types.Operations['getConversation']>>['bo
 type Message = Awaited<ReturnType<types.Operations['listMessages']>>['body']['messages'][number]
 type Participant = Awaited<ReturnType<types.Operations['listParticipants']>>['body']['participants'][number]
 
-type InitialEvent = {
-  type: 'init'
-  data: {
-    conversation: Conversation
-    user: User & { userKey: string }
-    messages: Message[]
-    participants: Participant[]
-  }
-}
+type InitialEvent = signals.Types['initialized']
 
 export const initialize: types.AuthenticatedOperations['initializeConversation'] = async (props, req) => {
   let conversationId = req.query.conversationId
