@@ -17,6 +17,7 @@ const messageSourceSchema = sdk.z.union([
 const allMessages = {
   ...sdk.messages.defaults,
   markdown: sdk.messages.markdown,
+  bloc: sdk.messages.markdownBloc,
 } satisfies Record<string, { schema: sdk.AnyZodObject }>
 
 type Tuple<T> = [T, T, ...T[]]
