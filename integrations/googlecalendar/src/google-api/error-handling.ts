@@ -2,7 +2,7 @@ import { isApiError } from '@botpress/client'
 import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator, posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { Common as GoogleApisCommon } from 'googleapis'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import * as bp from '.botpress'
 
 export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error, customMessage: string) => {
@@ -31,7 +31,11 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
           errorReason: errorReason?.substring(0, 100),
         },
       },
-      { integrationName: INTEGRATION_NAME, key: (bp.secrets as any).POSTHOG_KEY as string }
+      {
+        integrationName: INTEGRATION_NAME,
+        integrationVersion: INTEGRATION_VERSION,
+        key: (bp.secrets as any).POSTHOG_KEY as string,
+      }
     )
     .catch(() => {
       // Silently fail if PostHog is unavailable

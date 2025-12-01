@@ -4,7 +4,7 @@ import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as crypto from 'crypto'
-import { INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
 import { transformMarkdownForTwilio } from './markdown-to-twilio'
@@ -412,7 +412,7 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
           event: 'unhandled_markdown',
           properties: { errMsg },
         },
-        { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
+        { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
       )
     }
   }

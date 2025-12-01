@@ -7,6 +7,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
+export const INTEGRATION_VERSION = '5.0.3'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -36,7 +37,7 @@ const replyToCommentsSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '5.0.2',
+  version: INTEGRATION_VERSION,
   title: 'Messenger and Facebook',
   description:
     'Give your bot access to one of the world’s largest messaging platforms and manage your Facebook page content in one place.',

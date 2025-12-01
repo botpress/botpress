@@ -5,6 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
+export const INTEGRATION_VERSION = '4.1.3'
 
 const commonConfigSchema = z.object({
   replyToComments: z
@@ -16,7 +17,7 @@ const commonConfigSchema = z.object({
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '4.1.2',
+  version: INTEGRATION_VERSION,
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
