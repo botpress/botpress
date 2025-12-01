@@ -41,73 +41,87 @@ const rateLimiter = (() => {
 
 const burstEventSent: Map<string, number> = new Map()
 
-async function _sendPosthogEventDirect(props: EventMessage, config: PostHogConfig): Promise<void> {
+let posthogClient: PostHog | null = null
+
+function getPostHogClient(key: string): PostHog {
+  if (!posthogClient) {
+    const { maxEvents, windowMs } = getRateLimitConfig()
+
+    posthogClient = new PostHog(key, {
+      host: 'https://us.i.posthog.com',
+      flushAt: Math.min(20, maxEvents),
+      flushInterval: Math.min(30000, windowMs),
+      maxBatchSize: maxEvents,
+      maxQueueSize: maxEvents * 2,
+      before_send: (event: EventMessage | null): EventMessage | null => {
+        if (!event) return null
+
+        const integrationName = (event.properties?.integrationName as string) || 'unknown'
+        const distinctId = event.distinctId !== 'no id' ? event.distinctId : integrationName
+
+        if (!rateLimiter.shouldAllow(distinctId)) {
+          const windowStart = rateLimiter.getWindowStart(distinctId)
+          const suppressedCount = rateLimiter.getSuppressedCount(distinctId)
+
+          const lastBurstTime = burstEventSent.get(distinctId)
+          if (!lastBurstTime || windowStart !== lastBurstTime) {
+            burstEventSent.set(distinctId, windowStart)
+
+            return {
+              distinctId,
+              event: 'event_spam_suppressed',
+              properties: {
+                original_event: event.event,
+                actor_key: distinctId,
+                suppressed_count: suppressedCount,
+                window_start: new Date(windowStart).toISOString(),
+                integrationName,
+              },
+            }
+          }
+
+          return null
+        }
+
+        return event
+      },
+    })
+  }
+
+  return posthogClient
+}
+
+export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
   const { key, integrationName } = config
-  const client = new PostHog(key, {
-    host: 'https://us.i.posthog.com',
-  })
+  const client = getPostHogClient(key)
+
   try {
-    const signedProps: EventMessage = {
-      ...props,
+    // Use capture instead of captureImmediate to benefit from batching
+    // The before_send hook will handle rate limiting
+    // Add integrationName to properties so before_send can access it
+    client.capture({
+      distinctId: props.distinctId,
+      event: props.event,
       properties: {
         ...props.properties,
         integrationName,
       },
-    }
-    await client.captureImmediate(signedProps)
-    await client.shutdown()
-    console.info('PostHog event sent')
+      groups: props.groups,
+      sendFeatureFlags: props.sendFeatureFlags,
+      timestamp: props.timestamp,
+      disableGeoip: props.disableGeoip,
+      uuid: props.uuid,
+    })
   } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    console.error(`The server for posthog could not be reached - Error: ${errMsg}`)
+    console.error(`Failed to queue PostHog event - Error: ${errMsg}`)
   }
 }
 
-async function _sendBurstEvent(
-  key: string,
-  originalEvent: EventMessage,
-  config: PostHogConfig,
-  windowStart: number
-): Promise<void> {
-  const suppressedCount = rateLimiter.getSuppressedCount(key)
-
-  const lastBurstTime = burstEventSent.get(key)
-  if (lastBurstTime && windowStart === lastBurstTime) {
-    return
-  }
-
-  burstEventSent.set(key, windowStart)
-
-  await _sendPosthogEventDirect(
-    {
-      distinctId: key,
-      event: 'event_spam_suppressed',
-      properties: {
-        original_event: originalEvent.event,
-        actor_key: key,
-        suppressed_count: suppressedCount,
-        window_start: new Date(windowStart).toISOString(),
-      },
-    },
-    config
-  )
-}
-
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const key = props.distinctId !== 'no id' ? props.distinctId : config.integrationName
-
-  if (rateLimiter.shouldAllow(key)) {
-    await _sendPosthogEventDirect(props, config)
-    return
-  }
-
-  const windowStart = rateLimiter.getWindowStart(key)
-  const suppressedCount = rateLimiter.getSuppressedCount(key)
-
-  if (suppressedCount > 0) {
-    await _sendBurstEvent(key, props, config, windowStart).catch(() => {
-      // Silently fail if burst event cannot be sent
-    })
+export const shutdownImmediate = async (shutdownTimeoutMs?: number): Promise<void> => {
+  if (posthogClient) {
+    await posthogClient._shutdown(shutdownTimeoutMs)
+    posthogClient = null
   }
 }
 
