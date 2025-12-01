@@ -37,6 +37,11 @@ const findTarget = {
   },
 }
 
+const findIssuesOrPullRequests = {
+  ...findTarget,
+}
+
 export const actions = {
-  findTarget,
+  findTarget: { ...findTarget, attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO } },
+  findIssuesOrPullRequests,
 } satisfies sdk.IntegrationDefinitionProps['actions']

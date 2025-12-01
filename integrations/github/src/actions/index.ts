@@ -1,5 +1,6 @@
-import { findTarget } from './find-target'
+import { findTarget, findIssuesOrPullRequests } from './find-target'
 
 export default {
   findTarget,
+  findIssuesOrPullRequests,
 }
