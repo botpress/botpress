@@ -4,7 +4,6 @@ import { eventPayloadSchema } from '../misc/types'
 import { safeJsonParse } from '../misc/utils'
 import { oauthHandler, messagingHandler, sandboxHandler, feedHandler } from './handlers'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/sdk'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
