@@ -465,8 +465,6 @@ export const handlers = {
       const authUserId = await props.userIdStore.byFid.get(req.auth.userId)
       return merge(req, { auth: { userId: authUserId } })
     },
-    mapResponse: async (res) => {
-      return res
-    },
+    mapResponse: async (res) => res,
   }),
 } satisfies FidHandlers
