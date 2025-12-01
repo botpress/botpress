@@ -4,6 +4,7 @@ import { deleteMessage } from './delete-message'
 import { forwardMessage } from './forward-message'
 import { getMessage } from './get-message'
 import { getMessageAttachment } from './get-message-attachment'
+import { getMessageAttachmentFromMail } from './get-message-attachment-from-mail'
 import { listMessages } from './list-messages'
 import { sendMail } from './send-mail'
 import { trashMessage } from './trash-message'
@@ -18,6 +19,7 @@ export const actions = {
   untrashMessage,
   changeMessageLabels,
   getMessageAttachment,
+  getMessageAttachmentFromMail,
   forwardMessage,
   sendMail,
   composeRawEmail,

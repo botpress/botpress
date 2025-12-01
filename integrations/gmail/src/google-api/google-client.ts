@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { google } from 'googleapis'
+import { gmail_v1, google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { composeRawEmail } from 'src/utils/mail-composing'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
@@ -139,10 +139,27 @@ export class GoogleClient {
     return attachment.data
   }
 
-  // @handleErrors('Failed to send email')
-  // public async forwardMessage(to: string, subject: string, body: string) {
-  //   // await this._gmail.users.messages.({ id: messageId, userId: 'me', requestBody: { to, subject, body } })
-  // }
+  @handleErrors('Failed to get message attachment')
+  public async getMessageAttachmentFromMail(messageId: string) {
+    const message = await this.getMessageById(messageId)
+
+    const attachmentId = this._findFirstAttachmentId(message.payload)
+
+    if (!attachmentId) {
+      throw new sdk.RuntimeError('No attachment found in the message')
+    }
+
+    const attachment = await this._gmail.users.messages.attachments.get({
+      id: attachmentId,
+      messageId,
+      userId: 'me',
+    })
+
+    return {
+      ...attachment.data,
+      attachmentId,
+    }
+  }
 
   @handleErrors('Failed to send email')
   public async sendMail(raw: string, threadId?: string) {
@@ -235,5 +252,26 @@ export class GoogleClient {
     const { clientId, clientSecret, endpoint } = IntegrationConfig.getOAuthConfig({ ctx })
 
     return new google.auth.OAuth2(clientId, clientSecret, endpoint)
+  }
+
+  private _findFirstAttachmentId(payload: gmail_v1.Schema$MessagePart | undefined): string | null {
+    if (!payload) {
+      return null
+    }
+
+    if (payload.body?.attachmentId) {
+      return payload.body.attachmentId
+    }
+
+    if (payload.parts && Array.isArray(payload.parts)) {
+      for (const part of payload.parts) {
+        const attachmentId = this._findFirstAttachmentId(part)
+        if (attachmentId) {
+          return attachmentId
+        }
+      }
+    }
+
+    return null
   }
 }
