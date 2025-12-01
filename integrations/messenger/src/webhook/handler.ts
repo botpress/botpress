@@ -4,6 +4,7 @@ import { eventPayloadSchema } from '../misc/types'
 import { safeJsonParse } from '../misc/utils'
 import { oauthHandler, messagingHandler, sandboxHandler, feedHandler } from './handlers'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/sdk'
 
 const _handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, ctx, logger } = props
@@ -61,13 +62,13 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     const response = await _handler(props)
 
     if (response?.status && response.status >= 400) {
-      props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
+      throw new Error(`${response.status}: ${response.body}`)
     }
 
     return response
   } catch (thrown: unknown) {
-    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    const errorMessage = `Messenger handler failed with error: ${errorMsg}`
+    const error = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Messenger handler failed with error: ${error}`
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
   }

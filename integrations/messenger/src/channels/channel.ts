@@ -120,7 +120,6 @@ async function _sendMessage(
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     const errorMessage = `Failed to send ${type} message to Messenger: ${error.message}`
     logger.forBot().error(errorMessage)
-    throw new RuntimeError(errorMessage)
   }
 
   if (commentId && conversation.tags.lastCommentId !== commentId) {
