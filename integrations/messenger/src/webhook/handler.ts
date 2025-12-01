@@ -60,11 +60,7 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
 
-    if (response?.status && response.status === 190) {
-      props.logger.warn(`Messenger handler failed with status ${response.status}: Please reauthorize the integration.`)
-    }
-
-    if (response?.status && (response.status >= 400 || response.status < 190)) {
+    if (response?.status && response.status >= 400) {
       props.logger.error(`Messenger handler failed with status ${response.status}: ${response.body}`)
     }
 
