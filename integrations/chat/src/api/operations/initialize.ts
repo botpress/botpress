@@ -26,7 +26,7 @@ export const initialize: types.AuthenticatedOperations['initializeConversation']
   let user: User
   try {
     user = await props.client.getUser({ id: req.auth.userId }).then((res) => res.user)
-  } catch (error) {
+  } catch {
     user = await props.client.createUser({ tags: {} }).then((res) => res.user)
   }
   conversationId = undefined // Force conversation creation
@@ -57,10 +57,8 @@ export const initialize: types.AuthenticatedOperations['initializeConversation']
       participants = [participant]
     }
   } catch (error) {
-    if (isApiError(error)) {
-      if (error.code === 403) {
-        throw new errors.ForbiddenError("You don't have access to this conversation")
-      }
+    if (isApiError(error) && error.code === 403) {
+      throw new errors.ForbiddenError("You don't have access to this conversation")
     }
     throw new errors.InternalError(conversationId ? 'Failed to fetch conversation' : 'Failed to create conversation')
   }
