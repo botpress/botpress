@@ -23,36 +23,33 @@ type State = { state: lin.WorkflowState; key: StateKey }
 const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
-  private constructor(
-    private _client: lin.LinearClient,
-    private _viewer: lin.User,
-    private _teams: lin.Team[],
-    private _states: State[]
-  ) {}
+  private _teams?: lin.Team[] = undefined
+  private _states?: State[] = undefined
+  private _viewer?: lin.User = undefined
 
-  public static async create(): Promise<LinearApi> {
+  private constructor(private _client: lin.LinearClient) {}
+
+  public static create(): LinearApi {
     const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
-    const me = await client.viewer
-    if (!me) {
-      throw new Error('Viewer not found. Please ensure you are authenticated.')
-    }
 
-    const states = await this._listAllStates(client)
-    const teams = await this._listAllTeams(client)
-
-    return new LinearApi(client, me, teams, this._toStateObjects(states))
+    return new LinearApi(client)
   }
 
   public get client(): lin.LinearClient {
     return this._client
   }
 
-  public get me(): lin.User {
+  public async getMe(): Promise<lin.User> {
+    const me = await this._client.viewer
+    if (!me) {
+      throw new Error('Viewer not found. Please ensure you are authenticated.')
+    }
+    this._viewer = me
     return this._viewer
   }
 
-  public isTeam(teamKey: string) {
-    return this._teams.some((team) => team.key === teamKey)
+  public async isTeam(teamKey: string) {
+    return (await this.getTeams()).some((team) => team.key === teamKey)
   }
 
   public async findIssue(filter: { teamKey: string; issueNumber: number }): Promise<graphql.Issue | undefined> {
@@ -80,13 +77,15 @@ export class LinearApi {
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
     const { teamKeys, issueNumber, statusesToOmit } = filter
 
-    const teamsExist = teamKeys.every((key) => this._teams.some((team) => team.key === key))
+    const teams = await this.getTeams()
+    const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
     if (!teamsExist) {
       return { issues: [] }
     }
 
+    const states = await this.getStates()
     const stateNamesToOmit = statusesToOmit?.map((key) => {
-      const matchingStates = this._states.filter((state) => state.key === key)
+      const matchingStates = states.filter((state) => state.key === key)
       if (matchingStates[0]) {
         return matchingStates[0].state.name
       }
@@ -121,8 +120,9 @@ export class LinearApi {
     return label || undefined
   }
 
-  public issueStatus(issue: graphql.Issue): StateKey {
-    const state = this._states.find((s) => s.state.id === issue.state.id)
+  public async issueStatus(issue: graphql.Issue): Promise<StateKey> {
+    const states = await this.getStates()
+    const state = states.find((s) => s.state.id === issue.state.id)
     if (!state) {
       throw new Error(`State with ID "${issue.state.id}" not found.`)
     }
@@ -131,20 +131,33 @@ export class LinearApi {
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
     const comments = issue.comments.nodes
+    const me = await this.getMe()
 
     const promises: Promise<lin.CommentPayload>[] = []
     for (const comment of comments) {
-      if (comment.user.id === this.me.id && !comment.resolvedAt) {
+      if (comment.user.id === me.id && !comment.resolvedAt) {
         promises.push(this._client.commentResolve(comment.id))
       }
     }
     await Promise.all(promises)
   }
 
-  public get teams(): Record<TeamKey, lin.Team> {
+  public async getTeams(): Promise<lin.Team[]> {
+    if (!this._teams) {
+      this._teams = await LinearApi._listAllTeams(this._client)
+    }
+    return this._teams
+  }
+
+  public async getTeamRecords(): Promise<Record<TeamKey, lin.Team>> {
+    if (!this._teams) {
+      this._teams = await LinearApi._listAllTeams(this._client)
+    }
+    const safeTeams = this._teams
+
     return new Proxy({} as Record<TeamKey, lin.Team>, {
-      get: (_, key: TeamKey) => {
-        const team = this._teams.find((t) => t.key === key)
+      get: async (_, key: TeamKey): Promise<lin.Team> => {
+        const team = safeTeams.find((t) => t.key === key)
         if (!team) {
           throw new Error(`Team with key "${key}" not found.`)
         }
@@ -153,17 +166,32 @@ export class LinearApi {
     })
   }
 
-  public get states(): Record<TeamKey, Record<StateKey, lin.WorkflowState>> {
+  public async getStates(): Promise<State[]> {
+    if (!this._states) {
+      const states = await LinearApi._listAllStates(this._client)
+      this._states = LinearApi._toStateObjects(states)
+    }
+    return this._states
+  }
+
+  public async getStateRecords(): Promise<Record<TeamKey, Record<StateKey, lin.WorkflowState>>> {
+    if (!this._states) {
+      const states = await LinearApi._listAllStates(this._client)
+      this._states = LinearApi._toStateObjects(states)
+    }
+    const safeStates = this._states
+    const teams = await this.getTeamRecords()
+
     return new Proxy({} as Record<TeamKey, Record<StateKey, lin.WorkflowState>>, {
       get: (_, teamKey: TeamKey) => {
-        const teamId = this.teams[teamKey].id
+        const teamId = teams[teamKey].id
         if (!teamId) {
           throw new Error(`Team with key "${teamKey}" not found.`)
         }
 
         return new Proxy({} as Record<StateKey, lin.WorkflowState>, {
           get: (_, stateKey: StateKey) => {
-            const state = this._states.find((s) => s.key === stateKey && s.state.teamId === teamId)
+            const state = safeStates.find((s) => s.key === stateKey && s.state.teamId === teamId)
 
             if (!state) {
               throw new Error(`State with key "${stateKey}" not found.`)

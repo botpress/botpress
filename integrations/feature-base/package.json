@@ -12,6 +12,8 @@
     "axios": "^1.11.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/node": "^22.16.4",
     "typescript": "^5.6.3"
   }

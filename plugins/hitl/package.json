@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpresshub/hitl": "workspace:*",
     "@types/lodash": "^4.14.191",
     "@types/semver": "^7.3.11",

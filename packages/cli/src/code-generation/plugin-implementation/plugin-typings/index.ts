@@ -4,6 +4,7 @@ import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { InterfaceTypingsModule } from '../../interface-implementation'
 import { Module, ReExportTypeModule, SingleFileModule } from '../../module'
+import * as strings from '../../strings'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
@@ -19,7 +20,7 @@ class PluginIntegrationsModule extends ReExportTypeModule {
 
     for (const [alias, integration] of Object.entries(plugin.integrations ?? {})) {
       const integrationModule = new IntegrationTypingsModule(integration.definition)
-      integrationModule.unshift(alias)
+      integrationModule.unshift(strings.dirName(alias))
       this.pushDep(integrationModule)
     }
   }
@@ -33,7 +34,7 @@ class PluginInterfacesModule extends ReExportTypeModule {
 
     for (const [alias, intrface] of Object.entries(plugin.interfaces ?? {})) {
       const interfaceModule = new InterfaceTypingsModule(intrface.definition)
-      interfaceModule.unshift(alias)
+      interfaceModule.unshift(strings.dirName(alias))
       this.pushDep(interfaceModule)
     }
   }

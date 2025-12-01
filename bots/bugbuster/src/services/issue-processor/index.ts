@@ -23,7 +23,7 @@ export class IssueProcessor {
     }
 
     const watchedTeams = await this._teamsManager.listWatchedTeams()
-    if (!this._linear.isTeam(teamKey) || !watchedTeams.includes(teamKey)) {
+    if (!(await this._linear.isTeam(teamKey)) || !watchedTeams.includes(teamKey)) {
       this._logger.info(`Ignoring issue of team "${teamKey}"`)
       return
     }
@@ -37,31 +37,20 @@ export class IssueProcessor {
     return issue
   }
 
-  public async listRelevantIssues(endCursor?: string): Promise<lin.Issue[]> {
+  public async listRelevantIssues(endCursor?: string): Promise<{ issues: lin.Issue[]; pagination?: lin.Pagination }> {
     const watchedTeams = await this._teamsManager.listWatchedTeams()
 
-    const issues: lin.Issue[] = []
-    let pagination: lin.Pagination | undefined
-
-    do {
-      const { issues: newIssues, pagination: newPagination } = await this._linear.listIssues(
-        {
-          teamKeys: watchedTeams,
-          statusesToOmit: IGNORED_STATUSES,
-        },
-        endCursor
-      )
-
-      issues.push(...newIssues)
-      pagination = newPagination
-      endCursor = pagination?.endCursor
-    } while (pagination?.hasNextPage)
-
-    return issues
+    return await this._linear.listIssues(
+      {
+        teamKeys: watchedTeams,
+        statusesToOmit: IGNORED_STATUSES,
+      },
+      endCursor
+    )
   }
 
-  public async lintIssue(issue: lin.Issue) {
-    const status = this._linear.issueStatus(issue)
+  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean) {
+    const status = await this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
       return
     }
@@ -74,7 +63,13 @@ export class IssueProcessor {
       return
     }
 
-    this._logger.warn(`Issue ${issue.identifier} has ${errors.length} lint errors:`)
+    const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
+    if (isRecentlyLinted) {
+      this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
+      return
+    }
+
+    this._logger.warn(warningMessage)
 
     await this._linear.client.createComment({
       issueId: issue.id,

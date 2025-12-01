@@ -47,6 +47,7 @@ jobs:
 
       - name: Update Linear Status
         uses: ./.github/actions/update-linear-status
+        continue-on-error: true
         with:
           linearApiKey: ${{secrets.LINEAR_API_KEY}}
           teamName: 'SHELL (Integration)'

@@ -159,6 +159,9 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/slack':
         specifier: workspace:*
         version: link:../../integrations/slack
@@ -489,6 +492,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -511,6 +517,9 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/jsonwebtoken':
         specifier: ^9.0.3
         version: 9.0.3
@@ -586,6 +595,10 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/canny:
     dependencies:
@@ -598,6 +611,10 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/cerebras:
     dependencies:
@@ -773,6 +790,9 @@ importers:
         specifier: ^8.4.0
         version: 8.4.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/docusign-esign':
         specifier: ^5.19.9
         version: 5.19.9
@@ -814,6 +834,9 @@ importers:
         specifier: ^6.7.2
         version: 6.9.3
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/imap':
         specifier: ^0.8.42
         version: 0.8.42
@@ -833,6 +856,9 @@ importers:
         specifier: ^1.11.0
         version: 1.11.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -1164,6 +1190,10 @@ importers:
       axios:
         specifier: ^1.13.1
         version: 1.13.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/instagram:
     dependencies:
@@ -1395,6 +1425,9 @@ importers:
         specifier: ^1.13.1
         version: 1.13.1
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -1511,6 +1544,9 @@ importers:
         specifier: ^1.69.0
         version: 1.69.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/markdown-it':
         specifier: ^14.1.2
         version: 14.1.2
@@ -1882,6 +1918,10 @@ importers:
       axios:
         specifier: ^1.11.0
         version: 1.11.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/webhook:
     dependencies:
@@ -1957,6 +1997,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4
@@ -2309,7 +2352,7 @@ importers:
         specifier: 1.27.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2427,7 +2470,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2443,7 +2486,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2456,7 +2499,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2472,7 +2515,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2488,7 +2531,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.20.1
+        specifier: 4.20.2
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2917,6 +2960,9 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
