@@ -26,7 +26,7 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
   // Cache both values
   await client.getOrSetState({
     type: 'integration',
-    name: 'integrationIds',
+    name: 'switchboardIntegrationIds',
     id: ctx.integrationId,
     payload: {
       switchboardIntegrationId: switchboardIntegration.id,
@@ -56,7 +56,7 @@ export async function getSwitchboardIntegrationId(
     const { switchboardIntegrationId } = (
       await client.getState({
         type: 'integration',
-        name: 'integrationIds',
+        name: 'switchboardIntegrationIds',
         id: ctx.integrationId,
       })
     ).state.payload
@@ -81,7 +81,7 @@ export async function getAgentWorkspaceSwitchboardIntegrationId(
     const { agentWorkspaceSwitchboardIntegrationId } = (
       await client.getState({
         type: 'integration',
-        name: 'integrationIds',
+        name: 'switchboardIntegrationIds',
         id: ctx.integrationId,
       })
     ).state.payload

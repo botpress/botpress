@@ -17,7 +17,7 @@ export default new sdk.IntegrationDefinition({
     }),
   },
   states: {
-    integrationIds: {
+    switchboardIntegrationIds: {
       type: 'integration',
       schema: sdk.z.object({
         switchboardIntegrationId: sdk.z.string().optional(),
