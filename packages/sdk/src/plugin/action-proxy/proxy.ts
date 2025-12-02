@@ -22,13 +22,15 @@ export const proxyActions = <TPlugin extends BasePlugin>(
               const actualActionName =
                 props.interfaces[integrationOrInterfaceAlias]?.actions?.[actionName]?.name ?? actionName
 
-              return client.callAction({
-                type: `${integrationAlias}:${actualActionName}` as typeUtils.Cast<
-                  keyof EnumerateActions<TPlugin>,
-                  string
-                >,
-                input,
-              })
+              return client
+                .callAction({
+                  type: `${integrationAlias}:${actualActionName}` as typeUtils.Cast<
+                    keyof EnumerateActions<TPlugin>,
+                    string
+                  >,
+                  input,
+                })
+                .then((res) => res.output)
             },
           }
         ),
