@@ -74,11 +74,11 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statusesToOmit?: StateKey[]
+      statesToOmit?: StateKey[]
     },
     nextPage?: string
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
-    const { teamKeys, issueNumber, statusesToOmit } = filter
+    const { teamKeys, issueNumber, statesToOmit } = filter
 
     const teams = await this.getTeams()
     const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
@@ -90,7 +90,7 @@ export class LinearApi {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(statusesToOmit && { state: { name: { nin: await this._stateKeysToStateNames(statusesToOmit) } } }),
+        ...(statesToOmit && { state: { name: { nin: await this._stateKeysToStateNames(statesToOmit) } } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -114,7 +114,7 @@ export class LinearApi {
     return label || undefined
   }
 
-  public async issueStatus(issue: graphql.Issue): Promise<StateKey> {
+  public async issueState(issue: graphql.Issue): Promise<StateKey> {
     const states = await this.getStates()
     const state = states.find((s) => s.state.id === issue.state.id)
     if (!state) {

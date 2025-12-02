@@ -46,7 +46,7 @@ export class IssueStateChecker {
   private _getIdsOfIssuesOfState = async (issues: lin.Issue[], state: lin.StateKey): Promise<string[]> => {
     const ids: string[] = []
     for (const issue of issues) {
-      const issueState = await this._linear.issueStatus(issue)
+      const issueState = await this._linear.issueState(issue)
       if (issueState === state) {
         ids.push(issue.id)
       }
