@@ -47,11 +47,14 @@ export const addDebugInterceptors = (axiosInstance: axios.AxiosInstance) => {
 
 const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
   const { method, url, headers, data } = config
+
+  const fullUrl = config.baseURL ? new URL(url!, config.baseURL).toString() : url
+
   return (
     'REQUEST: ' +
     JSON.stringify({
       method: method?.toUpperCase(),
-      url,
+      url: fullUrl,
       timestamp: new Date().toISOString(),
       requestId: config.metadata?.id,
       headers,
@@ -64,13 +67,14 @@ const _formatRequestLog = (config: AxiosRequestConfigWithMetadata): string => {
 const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
   const { config, status, headers, data } = response
   const duration = _formatDuration(response)
+  const fullUrl = config.baseURL ? new URL(response.config.url!, config.baseURL).toString() : response.config.url
 
   return (
     'RESPONSE: ' +
     JSON.stringify({
       method: config.method?.toUpperCase(),
       status,
-      url: config.url,
+      url: fullUrl,
       timestamp: new Date().toISOString(),
       requestId: config.metadata?.id,
       duration,
@@ -83,13 +87,15 @@ const _formatResponseLog = (response: AxiosResponseWithMetadata): string => {
 
 const _formatErrorLog = (error: AxiosErrorWithMetadata): string => {
   const duration = error ? _formatDuration(error) : 'N/A'
+  const fullUrl = error.config.baseURL ? new URL(error.config.url!, error.config.baseURL).toString() : error.config.url
 
   return (
     'ERROR: ' +
     JSON.stringify({
       status: error.code,
-      url: error.config.url ?? 'N/A',
+      url: fullUrl,
       timestamp: new Date().toISOString(),
+      requestId: error.config.metadata?.id ?? 'N/A',
       duration,
     })
   )
