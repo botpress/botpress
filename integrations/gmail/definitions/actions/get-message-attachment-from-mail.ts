@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { attachmentSchema } from './get-message-attachment'
-import { ActionDef } from './interfaces'
+import { ActionDef } from './types'
 
 export const getMessageAttachmentFromMail = {
   title: 'Get Message Attachment From Mail',

@@ -89,26 +89,6 @@ export class GoogleClient {
     return newMail.data
   }
 
-  @handleErrors('Failed to list messages')
-  public async listMessages({
-    query,
-    maxResults,
-    pageToken,
-  }: {
-    query?: string
-    maxResults?: number
-    pageToken?: string
-  } = {}) {
-    const response = await this._gmail.users.messages.list({
-      userId: 'me',
-      q: query,
-      maxResults,
-      pageToken,
-    })
-
-    return response.data
-  }
-
   @handleErrors('Failed to delete message')
   public async deleteMessage(messageId: string) {
     await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
