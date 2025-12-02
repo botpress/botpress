@@ -14,7 +14,7 @@ const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undef
 }
 
 export const createDeployBot: Test = {
-  name: 'cli should allow creating, building, deploying and mannaging a bot',
+  name: 'cli should allow creating, building, deploying and managing a bot',
   handler: async ({ tmpDir, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'bots')
