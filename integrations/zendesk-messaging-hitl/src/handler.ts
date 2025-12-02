@@ -1,3 +1,4 @@
+import { handleConversationMessage, handleSwitchboardReleaseControl } from './events'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, client }) => {
@@ -38,73 +39,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
         continue
       }
 
-      // Handle switchboard:releaseControl events - close HITL when control is released
       if (event.type === 'switchboard:releaseControl') {
-        const payload = event.payload
-        const suncoConversationId = payload.conversation?.id
-
-        if (!suncoConversationId) {
-          logger.forBot().warn('switchboard:releaseControl event missing conversation ID')
-          continue
-        }
-
-        logger
-          .forBot()
-          .info(
-            `Received switchboard:releaseControl event for conversation ${suncoConversationId}, reason: ${payload.reason}`
-          )
-
-        try {
-          // Emit hitlStopped event to close the HITL session
-          await client.createEvent({
-            type: 'hitlStopped',
-            payload: {
-              conversationId: conversation.id,
-            },
-          })
-
-          logger
-            .forBot()
-            .info(`HITL session stopped for conversation ${conversation.id} due to switchboard releaseControl`)
-        } catch (error: any) {
-          logger.forBot().error(`Failed to handle switchboard:releaseControl event: ${error.message}`, error)
-        }
+        await handleSwitchboardReleaseControl(event, conversation, client, logger)
       } else if (event.type === 'conversation:message') {
-        const payload = event.payload
-
-        // Agent messages will come as business
-        if (payload.message.author.type !== 'business') {
-          continue
-        }
-
-        const zendeskAgentId: string | undefined = payload.message?.metadata['__zendesk_msg.agent.id']
-
-        if (!zendeskAgentId?.length) {
-          logger.forBot().warn('Received a message from a non-agent user, ignoring message')
-          continue
-        }
-
-        // Only handle text messages for now
-        if (payload.message.content.type !== 'text') {
-          logger.forBot().warn('Received a message that is not a text message')
-          continue
-        }
-
-        const { user } = await client.getOrCreateUser({
-          tags: {
-            id: zendeskAgentId,
-          },
-          name: payload.message.author.displayName,
-          pictureUrl: payload.message.author.avatarUrl,
-        })
-
-        await client.createMessage({
-          tags: { id: payload.message.id },
-          type: 'text',
-          userId: user.id,
-          conversationId: conversation.id,
-          payload: { text: payload.message.content.text },
-        })
+        await handleConversationMessage(event, conversation, client, logger)
+      } else {
+        logger.forBot().debug(`Unhandled event type: ${event.type}`)
       }
     }
   } catch (error: any) {
