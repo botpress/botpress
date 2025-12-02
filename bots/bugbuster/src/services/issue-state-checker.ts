@@ -3,7 +3,7 @@ import * as lin from '../utils/linear-utils'
 import { Issue } from '../utils/linear-utils'
 import * as bp from '.botpress'
 
-export type IssueCheckerStaticProps = {
+export type CheckIssuesStaticProps = {
   botStateName: 'blockedIssues' | 'issuesInStaging'
   state: lin.StateKey
   maxTimeInStateInMs: number
@@ -19,10 +19,10 @@ export class IssueStateChecker {
 
   public checkIssues = async (
     props: {
-      issues: Issue[]
-    } & IssueCheckerStaticProps
+      allIssues: Issue[]
+    } & CheckIssuesStaticProps
   ) => {
-    const { issues, botStateName: issueType, state, maxTimeInStateInMs, warningComment } = props
+    const { allIssues, botStateName, state, maxTimeInStateInMs, warningComment } = props
 
     const {
       state: {
@@ -30,12 +30,12 @@ export class IssueStateChecker {
       },
     } = await this._client.getOrSetState({
       id: this._botId,
-      name: issueType,
+      name: botStateName,
       payload: { issues: [] },
       type: 'bot',
     })
 
-    const updatedIssues = await this._getUpdatedIssuesOfState(previousIssues, issues, state)
+    const updatedIssues = await this._getUpdatedIssuesOfState(previousIssues, allIssues, state)
 
     const problematicIssues = this._getProblematicIssues(updatedIssues, maxTimeInStateInMs)
 
@@ -49,7 +49,7 @@ export class IssueStateChecker {
 
     await this._client.setState({
       id: this._botId,
-      name: issueType,
+      name: botStateName,
       payload: { issues: updatedIssues },
       type: 'bot',
     })
@@ -79,6 +79,17 @@ export class IssueStateChecker {
     return newIssues
   }
 
+  private _getIdsOfIssuesOfState = async (issues: lin.Issue[], state: lin.StateKey): Promise<string[]> => {
+    const ids: string[] = []
+    for (const issue of issues) {
+      const issueState = await this._linear.issueState(issue)
+      if (issueState === state) {
+        ids.push(issue.id)
+      }
+    }
+    return ids
+  }
+
   private _getProblematicIssues(watchedIssues: types.WatchedIssue[], maxTimeInStateInMs: number): types.WatchedIssue[] {
     const problematicIssues: types.WatchedIssue[] = []
     for (const issue of watchedIssues) {
@@ -95,17 +106,6 @@ export class IssueStateChecker {
         await this._linear.client.commentResolve(issue.commentId)
       }
     }
-  }
-
-  private _getIdsOfIssuesOfState = async (issues: lin.Issue[], state: lin.StateKey): Promise<string[]> => {
-    const ids: string[] = []
-    for (const issue of issues) {
-      const issueState = await this._linear.issueState(issue)
-      if (issueState === state) {
-        ids.push(issue.id)
-      }
-    }
-    return ids
   }
 
   private _isIssueProblematic(issue: types.WatchedIssue, maxTimeInStateInMs: number): boolean {
