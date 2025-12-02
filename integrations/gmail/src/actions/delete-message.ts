@@ -7,7 +7,7 @@ export const deleteMessage = wrapAction(
     { googleClient }: { googleClient: Awaited<ReturnType<typeof GoogleClient.create>> },
     { id }: { id: string }
   ) => {
-    const result = await googleClient.deleteMessage(id)
+    const result = await googleClient.messages.delete(id)
 
     return {
       result,

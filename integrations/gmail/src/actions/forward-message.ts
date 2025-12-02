@@ -16,7 +16,7 @@ export const forwardMessage = wrapAction(
       textEncoding: 'base64',
     })
 
-    const result = await googleClient.sendMail(raw)
+    const result = await googleClient.messages.send(raw)
 
     return {
       id: result.id ?? null,
