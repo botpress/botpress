@@ -12,17 +12,20 @@ type Participant = Awaited<ReturnType<types.Operations['listParticipants']>>['bo
 
 type InitialEvent = signals.Types['initialized']
 
-export const initialize: types.AuthenticatedOperations['initializeConversation'] = async (props, req) => {
+export const initialize: types.Operations['initializeConversation'] = async (props, req) => {
   let conversationId = req.query.conversationId
-  const userKey = req.headers['x-user-key']
+  let userKey = req.headers['x-user-key']
 
   let user: User
-  try {
-    user = await props.client.getUser({ id: req.auth.userId }).then((res) => res.user)
-  } catch {
+  if (userKey) {
+    const parsedKey = props.auth.parseKey(userKey)
+    const userId = parsedKey.id
+    user = await props.client.getUser({ id: userId }).then((res) => res.user)
+  } else {
     user = await props.client.createUser({ tags: {} }).then((res) => res.user)
+    userKey = props.auth.generateKey({ id: user.id })
+    conversationId = undefined // Force conversation creation if we have to create a user
   }
-  conversationId = undefined // Force conversation creation
 
   if (!user) {
     throw new errors.InternalError('User could not be resolved from authorization or be created')
