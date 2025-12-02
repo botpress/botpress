@@ -188,6 +188,31 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  bots/drop-weaver:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/dropbox':
+        specifier: workspace:*
+        version: link:../../integrations/dropbox
+      '@botpresshub/file-synchronizer':
+        specifier: workspace:*
+        version: link:../../plugins/file-synchronizer
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/echo:
     devDependencies:
       '@botpress/cli':
@@ -2376,7 +2401,7 @@ importers:
         specifier: 1.27.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2494,7 +2519,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2510,7 +2535,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2523,7 +2548,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2539,7 +2564,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2555,7 +2580,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 4.21.0
+        specifier: 5.0.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -15793,7 +15818,7 @@ snapshots:
 
   axios@1.13.1:
     dependencies:
-      follow-redirects: 1.15.6
+      follow-redirects: 1.15.6(debug@4.4.1)
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -17414,9 +17439,9 @@ snapshots:
     dependencies:
       pend: 1.2.0
 
-  fdir@6.4.3(picomatch@4.0.2):
+  fdir@6.4.3(picomatch@4.0.3):
     optionalDependencies:
-      picomatch: 4.0.2
+      picomatch: 4.0.3
 
   fecha@4.2.3: {}
 
@@ -17489,8 +17514,6 @@ snapshots:
   follow-redirects@1.15.2: {}
 
   follow-redirects@1.15.5: {}
-
-  follow-redirects@1.15.6: {}
 
   follow-redirects@1.15.6(debug@4.4.1):
     optionalDependencies:
@@ -20974,8 +20997,8 @@ snapshots:
 
   tinyglobby@0.2.10:
     dependencies:
-      fdir: 6.4.3(picomatch@4.0.2)
-      picomatch: 4.0.2
+      fdir: 6.4.3(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tinypool@1.0.1: {}
 

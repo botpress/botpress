@@ -14,13 +14,7 @@ import * as typeUtils from '../utils/type-utils'
 import { SDK_VERSION } from '../version'
 import { ZuiObjectSchema, ZuiObjectOrRefSchema, z } from '../zui'
 
-export {
-  UserDefinition,
-  ConversationDefinition,
-  MessageDefinition,
-  IntegrationConfigInstance,
-  WorkflowDefinition,
-} from '../bot/definition'
+export { UserDefinition, ConversationDefinition, MessageDefinition, WorkflowDefinition } from '../bot/definition'
 
 type BaseConfig = ZuiObjectOrRefSchema
 type BaseStates = Record<string, ZuiObjectOrRefSchema>
@@ -256,6 +250,18 @@ export class PluginDefinition<
     this.workflows = props.workflows
     this.attributes = props.attributes
     this.__advanced = props.__advanced
+
+    const aliases = new Set<string>()
+
+    for (const alias of [...Object.keys(props.integrations ?? {}), ...Object.keys(props.interfaces ?? {})]) {
+      if (aliases.has(alias)) {
+        throw new Error(
+          `Duplicate interface or integration alias detected in plugin definition: '${alias}'. ` +
+            'Please use unique aliases for each interface and integration.'
+        )
+      }
+      aliases.add(alias)
+    }
 
     this.configuration = props.configuration
       ? {

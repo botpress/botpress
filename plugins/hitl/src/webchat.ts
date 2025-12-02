@@ -1,4 +1,5 @@
 import * as configuration from './configuration'
+import type * as types from './types'
 import * as bp from '.botpress'
 
 type WebchatGetOrCreateUserInput = {
@@ -12,8 +13,8 @@ type WebchatGetOrCreateUserInput = {
 }
 
 export type TryLinkWebchatUserOptions = {
-  downstreamUserId: string
-  upstreamConversationId: string
+  downstreamUser: types.ActionableUser
+  upstreamConversation: types.ActionableConversation
   forceLink?: boolean
 }
 
@@ -33,22 +34,14 @@ export type TryLinkWebchatUserOptions = {
  */
 export const tryLinkWebchatUser = async (
   props: bp.HookHandlerProps['before_incoming_message'] | bp.HookHandlerProps['before_incoming_event'],
-  opts: TryLinkWebchatUserOptions
+  { forceLink, downstreamUser, upstreamConversation }: TryLinkWebchatUserOptions
 ): Promise<string | undefined> => {
-  const { downstreamUserId, upstreamConversationId, forceLink } = opts
-
-  const upstreamConversation = await props.client.getConversation({
-    id: upstreamConversationId,
-  })
-
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,
-    upstreamConversationId,
+    upstreamConversationId: upstreamConversation.id,
   })
 
-  const {
-    conversation: { integration: upstreamIntegration },
-  } = upstreamConversation
+  const { integration: upstreamIntegration } = upstreamConversation
 
   if (upstreamIntegration !== 'webchat' || !sessionConfig.useHumanAgentInfo) {
     // this only works when the hitl frontend is webchat
@@ -57,25 +50,27 @@ export const tryLinkWebchatUser = async (
 
   try {
     props.logger.info(
-      `Trying to link downstream user ${downstreamUserId} to upstream conversation ${upstreamConversationId}`
+      `Trying to link downstream user ${downstreamUser.id} to upstream conversation ${upstreamConversation.id}`
     )
 
-    const { user: downstreamUser } = await props.client.getUser({ id: downstreamUserId })
     const upstreamUserId = downstreamUser.tags['upstream']
     if (upstreamUserId && !forceLink) {
       // the user is already linked
       return upstreamUserId
     }
 
+    // To access bot-level tags:
+    const untypedDownstreamUserTags: Record<string, string> = downstreamUser.tags
+
     const { output } = await props.client.callAction({
       type: 'webchat:getOrCreateUser',
       input: {
         name: downstreamUser.name,
         pictureUrl: downstreamUser.pictureUrl,
-        email: downstreamUser.tags['email'],
+        email: untypedDownstreamUserTags['email'],
         user: {
-          id: downstreamUserId,
-          conversationId: upstreamConversationId,
+          id: downstreamUser.id,
+          conversationId: upstreamConversation.id,
         },
       } as WebchatGetOrCreateUserInput,
     })
@@ -85,8 +80,7 @@ export const tryLinkWebchatUser = async (
       return undefined
     }
 
-    await props.client.updateUser({
-      id: downstreamUserId,
+    await downstreamUser.update({
       tags: {
         upstream: userId,
       },

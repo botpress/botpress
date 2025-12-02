@@ -6,14 +6,16 @@ import * as bp from '.botpress'
 
 export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlStopped'] = async (props) => {
   const { conversationId: downstreamConversationId } = props.data.payload
-  const downstreamCm = conv.ConversationManager.from(props, downstreamConversationId)
+
+  const downstreamConversation = await props.conversations.hitl.hitl.getById({ id: downstreamConversationId })
+  const downstreamCm = conv.ConversationManager.from(props, downstreamConversation)
+
   const isHitlActive = await downstreamCm.isHitlActive()
   if (!isHitlActive) {
     return consts.STOP_EVENT_HANDLING
   }
 
-  const downstreamConversation = await props.client.getConversation({ id: downstreamConversationId })
-  const upstreamConversationId = downstreamConversation.conversation.tags['upstream']
+  const upstreamConversationId = downstreamConversation.tags.upstream
   if (!upstreamConversationId) {
     props.logger
       .withConversationId(downstreamConversationId)
@@ -21,7 +23,8 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlSto
     return consts.STOP_EVENT_HANDLING
   }
 
-  const upstreamCm = conv.ConversationManager.from(props, upstreamConversationId)
+  const upstreamConversation = await props.conversations.hitl.hitl.getById({ id: upstreamConversationId })
+  const upstreamCm = conv.ConversationManager.from(props, upstreamConversation)
 
   const sessionConfig = await configuration.retrieveSessionConfig({
     ...props,

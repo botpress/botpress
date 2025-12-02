@@ -2,10 +2,9 @@ import * as sdk from '@botpress/sdk'
 import integrationWithEntityDependency from './bp_modules/integration-with-entity-dependency'
 import pluginWithInterfaceDependency from './bp_modules/plugin-with-interface-dependency'
 
-const extendedInterface = Object.values(integrationWithEntityDependency.definition.interfaces)[0]!
-
 export default new sdk.BotDefinition({})
   .addIntegration(integrationWithEntityDependency, {
+    alias: 'integration-with-entity-dep',
     enabled: true,
     configuration: {},
   })
@@ -19,15 +18,10 @@ export default new sdk.BotDefinition({})
         color: 'blue',
       },
     },
-    interfaces: {
+    dependencies: {
       'interface-alias': {
-        id: integrationWithEntityDependency.id,
-        name: integrationWithEntityDependency.name,
-        version: integrationWithEntityDependency.version,
-        entities: extendedInterface.entities,
-        actions: extendedInterface.actions,
-        events: extendedInterface.events,
-        channels: extendedInterface.channels,
+        integrationAlias: 'integration-with-entity-dep',
+        integrationInterfaceAlias: Object.keys(integrationWithEntityDependency.definition.interfaces)[0]!,
       },
     },
   })
