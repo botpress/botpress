@@ -5,10 +5,10 @@ export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHa
 export type LintResult =
   | {
       identifier: string
-      result: 'succeeded'
+      result: 'failed'
       messages: string[]
     }
   | {
       identifier: string
-      result: 'failed' | 'ignored'
+      result: 'succeeded' | 'ignored'
     }

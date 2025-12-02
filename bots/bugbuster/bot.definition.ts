@@ -43,12 +43,12 @@ export default new sdk.BotDefinition({
           sdk.z.discriminatedUnion('result', [
             sdk.z.object({
               identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-              result: sdk.z.literal('succeeded').title('Result').describe('The lint result'),
+              result: sdk.z.literal('failed').title('Result').describe('The lint result'),
               messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
             }),
             sdk.z.object({
               identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-              result: sdk.z.enum(['failed', 'ignored']).title('Result').describe('The lint result'),
+              result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
             }),
           ])
         ),
