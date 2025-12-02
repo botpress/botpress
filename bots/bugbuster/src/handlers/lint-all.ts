@@ -12,29 +12,6 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const _handleError = (context: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
 
-  const _handleErrorWhileLinting =
-    (context: string, lastLintedId: string, lintResults: types.LintResult[]) => async (thrown: unknown) => {
-      await Promise.all([
-        client
-          .setState({
-            id: workflow.id,
-            name: 'lastLintedId',
-            type: 'workflow',
-            payload: { id: lastLintedId },
-          })
-          .catch(_handleError('trying to update last linted issue ID')),
-        client
-          .setState({
-            id: workflow.id,
-            name: 'lintResults',
-            type: 'workflow',
-            payload: { issues: lintResults },
-          })
-          .catch(_handleError('trying to update lint results')),
-      ])
-      return _handleError(context)(thrown)
-    }
-
   const {
     state: {
       payload: { id: lastLintedId },
@@ -70,12 +47,28 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     for (const issue of pagedIssues.issues) {
       const lintResult = await issueProcessor
         .lintIssue(issue)
-        .catch(_handleErrorWhileLinting(`trying to lint issue ${issue.identifier}`, issue.id, lintResults))
+        .catch(_handleError(`trying to lint issue ${issue.identifier}`))
       lintResults.push(lintResult)
 
-      await workflow
-        .acknowledgeStartOfProcessing()
-        .catch(_handleErrorWhileLinting('trying to acknowledge start of processing', issue.id, lintResults))
+      await workflow.acknowledgeStartOfProcessing().catch(_handleError('trying to acknowledge start of processing'))
+      await Promise.all([
+        client
+          .setState({
+            id: workflow.id,
+            name: 'lastLintedId',
+            type: 'workflow',
+            payload: { id: lastLintedId },
+          })
+          .catch(_handleError('trying to update last linted issue ID')),
+        client
+          .setState({
+            id: workflow.id,
+            name: 'lintResults',
+            type: 'workflow',
+            payload: { issues: lintResults },
+          })
+          .catch(_handleError('trying to update lint results')),
+      ])
     }
 
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
