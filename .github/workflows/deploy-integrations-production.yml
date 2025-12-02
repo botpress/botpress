@@ -51,4 +51,4 @@ jobs:
         with:
           linearApiKey: ${{secrets.LINEAR_API_KEY}}
           teamName: 'SHELL (Integration)'
-          targetLabel: 'area/integration'
+          targetLabel: 'area/integrations'

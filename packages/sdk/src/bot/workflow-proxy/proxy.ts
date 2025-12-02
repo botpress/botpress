@@ -7,6 +7,30 @@ import type { BaseBot } from '../common'
 import * as botServerTypes from '../server/types'
 import type { WorkflowProxy, ActionableWorkflow } from './types'
 
+// FIXME: Plugin (and bot) workflow definitions are currently being created on
+//        the fly at run time. However, they should be part of the bot/plugin
+//        definition. The SDK currently gives the illusion that they are defined
+//        at deploy time, but in reality they are not. Nothing about the
+//        workflows is sent to the backend at deploy time.
+//
+//        This is being tracked as https://linear.app/botpress/issue/KKN-292
+//
+//        Since currently each workflow definition is unique to a workflow run,
+//        the tags are not prefixed by the plugin instance's alias. This is
+//        because the backend's input validation prevents us from having a `#`
+//        character in the workflow definition's tag definition. The plugin
+//        prefix separator should only be present when we merge a plugin's
+//        definitions into a bot (ie when installing a plugin in a bot). It
+//        should not be allowed when calling the createWorkflow endpoint
+//        directly, which is what the CLI currently does.
+//
+//        Once we have proper deploy-time workflow definitions, we should
+//        prefix/unprefix the tags like we do in the other plugin proxies.
+//
+//        This means removing `undefined /* props.pluginAlias */` and replacing
+//        it with `props.pluginAlias` in the calls to `prefixTagsIfNeeded()` and
+//        `unprefixTagsOwnedByPlugin()`.
+
 export const proxyWorkflows = <TBot extends BaseBot>(props: {
   client: BotSpecificClient<TBot> | client.Client
   pluginAlias?: string
@@ -31,11 +55,7 @@ export const proxyWorkflows = <TBot extends BaseBot>(props: {
           const { workflow } = await props.client.createWorkflow({
             name: workflowName as typeUtils.Cast<TWorkflowName, string>,
             status: 'pending',
-            ...input,
-            tags:
-              input.tags && props.pluginAlias
-                ? prefixTagsIfNeeded(input.tags, { alias: props.pluginAlias })
-                : undefined,
+            ...prefixTagsIfNeeded(input, { alias: undefined /* props.pluginAlias */ }),
           })
           return { workflow: wrapWorkflowInstance<TBot, TWorkflowName>({ ...props, workflow }) }
         },
@@ -55,15 +75,15 @@ export const wrapWorkflowInstance = <
   let isAcknowledged = false
 
   return {
-    ...((props.pluginAlias
-      ? unprefixTagsOwnedByPlugin(props.workflow, { alias: props.pluginAlias })
-      : props.workflow) as ActionableWorkflow<TBot, TWorkflowName>),
+    ...(unprefixTagsOwnedByPlugin(props.workflow, { alias: undefined /* props.pluginAlias */ }) as ActionableWorkflow<
+      TBot,
+      TWorkflowName
+    >),
 
     async update(x) {
       const { workflow } = await props.client.updateWorkflow({
         id: props.workflow.id,
-        ...x,
-        tags: x.tags && props.pluginAlias ? prefixTagsIfNeeded(x.tags, { alias: props.pluginAlias }) : undefined,
+        ...prefixTagsIfNeeded(x, { alias: undefined /* props.pluginAlias */ }),
       })
       await props.onWorkflowUpdate?.(workflow)
 
