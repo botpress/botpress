@@ -9,22 +9,10 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-
-// Extract props type from any integration handler function
-type HandlerProps =
-  | Parameters<sdk.IntegrationProps<any>['register']>[0]
-  | Parameters<sdk.IntegrationProps<any>['unregister']>[0]
-  | Parameters<sdk.IntegrationProps<any>['handler']>[0]
-  | Parameters<sdk.IntegrationProps<any>['actions'][string]>[0]
-  | Parameters<sdk.IntegrationProps<any>['channels'][string]['messages'][string]>[0]
-
-type AdditionalProperties = (props?: HandlerProps) => Record<string, any>
-
 type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  additionalProperties?: AdditionalProperties
 }
 
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
@@ -55,16 +43,15 @@ export function wrapIntegration(config: PostHogConfig) {
     return class extends constructor {
       public constructor(...args: any[]) {
         super(...args)
-        const additionalProperties = config.additionalProperties
-        this.props.register = wrapFunction(this.props.register, config, additionalProperties)
-        this.props.unregister = wrapFunction(this.props.unregister, config, additionalProperties)
-        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config, additionalProperties), config, additionalProperties)
+        this.props.register = wrapFunction(this.props.register, config)
+        this.props.unregister = wrapFunction(this.props.unregister, config)
+        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config), config)
 
         if (this.props.actions) {
           for (const actionType of Object.keys(this.props.actions)) {
             const actionFn = this.props.actions[actionType]
             if (typeof actionFn === 'function') {
-              this.props.actions[actionType] = wrapFunction(actionFn, config, additionalProperties)
+              this.props.actions[actionType] = wrapFunction(actionFn, config)
             }
           }
         }
@@ -76,7 +63,7 @@ export function wrapIntegration(config: PostHogConfig) {
             Object.keys(channel.messages).forEach((messageType) => {
               const messageFn = channel.messages[messageType]
               if (typeof messageFn === 'function') {
-                channel.messages[messageType] = wrapFunction(messageFn, config, additionalProperties)
+                channel.messages[messageType] = wrapFunction(messageFn, config)
               }
             })
           }
@@ -86,17 +73,16 @@ export function wrapIntegration(config: PostHogConfig) {
   }
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig, additionalProperties?: AdditionalProperties) {
+function wrapFunction(fn: Function, config: PostHogConfig) {
   return async (...args: any[]) => {
     try {
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
-
-      let additionalProps: Record<string, any> = {}
-      if (additionalProperties) {
-        additionalProps = additionalProperties(args[0])
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
       }
 
       await sendPosthogEvent(
@@ -120,13 +106,13 @@ function wrapFunction(fn: Function, config: PostHogConfig, additionalProperties?
 
 const isServerErrorStatus = (status: number): boolean => status >= 500 && status < 600
 
-function wrapHandler(fn: Function, config: PostHogConfig, additionalProperties?: AdditionalProperties) {
+function wrapHandler(fn: Function, config: PostHogConfig) {
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
-      let additionalProps: Record<string, any> = {}
-      if (additionalProperties) {
-        additionalProps = additionalProperties(args[0])
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
       }
 
       if (!resp.body) {
