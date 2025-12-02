@@ -3,7 +3,7 @@ import * as slackNotifHelper from '../utils/slack-notifications-helper'
 import * as bp from '.botpress'
 
 export const handleTimeToLintAll: bp.EventHandlers['timeToLintAll'] = async (props) => {
-  const { client, ctx, workflows, logger } = props
+  const { client, ctx, logger } = props
   logger.info("'timeToLintAll' event received.")
 
   const { botpress } = boot.bootstrap(props)
@@ -14,7 +14,14 @@ export const handleTimeToLintAll: bp.EventHandlers['timeToLintAll'] = async (pro
   const conversationId = await slackNotifHelper
     .tryGetConversationId(client, ctx.botId)
     .catch(_handleError('trying to get Slack notification channel'))
-  await workflows.lintAll
-    .startNewInstance({ input: {}, conversationId })
+
+  await client
+    .getOrCreateWorkflow({
+      name: 'lintAll',
+      input: {},
+      discriminateByStatusGroup: 'active',
+      conversationId,
+      status: 'pending',
+    })
     .catch(_handleError("trying to start the 'lintAll' workflow", conversationId))
 }
