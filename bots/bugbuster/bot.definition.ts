@@ -40,11 +40,17 @@ export default new sdk.BotDefinition({
       type: 'workflow',
       schema: sdk.z.object({
         issues: sdk.z.array(
-          sdk.z.object({
-            identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
-            result: sdk.z.enum(['succeeded', 'failed', 'ignored']).title('Result').describe('The lint result'),
-            messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
-          })
+          sdk.z.discriminatedUnion('result', [
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.literal('succeeded').title('Result').describe('The lint result'),
+              messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
+            }),
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.enum(['failed', 'ignored']).title('Result').describe('The lint result'),
+            }),
+          ])
         ),
       }),
     },
