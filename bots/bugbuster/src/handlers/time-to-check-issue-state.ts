@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 const STAGING_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been left in staging for over a week'
 const MAX_TIME_IN_STAGING = 7 * 24 * 60 * 60 * 1000 // 1 week in milliseconds
 
-export const handleTimeToCheckIssuesStatus: bp.EventHandlers['timeToCheckIssuesStatus'] = async (props) => {
+export const handleTimeToCheckIssuesState: bp.EventHandlers['timeToCheckIssuesState'] = async (props) => {
   const { logger, client, ctx } = props
   const { botpress, teamsManager, linear, issueStatusChecker } = boot.bootstrap(props)
   const _handleError =

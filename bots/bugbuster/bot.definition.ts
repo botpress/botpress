@@ -52,9 +52,9 @@ export default new sdk.BotDefinition({
     },
     issuesInStaging: {
       type: 'bot',
-      schema: sdk.z
-        .object({
-          issues: sdk.z.array(
+      schema: sdk.z.object({
+        issues: sdk.z
+          .array(
             sdk.z.object({
               id: sdk.z.string().title('ID').describe('The ID of the issue'),
               sinceTimestamp: sdk.z
@@ -67,10 +67,10 @@ export default new sdk.BotDefinition({
                 .title('Comment ID')
                 .describe('The ID of the comment made on the issue by the bot if there is one'),
             })
-          ),
-        })
-        .title('Issues')
-        .describe('The issues in staging'),
+          )
+          .title('Issues')
+          .describe('The issues in staging'),
+      }),
     },
   },
   workflows: {
@@ -83,7 +83,7 @@ export default new sdk.BotDefinition({
     timeToLintAll: {
       schema: sdk.z.object({}),
     },
-    timeToCheckIssuesStatus: {
+    timeToCheckIssuesState: {
       schema: sdk.z.object({}),
     },
   },
@@ -95,9 +95,9 @@ export default new sdk.BotDefinition({
         cron: '0 8 * * 1',
       },
     },
-    timeToCheckIssuesStatus: {
+    timeToCheckIssuesState: {
       payload: sdk.z.object({}),
-      type: 'timeToCheckIssuesStatus',
+      type: 'timeToCheckIssuesState',
       schedule: {
         cron: '0 * * * *',
       },

@@ -1,7 +1,7 @@
 import * as types from '../types'
 import * as lin from '../utils/linear-utils'
 
-export class IssueStatusChecker {
+export class IssueStateChecker {
   public constructor(private _linear: lin.LinearApi) {}
 
   public async getUpdatedIssuesOfState(
