@@ -7,7 +7,7 @@ export const getMessageAttachmentFromMail = wrapAction(
     { googleClient }: { googleClient: Awaited<ReturnType<typeof GoogleClient.create>> },
     { messageId }: { messageId: string }
   ) => {
-    const attachment = await googleClient.getMessageAttachmentFromMail(messageId)
+    const attachment = await googleClient.messages.getFirstAttachment(messageId)
 
     return {
       attachment: {

@@ -7,7 +7,7 @@ export const trashMessage = wrapAction(
     { googleClient }: { googleClient: Awaited<ReturnType<typeof GoogleClient.create>> },
     { id }: { id: string }
   ) => {
-    await googleClient.trashMessage(id)
+    await googleClient.messages.trash(id)
 
     return {}
   }

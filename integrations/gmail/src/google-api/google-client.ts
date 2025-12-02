@@ -2,15 +2,24 @@ import * as sdk from '@botpress/sdk'
 import { gmail_v1, google } from 'googleapis'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { composeRawEmail } from 'src/utils/mail-composing'
-import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
 export class GoogleClient {
+  public readonly threads: ThreadManagement
+  public readonly messages: MessageManagement
+  public readonly labels: LabelManagement
+  public readonly drafts: DraftManagement
+
   private constructor(
     private readonly _gmail: GmailClient,
     private readonly _topicName: string
-  ) {}
+  ) {
+    this.threads = new ThreadManagement(this._gmail)
+    this.messages = new MessageManagement(this._gmail)
+    this.labels = new LabelManagement(this._gmail)
+    this.drafts = new DraftManagement(this._gmail)
+  }
 
   public static async create({
     client,
@@ -48,7 +57,6 @@ export class GoogleClient {
     return GoogleClient.create({ client, ctx, refreshToken })
   }
 
-  @handleErrors('Failed to watch incoming mail')
   public async watchIncomingMail() {
     await this._gmail.users.watch({
       userId: 'me',
@@ -56,7 +64,6 @@ export class GoogleClient {
     })
   }
 
-  @handleErrors('Failed to get email address')
   public async getMyEmail() {
     const profile = await this._gmail.users.getProfile({
       userId: 'me',
@@ -65,7 +72,6 @@ export class GoogleClient {
     return profile.data.emailAddress
   }
 
-  @handleErrors('Failed to get history')
   public async getMyHistory(startHistoryId?: string) {
     const history = await this._gmail.users.history.list({
       startHistoryId,
@@ -74,111 +80,6 @@ export class GoogleClient {
     })
 
     return history.data
-  }
-
-  @handleErrors('Failed to get message')
-  public async getMessageById(messageId: string) {
-    const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
-
-    return message.data
-  }
-
-  public async sendRawEmail(raw: string, threadId?: string) {
-    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
-
-    return newMail.data
-  }
-
-  @handleErrors('Failed to list messages')
-  public async listMessages({
-    query,
-    maxResults,
-    pageToken,
-  }: {
-    query?: string
-    maxResults?: number
-    pageToken?: string
-  } = {}) {
-    const response = await this._gmail.users.messages.list({
-      userId: 'me',
-      q: query,
-      maxResults,
-      pageToken,
-    })
-
-    return response.data
-  }
-
-  @handleErrors('Failed to delete message')
-  public async deleteMessage(messageId: string) {
-    await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
-  }
-
-  @handleErrors('Failed to trash message')
-  public async trashMessage(messageId: string) {
-    await this._gmail.users.messages.trash({ id: messageId, userId: 'me' })
-  }
-
-  @handleErrors('Failed to untrash message')
-  public async untrashMessage(messageId: string) {
-    await this._gmail.users.messages.untrash({ id: messageId, userId: 'me' })
-  }
-
-  @handleErrors('Failed to change message labels')
-  public async changeMessageLabels(messageId: string, addLabelIds?: string[], removeLabelIds?: string[]) {
-    await this._gmail.users.messages.modify({
-      id: messageId,
-      userId: 'me',
-      requestBody: { addLabelIds, removeLabelIds },
-    })
-  }
-
-  @handleErrors('Failed to get message attachment')
-  public async getMessageAttachment(messageId?: string, attachmentId?: string) {
-    const attachment = await this._gmail.users.messages.attachments.get({ id: attachmentId, messageId, userId: 'me' })
-    return attachment.data
-  }
-
-  @handleErrors('Failed to get message attachment')
-  public async getMessageAttachmentFromMail(messageId: string) {
-    const message = await this.getMessageById(messageId)
-
-    const attachmentId = this._findFirstAttachmentId(message.payload)
-
-    if (!attachmentId) {
-      throw new sdk.RuntimeError('No attachment found in the message')
-    }
-
-    const attachment = await this._gmail.users.messages.attachments.get({
-      id: attachmentId,
-      messageId,
-      userId: 'me',
-    })
-
-    return {
-      ...attachment.data,
-      attachmentId,
-    }
-  }
-
-  @handleErrors('Failed to send email')
-  public async sendMail(raw: string, threadId?: string) {
-    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
-
-    return newMail.data
-  }
-
-  @handleErrors('Failed to compose raw email')
-  public async composeRawEmail(to: string, subject: string, body: string) {
-    const raw = await composeRawEmail({
-      to,
-      subject,
-      text: body,
-      html: body,
-      textEncoding: 'base64',
-    })
-
-    return raw
   }
 
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
@@ -253,6 +154,77 @@ export class GoogleClient {
 
     return new google.auth.OAuth2(clientId, clientSecret, endpoint)
   }
+}
+
+class MessageManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async get(messageId: string) {
+    const message = await this._gmail.users.messages.get({ id: messageId, userId: 'me' })
+    return message.data
+  }
+
+  public async send(raw: string, threadId?: string) {
+    const newMail = await this._gmail.users.messages.send({ requestBody: { raw, threadId }, userId: 'me' })
+    return newMail.data
+  }
+
+  public async delete(messageId: string) {
+    await this._gmail.users.messages.delete({ id: messageId, userId: 'me' })
+  }
+
+  public async trash(messageId: string) {
+    await this._gmail.users.messages.trash({ id: messageId, userId: 'me' })
+  }
+
+  public async untrash(messageId: string) {
+    await this._gmail.users.messages.untrash({ id: messageId, userId: 'me' })
+  }
+
+  public async modifyLabels(messageId: string, addLabelIds?: string[], removeLabelIds?: string[]) {
+    await this._gmail.users.messages.modify({
+      id: messageId,
+      userId: 'me',
+      requestBody: { addLabelIds, removeLabelIds },
+    })
+  }
+
+  public async getAttachment(messageId?: string, attachmentId?: string) {
+    const attachment = await this._gmail.users.messages.attachments.get({ id: attachmentId, messageId, userId: 'me' })
+    return attachment.data
+  }
+
+  public async getFirstAttachment(messageId: string) {
+    const message = await this.get(messageId)
+    const attachmentId = this._findFirstAttachmentId(message.payload)
+
+    if (!attachmentId) {
+      throw new sdk.RuntimeError('No attachment found in the message')
+    }
+
+    const attachment = await this._gmail.users.messages.attachments.get({
+      id: attachmentId,
+      messageId,
+      userId: 'me',
+    })
+
+    return {
+      ...attachment.data,
+      attachmentId,
+    }
+  }
+
+  public async composeRaw(to: string, subject: string, body: string) {
+    const raw = await composeRawEmail({
+      to,
+      subject,
+      text: body,
+      html: body,
+      textEncoding: 'base64',
+    })
+
+    return raw
+  }
 
   private _findFirstAttachmentId(payload: gmail_v1.Schema$MessagePart | undefined): string | null {
     if (!payload) {
@@ -273,5 +245,105 @@ export class GoogleClient {
     }
 
     return null
+  }
+}
+
+class ThreadManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const threads = await this._gmail.users.threads.list({ userId: 'me' })
+    return threads.data
+  }
+
+  public async get(threadId: string) {
+    const thread = await this._gmail.users.threads.get({ id: threadId, userId: 'me' })
+    return thread.data
+  }
+
+  public async trash(threadId: string) {
+    await this._gmail.users.threads.trash({ id: threadId, userId: 'me' })
+  }
+
+  public async untrash(threadId: string) {
+    await this._gmail.users.threads.untrash({ id: threadId, userId: 'me' })
+  }
+}
+
+class LabelManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const labels = await this._gmail.users.labels.list({ userId: 'me' })
+    return labels.data
+  }
+
+  public async get(labelId: string) {
+    const label = await this._gmail.users.labels.get({ id: labelId, userId: 'me' })
+    return label.data
+  }
+
+  public async create(name: string) {
+    const label = await this._gmail.users.labels.create({ requestBody: { name }, userId: 'me' })
+    return label.data
+  }
+
+  public async delete(labelId: string) {
+    await this._gmail.users.labels.delete({ id: labelId, userId: 'me' })
+  }
+
+  public async update(labelId: string, name?: string, backgroundColor?: string, textColor?: string) {
+    const label = await this._gmail.users.labels.update({
+      id: labelId,
+      userId: 'me',
+      requestBody: {
+        name,
+        color: backgroundColor || textColor ? { backgroundColor, textColor } : undefined,
+      },
+    })
+    return label.data
+  }
+}
+
+class DraftManagement {
+  public constructor(private readonly _gmail: GmailClient) {}
+
+  public async list() {
+    const drafts = await this._gmail.users.drafts.list({ userId: 'me' })
+    return drafts.data
+  }
+
+  public async get(draftId: string) {
+    const draft = await this._gmail.users.drafts.get({ id: draftId, userId: 'me' })
+    return draft.data
+  }
+
+  public async create(raw: string) {
+    const draft = await this._gmail.users.drafts.create({
+      userId: 'me',
+      requestBody: { message: { raw } },
+    })
+    return draft.data
+  }
+
+  public async delete(draftId: string) {
+    await this._gmail.users.drafts.delete({ id: draftId, userId: 'me' })
+  }
+
+  public async update(draftId: string, raw: string) {
+    const draft = await this._gmail.users.drafts.update({
+      id: draftId,
+      userId: 'me',
+      requestBody: { message: { raw } },
+    })
+    return draft.data
+  }
+
+  public async send(draftId: string) {
+    const sent = await this._gmail.users.drafts.send({
+      userId: 'me',
+      requestBody: { id: draftId },
+    })
+    return sent.data
   }
 }

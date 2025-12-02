@@ -7,7 +7,7 @@ export const changeMessageLabels = wrapAction(
     { googleClient }: { googleClient: Awaited<ReturnType<typeof GoogleClient.create>> },
     { id, addLabelIds, removeLabelIds }: { id: string; addLabelIds?: string[]; removeLabelIds?: string[] }
   ) => {
-    await googleClient.changeMessageLabels(id, addLabelIds, removeLabelIds)
+    await googleClient.messages.modifyLabels(id, addLabelIds, removeLabelIds)
 
     return {}
   }
