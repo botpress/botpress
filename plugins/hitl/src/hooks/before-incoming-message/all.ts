@@ -1,16 +1,11 @@
 import * as client from '@botpress/client'
-import {
-  DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
-  DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-  DEFAULT_USER_HITL_CLOSE_COMMAND,
-  DEFAULT_USER_HITL_COMMAND_MESSAGE,
-} from 'plugin.definition'
 import { tryLinkWebchatUser } from 'src/webchat'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
 import type * as types from '../../types'
 import * as consts from '../consts'
 import * as bp from '.botpress'
+import { DEFAULT_USER_HITL_CLOSE_COMMAND } from 'plugin.definition'
 
 export const handleMessage: bp.HookHandlers['before_incoming_message']['*'] = async (props) => {
   const conversation = await props.conversations.hitl.hitl.getById({
@@ -57,12 +52,7 @@ const _handleDownstreamMessage = async (
 
   if (!messagePayload) {
     props.logger.with(props.data).error('Downstream conversation received a non-text message')
-    await downstreamCm.respond({
-      type: 'text',
-      text: sessionConfig.onIncompatibleMsgTypeMessage?.length
-        ? sessionConfig.onIncompatibleMsgTypeMessage
-        : DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE,
-    })
+    await downstreamCm.maybeRespondText(sessionConfig.onIncompatibleMsgTypeMessage)
     return consts.STOP_EVENT_HANDLING
   }
 
@@ -191,12 +181,7 @@ const _handleHitlCloseCommand = async (
     sessionConfig: bp.configuration.Configuration
   }
 ) => {
-  await downstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
-      ? sessionConfig.onUserHitlCancelledMessage
-      : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-  })
+  await downstreamCm.maybeRespondText(sessionConfig.onUserHitlCancelledMessage)
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.PATIENT_USED_TERMINATION_COMMAND),
@@ -213,10 +198,5 @@ const _handleHitlCloseCommand = async (
   // Call stopHitl in the hitl integration (zendesk, etc.):
   await props.actions.hitl.stopHitl({ conversationId: downstreamCm.conversationId })
 
-  await upstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onUserHitlCloseMessage?.length
-      ? sessionConfig.onUserHitlCloseMessage
-      : DEFAULT_USER_HITL_COMMAND_MESSAGE,
-  })
+  await upstreamCm.maybeRespondText(sessionConfig.onUserHitlCloseMessage)
 }

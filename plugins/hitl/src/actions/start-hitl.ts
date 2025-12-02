@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import { DEFAULT_HITL_HANDOFF_MESSAGE } from '../../plugin.definition'
 import * as configuration from '../configuration'
 import * as conv from '../conv-manager'
 import type * as types from '../types'
@@ -76,13 +75,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
 const _sendHandoffMessage = (
   upstreamCm: conv.ConversationManager,
   sessionConfig: bp.configuration.Configuration
-): Promise<void> =>
-  upstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onHitlHandoffMessage?.length
-      ? sessionConfig.onHitlHandoffMessage
-      : DEFAULT_HITL_HANDOFF_MESSAGE,
-  })
+): Promise<void> => upstreamCm.maybeRespondText(sessionConfig.onHitlHandoffMessage)
 
 const _buildMessageHistory = async (
   upstreamConversation: types.ActionableConversation,

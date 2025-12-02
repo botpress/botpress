@@ -76,6 +76,13 @@ export class ConversationManager {
     })
   }
 
+  public async maybeRespondText(text: string | undefined): Promise<void> {
+    if (!text?.length) {
+      return
+    }
+    await this.respond({ type: 'text', text })
+  }
+
   public async respond(messagePayload: types.MessagePayload): Promise<void> {
     // FIXME: in the future, we should use the provided UserId so that messages
     //        on Botpress appear to come from the agent/user instead of the

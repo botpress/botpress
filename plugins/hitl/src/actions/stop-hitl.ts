@@ -1,4 +1,3 @@
-import { DEFAULT_USER_HITL_CANCELLED_MESSAGE } from 'plugin.definition'
 import * as configuration from '../configuration'
 import * as conv from '../conv-manager'
 import * as bp from '.botpress'
@@ -30,12 +29,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
     upstreamConversationId,
   })
 
-  await downstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
-      ? sessionConfig.onUserHitlCancelledMessage
-      : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-  })
+  await downstreamCm.maybeRespondText(sessionConfig.onUserHitlCancelledMessage)
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),
