@@ -22,7 +22,8 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logge
     await suncoClient.deleteIntegration(integrationId)
 
     logger.forBot().info('Zendesk Messaging HITL integration unregistered')
-  } catch (error: any) {
-    logger.forBot().error('Failed to unregister integration, skipping: ' + error.message, error)
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error(`Failed to unregister integration, skipping: ${errMsg}`)
   }
 }

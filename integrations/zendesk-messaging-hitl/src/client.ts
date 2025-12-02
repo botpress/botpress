@@ -1,34 +1,64 @@
 import { RuntimeError } from '@botpress/client'
-import * as bp from '.botpress'
-const SunshineConversationsClient = require('sunshine-conversations-client')
+import {
+  SunshineConversationsClient,
+  type SuncoConfiguration,
+  type SuncoUser,
+  type SuncoConversation,
+  type SuncoClientApis,
+} from './sunshine-client'
+import { Logger } from './types'
 
-export type SuncoConfiguration = {
-  appId: string
-  keyId: string
-  keySecret: string
-}
-
-export type SuncoUser = {
-  id: string
-  profile?: {
-    givenName?: string
-    surname?: string
-    email?: string
-    avatarUrl?: string
+type NetworkError = {
+  status?: number
+  response?: {
+    status?: number
+    statusText?: string
+    data?: {
+      error?: {
+        description?: string
+      }
+      message?: string
+    }
   }
+  message?: string
 }
 
-export type SuncoConversation = {
-  id: string
+function getNetworkError(
+  error: unknown
+): { message: string; status?: number; statusText?: string; data?: unknown } | undefined {
+  if (typeof error !== 'object' || error === null) {
+    return undefined
+  }
+
+  const networkError = error as NetworkError
+
+  // Check if it looks like a network error
+  if (!('status' in networkError || 'response' in networkError || 'message' in networkError)) {
+    return undefined
+  }
+
+  const message =
+    networkError.message ||
+    networkError.response?.data?.error?.description ||
+    networkError.response?.data?.message ||
+    JSON.stringify(networkError.response?.data) ||
+    'Unknown error'
+
+  return {
+    message,
+    status: networkError.status ?? networkError.response?.status,
+    statusText: networkError.response?.statusText,
+    data: networkError.response?.data,
+  }
 }
 
 class SuncoClient {
   private _appId: string
-  private _client
+  private _client: SuncoClientApis
 
   public constructor(
     config: SuncoConfiguration,
-    private _logger: bp.Logger
+    private _logger: Logger
   ) {
     this._appId = config.appId
     const apiClient = new SunshineConversationsClient.ApiClient()
@@ -48,6 +78,38 @@ class SuncoClient {
     }
   }
 
+  private _handleError(
+    thrown: unknown,
+    operationName: string,
+    requestBody?: unknown,
+    additionalContext?: Record<string, unknown>
+  ): never {
+    // If it's already a RuntimeError, re-throw it without wrapping
+    if (thrown instanceof RuntimeError) {
+      throw thrown
+    }
+
+    const networkError = getNetworkError(thrown)
+    const errorMessage = networkError?.message || String(thrown)
+    const errorDetails: Record<string, unknown> = {
+      message: errorMessage,
+      status: networkError?.status,
+      statusText: networkError?.statusText,
+      data: networkError?.data,
+      stack: thrown instanceof Error ? thrown.stack : undefined,
+    }
+
+    if (requestBody) {
+      errorDetails.requestBody = requestBody
+    }
+
+    if (additionalContext) {
+      Object.assign(errorDetails, additionalContext)
+    }
+    this._logger.forBot().error(`Failed to ${operationName}`, errorDetails)
+    throw new RuntimeError(`Failed to ${operationName}: ${errorMessage}`)
+  }
+
   public async getOrCreateUser(props: {
     name?: string
     email?: string
@@ -60,9 +122,10 @@ class SuncoClient {
       // If externalId already exists, the API might return the existing user or throw an error
       try {
         return await this._createUser(props)
-      } catch (createError: any) {
+      } catch (createError: unknown) {
         // If user already exists (409 conflict or similar), try to find it
-        if (createError.status === 409 || createError.response?.status === 409) {
+        const networkError = getNetworkError(createError)
+        if (networkError && networkError.status === 409) {
           // Try to get the existing user by externalId
           const existingUser = await this._getUserByIdOrExternalId(props.botpressUserId)
           if (existingUser) {
@@ -75,23 +138,8 @@ class SuncoClient {
         }
         throw createError
       }
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-        requestBody: props,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to get or create user', errorDetails)
-      throw new RuntimeError(`Failed to get or create user: ${errorMessage}`)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'get or create user', props)
     }
   }
 
@@ -103,12 +151,15 @@ class SuncoClient {
         id: result.user.id,
         profile: result.user.profile,
       }
-    } catch (error: any) {
+    } catch (thrown: unknown) {
       // If user not found (404), return null
-      if (error.status === 404 || error.response?.status === 404) {
+      const networkError = getNetworkError(thrown)
+      if (networkError && networkError.status === 404) {
         return null
       }
-      this._logger.forBot().error('Failed to get user by ID or externalId: ' + error.message, error?.response?.data)
+
+      const errorMessage = networkError?.message || String(thrown)
+      this._logger.forBot().error(`Failed to get user by ID or externalId: ${errorMessage}`, thrown)
       return null
     }
   }
@@ -123,7 +174,7 @@ class SuncoClient {
     const givenName = nameParts[0] || ''
     const surname = nameParts.slice(1).join(' ') || ''
 
-    const userPost: any = {
+    const userPost: Record<string, unknown> = {
       externalId: props.botpressUserId,
       signedUpAt: new Date().toISOString(),
       profile: {
@@ -138,30 +189,15 @@ class SuncoClient {
       this._logger.forBot().info(`Creating user with externalId: ${props.botpressUserId}`, { userPost })
       const result = await this._client.users.createUser(this._appId, userPost)
       return result.user
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-        requestBody: userPost,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to create user', errorDetails)
-      throw error
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create user', userPost)
     }
   }
 
   public async createConversation(args: { userId: string }): Promise<SuncoConversation> {
     try {
       // Create conversation with participant directly in the payload
-      const conversationPost: any = {
+      const conversationPost: Record<string, unknown> = {
         type: 'personal',
         participants: [
           {
@@ -173,30 +209,15 @@ class SuncoClient {
       }
 
       this._logger.forBot().info(`Creating conversation for user: ${args.userId}`, { conversationPost })
-      const conversation = await this._client.conversations.createConversation(this._appId, conversationPost)
+      const data = await this._client.conversations.createConversation(this._appId, conversationPost)
 
-      if (!conversation?.conversation?.id) {
+      if (!data?.conversation?.id) {
         throw new RuntimeError('Conversation creation succeeded but no ID returned')
       }
 
-      return conversation.conversation
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-        requestBody: args,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to create conversation', errorDetails)
-      throw new RuntimeError(`Failed to create conversation: ${errorMessage}`)
+      return data.conversation
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create conversation', args)
     }
   }
 
@@ -221,7 +242,7 @@ class SuncoClient {
       let messageId: string | undefined
 
       // Determine author object based on input type
-      let author: any
+      let author: Record<string, unknown>
       if (typeof userIdOrAuthor === 'string') {
         // userId provided
         author = {
@@ -244,7 +265,7 @@ class SuncoClient {
       }
 
       for (const part of messageParts) {
-        const messagePost: any = {
+        const messagePost: Record<string, unknown> = {
           author,
         }
 
@@ -277,100 +298,78 @@ class SuncoClient {
       }
 
       return messageId
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to send message: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to send message: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'send message', { conversationId, messageParts })
     }
   }
 
   public async createIntegration(integrationName: string, webhookUrl: string): Promise<{ integrationId: string }> {
-    try {
-      // Create integration with webhooks directly in the payload
-      const integrationPost: any = {
-        type: 'custom',
-        status: 'active',
-        displayName: integrationName,
-        webhooks: [
-          {
-            target: webhookUrl,
-            triggers: [
-              'conversation:message',
-              'conversation:remove',
-              'conversation:join',
-              'conversation:postback',
-              'switchboard:releaseControl',
-            ],
-            includeFullUser: false,
-            includeFullSource: false,
-          },
-        ],
-      }
+    // Create integration with webhooks directly in the payload
+    const integrationPost: Record<string, unknown> = {
+      type: 'custom',
+      status: 'active',
+      displayName: integrationName,
+      webhooks: [
+        {
+          target: webhookUrl,
+          triggers: [
+            'conversation:message',
+            'conversation:remove',
+            'conversation:join',
+            'conversation:postback',
+            'switchboard:releaseControl',
+          ],
+          includeFullUser: false,
+          includeFullSource: false,
+        },
+      ],
+    }
 
-      this._logger
-        .forBot()
-        .info(`Attempting to create integration with type: custom, name: ${integrationName}, webhook: ${webhookUrl}`)
+    try {
       const result = await this._client.integrations.createIntegration(this._appId, integrationPost)
 
       if (!result?.integration?.id) {
         throw new RuntimeError('Integration creation succeeded but no ID returned')
       }
 
-      this._logger.forBot().info(`Integration created successfully with ID: ${result.integration.id}`)
       return {
         integrationId: result.integration.id,
       }
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to create integration', errorDetails)
-      throw new RuntimeError(`Failed to create integration: ${errorMessage}`)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create integration', integrationPost)
     }
   }
 
   public async createWebhook(integrationId: string, webhookUrl: string): Promise<string> {
-    try {
-      const webhookPost: any = {
-        target: webhookUrl,
-        triggers: ['conversation:message', 'conversation:read'],
-        includeFullUser: false,
-        includeFullSource: false,
-      }
+    const webhookPost: Record<string, unknown> = {
+      target: webhookUrl,
+      triggers: ['conversation:message', 'conversation:read'],
+      includeFullUser: false,
+      includeFullSource: false,
+    }
 
+    try {
       // Create webhook under the integration - WebhooksApi has methods that take integrationId
       const result = await this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, webhookPost)
       return result.webhook.id
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to create webhook: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to create webhook: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create webhook', webhookPost, { integrationId })
     }
   }
 
   public async deleteWebhook(integrationId: string, webhookId: string): Promise<void> {
     try {
       await this._client.webhooks.deleteIntegrationWebhook(this._appId, integrationId, webhookId)
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to delete webhook: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to delete webhook: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'delete webhook', undefined, { integrationId, webhookId })
     }
   }
 
   public async deleteIntegration(integrationId: string): Promise<void> {
     try {
       await this._client.integrations.deleteIntegration(this._appId, integrationId)
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to delete integration: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to delete integration: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'delete integration', undefined, { integrationId })
     }
   }
 
@@ -378,14 +377,13 @@ class SuncoClient {
     try {
       const result = await this._client.integrations.listIntegrations(this._appId)
       return (
-        result.integrations?.map((integration: any) => ({
+        result.integrations?.map((integration: { id?: string; displayName?: string }) => ({
           id: integration.id,
           displayName: integration.displayName,
         })) || []
       )
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to list integrations: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to list integrations: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'list integrations')
     }
   }
 
@@ -402,13 +400,12 @@ class SuncoClient {
     try {
       const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
       const switchboardIntegrations = result.switchboardIntegrations || []
-      const switchboardIntegration = switchboardIntegrations.find((si: any) => si.name === name)
+      const switchboardIntegration = switchboardIntegrations.find(
+        (si: { name?: string; id?: string }) => si.name === name
+      )
       return switchboardIntegration ? { id: switchboardIntegration.id } : null
-    } catch (error: any) {
-      this._logger
-        .forBot()
-        .error('Failed to find switchboard integration by name: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to find switchboard integration by name: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'find switchboard integration by name', undefined, { switchboardId, name })
     }
   }
 
@@ -425,70 +422,47 @@ class SuncoClient {
       const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
       const switchboardIntegrations = result.switchboardIntegrations || []
       const agentWorkspaceIntegration = switchboardIntegrations.find(
-        (si: any) => si.integrationType === 'zd:agentWorkspace'
+        (si: { integrationType?: string; id?: string }) => si.integrationType === 'zd:agentWorkspace'
       )
       if (!agentWorkspaceIntegration || !agentWorkspaceIntegration.id) {
         throw new RuntimeError('No agent workspace integration found with integrationType zd:agentWorkspace')
       }
       return { id: agentWorkspaceIntegration.id }
-    } catch (error: any) {
-      if (error instanceof RuntimeError) {
-        throw error
-      }
-      this._logger.forBot().error('Failed to find agent workspace integration: ' + error.message, error?.response?.data)
-      throw new RuntimeError('Failed to find agent workspace integration: ' + error.message)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'find agent workspace integration', undefined, { switchboardId })
     }
   }
 
   public async switchboardActionsPassControl(
     conversationId: string,
     switchboardIntegrationId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, string>
   ): Promise<void> {
     try {
-      const passControlBody: any = {
+      const passControlBody: Record<string, unknown> = {
         switchboardIntegration: switchboardIntegrationId,
         metadata: metadata || {},
       }
-
-      this._logger
-        .forBot()
-        .info(
-          `Passing control of conversation ${conversationId} to switchboard integration ${switchboardIntegrationId}`
-        )
 
       // Use the switchboard API to accept control
       await this._client.switchboardActions.passControl(this._appId, conversationId, passControlBody)
 
       this._logger.forBot().info(`Successfully passed control to switchboard integration ${switchboardIntegrationId}`)
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'pass control to switchboard', undefined, {
         conversationId,
         switchboardIntegrationId,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to pass control to switchboard', errorDetails)
-      throw new RuntimeError(`Failed to pass control to switchboard: ${errorMessage}`)
+      })
     }
   }
 
   public async switchboardActionsOfferControl(
     conversationId: string,
     switchboardIntegrationId: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, string>
   ): Promise<void> {
     try {
-      const offerControlBody: any = {
+      const offerControlBody: Record<string, unknown> = {
         switchboardIntegration: switchboardIntegrationId,
         metadata: metadata || {},
       }
@@ -501,59 +475,27 @@ class SuncoClient {
 
       // Use the switchboard API to offer control
       await this._client.switchboardActions.offerControl(this._appId, conversationId, offerControlBody)
-
-      this._logger.forBot().info(`Successfully offered control to switchboard integration ${switchboardIntegrationId}`)
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'offer control to switchboard', undefined, {
         conversationId,
         switchboardIntegrationId,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to offer control to switchboard', errorDetails)
-      throw new RuntimeError(`Failed to offer control to switchboard: ${errorMessage}`)
+      })
     }
   }
 
   public async switchboardActionsReleaseControl(conversationId: string, reason?: string): Promise<void> {
     try {
-      const releaseControlBody: any = {
+      const releaseControlBody: Record<string, unknown> = {
         ...(reason && { reason }),
       }
 
-      this._logger.forBot().info(`Releasing control of conversation ${conversationId}`, { reason })
-
       // Use the switchboard API to release control
       await this._client.switchboardActions.releaseControl(this._appId, conversationId, releaseControlBody)
-
-      this._logger.forBot().info(`Successfully released control of conversation ${conversationId}`)
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'release control from switchboard', undefined, {
         conversationId,
         reason,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to release control from switchboard', errorDetails)
-      throw new RuntimeError(`Failed to release control from switchboard: ${errorMessage}`)
+      })
     }
   }
 
@@ -561,20 +503,13 @@ class SuncoClient {
     try {
       const result = await this._client.switchboard.listSwitchboards(this._appId)
       return (
-        result.switchboards?.map((switchboard: any) => ({
+        result.switchboards?.map((switchboard: { id?: string; name?: string }) => ({
           id: switchboard.id,
           name: switchboard.name,
         })) || []
       )
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      this._logger.forBot().error('Failed to list switchboards: ' + errorMessage, error?.response?.data)
-      throw new RuntimeError('Failed to list switchboards: ' + errorMessage)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'list switchboards')
     }
   }
 
@@ -589,18 +524,8 @@ class SuncoClient {
         throw new RuntimeError('No switchboards available')
       }
       return firstSwitchboard.id
-    } catch (error: any) {
-      if (error instanceof RuntimeError) {
-        throw error
-      }
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      this._logger.forBot().error('Failed to get switchboard ID: ' + errorMessage, error?.response?.data)
-      throw new RuntimeError('Failed to get switchboard ID: ' + errorMessage)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'get switchboard ID')
     }
   }
 
@@ -615,19 +540,12 @@ class SuncoClient {
       // - name is REQUIRED (Identifier for use in control transfer protocols)
       // - integrationId is required when linking a custom integration
       // - deliverStandbyEvents is optional (Boolean)
-      const switchboardIntegrationBody: any = {
+      const switchboardIntegrationBody: Record<string, unknown> = {
         name, // Required: Identifier for use in control transfer protocols
         integrationId, // Required for custom integrations
         deliverStandbyEvents, // Optional: defaults to false
       }
 
-      this._logger
-        .forBot()
-        .info(
-          `Creating switchboard integration for switchboard ${switchboardId} with integration ${integrationId} and name ${name}`
-        )
-
-      // Method signature: createSwitchboardIntegration(appId, switchboardId, switchboardIntegrationCreateBody)
       const result = await this._client.switchboardIntegrations.createSwitchboardIntegration(
         this._appId,
         switchboardId,
@@ -639,54 +557,32 @@ class SuncoClient {
       }
 
       const switchboardIntegrationId = result.switchboardIntegration.id
-      this._logger.forBot().info(`Successfully created switchboard integration with ID: ${switchboardIntegrationId}`)
 
       return switchboardIntegrationId
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      const errorDetails = {
-        message: errorMessage,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        data: error?.response?.data,
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'create switchboard integration', undefined, {
         switchboardId,
         integrationId,
         name,
-        stack: error?.stack,
-      }
-      this._logger.forBot().error('Failed to create switchboard integration', errorDetails)
-      throw new RuntimeError(`Failed to create switchboard integration: ${errorMessage}`)
+      })
     }
   }
 
   public async deleteSwitchboardIntegration(switchboardId: string, switchboardIntegrationId: string): Promise<void> {
     try {
-      this._logger
-        .forBot()
-        .info(`Deleting switchboard integration ${switchboardIntegrationId} from switchboard ${switchboardId}`)
       await this._client.switchboardIntegrations.deleteSwitchboardIntegration(
         this._appId,
         switchboardId,
         switchboardIntegrationId
       )
-      this._logger.forBot().info(`Successfully deleted switchboard integration ${switchboardIntegrationId}`)
-    } catch (error: any) {
-      const errorMessage =
-        error?.message ||
-        error?.response?.data?.error?.description ||
-        error?.response?.data?.message ||
-        JSON.stringify(error?.response?.data) ||
-        'Unknown error'
-      this._logger.forBot().error('Failed to delete switchboard integration: ' + errorMessage, error?.response?.data)
-      throw new RuntimeError('Failed to delete switchboard integration: ' + errorMessage)
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'delete switchboard integration', undefined, {
+        switchboardId,
+        switchboardIntegrationId,
+      })
     }
   }
 }
 
-export const getSuncoClient = (config: SuncoConfiguration, logger: bp.Logger) => new SuncoClient(config, logger)
+export const getSuncoClient = (config: SuncoConfiguration, logger: Logger) => new SuncoClient(config, logger)
 export type { SuncoClient }

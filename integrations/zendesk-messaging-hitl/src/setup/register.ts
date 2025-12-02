@@ -49,7 +49,9 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     await fetchAndCacheSwitchboardIntegrationsIdOrThrow(ctx, client, logger)
 
     logger.forBot().info('✅ Zendesk Messaging HITL integration registered successfully')
-  } catch (error: any) {
-    throw new RuntimeError('Failed to register Zendesk Messaging HITL integration: ' + error.message, error)
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error(`Failed to register Zendesk Messaging HITL integration: ${errMsg}`)
+    throw new RuntimeError(`Failed to register Zendesk Messaging HITL integration: ${errMsg}`)
   }
 }

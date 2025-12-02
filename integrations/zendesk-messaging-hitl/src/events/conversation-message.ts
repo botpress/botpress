@@ -1,12 +1,18 @@
-import * as bp from '../../.botpress'
-
-type Conversation = Awaited<ReturnType<bp.Client['listConversations']>>['conversations'][number]
+import { ConversationMessageEvent } from 'src/sunshine-events'
+import {
+  Client,
+  Conversation,
+  CreateMessageInput,
+  CreateMessageInputPayload,
+  CreateMessageInputType,
+  Logger,
+} from 'src/types'
 
 export async function handleConversationMessage(
-  event: any,
+  event: ConversationMessageEvent,
   conversation: Conversation,
-  client: bp.Client,
-  logger: bp.Logger
+  client: Client,
+  logger: Logger
 ): Promise<void> {
   const payload = event.payload
 
@@ -15,7 +21,7 @@ export async function handleConversationMessage(
     return
   }
 
-  const zendeskAgentId: string | undefined = payload.message?.metadata['__zendesk_msg.agent.id']
+  const zendeskAgentId: string | undefined = payload.message?.metadata?.['__zendesk_msg.agent.id']
 
   if (!zendeskAgentId?.length) {
     return
@@ -31,23 +37,23 @@ export async function handleConversationMessage(
 
   const messageContent = payload.message.content
 
-  const createMessage = async (type: string, messagePayload: any) => {
+  const createMessage = async (type: CreateMessageInputType, messagePayload: CreateMessageInputPayload) => {
     await client.createMessage({
       tags: { id: payload.message.id },
-      type: type as any,
+      type,
       userId: user.id,
       conversationId: conversation.id,
       payload: messagePayload,
-    })
+    } as CreateMessageInput)
   }
 
   if (messageContent.type === 'text') {
-    await createMessage('text', { text: messageContent.text })
+    await createMessage('text', { text: messageContent.text || '' })
   } else if (messageContent.type === 'image') {
-    await createMessage('image', { imageUrl: messageContent.mediaUrl })
+    await createMessage('image', { imageUrl: messageContent.mediaUrl || '' })
   } else if (messageContent.type === 'file') {
     const mediaType = messageContent.mediaType || ''
-    const mediaUrl = messageContent.mediaUrl
+    const mediaUrl = messageContent.mediaUrl || ''
 
     if (mediaType.startsWith('video/')) {
       await createMessage('video', { videoUrl: mediaUrl })

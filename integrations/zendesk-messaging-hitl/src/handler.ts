@@ -1,7 +1,8 @@
 import { handleConversationMessage, handleSwitchboardReleaseControl } from './events'
-import * as bp from '.botpress'
+import { isSuncoWebhookPayload, SuncoWebhookPayload } from './sunshine-events'
+import { Handler } from './types'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, client }) => {
+export const handler: Handler = async ({ req, logger, client }) => {
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return
@@ -10,11 +11,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
   logger.forBot().debug('Handler received request from Sunco with payload:', req.body)
 
   try {
-    const data = JSON.parse(req.body)
+    const data = JSON.parse(req.body) as SuncoWebhookPayload | unknown
 
-    // Handle Sunco webhook events
-    // Sunco sends events in the format: { events: [...] }
-    if (!data.events && !Array.isArray(data.events)) {
+    if (!isSuncoWebhookPayload(data)) {
       logger.forBot().warn('Received an invalid payload from Sunco')
       return
     }
@@ -22,13 +21,19 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
     for (const event of data.events) {
       const suncoConversationId = event.payload.conversation?.id
 
-      const { conversations } = await client.listConversations({
-        channel: 'hitl',
-        tags: {
-          id: suncoConversationId,
-        },
-      })
-      const conversation = conversations[0]
+      if (!suncoConversationId) {
+        logger.forBot().warn('Event missing conversation ID, skipping')
+        continue
+      }
+
+      const conversation = (
+        await client.listConversations({
+          channel: 'hitl',
+          tags: {
+            id: suncoConversationId,
+          },
+        })
+      )?.conversations[0]
 
       if (!conversation) {
         logger
@@ -39,15 +44,20 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, logger, cli
         continue
       }
 
-      if (event.type === 'switchboard:releaseControl') {
-        await handleSwitchboardReleaseControl(event, conversation, client, logger)
-      } else if (event.type === 'conversation:message') {
-        await handleConversationMessage(event, conversation, client, logger)
-      } else {
-        logger.forBot().debug(`Unhandled event type: ${event.type}`)
+      const eventType = event.type
+      switch (eventType) {
+        case 'switchboard:releaseControl':
+          await handleSwitchboardReleaseControl(event, conversation, client, logger)
+          break
+        case 'conversation:message':
+          await handleConversationMessage(event, conversation, client, logger)
+          break
+        default:
+          logger.forBot().debug(`Unhandled event type: ${eventType}`)
       }
     }
-  } catch (error: any) {
-    logger.forBot().error('Error processing Sunco webhook: ' + error.message, error)
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error(`Error processing Sunco webhook: ${errMsg}`)
   }
 }

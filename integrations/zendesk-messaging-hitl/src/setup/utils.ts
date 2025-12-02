@@ -1,15 +1,15 @@
 import { RuntimeError } from '@botpress/sdk'
-import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
+import { Client, IntegrationCtx, Logger } from '../types'
 
 export function getBotpressIntegrationDisplayName(webhookId: string): string {
   return `botpress-hitl-${webhookId}`
 }
 
 export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
-  ctx: bp.Context,
-  client: bp.Client,
-  logger: bp.Logger
+  ctx: IntegrationCtx,
+  client: Client,
+  logger: Logger
 ): Promise<{ switchboardIntegrationId: string; agentWorkspaceSwitchboardIntegrationId: string }> {
   logger.forBot().info('Fetching switchboard integration IDs from API...')
   const suncoClient = getSuncoClient(ctx.configuration, logger)
@@ -26,12 +26,12 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
   // Cache both values
   await client.getOrSetState({
     type: 'integration',
-    name: 'integrationIds' as any,
+    name: 'integrationIds',
     id: ctx.integrationId,
     payload: {
       switchboardIntegrationId: switchboardIntegration.id,
       agentWorkspaceSwitchboardIntegrationId: agentWorkspaceIntegration.id,
-    } as any,
+    },
   })
 
   logger
@@ -47,21 +47,21 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
 }
 
 export async function getSwitchboardIntegrationId(
-  ctx: bp.Context,
-  client: bp.Client,
-  logger: bp.Logger
+  ctx: IntegrationCtx,
+  client: Client,
+  logger: Logger
 ): Promise<string> {
   // Try to get from cache first
   try {
-    const switchboardIntegrationId = (
+    const { switchboardIntegrationId } = (
       await client.getState({
         type: 'integration',
-        name: 'integrationIds' as any,
+        name: 'integrationIds',
         id: ctx.integrationId,
       })
     ).state.payload
 
-    if (!switchboardIntegrationId.length) {
+    if (!switchboardIntegrationId?.length) {
       throw new RuntimeError('No switchboard integration ID found in cache')
     }
 
@@ -72,16 +72,16 @@ export async function getSwitchboardIntegrationId(
 }
 
 export async function getAgentWorkspaceSwitchboardIntegrationId(
-  ctx: bp.Context,
-  client: bp.Client,
-  logger: bp.Logger
+  ctx: IntegrationCtx,
+  client: Client,
+  logger: Logger
 ): Promise<string> {
   // Try to get from cache first
   try {
     const { agentWorkspaceSwitchboardIntegrationId } = (
       await client.getState({
         type: 'integration',
-        name: 'integrationIds' as any,
+        name: 'integrationIds',
         id: ctx.integrationId,
       })
     ).state.payload

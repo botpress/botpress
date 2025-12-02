@@ -1,12 +1,11 @@
-import * as bp from '../../.botpress'
-
-type Conversation = Awaited<ReturnType<bp.Client['listConversations']>>['conversations'][number]
+import { Client, Conversation, Logger } from 'src/types'
+import { SwitchboardReleaseControlEvent } from '../sunshine-events'
 
 export async function handleSwitchboardReleaseControl(
-  event: any,
+  event: SwitchboardReleaseControlEvent,
   conversation: Conversation,
-  client: bp.Client,
-  logger: bp.Logger
+  client: Client,
+  logger: Logger
 ): Promise<void> {
   const payload = event.payload
   const suncoConversationId = payload.conversation?.id
@@ -32,7 +31,8 @@ export async function handleSwitchboardReleaseControl(
     })
 
     logger.forBot().info(`HITL session stopped for conversation ${conversation.id} due to switchboard releaseControl`)
-  } catch (error: any) {
-    logger.forBot().error(`Failed to handle switchboard:releaseControl event: ${error.message}`, error)
+  } catch (thrown: unknown) {
+    const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error(`Failed to handle switchboard:releaseControl event: ${errMsg}`)
   }
 }
