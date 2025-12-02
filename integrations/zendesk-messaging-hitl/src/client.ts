@@ -51,9 +51,20 @@ function getNetworkError(
   }
 }
 
+type SuncoClientApis = {
+  users: InstanceType<typeof SunshineConversationsClient.UsersApi>
+  conversations: InstanceType<typeof SunshineConversationsClient.ConversationsApi>
+  messages: InstanceType<typeof SunshineConversationsClient.MessagesApi>
+  webhooks: InstanceType<typeof SunshineConversationsClient.WebhooksApi>
+  integrations: InstanceType<typeof SunshineConversationsClient.IntegrationsApi>
+  switchboard: InstanceType<typeof SunshineConversationsClient.SwitchboardsApi>
+  switchboardActions: InstanceType<typeof SunshineConversationsClient.SwitchboardActionsApi>
+  switchboardIntegrations: InstanceType<typeof SunshineConversationsClient.SwitchboardIntegrationsApi>
+}
+
 class SuncoClient {
   private _appId: string
-  private _client
+  private _client: SuncoClientApis
 
   public constructor(
     config: SuncoConfiguration,

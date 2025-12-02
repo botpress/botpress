@@ -13,14 +13,15 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       id: input.userId,
     })
 
-    if (!user.tags.id?.length) {
+    const suncoUserId = user.tags.id
+    if (!suncoUserId?.length) {
       throw new RuntimeError("Input user doesn't have a Sunco User Id")
     }
 
     const { title, description, messageHistory } = input
 
     const suncoConversation = await suncoClient.createConversation({
-      userId: user.tags.id as string,
+      userId: suncoUserId,
     })
 
     const { conversation } = await client.getOrCreateConversation({

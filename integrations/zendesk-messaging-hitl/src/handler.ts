@@ -1,5 +1,5 @@
 import { handleConversationMessage, handleSwitchboardReleaseControl } from './events'
-import { isSuncoWebhookPayload, SuncoWebhookPayload } from './sunshine-events'
+import { isSuncoWebhookPayload } from './sunshine-events'
 import { Handler } from './types'
 
 export const handler: Handler = async ({ req, logger, client }) => {
@@ -11,7 +11,7 @@ export const handler: Handler = async ({ req, logger, client }) => {
   logger.forBot().debug('Handler received request from Sunco with payload:', req.body)
 
   try {
-    const data = JSON.parse(req.body) as SuncoWebhookPayload | unknown
+    const data: unknown = JSON.parse(req.body)
 
     if (!isSuncoWebhookPayload(data)) {
       logger.forBot().warn('Received an invalid payload from Sunco')
