@@ -11,7 +11,6 @@ const stagingStaticProps: issueChecker.IssueCheckerStaticProps = {
   botStateName: 'issuesInStaging',
   state: 'STAGING',
   maxTimeInStateInMs: MAX_TIME_IN_STAGING,
-  warningReason: 'in staging for over a week',
   warningComment: STAGING_ISSUE_COMMENT,
 }
 
@@ -19,7 +18,6 @@ const blockedStaticProps: issueChecker.IssueCheckerStaticProps = {
   botStateName: 'blockedIssues',
   state: 'BLOCKED',
   maxTimeInStateInMs: MAX_TIME_BLOCKED,
-  warningReason: 'blocked for over a week',
   warningComment: BLOCKED_ISSUE_COMMENT,
 }
 

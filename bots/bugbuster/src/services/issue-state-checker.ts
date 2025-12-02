@@ -7,7 +7,6 @@ export type IssueCheckerStaticProps = {
   botStateName: 'blockedIssues' | 'issuesInStaging'
   state: lin.StateKey
   maxTimeInStateInMs: number
-  warningReason: string
   warningComment: string
 }
 
