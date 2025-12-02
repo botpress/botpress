@@ -14,6 +14,10 @@ const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this comm
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   const { conversation, message, client, ctx } = props
+  await client.createEvent({
+    type: 'timeToCheckIssuesState',
+    payload: {},
+  })
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return

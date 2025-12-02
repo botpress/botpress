@@ -1,11 +1,30 @@
 import * as boot from '../bootstrap'
+import * as issueChecker from '../services/issue-state-checker'
 import * as bp from '.botpress'
 
 const STAGING_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been left in staging for over a week'
+const BLOCKED_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been blocked for over a month'
 const MAX_TIME_IN_STAGING = 7 * 24 * 60 * 60 * 1000 // 1 week in milliseconds
+const MAX_TIME_BLOCKED = 30 * 24 * 60 * 1000 // 30 days in milliseconds
+
+const stagingStaticProps: issueChecker.IssueCheckerStaticProps = {
+  botStateName: 'issuesInStaging',
+  state: 'STAGING',
+  maxTimeInStateInMs: MAX_TIME_IN_STAGING,
+  warningReason: 'in staging for over a week',
+  warningComment: STAGING_ISSUE_COMMENT,
+}
+
+const blockedStaticProps: issueChecker.IssueCheckerStaticProps = {
+  botStateName: 'blockedIssues',
+  state: 'BLOCKED',
+  maxTimeInStateInMs: MAX_TIME_BLOCKED,
+  warningReason: 'blocked for over a week',
+  warningComment: BLOCKED_ISSUE_COMMENT,
+}
 
 export const handleTimeToCheckIssuesState: bp.EventHandlers['timeToCheckIssuesState'] = async (props) => {
-  const { logger, client, ctx } = props
+  const { logger } = props
   const { botpress, teamsManager, linear, issueStateChecker } = boot.bootstrap(props)
   const _handleError =
     (context: string) =>
@@ -15,54 +34,20 @@ export const handleTimeToCheckIssuesState: bp.EventHandlers['timeToCheckIssuesSt
   logger.info("Validating issues' states...")
   const teams = await teamsManager.listWatchedTeams().catch(_handleError('trying to list teams'))
 
-  const {
-    state: {
-      payload: { issues: previousStagingIssues },
-    },
-  } = await client
-    .getOrSetState({
-      id: ctx.botId,
-      name: 'issuesInStaging',
-      payload: { issues: [] },
-      type: 'bot',
-    })
-    .catch(_handleError('trying to get previous staging issues'))
+  const issues = await linear.listIssues({ teamKeys: teams }).catch(_handleError('trying list issues'))
 
-  const issues = await linear.listIssues({ teamKeys: teams })
-  const updatedStagingIssues = await issueStateChecker
-    .getUpdatedIssuesOfState(previousStagingIssues, issues.issues, 'STAGING')
-    .catch(_handleError('trying to get updated staging issues'))
+  const failedIdsStaging = await issueStateChecker.checkIssues({ issues: issues.issues, ...stagingStaticProps })
+  const failedIdsBlocked = await issueStateChecker.checkIssues({ issues: issues.issues, ...blockedStaticProps })
 
-  const problematicIssues = issueStateChecker.getProblematicIssues(updatedStagingIssues, MAX_TIME_IN_STAGING)
-
-  for (const issue of problematicIssues) {
-    const fullIssue = issues.issues.filter((fullIssue) => fullIssue.id === issue.id)[0]
-
-    logger.warn(
-      `Linear issue ${fullIssue ? `${fullIssue.identifier}` : `with ID ${issue.id}`} has been in staging for over a week.`
-    )
-
-    const commentResult = await linear.client
-      .createComment({
-        issueId: issue.id,
-        body: STAGING_ISSUE_COMMENT,
-      })
-      .catch(_handleError('trying to comment an issue'))
-    issue.commentId = commentResult.commentId
+  const logWarnings = (issueIds: string[], reason: string) => {
+    for (const id of issueIds) {
+      const fullIssue = issues.issues.filter((fullIssue) => fullIssue.id === id)[0]
+      logger.warn(`Linear issue ${fullIssue ? `${fullIssue.identifier}` : `with ID ${id}`} has been ${reason}.`)
+    }
   }
 
-  await props.client
-    .setState({
-      id: ctx.botId,
-      name: 'issuesInStaging',
-      payload: { issues: updatedStagingIssues },
-      type: 'bot',
-    })
-    .catch(_handleError('trying to set the updated staging issues'))
-
-  await issueStateChecker
-    .resolveComments(previousStagingIssues, updatedStagingIssues)
-    .catch(_handleError('trying to resolve comments'))
+  logWarnings(failedIdsStaging, 'in staging for over a week')
+  logWarnings(failedIdsBlocked, 'blocked for over a month')
 
   logger.info("Finished validating issues' states...")
 }

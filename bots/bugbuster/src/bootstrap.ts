@@ -13,7 +13,7 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
   const recentlyLintedManager = new RecentlyLintedManager(linear)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
-  const issueStateChecker = new IssueStateChecker(linear)
+  const issueStateChecker = new IssueStateChecker(linear, client, ctx.botId)
 
   return {
     botpress,
