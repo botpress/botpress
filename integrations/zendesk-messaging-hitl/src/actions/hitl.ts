@@ -106,7 +106,6 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ inp
   return {}
 }
 
-// create a user in both platforms
 export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({ client, input, ctx, logger }) => {
   logger.forBot().info('createUser called', { input })
 
