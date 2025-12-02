@@ -4,7 +4,6 @@ import {
   type SuncoConfiguration,
   type SuncoUser,
   type SuncoConversation,
-  type SuncoClientApis,
 } from './sunshine-client'
 import { Logger } from './types'
 
@@ -54,7 +53,7 @@ function getNetworkError(
 
 class SuncoClient {
   private _appId: string
-  private _client: SuncoClientApis
+  private _client
 
   public constructor(
     config: SuncoConfiguration,
