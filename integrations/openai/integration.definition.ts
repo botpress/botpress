@@ -20,14 +20,14 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      url: z.string().describe('Base URL for the Azure API'),
-      apiKey: z.string().describe('Azure API key').secret(),
-      apiVersion: z.string().describe('Azure API version'),
       languagesDeployments: z
         .array(
           z.object({
             name: z.string().min(1),
             description: z.string().optional(),
+            url: z.string().describe('Base URL for the Azure API'),
+            apiKey: z.string().describe('Azure API key').secret(),
+            apiVersion: z.string().describe('Azure API version'),
             inputMaxTokens: z.number().int().min(1).optional(),
             outputMaxTokens: z.number().int().min(1).optional(),
           })
