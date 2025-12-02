@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
@@ -49,10 +50,10 @@ export class IssueProcessor {
     )
   }
 
-  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean) {
+  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
     const status = await this._linear.issueStatus(issue)
     if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
-      return
+      return { identifier: issue.identifier, result: 'ignored' }
     }
 
     const errors = await lintIssue(issue, status)
@@ -60,13 +61,13 @@ export class IssueProcessor {
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
       await this._linear.resolveComments(issue)
-      return
+      return { identifier: issue.identifier, result: 'succeeded' }
     }
 
     const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
     if (isRecentlyLinted) {
       this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
-      return
+      return { identifier: issue.identifier, result: 'succeeded' }
     }
 
     this._logger.warn(warningMessage)
@@ -79,5 +80,7 @@ export class IssueProcessor {
         ...errors.map((error) => `- ${error.message}`),
       ].join('\n'),
     })
+
+    return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
 }
