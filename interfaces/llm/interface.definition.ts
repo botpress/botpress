@@ -13,7 +13,7 @@ export default new InterfaceDefinition({
   events: {},
   actions: {
     generateContent: {
-      billable: true,
+      billable: false,
       cacheable: true,
       input: {
         schema: ({ modelRef }) => common.llm.schemas.GenerateContentInputSchema(modelRef),
