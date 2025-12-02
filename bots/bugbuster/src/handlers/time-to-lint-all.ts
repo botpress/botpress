@@ -1,5 +1,4 @@
 import * as boot from '../bootstrap'
-import * as slackNotifHelper from '../utils/slack-notifications-helper'
 import * as bp from '.botpress'
 
 export const handleTimeToLintAll: bp.EventHandlers['timeToLintAll'] = async (props) => {
@@ -11,9 +10,9 @@ export const handleTimeToLintAll: bp.EventHandlers['timeToLintAll'] = async (pro
   const _handleError = (context: string, conversationId?: string) => (thrown: unknown) =>
     botpress.handleError({ context, conversationId }, thrown)
 
-  const conversationId = await slackNotifHelper
-    .tryGetConversationId(client, ctx.botId)
-    .catch(_handleError('trying to get Slack notification channel'))
+  const conversationId = await _tryGetConversationId(client, ctx.botId).catch(
+    _handleError('trying to get Slack notification channel')
+  )
 
   await client
     .getOrCreateWorkflow({
@@ -24,4 +23,28 @@ export const handleTimeToLintAll: bp.EventHandlers['timeToLintAll'] = async (pro
       status: 'pending',
     })
     .catch(_handleError("trying to start the 'lintAll' workflow", conversationId))
+}
+
+const _tryGetConversationId = async (client: bp.Client, botId: string): Promise<string | undefined> => {
+  const {
+    state: {
+      payload: { name },
+    },
+  } = await client.getOrSetState({
+    id: botId,
+    name: 'notificationChannelName',
+    payload: {},
+    type: 'bot',
+  })
+
+  if (name) {
+    const conversation = await client.callAction({
+      type: 'slack:startChannelConversation',
+      input: {
+        channelName: name,
+      },
+    })
+    return conversation.output.conversationId
+  }
+  return undefined
 }
