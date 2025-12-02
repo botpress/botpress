@@ -89,12 +89,7 @@ function wrapFunction(fn: Function, config: PostHogConfig, eventConfig?: PostHog
       // Determine distinctId: use eventConfig callback if provided, otherwise fall back to current logic
       let distinctId: string | undefined
       if (eventConfig?.getDistinctId && args.length > 0) {
-        try {
-          distinctId = eventConfig.getDistinctId(args[0])
-        } catch {
-          // If callback fails, fall back to default behavior
-          distinctId = client.isApiError(thrown) ? thrown.id : undefined
-        }
+        distinctId = eventConfig.getDistinctId(args[0])
       } else {
         distinctId = client.isApiError(thrown) ? thrown.id : undefined
       }
@@ -103,12 +98,7 @@ function wrapFunction(fn: Function, config: PostHogConfig, eventConfig?: PostHog
       let additionalProps: Record<string, any> = {}
       if (eventConfig?.additionalProperties) {
         if (typeof eventConfig.additionalProperties === 'function' && args.length > 0) {
-          try {
-            additionalProps = eventConfig.additionalProperties(args[0])
-          } catch {
-            // If callback fails, use empty object
-            additionalProps = {}
-          }
+          additionalProps = eventConfig.additionalProperties(args[0])
         } else if (typeof eventConfig.additionalProperties === 'object') {
           additionalProps = eventConfig.additionalProperties
         }
@@ -139,27 +129,17 @@ function wrapHandler(fn: Function, config: PostHogConfig, eventConfig?: PostHogE
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
-      // Determine distinctId: use handlerConfig callback if provided
+      // Determine distinctId
       let distinctId: string | undefined
       if (eventConfig?.getDistinctId && args.length > 0) {
-        try {
-          distinctId = eventConfig.getDistinctId(args[0])
-        } catch {
-          // If callback fails, fall back to default
-          distinctId = undefined
-        }
+        distinctId = eventConfig.getDistinctId(args[0])
       }
 
-      // Get additional properties: use handlerConfig if provided
+      // Get additional properties
       let additionalProps: Record<string, any> = {}
       if (eventConfig?.additionalProperties) {
         if (typeof eventConfig.additionalProperties === 'function' && args.length > 0) {
-          try {
-            additionalProps = eventConfig.additionalProperties(args[0])
-          } catch {
-            // If callback fails, use empty object
-            additionalProps = {}
-          }
+          additionalProps = eventConfig.additionalProperties(args[0])
         } else if (typeof eventConfig.additionalProperties === 'object') {
           additionalProps = eventConfig.additionalProperties
         }
