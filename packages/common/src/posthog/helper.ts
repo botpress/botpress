@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+
 import { EventMessage, PostHog } from 'posthog-node'
 
 export const COMMON_SECRET_NAMES = {
@@ -8,16 +9,22 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type PostHogEventConfig = {
-  getDistinctId?: (props: any) => string
-  additionalProperties?: Record<string, any> | ((props: any) => Record<string, any>)
-}
+
+// Extract props type from any integration handler function
+type HandlerProps =
+  | Parameters<sdk.IntegrationProps<any>['register']>[0]
+  | Parameters<sdk.IntegrationProps<any>['unregister']>[0]
+  | Parameters<sdk.IntegrationProps<any>['handler']>[0]
+  | Parameters<sdk.IntegrationProps<any>['actions'][string]>[0]
+  | Parameters<sdk.IntegrationProps<any>['channels'][string]['messages'][string]>[0]
+
+type AdditionalProperties = (props?: HandlerProps) => Record<string, any>
 
 type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  eventConfig?: PostHogEventConfig
+  additionalProperties?: AdditionalProperties
 }
 
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
@@ -48,16 +55,16 @@ export function wrapIntegration(config: PostHogConfig) {
     return class extends constructor {
       public constructor(...args: any[]) {
         super(...args)
-        const eventConfig = config.eventConfig
-        this.props.register = wrapFunction(this.props.register, config, eventConfig)
-        this.props.unregister = wrapFunction(this.props.unregister, config, eventConfig)
-        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config, eventConfig), config, eventConfig)
+        const additionalProperties = config.additionalProperties
+        this.props.register = wrapFunction(this.props.register, config, additionalProperties)
+        this.props.unregister = wrapFunction(this.props.unregister, config, additionalProperties)
+        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config, additionalProperties), config, additionalProperties)
 
         if (this.props.actions) {
           for (const actionType of Object.keys(this.props.actions)) {
             const actionFn = this.props.actions[actionType]
             if (typeof actionFn === 'function') {
-              this.props.actions[actionType] = wrapFunction(actionFn, config, eventConfig)
+              this.props.actions[actionType] = wrapFunction(actionFn, config, additionalProperties)
             }
           }
         }
@@ -69,7 +76,7 @@ export function wrapIntegration(config: PostHogConfig) {
             Object.keys(channel.messages).forEach((messageType) => {
               const messageFn = channel.messages[messageType]
               if (typeof messageFn === 'function') {
-                channel.messages[messageType] = wrapFunction(messageFn, config, eventConfig)
+                channel.messages[messageType] = wrapFunction(messageFn, config, additionalProperties)
               }
             })
           }
@@ -79,29 +86,17 @@ export function wrapIntegration(config: PostHogConfig) {
   }
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig, eventConfig?: PostHogEventConfig) {
+function wrapFunction(fn: Function, config: PostHogConfig, additionalProperties?: AdditionalProperties) {
   return async (...args: any[]) => {
     try {
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      const distinctId = client.isApiError(thrown) ? thrown.id : undefined
 
-      // Determine distinctId: use eventConfig callback if provided, otherwise fall back to current logic
-      let distinctId: string | undefined
-      if (eventConfig?.getDistinctId && args.length > 0) {
-        distinctId = eventConfig.getDistinctId(args[0])
-      } else {
-        distinctId = client.isApiError(thrown) ? thrown.id : undefined
-      }
-
-      // Get additional properties: use eventConfig if provided
       let additionalProps: Record<string, any> = {}
-      if (eventConfig?.additionalProperties) {
-        if (typeof eventConfig.additionalProperties === 'function' && args.length > 0) {
-          additionalProps = eventConfig.additionalProperties(args[0])
-        } else if (typeof eventConfig.additionalProperties === 'object') {
-          additionalProps = eventConfig.additionalProperties
-        }
+      if (additionalProperties) {
+        additionalProps = additionalProperties(args[0])
       }
 
       await sendPosthogEvent(
@@ -125,30 +120,19 @@ function wrapFunction(fn: Function, config: PostHogConfig, eventConfig?: PostHog
 
 const isServerErrorStatus = (status: number): boolean => status >= 500 && status < 600
 
-function wrapHandler(fn: Function, config: PostHogConfig, eventConfig?: PostHogEventConfig) {
+function wrapHandler(fn: Function, config: PostHogConfig, additionalProperties?: AdditionalProperties) {
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
-      // Determine distinctId
-      let distinctId: string | undefined
-      if (eventConfig?.getDistinctId && args.length > 0) {
-        distinctId = eventConfig.getDistinctId(args[0])
-      }
-
-      // Get additional properties
       let additionalProps: Record<string, any> = {}
-      if (eventConfig?.additionalProperties) {
-        if (typeof eventConfig.additionalProperties === 'function' && args.length > 0) {
-          additionalProps = eventConfig.additionalProperties(args[0])
-        } else if (typeof eventConfig.additionalProperties === 'object') {
-          additionalProps = eventConfig.additionalProperties
-        }
+      if (additionalProperties) {
+        additionalProps = additionalProperties(args[0])
       }
 
       if (!resp.body) {
         await sendPosthogEvent(
           {
-            distinctId: distinctId ?? 'no id',
+            distinctId: 'no id',
             event: 'unhandled_error_empty_body',
             properties: {
               from: fn.name,
@@ -164,7 +148,7 @@ function wrapHandler(fn: Function, config: PostHogConfig, eventConfig?: PostHogE
       }
       await sendPosthogEvent(
         {
-          distinctId: distinctId ?? 'no id',
+          distinctId: 'no id',
           event: 'unhandled_error',
           properties: {
             from: fn.name,
