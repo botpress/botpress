@@ -9,6 +9,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "dedent": "^1.6.0",
+    "googleapis": "^144.0.0",
     "marked": "^15.0.1",
     "openai": "^6.9.0",
     "posthog-node": "5.14.1",
