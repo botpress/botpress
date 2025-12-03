@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
 import { getSuncoClient } from 'src/client'
 import { getSwitchboardIntegrationId, getAgentWorkspaceSwitchboardIntegrationId } from 'src/setup/utils'
-import { Client, IntegrationCtx } from 'src/types'
+import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
@@ -47,13 +47,14 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       await buildInitialMessages({
         ctx,
         client,
+        user,
         title,
         description,
         messageHistory,
       })
     )
 
-    const metadata = buildMetadata(input.hitlSession)
+    const metadata = buildMetadata(input.hitlSession, user)
 
     logger
       .forBot()
@@ -146,10 +147,16 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   }
 }
 
-function buildMetadata(
-  hitlSession?: Parameters<bp.IntegrationProps['actions']['startHitl']>[0]['input']['hitlSession']
-): Record<string, string> {
+function buildMetadata(hitlSession?: HitlSession, user?: User): Record<string, string> {
   const metadata: Record<string, string> = {}
+
+  if (user?.name?.length) {
+    metadata['dataCapture.systemField.requester.name'] = user.name
+  }
+
+  if (user?.tags?.email?.length) {
+    metadata['dataCapture.systemField.requester.email'] = user.tags.email
+  }
 
   if (hitlSession?.priority?.length) {
     metadata['dataCapture.systemField.priority'] = hitlSession.priority
@@ -201,11 +208,12 @@ function buildMetadata(
 async function buildInitialMessages(args: {
   ctx: IntegrationCtx
   client: Client
+  user?: User
   title?: string
   description?: string
-  messageHistory: Parameters<bp.IntegrationProps['actions']['startHitl']>[0]['input']['messageHistory']
+  messageHistory: MessageHistory
 }): Promise<Array<{ type: 'text'; text: string }>> {
-  const { ctx, client, title, description, messageHistory } = args
+  const { ctx, client, user, title, description, messageHistory } = args
 
   const transcript = await buildConversationTranscript({
     ctx,
@@ -220,6 +228,7 @@ async function buildInitialMessages(args: {
       type: 'text' as const,
       text: `New Conversation Started
 
+Email: ${user?.tags?.email || 'No email provided'}
 Title: ${title || 'Untitled'}
 Description: ${description || 'No description provided'}
         `,

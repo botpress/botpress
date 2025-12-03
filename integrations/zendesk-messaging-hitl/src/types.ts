@@ -23,3 +23,7 @@ export type AckFunction = bp.AnyAckFunction
 export type CreateMessageInput = Parameters<Client['createMessage']>[0]
 export type CreateMessageInputType = CreateMessageInput['type']
 export type CreateMessageInputPayload = CreateMessageInput['payload']
+
+export type StartHitlInput = Parameters<bp.IntegrationProps['actions']['startHitl']>[0]['input']
+export type HitlSession = StartHitlInput['hitlSession']
+export type MessageHistory = StartHitlInput['messageHistory']
