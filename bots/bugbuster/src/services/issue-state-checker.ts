@@ -1,118 +1,38 @@
+import * as sdk from '@botpress/sdk'
 import * as types from '../types'
 import * as lin from '../utils/linear-utils'
-import { Issue } from '../utils/linear-utils'
-import * as bp from '.botpress'
-
-export type CheckIssuesStaticProps = {
-  botStateName: 'blockedIssues' | 'issuesInStaging'
-  state: lin.StateKey
-  maxTimeInStateInMs: number
-  warningComment: string
-}
 
 export class IssueStateChecker {
   public constructor(
     private _linear: lin.LinearApi,
-    private _client: bp.Client,
-    private _botId: string
+    private _logger: sdk.BotLogger
   ) {}
 
-  public checkIssues = async (
-    props: {
-      allIssues: Issue[]
-    } & CheckIssuesStaticProps
-  ) => {
-    const { allIssues, botStateName, state, maxTimeInStateInMs, warningComment } = props
+  public async processIssues(props: { stateAttributes: types.StateAttributes; teams: string[] }) {
+    const { stateAttributes, teams } = props
 
-    const {
-      state: {
-        payload: { issues: previousIssues },
-      },
-    } = await this._client.getOrSetState({
-      id: this._botId,
-      name: botStateName,
-      payload: { issues: [] },
-      type: 'bot',
-    })
+    let hasNextPage = false
+    let endCursor: string | undefined = undefined
+    do {
+      const { issues, pagination } = await this._linear.listIssues(
+        {
+          teamKeys: teams,
+          statesToInclude: [stateAttributes.stateKey],
+          updatedBefore: stateAttributes.maxTimeSinceLastUpdate,
+        },
+        endCursor
+      )
 
-    const updatedIssues = await this._getUpdatedIssuesOfState(previousIssues, allIssues, state)
-
-    const problematicIssues = this._getProblematicIssues(updatedIssues, maxTimeInStateInMs)
-
-    for (const issue of problematicIssues) {
-      const commentResult = await this._linear.client.createComment({
-        issueId: issue.id,
-        body: warningComment,
-      })
-      issue.commentId = commentResult.commentId
-    }
-
-    await this._client.setState({
-      id: this._botId,
-      name: botStateName,
-      payload: { issues: updatedIssues },
-      type: 'bot',
-    })
-
-    await this._resolveComments(previousIssues, updatedIssues)
-    return problematicIssues.map((issue) => issue.id)
-  }
-
-  private async _getUpdatedIssuesOfState(
-    previousStagingIssues: types.WatchedIssue[],
-    currentStagingIssues: lin.Issue[],
-    state: lin.StateKey
-  ) {
-    const currentIds = await this._getIdsOfIssuesOfState(currentStagingIssues, state)
-
-    const newIssues: types.WatchedIssue[] = []
-    for (const issue of previousStagingIssues) {
-      if (currentIds.includes(issue.id)) {
-        newIssues.push(issue)
+      for (const issue of issues) {
+        await this._linear.client.createComment({
+          issueId: issue.id,
+          body: stateAttributes.warningComment,
+        })
+        this._logger.warn(`Linear issue ${issue.identifier} has been ${stateAttributes.warningReason}.`)
       }
-    }
-    for (const id of currentIds) {
-      if (!newIssues.some((issue) => issue.id === id)) {
-        newIssues.push({ id, sinceTimestamp: new Date().getTime() })
-      }
-    }
-    return newIssues
-  }
 
-  private _getIdsOfIssuesOfState = async (issues: lin.Issue[], state: lin.StateKey): Promise<string[]> => {
-    const ids: string[] = []
-    for (const issue of issues) {
-      const issueState = await this._linear.issueState(issue)
-      if (issueState === state) {
-        ids.push(issue.id)
-      }
-    }
-    return ids
-  }
-
-  private _getProblematicIssues(watchedIssues: types.WatchedIssue[], maxTimeInStateInMs: number): types.WatchedIssue[] {
-    const problematicIssues: types.WatchedIssue[] = []
-    for (const issue of watchedIssues) {
-      if (this._isIssueProblematic(issue, maxTimeInStateInMs)) {
-        problematicIssues.push(issue)
-      }
-    }
-    return problematicIssues
-  }
-
-  private async _resolveComments(outdatedIssues: types.WatchedIssue[], newIssues: types.WatchedIssue[]) {
-    for (const issue of outdatedIssues) {
-      if (!newIssues.some((newIssue) => newIssue.id === issue.id) && issue.commentId) {
-        await this._linear.client.commentResolve(issue.commentId)
-      }
-    }
-  }
-
-  private _isIssueProblematic(issue: types.WatchedIssue, maxTimeInStateInMs: number): boolean {
-    return !issue.commentId && !this._isDateValid(issue.sinceTimestamp, new Date().getTime(), maxTimeInStateInMs)
-  }
-
-  private _isDateValid(initialTimestamp: number, currentTimestamp: number, maxIntervalMs: number) {
-    return currentTimestamp - initialTimestamp <= maxIntervalMs
+      hasNextPage = pagination?.hasNextPage ?? false
+      endCursor = pagination?.endCursor
+    } while (hasNextPage)
   }
 }

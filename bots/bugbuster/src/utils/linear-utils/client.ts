@@ -1,6 +1,7 @@
 import * as lin from '@linear/sdk'
 import * as utils from '..'
 import * as genenv from '../../../.genenv'
+import * as types from '../../types'
 import * as graphql from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
@@ -75,10 +76,12 @@ export class LinearApi {
       teamKeys: string[]
       issueNumber?: number
       statesToOmit?: StateKey[]
+      statesToInclude?: StateKey[]
+      updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
-    const { teamKeys, issueNumber, statesToOmit } = filter
+    const { teamKeys, issueNumber, statesToOmit, statesToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
     const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
@@ -86,20 +89,17 @@ export class LinearApi {
       return { issues: [] }
     }
 
-    const states = await this.getStates()
-    const stateNamesToOmit = statesToOmit?.map((key) => {
-      const matchingStates = states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
-
     const queryInput: graphql.GRAPHQL_QUERIES['listIssues'][graphql.QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
+        state: {
+          name: {
+            ...(statesToOmit && { nin: await this._stateKeysToStates(statesToOmit) }),
+            ...(statesToInclude && { in: await this._stateKeysToStates(statesToInclude) }),
+          },
+        },
+        ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -203,6 +203,17 @@ export class LinearApi {
           },
         })
       },
+    })
+  }
+
+  private async _stateKeysToStates(keys: StateKey[]) {
+    const states = await this.getStates()
+    return keys?.map((key) => {
+      const matchingStates = states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
     })
   }
 
