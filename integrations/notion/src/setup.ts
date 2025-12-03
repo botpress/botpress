@@ -12,7 +12,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
 
 export const unregister: bp.IntegrationProps['unregister'] = async (props) => {
   const { client } = props
-  client.configureIntegration({
+  await client.configureIntegration({
     identifier: null,
   })
 }
