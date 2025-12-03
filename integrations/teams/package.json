@@ -11,6 +11,7 @@
   "dependencies": {
     "@azure/identity": "^4.10.2",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@microsoft/microsoft-graph-client": "^3.0.7",
@@ -26,7 +27,6 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
