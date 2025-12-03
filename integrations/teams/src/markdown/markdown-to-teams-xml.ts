@@ -38,7 +38,6 @@ export const defaultHandlers: MarkdownHandlers = {
   inlineCode: (node) => `<code>${node.value}</code>`,
   link: (node, visit) => _createSanitizedHyperlink(node, visit(node)),
   linkReference: (node, visit, _parents, _handlers, data) => {
-    // A somewhat unsafe cast (Not sure how to improve without adding a ton of complexity)
     const linkDefinitions = (data.linkDefinitions ?? {}) as Record<string, DefinitionNodeData>
     const linkDefinition = linkDefinitions[node.identifier]
     const nodeContent = visit(node)
