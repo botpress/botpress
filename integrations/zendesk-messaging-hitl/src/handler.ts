@@ -8,8 +8,6 @@ export const handler: Handler = async ({ req, logger, client }) => {
     return
   }
 
-  logger.forBot().debug('Handler received request from Sunco with payload:', req.body)
-
   try {
     const data: unknown = JSON.parse(req.body)
 

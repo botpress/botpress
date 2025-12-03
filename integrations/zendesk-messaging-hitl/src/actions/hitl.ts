@@ -44,7 +44,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     await suncoClient.sendMessage(
       suncoConversation.id,
       { displayName: 'HITL Session' },
-      await buildInitialMessages({
+      await _buildInitialMessages({
         ctx,
         client,
         user,
@@ -54,7 +54,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       })
     )
 
-    const metadata = buildMetadata(input.hitlSession, user)
+    const metadata = _buildMetadata(input.hitlSession, user)
 
     logger
       .forBot()
@@ -147,7 +147,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   }
 }
 
-function buildMetadata(hitlSession?: HitlSession, user?: User): Record<string, string> {
+function _buildMetadata(hitlSession?: HitlSession, user?: User): Record<string, string> {
   const metadata: Record<string, string> = {}
 
   if (user?.name?.length) {
@@ -205,7 +205,7 @@ function buildMetadata(hitlSession?: HitlSession, user?: User): Record<string, s
   return metadata
 }
 
-async function buildInitialMessages(args: {
+async function _buildInitialMessages(args: {
   ctx: IntegrationCtx
   client: Client
   user?: User
