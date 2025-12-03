@@ -12,12 +12,13 @@ import * as bp from '.botpress'
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
 type LanguageModel = ArrayElement<Awaited<ReturnType<bp.IntegrationProps['actions']['listLanguageModels']>>['models']>
+type LanguageDeployment = ArrayElement<bp.Context['configuration']['languagesDeployments']>
 
-const getOpenAIClient = (ctx: bp.Context): OpenAI =>
+const getOpenAIClient = (deployment: LanguageDeployment): OpenAI =>
   new AzureOpenAI({
-    endpoint: ctx.configuration.url,
-    apiKey: ctx.configuration.apiKey,
-    apiVersion: ctx.configuration.apiVersion,
+    endpoint: deployment.url,
+    apiKey: deployment.apiKey,
+    apiVersion: deployment.apiVersion,
   })
 
 const getCustomLanguageModels = (ctx: bp.Context) => {
@@ -39,6 +40,21 @@ const getCustomLanguageModels = (ctx: bp.Context) => {
     })
   }
   return models
+}
+
+const getDeploymentForModel = (ctx: bp.Context, modelId?: LanguageModelId): LanguageDeployment => {
+  const deployments = ctx.configuration.languagesDeployments
+
+  if (!deployments || deployments.length === 0) {
+    throw new Error('You must configure at least one language deployment in the integration settings')
+  }
+
+  if (!modelId) {
+    return deployments[0]!
+  }
+
+  const deployment = deployments.find((d) => d.name === modelId)
+  return deployment ?? deployments[0]!
 }
 
 const converModelsArrayToRecord = <T extends { id: string }>(models: T[]): Record<string, T> => {
@@ -72,57 +88,145 @@ export default new bp.Integration({
       }
     },
     generateContent: async ({ input, logger, metadata, ctx }) => {
-      const openAIClient = getOpenAIClient(ctx)
-      const models = converModelsArrayToRecord(getCustomLanguageModels(ctx))
-      const output = await llm.openai.generateContent<LanguageModelId>(
-        <llm.GenerateContentInput>input,
-        openAIClient,
-        logger,
-        {
-          provider,
-          models,
-          defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
-          overrideRequest: (request) => {
-            const isReasoningModel =
-              input.model?.id.startsWith('gpt-5-') ||
-              input.model?.id.startsWith('gpt-5.1-') ||
-              input.model?.id.startsWith('o1-') ||
-              input.model?.id.startsWith('o3-') ||
-              input.model?.id.startsWith('o4-')
+    logger.info('Integration received input', { fullInput: input })
+    const modelsArray = getCustomLanguageModels(ctx)
+    const models = converModelsArrayToRecord(modelsArray)
 
-            if (isReasoningModel) {
-              if (input.reasoningEffort) {
-                request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
-              } else {
-                if (input.model?.id.startsWith('gpt-5.1-')) {
-                  // GPT-5.1 is a hybrid reasoning model that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
-                  request.reasoning_effort = 'none'
-                } else if (input.model?.id.startsWith('gpt-5-')) {
-                  // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
-                  request.reasoning_effort = 'minimal'
-                }
-                // For other reasoning models we leave the reasoning effort undefined so it uses the default effort specified by the provider.
-              }
+    const requestedModelId = input.model?.id as LanguageModelId | undefined
+    const deployment = getDeploymentForModel(ctx, requestedModelId)
+    const openAIClient = getOpenAIClient(deployment)
 
-              // Reasoning models don't support stop sequences
-              delete request.stop
+    const defaultModel: LanguageModelId =
+      requestedModelId ??
+      (modelsArray[0]?.id as LanguageModelId) ??
+      DEFAULT_LANGUAGE_MODEL_ID
 
-              if (request.reasoning_effort !== 'none') {
-                // Temperature is not supported when using reasoning
-                delete request.temperature
-              }
-            }
-            return request
-          },
+    const modelId: LanguageModelId = requestedModelId ?? defaultModel
+
+    const isGptFive = modelId.startsWith('gpt-5.1')
+
+    // GPT 5.1 path (Responses API)
+    if (isGptFive) {
+      logger.info('Using GPT 5.1 Responses API path')
+      logger.info('Integration received input', { fullInput: input })
+
+      // Extract messages if provided
+      let inputContent: any = null
+
+      if (Array.isArray((input as any).messages) && (input as any).messages.length > 0) {
+        inputContent = (input as any).messages
+      } else {
+        // Extract prompt from all known Botpress fields (systemPrompt included)
+        const extractedText =
+          (input as any).systemPrompt ??
+          (input as any).prompt ??
+          (input as any).text ??
+          (input as any).query ??
+          (input as any).userMessage ??
+          (typeof (input as any).input === 'string' ? (input as any).input : null)
+
+        if (extractedText) {
+          inputContent = [
+            {
+              role: 'user',
+              content: extractedText,
+            },
+          ]
         }
-      )
-      metadata.setCost(output.botpress.cost)
+      }
+
+      // If still nothing, use safe fallback
+      if (!inputContent || inputContent.length === 0) {
+        const fallbackText = 'Hello'
+        logger.warn('GPT 5.1: No valid prompt found, using fallback', { fallbackText })
+
+        inputContent = [
+          {
+            role: 'user',
+            content: fallbackText,
+          },
+        ]
+      }
+
+      const payload: any = {
+        model: modelId,
+        input: inputContent,
+        reasoning: { effort: 'medium' },
+      }
+
+      logger.info('Sending payload to Azure Responses API', payload)
+
+      const response = await (openAIClient as any).responses.create(payload)
+
+      logger.info('Raw Azure response', response)
+
+      // Extract assistant text
+      let assistantText = ''
+
+      if (Array.isArray(response.output)) {
+        const msgBlock = response.output.find((x: any) => x.type === 'message')
+        if (msgBlock && Array.isArray(msgBlock.content)) {
+          const textChunk = msgBlock.content.find((c: any) => c.text)
+          assistantText = textChunk?.text ?? ''
+        }
+      }
+
+      const cost = response.usage?.total_tokens ?? 0
+      metadata.setCost(cost)
+
+      const output: any = {
+        id: response.id ?? '',
+        model: modelId,
+        provider,
+        choices: [
+          {
+            type: 'text',
+            role: 'assistant',
+            content: assistantText,
+            index: 0,
+            stopReason: 'stop',
+          },
+        ],
+        usage: {
+          inputTokens: response.usage?.input_tokens ?? 0,
+          outputTokens: response.usage?.output_tokens ?? 0,
+          totalTokens: response.usage?.total_tokens ?? 0,
+          inputCost: 0,
+          outputCost: 0,
+        },
+        botpress: {
+          cost,
+          inputCost: 0,
+          outputCost: 0,
+        },
+        raw: response,
+      }
+
       return output
-    },
+    }
+
+    // Non GPT 5.1 models: standard Botpress helper
+    const output = await llm.openai.generateContent<LanguageModelId>(
+      input as llm.GenerateContentInput,
+      openAIClient,
+      logger,
+      {
+        provider,
+        models,
+        defaultModel,
+      }
+    )
+
+    metadata.setCost(output.botpress.cost)
+    return output
+  }
+
+,
+
     // generateImage: async ({ input, client, metadata, ctx }) => {
     //   const openAIClient = getOpenAIClient(ctx)
     //   const models = converModelsArrayToRecord(getCustomLanguageModels(ctx))
-
+    //
     //   const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
     //   const imageModel = imageModels[imageModelId]
     //   if (!imageModel) {
@@ -132,9 +236,9 @@ export default new bp.Integration({
     //       ).join(', ')}`
     //     )
     //   }
-
+    //
     //   const size = (input.size || imageModel.defaultSize) as NonNullable<ImageGenerateParams['size']>
-
+    //
     //   if (!imageModel.sizes.includes(size)) {
     //     throw new InvalidPayloadError(
     //       `Size "${
@@ -142,9 +246,9 @@ export default new bp.Integration({
     //       }" is not allowed by the "${imageModelId}" model, supported sizes are: ${imageModel.sizes.join(', ')}`
     //     )
     //   }
-
+    //
     //   const { model, quality } = getOpenAIImageGenerationParams(imageModelId)
-
+    //
     //   const result = await openAIClient.images.generate({
     //     model,
     //     size,
@@ -154,16 +258,16 @@ export default new bp.Integration({
     //     user: input.params?.user,
     //     response_format: 'url',
     //   })
-
+    //
     //   const temporaryImageUrl = result.data?.[0]?.url
     //   if (!temporaryImageUrl) {
     //     throw new Error('No image was returned by OpenAI')
     //   }
-
+    //
     //   const expiresAt: string | undefined = input.expiration
     //     ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
     //     : undefined
-
+    //
     //   // File storage is billed to the workspace of the bot that called this action.
     //   const { file } = await client.uploadFile({
     //     key: generateFileKey('openai-generateImage-', input, '.png'),
@@ -178,7 +282,7 @@ export default new bp.Integration({
     //     expiresAt,
     //     publicContentImmediatelyAccessible: true,
     //   })
-
+    //
     //   const cost = imageModel.costPerImage
     //   metadata.setCost(cost)
     //   return {
@@ -197,14 +301,14 @@ export default new bp.Integration({
     //     models: speechToTextModels,
     //     defaultModel: 'whisper-1',
     //   })
-
+    //
     //   metadata.setCost(output.botpress.cost)
     //   return output
     // },
     // generateSpeech: async ({ input, client, metadata, ctx }) => {
     //   const openAIClient = getOpenAIClient(ctx)
     //   const model = input.model ?? 'tts-1'
-
+    //
     //   const params: SpeechCreateParams = {
     //     model,
     //     input: input.input,
@@ -212,21 +316,21 @@ export default new bp.Integration({
     //     response_format: input.format ?? 'mp3',
     //     speed: input.speed ?? 1,
     //   }
-
+    //
     //   let response: Response
-
+    //
     //   try {
     //     response = await openAIClient.audio.speech.create(params)
     //   } catch (err: any) {
     //     throw llm.createUpstreamProviderFailedError(err)
     //   }
-
+    //
     //   const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
-
+    //
     //   const expiresAt = input.expiration
     //     ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
     //     : undefined
-
+    //
     //   const { file } = await client.uploadFile({
     //     key,
     //     content: await response.arrayBuffer(),
@@ -239,7 +343,7 @@ export default new bp.Integration({
     //     },
     //     expiresAt,
     //   })
-
+    //
     //   const cost = (input.input.length / 1_000_000) * TextToSpeechPricePer1MCharacters[model]
     //   metadata.setCost(cost)
     //   return {
@@ -249,7 +353,7 @@ export default new bp.Integration({
     //     },
     //   }
     // },
-
+    //
     // listImageModels: async ({}) => {
     //   return {
     //     models: [],
@@ -268,10 +372,10 @@ export default new bp.Integration({
 // function generateFileKey(prefix: string, input: object, suffix?: string) {
 //   const json = JSON.stringify(input)
 //   const hash = crypto.createHash('sha1')
-
+//
 //   hash.update(json)
 //   const hexHash = hash.digest('hex')
-
+//
 //   return prefix + Date.now() + '_' + hexHash + suffix
 // }
 

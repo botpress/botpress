@@ -15,24 +15,24 @@ export default new IntegrationDefinition({
   title: 'Azure Foundry (OpenAI)',
   description:
     'Gain access to Azure OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '1.0.0',
+  version: '1.0.22',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
-    schema: z.object({
-      languagesDeployments: z
-        .array(
-          z.object({
-            name: z.string().min(1),
-            description: z.string().optional(),
-            url: z.string().describe('Base URL for the Azure API'),
-            apiKey: z.string().describe('Azure API key').secret(),
-            apiVersion: z.string().describe('Azure API version'),
-            inputMaxTokens: z.number().int().min(1).optional(),
-            outputMaxTokens: z.number().int().min(1).optional(),
-          })
-        )
-        .describe('Your models deployments on Azure Foundry (OpenAI Only)'),
+  schema: z.object({
+    languagesDeployments: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          url: z.string().describe('Base URL for the Azure API'),
+          apiKey: z.string().describe('Azure API key').secret(),
+          apiVersion: z.string().describe('Azure API version'),
+          inputMaxTokens: z.number().int().min(1).optional(),
+          outputMaxTokens: z.number().int().min(1).optional(),
+        })
+      )
+      .describe('Your models deployments on Azure Foundry (OpenAI Only)'),
     }),
   },
   entities: {

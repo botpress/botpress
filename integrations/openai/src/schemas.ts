@@ -1,9 +1,13 @@
 import { z } from '@botpress/sdk'
 
+// export const languageModelId = z
+//   .string()
+//   .describe('Model to use for content generation')
+//   .placeholder('gpt-4o-mini-2024-07-18')
 export const languageModelId = z
   .string()
-  .describe('Model to use for content generation')
-  .placeholder('gpt-4o-mini-2024-07-18')
+  .min(1)
+  .describe('Name of the deployment as declared in the integration configuration')
 export type LanguageModelId = z.infer<typeof languageModelId>
 
 export const imageModelId = z.enum([
