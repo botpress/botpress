@@ -54,11 +54,13 @@ const _applyListLevelAndItemIndices = (listNode: List, parents: Parent[]): Exten
   const listLevel = parents.filter((parent) => parent.type === 'list').length + 1
   extendedList.listLevel = listLevel
 
-  listNode.children.forEach((item, index) => {
+  let index = 0
+  for (const item of listNode.children) {
+    index++
     const extendedItem = item as ExtendedListItem
     extendedItem.ownerList = extendedList
-    extendedItem.itemCount = index + 1
-  })
+    extendedItem.itemCount = index
+  }
 
   return extendedList
 }
