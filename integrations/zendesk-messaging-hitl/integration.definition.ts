@@ -20,8 +20,16 @@ export default new sdk.IntegrationDefinition({
     switchboardIntegrationIds: {
       type: 'integration',
       schema: sdk.z.object({
-        switchboardIntegrationId: sdk.z.string().optional(),
-        agentWorkspaceSwitchboardIntegrationId: sdk.z.string().optional(),
+        switchboardIntegrationId: sdk.z
+          .string()
+          .title('Switchboard Integration ID')
+          .describe('The ID of the Botpress switchboard integration used for HITL sessions')
+          .optional(),
+        agentWorkspaceSwitchboardIntegrationId: sdk.z
+          .string()
+          .title('Agent Workspace Switchboard Integration ID')
+          .describe('The ID of the Zendesk Agent Workspace switchboard integration')
+          .optional(),
       }),
     },
   },
