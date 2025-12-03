@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/nodemailer": "^6.4.4",
     "@types/react": "^18.3.11",

@@ -217,7 +217,7 @@ export class BotDefinition<
       self.integrations = {}
     }
 
-    const integrationAlias = config?.alias ?? integrationPkg.name.replace('/', '-')
+    const integrationAlias = config?.alias ?? integrationPkg.name
 
     if (self.integrations[integrationAlias]) {
       throw new Error(`Another integration with alias "${integrationAlias}" is already installed in the bot`)
@@ -240,7 +240,7 @@ export class BotDefinition<
       self.plugins = {}
     }
 
-    const pluginAlias = config.alias ?? pluginPkg.name.replace('/', '-')
+    const pluginAlias = config.alias ?? pluginPkg.name
 
     if (self.plugins[pluginAlias]) {
       throw new Error(`Another plugin with alias "${pluginAlias}" is already installed in the bot`)

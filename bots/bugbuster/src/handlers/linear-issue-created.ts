@@ -1,15 +1,22 @@
-import * as utils from '../utils'
-import { findIssue, runLint } from './issue-processor'
+import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 export const handleLinearIssueCreated: bp.EventHandlers['linear:issueCreated'] = async (props) => {
-  const { number: issueNumber, teamKey } = props.event.payload
-  const linear = await utils.linear.LinearApi.create()
-  const issue = await findIssue(issueNumber, teamKey, props.logger, 'created', linear, props.client, props.ctx.botId)
+  const { event } = props
+  const { number: issueNumber, teamKey } = event.payload
+
+  const { botpress, issueProcessor } = await boot.bootstrap(props)
+
+  const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
+
+  props.logger.info('Linear issue created event received', `${teamKey}-${issueNumber}`)
+  const issue = await issueProcessor
+    .findIssue(issueNumber, teamKey)
+    .catch(_handleError('trying to find the created Linear issue'))
 
   if (!issue) {
     return
   }
 
-  await runLint(linear, issue, props.logger)
+  await issueProcessor.lintIssue(issue).catch(_handleError('trying to lint the created Linear issue'))
 }
