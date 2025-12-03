@@ -12,9 +12,6 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
   const contentDisposition = response.headers.get('content-disposition')
 
   const fileSize = contentLength ? Number(contentLength) : undefined
-  if (fileSize !== undefined && isNaN(fileSize)) {
-    throw new Error(`Failed to parse file size from response: ${contentLength}`)
-  }
 
   // Try to extract filename from content-disposition
   let fileName: string | undefined
