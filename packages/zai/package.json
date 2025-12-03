@@ -39,7 +39,8 @@
     "p-limit": "^7.2.0"
   },
   "devDependencies": {
-    "@botpress/client": "workspace:^",
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/vai": "workspace:*",
     "@size-limit/file": "^11.1.6",
