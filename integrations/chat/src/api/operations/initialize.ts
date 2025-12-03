@@ -13,7 +13,7 @@ type Participant = Awaited<ReturnType<types.Operations['listParticipants']>>['bo
 type InitialEvent = signals.Types['initialized']
 
 export const initialize: types.Operations['initializeConversation'] = async (props, req) => {
-  let conversationId = req.query.conversationId
+  const conversationId = req.query.conversationId
   let userKey = req.headers['x-user-key']
 
   let user: User
@@ -24,7 +24,10 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
   } else {
     user = await props.client.createUser({ tags: {} }).then((res) => res.user)
     userKey = props.auth.generateKey({ id: user.id })
-    conversationId = undefined // Force conversation creation if we have to create a user
+
+    if (conversationId) {
+      throw new errors.InvalidPayloadError('You cannot initialize an already existing conversation without a user.')
+    }
   }
 
   if (!user) {
@@ -37,18 +40,30 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
 
   try {
     if (conversationId) {
-      conversation = (await props.client.getConversation({ id: conversationId })).conversation
-      messages = (await listMessages(props.client, conversationId, 10)).map((m) => model.mapMessage(m as types.Message))
-      participants = await listParticipants(props.client, conversationId, 5)
+      const conversationPromise = props.client.getConversation({ id: conversationId }).then((res) => res.conversation)
+      const messagesPromise = listMessages(props.client, conversationId, 10).then((res) =>
+        res.map((m) => model.mapMessage(m as types.Message))
+      )
+      const participantsPromise = listParticipants(props.client, conversationId, 5)
+
+      ;[conversation, messages, participants] = await Promise.all([
+        conversationPromise,
+        messagesPromise,
+        participantsPromise,
+      ])
     } else {
-      conversation = (
-        await props.client.createConversation({
+      conversation = await props.client
+        .createConversation({
           channel: 'channel',
           tags: {
             owner: user.id,
           },
         })
-      ).conversation
+        .then((res) => res.conversation)
+      if (!conversation) {
+        throw new errors.InternalError('Failed to create conversation')
+      }
+
       const { participant } = await props.client.addParticipant({ id: conversation.id, userId: user.id })
       participants = [participant]
     }
@@ -64,8 +79,7 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
     data: { conversation, user: { ...user, userKey }, messages, participants },
   }
 
-  const initialEvent = createSSEMessage('message', ev)
-  const body = initialEvent
+  const body = createSSEMessage('init', ev)
   const contentLength = Buffer.byteLength(body, 'utf-8')
 
   const keepAliveMessage = createSSEMessage('message', 'ping')
