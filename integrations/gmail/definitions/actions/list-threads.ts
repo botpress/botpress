@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { ActionDef } from './interfaces'
+import { ActionDef } from './types'
 
 export const listThreads = {
   title: 'List Threads',

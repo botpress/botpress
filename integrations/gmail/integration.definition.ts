@@ -14,7 +14,7 @@ import {
 export const INTEGRATION_NAME = 'gmail'
 
 export default new sdk.IntegrationDefinition({
-  name: 'gmail',
+  name: INTEGRATION_NAME,
   version: '1.0.0',
   title: 'Gmail',
   description: "Send, receive, and manage emails directly within your bot's workflow.",

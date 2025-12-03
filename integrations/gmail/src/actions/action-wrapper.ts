@@ -1,13 +1,8 @@
 import { createActionWrapper, posthogHelper } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
 import { wrapWithTryCatch } from '../google-api/error-handling'
 import { GoogleClient } from '../google-api/google-client'
 import * as bp from '.botpress'
-
-const posthogConfig = {
-  integrationName: INTEGRATION_NAME,
-  key: (bp.secrets as any).POSTHOG_KEY as string,
-}
+import { posthogConfig } from 'src'
 
 export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
   _wrapAction(meta, (props) => {
@@ -15,7 +10,7 @@ export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
 
     props.logger
       .forBot()
-      .debug(`Running action "${meta.actionName}" [bot id: ${props.ctx.botId}]`, { input: props.input })
+      .debug(`Running action "${meta.actionName}" [bot id: ${props.ctx.botId}]`, { input: trimInput(props.input) })
 
     return wrapWithTryCatch(() => {
       const result = actionImpl(props as Parameters<typeof actionImpl>[0], props.input)
@@ -51,3 +46,21 @@ const _wrapAction = createActionWrapper<bp.IntegrationProps>()({
     errorMessageWhenFailed: string
   },
 })
+
+const MAX_LOG_INPUT_SIZE = 2000
+
+function trimInput(input: unknown): unknown {
+  try {
+    const stringified = JSON.stringify(input, null, 2)
+    if (stringified.length <= MAX_LOG_INPUT_SIZE) {
+      return input
+    }
+    return stringified.substring(0, MAX_LOG_INPUT_SIZE) + '\n... (truncated)'
+  } catch {
+    const stringified = String(input)
+    if (stringified.length <= MAX_LOG_INPUT_SIZE) {
+      return input
+    }
+    return stringified.substring(0, MAX_LOG_INPUT_SIZE) + '... (truncated)'
+  }
+}

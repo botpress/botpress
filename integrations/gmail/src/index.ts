@@ -7,10 +7,11 @@ import { register, unregister } from './setup'
 import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-@posthogHelper.wrapIntegration({
+export const posthogConfig = {
   integrationName: INTEGRATION_NAME,
-  key: (bp.secrets as any).POSTHOG_KEY as string,
-})
+  key: bp.secrets.POSTHOG_KEY,
+}
+@posthogHelper.wrapIntegration(posthogConfig)
 class GmailIntegration extends bp.Integration {
   public constructor() {
     super({

@@ -1,12 +1,7 @@
 import { posthogHelper } from '@botpress/common'
-import { INTEGRATION_NAME } from 'integration.definition'
 import { GoogleClient } from './google-api'
 import * as bp from '.botpress'
-
-const posthogConfig = {
-  integrationName: INTEGRATION_NAME,
-  key: (bp.secrets as any).POSTHOG_KEY as string,
-}
+import { posthogConfig } from 'src'
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx }) => {
   const startTime = Date.now()
