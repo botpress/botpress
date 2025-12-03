@@ -76,13 +76,7 @@ export const startHitl: bp.PluginProps['actions']['startHitl'] = async (props) =
 const _sendHandoffMessage = (
   upstreamCm: conv.ConversationManager,
   sessionConfig: bp.configuration.Configuration
-): Promise<void> =>
-  upstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onHitlHandoffMessage?.length
-      ? sessionConfig.onHitlHandoffMessage
-      : DEFAULT_HITL_HANDOFF_MESSAGE,
-  })
+): Promise<void> => upstreamCm.maybeRespondText(sessionConfig.onHitlHandoffMessage, DEFAULT_HITL_HANDOFF_MESSAGE)
 
 const _buildMessageHistory = async (
   upstreamConversation: types.ActionableConversation,
