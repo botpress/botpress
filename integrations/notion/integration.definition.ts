@@ -2,14 +2,11 @@ import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, configurations, identifier, secrets, states, user } from './definitions'
 
-export const INTEGRATION_NAME = 'notion'
-export const INTEGRATION_VERSION = '2.2.1'
-
 export default new sdk.IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: INTEGRATION_VERSION,
-  title: 'Notion',
+  name: 'notion',
   description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
+  title: 'Notion',
+  version: '2.2.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   actions,
