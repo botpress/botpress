@@ -20,24 +20,28 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .title('Escalation Started Message')
     .describe('The message to send to the user when transferring to a human agent')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_HITL_HANDOFF_MESSAGE),
   onHumanAgentAssignedMessage: sdk.z
     .string()
     .title('Human Agent Assigned Message')
     .describe('The message to send to the user when a human agent is assigned')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE),
   onHitlStoppedMessage: sdk.z
     .string()
     .title('Escalation Terminated Message')
     .describe('The message to send to the user when the HITL session stops and control is transferred back to bot')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_HITL_STOPPED_MESSAGE),
   onUserHitlCancelledMessage: sdk.z
     .string()
     .title('Escalation Aborted Message')
     .describe('The message to send to the human agent when the user abruptly ends the HITL session')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_USER_HITL_CANCELLED_MESSAGE),
   onIncompatibleMsgTypeMessage: sdk.z
     .string()
@@ -46,6 +50,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
       'The warning to send to the human agent when they send a message that is not supported by the hitl session'
     )
     .optional()
+    .nullable()
     .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
   userHitlCloseCommand: sdk.z
     .string()
@@ -60,12 +65,14 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     .title('Termination Command Message')
     .describe('The message to send to the user when they end the HITL session using the termination command')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
   onAgentAssignedTimeoutMessage: sdk.z
     .string()
     .title('Agent Assigned Timeout Message')
     .describe('The message to send to the user when no human agent is assigned within the timeout period')
     .optional()
+    .nullable()
     .placeholder(DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE),
   agentAssignedTimeoutSeconds: sdk.z
     .number()
@@ -75,6 +82,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     )
     .nonnegative()
     .optional()
+    .nullable()
     .placeholder('0'),
   useHumanAgentInfo: sdk.z
     .boolean()
