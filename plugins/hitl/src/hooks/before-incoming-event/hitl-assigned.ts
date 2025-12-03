@@ -36,12 +36,7 @@ export const handleEvent: bp.HookHandlers['before_incoming_event']['hitl:hitlAss
   const humanAgentName = humanAgentUser?.name?.length ? humanAgentUser.name : 'A Human Agent'
 
   await Promise.all([
-    upstreamCm.respond({
-      type: 'text',
-      text: sessionConfig.onHumanAgentAssignedMessage?.length
-        ? sessionConfig.onHumanAgentAssignedMessage
-        : DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE,
-    }),
+    upstreamCm.maybeRespondText(sessionConfig.onHumanAgentAssignedMessage, DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE),
     downstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     upstreamCm.setHumanAgent(humanAgentUserId, humanAgentName),
     tryLinkWebchatUser(props, { downstreamUser: humanAgentUser, upstreamConversation, forceLink: true }),
