@@ -1,8 +1,8 @@
 import { createActionWrapper, posthogHelper } from '@botpress/common'
+import { posthogConfig } from 'src'
 import { wrapWithTryCatch } from '../google-api/error-handling'
 import { GoogleClient } from '../google-api/google-client'
 import * as bp from '.botpress'
-import { posthogConfig } from 'src'
 
 export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
   _wrapAction(meta, (props) => {
