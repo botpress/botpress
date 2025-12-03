@@ -1,3 +1,4 @@
+import { NULL_MESSAGE_CODE } from 'plugin.definition'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -74,6 +75,14 @@ export class ConversationManager {
     await eventEmitter.emit({
       conversationId: this._conversation.id,
     })
+  }
+
+  public async maybeRespondText(message: string | undefined, defaultMsg: string): Promise<void> {
+    if (message === NULL_MESSAGE_CODE) {
+      return
+    }
+    const text = message || defaultMsg
+    await this.respond({ type: 'text', text })
   }
 
   public async respond(messagePayload: types.MessagePayload): Promise<void> {
