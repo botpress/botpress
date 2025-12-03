@@ -1,25 +1,22 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import * as bp from '.botpress'
+import * as types from '../types'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
-/** Fetches OAuth token from BambooHR.
- *
- * Can use either authorization code or refresh token.
- * Saves new token in state.
- * @returns `accessToken` and `idToken` to use in Authorization header and integration configuration respectively.
- */
-const fetchBambooHrOauthToken = async (
-  { ctx, client }: Pick<bp.HandlerProps, 'ctx' | 'client'>,
-  oAuthInfo:
-    | { code: string; domain: string; redirectUri?: string }
-    | { refreshToken: string; domain: string; redirectUri?: string }
-): Promise<{
+const _fetchBambooHrOauthToken = async (props: {
+  subdomain?: string
+  oAuthInfo: { code: string } | { refreshToken: string }
+}): Promise<{
   accessToken: string
+  refreshToken: string
+  expiresAt: number
+  scopes: string
   idToken: string
 }> => {
-  const bambooHrOauthUrl = `https://${oAuthInfo.domain}.bamboohr.com/token.php?request=token`
+  const { subdomain, oAuthInfo } = props
+  const bambooHrOauthUrl = `https://${subdomain}.bamboohr.com/token.php?request=token`
 
   const { OAUTH_CLIENT_SECRET, OAUTH_CLIENT_ID } = bp.secrets
 
@@ -56,33 +53,36 @@ const fetchBambooHrOauthToken = async (
   }
   const { access_token, refresh_token, expires_in, scope, id_token } = tokenData.data
 
-  await client.setState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-    payload: {
-      domain: oAuthInfo.domain,
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
-      scopes: scope,
-    },
-  })
-
-  return { accessToken: access_token, idToken: id_token }
+  return {
+    accessToken: access_token,
+    refreshToken: refresh_token,
+    expiresAt: requestTimestamp + expires_in * 1000 - OAUTH_EXPIRATION_MARGIN,
+    scopes: scope,
+    idToken: id_token,
+  }
 }
 
-/** Gets authorization information for requests.
- *
- * Will return OAuth token. If OAuth token is expired or missing, fetches a new one using the refresh token.
- * Users should refresh their authorization header periodically based on the `expiresAt` timestamp.
- *
- * @returns Authorization information & an expiration timestamp.
- */
-export const getBambooHrAuthorization = async ({
+export type BambooHRAuthorization = { authorization: string; expiresAt: number } & (
+  | {
+      type: 'apiKey'
+    }
+  | {
+      type: 'oauth'
+      refreshToken: string
+    }
+)
+export const getCurrentBambooHrAuthorization = async ({
   ctx,
   client,
-}: Pick<bp.HandlerProps, 'ctx' | 'client'>): Promise<{ authorization: string; expiresAt: number }> => {
+}: types.CommonHandlerProps): Promise<BambooHRAuthorization> => {
+  if (ctx.configurationType === 'manual') {
+    return {
+      type: 'apiKey',
+      authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
+      expiresAt: Infinity,
+    }
+  }
+
   let oauth: bp.states.States['oauth']['payload']
   try {
     const { state } = await client.getState({
@@ -95,9 +95,47 @@ export const getBambooHrAuthorization = async ({
     throw new Error('OAuth token missing in state for OAuth-linked integration.', { cause: err })
   }
 
-  const { accessToken } = await fetchBambooHrOauthToken({ ctx, client }, oauth)
+  return {
+    type: 'oauth',
+    authorization: `Bearer ${oauth.accessToken}`,
+    expiresAt: oauth.expiresAt,
+    refreshToken: oauth.refreshToken,
+  }
+}
 
-  return { authorization: `Bearer ${accessToken}`, expiresAt: oauth.expiresAt }
+export const refreshBambooHrAuthorization = async (
+  { ctx, client }: types.CommonHandlerProps,
+  previousAuth: BambooHRAuthorization
+): Promise<BambooHRAuthorization> => {
+  if (previousAuth.type === 'apiKey') {
+    return previousAuth
+  }
+
+  let oauth = previousAuth
+
+  const { accessToken, expiresAt, refreshToken, scopes } = await _fetchBambooHrOauthToken({
+    subdomain: ctx.configuration.subdomain,
+    oAuthInfo: { refreshToken: oauth.refreshToken },
+  })
+
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: {
+      accessToken,
+      refreshToken,
+      expiresAt,
+      scopes,
+    },
+  })
+
+  return {
+    type: 'oauth',
+    authorization: `Bearer ${accessToken}`,
+    expiresAt: oauth.expiresAt,
+    refreshToken,
+  }
 }
 
 /** Handles OAuth endpoint on integration authentication.
@@ -108,17 +146,17 @@ export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.Handle
   const code = new URLSearchParams(req.query).get('code')
   if (!code) throw new Error('Missing authentication code')
 
-  const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
-  if (!redirectUri) throw new Error('Missing redirect URI')
+  const { idToken, ...oauthState } = await _fetchBambooHrOauthToken({
+    subdomain: ctx.configuration.subdomain, // TODO: use the wizard provided value
+    oAuthInfo: { code },
+  })
 
-  const domain = new URL(redirectUri).hostname.split('.')[0]
-  if (!domain) throw new Error('Missing domain')
-
-  const { idToken } = await fetchBambooHrOauthToken({ ctx, client }, { code, domain, redirectUri })
-
-  // Extract subdomain from the JWT token
-  const decodedToken = jwt.decode(idToken) as JwtPayload
-  const subdomain = decodedToken.sub
+  await client.setState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+    payload: oauthState,
+  })
 
   await client.configureIntegration({
     identifier: subdomain,

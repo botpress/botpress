@@ -8,10 +8,9 @@ import {
   bambooHrEmployeeWebhookFields,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
-import { getBambooHrAuthorization } from './auth'
+import { BambooHRAuthorization, getCurrentBambooHrAuthorization, refreshBambooHrAuthorization } from './auth'
 import { parseResponseWithErrors } from './utils'
-
-import * as bp from '.botpress'
+import * as types from '../types'
 
 const getHeaders = (authorization: string) => ({
   Authorization: authorization,
@@ -19,67 +18,41 @@ const getHeaders = (authorization: string) => ({
   Accept: 'application/json',
 })
 
-type ClientProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
-
 export class BambooHRClient {
-  public _baseUrl: string
-  private _headers: Record<string, string>
-  private _expiresAt: number
-  private _props: ClientProps
+  private _baseUrl: string
+  private _currentAuth: BambooHRAuthorization
+  private _props: types.CommonHandlerProps
 
-  public static async create(props: ClientProps): Promise<BambooHRClient> {
-    let subdomain: string
-    let authorization: string
-    let expiresAt: number
-
-    if (props.ctx.configurationType === 'manual') {
-      subdomain = props.ctx.configuration.subdomain
-      authorization = `Basic ${Buffer.from(props.ctx.configuration.apiKey + ':x').toString('base64')}`
-      expiresAt = Infinity
-    } else {
-      // OAuth mode - get subdomain from state
-      const { state } = await props.client.getState({
-        type: 'integration',
-        name: 'oauth',
-        id: props.ctx.integrationId,
-      })
-      subdomain = state.payload.domain
-      authorization = state.payload.accessToken
-      expiresAt = state.payload.expiresAt
-    }
-
-    return new BambooHRClient({ subdomain, authorization, expiresAt, props })
+  public static async create(props: types.CommonHandlerProps): Promise<BambooHRClient> {
+    const currentAuth = await getCurrentBambooHrAuthorization(props)
+    return new BambooHRClient({ subdomain: props.ctx.configuration.subdomain, props, currentAuth })
   }
 
   private constructor({
     subdomain,
-    authorization,
-    expiresAt,
     props,
+    currentAuth,
   }: {
     subdomain: string
-    authorization: string
-    expiresAt: number
-    props: ClientProps
+    props: types.CommonHandlerProps
+    currentAuth: BambooHRAuthorization
   }) {
     this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
-    this._headers = getHeaders(authorization)
-    this._expiresAt = expiresAt
     this._props = props
+    this._currentAuth = currentAuth
   }
 
   private async _makeRequest({
     url,
     ...params
   }: Pick<RequestInit, 'method' | 'body'> & { url: URL }): Promise<Response> {
-    // Refresh OAuth token if too close to expiry
-    if (Date.now() >= this._expiresAt) {
-      const { authorization, expiresAt } = await getBambooHrAuthorization(this._props)
-      this._expiresAt = expiresAt
-      this._headers = getHeaders(authorization)
+    // Refresh token if too close to expiry
+    if (Date.now() >= this._currentAuth.expiresAt) {
+      this._currentAuth = await refreshBambooHrAuthorization(this._props, this._currentAuth)
     }
 
-    const res = await fetch(url, { ...params, headers: this._headers })
+    const headers = getHeaders(this._currentAuth.authorization)
+    const res = await fetch(url, { ...params, headers })
     if (!res.ok) {
       // Custom error header from BambooHR with more details
       const additionalInfo = res.headers.get('x-bamboohr-error-message')
