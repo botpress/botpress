@@ -18,7 +18,10 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
   }
-  if (conversation.integration === 'slack' && conversation.channel === 'channel') {
+  if (
+    conversation.integration === 'slack' &&
+    (conversation.channel === 'channel' || conversation.channel === 'thread')
+  ) {
     return
   }
 
