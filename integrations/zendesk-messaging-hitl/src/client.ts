@@ -9,17 +9,17 @@ import { Logger } from './types'
 
 type NetworkError = {
   status?: number
+  body?: any
   response?: {
     status?: number
-    statusText?: string
-    data?: {
-      error?: {
-        description?: string
-      }
-      message?: string
+    text?: string
+    req: {
+      method: string
+      url: string
+      headers: Record<string, string>
     }
+    header: Record<string, string>
   }
-  message?: string
 }
 
 function getNetworkError(
@@ -32,26 +32,42 @@ function getNetworkError(
   const networkError = error as NetworkError
 
   // Check if it looks like a network error
-  if (!('status' in networkError || 'response' in networkError || 'message' in networkError)) {
+  if (!('status' in networkError)) {
     return undefined
   }
 
-  const message =
-    networkError.message ||
-    networkError.response?.data?.error?.description ||
-    networkError.response?.data?.message ||
-    JSON.stringify(networkError.response?.data) ||
-    'Unknown error'
+  // Parse error message from various formats
+  let message: string | undefined
+
+  // Check for Sunshine Conversations API error format (errors array in body)
+  if (Array.isArray(networkError.body?.errors)) {
+    const errorMessages = (networkError.body.errors as Array<{ title?: string; code?: string }>)
+      .map((err) => {
+        if (err.title) {
+          return err.code ? `${err.title}: ${err.code}` : err.title
+        }
+        return JSON.stringify(err)
+      })
+      .filter((msg): msg is string => msg !== undefined)
+
+    if (errorMessages.length > 0) {
+      message = errorMessages.join('; ')
+    }
+  } else if (networkError.body?.message?.length) {
+    message = networkError.body?.message
+  } else if (networkError.body) {
+    message = JSON.stringify(networkError.body)
+  }
 
   return {
-    message,
+    message: message ?? 'Unknown error',
     status: networkError.status ?? networkError.response?.status,
-    statusText: networkError.response?.statusText,
-    data: networkError.response?.data,
+    data: networkError.body,
   }
 }
 
 type SuncoClientApis = {
+  apps: InstanceType<typeof SunshineConversationsClient.AppsApi>
   users: InstanceType<typeof SunshineConversationsClient.UsersApi>
   conversations: InstanceType<typeof SunshineConversationsClient.ConversationsApi>
   messages: InstanceType<typeof SunshineConversationsClient.MessagesApi>
@@ -77,6 +93,7 @@ class SuncoClient {
     auth.password = config.keySecret
 
     this._client = {
+      apps: new SunshineConversationsClient.AppsApi(apiClient),
       users: new SunshineConversationsClient.UsersApi(apiClient),
       conversations: new SunshineConversationsClient.ConversationsApi(apiClient),
       messages: new SunshineConversationsClient.MessagesApi(apiClient),
@@ -118,6 +135,30 @@ class SuncoClient {
     }
     this._logger.forBot().error(`Failed to ${operationName}`, errorDetails)
     throw new RuntimeError(`Failed to ${operationName}: ${errorMessage}`)
+  }
+
+  public async getApp(): Promise<{
+    id: string
+    displayName?: string
+    subdomain?: string
+    settings?: unknown
+    metadata?: unknown
+  }> {
+    try {
+      const data = await this._client.apps.getApp(this._appId)
+      if (!data?.app?.id) {
+        throw new RuntimeError('App retrieval succeeded but no app data returned')
+      }
+      return {
+        id: data.app.id,
+        displayName: data.app.displayName,
+        subdomain: data.app.subdomain,
+        settings: data.app.settings,
+        metadata: data.app.metadata,
+      }
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'get app', { appId: this._appId })
+    }
   }
 
   public async getOrCreateUser(props: {

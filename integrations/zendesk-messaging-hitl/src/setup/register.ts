@@ -9,6 +9,16 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
 
     const suncoClient = getSuncoClient(ctx.configuration, logger)
 
+    logger.forBot().info('Verifying credentials...')
+    try {
+      const app = await suncoClient.getApp()
+      logger.forBot().info('✅ Credentials verified successfully. App details:', JSON.stringify(app, null, 2))
+    } catch (thrown: unknown) {
+      const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().error(`Failed to verify credentials: ${errMsg}`)
+      throw new RuntimeError(`Invalid credentials: ${errMsg}`)
+    }
+
     const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
     logger.forBot().info(`Integration Display name: ${integrationDisplayName}`)
 

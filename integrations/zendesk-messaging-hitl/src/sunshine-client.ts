@@ -2,6 +2,7 @@ const SunshineConversationsClientModule = require('sunshine-conversations-client
 
 export const SunshineConversationsClient = SunshineConversationsClientModule as {
   ApiClient: typeof SunshineConversationsClientModule.ApiClient
+  AppsApi: typeof SunshineConversationsClientModule.AppsApi
   UsersApi: typeof SunshineConversationsClientModule.UsersApi
   ConversationsApi: typeof SunshineConversationsClientModule.ConversationsApi
   MessagesApi: typeof SunshineConversationsClientModule.MessagesApi
