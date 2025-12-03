@@ -82,7 +82,7 @@ export class ConversationManager {
       return
     }
     const text = message || defaultMsg
-    await this.respond({ type: 'text', text: text })
+    await this.respond({ type: 'text', text })
   }
 
   public async respond(messagePayload: types.MessagePayload): Promise<void> {
