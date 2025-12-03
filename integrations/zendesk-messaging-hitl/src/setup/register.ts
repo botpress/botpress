@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
-import { getBotpressIntegrationDisplayName, fetchAndCacheSwitchboardIntegrationsIdOrThrow } from './utils'
+import { getBotpressIntegrationDisplayName, fetchAndCacheSwitchboardIntegrationsIdOrThrow } from './util'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUrl, logger, client }) => {
   try {

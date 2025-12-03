@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { buildConversationTranscript } from '@botpress/common'
 import { getSuncoClient } from 'src/client'
-import { getSwitchboardIntegrationId, getAgentWorkspaceSwitchboardIntegrationId } from 'src/setup/utils'
+import { getSwitchboardIntegrationId, getAgentWorkspaceSwitchboardIntegrationId } from 'src/setup/util'
 import { Client, IntegrationCtx, User, HitlSession, MessageHistory } from 'src/types'
 import * as bp from '.botpress'
 

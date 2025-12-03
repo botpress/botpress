@@ -4,4 +4,4 @@ export {
   getBotpressIntegrationDisplayName,
   getSwitchboardIntegrationId,
   getAgentWorkspaceSwitchboardIntegrationId,
-} from './utils'
+} from './util'

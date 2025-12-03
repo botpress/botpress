@@ -1,6 +1,6 @@
 import * as bp from '../../.botpress'
 import { getSuncoClient } from '../client'
-import { getBotpressIntegrationDisplayName } from './utils'
+import { getBotpressIntegrationDisplayName } from './util'
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logger }) => {
   try {
