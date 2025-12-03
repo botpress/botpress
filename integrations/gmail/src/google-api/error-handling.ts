@@ -31,7 +31,7 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
           errorReason: errorReason?.substring(0, 100),
         },
       },
-      { integrationName: INTEGRATION_NAME, key: (bp.secrets as any).POSTHOG_KEY as string }
+      { integrationName: INTEGRATION_NAME, key: bp.secrets.POSTHOG_KEY }
     )
     .catch(() => {
       // Silently fail if PostHog is unavailable
