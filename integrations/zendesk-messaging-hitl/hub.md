@@ -17,12 +17,12 @@ You will need to have access to your **Zendesk Account** account to configure th
 ### Automatic Setup
 
 When you register this integration, it will automatically:
+
 1. Create a Integration in Zendesk Account with the name `botpress-hitl-{webhookId}`
 2. Configure the webhook to receive events from Zendesk Messaging
 3. Set up the integration to handle messages and switchboard events
 
 The webhook URL is automatically configured during registration
-
 
 ## Enabling Multi Conversations
 

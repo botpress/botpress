@@ -32,4 +32,3 @@ export async function getMediaMetadata(url: string): Promise<FileMetadata> {
     fileName,
   }
 }
-
