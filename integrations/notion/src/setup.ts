@@ -6,7 +6,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
   const notionClient = await NotionClient.create(props)
   await notionClient.testAuthentication().catch((thrown) => {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    throw new RuntimeError('Failed to test authentication', error)
+    throw new RuntimeError(`Failed to test authentication: ${error.message}`)
   })
 }
 
