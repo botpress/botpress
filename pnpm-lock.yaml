@@ -2630,6 +2630,9 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@botpress/client':
         specifier: workspace:*
         version: link:../client
@@ -2773,6 +2776,9 @@ importers:
       '@bpinternal/zui':
         injected: true
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@microsoft/api-extractor':
         specifier: ^7.49.0
         version: 7.49.0(@types/node@22.16.4)
@@ -2892,6 +2898,9 @@ importers:
         specifier: ^2 || ^3 || ^4 || ^5
         version: 2.1.8(@types/node@22.16.4)(msw@2.12.0(@types/node@22.16.4)(typescript@5.8.3))
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../common
@@ -2935,8 +2944,11 @@ importers:
         specifier: ^7.2.0
         version: 7.2.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../cli
       '@botpress/client':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../client
       '@botpress/common':
         specifier: workspace:*
