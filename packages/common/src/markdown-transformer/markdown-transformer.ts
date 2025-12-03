@@ -32,7 +32,7 @@ export const stripAllHandlers: MarkdownHandlers = {
       prefix += ownerList.ordered === true ? `${itemCount}. ` : '- '
     }
 
-    const shouldBreak = ownerList.listLevel === 1 || itemCount !== ownerList.children.length
+    const shouldBreak = ownerList.listLevel === 1 || itemCount < ownerList.children.length
     return `${prefix}${visit(node)}${shouldBreak ? '\n' : ''}`
   },
   paragraph: (node, visit, parents) => `${visit(node)}${parents.at(-1)?.type === 'root' ? '\n' : ''}`,
