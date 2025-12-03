@@ -21,27 +21,25 @@ export const HITL_END_REASON = {
 type HitlEndReason = (typeof HITL_END_REASON)[keyof typeof HITL_END_REASON]
 
 export class ConversationManager {
-  public static from(props: types.AnyHandlerProps, convId: string): ConversationManager {
-    return new ConversationManager(props, convId)
+  public static from(props: types.AnyHandlerProps, conversation: types.ActionableConversation): ConversationManager {
+    return new ConversationManager(props, conversation)
   }
 
   private constructor(
     private _props: types.AnyHandlerProps,
-    private _convId: string
+    private _conversation: types.ActionableConversation
   ) {}
 
   public get conversationId(): string {
-    return this._convId
+    return this._conversation.id
   }
 
   public async setHumanAgent(humanAgentId: string, humanAgentName: string) {
     await this._patchConversationTags({ humanAgentId, humanAgentName })
   }
 
-  public async isHumanAgentAssigned(): Promise<boolean> {
-    const { humanAgentId } = await this._getConversationTags()
-
-    return !!humanAgentId?.length
+  public isHumanAgentAssigned(): boolean {
+    return !!this._conversation.tags.humanAgentId?.length
   }
 
   public async isHitlActive(): Promise<boolean> {
@@ -63,32 +61,81 @@ export class ConversationManager {
   }
 
   public async continueWorkflow(): Promise<void> {
-    const userId = await this._props.states.conversation.initiatingUser
-      .get(this._convId)
+    const initiatingUserId = await this._props.states.conversation.initiatingUser
+      .get(this._conversation.id)
       .then((state) => state.upstreamUserId)
 
-    let eventBuilder = this._props.events.continueWorkflow.withConversationId(this._convId)
-    if (userId) {
-      eventBuilder = eventBuilder.withUserId(userId)
+    let eventEmitter = this._props.events.continueWorkflow.withConversationId(this._conversation.id)
+
+    if (initiatingUserId) {
+      eventEmitter = eventEmitter.withUserId(initiatingUserId)
     }
 
-    await eventBuilder.emit({
-      conversationId: this._convId,
+    await eventEmitter.emit({
+      conversationId: this._conversation.id,
     })
   }
 
-  public async respond({ type, ...messagePayload }: types.MessagePayload): Promise<void> {
-    await this._props.client.createMessage({
-      // FIXME: in the future, we should use the provided UserId so that messages
-      //        on Botpress appear to come from the agent/user instead of the
-      //        bot user. For now, this is not possible because of checks in the
-      //        backend.
-      type,
-      userId: this._props.ctx.botId,
-      conversationId: this._convId,
-      payload: messagePayload,
-      tags: {},
-    })
+  public async respond(messagePayload: types.MessagePayload): Promise<void> {
+    // FIXME: in the future, we should use the provided UserId so that messages
+    //        on Botpress appear to come from the agent/user instead of the
+    //        bot user. For now, this is not possible because of checks in the
+    //        backend.
+
+    // FIXME: typescript has trouble narrowing the type here, so we use a switch
+    //        statement as a workaround.
+    switch (messagePayload.type) {
+      case 'text':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      case 'image':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      case 'audio':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      case 'file':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      case 'video':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      case 'bloc':
+        await this._conversation.createMessage({
+          type: messagePayload.type,
+          userId: this._props.ctx.botId,
+          payload: messagePayload,
+          tags: {},
+        })
+        break
+      default:
+        messagePayload satisfies never
+    }
   }
 
   public async abortHitlSession(errorMessage: string): Promise<void> {
@@ -97,32 +144,25 @@ export class ConversationManager {
   }
 
   public async setUserId(userId: string): Promise<void> {
-    return await this._props.states.conversation.initiatingUser.set(this._convId, { upstreamUserId: userId })
+    return await this._props.states.conversation.initiatingUser.set(this._conversation.id, { upstreamUserId: userId })
   }
 
   private async _getHitlState(): Promise<bp.states.hitl.Hitl['payload']> {
-    return await this._props.states.conversation.hitl.getOrSet(this._convId, DEFAULT_STATE)
+    return await this._props.states.conversation.hitl.getOrSet(this._conversation.id, DEFAULT_STATE)
   }
 
   private async _setHitlState(state: HitlState): Promise<void> {
-    return await this._props.states.conversation.hitl.set(this._convId, state)
+    return await this._props.states.conversation.hitl.set(this._conversation.id, state)
   }
 
   private async _patchConversationTags(tags: Record<string, string>): Promise<void> {
-    await this._props.client.updateConversation({ id: this._convId, tags })
-  }
-
-  private async _getConversationTags(): Promise<Record<string, string>> {
-    const {
-      conversation: { tags },
-    } = await this._props.client.getConversation({ id: this._convId })
-    return tags
+    await this._conversation.update({ tags })
   }
 
   private async _toggleTypingIndicator(payload: TypingIndicatorState): Promise<void> {
     try {
       await this._props.client.setState({
-        id: this._convId,
+        id: this._conversation.id,
         type: 'conversation',
         name: TYPING_INDICATOR_STATE_NAME,
         payload,
@@ -130,7 +170,9 @@ export class ConversationManager {
     } catch (thrown) {
       // because this state is hardcoded in the Studio / DM, it might not exist in some bot-as-code or ADK bots
       const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
-      this._props.logger.withConversationId(this._convId).debug(`Could not set typing indicator state: ${errorMsg}`)
+      this._props.logger
+        .withConversationId(this._conversation.id)
+        .debug(`Could not set typing indicator state: ${errorMsg}`)
     }
   }
 }

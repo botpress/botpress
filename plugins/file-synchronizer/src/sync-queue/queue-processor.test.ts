@@ -50,6 +50,7 @@ describe.concurrent('processQueue', () => {
     } as const satisfies Mocked<ProcessQueueProps['fileRepository']>,
     integration: {
       name: 'test-integration',
+      alias: 'test-integration-alias',
       transferFileToBotpress: vi.fn(),
     } as const satisfies Mocked<ProcessQueueProps['integration']>,
     updateSyncQueue: vi.fn() as Mock<ProcessQueueProps['updateSyncQueue']>,
