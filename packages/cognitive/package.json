@@ -32,6 +32,7 @@
     "nanoevents": "^9.1.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@bpinternal/zui": "1.2.1",
