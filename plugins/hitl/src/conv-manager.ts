@@ -1,3 +1,4 @@
+import { NULL_MESSAGE_CODE } from 'plugin.definition'
 import * as types from './types'
 import * as bp from '.botpress'
 
@@ -76,8 +77,8 @@ export class ConversationManager {
     })
   }
 
-  public async maybeRespondText(message: string | undefined | null, defaultMsg: string): Promise<void> {
-    if (message === null) {
+  public async maybeRespondText(message: string | undefined, defaultMsg: string): Promise<void> {
+    if (message === NULL_MESSAGE_CODE) {
       return
     }
     const text = message || defaultMsg
