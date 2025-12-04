@@ -1,5 +1,7 @@
 const SunshineConversationsClientModule = require('sunshine-conversations-client')
 
+// The typings below were generated using AI based on dist from sunshine-conversations-client
+
 // ============================================================================
 // ApiClient Types
 // ============================================================================
@@ -20,40 +22,9 @@ export type ApiClientAuthentications = {
   bearerAuth: BearerAuth
 }
 
+// This is a very simplified type for the ApiClient
 export type ApiClient = {
-  basePath?: string
   authentications: ApiClientAuthentications
-  defaultHeaders?: Record<string, string>
-  timeout?: number
-  cache?: unknown
-  enableCookies?: boolean
-  agent?: unknown
-  requestAgent?: unknown
-  plugins?: unknown[]
-  paramToString(param: unknown): string
-  buildUrl(path: string, pathParams?: Record<string, unknown>): string
-  isJsonMime(mime: string): boolean
-  jsonPreferredMime(contentTypes: string[]): string | null
-  isFileParam(param: unknown): boolean
-  normalizeParams(params: Record<string, unknown>): Record<string, unknown>
-  buildCollectionParam(param: unknown[], collectionFormat: string): string[]
-  applyAuthToRequest(requestOptions: unknown, authNames: string[]): void
-  deserialize(response: unknown, returnType: string, mimetype?: string): unknown
-  callApi(
-    path: string,
-    httpMethod: string,
-    pathParams?: Record<string, unknown>,
-    queryParams?: Record<string, unknown>,
-    headerParams?: Record<string, unknown>,
-    formParams?: Record<string, unknown>,
-    bodyParam?: unknown,
-    authNames?: string[],
-    contentTypes?: string[],
-    accepts?: string[],
-    returnType?: string
-  ): Promise<unknown>
-  hostSettings?: unknown[]
-  getBasePathFromSettings(index: number, variables?: Record<string, unknown>): string
 }
 
 // ============================================================================
