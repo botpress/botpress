@@ -103,6 +103,14 @@ export class NotionClient {
     void (await this._notion.blocks.delete({ block_id: blockId }))
   }
 
+  @handleErrors('Failed to append block to page')
+  public async appendBlockToPage({ pageId, block }: { pageId: string; block: any }): Promise<void> {
+    void (await this._notion.blocks.children.append({
+      block_id: pageId,
+      children: [block],
+    }))
+  }
+
   @handleErrors('Failed to get database')
   public async getDbWithStructure({ databaseId }: { databaseId: string }) {
     const response = await this._notion.databases.retrieve({ database_id: databaseId })

@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { blockSchema } from './schemas/block-schemas'
 
 export const actions = {
   addPageToDb: {
@@ -91,6 +92,23 @@ export const actions = {
           .title('Discussion ID')
           .describe('The ID of the discussion to add the comment to. Can be found in the URL of the discussion'),
         commentBody: sdk.z.string().min(1).title('Comment Body').describe('Must be plain text'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({}),
+    },
+  },
+  appendBlockToPage: {
+    title: 'Append Block to Page',
+    description: 'Append a block to a page in Notion',
+    input: {
+      schema: sdk.z.object({
+        pageId: sdk.z
+          .string()
+          .min(1)
+          .title('Page ID')
+          .describe('The ID of the page to append the block to. Can be found in the URL of the page'),
+        block: blockSchema.title('Block').describe('The block to append to the page'),
       }),
     },
     output: {
