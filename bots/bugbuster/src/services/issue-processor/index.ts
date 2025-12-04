@@ -56,7 +56,7 @@ export class IssueProcessor {
       return { identifier: issue.identifier, result: 'ignored' }
     }
 
-    const errors = await lintIssue(issue, status)
+    const errors = lintIssue(issue, status)
 
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
