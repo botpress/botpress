@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import hitl from './bp_modules/hitl'
 
+export const NULL_MESSAGE_CODE = 'NULL'
 export const DEFAULT_HITL_HANDOFF_MESSAGE =
   'I have escalated this conversation to a human agent. They should be with you shortly.'
 export const DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE = 'A human agent has joined the conversation.'
@@ -14,39 +15,60 @@ export const DEFAULT_USER_HITL_COMMAND_MESSAGE =
 export const DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE =
   'No human agent is available at the moment. Please try again later. I will continue assisting you for the time being.'
 
+const _nullCodeDescription = `Use "${NULL_MESSAGE_CODE}" to indicate that no message should be sent.`
 const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
   onHitlHandoffMessage: sdk.z
     .string()
     .title('Escalation Started Message')
-    .describe('The message to send to the user when transferring to a human agent')
+    .describe(`The message to send to the user when transferring to a human agent. ${_nullCodeDescription}`)
     .optional()
     .placeholder(DEFAULT_HITL_HANDOFF_MESSAGE),
   onHumanAgentAssignedMessage: sdk.z
     .string()
     .title('Human Agent Assigned Message')
-    .describe('The message to send to the user when a human agent is assigned')
+    .describe(`The message to send to the user when a human agent is assigned. ${_nullCodeDescription}`)
     .optional()
     .placeholder(DEFAULT_HUMAN_AGENT_ASSIGNED_MESSAGE),
   onHitlStoppedMessage: sdk.z
     .string()
     .title('Escalation Terminated Message')
-    .describe('The message to send to the user when the HITL session stops and control is transferred back to bot')
+    .describe(
+      `The message to send to the user when the HITL session stops and control is transferred back to bot. ${_nullCodeDescription}`
+    )
     .optional()
     .placeholder(DEFAULT_HITL_STOPPED_MESSAGE),
   onUserHitlCancelledMessage: sdk.z
     .string()
     .title('Escalation Aborted Message')
-    .describe('The message to send to the human agent when the user abruptly ends the HITL session')
+    .describe(
+      `The message to send to the human agent when the user abruptly ends the HITL session. ${_nullCodeDescription}`
+    )
     .optional()
     .placeholder(DEFAULT_USER_HITL_CANCELLED_MESSAGE),
   onIncompatibleMsgTypeMessage: sdk.z
     .string()
     .title('Incompatible Message Type Warning')
     .describe(
-      'The warning to send to the human agent when they send a message that is not supported by the hitl session'
+      `The warning to send to the human agent when they send a message that is not supported by the hitl session. ${_nullCodeDescription}`
     )
     .optional()
     .placeholder(DEFAULT_INCOMPATIBLE_MSGTYPE_MESSAGE),
+  onUserHitlCloseMessage: sdk.z
+    .string()
+    .title('Termination Command Message')
+    .describe(
+      `The message to send to the user when they end the HITL session using the termination command. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
+  onAgentAssignedTimeoutMessage: sdk.z
+    .string()
+    .title('Agent Assigned Timeout Message')
+    .describe(
+      `The message to send to the user when no human agent is assigned within the timeout period. ${_nullCodeDescription}`
+    )
+    .optional()
+    .placeholder(DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE),
   userHitlCloseCommand: sdk.z
     .string()
     .title('Termination Command')
@@ -55,18 +77,6 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
     )
     .optional()
     .placeholder(DEFAULT_USER_HITL_CLOSE_COMMAND),
-  onUserHitlCloseMessage: sdk.z
-    .string()
-    .title('Termination Command Message')
-    .describe('The message to send to the user when they end the HITL session using the termination command')
-    .optional()
-    .placeholder(DEFAULT_USER_HITL_COMMAND_MESSAGE),
-  onAgentAssignedTimeoutMessage: sdk.z
-    .string()
-    .title('Agent Assigned Timeout Message')
-    .describe('The message to send to the user when no human agent is assigned within the timeout period')
-    .optional()
-    .placeholder(DEFAULT_AGENT_ASSIGNED_TIMEOUT_MESSAGE),
   agentAssignedTimeoutSeconds: sdk.z
     .number()
     .title('Agent Assigned Timeout')
@@ -92,7 +102,7 @@ const PLUGIN_CONFIG_SCHEMA = sdk.z.object({
 
 export default new sdk.PluginDefinition({
   name: 'hitl',
-  version: '1.1.1',
+  version: '1.2.0',
   title: 'Human In The Loop',
   description: 'Seamlessly transfer conversations to human agents',
   icon: 'icon.svg',
