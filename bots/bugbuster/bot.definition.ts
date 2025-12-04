@@ -7,20 +7,6 @@ import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
   states: {
-    recentlyLinted: {
-      type: 'bot',
-      schema: sdk.z.object({
-        issues: sdk.z
-          .array(
-            sdk.z.object({
-              id: sdk.z.string(),
-              lintedAt: sdk.z.string().datetime(),
-            })
-          )
-          .title('Recently Linted Issues')
-          .describe('List of recently linted issues'),
-      }),
-    },
     watchedTeams: {
       type: 'bot',
       schema: sdk.z.object({

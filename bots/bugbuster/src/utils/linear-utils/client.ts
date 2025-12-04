@@ -40,6 +40,9 @@ export class LinearApi {
   }
 
   public async getMe(): Promise<lin.User> {
+    if (this._viewer) {
+      return this._viewer
+    }
     const me = await this._client.viewer
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')
