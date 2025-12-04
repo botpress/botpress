@@ -1,9 +1,18 @@
 import { RuntimeError } from '@botpress/client'
 import {
   SunshineConversationsApi,
-  type SuncoConfiguration,
-  type SuncoUser,
-  type SuncoConversation,
+  type AppsApi,
+  type UsersApi,
+  type ConversationsApi,
+  type MessagesApi,
+  type WebhooksApi,
+  type IntegrationsApi,
+  type SwitchboardsApi,
+  type SwitchboardActionsApi,
+  type SwitchboardIntegrationsApi,
+  type PostMessageRequest,
+  type MessageAuthor,
+  type MessageContent,
 } from './sunshine-api'
 
 export class SuncoClientError extends RuntimeError {
@@ -21,7 +30,6 @@ export class SuncoClientError extends RuntimeError {
       data?: unknown
       requestBody?: unknown
       additionalContext?: Record<string, unknown>
-      cause?: unknown
     }
   ) {
     const details: string[] = [message]
@@ -49,28 +57,24 @@ export class SuncoClientError extends RuntimeError {
     this.data = options?.data
     this.requestBody = options?.requestBody
     this.additionalContext = options?.additionalContext
-    if (options?.cause instanceof Error) {
-      this.cause = options.cause
-      this.stack = options.cause.stack
-    }
   }
 }
 
 class SuncoClient {
   private _appId: string
   private _client: {
-    apps: InstanceType<typeof SunshineConversationsApi.AppsApi>
-    users: InstanceType<typeof SunshineConversationsApi.UsersApi>
-    conversations: InstanceType<typeof SunshineConversationsApi.ConversationsApi>
-    messages: InstanceType<typeof SunshineConversationsApi.MessagesApi>
-    webhooks: InstanceType<typeof SunshineConversationsApi.WebhooksApi>
-    integrations: InstanceType<typeof SunshineConversationsApi.IntegrationsApi>
-    switchboard: InstanceType<typeof SunshineConversationsApi.SwitchboardsApi>
-    switchboardActions: InstanceType<typeof SunshineConversationsApi.SwitchboardActionsApi>
-    switchboardIntegrations: InstanceType<typeof SunshineConversationsApi.SwitchboardIntegrationsApi>
+    apps: AppsApi
+    users: UsersApi
+    conversations: ConversationsApi
+    messages: MessagesApi
+    webhooks: WebhooksApi
+    integrations: IntegrationsApi
+    switchboard: SwitchboardsApi
+    switchboardActions: SwitchboardActionsApi
+    switchboardIntegrations: SwitchboardIntegrationsApi
   }
 
-  public constructor(config: SuncoConfiguration) {
+  public constructor(config: { appId: string; keyId: string; keySecret: string }) {
     this._appId = config.appId
     const apiClient = new SunshineConversationsApi.ApiClient()
     const auth = apiClient.authentications['basicAuth']
@@ -93,6 +97,10 @@ class SuncoClient {
   private _isNetworkError(error: unknown): error is {
     status?: number
     body?: any
+    request?: {
+      data?: unknown
+      body?: unknown
+    }
     response?: {
       status?: number
       text?: string
@@ -100,6 +108,8 @@ class SuncoClient {
         method: string
         url: string
         headers: Record<string, string>
+        data?: unknown
+        body?: unknown
       }
       header: Record<string, string>
     }
@@ -107,7 +117,14 @@ class SuncoClient {
     return typeof error === 'object' && error !== null && 'status' in error
   }
 
-  private _getNetworkErrorDetails(error: unknown): { message: string; status?: number; data?: unknown } | undefined {
+  private _getNetworkErrorDetails(error: unknown):
+    | {
+        message: string
+        status?: number
+        data?: unknown
+        requestBody?: unknown
+      }
+    | undefined {
     if (typeof error !== 'object' || error === null) {
       return undefined
     }
@@ -139,19 +156,20 @@ class SuncoClient {
       message = JSON.stringify(error.body)
     }
 
+    // Try to extract request body from error object
+    // Check common locations where HTTP clients might store request data
+    const requestBody =
+      error.request?.data ?? error.request?.body ?? error.response?.req?.data ?? error.response?.req?.body
+
     return {
       message: message ?? 'Unknown error',
       status: error.status ?? error.response?.status,
       data: error.body,
+      requestBody,
     }
   }
 
-  private _handleError(
-    thrown: unknown,
-    operationName: string,
-    requestBody?: unknown,
-    additionalContext?: Record<string, unknown>
-  ): never {
+  private _handleError(thrown: unknown, operationName: string, additionalContext?: Record<string, unknown>): never {
     if (thrown instanceof SuncoClientError) {
       throw thrown
     }
@@ -162,9 +180,8 @@ class SuncoClient {
     throw new SuncoClientError(errorMessage, operationName, {
       status: networkErrorDetails?.status,
       data: networkErrorDetails?.data,
-      requestBody,
+      requestBody: networkErrorDetails?.requestBody,
       additionalContext,
-      cause: thrown instanceof Error ? thrown : undefined,
     })
   }
 
@@ -192,12 +209,7 @@ class SuncoClient {
     }
   }
 
-  public async getOrCreateUser(props: {
-    name?: string
-    email?: string
-    avatarUrl?: string
-    externalId: string
-  }): Promise<SuncoUser> {
+  public async getOrCreateUser(props: { name?: string; email?: string; avatarUrl?: string; externalId: string }) {
     try {
       const existingUser = await this.getUserByIdOrExternalId(props.externalId)
       if (existingUser) {
@@ -210,56 +222,46 @@ class SuncoClient {
     }
   }
 
-  public async getUserByIdOrExternalId(userIdOrExternalId: string): Promise<SuncoUser | null> {
+  public async getUserByIdOrExternalId(userIdOrExternalId: string) {
     try {
       const result = await this._client.users.getUser(this._appId, userIdOrExternalId)
-      return {
-        id: result.user.id,
-        profile: result.user.profile,
-      }
+      return result.user
     } catch (thrown: unknown) {
       const networkError = this._getNetworkErrorDetails(thrown)
       if (networkError && networkError.status === 404) {
         return null
       }
 
-      this._handleError(thrown, 'get user by ID or external ID', undefined, { userIdOrExternalId })
+      this._handleError(thrown, 'get user by ID or external ID', { userIdOrExternalId })
     }
   }
 
-  public async createUser(props: {
-    name?: string
-    email?: string
-    avatarUrl?: string
-    externalId: string
-  }): Promise<SuncoUser> {
+  public async createUser(props: { name?: string; email?: string; avatarUrl?: string; externalId: string }) {
     const { name, email, avatarUrl, externalId } = props
 
     const nameParts = name?.split(' ') || []
     const givenName = nameParts[0] || ''
     const surname = nameParts.slice(1).join(' ') || ''
 
-    const userPost = {
-      externalId,
-      profile: {
-        ...(givenName.length && { givenName }),
-        ...(surname.length && { surname }),
-        ...(email && { email }),
-        ...(avatarUrl && { avatarUrl }),
-      },
-    }
-
     try {
-      const result = await this._client.users.createUser(this._appId, userPost)
+      const result = await this._client.users.createUser(this._appId, {
+        externalId,
+        profile: {
+          ...(givenName.length && { givenName }),
+          ...(surname.length && { surname }),
+          ...(email && { email }),
+          ...(avatarUrl && { avatarUrl }),
+        },
+      })
       return result.user
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create user', userPost)
+      this._handleError(thrown, 'create user')
     }
   }
 
-  public async createConversation(args: { userId: string }): Promise<SuncoConversation> {
+  public async createConversation(args: { userId: string }) {
     try {
-      const conversationPost: Record<string, unknown> = {
+      const result = await this._client.conversations.createConversation(this._appId, {
         type: 'personal',
         participants: [
           {
@@ -268,21 +270,19 @@ class SuncoClient {
           },
         ],
         displayName: 'HITL Conversation',
-      }
+      })
 
-      const data = await this._client.conversations.createConversation(this._appId, conversationPost)
-
-      if (!data?.conversation?.id) {
+      if (!result?.conversation?.id) {
         throw new RuntimeError('Conversation creation succeeded but no ID returned')
       }
 
-      return data.conversation
+      return result.conversation
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create conversation', args)
+      this._handleError(thrown, 'create conversation')
     }
   }
 
-  public async sendMessage(
+  public async sendMessages(
     conversationId: string,
     userIdOrAuthor:
       | string
@@ -293,17 +293,12 @@ class SuncoClient {
           displayName?: string
           avatarUrl?: string
         },
-    messageParts: Array<
-      | { type: 'text'; text: string }
-      | { type: 'image'; mediaUrl: string }
-      | { type: 'file'; mediaUrl: string; mediaType?: string }
-    >
-  ): Promise<{ id: string }> {
+    messageParts: Array<MessageContent>
+  ) {
     try {
-      let messageId: string | undefined
+      let message
 
-      // Determine author object based on input type
-      let author: Record<string, unknown>
+      let author: MessageAuthor
       if (typeof userIdOrAuthor === 'string') {
         // userId provided
         author = {
@@ -326,127 +321,100 @@ class SuncoClient {
       }
 
       for (const part of messageParts) {
-        const messagePost: Record<string, unknown> = {
+        const messagePost: PostMessageRequest = {
           author,
-        }
-
-        if (part.type === 'text') {
-          messagePost.content = {
-            type: 'text',
-            text: part.text,
-          }
-        } else if (part.type === 'image') {
-          messagePost.content = {
-            type: 'image',
-            mediaUrl: part.mediaUrl,
-          }
-        } else if (part.type === 'file') {
-          messagePost.content = {
-            type: 'file',
-            mediaUrl: part.mediaUrl,
-            mediaType: part.mediaType,
-          }
+          content: part,
         }
 
         const result = await this._client.messages.postMessage(this._appId, conversationId, messagePost)
         if (result.messages && result.messages.length > 0) {
-          messageId = result.messages[0].id
+          const firstMessage = result.messages[0]
+          if (firstMessage?.id) {
+            message = firstMessage
+          }
         }
       }
 
-      if (!messageId) {
+      if (!message) {
         throw new RuntimeError('Failed to send message')
       }
 
-      return { id: messageId }
+      return message
     } catch (thrown: unknown) {
       this._handleError(thrown, 'send message', { conversationId, messageParts })
     }
   }
 
-  public async createIntegration(integrationName: string, webhookUrl: string): Promise<{ id: string }> {
-    const integrationPost: Record<string, unknown> = {
-      type: 'custom',
-      status: 'active',
-      displayName: integrationName,
-      webhooks: [
-        {
-          target: webhookUrl,
-          triggers: [
-            'conversation:message',
-            'conversation:remove',
-            'conversation:join',
-            'conversation:postback',
-            'switchboard:releaseControl',
-          ],
-          includeFullUser: false,
-          includeFullSource: false,
-        },
-      ],
-    }
-
+  public async createIntegration(integrationName: string, webhookUrl: string) {
     try {
-      const result = await this._client.integrations.createIntegration(this._appId, integrationPost)
+      const result = await this._client.integrations.createIntegration(this._appId, {
+        type: 'custom',
+        status: 'active',
+        displayName: integrationName,
+        webhooks: [
+          {
+            target: webhookUrl,
+            triggers: [
+              'conversation:message',
+              'conversation:remove',
+              'conversation:join',
+              'conversation:postback',
+              'switchboard:releaseControl',
+            ],
+            includeFullUser: false,
+            includeFullSource: false,
+          },
+        ],
+      })
 
       if (!result?.integration?.id) {
         throw new RuntimeError('Integration creation succeeded but no ID returned')
       }
 
-      return {
-        id: result.integration.id,
-      }
+      return result.integration
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create integration', integrationPost)
+      this._handleError(thrown, 'create integration')
     }
   }
 
-  public async createWebhook(integrationId: string, webhookUrl: string): Promise<{ id: string }> {
-    const webhookPost: Record<string, unknown> = {
-      target: webhookUrl,
-      triggers: ['conversation:message', 'conversation:read'],
-      includeFullUser: false,
-      includeFullSource: false,
-    }
-
+  public async createWebhook(integrationId: string, webhookUrl: string) {
     try {
-      const result = await this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, webhookPost)
-      return { id: result.webhook.id }
+      return this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, {
+        target: webhookUrl,
+        triggers: ['conversation:message', 'conversation:read'],
+        includeFullUser: false,
+        includeFullSource: false,
+      })
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create webhook', webhookPost, { integrationId })
+      this._handleError(thrown, 'create webhook', { integrationId })
     }
   }
 
-  public async deleteWebhook(integrationId: string, webhookId: string): Promise<void> {
+  public async deleteWebhook(integrationId: string, webhookId: string) {
     try {
       await this._client.webhooks.deleteIntegrationWebhook(this._appId, integrationId, webhookId)
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete webhook', undefined, { integrationId, webhookId })
+      this._handleError(thrown, 'delete webhook', { integrationId, webhookId })
     }
   }
 
-  public async deleteIntegration(integrationId: string): Promise<void> {
+  public async deleteIntegration(integrationId: string) {
     try {
       await this._client.integrations.deleteIntegration(this._appId, integrationId)
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete integration', undefined, { integrationId })
+      this._handleError(thrown, 'delete integration', { integrationId })
     }
   }
 
-  public async listIntegrations(): Promise<Array<{ id: string; displayName: string }>> {
+  public async listIntegrations() {
     try {
-      const result = await this._client.integrations.listIntegrations(this._appId)
-      return (
-        result.integrations?.map((integration: { id?: string; displayName?: string }) => ({
-          id: integration.id,
-          displayName: integration.displayName,
-        })) || []
-      )
+      return (await this._client.integrations.listIntegrations(this._appId)).integrations || []
     } catch (thrown: unknown) {
       this._handleError(thrown, 'list integrations')
     }
   }
 
-  public async findIntegrationByDisplayNameOrThrow(displayName: string): Promise<{ id: string }> {
+  public async findIntegrationByDisplayNameOrThrow(displayName: string) {
     const integrations = await this.listIntegrations()
     const integration = integrations.find((int) => int.displayName === displayName)
     if (!integration) {
@@ -455,7 +423,7 @@ class SuncoClient {
     return integration
   }
 
-  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string): Promise<{ id: string }> {
+  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string) {
     try {
       const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
       const switchboardIntegrations = result.switchboardIntegrations || []
@@ -467,7 +435,7 @@ class SuncoClient {
       }
       return switchboardIntegration
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'find switchboard integration by name', undefined, { switchboardId, name })
+      this._handleError(thrown, 'find switchboard integration by name', { switchboardId, name })
     }
   }
 
@@ -483,7 +451,7 @@ class SuncoClient {
       }
       return { id: agentWorkspaceIntegration.id }
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'find agent workspace integration', undefined, { switchboardId })
+      this._handleError(thrown, 'find agent workspace integration', { switchboardId })
     }
   }
 
@@ -493,14 +461,12 @@ class SuncoClient {
     metadata?: Record<string, string>
   ): Promise<void> {
     try {
-      const passControlBody: Record<string, unknown> = {
+      await this._client.switchboardActions.passControl(this._appId, conversationId, {
         switchboardIntegration: switchboardIntegrationId,
         metadata: metadata || {},
-      }
-
-      await this._client.switchboardActions.passControl(this._appId, conversationId, passControlBody)
+      })
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'pass control to switchboard', undefined, {
+      this._handleError(thrown, 'pass control to switchboard', {
         conversationId,
         switchboardIntegrationId,
       })
@@ -513,42 +479,36 @@ class SuncoClient {
     metadata?: Record<string, string>
   ): Promise<void> {
     try {
-      const offerControlBody: Record<string, unknown> = {
+      await this._client.switchboardActions.offerControl(this._appId, conversationId, {
         switchboardIntegration: switchboardIntegrationId,
         metadata: metadata || {},
-      }
-      await this._client.switchboardActions.offerControl(this._appId, conversationId, offerControlBody)
+      })
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'offer control to switchboard', undefined, {
+      this._handleError(thrown, 'offer control to switchboard', {
         conversationId,
         switchboardIntegrationId,
+        metadata,
       })
     }
   }
 
   public async switchboardActionsReleaseControl(conversationId: string, reason?: string): Promise<void> {
     try {
-      const releaseControlBody: Record<string, unknown> = {
+      await this._client.switchboardActions.releaseControl(this._appId, conversationId, {
         ...(reason && { reason }),
-      }
-      await this._client.switchboardActions.releaseControl(this._appId, conversationId, releaseControlBody)
+      })
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'release control from switchboard', undefined, {
+      this._handleError(thrown, 'release control from switchboard', {
         conversationId,
         reason,
       })
     }
   }
 
-  public async listSwitchboards(): Promise<Array<{ id: string; name?: string }>> {
+  public async listSwitchboards() {
     try {
       const result = await this._client.switchboard.listSwitchboards(this._appId)
-      return (
-        result.switchboards?.map((switchboard: { id?: string; name?: string }) => ({
-          id: switchboard.id,
-          name: switchboard.name,
-        })) || []
-      )
+      return result.switchboards || []
     } catch (thrown: unknown) {
       this._handleError(thrown, 'list switchboards')
     }
@@ -579,16 +539,14 @@ class SuncoClient {
     deliverStandbyEvents: boolean = false
   ): Promise<string> {
     try {
-      const switchboardIntegrationBody: Record<string, unknown> = {
-        name, // Required: Identifier for use in control transfer protocols
-        integrationId, // Required for custom integrations
-        deliverStandbyEvents, // Optional: defaults to false
-      }
-
       const result = await this._client.switchboardIntegrations.createSwitchboardIntegration(
         this._appId,
         switchboardId,
-        switchboardIntegrationBody
+        {
+          name, // Required: Identifier for use in control transfer protocols
+          integrationId, // Required for custom integrations
+          deliverStandbyEvents, // Optional: defaults to false
+        }
       )
 
       if (!result?.switchboardIntegration?.id) {
@@ -599,7 +557,7 @@ class SuncoClient {
 
       return switchboardIntegrationId
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'create switchboard integration', undefined, {
+      this._handleError(thrown, 'create switchboard integration', {
         switchboardId,
         integrationId,
         name,
@@ -615,7 +573,7 @@ class SuncoClient {
         switchboardIntegrationId
       )
     } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete switchboard integration', undefined, {
+      this._handleError(thrown, 'delete switchboard integration', {
         switchboardId,
         switchboardIntegrationId,
       })
@@ -623,5 +581,5 @@ class SuncoClient {
   }
 }
 
-export const getSuncoClient = (config: SuncoConfiguration) => new SuncoClient(config)
+export const getSuncoClient = (config: { appId: string; keyId: string; keySecret: string }) => new SuncoClient(config)
 export type { SuncoClient }

@@ -33,7 +33,7 @@ export const channels = {
       text: wrapChannel(
         { channelName: 'hitl', messageType: 'text' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             { type: 'text', text: payload.text },
           ])
           await ack({
@@ -45,7 +45,7 @@ export const channels = {
       image: wrapChannel(
         { channelName: 'hitl', messageType: 'image' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             { type: 'image', mediaUrl: payload.imageUrl },
           ])
           await ack({
@@ -58,7 +58,7 @@ export const channels = {
         { channelName: 'hitl', messageType: 'audio' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.audioUrl)
-          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             { type: 'file', mediaUrl: payload.audioUrl, mediaType: metadata.mimeType },
           ])
 
@@ -72,7 +72,7 @@ export const channels = {
         { channelName: 'hitl', messageType: 'video' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.videoUrl)
-          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             { type: 'file', mediaUrl: payload.videoUrl, mediaType: metadata.mimeType },
           ])
           await ack({
@@ -85,7 +85,7 @@ export const channels = {
         { channelName: 'hitl', messageType: 'file' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.fileUrl)
-          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             {
               type: 'file',
               mediaUrl: payload.fileUrl,
@@ -104,35 +104,35 @@ export const channels = {
           for (const item of payload.items) {
             switch (item.type) {
               case 'text':
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'text', text: item.payload.text },
                 ])
                 break
               case 'markdown':
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'text', text: item.payload.markdown },
                 ])
                 break
               case 'image':
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'image', mediaUrl: item.payload.imageUrl },
                 ])
                 break
               case 'video':
                 const videoMetadata = await getMediaMetadata(item.payload.videoUrl)
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'file', mediaUrl: item.payload.videoUrl, mediaType: videoMetadata.mimeType },
                 ])
                 break
               case 'audio':
                 const audioMetadata = await getMediaMetadata(item.payload.audioUrl)
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'file', mediaUrl: item.payload.audioUrl, mediaType: audioMetadata.mimeType },
                 ])
                 break
               case 'file':
                 const fileMetadata = await getMediaMetadata(item.payload.fileUrl)
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   {
                     type: 'file',
                     mediaUrl: item.payload.fileUrl,
@@ -152,7 +152,7 @@ export const channels = {
                 }
                 messageParts.push(`Latitude: ${latitude}`, `Longitude: ${longitude}`)
 
-                await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+                await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   { type: 'text', text: messageParts.join('\n') },
                 ])
                 break
