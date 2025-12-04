@@ -13,5 +13,9 @@ export default sentryHelpers.wrapIntegration(
     channels,
     handler,
   }),
-  {}
+  {
+    dsn: bp.secrets.SENTRY_DSN,
+    environment: bp.secrets.SENTRY_ENVIRONMENT,
+    release: bp.secrets.SENTRY_RELEASE,
+  }
 )
