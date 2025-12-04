@@ -25,7 +25,7 @@ export class BambooHRClient {
 
   public static async create(props: types.CommonHandlerProps): Promise<BambooHRClient> {
     const currentAuth = await getCurrentBambooHrAuthorization(props)
-    return new BambooHRClient({ subdomain: props.ctx.configuration.subdomain, props, currentAuth })
+    return new BambooHRClient({ subdomain: currentAuth.domain, props, currentAuth })
   }
 
   private constructor({

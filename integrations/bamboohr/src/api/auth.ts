@@ -1,13 +1,12 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
-import jwt, { type JwtPayload } from 'jsonwebtoken'
 import * as bp from '.botpress'
 import * as types from '../types'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
 const _fetchBambooHrOauthToken = async (props: {
-  subdomain?: string
-  oAuthInfo: { code: string } | { refreshToken: string }
+  subdomain: string
+  oAuthInfo: { code: string; redirectUri: string } | { refreshToken: string }
 }): Promise<{
   accessToken: string
   refreshToken: string
@@ -26,9 +25,8 @@ const _fetchBambooHrOauthToken = async (props: {
   const body = JSON.stringify({
     client_id: OAUTH_CLIENT_ID,
     client_secret: OAUTH_CLIENT_SECRET,
-    ...(oAuthInfo.redirectUri ? { redirect_uri: oAuthInfo.redirectUri } : {}),
     ...('code' in oAuthInfo
-      ? { grant_type: 'authorization_code', code: oAuthInfo.code }
+      ? { grant_type: 'authorization_code', code: oAuthInfo.code, redirect_uri: oAuthInfo.redirectUri }
       : { grant_type: 'refresh_token', refresh_token: oAuthInfo.refreshToken }),
   })
 
@@ -62,7 +60,7 @@ const _fetchBambooHrOauthToken = async (props: {
   }
 }
 
-export type BambooHRAuthorization = { authorization: string; expiresAt: number } & (
+export type BambooHRAuthorization = { authorization: string; expiresAt: number; domain: string } & (
   | {
       type: 'apiKey'
     }
@@ -71,6 +69,7 @@ export type BambooHRAuthorization = { authorization: string; expiresAt: number }
       refreshToken: string
     }
 )
+
 export const getCurrentBambooHrAuthorization = async ({
   ctx,
   client,
@@ -80,6 +79,7 @@ export const getCurrentBambooHrAuthorization = async ({
       type: 'apiKey',
       authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
       expiresAt: Infinity,
+      domain: ctx.configuration.subdomain,
     }
   }
 
@@ -100,6 +100,7 @@ export const getCurrentBambooHrAuthorization = async ({
     authorization: `Bearer ${oauth.accessToken}`,
     expiresAt: oauth.expiresAt,
     refreshToken: oauth.refreshToken,
+    domain: oauth.domain,
   }
 }
 
@@ -107,6 +108,7 @@ export const refreshBambooHrAuthorization = async (
   { ctx, client }: types.CommonHandlerProps,
   previousAuth: BambooHRAuthorization
 ): Promise<BambooHRAuthorization> => {
+  // Return the previous authorization if it is an API key
   if (previousAuth.type === 'apiKey') {
     return previousAuth
   }
@@ -114,11 +116,11 @@ export const refreshBambooHrAuthorization = async (
   let oauth = previousAuth
 
   const { accessToken, expiresAt, refreshToken, scopes } = await _fetchBambooHrOauthToken({
-    subdomain: ctx.configuration.subdomain,
+    subdomain: oauth.domain,
     oAuthInfo: { refreshToken: oauth.refreshToken },
   })
 
-  await client.setState({
+  await client.patchState({
     type: 'integration',
     name: 'oauth',
     id: ctx.integrationId,
@@ -135,6 +137,7 @@ export const refreshBambooHrAuthorization = async (
     authorization: `Bearer ${accessToken}`,
     expiresAt: oauth.expiresAt,
     refreshToken,
+    domain: oauth.domain,
   }
 }
 
@@ -144,18 +147,26 @@ export const refreshBambooHrAuthorization = async (
  */
 export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.HandlerProps) => {
   const code = new URLSearchParams(req.query).get('code')
-  if (!code) throw new Error('Missing authentication code')
+  const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
 
-  const { idToken, ...oauthState } = await _fetchBambooHrOauthToken({
-    subdomain: ctx.configuration.subdomain, // TODO: use the wizard provided value
-    oAuthInfo: { code },
+  if (!code || !redirectUri) throw new Error('Missing authentication code or redirect URI')
+
+  const subdomain = new URL(redirectUri).hostname.split('.')[1] // This takes "botpress" from "webhook.botpress.com"
+  if (!subdomain) throw new Error('Invalid redirect URI')
+
+  const { ...oauthState } = await _fetchBambooHrOauthToken({
+    subdomain,
+    oAuthInfo: { code, redirectUri },
+  }).catch((thrown) => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new Error('Failed to fetch BambooHR OAuth token: ' + error.message)
   })
 
   await client.setState({
     type: 'integration',
     name: 'oauth',
     id: ctx.integrationId,
-    payload: oauthState,
+    payload: { ...oauthState, domain: subdomain },
   })
 
   await client.configureIntegration({

@@ -6,17 +6,16 @@ import { handler as oauthHandler } from './handlers/oauth'
 import * as bp from '.botpress'
 import { BambooHRRuntimeError } from './error-handling'
 
-const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
+const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path.startsWith('/oauth')
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, logger } = props
   if (_isOauthRequest(props)) {
-    await handleOauthRequest(props).catch((thrown) => {
+    return await oauthHandler(props).catch((thrown) => {
       const err = BambooHRRuntimeError.from(thrown, 'Error in OAuth creation flow')
       logger.forBot().error(err.message)
       return { status: 500, body: err.message }
     })
-    return { status: 200 }
   }
 
   const { state } = await props.client.getState({

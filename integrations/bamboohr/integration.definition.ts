@@ -1,12 +1,13 @@
 /* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
-
 import { actions, events, subdomain } from './definitions'
 
-export default new IntegrationDefinition({
-  name: 'bamboohr',
-  version: '2.0.0',
+export const INTEGRATION_NAME = 'bamboohr'
+export const INTEGRATION_VERSION = '2.0.0'
 
+export default new IntegrationDefinition({
+  name: INTEGRATION_NAME,
+  version: INTEGRATION_VERSION,
   title: 'BambooHR',
   description: 'Retrieve your BambooHR information',
   readme: 'hub.md',
