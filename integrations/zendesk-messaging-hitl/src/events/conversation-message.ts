@@ -47,22 +47,31 @@ export async function handleConversationMessage(
     } as CreateMessageInput)
   }
 
-  if (messageContent.type === 'text') {
-    await createMessage('text', { text: messageContent.text || '' })
-  } else if (messageContent.type === 'image') {
-    await createMessage('image', { imageUrl: messageContent.mediaUrl || '' })
-  } else if (messageContent.type === 'file') {
-    const mediaType = messageContent.mediaType || ''
-    const mediaUrl = messageContent.mediaUrl || ''
+  switch (messageContent.type) {
+    case 'text':
+      if (!messageContent.text?.length || !messageContent.htmlText?.length) {
+        logger.forBot().warn('Text message received but no text or htmlText provided')
+        return
+      }
 
-    if (mediaType.startsWith('video/')) {
-      await createMessage('video', { videoUrl: mediaUrl })
-    } else if (mediaType.startsWith('audio/')) {
-      await createMessage('audio', { audioUrl: mediaUrl })
-    } else {
-      await createMessage('file', { fileUrl: mediaUrl, title: messageContent.altText })
-    }
-  } else {
-    logger.forBot().warn(`Received a message with unsupported content type: ${messageContent.type}`)
+      await createMessage('text', { text: messageContent.text || messageContent.htmlText })
+      break
+    case 'image':
+      await createMessage('image', { imageUrl: messageContent.mediaUrl })
+      break
+    case 'file':
+      const mediaType = messageContent.mediaType || ''
+      const mediaUrl = messageContent.mediaUrl
+
+      if (mediaType.startsWith('video/')) {
+        await createMessage('video', { videoUrl: mediaUrl })
+      } else if (mediaType.startsWith('audio/')) {
+        await createMessage('audio', { audioUrl: mediaUrl })
+      } else {
+        await createMessage('file', { fileUrl: mediaUrl, title: messageContent.altText })
+      }
+      break
+    default:
+      logger.forBot().warn(`Received a message with unsupported content type: ${messageContent.type}`)
   }
 }

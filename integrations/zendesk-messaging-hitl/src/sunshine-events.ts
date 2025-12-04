@@ -1,8 +1,54 @@
+//https://developer.zendesk.com/api-reference/conversations/#tag/Webhooks/operation/EventWebhooks
 export type SuncoWebhookPayload = {
   events: SuncoEvent[]
 }
 
 export type SuncoEvent = ConversationMessageEvent | SwitchboardReleaseControlEvent
+
+// Not typing the rest since we don't use them
+export type SuncoOtherMessageContent = {
+  type: 'carousel' | 'form' | 'formResponse' | 'list' | 'location' | 'template'
+}
+
+export type SuncoTextMessageContent = {
+  type: 'text'
+  text?: string
+  htmlText?: string
+  blockChatInput?: boolean
+  actions?: unknown[]
+  payload?: string
+}
+
+export type SuncoImageMessageContent = {
+  type: 'image'
+  mediaUrl: string
+  mediaType?: string
+  mediaSize?: number
+  altText?: string
+  text?: string
+  blockChatInput?: boolean
+  htmlText?: string
+  actions?: unknown[]
+  attachmentId?: string
+}
+
+export type SuncoFileMessageContent = {
+  type: 'file'
+  mediaUrl: string
+  mediaSize?: number
+  mediaType?: string
+  altText?: string
+  text?: string
+  blockChatInput?: boolean
+  htmlText?: string
+  attachmentId?: string
+}
+
+export type SuncoMessageContent =
+  | SuncoTextMessageContent
+  | SuncoImageMessageContent
+  | SuncoFileMessageContent
+  | SuncoOtherMessageContent
 
 export type ConversationMessageEvent = {
   id: string
@@ -33,15 +79,7 @@ export type ConversationMessageEvent = {
         displayName?: string
         avatarUrl?: string
       }
-      content: {
-        type: string
-        text?: string
-        mediaUrl?: string
-        mediaType?: string
-        mediaSize?: number
-        altText?: string
-        attachmentId?: string
-      }
+      content: SuncoMessageContent
       metadata?: Record<string, string>
       source?: {
         originalMessageTimestamp?: string
