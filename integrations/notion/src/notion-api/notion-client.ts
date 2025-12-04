@@ -145,7 +145,8 @@ export class NotionClient {
 
   @handleErrors('Failed to retrieve page')
   public async getPage({ pageId }: { pageId: string }) {
-    return await this._notion.pages.retrieve({ page_id: pageId })
+    const page = await this._notion.pages.retrieve({ page_id: pageId })
+    return 'parent' in page ? page : undefined
   }
 
   @handleErrors('Failed to get database')
