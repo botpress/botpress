@@ -7,6 +7,7 @@ export const channels = {
     messages: {
       ...messages.defaults,
       markdown: messages.markdown,
+      bloc: messages.markdownBloc,
     },
   },
 } satisfies IntegrationDefinitionProps['channels']
