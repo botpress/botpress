@@ -12,7 +12,7 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
   logger: Logger
 ): Promise<{ switchboardIntegrationId: string; agentWorkspaceSwitchboardIntegrationId: string }> {
   logger.forBot().info('Fetching switchboard integration IDs from API...')
-  const suncoClient = getSuncoClient(ctx.configuration, logger)
+  const suncoClient = getSuncoClient(ctx.configuration)
   const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
   const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
 

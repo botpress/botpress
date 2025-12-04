@@ -5,7 +5,6 @@ import {
   type SuncoUser,
   type SuncoConversation,
 } from './sunshine-client'
-import { Logger } from './types'
 
 export class SuncoClientError extends RuntimeError {
   public readonly operationName: string
@@ -71,10 +70,7 @@ class SuncoClient {
     switchboardIntegrations: InstanceType<typeof SunshineConversationsClient.SwitchboardIntegrationsApi>
   }
 
-  public constructor(
-    config: SuncoConfiguration,
-    private _logger: Logger
-  ) {
+  public constructor(config: SuncoConfiguration) {
     this._appId = config.appId
     const apiClient = new SunshineConversationsClient.ApiClient()
     const auth = apiClient.authentications['basicAuth']
@@ -188,8 +184,8 @@ class SuncoClient {
         id: data.app.id,
         displayName: data.app.displayName,
         subdomain: data.app.subdomain,
-        settings: data.app.settings,
-        metadata: data.app.metadata,
+        settings: data.app.settings, // mutable
+        metadata: data.app.metadata, // mutable
       }
     } catch (thrown: unknown) {
       this._handleError(thrown, 'get app', { appId: this._appId })
@@ -199,80 +195,61 @@ class SuncoClient {
   public async getOrCreateUser(props: {
     name?: string
     email?: string
-    pictureUrl?: string
-    botpressUserId: string
+    avatarUrl?: string
+    externalId: string
   }): Promise<SuncoUser> {
-    this._logger.forBot().info('getOrCreateUser called', { props })
     try {
-      // Try to create user first
-      // If externalId already exists, the API might return the existing user or throw an error
-      try {
-        return await this._createUser(props)
-      } catch (createError: unknown) {
-        // If user already exists (409 conflict or similar), try to find it
-        const networkError = this._getNetworkErrorDetails(createError)
-        if (networkError && networkError.status === 409) {
-          // Try to get the existing user by externalId
-          const existingUser = await this._getUserByIdOrExternalId(props.botpressUserId)
-          if (existingUser) {
-            this._logger.forBot().info(`Found existing user with ID: ${existingUser.id}`)
-            return existingUser
-          }
-          // If we can't find it, throw the original error
-          this._logger.forBot().warn('User with externalId already exists but could not be retrieved')
-          throw new RuntimeError('User with this externalId may already exist')
-        }
-        throw createError
+      const existingUser = await this.getUserByIdOrExternalId(props.externalId)
+      if (existingUser) {
+        return existingUser
       }
+
+      return await this.createUser(props)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'get or create user', props)
     }
   }
 
-  private async _getUserByIdOrExternalId(userIdOrExternalId: string): Promise<SuncoUser | null> {
+  public async getUserByIdOrExternalId(userIdOrExternalId: string): Promise<SuncoUser | null> {
     try {
-      // Use getUser endpoint which accepts both userId and externalId
       const result = await this._client.users.getUser(this._appId, userIdOrExternalId)
       return {
         id: result.user.id,
         profile: result.user.profile,
       }
     } catch (thrown: unknown) {
-      // If user not found (404), return null
       const networkError = this._getNetworkErrorDetails(thrown)
       if (networkError && networkError.status === 404) {
         return null
       }
 
-      const errorMessage = networkError?.message || String(thrown)
-      this._logger.forBot().error(`Failed to get user by ID or externalId: ${errorMessage}`, thrown)
-      return null
+      this._handleError(thrown, 'get user by ID or external ID', undefined, { userIdOrExternalId })
     }
   }
 
-  private async _createUser(props: {
+  public async createUser(props: {
     name?: string
     email?: string
-    pictureUrl?: string
-    botpressUserId: string
+    avatarUrl?: string
+    externalId: string
   }): Promise<SuncoUser> {
-    const nameParts = props.name?.split(' ') || []
+    const { name, email, avatarUrl, externalId } = props
+
+    const nameParts = name?.split(' ') || []
     const givenName = nameParts[0] || ''
     const surname = nameParts.slice(1).join(' ') || ''
 
-    const userPost: Record<string, unknown> = {
-      externalId: props.botpressUserId,
-      signedUpAt: new Date().toISOString(),
+    const userPost = {
+      externalId,
       profile: {
-        givenName,
+        ...(givenName.length && { givenName }),
         ...(surname.length && { surname }),
-        email: props.email,
-        ...(props.pictureUrl && { avatarUrl: props.pictureUrl }),
+        ...(email && { email }),
+        ...(avatarUrl && { avatarUrl }),
       },
     }
 
     try {
-      this._logger.forBot().info(`Creating user with externalId: ${props.botpressUserId}`, { userPost })
       const result = await this._client.users.createUser(this._appId, userPost)
       return result.user
     } catch (thrown: unknown) {
@@ -282,7 +259,6 @@ class SuncoClient {
 
   public async createConversation(args: { userId: string }): Promise<SuncoConversation> {
     try {
-      // Create conversation with participant directly in the payload
       const conversationPost: Record<string, unknown> = {
         type: 'personal',
         participants: [
@@ -294,7 +270,6 @@ class SuncoClient {
         displayName: 'HITL Conversation',
       }
 
-      this._logger.forBot().info(`Creating conversation for user: ${args.userId}`, { conversationPost })
       const data = await this._client.conversations.createConversation(this._appId, conversationPost)
 
       if (!data?.conversation?.id) {
@@ -390,7 +365,6 @@ class SuncoClient {
   }
 
   public async createIntegration(integrationName: string, webhookUrl: string): Promise<{ integrationId: string }> {
-    // Create integration with webhooks directly in the payload
     const integrationPost: Record<string, unknown> = {
       type: 'custom',
       status: 'active',
@@ -435,7 +409,6 @@ class SuncoClient {
     }
 
     try {
-      // Create webhook under the integration - WebhooksApi has methods that take integrationId
       const result = await this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, webhookPost)
       return result.webhook.id
     } catch (thrown: unknown) {
@@ -482,25 +455,20 @@ class SuncoClient {
     return integration
   }
 
-  public async findSwitchboardIntegrationByName(switchboardId: string, name: string): Promise<{ id: string } | null> {
+  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string): Promise<{ id: string }> {
     try {
       const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
       const switchboardIntegrations = result.switchboardIntegrations || []
       const switchboardIntegration = switchboardIntegrations.find(
         (si: { name?: string; id?: string }) => si.name === name
       )
-      return switchboardIntegration ? { id: switchboardIntegration.id } : null
+      if (!switchboardIntegration) {
+        throw new RuntimeError(`Switchboard integration with name "${name}" not found`)
+      }
+      return switchboardIntegration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'find switchboard integration by name', undefined, { switchboardId, name })
     }
-  }
-
-  public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string): Promise<{ id: string }> {
-    const switchboardIntegration = await this.findSwitchboardIntegrationByName(switchboardId, name)
-    if (!switchboardIntegration) {
-      throw new RuntimeError(`Switchboard integration with name "${name}" not found`)
-    }
-    return switchboardIntegration
   }
 
   public async findAgentWorkspaceIntegrationOrThrow(switchboardId: string): Promise<{ id: string }> {
@@ -530,10 +498,7 @@ class SuncoClient {
         metadata: metadata || {},
       }
 
-      // Use the switchboard API to accept control
       await this._client.switchboardActions.passControl(this._appId, conversationId, passControlBody)
-
-      this._logger.forBot().info(`Successfully passed control to switchboard integration ${switchboardIntegrationId}`)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'pass control to switchboard', undefined, {
         conversationId,
@@ -552,14 +517,6 @@ class SuncoClient {
         switchboardIntegration: switchboardIntegrationId,
         metadata: metadata || {},
       }
-
-      this._logger
-        .forBot()
-        .info(
-          `Offering control of conversation ${conversationId} to switchboard integration ${switchboardIntegrationId}`
-        )
-
-      // Use the switchboard API to offer control
       await this._client.switchboardActions.offerControl(this._appId, conversationId, offerControlBody)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'offer control to switchboard', undefined, {
@@ -574,8 +531,6 @@ class SuncoClient {
       const releaseControlBody: Record<string, unknown> = {
         ...(reason && { reason }),
       }
-
-      // Use the switchboard API to release control
       await this._client.switchboardActions.releaseControl(this._appId, conversationId, releaseControlBody)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'release control from switchboard', undefined, {
@@ -603,7 +558,9 @@ class SuncoClient {
     try {
       const switchboards = await this.listSwitchboards()
       if (switchboards.length === 0) {
-        throw new RuntimeError('No switchboards found. Please create a switchboard in Sunshine Conversations first.')
+        throw new RuntimeError('No switchboards found')
+      } else if (switchboards.length > 1) {
+        throw new RuntimeError('Multiple switchboards found')
       }
       const firstSwitchboard = switchboards[0]
       if (!firstSwitchboard) {
@@ -622,10 +579,6 @@ class SuncoClient {
     deliverStandbyEvents: boolean = false
   ): Promise<string> {
     try {
-      // According to SwitchboardIntegrationCreateBody model:
-      // - name is REQUIRED (Identifier for use in control transfer protocols)
-      // - integrationId is required when linking a custom integration
-      // - deliverStandbyEvents is optional (Boolean)
       const switchboardIntegrationBody: Record<string, unknown> = {
         name, // Required: Identifier for use in control transfer protocols
         integrationId, // Required for custom integrations
@@ -670,5 +623,5 @@ class SuncoClient {
   }
 }
 
-export const getSuncoClient = (config: SuncoConfiguration, logger: Logger) => new SuncoClient(config, logger)
+export const getSuncoClient = (config: SuncoConfiguration) => new SuncoClient(config)
 export type { SuncoClient }

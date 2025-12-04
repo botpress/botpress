@@ -6,8 +6,8 @@ import * as bp from '.botpress'
 
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    suncoClient({ ctx, logger }) {
-      return getSuncoClient(ctx.configuration, logger)
+    suncoClient({ ctx }) {
+      return getSuncoClient(ctx.configuration)
     },
 
     async suncoUserId({ client, payload, user: attachedUser }) {

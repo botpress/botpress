@@ -7,7 +7,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
   try {
     logger.forBot().info('Starting Zendesk Messaging HITL integration registration...')
 
-    const suncoClient = getSuncoClient(ctx.configuration, logger)
+    const suncoClient = getSuncoClient(ctx.configuration)
 
     logger.forBot().info('Verifying credentials...')
     try {
@@ -53,7 +53,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
       logger.forBot().info(`✅ Switchboard integration created successfully with ID: ${switchboardIntegrationId}`)
     }
 
-    // Force fetch and cache switchboard integration IDs
+    // Force on register to allow bot devs to update cache on demand, in theory these will not change
     logger.forBot().info('Fetching and caching switchboard integrations IDs...')
     await fetchAndCacheSwitchboardIntegrationsIdOrThrow(ctx, client, logger)
 

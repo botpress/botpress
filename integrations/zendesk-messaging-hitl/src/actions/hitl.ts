@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ ctx, client, input, logger }) => {
   try {
-    const suncoClient = getSuncoClient(ctx.configuration, logger)
+    const suncoClient = getSuncoClient(ctx.configuration)
 
     const { user } = await client.getUser({
       id: input.userId,
@@ -94,7 +94,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ inp
   }
 
   try {
-    const suncoClient = getSuncoClient(ctx.configuration, logger)
+    const suncoClient = getSuncoClient(ctx.configuration)
 
     logger.forBot().info(`Releasing control from switchboard for conversation ${suncoConversationId}`)
     await suncoClient.switchboardActionsReleaseControl(suncoConversationId, 'ticketClosed')
@@ -111,7 +111,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   logger.forBot().info('createUser called', { input })
 
   try {
-    const suncoClient = getSuncoClient(ctx.configuration, logger)
+    const suncoClient = getSuncoClient(ctx.configuration)
 
     const { user: botpressUser } = await client.getOrCreateUser({
       ...input,
@@ -122,7 +122,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
 
     const suncoUser = await suncoClient.getOrCreateUser({
       ...input,
-      botpressUserId: botpressUser.id,
+      externalId: botpressUser.id,
     })
 
     if (!suncoUser.id) {

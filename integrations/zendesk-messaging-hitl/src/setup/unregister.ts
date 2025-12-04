@@ -4,7 +4,7 @@ import { getBotpressIntegrationDisplayName } from './util'
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logger }) => {
   try {
-    const suncoClient = getSuncoClient(ctx.configuration, logger)
+    const suncoClient = getSuncoClient(ctx.configuration)
 
     const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
 
