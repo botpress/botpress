@@ -1,7 +1,4 @@
-import * as sdk from '@botpress/sdk'
-import { BotpressApi } from 'src/utils/botpress-utils'
 import * as types from '../types'
-import * as lin from '../utils/linear-utils'
 import { TeamsManager } from './teams-manager'
 import { Client } from '.botpress'
 
@@ -9,10 +6,7 @@ const MISSING_ARGS_ERROR = 'More arguments are required with this command.'
 
 export class CommandProcessor {
   public constructor(
-    private _linear: lin.LinearApi,
     private _client: Client,
-    private _logger: sdk.BotLogger,
-    private _botpress: BotpressApi,
     private _teamsManager: TeamsManager,
     private _botId: string
   ) {}
