@@ -61,6 +61,9 @@ export default new sdk.BotDefinition({
     timeToLintAll: {
       schema: sdk.z.object({}),
     },
+    timeToCheckIssuesState: {
+      schema: sdk.z.object({}),
+    },
   },
   recurringEvents: {
     timeToLintAll: {
@@ -68,6 +71,13 @@ export default new sdk.BotDefinition({
       type: 'timeToLintAll',
       schedule: {
         cron: '0 8 * * 1',
+      },
+    },
+    timeToCheckIssuesState: {
+      payload: sdk.z.object({}),
+      type: 'timeToCheckIssuesState',
+      schedule: {
+        cron: '0 * * * *',
       },
     },
   },
