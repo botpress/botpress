@@ -111,8 +111,8 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
   public readonly id: string
   public readonly reason?: string
   public readonly stack: string
-  public readonly variables: Variable[]
   public readonly toolCall?: ToolCall
+  public variables: Variable[]
   #status: SnapshotStatus
 
   /**
@@ -152,21 +152,11 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
    * @internal
    */
   public static fromSignal(signal: SnapshotSignal): Snapshot {
-    const variables = Object.entries(signal.variables).map(([name, value]) => {
-      const type = extractType(value)
-      const bytes = JSON.stringify(value || '').length
-      const truncated = bytes > MAX_SNAPSHOT_SIZE_BYTES
-
-      return truncated
-        ? ({ name, type, bytes, truncated: true, preview: inspect(value, name) ?? 'N/A' } satisfies Variable)
-        : ({ name, type, bytes, truncated: false, value } satisfies Variable)
-    })
-
     return new Snapshot({
       id: 'snapshot_' + ulid(),
       reason: signal.message,
       stack: signal.truncatedCode,
-      variables,
+      variables: parseVariables(signal.variables),
       toolCall: signal.toolCall,
       status: { type: 'pending' },
     })
@@ -248,7 +238,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
   /**
    * Resets the snapshot status back to pending.
    *
-   * This allows a previously resolved or rejected snapshot to be resolved/rejected
+   * This allows a previously resolved or rejected snapshot to be resolved/rejectedsnapshot
    * again with different data. Useful for retry scenarios.
    */
   public reset() {
@@ -277,6 +267,16 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
   public resolve(value: any) {
     if (this.#status.type !== 'pending') {
       throw new Error(`Cannot resolve snapshot because it is already settled: ${this.#status.type}`)
+    }
+
+    const assignment = this.toolCall?.assignment
+
+    if (assignment) {
+      try {
+        const fn = new Function(assignment.evalFn)
+        const assignmentValue = fn(value)
+        this.variables = [...this.variables, ...parseVariables(assignmentValue)]
+      } catch (error) {}
     }
 
     this.#status = { type: 'resolved', value }
@@ -311,4 +311,16 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
 
     this.#status = { type: 'rejected', error }
   }
+}
+
+function parseVariables(variableMap: { [key: string]: any }) {
+  return Object.entries(variableMap).map(([name, value]) => {
+    const type = extractType(value)
+    const bytes = JSON.stringify(value || '').length
+    const truncated = bytes > MAX_SNAPSHOT_SIZE_BYTES
+
+    return truncated
+      ? ({ name, type, bytes, truncated: true, preview: inspect(value, name) ?? 'N/A' } satisfies Variable)
+      : ({ name, type, bytes, truncated: false, value } satisfies Variable)
+  })
 }
