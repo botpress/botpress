@@ -10,7 +10,7 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
 
   const linear = utils.linear.LinearApi.create()
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
-  const recentlyLintedManager = new RecentlyLintedManager(client, ctx.botId)
+  const recentlyLintedManager = new RecentlyLintedManager(linear)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
 
   return {
