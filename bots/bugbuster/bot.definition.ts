@@ -36,11 +36,53 @@ export default new sdk.BotDefinition({
         id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
       }),
     },
+    lintResults: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        issues: sdk.z.array(
+          sdk.z.discriminatedUnion('result', [
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.literal('failed').title('Result').describe('The lint result'),
+              messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
+            }),
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
+            }),
+          ])
+        ),
+      }),
+    },
+    notificationChannelName: {
+      type: 'bot',
+      schema: sdk.z.object({
+        name: sdk.z
+          .string()
+          .optional()
+          .title('Notification Channel Name')
+          .describe('The Slack channel where notifications will be posted'),
+      }),
+    },
   },
   workflows: {
     lintAll: {
       input: { schema: sdk.z.object({}) },
       output: { schema: sdk.z.object({}) },
+    },
+  },
+  events: {
+    timeToLintAll: {
+      schema: sdk.z.object({}),
+    },
+  },
+  recurringEvents: {
+    timeToLintAll: {
+      payload: sdk.z.object({}),
+      type: 'timeToLintAll',
+      schedule: {
+        cron: '0 8 * * 1',
+      },
     },
   },
 })

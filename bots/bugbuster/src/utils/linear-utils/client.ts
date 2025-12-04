@@ -135,7 +135,7 @@ export class LinearApi {
 
     const promises: Promise<lin.CommentPayload>[] = []
     for (const comment of comments) {
-      if (comment.user.id === me.id && !comment.resolvedAt) {
+      if (comment.user.id === me.id && !comment.parentId && !comment.resolvedAt) {
         promises.push(this._client.commentResolve(comment.id))
       }
     }
