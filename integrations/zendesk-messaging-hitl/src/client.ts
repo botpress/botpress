@@ -156,8 +156,6 @@ class SuncoClient {
       message = JSON.stringify(error.body)
     }
 
-    // Try to extract request body from error object
-    // Check common locations where HTTP clients might store request data
     const requestBody =
       error.request?.data ?? error.request?.body ?? error.response?.req?.data ?? error.response?.req?.body
 
@@ -185,25 +183,14 @@ class SuncoClient {
     })
   }
 
-  public async getApp(): Promise<{
-    id: string
-    displayName?: string
-    subdomain?: string
-    settings?: unknown
-    metadata?: unknown
-  }> {
+  public async getApp() {
     try {
-      const data = await this._client.apps.getApp(this._appId)
-      if (!data?.app?.id) {
+      const result = await this._client.apps.getApp(this._appId)
+      if (!result?.app?.id) {
         throw new RuntimeError('App retrieval succeeded but no app data returned')
       }
-      return {
-        id: data.app.id,
-        displayName: data.app.displayName,
-        subdomain: data.app.subdomain,
-        settings: data.app.settings, // mutable
-        metadata: data.app.metadata, // mutable
-      }
+
+      return result.app
     } catch (thrown: unknown) {
       this._handleError(thrown, 'get app', { appId: this._appId })
     }
@@ -225,6 +212,7 @@ class SuncoClient {
   public async getUserByIdOrExternalId(userIdOrExternalId: string) {
     try {
       const result = await this._client.users.getUser(this._appId, userIdOrExternalId)
+
       return result.user
     } catch (thrown: unknown) {
       const networkError = this._getNetworkErrorDetails(thrown)
@@ -253,6 +241,7 @@ class SuncoClient {
           ...(avatarUrl && { avatarUrl }),
         },
       })
+
       return result.user
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create user')
@@ -420,6 +409,7 @@ class SuncoClient {
     if (!integration) {
       throw new RuntimeError('Integration not found')
     }
+
     return integration
   }
 
@@ -433,13 +423,14 @@ class SuncoClient {
       if (!switchboardIntegration) {
         throw new RuntimeError(`Switchboard integration with name "${name}" not found`)
       }
+
       return switchboardIntegration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'find switchboard integration by name', { switchboardId, name })
     }
   }
 
-  public async findAgentWorkspaceIntegrationOrThrow(switchboardId: string): Promise<{ id: string }> {
+  public async findAgentWorkspaceIntegrationOrThrow(switchboardId: string) {
     try {
       const result = await this._client.switchboardIntegrations.listSwitchboardIntegrations(this._appId, switchboardId)
       const switchboardIntegrations = result.switchboardIntegrations || []
@@ -449,7 +440,8 @@ class SuncoClient {
       if (!agentWorkspaceIntegration || !agentWorkspaceIntegration.id) {
         throw new RuntimeError('No agent workspace integration found with integrationType zd:agentWorkspace')
       }
-      return { id: agentWorkspaceIntegration.id }
+
+      return agentWorkspaceIntegration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'find agent workspace integration', { switchboardId })
     }
@@ -459,7 +451,7 @@ class SuncoClient {
     conversationId: string,
     switchboardIntegrationId: string,
     metadata?: Record<string, string>
-  ): Promise<void> {
+  ) {
     try {
       await this._client.switchboardActions.passControl(this._appId, conversationId, {
         switchboardIntegration: switchboardIntegrationId,
@@ -477,7 +469,7 @@ class SuncoClient {
     conversationId: string,
     switchboardIntegrationId: string,
     metadata?: Record<string, string>
-  ): Promise<void> {
+  ) {
     try {
       await this._client.switchboardActions.offerControl(this._appId, conversationId, {
         switchboardIntegration: switchboardIntegrationId,
@@ -492,7 +484,7 @@ class SuncoClient {
     }
   }
 
-  public async switchboardActionsReleaseControl(conversationId: string, reason?: string): Promise<void> {
+  public async switchboardActionsReleaseControl(conversationId: string, reason?: string) {
     try {
       await this._client.switchboardActions.releaseControl(this._appId, conversationId, {
         ...(reason && { reason }),
@@ -508,13 +500,14 @@ class SuncoClient {
   public async listSwitchboards() {
     try {
       const result = await this._client.switchboard.listSwitchboards(this._appId)
+
       return result.switchboards || []
     } catch (thrown: unknown) {
       this._handleError(thrown, 'list switchboards')
     }
   }
 
-  public async getSwitchboardIdOrThrow(): Promise<string> {
+  public async getSwitchboardOrThrow() {
     try {
       const switchboards = await this.listSwitchboards()
       if (switchboards.length === 0) {
@@ -522,11 +515,13 @@ class SuncoClient {
       } else if (switchboards.length > 1) {
         throw new RuntimeError('Multiple switchboards found')
       }
+
       const firstSwitchboard = switchboards[0]
       if (!firstSwitchboard) {
         throw new RuntimeError('No switchboards available')
       }
-      return firstSwitchboard.id
+
+      return firstSwitchboard
     } catch (thrown: unknown) {
       this._handleError(thrown, 'get switchboard ID')
     }
@@ -537,7 +532,7 @@ class SuncoClient {
     integrationId: string,
     name: string,
     deliverStandbyEvents: boolean = false
-  ): Promise<string> {
+  ) {
     try {
       const result = await this._client.switchboardIntegrations.createSwitchboardIntegration(
         this._appId,
@@ -549,13 +544,7 @@ class SuncoClient {
         }
       )
 
-      if (!result?.switchboardIntegration?.id) {
-        throw new RuntimeError('Switchboard integration creation succeeded but no ID returned')
-      }
-
-      const switchboardIntegrationId = result.switchboardIntegration.id
-
-      return switchboardIntegrationId
+      return result.switchboardIntegration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create switchboard integration', {
         switchboardId,
@@ -565,7 +554,7 @@ class SuncoClient {
     }
   }
 
-  public async deleteSwitchboardIntegration(switchboardId: string, switchboardIntegrationId: string): Promise<void> {
+  public async deleteSwitchboardIntegration(switchboardId: string, switchboardIntegrationId: string) {
     try {
       await this._client.switchboardIntegrations.deleteSwitchboardIntegration(
         this._appId,

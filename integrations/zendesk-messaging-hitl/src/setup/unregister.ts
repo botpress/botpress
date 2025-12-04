@@ -6,7 +6,7 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, logge
   try {
     const suncoClient = getSuncoClient(ctx.configuration)
 
-    const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
+    const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
 
     const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
 

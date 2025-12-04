@@ -32,7 +32,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     }
 
     // Get the switchboard ID, in theory there should only be one (we can't create and there is already a default one)
-    const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
+    const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
 
     logger.forBot().info('Checking for existing switchboard integration...')
     let switchboardIntegrationId: string
@@ -42,12 +42,9 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
       ).id
     } catch {
       logger.forBot().info('No switchboard integration found. Creating new switchboard integration...')
-      switchboardIntegrationId = await suncoClient.createSwitchboardIntegration(
-        switchboardId,
-        integrationId,
-        integrationDisplayName,
-        false
-      )
+      switchboardIntegrationId = (
+        await suncoClient.createSwitchboardIntegration(switchboardId, integrationId, integrationDisplayName, false)
+      ).id
       logger.forBot().info(`✅ Switchboard integration created successfully with ID: ${switchboardIntegrationId}`)
     }
 

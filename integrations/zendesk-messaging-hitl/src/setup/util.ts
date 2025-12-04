@@ -14,7 +14,7 @@ export async function fetchAndCacheSwitchboardIntegrationsIdOrThrow(
   logger.forBot().info('Fetching switchboard integration IDs from API...')
   const suncoClient = getSuncoClient(ctx.configuration)
   const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
-  const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
+  const { id: switchboardId } = await suncoClient.getSwitchboardOrThrow()
 
   // Find both switchboard integrations
   const switchboardIntegration = await suncoClient.findSwitchboardIntegrationByNameOrThrow(
