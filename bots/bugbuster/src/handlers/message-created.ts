@@ -61,15 +61,6 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
   }
 }
 
-const _buildNotifChannelsMessage = (channels: { name: string; teams: string[] }[]) => {
-  return `The Slack notification channels are:\n${channels.map(_getMessageForChannel).join('\n')}`
-}
-
-const _getMessageForChannel = (channel: { name: string; teams: string[] }) => {
-  const { name, teams } = channel
-  return `- channel ${name} for team(s) ${teams.join(', ')}`
-}
-
 const _buildListCommandsMessage = (definitions: CommandDefinition[]) => {
   const commands = definitions.map((def) => `${def.name} ${def.argNames ?? ''}`).join('\n')
   return `Unknown command. Here's a list of possible commands:\n${commands}`
