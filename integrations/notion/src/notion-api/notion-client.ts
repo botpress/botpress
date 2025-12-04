@@ -19,7 +19,7 @@ export class NotionClient {
 
   public static async create({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<NotionClient> {
     const accessToken = await NotionClient._getAccessToken({ ctx, client })
-
+    console.log('accessToken', accessToken) // TODO: Remove before merging to master
     return new NotionClient({
       accessToken,
     })

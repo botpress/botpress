@@ -5,8 +5,8 @@ export const getPage = wrapAction(
   async ({ notionClient }, { pageId }) => {
     const page = await notionClient.getPage({ pageId })
     if (!page) {
-      throw new Error('Page not found');
+      throw new Error('Page not found')
     }
-    return page;
+    return page
   }
 )
