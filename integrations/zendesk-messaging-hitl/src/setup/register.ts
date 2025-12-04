@@ -28,7 +28,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
       integrationId = (await suncoClient.findIntegrationByDisplayNameOrThrow(integrationDisplayName)).id
     } catch {
       logger.forBot().info(`No existing integration found. Creating new integration with webhook ${webhookUrl}`)
-      integrationId = (await suncoClient.createIntegration(integrationDisplayName, webhookUrl)).integrationId
+      integrationId = (await suncoClient.createIntegration(integrationDisplayName, webhookUrl)).id
       logger.forBot().info(`✅ Integration created successfully with ID: ${integrationId}`)
     }
 

@@ -33,11 +33,11 @@ export const channels = {
       text: wrapChannel(
         { channelName: 'hitl', messageType: 'text' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const suncoMessageId = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
             { type: 'text', text: payload.text },
           ])
           await ack({
-            tags: { id: suncoMessageId },
+            tags: { id: suncoMessage.id },
           })
         }
       ),
@@ -45,11 +45,11 @@ export const channels = {
       image: wrapChannel(
         { channelName: 'hitl', messageType: 'image' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const suncoMessageId = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
             { type: 'image', mediaUrl: payload.imageUrl },
           ])
           await ack({
-            tags: { id: suncoMessageId },
+            tags: { id: suncoMessage.id },
           })
         }
       ),
@@ -58,12 +58,12 @@ export const channels = {
         { channelName: 'hitl', messageType: 'audio' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.audioUrl)
-          const suncoMessageId = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
             { type: 'file', mediaUrl: payload.audioUrl, mediaType: metadata.mimeType },
           ])
 
           await ack({
-            tags: { id: suncoMessageId },
+            tags: { id: suncoMessage.id },
           })
         }
       ),
@@ -72,11 +72,11 @@ export const channels = {
         { channelName: 'hitl', messageType: 'video' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.videoUrl)
-          const suncoMessageId = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
             { type: 'file', mediaUrl: payload.videoUrl, mediaType: metadata.mimeType },
           ])
           await ack({
-            tags: { id: suncoMessageId },
+            tags: { id: suncoMessage.id },
           })
         }
       ),
@@ -85,7 +85,7 @@ export const channels = {
         { channelName: 'hitl', messageType: 'file' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
           const metadata = await getMediaMetadata(payload.fileUrl)
-          const suncoMessageId = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
+          const suncoMessage = await suncoClient.sendMessage(suncoConversationId, suncoUserId, [
             {
               type: 'file',
               mediaUrl: payload.fileUrl,
@@ -93,7 +93,7 @@ export const channels = {
             },
           ])
           await ack({
-            tags: { id: suncoMessageId },
+            tags: { id: suncoMessage.id },
           })
         }
       ),
