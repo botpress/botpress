@@ -11,18 +11,24 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   _validatePayloadSignature(props)
-
-  if (handlers.isDatabaseDeletedEvent(props)) {
-    return await handlers.handleDatabaseDeletedEvent(props)
-  } else if (handlers.isPageCreatedEvent(props)) {
-    return await handlers.handlePageCreatedEvent(props)
-  } else if (handlers.isPageDeletedEvent(props)) {
-    return await handlers.handlePageDeletedEvent(props)
-  } else if (handlers.isPageMovedEvent(props)) {
-    return await handlers.handlePageMovedEvent(props)
+  
+  try {
+    if (handlers.isDatabaseDeletedEvent(props)) {
+      return await handlers.handleDatabaseDeletedEvent(props)
+    } else if (handlers.isPageCreatedEvent(props)) {
+      return await handlers.handlePageCreatedEvent(props)
+    } else if (handlers.isPageDeletedEvent(props)) {
+      return await handlers.handlePageDeletedEvent(props)
+    } else if (handlers.isPageMovedEvent(props)) {
+      return await handlers.handlePageMovedEvent(props)
+    }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    props.logger.forBot().error(`Handling webhook event failed: ${error.message}`)
   }
 
-  throw new sdk.RuntimeError('Unsupported webhook event')
+  props.logger.forBot().error('Unsupported webhook event')
+  return { status: 200 } // We return 200 to avoid retries
 }
 
 const _validatePayloadSignature = (props: bp.HandlerProps) => {
