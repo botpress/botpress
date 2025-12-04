@@ -11,7 +11,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   }
 
   _validatePayloadSignature(props)
-  
+
   try {
     if (handlers.isDatabaseDeletedEvent(props)) {
       return await handlers.handleDatabaseDeletedEvent(props)
