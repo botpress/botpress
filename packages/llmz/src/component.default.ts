@@ -18,7 +18,9 @@ const Button = new Component({
       name: 'Postback action',
       description: 'A button that sends a postback value',
       code: `yield <Message>
+      Choose an option:
   <Button action="postback" label="Buy" value="buy_product" />
+  <Button action="postback" label="Buy" value="buy_product2" />
 </Message>`,
     },
   ],
@@ -48,6 +50,7 @@ const Image = new Component({
       name: 'Basic image',
       description: 'A simple image with alt text',
       code: `yield <Message>
+      An example image:
   <Image url="https://example.com/photo.jpg" alt="Example image" />
 </Message>`,
     },
@@ -70,6 +73,7 @@ const File = new Component({
       name: 'PDF download',
       description: 'Send a PDF file with a name',
       code: `yield <Message>
+      Here is your report:
   <File url="https://example.com/report.pdf" name="Report.pdf" />
 </Message>`,
     },
@@ -92,6 +96,7 @@ const Video = new Component({
       name: 'Intro video',
       description: 'A video with a title',
       code: `yield <Message>
+      Watch this video:
   <Video url="https://example.com/intro.mp4" title="Welcome" />
 </Message>`,
     },
@@ -114,6 +119,7 @@ const Audio = new Component({
       name: 'Sample audio',
       description: 'Play a short audio clip with a title',
       code: `yield <Message>
+        Listen to this audio:
   <Audio url="https://example.com/audio.mp3" title="Sample" />
 </Message>`,
     },
@@ -136,6 +142,7 @@ const Card = new Component({
       name: 'Product card',
       description: 'A card with an image and two buttons',
       code: `yield <Message>
+      Featured product:
   <Card title="Product Name" subtitle="Limited offer">
     <Image url="https://example.com/product.jpg" alt="Product image" />
     <Button action="postback" label="Buy" value="buy_product" />
@@ -172,6 +179,7 @@ const Carousel = new Component({
       name: 'Product carousel',
       description: 'A carousel with multiple cards',
       code: `yield <Message>
+      Here are some products you might like:
   <Carousel>
     <Card title="Item 1" subtitle="First product">
       <Image url="https://example.com/item1.jpg" alt="Item 1" />
