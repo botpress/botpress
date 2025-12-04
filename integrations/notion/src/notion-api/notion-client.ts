@@ -19,7 +19,6 @@ export class NotionClient {
 
   public static async create({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<NotionClient> {
     const accessToken = await NotionClient._getAccessToken({ ctx, client })
-
     return new NotionClient({
       accessToken,
     })
@@ -147,7 +146,6 @@ export class NotionClient {
   @handleErrors('Failed to retrieve page')
   public async getPage({ pageId }: { pageId: string }) {
     const page = await this._notion.pages.retrieve({ page_id: pageId })
-
     return 'parent' in page ? page : undefined
   }
 
