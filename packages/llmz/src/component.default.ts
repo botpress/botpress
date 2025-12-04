@@ -10,14 +10,14 @@ const Button = new Component({
     {
       name: 'Say action',
       description: 'A button that triggers a say action',
-      code: `<Message>
+      code: `yield <Message>
   <Button action="say" label="Hello" />
 </Message>`,
     },
     {
       name: 'Postback action',
       description: 'A button that sends a postback value',
-      code: `<Message>
+      code: `yield <Message>
   <Button action="postback" label="Buy" value="buy_product" />
 </Message>`,
     },
@@ -28,7 +28,7 @@ const Button = new Component({
         .enum(['say', 'url', 'postback'])
         .default('say')
         .describe('The action to perform when the button is clicked. Can be "say", "url", or "postback"'),
-      label: z.string().describe('The text displayed on the button'),
+      label: z.string().describe('The text displayed on the button').min(1).max(250),
       value: z
         .string()
         .optional()
@@ -47,7 +47,7 @@ const Image = new Component({
     {
       name: 'Basic image',
       description: 'A simple image with alt text',
-      code: `<Message>
+      code: `yield <Message>
   <Image url="https://example.com/photo.jpg" alt="Example image" />
 </Message>`,
     },
@@ -69,7 +69,7 @@ const File = new Component({
     {
       name: 'PDF download',
       description: 'Send a PDF file with a name',
-      code: `<Message>
+      code: `yield <Message>
   <File url="https://example.com/report.pdf" name="Report.pdf" />
 </Message>`,
     },
@@ -91,7 +91,7 @@ const Video = new Component({
     {
       name: 'Intro video',
       description: 'A video with a title',
-      code: `<Message>
+      code: `yield <Message>
   <Video url="https://example.com/intro.mp4" title="Welcome" />
 </Message>`,
     },
@@ -113,7 +113,7 @@ const Audio = new Component({
     {
       name: 'Sample audio',
       description: 'Play a short audio clip with a title',
-      code: `<Message>
+      code: `yield <Message>
   <Audio url="https://example.com/audio.mp3" title="Sample" />
 </Message>`,
     },
@@ -135,7 +135,7 @@ const Card = new Component({
     {
       name: 'Product card',
       description: 'A card with an image and two buttons',
-      code: `<Message>
+      code: `yield <Message>
   <Card title="Product Name" subtitle="Limited offer">
     <Image url="https://example.com/product.jpg" alt="Product image" />
     <Button action="postback" label="Buy" value="buy_product" />
@@ -171,7 +171,7 @@ const Carousel = new Component({
     {
       name: 'Product carousel',
       description: 'A carousel with multiple cards',
-      code: `<Message>
+      code: `yield <Message>
   <Carousel>
     <Card title="Item 1" subtitle="First product">
       <Image url="https://example.com/item1.jpg" alt="Item 1" />
@@ -205,7 +205,7 @@ const Text = new Component({
     {
       name: 'Basic Markdown',
       description: 'Simple markdown content inside a message',
-      code: `<Message>
+      code: `yield <Message>
   **Hello**, welcome to our service!
 </Message>`,
     },
