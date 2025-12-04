@@ -1,9 +1,6 @@
-import * as lin from './utils/linear-utils'
 import * as bp from '.botpress'
 
 export type CommonHandlerProps = bp.WorkflowHandlerProps['lintAll'] | bp.EventHandlerProps | bp.MessageHandlerProps
-
-export type WatchedIssue = { id: string; commentId: string }
 
 export type LintResult =
   | {
@@ -16,8 +13,21 @@ export type LintResult =
       result: 'succeeded' | 'ignored'
     }
 
+const STATE_KEYS = [
+  'IN_PROGRESS',
+  'STAGING',
+  'PRODUCTION_DONE',
+  'BACKLOG',
+  'TODO',
+  'TRIAGE',
+  'CANCELED',
+  'BLOCKED',
+  'STALE',
+] as const
+export type StateKey = (typeof STATE_KEYS)[number]
+
 export type StateAttributes = {
-  stateKey: lin.StateKey
+  stateKey: StateKey
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
   warningReason: string

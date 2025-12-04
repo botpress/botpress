@@ -1,3 +1,4 @@
+import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
 
@@ -5,7 +6,7 @@ export type IssueLint = {
   message: string
 }
 
-export const lintIssue = (issue: lin.Issue, state: lin.StateKey): IssueLint[] => {
+export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {

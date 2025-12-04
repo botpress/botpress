@@ -2,20 +2,17 @@ import * as types from 'src/types'
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
-const STAGING_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been in staging for over a week'
-const BLOCKED_ISSUE_COMMENT = 'BugBuster bot detected that this issue has been blocked for over a month'
-
 const statesToProcess: types.StateAttributes[] = [
   {
     stateKey: 'STAGING',
     maxTimeSinceLastUpdate: '-P1W',
-    warningComment: STAGING_ISSUE_COMMENT,
+    warningComment: 'BugBuster bot detected that this issue has been in staging for over a week',
     warningReason: 'in staging for over a week',
   },
   {
     stateKey: 'BLOCKED',
     maxTimeSinceLastUpdate: '-P1M',
-    warningComment: BLOCKED_ISSUE_COMMENT,
+    warningComment: 'BugBuster bot detected that this issue has been blocked for over a month',
     warningReason: 'blocked for over a month',
   },
 ]

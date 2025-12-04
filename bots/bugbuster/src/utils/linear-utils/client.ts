@@ -5,21 +5,9 @@ import * as types from '../../types'
 import * as graphql from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
-export type TeamKey = (typeof TEAM_KEYS)[number]
+type TeamKey = (typeof TEAM_KEYS)[number]
 
-const STATE_KEYS = [
-  'IN_PROGRESS',
-  'STAGING',
-  'PRODUCTION_DONE',
-  'BACKLOG',
-  'TODO',
-  'TRIAGE',
-  'CANCELED',
-  'BLOCKED',
-  'STALE',
-] as const
-export type StateKey = (typeof STATE_KEYS)[number]
-type State = { state: lin.WorkflowState; key: StateKey }
+type State = { state: lin.WorkflowState; key: types.StateKey }
 
 const RESULTS_PER_PAGE = 200
 
@@ -75,8 +63,8 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statesToOmit?: StateKey[]
-      statesToInclude?: StateKey[]
+      statesToOmit?: types.StateKey[]
+      statesToInclude?: types.StateKey[]
       updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
@@ -123,7 +111,7 @@ export class LinearApi {
     return label || undefined
   }
 
-  public async issueState(issue: graphql.Issue): Promise<StateKey> {
+  public async issueState(issue: graphql.Issue): Promise<types.StateKey> {
     const states = await this.getStates()
     const state = states.find((s) => s.state.id === issue.state.id)
     if (!state) {
@@ -177,7 +165,7 @@ export class LinearApi {
     return this._states
   }
 
-  public async getStateRecords(): Promise<Record<TeamKey, Record<StateKey, lin.WorkflowState>>> {
+  public async getStateRecords(): Promise<Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>> {
     if (!this._states) {
       const states = await LinearApi._listAllStates(this._client)
       this._states = LinearApi._toStateObjects(states)
@@ -185,15 +173,15 @@ export class LinearApi {
     const safeStates = this._states
     const teams = await this.getTeamRecords()
 
-    return new Proxy({} as Record<TeamKey, Record<StateKey, lin.WorkflowState>>, {
+    return new Proxy({} as Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>, {
       get: (_, teamKey: TeamKey) => {
         const teamId = teams[teamKey].id
         if (!teamId) {
           throw new Error(`Team with key "${teamKey}" not found.`)
         }
 
-        return new Proxy({} as Record<StateKey, lin.WorkflowState>, {
-          get: (_, stateKey: StateKey) => {
+        return new Proxy({} as Record<types.StateKey, lin.WorkflowState>, {
+          get: (_, stateKey: types.StateKey) => {
             const state = safeStates.find((s) => s.key === stateKey && s.state.teamId === teamId)
 
             if (!state) {
@@ -206,7 +194,7 @@ export class LinearApi {
     })
   }
 
-  private async _stateKeysToStates(keys: StateKey[]) {
+  private async _stateKeysToStates(keys: types.StateKey[]) {
     const states = await this.getStates()
     return keys?.map((key) => {
       const matchingStates = states.filter((state) => state.key === key)
@@ -242,7 +230,7 @@ export class LinearApi {
   private static _toStateObjects(states: lin.WorkflowState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
-      const key = utils.string.toScreamingSnakeCase(state.name) as StateKey
+      const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey
       stateObjects.push({ key, state })
     }
     return stateObjects

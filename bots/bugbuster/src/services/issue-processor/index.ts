@@ -4,7 +4,7 @@ import * as lin from '../../utils/linear-utils'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATES: lin.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
