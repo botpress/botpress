@@ -4,8 +4,11 @@ import * as workflowProxy from '../../bot/workflow-proxy'
 import * as utils from '../../utils/type-utils'
 import * as actionProxy from '../action-proxy'
 import * as common from '../common'
+import * as conversationProxy from '../conversation-proxy'
 import * as eventProxy from '../event-proxy'
+import * as messageProxy from '../message-proxy'
 import * as stateProxy from '../state-proxy'
+import * as userProxy from '../user-proxy'
 
 type EnumeratePluginEvents<TPlugin extends common.BasePlugin> = bot.EnumerateEvents<TPlugin> &
   common.EnumerateInterfaceEvents<TPlugin>
@@ -22,7 +25,7 @@ type _IncomingMessages<TPlugin extends common.BasePlugin> = {
   [K in utils.StringKeys<bot.GetMessages<TPlugin>>]: utils.Merge<
     //
     client.Message,
-    { type: K; payload: bot.GetMessages<TPlugin>[K] }
+    { type: Extract<K, string>; payload: bot.GetMessages<TPlugin>[K] }
   >
 }
 
@@ -122,16 +125,60 @@ export type PluginClient<_TPlugin extends common.BasePlugin> = bot.BotSpecificCl
 export type CommonHandlerProps<TPlugin extends common.BasePlugin> = {
   ctx: bot.BotContext
   logger: bot.BotLogger
+  /**
+   * Please use the `users`, `conversations`, `actions`, `messages`, `states`,
+   * `events`, `workflows` utilities instead of accessing the client directly.
+   *
+   * For example, you can replace `props.client.listUsers(...)` with
+   * `props.users.list(...).take(n)`
+   */
   client: PluginClient<TPlugin>
 }
 
 export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   configuration: common.PluginConfiguration<TPlugin>
+  /**
+   * Mapping of plugin interface dependencies to the integrations that
+   * implement them.
+   */
   interfaces: common.PluginInterfaceExtensions<TPlugin>
-  alias?: string
+  /**
+   * Mapping of plugin integration dependencies to the integrations that
+   * implement them.
+   */
+  integrations: common.PluginIntegrationExtensions<TPlugin>
+  /**
+   * Alias of the plugin within the bot. This is usually equal to the plugin's
+   * name, but may be different if the bot has multiple instances of the same
+   * plugin installed.
+   */
+  alias: string
+  /**
+   * Allows calling actions defined by the plugins's integration and interface
+   * dependencies.
+   */
   actions: actionProxy.ActionProxy<TPlugin>
+  /**
+   * Allows querying and mutating states defined by the plugin.
+   */
   states: stateProxy.StateProxy<TPlugin>
+  /**
+   * Allows emitting events defined by the plugin.
+   */
   events: eventProxy.EventProxy<TPlugin>
+  /**
+   * Allows querying and mutating users.
+   */
+  users: userProxy.UserFinder<TPlugin>
+  /**
+   * Allows querying and mutating conversations on channels defined by the
+   * plugin's integration and interface dependencies.
+   */
+  conversations: conversationProxy.ConversationFinder<TPlugin>
+  /**
+   * Allows querying and mutating individual messages.
+   */
+  messages: messageProxy.MessageFinder<TPlugin>
 
   /**
    * # EXPERIMENTAL
@@ -140,11 +187,24 @@ export type InjectedHandlerProps<TPlugin extends common.BasePlugin> = {
   workflows: workflowProxy.WorkflowProxy<TPlugin>
 }
 
-export type ExtendedHandlerProps<TPlugin extends common.BasePlugin> = CommonHandlerProps<TPlugin> &
-  InjectedHandlerProps<TPlugin>
+type _WithInjectedProps<
+  T extends Record<string, Record<string, any>>,
+  TPlugin extends common.BasePlugin,
+  TMerge extends object = {},
+> = {
+  [K in keyof T]: utils.Merge<T[K], TMerge> & InjectedHandlerProps<TPlugin>
+}
 
-export type MessagePayloads<TPlugin extends common.BasePlugin> = {
-  [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]: ExtendedHandlerProps<TPlugin> & {
+type _WithInjectedPropsFn<
+  T extends Record<string, (args: any) => any>,
+  TPlugin extends common.BasePlugin,
+  TMerge extends object = {},
+> = {
+  [K in keyof T]: (args: utils.Merge<Parameters<T[K]>[0], TMerge> & InjectedHandlerProps<TPlugin>) => ReturnType<T[K]>
+}
+
+export type MessagePayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]: CommonHandlerProps<TPlugin> & {
     message: IncomingMessages<TPlugin>[TMessageName]
     user: client.User
     conversation: client.Conversation
@@ -152,64 +212,128 @@ export type MessagePayloads<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type MessageHandlers<TPlugin extends common.BasePlugin> = {
+export type MessageHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]: (
-    args: MessagePayloads<TPlugin>[TMessageName]
+    args: MessagePayloadsWithoutInjectedProps<TPlugin>[TMessageName]
   ) => Promise<void>
 }
 
-export type EventPayloads<TPlugin extends common.BasePlugin> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]: ExtendedHandlerProps<TPlugin> & {
+export type MessageHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
+  MessageHandlersWithoutInjectedProps<TPlugin>,
+  TPlugin,
+  {
+    user: userProxy.ActionableUser<TPlugin, string>
+    conversation: conversationProxy.ActionableConversation<TPlugin>
+    message: messageProxy.ActionableMessage<TPlugin>
+  }
+>
+
+export type EventPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]: CommonHandlerProps<TPlugin> & {
     event: IncomingEvents<TPlugin>[TEventName]
   }
 }
 
-export type EventHandlers<TPlugin extends common.BasePlugin> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]: (args: EventPayloads<TPlugin>[TEventName]) => Promise<void>
+export type EventPayloads<TPlugin extends common.BasePlugin> = _WithInjectedProps<
+  EventPayloadsWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type EventHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]: (
+    args: EventPayloadsWithoutInjectedProps<TPlugin>[TEventName]
+  ) => Promise<void>
 }
 
-export type StateExpiredPayloads<TPlugin extends common.BasePlugin> = {
-  [TSateName in utils.StringKeys<IncomingStates<TPlugin>>]: ExtendedHandlerProps<TPlugin> & {
+export type EventHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
+  EventHandlersWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type StateExpiredPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TSateName in utils.StringKeys<IncomingStates<TPlugin>>]: CommonHandlerProps<TPlugin> & {
     state: IncomingStates<TPlugin>[TSateName]
   }
 }
 
-export type StateExpiredHandlers<TPlugin extends common.BasePlugin> = {
+export type StateExpiredPayloads<TPlugin extends common.BasePlugin> = _WithInjectedProps<
+  StateExpiredPayloadsWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type StateExpiredHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [TSateName in utils.StringKeys<IncomingStates<TPlugin>>]: (
-    args: StateExpiredPayloads<TPlugin>[TSateName]
+    args: StateExpiredPayloadsWithoutInjectedProps<TPlugin>[TSateName]
   ) => Promise<void>
 }
 
-export type ActionHandlerPayloads<TPlugin extends common.BasePlugin> = {
-  [TActionName in utils.StringKeys<TPlugin['actions']>]: ExtendedHandlerProps<TPlugin> & {
+export type StateExpiredHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
+  StateExpiredHandlersWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type ActionHandlerPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TActionName in utils.StringKeys<TPlugin['actions']>]: CommonHandlerProps<TPlugin> & {
     type?: TActionName
     input: TPlugin['actions'][TActionName]['input']
   }
 }
 
-export type ActionHandlers<TPlugin extends common.BasePlugin> = {
+export type ActionHandlerPayloads<TPlugin extends common.BasePlugin> = _WithInjectedProps<
+  ActionHandlerPayloadsWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type ActionHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [TActionName in utils.StringKeys<TPlugin['actions']>]: (
-    props: ActionHandlerPayloads<TPlugin>[TActionName]
+    props: ActionHandlerPayloadsWithoutInjectedProps<TPlugin>[TActionName]
   ) => Promise<TPlugin['actions'][TActionName]['output']>
 }
 
-export type WorkflowPayloads<TPlugin extends common.BasePlugin> = {
-  [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: ExtendedHandlerProps<TPlugin> & {
+export type ActionHandlers<TPlugin extends common.BasePlugin> = _WithInjectedPropsFn<
+  ActionHandlersWithoutInjectedProps<TPlugin>,
+  TPlugin
+>
+
+export type WorkflowPayloadsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: CommonHandlerProps<TPlugin> & {
     conversation?: client.Conversation
     user?: client.User
     event: bot.WorkflowUpdateEvent
-
-    /**
-     * # EXPERIMENTAL
-     * This API is experimental and may change in the future.
-     */
-    workflow: workflowProxy.WorkflowWithUtilities<TPlugin, TWorkflowName>
+    workflow: client.Workflow
   }
+}
+
+export type WorkflowPayloads<TPlugin extends common.BasePlugin> = _WithInjectedProps<
+  {
+    [TWorkflowName in keyof WorkflowPayloadsWithoutInjectedProps<TPlugin>]: utils.Merge<
+      WorkflowPayloadsWithoutInjectedProps<TPlugin>[TWorkflowName],
+      {
+        /**
+         * # EXPERIMENTAL
+         * This API is experimental and may change in the future.
+         */
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
+      }
+    >
+  },
+  TPlugin
+>
+
+export type WorkflowHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
+  [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: (
+    props: WorkflowPayloadsWithoutInjectedProps<TPlugin>[TWorkflowName]
+  ) => Promise<void>
 }
 
 export type WorkflowHandlers<TPlugin extends common.BasePlugin> = {
   [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]: (
-    props: WorkflowPayloads<TPlugin>[TWorkflowName]
+    props: utils.Merge<
+      WorkflowPayloads<TPlugin>[TWorkflowName],
+      {
+        workflow: workflowProxy.ActionableWorkflow<TPlugin, TWorkflowName>
+      }
+    >
   ) => Promise<void>
 }
 
@@ -279,12 +403,19 @@ export type HookData<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type HookInputs<TPlugin extends common.BasePlugin> = {
+export type HookInputsWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
-    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: ExtendedHandlerProps<TPlugin> & {
+    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: CommonHandlerProps<TPlugin> & {
       data: HookData<TPlugin>[THookType][THookDataName]
     }
   }
+}
+
+export type HookInputs<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedProps<
+    HookInputsWithoutInjectedProps<TPlugin>[THookType],
+    TPlugin
+  >
 }
 
 export type HookOutputs<TPlugin extends common.BasePlugin> = {
@@ -295,43 +426,26 @@ export type HookOutputs<TPlugin extends common.BasePlugin> = {
   }
 }
 
-export type HookHandlers<TPlugin extends common.BasePlugin> = {
+export type HookHandlersWithoutInjectedProps<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
     [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]: (
-      input: HookInputs<TPlugin>[THookType][THookDataName]
+      input: HookInputsWithoutInjectedProps<TPlugin>[THookType][THookDataName]
     ) => Promise<HookOutputs<TPlugin>[THookType][THookDataName] | undefined>
   }
 }
 
-export type ActionHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TActionName in utils.StringKeys<TPlugin['actions']>]?: (
-    props: Omit<Parameters<ActionHandlers<TPlugin>[TActionName]>[0], keyof InjectedHandlerProps<TPlugin>>
-  ) => Promise<Awaited<ReturnType<ActionHandlers<TPlugin>[TActionName]>>>
-}
-
-export type MessageHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TMessageName in utils.StringKeys<IncomingMessages<TPlugin>>]?: ((
-    props: Omit<Parameters<MessageHandlers<TPlugin>[TMessageName]>[0], keyof InjectedHandlerProps<TPlugin>>
-  ) => Promise<void>)[]
-}
-
-export type EventHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]?: ((
-    props: Omit<Parameters<EventHandlers<TPlugin>[TEventName]>[0], keyof InjectedHandlerProps<TPlugin>>
-  ) => Promise<void>)[]
-}
-
-export type StateExpiredHandlersMap<TPlugin extends common.BasePlugin> = {
-  [TStateName in utils.StringKeys<IncomingStates<TPlugin>>]?: ((
-    props: Omit<Parameters<StateExpiredHandlers<TPlugin>[TStateName]>[0], keyof InjectedHandlerProps<TPlugin>>
-  ) => Promise<void>)[]
+export type HookHandlers<TPlugin extends common.BasePlugin> = {
+  [THookType in utils.StringKeys<HookData<TPlugin>>]: _WithInjectedPropsFn<
+    HookHandlersWithoutInjectedProps<TPlugin>[THookType],
+    TPlugin
+  >
 }
 
 export type HookHandlersMap<TPlugin extends common.BasePlugin> = {
   [THookType in utils.StringKeys<HookData<TPlugin>>]: {
-    [THookDataName in utils.StringKeys<HookData<TPlugin>[THookType]>]?: ((
-      props: Omit<Parameters<HookHandlers<TPlugin>[THookType][THookDataName]>[0], keyof InjectedHandlerProps<TPlugin>>
-    ) => Promise<Awaited<ReturnType<HookHandlers<TPlugin>[THookType][THookDataName]>>>)[]
+    [THookDataName in utils.StringKeys<
+      HookData<TPlugin>[THookType]
+    >]?: HookHandlersWithoutInjectedProps<TPlugin>[THookType][THookDataName][]
   }
 }
 
@@ -339,10 +453,7 @@ export type WorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
   [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
     [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
       handler: (
-        props: Omit<
-          Parameters<WorkflowHandlers<TPlugin>[TWorkflowName]>[0],
-          keyof InjectedHandlerProps<TPlugin> | 'workflow'
-        > & {
+        props: Omit<Parameters<WorkflowHandlersWithoutInjectedProps<TPlugin>[TWorkflowName]>[0], 'workflow'> & {
           workflow: client.Workflow
         }
       ) => Promise<client.Workflow>
@@ -392,12 +503,34 @@ export type OrderedWorkflowHandlersMap<TPlugin extends common.BasePlugin> = {
 
 /** Plugin handlers without InjectedHandlerProps */
 export type PluginHandlers<TPlugin extends common.BasePlugin> = {
-  actionHandlers: ActionHandlersMap<TPlugin>
-  messageHandlers: MessageHandlersMap<TPlugin>
-  eventHandlers: EventHandlersMap<TPlugin>
-  stateExpiredHandlers: StateExpiredHandlersMap<TPlugin>
-  hookHandlers: HookHandlersMap<TPlugin>
-  workflowHandlers: WorkflowHandlersMap<TPlugin>
+  actionHandlers: ActionHandlersWithoutInjectedProps<TPlugin>
+  messageHandlers: {
+    [TMessageName in utils.StringKeys<
+      IncomingMessages<TPlugin>
+    >]?: MessageHandlersWithoutInjectedProps<TPlugin>[TMessageName][]
+  }
+  eventHandlers: {
+    [TEventName in utils.StringKeys<IncomingEvents<TPlugin>>]?: EventHandlersWithoutInjectedProps<TPlugin>[TEventName][]
+  }
+  stateExpiredHandlers: {
+    [TStateName in utils.StringKeys<
+      IncomingStates<TPlugin>
+    >]?: StateExpiredHandlersWithoutInjectedProps<TPlugin>[TStateName][]
+  }
+  hookHandlers: {
+    [THookType in utils.StringKeys<HookData<TPlugin>>]: {
+      [THookDataName in utils.StringKeys<
+        HookData<TPlugin>[THookType]
+      >]?: HookHandlersWithoutInjectedProps<TPlugin>[THookType][THookDataName][]
+    }
+  }
+  workflowHandlers: {
+    [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
+      [TWorkflowName in utils.StringKeys<
+        TPlugin['workflows']
+      >]?: WorkflowHandlersWithoutInjectedProps<TPlugin>[TWorkflowName][]
+    }
+  }
 }
 /** identical to PluginHandlers, but contains the injected properties */
 export type InjectedPluginHandlers<TPlugin extends common.BasePlugin> = {
@@ -420,10 +553,7 @@ export type InjectedPluginHandlers<TPlugin extends common.BasePlugin> = {
   }
   workflowHandlers: {
     [TWorkflowUpdateType in bot.WorkflowUpdateType]: {
-      [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: {
-        handler: WorkflowHandlers<TPlugin>[TWorkflowName]
-        order: number
-      }[]
+      [TWorkflowName in utils.StringKeys<TPlugin['workflows']>]?: WorkflowHandlers<TPlugin>[TWorkflowName][]
     }
   }
 }

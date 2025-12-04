@@ -16,7 +16,8 @@ export type PackageJson = {
   [key: string]: JSON
 }
 
-const FILE_NAME = 'package.json'
+export const PKGJSON_FILE_NAME = 'package.json'
+export const BP_DEPENDENCIES_KEY = 'bpDependencies'
 
 export const readPackageJson = async (path: string): Promise<PackageJson | undefined> => {
   const filePath = _resolveFilePath(path)
@@ -68,5 +69,5 @@ export const writePackageJson = async (path: string, pkgJson: PackageJson) => {
 }
 
 function _resolveFilePath(path: string) {
-  return pathlib.basename(path) === FILE_NAME ? path : pathlib.join(path, FILE_NAME)
+  return pathlib.basename(path) === PKGJSON_FILE_NAME ? path : pathlib.join(path, PKGJSON_FILE_NAME)
 }
