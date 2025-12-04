@@ -41,9 +41,11 @@ export type Issue = {
     nodes: {
       id: string
       resolvedAt: string | null
+      createdAt: string
       user: {
         id: string
       }
+      parentId: string | null
     }[]
   }
 }
@@ -93,7 +95,10 @@ export const GRAPHQL_QUERIES = {
                 id,
                 user {
                   id
-                }
+                },
+                parentId,
+                resolvedAt,
+                createdAt
               }
             }
           }

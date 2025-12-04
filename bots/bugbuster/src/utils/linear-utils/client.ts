@@ -40,6 +40,9 @@ export class LinearApi {
   }
 
   public async getMe(): Promise<lin.User> {
+    if (this._viewer) {
+      return this._viewer
+    }
     const me = await this._client.viewer
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')
@@ -135,7 +138,7 @@ export class LinearApi {
 
     const promises: Promise<lin.CommentPayload>[] = []
     for (const comment of comments) {
-      if (comment.user.id === me.id && !comment.resolvedAt) {
+      if (comment.user.id === me.id && !comment.parentId && !comment.resolvedAt) {
         promises.push(this._client.commentResolve(comment.id))
       }
     }

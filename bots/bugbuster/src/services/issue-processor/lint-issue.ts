@@ -5,7 +5,7 @@ export type IssueLint = {
   message: string
 }
 
-export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise<IssueLint[]> => {
+export const lintIssue = (issue: lin.Issue, status: lin.StateKey): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
@@ -57,7 +57,7 @@ export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise
     )
   }
 
-  const issueProject = await issue.project
+  const issueProject = issue.project
   if (issueProject && issueProject.completedAt) {
     lints.push(
       `Issue ${issue.identifier} is associated with a completed project (${issueProject.name}). Consider removing the project association.`
