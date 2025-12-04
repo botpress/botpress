@@ -1,0 +1,26 @@
+{
+  "name": "@botpresshub/mcp-client",
+  "description": "MCP (Model Context Protocol) Client integration for Botpress",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "check:format": "prettier --check .",
+    "fix:format": "prettier --write .",
+    "check:lint": "eslint ./ --ext .ts",
+    "fix:lint": "eslint --fix ./ --ext .ts"
+  },
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.6.0",
+    "eventsource": "^2.0.2"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@types/eventsource": "^1.1.15"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["es2022"],
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
+}
