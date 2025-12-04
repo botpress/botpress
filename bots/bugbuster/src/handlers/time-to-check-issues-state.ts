@@ -7,13 +7,13 @@ const statesToProcess: types.StateAttributes[] = [
     stateKey: 'STAGING',
     maxTimeSinceLastUpdate: '-P1W',
     warningComment: 'BugBuster bot detected that this issue has been in staging for over a week',
-    warningReason: 'in staging for over a week',
+    buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been in staging for over a week`,
   },
   {
     stateKey: 'BLOCKED',
     maxTimeSinceLastUpdate: '-P1M',
     warningComment: 'BugBuster bot detected that this issue has been blocked for over a month',
-    warningReason: 'blocked for over a month',
+    buildWarningReason: (issueIdentifier) => `Issue ${issueIdentifier} has been blocked for over a month`,
   },
 ]
 

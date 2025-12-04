@@ -28,7 +28,7 @@ export class IssueStateChecker {
           issueId: issue.id,
           body: stateAttributes.warningComment,
         })
-        this._logger.warn(`Linear issue ${issue.identifier} has been ${stateAttributes.warningReason}.`)
+        this._logger.warn(stateAttributes.buildWarningReason(issue.identifier))
       }
 
       hasNextPage = pagination?.hasNextPage ?? false

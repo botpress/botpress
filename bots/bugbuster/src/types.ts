@@ -30,7 +30,7 @@ export type StateAttributes = {
   stateKey: StateKey
   maxTimeSinceLastUpdate: ISO8601Duration
   warningComment: string
-  warningReason: string
+  buildWarningReason: (issueIdentifier: string) => string
 }
 
 export type ISO8601Duration = string
