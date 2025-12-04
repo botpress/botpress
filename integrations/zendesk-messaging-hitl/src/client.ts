@@ -57,79 +57,19 @@ export class SuncoClientError extends RuntimeError {
   }
 }
 
-type RawNetworkError = {
-  status?: number
-  body?: any
-  response?: {
-    status?: number
-    text?: string
-    req: {
-      method: string
-      url: string
-      headers: Record<string, string>
-    }
-    header: Record<string, string>
-  }
-}
-
-function _isNetworkError(error: unknown): error is RawNetworkError {
-  return typeof error === 'object' && error !== null && 'status' in error
-}
-
-function _getNetworkErrorDetails(error: unknown): { message: string; status?: number; data?: unknown } | undefined {
-  if (typeof error !== 'object' || error === null) {
-    return undefined
-  }
-
-  if (!_isNetworkError(error)) {
-    return undefined
-  }
-
-  // Parse error message from various formats
-  let message: string | undefined
-
-  // Check for Sunshine Conversations API error format (errors array in body)
-  if (Array.isArray(error.body?.errors)) {
-    const errorMessages = (error.body.errors as Array<{ title?: string; code?: string }>)
-      .map((err) => {
-        if (err.title) {
-          return err.code ? `${err.title}: ${err.code}` : err.title
-        }
-        return JSON.stringify(err)
-      })
-      .filter((msg): msg is string => msg !== undefined)
-
-    if (errorMessages.length > 0) {
-      message = errorMessages.join('; ')
-    }
-  } else if (error.body?.message?.length) {
-    message = error.body?.message
-  } else if (error.body) {
-    message = JSON.stringify(error.body)
-  }
-
-  return {
-    message: message ?? 'Unknown error',
-    status: error.status ?? error.response?.status,
-    data: error.body,
-  }
-}
-
-type SuncoClientApis = {
-  apps: InstanceType<typeof SunshineConversationsClient.AppsApi>
-  users: InstanceType<typeof SunshineConversationsClient.UsersApi>
-  conversations: InstanceType<typeof SunshineConversationsClient.ConversationsApi>
-  messages: InstanceType<typeof SunshineConversationsClient.MessagesApi>
-  webhooks: InstanceType<typeof SunshineConversationsClient.WebhooksApi>
-  integrations: InstanceType<typeof SunshineConversationsClient.IntegrationsApi>
-  switchboard: InstanceType<typeof SunshineConversationsClient.SwitchboardsApi>
-  switchboardActions: InstanceType<typeof SunshineConversationsClient.SwitchboardActionsApi>
-  switchboardIntegrations: InstanceType<typeof SunshineConversationsClient.SwitchboardIntegrationsApi>
-}
-
 class SuncoClient {
   private _appId: string
-  private _client: SuncoClientApis
+  private _client: {
+    apps: InstanceType<typeof SunshineConversationsClient.AppsApi>
+    users: InstanceType<typeof SunshineConversationsClient.UsersApi>
+    conversations: InstanceType<typeof SunshineConversationsClient.ConversationsApi>
+    messages: InstanceType<typeof SunshineConversationsClient.MessagesApi>
+    webhooks: InstanceType<typeof SunshineConversationsClient.WebhooksApi>
+    integrations: InstanceType<typeof SunshineConversationsClient.IntegrationsApi>
+    switchboard: InstanceType<typeof SunshineConversationsClient.SwitchboardsApi>
+    switchboardActions: InstanceType<typeof SunshineConversationsClient.SwitchboardActionsApi>
+    switchboardIntegrations: InstanceType<typeof SunshineConversationsClient.SwitchboardIntegrationsApi>
+  }
 
   public constructor(
     config: SuncoConfiguration,
@@ -154,6 +94,62 @@ class SuncoClient {
     }
   }
 
+  private _isNetworkError(error: unknown): error is {
+    status?: number
+    body?: any
+    response?: {
+      status?: number
+      text?: string
+      req: {
+        method: string
+        url: string
+        headers: Record<string, string>
+      }
+      header: Record<string, string>
+    }
+  } {
+    return typeof error === 'object' && error !== null && 'status' in error
+  }
+
+  private _getNetworkErrorDetails(error: unknown): { message: string; status?: number; data?: unknown } | undefined {
+    if (typeof error !== 'object' || error === null) {
+      return undefined
+    }
+
+    if (!this._isNetworkError(error)) {
+      return undefined
+    }
+
+    // Parse error message from various formats
+    let message: string | undefined
+
+    // Check for Sunshine Conversations API error format (errors array in body)
+    if (Array.isArray(error.body?.errors)) {
+      const errorMessages = (error.body.errors as Array<{ title?: string; code?: string }>)
+        .map((err) => {
+          if (err.title) {
+            return err.code ? `${err.title}: ${err.code}` : err.title
+          }
+          return JSON.stringify(err)
+        })
+        .filter((msg): msg is string => msg !== undefined)
+
+      if (errorMessages.length > 0) {
+        message = errorMessages.join('; ')
+      }
+    } else if (error.body?.message?.length) {
+      message = error.body?.message
+    } else if (error.body) {
+      message = JSON.stringify(error.body)
+    }
+
+    return {
+      message: message ?? 'Unknown error',
+      status: error.status ?? error.response?.status,
+      data: error.body,
+    }
+  }
+
   private _handleError(
     thrown: unknown,
     operationName: string,
@@ -164,7 +160,7 @@ class SuncoClient {
       throw thrown
     }
 
-    const networkErrorDetails = _getNetworkErrorDetails(thrown)
+    const networkErrorDetails = this._getNetworkErrorDetails(thrown)
     const errorMessage = networkErrorDetails?.message || String(thrown)
 
     throw new SuncoClientError(errorMessage, operationName, {
@@ -214,7 +210,7 @@ class SuncoClient {
         return await this._createUser(props)
       } catch (createError: unknown) {
         // If user already exists (409 conflict or similar), try to find it
-        const networkError = _getNetworkErrorDetails(createError)
+        const networkError = this._getNetworkErrorDetails(createError)
         if (networkError && networkError.status === 409) {
           // Try to get the existing user by externalId
           const existingUser = await this._getUserByIdOrExternalId(props.botpressUserId)
@@ -243,7 +239,7 @@ class SuncoClient {
       }
     } catch (thrown: unknown) {
       // If user not found (404), return null
-      const networkError = _getNetworkErrorDetails(thrown)
+      const networkError = this._getNetworkErrorDetails(thrown)
       if (networkError && networkError.status === 404) {
         return null
       }
