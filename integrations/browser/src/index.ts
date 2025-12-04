@@ -11,7 +11,7 @@ import * as bp from '.botpress'
 @posthogHelper.wrapIntegration({
   integrationName: INTEGRATION_NAME,
   integrationVersion: INTEGRATION_VERSION,
-  key: (bp.secrets as any).POSTHOG_KEY as string,
+  key: bp.secrets.POSTHOG_KEY,
 })
 class BrowserIntegration extends bp.Integration {
   public constructor() {

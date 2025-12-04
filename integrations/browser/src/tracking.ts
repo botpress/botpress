@@ -17,7 +17,7 @@ type TrackingEvent =
 type EventProperties = Record<string, string | number | boolean | undefined>
 
 const getPostHogConfig = () => ({
-  key: (bp.secrets as any).POSTHOG_KEY as string,
+  key: bp.secrets.POSTHOG_KEY,
   integrationName: INTEGRATION_NAME,
   integrationVersion: INTEGRATION_VERSION,
 })
