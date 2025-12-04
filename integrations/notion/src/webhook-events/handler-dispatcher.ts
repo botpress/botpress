@@ -28,7 +28,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return { status: 200 } // We return 200 to avoid retries
   }
 
-  props.logger.forBot().error('Unsupported webhook event')
+  props.logger.forBot().info('Unsupported webhook event received')
   return { status: 200 }
 }
 
