@@ -21,7 +21,6 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
     const integrationDisplayName = getBotpressIntegrationDisplayName(ctx.webhookId)
     logger.forBot().info(`Integration Display name: ${integrationDisplayName}`)
 
-    // Check if integration already exists by name
     logger.forBot().info('Checking for existing integration by name...')
     let integrationId: string
     try {
@@ -32,10 +31,9 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, webhookUr
       logger.forBot().info(`✅ Integration created successfully with ID: ${integrationId}`)
     }
 
-    // Get the switchboard ID (uses the first switchboard if multiple exist)
+    // Get the switchboard ID, in theory there should only be one (we can't create and there is already a default one)
     const switchboardId = await suncoClient.getSwitchboardIdOrThrow()
 
-    // Check if switchboard integration already exists by name
     logger.forBot().info('Checking for existing switchboard integration...')
     let switchboardIntegrationId: string
     try {
