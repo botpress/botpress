@@ -94,9 +94,10 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        object: sdk.z.string().title('Page Object').describe('A stringified representation of the page'),
+        object: sdk.z.string().optional().title('Page Object').describe('A stringified representation of the page'),
         properties: sdk.z
           .record(sdk.z.string(), sdk.z.object({}).passthrough())
+          .optional()
           .title('Page Properties')
           .describe('Schema of properties for the page as they appear in Notion'),
       }),

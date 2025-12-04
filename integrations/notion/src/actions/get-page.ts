@@ -4,9 +4,6 @@ export const getPage = wrapAction(
   { actionName: 'getPage', errorMessage: 'Failed to fetch page' },
   async ({ notionClient }, { pageId }) => {
     const page = await notionClient.getPage({ pageId })
-    if (!page) {
-      throw new Error('Page not found')
-    }
-    return page
+    return "object" in page ? page :  {}
   }
 )
