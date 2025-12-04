@@ -77,7 +77,6 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     }
   } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    logger.forBot().error(`Error Starting Sunco Hitl: ${errMsg}`)
     throw new RuntimeError(errMsg)
   }
 }

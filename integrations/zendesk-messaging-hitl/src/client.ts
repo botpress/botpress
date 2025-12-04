@@ -7,7 +7,57 @@ import {
 } from './sunshine-client'
 import { Logger } from './types'
 
-type NetworkError = {
+export class SuncoClientError extends RuntimeError {
+  public readonly operationName: string
+  public readonly status?: number
+  public readonly data?: unknown
+  public readonly requestBody?: unknown
+  public readonly additionalContext?: Record<string, unknown>
+
+  public constructor(
+    message: string,
+    operationName: string,
+    options?: {
+      status?: number
+      data?: unknown
+      requestBody?: unknown
+      additionalContext?: Record<string, unknown>
+      cause?: unknown
+    }
+  ) {
+    const details: string[] = [message]
+    if (options?.status) {
+      details.push(`Status: ${options.status}`)
+    }
+    if (options?.data) {
+      details.push(`Data: ${JSON.stringify(options.data)}`)
+    }
+    if (options?.requestBody) {
+      details.push(`Request Body: ${JSON.stringify(options.requestBody)}`)
+    }
+    if (options?.additionalContext) {
+      const contextStr = Object.entries(options.additionalContext)
+        .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+        .join(', ')
+      if (contextStr) {
+        details.push(`Context: ${contextStr}`)
+      }
+    }
+    super(`Failed to ${operationName}: ${details.join(' | ')}`)
+    this.name = 'SuncoClientError'
+    this.operationName = operationName
+    this.status = options?.status
+    this.data = options?.data
+    this.requestBody = options?.requestBody
+    this.additionalContext = options?.additionalContext
+    if (options?.cause instanceof Error) {
+      this.cause = options.cause
+      this.stack = options.cause.stack
+    }
+  }
+}
+
+type RawNetworkError = {
   status?: number
   body?: any
   response?: {
@@ -22,17 +72,16 @@ type NetworkError = {
   }
 }
 
-function getNetworkError(
-  error: unknown
-): { message: string; status?: number; statusText?: string; data?: unknown } | undefined {
+function _isNetworkError(error: unknown): error is RawNetworkError {
+  return typeof error === 'object' && error !== null && 'status' in error
+}
+
+function _getNetworkErrorDetails(error: unknown): { message: string; status?: number; data?: unknown } | undefined {
   if (typeof error !== 'object' || error === null) {
     return undefined
   }
 
-  const networkError = error as NetworkError
-
-  // Check if it looks like a network error
-  if (!('status' in networkError)) {
+  if (!_isNetworkError(error)) {
     return undefined
   }
 
@@ -40,8 +89,8 @@ function getNetworkError(
   let message: string | undefined
 
   // Check for Sunshine Conversations API error format (errors array in body)
-  if (Array.isArray(networkError.body?.errors)) {
-    const errorMessages = (networkError.body.errors as Array<{ title?: string; code?: string }>)
+  if (Array.isArray(error.body?.errors)) {
+    const errorMessages = (error.body.errors as Array<{ title?: string; code?: string }>)
       .map((err) => {
         if (err.title) {
           return err.code ? `${err.title}: ${err.code}` : err.title
@@ -53,16 +102,16 @@ function getNetworkError(
     if (errorMessages.length > 0) {
       message = errorMessages.join('; ')
     }
-  } else if (networkError.body?.message?.length) {
-    message = networkError.body?.message
-  } else if (networkError.body) {
-    message = JSON.stringify(networkError.body)
+  } else if (error.body?.message?.length) {
+    message = error.body?.message
+  } else if (error.body) {
+    message = JSON.stringify(error.body)
   }
 
   return {
     message: message ?? 'Unknown error',
-    status: networkError.status ?? networkError.response?.status,
-    data: networkError.body,
+    status: error.status ?? error.response?.status,
+    data: error.body,
   }
 }
 
@@ -111,30 +160,20 @@ class SuncoClient {
     requestBody?: unknown,
     additionalContext?: Record<string, unknown>
   ): never {
-    // If it's already a RuntimeError, re-throw it without wrapping
-    if (thrown instanceof RuntimeError) {
+    if (thrown instanceof SuncoClientError) {
       throw thrown
     }
 
-    const networkError = getNetworkError(thrown)
-    const errorMessage = networkError?.message || String(thrown)
-    const errorDetails: Record<string, unknown> = {
-      message: errorMessage,
-      status: networkError?.status,
-      statusText: networkError?.statusText,
-      data: networkError?.data,
-      stack: thrown instanceof Error ? thrown.stack : undefined,
-    }
+    const networkErrorDetails = _getNetworkErrorDetails(thrown)
+    const errorMessage = networkErrorDetails?.message || String(thrown)
 
-    if (requestBody) {
-      errorDetails.requestBody = requestBody
-    }
-
-    if (additionalContext) {
-      Object.assign(errorDetails, additionalContext)
-    }
-    this._logger.forBot().error(`Failed to ${operationName}`, errorDetails)
-    throw new RuntimeError(`Failed to ${operationName}: ${errorMessage}`)
+    throw new SuncoClientError(errorMessage, operationName, {
+      status: networkErrorDetails?.status,
+      data: networkErrorDetails?.data,
+      requestBody,
+      additionalContext,
+      cause: thrown instanceof Error ? thrown : undefined,
+    })
   }
 
   public async getApp(): Promise<{
@@ -175,7 +214,7 @@ class SuncoClient {
         return await this._createUser(props)
       } catch (createError: unknown) {
         // If user already exists (409 conflict or similar), try to find it
-        const networkError = getNetworkError(createError)
+        const networkError = _getNetworkErrorDetails(createError)
         if (networkError && networkError.status === 409) {
           // Try to get the existing user by externalId
           const existingUser = await this._getUserByIdOrExternalId(props.botpressUserId)
@@ -204,7 +243,7 @@ class SuncoClient {
       }
     } catch (thrown: unknown) {
       // If user not found (404), return null
-      const networkError = getNetworkError(thrown)
+      const networkError = _getNetworkErrorDetails(thrown)
       if (networkError && networkError.status === 404) {
         return null
       }
