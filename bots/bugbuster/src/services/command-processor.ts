@@ -11,12 +11,12 @@ export class CommandProcessor {
     private _botId: string
   ) {}
 
-  public listTeams: types.CommandImplementation = async (): Promise<types.CommandResult> => {
+  public listTeams: types.CommandImplementation = async () => {
     const teams = await this._teamsManager.listWatchedTeams()
     return { success: true, message: teams.join(', ') }
   }
 
-  public addTeam: types.CommandImplementation = async (args: string[]): Promise<types.CommandResult> => {
+  public addTeam: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -29,7 +29,7 @@ export class CommandProcessor {
     }
   }
 
-  public removeTeam: types.CommandImplementation = async (args: string[]): Promise<types.CommandResult> => {
+  public removeTeam: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -42,10 +42,7 @@ export class CommandProcessor {
     }
   }
 
-  public lintAll: types.CommandImplementation = async (
-    _: string[],
-    conversationId: string
-  ): Promise<types.CommandResult> => {
+  public lintAll: types.CommandImplementation = async (_: string[], conversationId: string) => {
     await this._client.getOrCreateWorkflow({
       name: 'lintAll',
       input: {},
@@ -60,7 +57,7 @@ export class CommandProcessor {
     }
   }
 
-  public setNotifChannel: types.CommandImplementation = async (args: string[]): Promise<types.CommandResult> => {
+  public setNotifChannel: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -77,7 +74,7 @@ export class CommandProcessor {
     }
   }
 
-  public getNotifChannel: types.CommandImplementation = async (): Promise<types.CommandResult> => {
+  public getNotifChannel: types.CommandImplementation = async () => {
     const {
       state: {
         payload: { name },
