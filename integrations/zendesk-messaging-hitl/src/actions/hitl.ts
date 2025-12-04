@@ -41,7 +41,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     // Send a initial message with the conversation title, description and transcript
     // Having a message will allow us to pass control to the agent workspace without requiring a 'reason'
-    await suncoClient.sendMessage(
+    await suncoClient.sendMessages(
       suncoConversation.id,
       { displayName: 'HITL Session' },
       await _buildInitialMessages({
