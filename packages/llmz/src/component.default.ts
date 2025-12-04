@@ -30,7 +30,7 @@ const Button = new Component({
         .enum(['say', 'url', 'postback'])
         .default('say')
         .describe('The action to perform when the button is clicked. Can be "say", "url", or "postback"'),
-      label: z.string().describe('The text displayed on the button').min(1).max(250),
+      label: z.string().describe('The text displayed on the button (min 1 character, max 250 characters'),
       value: z
         .string()
         .optional()
