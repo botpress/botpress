@@ -1,10 +1,10 @@
 import { RuntimeError } from '@botpress/client'
 import {
-  SunshineConversationsClient,
+  SunshineConversationsApi,
   type SuncoConfiguration,
   type SuncoUser,
   type SuncoConversation,
-} from './sunshine-client'
+} from './sunshine-api'
 
 export class SuncoClientError extends RuntimeError {
   public readonly operationName: string
@@ -59,34 +59,34 @@ export class SuncoClientError extends RuntimeError {
 class SuncoClient {
   private _appId: string
   private _client: {
-    apps: InstanceType<typeof SunshineConversationsClient.AppsApi>
-    users: InstanceType<typeof SunshineConversationsClient.UsersApi>
-    conversations: InstanceType<typeof SunshineConversationsClient.ConversationsApi>
-    messages: InstanceType<typeof SunshineConversationsClient.MessagesApi>
-    webhooks: InstanceType<typeof SunshineConversationsClient.WebhooksApi>
-    integrations: InstanceType<typeof SunshineConversationsClient.IntegrationsApi>
-    switchboard: InstanceType<typeof SunshineConversationsClient.SwitchboardsApi>
-    switchboardActions: InstanceType<typeof SunshineConversationsClient.SwitchboardActionsApi>
-    switchboardIntegrations: InstanceType<typeof SunshineConversationsClient.SwitchboardIntegrationsApi>
+    apps: InstanceType<typeof SunshineConversationsApi.AppsApi>
+    users: InstanceType<typeof SunshineConversationsApi.UsersApi>
+    conversations: InstanceType<typeof SunshineConversationsApi.ConversationsApi>
+    messages: InstanceType<typeof SunshineConversationsApi.MessagesApi>
+    webhooks: InstanceType<typeof SunshineConversationsApi.WebhooksApi>
+    integrations: InstanceType<typeof SunshineConversationsApi.IntegrationsApi>
+    switchboard: InstanceType<typeof SunshineConversationsApi.SwitchboardsApi>
+    switchboardActions: InstanceType<typeof SunshineConversationsApi.SwitchboardActionsApi>
+    switchboardIntegrations: InstanceType<typeof SunshineConversationsApi.SwitchboardIntegrationsApi>
   }
 
   public constructor(config: SuncoConfiguration) {
     this._appId = config.appId
-    const apiClient = new SunshineConversationsClient.ApiClient()
+    const apiClient = new SunshineConversationsApi.ApiClient()
     const auth = apiClient.authentications['basicAuth']
     auth.username = config.keyId
     auth.password = config.keySecret
 
     this._client = {
-      apps: new SunshineConversationsClient.AppsApi(apiClient),
-      users: new SunshineConversationsClient.UsersApi(apiClient),
-      conversations: new SunshineConversationsClient.ConversationsApi(apiClient),
-      messages: new SunshineConversationsClient.MessagesApi(apiClient),
-      webhooks: new SunshineConversationsClient.WebhooksApi(apiClient),
-      integrations: new SunshineConversationsClient.IntegrationsApi(apiClient),
-      switchboard: new SunshineConversationsClient.SwitchboardsApi(apiClient),
-      switchboardActions: new SunshineConversationsClient.SwitchboardActionsApi(apiClient),
-      switchboardIntegrations: new SunshineConversationsClient.SwitchboardIntegrationsApi(apiClient),
+      apps: new SunshineConversationsApi.AppsApi(apiClient),
+      users: new SunshineConversationsApi.UsersApi(apiClient),
+      conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
+      messages: new SunshineConversationsApi.MessagesApi(apiClient),
+      webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
+      integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
+      switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
+      switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
+      switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
     }
   }
 
@@ -298,7 +298,7 @@ class SuncoClient {
       | { type: 'image'; mediaUrl: string }
       | { type: 'file'; mediaUrl: string; mediaType?: string }
     >
-  ): Promise<string> {
+  ): Promise<{ id: string }> {
     try {
       let messageId: string | undefined
 
@@ -358,13 +358,13 @@ class SuncoClient {
         throw new RuntimeError('Failed to send message')
       }
 
-      return messageId
+      return { id: messageId }
     } catch (thrown: unknown) {
       this._handleError(thrown, 'send message', { conversationId, messageParts })
     }
   }
 
-  public async createIntegration(integrationName: string, webhookUrl: string): Promise<{ integrationId: string }> {
+  public async createIntegration(integrationName: string, webhookUrl: string): Promise<{ id: string }> {
     const integrationPost: Record<string, unknown> = {
       type: 'custom',
       status: 'active',
@@ -393,14 +393,14 @@ class SuncoClient {
       }
 
       return {
-        integrationId: result.integration.id,
+        id: result.integration.id,
       }
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create integration', integrationPost)
     }
   }
 
-  public async createWebhook(integrationId: string, webhookUrl: string): Promise<string> {
+  public async createWebhook(integrationId: string, webhookUrl: string): Promise<{ id: string }> {
     const webhookPost: Record<string, unknown> = {
       target: webhookUrl,
       triggers: ['conversation:message', 'conversation:read'],
@@ -410,7 +410,7 @@ class SuncoClient {
 
     try {
       const result = await this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, webhookPost)
-      return result.webhook.id
+      return { id: result.webhook.id }
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create webhook', webhookPost, { integrationId })
     }
