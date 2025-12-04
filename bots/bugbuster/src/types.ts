@@ -34,3 +34,12 @@ export type StateAttributes = {
 }
 
 export type ISO8601Duration = string
+
+export type CommandResult = { success: boolean; message: string }
+export type CommandImplementation = (args: string[], conversationId: string) => CommandResult | Promise<CommandResult>
+export type CommandDefinition = {
+  name: string
+  argNames?: string
+  requiredArgsCount: number
+  implementation: CommandImplementation
+}
