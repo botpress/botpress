@@ -107,11 +107,13 @@ export class CommandProcessor {
       name: '#addTeam',
       implementation: this.addTeam,
       requiredArgsCount: 1,
+      argNames: '<teamName>',
     },
     {
       name: '#removeTeam',
       implementation: this.removeTeam,
       requiredArgsCount: 1,
+      argNames: '<teamName>',
     },
     {
       name: '#lintAll',
@@ -122,6 +124,7 @@ export class CommandProcessor {
       name: '#setNotifChannel',
       implementation: this.setNotifChannel,
       requiredArgsCount: 1,
+      argNames: '<channelName>',
     },
     {
       name: '#getNotifChannel',
