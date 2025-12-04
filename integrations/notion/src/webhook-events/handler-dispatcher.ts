@@ -25,10 +25,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     props.logger.forBot().error(`Handling webhook event failed: ${error.message}`)
+    return { status: 200 } // We return 200 to avoid retries
   }
 
   props.logger.forBot().error('Unsupported webhook event')
-  return { status: 200 } // We return 200 to avoid retries
+  return { status: 200 }
 }
 
 const _validatePayloadSignature = (props: bp.HandlerProps) => {
