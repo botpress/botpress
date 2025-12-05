@@ -186,9 +186,6 @@ class SuncoClient {
   public async getApp() {
     try {
       const result = await this._client.apps.getApp(this._appId)
-      if (!result?.app?.id) {
-        throw new RuntimeError('App retrieval succeeded but no app data returned')
-      }
 
       return result.app
     } catch (thrown: unknown) {
@@ -395,22 +392,18 @@ class SuncoClient {
     }
   }
 
-  public async listIntegrations() {
-    try {
-      return (await this._client.integrations.listIntegrations(this._appId)).integrations || []
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'list integrations')
-    }
-  }
-
   public async findIntegrationByDisplayNameOrThrow(displayName: string) {
-    const integrations = await this.listIntegrations()
-    const integration = integrations.find((int) => int.displayName === displayName)
-    if (!integration) {
-      throw new RuntimeError('Integration not found')
-    }
+    try {
+      const integrations = (await this._client.integrations.listIntegrations(this._appId)).integrations || []
+      const integration = integrations.find((int) => int.displayName === displayName)
+      if (!integration) {
+        throw new RuntimeError('Integration not found')
+      }
 
-    return integration
+      return integration
+    } catch (thrown: unknown) {
+      this._handleError(thrown, 'find integration by name', { displayName })
+    }
   }
 
   public async findSwitchboardIntegrationByNameOrThrow(switchboardId: string, name: string) {
@@ -461,6 +454,7 @@ class SuncoClient {
       this._handleError(thrown, 'pass control to switchboard', {
         conversationId,
         switchboardIntegrationId,
+        metadata,
       })
     }
   }
@@ -497,19 +491,9 @@ class SuncoClient {
     }
   }
 
-  public async listSwitchboards() {
-    try {
-      const result = await this._client.switchboard.listSwitchboards(this._appId)
-
-      return result.switchboards || []
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'list switchboards')
-    }
-  }
-
   public async getSwitchboardOrThrow() {
     try {
-      const switchboards = await this.listSwitchboards()
+      const switchboards = (await this._client.switchboard.listSwitchboards(this._appId)).switchboards || []
       if (switchboards.length === 0) {
         throw new RuntimeError('No switchboards found')
       } else if (switchboards.length > 1) {
