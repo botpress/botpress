@@ -2740,8 +2740,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
         version: 0.31.0
@@ -3923,6 +3923,10 @@ packages:
 
   '@bpinternal/zui@1.2.2':
     resolution: {integrity: sha512-Ngs3ySRoDTfWAeGYLnKLr4D4nvMh+MGlDt4vEzXnTzIWcvWK+u1CVPt81nr9ZgHzkhJkZEkZVgwbwADp7rQcrQ==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
+
+  '@bpinternal/zui@1.2.3':
+    resolution: {integrity: sha512-0tGOqZskA3o//PO1lbrkkkQOKiLnzeahp7wantz2d+aIIPkyEtA1FFZ3SdIIGDBiN0VuY3E3Bwx4zzmAosomoA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -12913,6 +12917,8 @@ snapshots:
   '@bpinternal/zui@1.2.1': {}
 
   '@bpinternal/zui@1.2.2': {}
+
+  '@bpinternal/zui@1.2.3': {}
 
   '@colors/colors@1.6.0': {}
 
