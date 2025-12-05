@@ -1,6 +1,6 @@
 import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
-import { truthyWithMessage } from '../spectral-functions'
+import { isTruthyElseFailMessage, truthyWithMessage } from '../spectral-functions'
 
 export const INTEGRATION_RULESET = {
   extends: [],
@@ -148,7 +148,18 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-3)}"`),
+          function: isTruthyElseFailMessage(
+            ({ path }) => {
+              return `configuration parameter "${path.at(-3)}"`
+            },
+            {
+              fallbackExtractor: (failedPath, jsonPathExtractor) => {
+                const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
+                const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.['x-zui'].title === 'string')
+                return match ? { value: match.value['x-zui'].title, path: match.resolvedPath } : null
+              },
+            }
+          ),
         },
       ],
     },
@@ -160,7 +171,13 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-2)}"`),
+          function: isTruthyElseFailMessage(({ path }) => `configuration parameter "${path.at(-2)}"`, {
+            fallbackExtractor: (failedPath, jsonPathExtractor) => {
+              const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
+              const match = jsonPathExtractor(newPath).find(({ value }) => typeof value.description === 'string')
+              return match ? { value: match.value.description, path: match.resolvedPath } : null
+            },
+          }),
         },
       ],
     },

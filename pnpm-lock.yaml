@@ -1356,6 +1356,22 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/lint-tester:
+    dependencies:
+      '@botpress/client':
+        specifier: 1.25.0
+        version: 1.25.0
+      '@botpress/sdk':
+        specifier: 4.15.11
+        version: 4.15.11(@bpinternal/zui@1.2.2)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/loops:
     dependencies:
       '@botpress/common':
@@ -2454,6 +2470,9 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
+      jsonpath-plus:
+        specifier: ^10.3.0
+        version: 10.3.0
       latest-version:
         specifier: 5.1.0
         version: 5.1.0
@@ -2482,6 +2501,9 @@ importers:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
+      '@stoplight/types':
+        specifier: ^14.1.1
+        version: 14.1.1
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
@@ -3851,6 +3873,20 @@ packages:
   '@botpress/api@1.55.1':
     resolution: {integrity: sha512-Nq37hVSTXQhc1/1SSxGurKIYpajUWiYIQPQ56dEToG9vrw25Guvh9JhVFiDqSOk44HaQR++r/5rNFrQ4fvQCHg==}
 
+  '@botpress/client@1.25.0':
+    resolution: {integrity: sha512-cQ4EY3WK/+oBE7vO6lR276lHLXoVB+1c6la+szcTgIz7sn9IMl9JtUbxgaGsQA+XVIpqPmw1UVsvferKWcMuEg==}
+    engines: {node: '>=18.0.0'}
+
+  '@botpress/sdk@4.15.11':
+    resolution: {integrity: sha512-3mlWQJZGzF3wbJknWYosmOWOPltrBPJqT+zzWsFjcPCHKPPbwter4qlwDDMwoT8Z5Xj7QEew6lwqQmIQtpCMjA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@bpinternal/zui': ^1.0.1
+      esbuild: ^0.16.12
+    peerDependenciesMeta:
+      esbuild:
+        optional: true
+
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
@@ -4775,8 +4811,20 @@ packages:
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
 
+  '@jsep-plugin/assignment@1.3.0':
+    resolution: {integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+
   '@jsep-plugin/regex@1.0.3':
     resolution: {integrity: sha512-XfZgry4DwEZvSFtS/6Y+R48D7qJYJK6R9/yJFyUFHCIUMEEHuJ4X95TDgJp5QkmzfLYvapMPzskV5HpIDrREug==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+
+  '@jsep-plugin/regex@1.0.4':
+    resolution: {integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==}
     engines: {node: '>= 10.16.0'}
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
@@ -8723,6 +8771,10 @@ packages:
     resolution: {integrity: sha512-i1rBX5N7VPl0eYb6+mHNp52sEuaS2Wi8CDYx1X5sn9naevL78+265XJqy1qENEk7mRKwS06NHpUqiBwR7qeodw==}
     engines: {node: '>= 10.16.0'}
 
+  jsep@1.4.0:
+    resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
+    engines: {node: '>= 10.16.0'}
+
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
@@ -8793,6 +8845,11 @@ packages:
 
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
+
+  jsonpath-plus@10.3.0:
+    resolution: {integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   jsonpath-plus@6.0.1:
     resolution: {integrity: sha512-EvGovdvau6FyLexFH2OeXfIITlgIbgZoAZe3usiySeaIDm5QS+A10DKNpaPBBqqRSZr2HN6HVNXxtwUAr2apEw==}
@@ -12774,6 +12831,23 @@ snapshots:
       - openapi-types
       - supports-color
 
+  '@botpress/client@1.25.0':
+    dependencies:
+      axios: 1.13.1
+      axios-retry: 4.5.0(axios@1.13.1)
+      browser-or-node: 2.1.1
+      qs: 6.13.0
+    transitivePeerDependencies:
+      - debug
+
+  '@botpress/sdk@4.15.11(@bpinternal/zui@1.2.2)':
+    dependencies:
+      '@botpress/client': 1.25.0
+      '@bpinternal/zui': 1.2.2
+      browser-or-node: 2.1.1
+    transitivePeerDependencies:
+      - debug
+
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.2.0':
@@ -13589,9 +13663,17 @@ snapshots:
 
   '@jsdevtools/ono@7.1.3': {}
 
+  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
+
   '@jsep-plugin/regex@1.0.3(jsep@1.3.9)':
     dependencies:
       jsep: 1.3.9
+
+  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
 
   '@jsep-plugin/ternary@1.1.3(jsep@1.3.9)':
     dependencies:
@@ -15775,6 +15857,11 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
+      is-retry-allowed: 2.2.0
+
+  axios-retry@4.5.0(axios@1.13.1):
+    dependencies:
+      axios: 1.13.1
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
@@ -18745,6 +18832,8 @@ snapshots:
 
   jsep@1.3.9: {}
 
+  jsep@1.4.0: {}
+
   jsesc@3.1.0: {}
 
   json-bigint@1.0.0:
@@ -18829,6 +18918,12 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  jsonpath-plus@10.3.0:
+    dependencies:
+      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
+      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
+      jsep: 1.4.0
 
   jsonpath-plus@6.0.1:
     optional: true
