@@ -1,4 +1,5 @@
-const SunshineConversationsClientModule = require('sunshine-conversations-client')
+// @ts-expect-error No types for sunshine-conversations-client
+import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
 // The typings below were generated using AI based on dist from sunshine-conversations-client
 
