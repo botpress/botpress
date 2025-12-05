@@ -3,7 +3,7 @@ import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
-  const { client, workflow, ctx } = props
+  const { client, workflow, ctx, conversation } = props
 
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
@@ -71,6 +71,12 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
     endCursor = pagedIssues.pagination?.endCursor
   } while (hasNextPage)
+
+  if (conversation?.id) {
+    await botpress.respondText(conversation.id, _buildResultMessage(lintResults)).catch(() => {})
+    return
+  }
+
   const {
     state: {
       payload: { channels },

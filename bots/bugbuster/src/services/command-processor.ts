@@ -28,6 +28,7 @@ export class CommandProcessor {
       message: `Success: the team with the key '${team}' has been added to the watched team list.`,
     }
   }
+
   private _removeTeam: types.CommandImplementation = async ([team]: string[]) => {
     if (!team) {
       return { success: false, message: MISSING_ARGS_ERROR }
