@@ -43,18 +43,18 @@ export default new sdk.BotDefinition({
     notificationChannels: {
       type: 'bot',
       schema: sdk.z.object({
-        channels: sdk.z.array(
-          sdk.z
-            .object({
+        channels: sdk.z
+          .array(
+            sdk.z.object({
               name: sdk.z.string().title('Name').describe('The channel name'),
               teams: sdk.z
                 .array(sdk.z.string())
                 .title('Teams')
                 .describe('The teams for which notifications will be sent to the channel'),
             })
-            .title('Channel')
-            .describe('The Slack channel where notifications will be sent')
-        ),
+          )
+          .title('Channel')
+          .describe('The Slack channel where notifications will be sent'),
       }),
     },
   },
