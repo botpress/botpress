@@ -40,14 +40,18 @@ export default new sdk.BotDefinition({
         ),
       }),
     },
-    notificationChannelName: {
+    notificationChannels: {
       type: 'bot',
       schema: sdk.z.object({
-        name: sdk.z
-          .string()
-          .optional()
-          .title('Notification Channel Name')
-          .describe('The Slack channel where notifications will be posted'),
+        channels: sdk.z.array(
+          sdk.z.object({
+            name: sdk.z
+              .string()
+              .title('Notification Channel Name')
+              .describe('The Slack channel where notifications will be posted'),
+            teams: sdk.z.array(sdk.z.string()),
+          })
+        ),
       }),
     },
   },
