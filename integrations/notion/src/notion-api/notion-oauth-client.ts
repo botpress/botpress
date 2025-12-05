@@ -16,7 +16,6 @@ export class NotionOAuthClient {
     this._notion = new NotionHQClient({})
   }
 
-  @handleErrors('Failed to get access token. Please reconfigure the integration.')
   public async getNewAccessToken() {
     const { authToken } = await this._getAuthState()
 

@@ -1,8 +1,9 @@
-import { DefaultBot } from './bot/common/generic'
-import { DefaultChannel, DefaultIntegration } from './integration/common/generic'
-import { DefaultPlugin } from './plugin/common/generic'
+import type { DefaultBot } from './bot/common/generic'
+import type { DefaultChannel, DefaultIntegration } from './integration/common/generic'
+import type { DefaultInterface } from './interface/common/generic'
+import type { DefaultPlugin } from './plugin/common/generic'
 
-type _FooBarBazIntegration = {
+export type FooBarBazIntegration = DefaultIntegration<{
   actions: {
     doFoo: {
       input: {
@@ -112,9 +113,9 @@ type _FooBarBazIntegration = {
       fooUserTag3: ''
     }
   }
-}
+}>
 
-type _TotoTutuTataInterface = {
+export type TotoTutuTataInterface = DefaultInterface<{
   actions: {
     doToto: {
       input: {
@@ -152,15 +153,76 @@ type _TotoTutuTataInterface = {
       eventTata: boolean
     }
   }
-}
-
-export type FooBarBazIntegration = DefaultIntegration<_FooBarBazIntegration>
-
-export type TotoTutuTataIntegration = DefaultIntegration<_TotoTutuTataInterface>
+  channels: {
+    channelFoo: DefaultChannel<{
+      messages: {
+        messageFoo: {
+          foo: string
+        }
+      }
+      message: {
+        tags: {
+          fooMessageTag1: ''
+          fooMessageTag2: ''
+          fooMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          fooConversationTag1: ''
+          fooConversationTag2: ''
+          fooConversationTag3: ''
+        }
+      }
+    }>
+    channelBar: DefaultChannel<{
+      messages: {
+        messageBar: {
+          bar: number
+        }
+      }
+      message: {
+        tags: {
+          barMessageTag1: ''
+          barMessageTag2: ''
+          barMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          barConversationTag1: ''
+          barConversationTag2: ''
+          barConversationTag3: ''
+        }
+      }
+    }>
+    channelBaz: DefaultChannel<{
+      messages: {
+        messageBaz: {
+          baz: boolean
+        }
+      }
+      message: {
+        tags: {
+          bazMessageTag1: ''
+          bazMessageTag2: ''
+          bazMessageTag3: ''
+        }
+      }
+      conversation: {
+        tags: {
+          bazConversationTag1: ''
+          bazConversationTag2: ''
+          bazConversationTag3: ''
+        }
+      }
+    }>
+  }
+}>
 
 export type FooBarBazBot = DefaultBot<{
   integrations: {
-    fooBarBaz: _FooBarBazIntegration
+    fooBarBaz: FooBarBazIntegration
   }
   actions: {
     act: {
@@ -197,10 +259,17 @@ export type FooBarBazBot = DefaultBot<{
 
 export type FooBarBazPlugin = DefaultPlugin<{
   integrations: {
-    fooBarBaz: _FooBarBazIntegration
+    fooBarBaz: FooBarBazIntegration
   }
   interfaces: {
-    totoTutuTata: _TotoTutuTataInterface
+    totoTutuTata: TotoTutuTataInterface
+  }
+  message: {
+    tags: {
+      pluginMessageTag1: ''
+      pluginMessageTag2: ''
+      pluginMessageTag3: ''
+    }
   }
   actions: {
     act: {
@@ -259,6 +328,7 @@ export type EmptyBot = DefaultBot<{
 
 export type EmptyPlugin = DefaultPlugin<{
   integrations: {}
+  interfaces: {}
   actions: {}
   events: {}
 }>

@@ -6,7 +6,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '2.0.2',
+  version: '2.0.3',
   title: 'Line',
   description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
@@ -29,7 +29,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Line conversation',
       description: 'Channel for a Line conversation',
-      messages: { ...messages.defaults },
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           msgId: {
