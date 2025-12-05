@@ -22,7 +22,7 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
     .sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',
-        event: 'gmail_api_error',
+        event: 'api_error',
         properties: {
           from: 'gmail_client',
           errorMessage: customMessage,

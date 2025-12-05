@@ -1,6 +1,6 @@
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { posthogHelper } from '@botpress/common'
 
 export const secrets = {
   ...sentryHelpers.COMMON_SECRET_NAMES,
