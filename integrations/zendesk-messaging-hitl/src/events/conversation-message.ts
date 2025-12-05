@@ -49,12 +49,12 @@ export async function handleConversationMessage(
 
   switch (messageContent.type) {
     case 'text':
-      if (!messageContent.text?.length || !messageContent.htmlText?.length) {
-        logger.forBot().warn('Text message received but no text or htmlText provided')
+      if (!messageContent.text?.length) {
+        logger.forBot().warn('Text message received but no text provided')
         return
       }
 
-      await createMessage('text', { text: messageContent.text || messageContent.htmlText })
+      await createMessage('text', { text: messageContent.text })
       break
     case 'image':
       await createMessage('image', { imageUrl: messageContent.mediaUrl })
