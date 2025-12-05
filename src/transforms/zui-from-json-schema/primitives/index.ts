@@ -32,34 +32,45 @@ export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSche
     values.push(schema.const)
   }
 
+  let zuiPrimitive
+
   const primitiveValues = values.filter((value): value is ZuiPrimitiveTypes[T] => typeof value === type)
   const [first] = primitiveValues
   if (!first) {
     if (type === 'string' && schema.type === 'string') {
-      return stringJSONSchemaToZuiString(schema as JSONSchema7 & { type: 'string' }) as ZuiPrimitiveSchemas[T]
+      zuiPrimitive = stringJSONSchemaToZuiString(schema as JSONSchema7 & { type: 'string' }) as ZuiPrimitiveSchemas[T]
     }
     if (type === 'number' && (schema.type === 'number' || schema.type === 'integer')) {
-      return numberJSONSchemaToZuiNumber(
+      zuiPrimitive = numberJSONSchemaToZuiNumber(
         schema as JSONSchema7 & { type: 'number' | 'integer' },
       ) as ZuiPrimitiveSchemas[T]
     }
     if (type === 'boolean') {
-      return z.boolean() as ZuiPrimitiveSchemas[T]
+      zuiPrimitive = z.boolean() as ZuiPrimitiveSchemas[T]
     }
     if (type === 'null') {
-      return z.null() as ZuiPrimitiveSchemas[T]
+      zuiPrimitive = z.null() as ZuiPrimitiveSchemas[T]
     }
-    throw new errs.JSONSchemaToZuiError(`Unknown primitive type: "${type}"`)
+
+    if (!zuiPrimitive) {
+      throw new errs.JSONSchemaToZuiError(`Unknown primitive type: "${type}"`)
+    }
+  } else {
+    if (primitiveValues.length === 1) {
+      zuiPrimitive = z.literal(first) satisfies z.ZodLiteral<ZuiPrimitiveTypes[T]>
+    } else {
+      const items = primitiveValues.map((value) => z.literal(value)) as [
+        z.ZodLiteral<ZuiPrimitiveTypes[T]>,
+        z.ZodLiteral<ZuiPrimitiveTypes[T]>,
+        ...z.ZodLiteral<ZuiPrimitiveTypes[T]>[],
+      ]
+      zuiPrimitive = z.union(items)
+    }
   }
 
-  if (primitiveValues.length === 1) {
-    return z.literal(first) satisfies z.ZodLiteral<ZuiPrimitiveTypes[T]>
+  if (schema.description) {
+    zuiPrimitive = zuiPrimitive.describe(schema.description) as ZuiPrimitiveSchemas[T]
   }
 
-  const items = primitiveValues.map((value) => z.literal(value)) as [
-    z.ZodLiteral<ZuiPrimitiveTypes[T]>,
-    z.ZodLiteral<ZuiPrimitiveTypes[T]>,
-    ...z.ZodLiteral<ZuiPrimitiveTypes[T]>[],
-  ]
-  return z.union(items)
+  return zuiPrimitive
 }

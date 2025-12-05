@@ -5,6 +5,7 @@ import { JSONSchema7 } from 'json-schema'
 import { Schema as ZuiJSONSchema } from '../common/json-schema'
 import { toJSONSchema } from '../zui-to-json-schema'
 import { toTypescriptType } from '../zui-to-typescript-type'
+import { toZuiPrimitive } from './primitives'
 
 const buildSchema = (s: JSONSchema7, xZui: ZuiJSONSchema['x-zui'] = undefined): JSONSchema7 => {
   return { ...s, 'x-zui': xZui } as JSONSchema7
@@ -1084,5 +1085,17 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
 
       expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
     })
+  })
+
+  test('should preserve the description with primitives', () => {
+    const num = toZuiPrimitive('number', { description: 'A number parameter', type: 'number' })
+    const str = toZuiPrimitive('string', { description: 'A string parameter', type: 'string' })
+    const bool = toZuiPrimitive('boolean', { description: 'A boolean parameter', type: 'boolean' })
+    const nul = toZuiPrimitive('null', { description: 'A null parameter', type: 'null' })
+
+    expect(num._def.description).toBe('A number parameter')
+    expect(str._def.description).toBe('A string parameter')
+    expect(bool._def.description).toBe('A boolean parameter')
+    expect(nul._def.description).toBe('A null parameter')
   })
 })
