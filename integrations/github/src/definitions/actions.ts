@@ -41,7 +41,22 @@ const findIssuesOrPullRequests = {
   ...findTarget,
 }
 
+const sendRawGraphqlQuery = {
+  input: {
+    schema: z.object({
+      query: z.string().title('Query').describe('The GraphQL query'),
+      parameters: z.record(z.any()).optional().title('Parameters').describe('The query parameters'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      result: z.unknown().title('Result').describe('The query result'),
+    }),
+  },
+}
+
 export const actions = {
   findTarget: { ...findTarget, attributes: { ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO } },
   findIssuesOrPullRequests,
+  sendRawGraphqlQuery,
 } satisfies sdk.IntegrationDefinitionProps['actions']

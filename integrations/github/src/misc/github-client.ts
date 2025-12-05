@@ -41,6 +41,10 @@ export class GitHubClient {
     return await this._octokit.graphql(GRAPHQL_QUERIES[queryName].query, variables)
   }
 
+  public async executeRawGraphqlQuery(query: string, parameters?: Record<string, any>) {
+    return await this._octokit.graphql(query, parameters)
+  }
+
   public async getAuthenticatedEntity() {
     if (!this._authenticatedEntity) {
       try {
