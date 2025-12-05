@@ -16,29 +16,29 @@ export class CommandProcessor {
     return { success: true, message: teams.join(', ') }
   }
 
-  private _addTeam: types.CommandImplementation = async (args: string[]) => {
-    if (!args[0]) {
+  private _addTeam: types.CommandImplementation = async ([team]: string[]) => {
+    if (!team) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
 
-    await this._teamsManager.addWatchedTeam(args[0])
+    await this._teamsManager.addWatchedTeam(team)
 
     return {
       success: true,
-      message: `Success: the team with the key '${args[0]}' has been added to the watched team list.`,
+      message: `Success: the team with the key '${team}' has been added to the watched team list.`,
     }
   }
 
-  private _removeTeam: types.CommandImplementation = async (args: string[]) => {
-    if (!args[0]) {
+  private _removeTeam: types.CommandImplementation = async ([team]: string[]) => {
+    if (!team) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
 
-    await this._teamsManager.removeWatchedTeam(args[0])
+    await this._teamsManager.removeWatchedTeam(team)
 
     return {
       success: true,
-      message: `Success: the team with the key '${args[0]}' has been removed from the watched team list.`,
+      message: `Success: the team with the key '${team}' has been removed from the watched team list.`,
     }
   }
 
@@ -57,20 +57,20 @@ export class CommandProcessor {
     }
   }
 
-  private _setNotifChannel: types.CommandImplementation = async (args: string[]) => {
-    if (!args[0]) {
+  private _setNotifChannel: types.CommandImplementation = async ([channel]: string[]) => {
+    if (!channel) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
     await this._client.setState({
       id: this._botId,
       name: 'notificationChannelName',
       type: 'bot',
-      payload: { name: args[0] },
+      payload: { name: channel },
     })
 
     return {
       success: true,
-      message: `Success. Notification channel is now set to ${args[0]}.`,
+      message: `Success. Notification channel is now set to ${channel}.`,
     }
   }
 
