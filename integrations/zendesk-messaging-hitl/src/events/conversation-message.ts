@@ -1,12 +1,5 @@
 import { ConversationMessageEvent } from 'src/sunshine-events'
-import {
-  Client,
-  Conversation,
-  CreateMessageInput,
-  CreateMessageInputPayload,
-  CreateMessageInputType,
-  Logger,
-} from 'src/types'
+import { Client, Conversation, CreateMessageInputPayload, CreateMessageInputType, Logger } from 'src/types'
 
 export async function handleConversationMessage(
   event: ConversationMessageEvent,
@@ -44,7 +37,7 @@ export async function handleConversationMessage(
       userId: user.id,
       conversationId: conversation.id,
       payload: messagePayload,
-    } as CreateMessageInput)
+    })
   }
 
   switch (messageContent.type) {
