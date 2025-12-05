@@ -99,7 +99,7 @@ COPY --chown=node:node --from=build /usr/src/app/integrations/chat/package.json 
 COPY --chown=node:node --from=build /usr/src/app/integrations/chat/.botpress ./integrations/chat/.botpress
 
 # Set working directory to the integration
-WORKDIR /usr/src/app/integrations/chat
+WORKDIR /usr/src/app/
 
 # Expose the port that the application listens on.
 EXPOSE 8072
