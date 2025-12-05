@@ -1,3 +1,5 @@
+import { z } from '@botpress/sdk'
+
 //https://developer.zendesk.com/api-reference/conversations/#tag/Webhooks/operation/EventWebhooks
 export type SuncoWebhookPayload = {
   events: SuncoEvent[]
@@ -102,11 +104,9 @@ export type SwitchboardReleaseControlEvent = {
 }
 
 export function isSuncoWebhookPayload(data: unknown): data is SuncoWebhookPayload {
-  if (typeof data !== 'object' || data === null) {
-    return false
-  }
-  if (!('events' in data)) {
-    return false
-  }
-  return Array.isArray(data?.events)
+  return z
+    .object({
+      events: z.array(z.unknown()),
+    })
+    .safeParse(data).success
 }
