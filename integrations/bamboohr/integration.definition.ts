@@ -40,6 +40,9 @@ export default new IntegrationDefinition({
     OAUTH_CLIENT_ID: {
       description: 'The OAuth Client ID provided by BambooHR from the developer portal.',
     },
+    POSTHOG_KEY: {
+      description: 'The PostHog key for error dashboards.',
+    },
   },
   states: {
     oauth: {
