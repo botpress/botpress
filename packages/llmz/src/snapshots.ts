@@ -238,7 +238,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
   /**
    * Resets the snapshot status back to pending.
    *
-   * This allows a previously resolved or rejected snapshot to be resolved/rejectedsnapshot
+   * This allows a previously resolved or rejected snapshot to be resolved/rejected
    * again with different data. Useful for retry scenarios.
    */
   public reset() {
