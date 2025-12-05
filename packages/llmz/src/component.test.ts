@@ -16,7 +16,7 @@ describe('getComponentReference', () => {
       **Props:**
 
       - \`action: "say" | "url" | "postback"\` (optional) — The action to perform when the button is clicked. Can be "say", "url", or "postback" _Default: \`say\`_
-      - \`label: string\` **(required)** — The text displayed on the button
+      - \`label: string\` **(required)** — The text displayed on the button (min 1 character, max 250 characters)
       - \`value: string\` (optional) — The postback value to send when the button is clicked. Required if action is "postback"
       - \`url: string\` (optional) — The URL to open when the button is clicked. Required if action is "url"
 
@@ -38,7 +38,9 @@ describe('getComponentReference', () => {
 
       \`\`\`tsx
       yield <Message>
+        Choose an option:
         <Button action="postback" label="Buy" value="buy_product" />
+        <Button action="postback" label="Buy" value="buy_product2" />
       </Message>
       \`\`\`
 
@@ -63,6 +65,7 @@ describe('getComponentReference', () => {
 
       \`\`\`tsx
       yield <Message>
+        An example image:
         <Image url="https://example.com/photo.jpg" alt="Example image" />
       </Message>
       \`\`\`
@@ -88,6 +91,7 @@ describe('getComponentReference', () => {
 
       \`\`\`tsx
       yield <Message>
+        Here is your report:
         <File url="https://example.com/report.pdf" name="Report.pdf" />
       </Message>
       \`\`\`
@@ -221,16 +225,12 @@ describe('getComponentReference', () => {
 
       _No props._
 
-      **Children:**
-
-      _None allowed._
-
       **Examples:**
 
       **Basic Markdown** — Simple markdown content inside a message
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
         **Hello**, welcome to our service!
       </Message>
       \`\`\`"
