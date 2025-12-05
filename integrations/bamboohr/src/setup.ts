@@ -118,4 +118,8 @@ export const unregister: bp.Integration['unregister'] = async (props) => {
     })
 
   logger.forBot().info('Unregistered webhook.')
+
+  await client.configureIntegration({
+    identifier: null,
+  })
 }
