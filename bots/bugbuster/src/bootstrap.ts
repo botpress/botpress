@@ -1,4 +1,5 @@
 import { IssueProcessor } from './services/issue-processor'
+import { IssueStateChecker } from './services/issue-state-checker'
 import { RecentlyLintedManager } from './services/recently-linted-manager'
 import { TeamsManager } from './services/teams-manager'
 import * as types from './types'
@@ -10,8 +11,9 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
 
   const linear = utils.linear.LinearApi.create()
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
-  const recentlyLintedManager = new RecentlyLintedManager(client, ctx.botId)
+  const recentlyLintedManager = new RecentlyLintedManager(linear)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
+  const issueStateChecker = new IssueStateChecker(linear, logger)
 
   return {
     botpress,
@@ -19,5 +21,6 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
     teamsManager,
     recentlyLintedManager,
     issueProcessor,
+    issueStateChecker,
   }
 }
