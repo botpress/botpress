@@ -28,7 +28,6 @@ export class CommandProcessor {
       message: `Success: the team with the key '${team}' has been added to the watched team list.`,
     }
   }
-
   private _removeTeam: types.CommandImplementation = async ([team]: string[]) => {
     if (!team) {
       return { success: false, message: MISSING_ARGS_ERROR }
@@ -141,6 +140,52 @@ export class CommandProcessor {
     }
   }
 
+  private _removeNotifChannelTeam: types.CommandImplementation = async ([channelToRemove, teamToRemove]: string[]) => {
+    if (!channelToRemove || !teamToRemove) {
+      return { success: false, message: MISSING_ARGS_ERROR }
+    }
+
+    const {
+      state: {
+        payload: { channels },
+      },
+    } = await this._client.getOrSetState({
+      id: this._botId,
+      name: 'notificationChannels',
+      type: 'bot',
+      payload: { channels: [] },
+    })
+
+    const channel = channels.find((channel) => channel.name === channelToRemove)
+    if (!channel) {
+      return {
+        success: false,
+        message: `channel '${channelToRemove}' is not part of the notification channels.`,
+      }
+    }
+
+    if (!channel.teams.find((team) => team === teamToRemove)) {
+      return {
+        success: false,
+        message: `channel ${channel.name} does not receive notifications from team '${teamToRemove}'.`,
+      }
+    }
+
+    channel.teams = channel.teams.filter((team) => team !== teamToRemove)
+
+    await this._client.setState({
+      id: this._botId,
+      name: 'notificationChannels',
+      type: 'bot',
+      payload: { channels },
+    })
+
+    return {
+      success: true,
+      message: `Team ${teamToRemove} has been removed from channel ${channelToRemove}.`,
+    }
+  }
+
   private _listNotifChannels: types.CommandImplementation = async () => {
     const {
       state: {
@@ -202,6 +247,11 @@ export class CommandProcessor {
       name: '#removeNotifChannel',
       implementation: this._removeNotifChannel,
       requiredArgs: ['channelName'],
+    },
+    {
+      name: '#removeNotifChannelTeam',
+      implementation: this._removeNotifChannelTeam,
+      requiredArgs: ['channelName', 'teamName'],
     },
     {
       name: '#listNotifChannels',
