@@ -275,7 +275,7 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
         const fn = new Function(assignment.evalFn)
         const assignmentValue = fn(value)
         this.variables = [...this.variables, ...parseVariables(assignmentValue)]
-      } catch (error) {}
+      } catch {}
     }
 
     this.#status = { type: 'resolved', value }
