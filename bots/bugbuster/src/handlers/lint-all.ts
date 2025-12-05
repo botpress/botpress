@@ -3,14 +3,11 @@ import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
-  const { client, workflow, conversation } = props
-
-  const conversationId = conversation?.id
+  const { client, workflow, ctx } = props
 
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
-  const _handleError = (context: string) => (thrown: unknown) =>
-    botpress.handleError({ context, conversationId }, thrown)
+  const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
 
   const {
     state: {
@@ -74,9 +71,27 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     hasNextPage = pagedIssues.pagination?.hasNextPage ?? false
     endCursor = pagedIssues.pagination?.endCursor
   } while (hasNextPage)
+  const {
+    state: {
+      payload: { channels },
+    },
+  } = await client.getOrSetState({
+    id: ctx.botId,
+    name: 'notificationChannels',
+    type: 'bot',
+    payload: { channels: [] },
+  })
 
-  if (conversationId) {
-    await botpress.respondText(conversationId, _buildResultMessage(lintResults)).catch(() => {})
+  for (const channel of channels) {
+    const conversationId = await _getConversationId(client, channel.name).catch(
+      _handleError(`trying to get the conversation ID of Slack channel '${channel.name}'`)
+    )
+
+    const relevantIssues = lintResults.filter((result) =>
+      channel.teams.some((team) => result.identifier.includes(team))
+    )
+
+    await botpress.respondText(conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
   }
 
   await workflow.setCompleted()
@@ -102,4 +117,14 @@ const _buildResultMessage = (results: types.LintResult[]) => {
   }
 
   return `Linting complete. ${messageDetail}`
+}
+
+const _getConversationId = async (client: bp.Client, channelName: string) => {
+  const conversation = await client.callAction({
+    type: 'slack:startChannelConversation',
+    input: {
+      channelName,
+    },
+  })
+  return conversation.output.conversationId
 }
