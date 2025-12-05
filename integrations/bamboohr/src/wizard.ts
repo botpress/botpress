@@ -126,13 +126,15 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, responses, client, 
 
   const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback')
 
-  const { state: oauthState } = await client.getState({
-    type: 'integration',
-    name: 'oauth',
-    id: ctx.integrationId,
-  }).catch((thrown) => {
-    throw new Error('OAuth state not found', { cause: thrown })
-  })
+  const { state: oauthState } = await client
+    .getState({
+      type: 'integration',
+      name: 'oauth',
+      id: ctx.integrationId,
+    })
+    .catch((thrown) => {
+      throw new Error('OAuth state not found', { cause: thrown })
+    })
 
   const subdomain = oauthState.payload.domain
 

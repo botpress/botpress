@@ -34,6 +34,6 @@ export const safeParseJson = <T>(str: string): ParseResult<T> => {
     return { success: true, data: parsed }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown.message : String(thrown)
-    return { success: false, error: error }
+    return { success: false, error }
   }
 }

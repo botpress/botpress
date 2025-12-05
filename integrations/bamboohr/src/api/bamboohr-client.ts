@@ -7,9 +7,9 @@ import {
   bambooHrEmployeeDirectoryResponse,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
+import * as types from '../types'
 import { BambooHRAuthorization, getCurrentBambooHrAuthorization, refreshBambooHrAuthorization } from './auth'
 import { parseResponseWithErrors } from './utils'
-import * as types from '../types'
 
 const getHeaders = (authorization: string) => ({
   Authorization: authorization,
@@ -112,9 +112,7 @@ export class BambooHRClient {
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await res.json()
     if ('fields' in result) {
-      return result.fields
-        .map((field: { alias: string }) => field.alias)
-        .filter((field: string) => field !== null)
+      return result.fields.map((field: { alias: string }) => field.alias).filter((field: string) => field !== null)
     }
     return []
   }

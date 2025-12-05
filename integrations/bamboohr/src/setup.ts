@@ -1,7 +1,7 @@
 import { BambooHRClient } from './api/bamboohr-client'
 
-import * as bp from '.botpress'
 import { BambooHRRuntimeError } from './error-handling'
+import * as bp from '.botpress'
 
 export const register: bp.Integration['register'] = async (props) => {
   const { client, ctx, logger, webhookUrl } = props
@@ -34,7 +34,7 @@ export const register: bp.Integration['register'] = async (props) => {
   const fields = await bambooHrClient.getMonitoredFields().catch((thrown) => {
     throw BambooHRRuntimeError.from(thrown, 'Error getting monitored fields')
   })
-  
+
   logger.forBot().info('Setting up webhook with BambooHR...')
   try {
     const { state } = await client.getOrSetState({
@@ -45,7 +45,6 @@ export const register: bp.Integration['register'] = async (props) => {
     })
 
     if (!state.payload.id) {
-
       const { id, privateKey } = await bambooHrClient.createWebhook(webhookUrl, fields)
 
       await client.setState({
@@ -59,7 +58,6 @@ export const register: bp.Integration['register'] = async (props) => {
     throw BambooHRRuntimeError.from(thrown, 'Error registering BambooHR webhook')
   }
   logger.forBot().info('Registered webhook.')
-  
 }
 
 export const unregister: bp.Integration['unregister'] = async (props) => {

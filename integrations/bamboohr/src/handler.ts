@@ -1,10 +1,10 @@
 import { bambooHrEmployeeWebhookEvent } from 'definitions'
 import { validateBambooHrSignature } from './api/signing'
 import { safeParseJson } from './api/utils'
+import { BambooHRRuntimeError } from './error-handling'
 import { handleEmployeeCreatedEvent, handleEmployeeDeletedEvent, handleEmployeeUpdatedEvent } from './events'
 import { handler as oauthHandler } from './handlers/oauth'
 import * as bp from '.botpress'
-import { BambooHRRuntimeError } from './error-handling'
 
 const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path.startsWith('/oauth')
 

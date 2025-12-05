@@ -1,5 +1,5 @@
-import { createHmac, timingSafeEqual } from 'crypto'
 import * as sdk from '@botpress/sdk'
+import { createHmac, timingSafeEqual } from 'crypto'
 
 export type ValidateBambooHrSignatureResult =
   | {

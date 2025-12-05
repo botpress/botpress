@@ -1,6 +1,6 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
-import * as bp from '.botpress'
 import * as types from '../types'
+import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
 
@@ -113,7 +113,7 @@ export const refreshBambooHrAuthorization = async (
     return previousAuth
   }
 
-  let oauth = previousAuth
+  const oauth = previousAuth
 
   const { accessToken, expiresAt, refreshToken, scopes } = await _fetchBambooHrOauthToken({
     subdomain: oauth.domain,
@@ -145,10 +145,7 @@ export const refreshBambooHrAuthorization = async (
  *
  * Exchanges code for token, saves token in state, and configures integration with identifier and subdomain.
  */
-export const handleOauthRequest = async (
-  { ctx, client, req, logger }: bp.HandlerProps,
-  subdomain: string
-) => {
+export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.HandlerProps, subdomain: string) => {
   const code = new URLSearchParams(req.query).get('code')
   const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
 
