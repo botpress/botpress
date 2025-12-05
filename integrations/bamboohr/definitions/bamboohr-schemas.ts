@@ -14,7 +14,6 @@ export const bambooHrOauthTokenResponse = z.object({
 
 export const bambooHrWebhookCreateResponse = z.object({
   id: z.string().title('Webhook ID').describe('The unique identifier for the created webhook.'),
-  created: z.string().title('Created At').describe('The timestamp at which the webhook was created.'),
   privateKey: z.string().title('Private Key').describe('The private key to validate incoming webhooks.'),
 })
 

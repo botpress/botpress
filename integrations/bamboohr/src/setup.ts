@@ -36,14 +36,6 @@ export const register: bp.Integration['register'] = async (props) => {
   })
   
   logger.forBot().info('Setting up webhook with BambooHR...')
-  if (ctx.configurationType === 'manual') {
-    await bambooHrClient.createWebhook(webhookUrl, fields).catch((thrown) => {
-      throw BambooHRRuntimeError.from(thrown, 'Error creating BambooHR webhook')
-    })
-    return
-  }
-
-  // OAuth implementation for webhook registration
   try {
     const { state } = await client.getOrSetState({
       name: 'webhook',
@@ -66,8 +58,8 @@ export const register: bp.Integration['register'] = async (props) => {
   } catch (thrown) {
     throw BambooHRRuntimeError.from(thrown, 'Error registering BambooHR webhook')
   }
-
   logger.forBot().info('Registered webhook.')
+  
 }
 
 export const unregister: bp.Integration['unregister'] = async (props) => {
