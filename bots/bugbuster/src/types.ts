@@ -39,7 +39,7 @@ type CommandResult = { success: boolean; message: string }
 export type CommandImplementation = (args: string[], conversationId: string) => CommandResult | Promise<CommandResult>
 export type CommandDefinition = {
   name: string
-  argNames?: string
-  requiredArgsCount: number
+  requiredArgs?: string[]
+  optionalArgs?: string[]
   implementation: CommandImplementation
 }

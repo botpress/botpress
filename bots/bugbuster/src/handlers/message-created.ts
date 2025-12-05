@@ -42,10 +42,10 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
     return
   }
 
-  if (args.length < commandDefinition.requiredArgsCount) {
+  if (commandDefinition.requiredArgs && args.length < commandDefinition.requiredArgs?.length) {
     await botpress.respondText(
       conversation.id,
-      `Error: a minimum of ${commandDefinition.requiredArgsCount} argument(s) is required.`
+      `Error: a minimum of ${commandDefinition.requiredArgs.length} argument(s) is required.`
     )
     return
   }
@@ -62,6 +62,13 @@ export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
 }
 
 const _buildListCommandsMessage = (definitions: CommandDefinition[]) => {
-  const commands = definitions.map((def) => `${def.name} ${def.argNames ?? ''}`).join('\n')
+  const commands = definitions.map(_buildCommandMessage).join('\n')
   return `Unknown command. Here's a list of possible commands:\n${commands}`
+}
+
+const _buildCommandMessage = (definition: CommandDefinition) => {
+  const requiredArgs = definition.requiredArgs?.map((arg) => `<${arg}>`).join(' ')
+  const optionalArgs = definition.optionalArgs?.map((arg) => `[${arg}]`).join(' ')
+
+  return `${definition.name} ${requiredArgs ?? ''} ${optionalArgs ?? ''}`
 }

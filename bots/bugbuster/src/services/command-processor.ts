@@ -11,12 +11,12 @@ export class CommandProcessor {
     private _botId: string
   ) {}
 
-  public listTeams: types.CommandImplementation = async () => {
+  private _listTeams: types.CommandImplementation = async () => {
     const teams = await this._teamsManager.listWatchedTeams()
     return { success: true, message: teams.join(', ') }
   }
 
-  public addTeam: types.CommandImplementation = async (args: string[]) => {
+  private _addTeam: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -29,7 +29,7 @@ export class CommandProcessor {
     }
   }
 
-  public removeTeam: types.CommandImplementation = async (args: string[]) => {
+  private _removeTeam: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -42,7 +42,7 @@ export class CommandProcessor {
     }
   }
 
-  public lintAll: types.CommandImplementation = async (_: string[], conversationId: string) => {
+  private _lintAll: types.CommandImplementation = async (_: string[], conversationId: string) => {
     await this._client.getOrCreateWorkflow({
       name: 'lintAll',
       input: {},
@@ -57,7 +57,7 @@ export class CommandProcessor {
     }
   }
 
-  public setNotifChannel: types.CommandImplementation = async (args: string[]) => {
+  private _setNotifChannel: types.CommandImplementation = async (args: string[]) => {
     if (!args[0]) {
       return { success: false, message: MISSING_ARGS_ERROR }
     }
@@ -74,7 +74,7 @@ export class CommandProcessor {
     }
   }
 
-  public getNotifChannel: types.CommandImplementation = async () => {
+  private _getNotifChannel: types.CommandImplementation = async () => {
     const {
       state: {
         payload: { name },
@@ -100,36 +100,30 @@ export class CommandProcessor {
   public commandDefinitions: types.CommandDefinition[] = [
     {
       name: '#listTeams',
-      implementation: this.listTeams,
-      requiredArgsCount: 0,
+      implementation: this._listTeams,
     },
     {
       name: '#addTeam',
-      implementation: this.addTeam,
-      requiredArgsCount: 1,
-      argNames: '<teamName>',
+      implementation: this._addTeam,
+      requiredArgs: ['teamName'],
     },
     {
       name: '#removeTeam',
-      implementation: this.removeTeam,
-      requiredArgsCount: 1,
-      argNames: '<teamName>',
+      implementation: this._removeTeam,
+      requiredArgs: ['teamName'],
     },
     {
       name: '#lintAll',
-      implementation: this.lintAll,
-      requiredArgsCount: 0,
+      implementation: this._lintAll,
     },
     {
       name: '#setNotifChannel',
-      implementation: this.setNotifChannel,
-      requiredArgsCount: 1,
-      argNames: '<channelName>',
+      implementation: this._setNotifChannel,
+      requiredArgs: ['channelName'],
     },
     {
       name: '#getNotifChannel',
-      implementation: this.getNotifChannel,
-      requiredArgsCount: 0,
+      implementation: this._getNotifChannel,
     },
   ]
 }
