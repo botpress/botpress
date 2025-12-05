@@ -145,14 +145,15 @@ export const refreshBambooHrAuthorization = async (
  *
  * Exchanges code for token, saves token in state, and configures integration with identifier and subdomain.
  */
-export const handleOauthRequest = async ({ ctx, client, req, logger }: bp.HandlerProps) => {
+export const handleOauthRequest = async (
+  { ctx, client, req, logger }: bp.HandlerProps,
+  subdomain: string
+) => {
   const code = new URLSearchParams(req.query).get('code')
   const redirectUri = new URLSearchParams(req.query).get('redirect_uri')
 
   if (!code || !redirectUri) throw new Error('Missing authentication code or redirect URI')
-
-  const subdomain = new URL(redirectUri).hostname.split('.')[1] // This takes "botpress" from "webhook.botpress.com"
-  if (!subdomain) throw new Error('Invalid redirect URI')
+  if (!subdomain) throw new Error('Subdomain is required')
 
   const { ...oauthState } = await _fetchBambooHrOauthToken({
     subdomain,

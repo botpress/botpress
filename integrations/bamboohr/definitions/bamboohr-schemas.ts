@@ -23,10 +23,6 @@ export const bambooHrEmployeeWebhookFields = z.object({
   firstName: z.string().title('First Name').describe("Employee's first name."),
   lastName: z.string().title('Last Name').describe("Employee's last name."),
   preferredName: z.string().nullable().optional().title('Preferred Name').describe("Employee's preferred name."),
-  jobTitle: z.string().nullable().optional().title('Job Title').describe("Employee's job title."),
-  department: z.string().nullable().optional().title('Department').describe("Employee's department."),
-  division: z.string().nullable().optional().title('Division').describe("Employee's division."),
-  location: z.string().nullable().optional().title('Location').describe("Employee's work location."),
   mobilePhone: z.string().nullable().optional().title('Mobile Phone').describe("Employee's mobile phone number."),
   workPhone: z.string().nullable().optional().title('Work Phone').describe("Employee's work phone number."),
   workPhoneExtension: z
@@ -39,13 +35,6 @@ export const bambooHrEmployeeWebhookFields = z.object({
   workEmail: z.string().nullable().optional().title('Work Email').describe("Employee's work email address."),
   homeEmail: z.string().nullable().optional().title('Home Email').describe("Employee's home email address."),
   hireDate: z.string().nullable().optional().title('Hire Date').describe("Employee's hire date (YYYY-MM-DD)."),
-  terminationDate: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Termination Date')
-    .describe("Employee's termination date (YYYY-MM-DD)."),
-  status: z.literal('Active').or(z.literal('Inactive')).title('Status').describe("Employee's status."),
 })
 
 const bambooHrEmployeeBaseEvent = z.object({

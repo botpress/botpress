@@ -29,41 +29,45 @@ export const register: bp.Integration['register'] = async (props) => {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw BambooHRRuntimeError.from(error, 'Error authorizing BambooHR integration')
   })
-
   logger.forBot().info('Integration is authorized.')
 
+  const fields = await bambooHrClient.getMonitoredFields().catch((thrown) => {
+    throw BambooHRRuntimeError.from(thrown, 'Error getting monitored fields')
+  })
+  
+  logger.forBot().info('Setting up webhook with BambooHR...')
   if (ctx.configurationType === 'manual') {
-    try {
-      // OAuth implementation for webhook registration
-
-      // const { state } = await client.getOrSetState({
-      //   name: 'webhook',
-      //   type: 'integration',
-      //   id: ctx.integrationId,
-      //   payload: { id: null, privateKey: null },
-      // })
-
-      // if (!state.payload.id) {
-      //   logger.forBot().info('Setting up webhook with BambooHR...')
-
-      //   const { id, privateKey } = await bambooHrClient.createWebhook(webhookUrl)
-
-      //   await client.setState({
-      //     type: 'integration',
-      //     name: 'webhook',
-      //     id: ctx.integrationId,
-      //     payload: { id, privateKey },
-      //   })
-
-      //   logger.forBot().info('Registered webhook.')
-      // }
-
-      await bambooHrClient.createWebhook(webhookUrl)
-      logger.forBot().info('Registered webhook.')
-    } catch (thrown) {
-      throw BambooHRRuntimeError.from(thrown, 'Error registering BambooHR webhook')
-    }
+    await bambooHrClient.createWebhook(webhookUrl, fields).catch((thrown) => {
+      throw BambooHRRuntimeError.from(thrown, 'Error creating BambooHR webhook')
+    })
+    return
   }
+
+  // OAuth implementation for webhook registration
+  try {
+    const { state } = await client.getOrSetState({
+      name: 'webhook',
+      type: 'integration',
+      id: ctx.integrationId,
+      payload: { id: null, privateKey: null },
+    })
+
+    if (!state.payload.id) {
+
+      const { id, privateKey } = await bambooHrClient.createWebhook(webhookUrl, fields)
+
+      await client.setState({
+        type: 'integration',
+        name: 'webhook',
+        id: ctx.integrationId,
+        payload: { id, privateKey },
+      })
+    }
+  } catch (thrown) {
+    throw BambooHRRuntimeError.from(thrown, 'Error registering BambooHR webhook')
+  }
+
+  logger.forBot().info('Registered webhook.')
 }
 
 export const unregister: bp.Integration['unregister'] = async (props) => {

@@ -64,6 +64,7 @@ const _oauthRedirectHandler: WizardHandler = async ({ inputValue, responses, ctx
   const scopes = [
     'email',
     'openid',
+    'webhooks',
     'webhooks.write',
     'offline_access',
     'field',
@@ -125,20 +126,33 @@ const _oauthCallbackHandler: WizardHandler = async ({ query, responses, client, 
 
   const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback')
 
+  const { state: oauthState } = await client.getState({
+    type: 'integration',
+    name: 'oauth',
+    id: ctx.integrationId,
+  }).catch((thrown) => {
+    throw new Error('OAuth state not found', { cause: thrown })
+  })
+
+  const subdomain = oauthState.payload.domain
+
   try {
     // Complete OAuth flow with the subdomain
-    await handleOauthRequest({
-      req: {
-        query: `code=${code}&redirect_uri=${redirectUri.toString()}`,
-        path: '/oauth',
-        body: '',
-        method: 'GET',
-        headers: {},
+    await handleOauthRequest(
+      {
+        req: {
+          query: `code=${code}&redirect_uri=${redirectUri.toString()}`,
+          path: '/oauth',
+          body: '',
+          method: 'GET',
+          headers: {},
+        },
+        client,
+        ctx,
+        logger,
       },
-      client,
-      ctx,
-      logger,
-    })
+      subdomain
+    )
 
     return responses.displayButtons({
       pageTitle: 'Setup Complete',

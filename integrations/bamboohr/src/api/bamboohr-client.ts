@@ -5,7 +5,6 @@ import {
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
   bambooHrEmployeeDirectoryResponse,
-  bambooHrEmployeeWebhookFields,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
 import { BambooHRAuthorization, getCurrentBambooHrAuthorization, refreshBambooHrAuthorization } from './auth'
@@ -71,10 +70,12 @@ export class BambooHRClient {
     return res.ok
   }
 
-  public async createWebhook(webhookUrl: string): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
+  public async createWebhook(
+    webhookUrl: string,
+    fields: string[]
+  ): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
     const url = new URL(`${this._baseUrl}/webhooks`)
 
-    const fields = bambooHrEmployeeWebhookFields.keyof().options
     const body = JSON.stringify({
       name: this._props.ctx.integrationId,
       monitorFields: fields.filter((field) => field !== 'terminationDate'), // terminationDate returns error on monitor
@@ -105,6 +106,18 @@ export class BambooHRClient {
   }
 
   // API Methods
+
+  public async getMonitoredFields(): Promise<string[]> {
+    const url = new URL(`${this._baseUrl}/webhooks/monitor_fields`)
+    const res = await this._makeRequest({ method: 'GET', url })
+    const result = await res.json()
+    if ('fields' in result) {
+      return result.fields
+        .map((field: { alias: string }) => field.alias)
+        .filter((field: string) => field !== null)
+    }
+    return []
+  }
 
   public async getCompanyInfo(): Promise<z.infer<typeof bambooHrCompanyInfo>> {
     const url = new URL(`${this._baseUrl}/company_information`)
