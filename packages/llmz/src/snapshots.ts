@@ -270,7 +270,6 @@ export class Snapshot implements Serializable<Snapshot.JSON> {
     }
 
     const assignment = this.toolCall?.assignment
-
     if (assignment) {
       try {
         const fn = new Function(assignment.evalFn)
