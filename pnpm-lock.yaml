@@ -542,6 +542,9 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
