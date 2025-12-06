@@ -25,6 +25,7 @@ export class TeamsManager {
     if (!teamKeys.includes(key)) {
       throw new Error(`The team with the key '${key}' is not currently being watched.`)
     }
+    await this._setWatchedTeams(teamKeys.filter((team) => team !== key))
   }
 
   public async listWatchedTeams(): Promise<string[]> {
