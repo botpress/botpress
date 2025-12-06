@@ -460,4 +460,11 @@ export const handlers = {
         },
       }),
   }),
+  initializeConversation: (props: types.OperationProps, req: types.AuthenticatedInputs['initializeConversation']) => ({
+    mapRequest: async () => {
+      const authUserId = await props.userIdStore.byFid.get(req.auth.userId)
+      return merge(req, { auth: { userId: authUserId } })
+    },
+    mapResponse: async (res) => res,
+  }),
 } satisfies FidHandlers
