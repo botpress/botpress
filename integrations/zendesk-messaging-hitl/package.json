@@ -1,0 +1,26 @@
+{
+  "name": "@botpresshub/zendesk-messaging-hitl",
+  "description": "Zendesk Messaging HITL integration for Botpress",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "sunshine-conversations-client": "^9.12.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
+  }
+}
