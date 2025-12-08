@@ -1,3 +1,4 @@
+import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 import { isIssueTitleFormatValid } from './issue-title-format-validator'
 
@@ -5,7 +6,7 @@ export type IssueLint = {
   message: string
 }
 
-export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise<IssueLint[]> => {
+export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] => {
   const lints: string[] = []
 
   if (!_hasLabelOfCategory(issue, 'type')) {
@@ -15,13 +16,13 @@ export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise
   const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
   const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
 
-  if (status === 'BLOCKED' && !issue.assignee) {
+  if (state === 'BLOCKED' && !issue.assignee) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
   }
-  if (status === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
+  if (state === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but missing a "blocked" label or a blocking issue.`)
   }
-  if (status === 'BACKLOG' && issue.assignee) {
+  if (state === 'BACKLOG' && issue.assignee) {
     lints.push(`Issue ${issue.identifier} has an assignee but is still in the backlog.`)
   }
 
@@ -34,7 +35,7 @@ export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise
     lints.push(`Issue ${issue.identifier} is missing a priority.`)
   }
 
-  if (issue.estimate === null && status !== 'BLOCKED') {
+  if (issue.estimate === null && state !== 'BLOCKED') {
     // blocked issues can be unestimated
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
@@ -57,7 +58,7 @@ export const lintIssue = async (issue: lin.Issue, status: lin.StateKey): Promise
     )
   }
 
-  const issueProject = await issue.project
+  const issueProject = issue.project
   if (issueProject && issueProject.completedAt) {
     lints.push(
       `Issue ${issue.identifier} is associated with a completed project (${issueProject.name}). Consider removing the project association.`

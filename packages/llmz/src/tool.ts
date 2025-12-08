@@ -332,14 +332,16 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    * @internal
    */
   public get zOutput() {
-    if (!this.output) {
-      return z.void()
+    let output: ZodType = z.void()
+    if (this.output) {
+      try {
+        output = transforms.fromJSONSchema(this.output)
+      } catch {
+        output = transforms.fromJSONSchemaLegacy(this.output)
+      }
     }
-    try {
-      return transforms.fromJSONSchema(this.output)
-    } catch {
-      return transforms.fromJSONSchemaLegacy(this.output)
-    }
+
+    return z.promise(output)
   }
 
   /**
