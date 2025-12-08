@@ -1,4 +1,5 @@
 import { IFunctionResult, RulesetFunctionContext } from '@stoplight/spectral-core'
+import { IDocument } from '@stoplight/spectral-core/dist/document'
 import type { JsonPath } from '@stoplight/types'
 import { JSONPath } from 'jsonpath-plus'
 
@@ -30,6 +31,7 @@ type FallbackExtractor = (
   jsonPathExtractor: (fallbackGiven: string) => { resolvedPath: JsonPath; value: any }[]
 ) => FallbackResult
 
+/** Parses the equivalent of Stoplight's JsonPath from the JsonPath-plus "pointer" output */
 const _parseJsonPathPointer = (pointer: string): JsonPath => {
   return pointer
     .replace(/^\//, '')
@@ -47,14 +49,33 @@ const _safeHasProp = (obj: unknown, key: string) => {
   return {}.hasOwnProperty.call(obj ?? {}, key)
 }
 
+const useJsonPathExtractor = (schemaDocument: IDocument) => {
+  return (fallbackGiven: string) => {
+    const output = JSONPath({
+      path: fallbackGiven,
+      json: schemaDocument.data as object,
+      resultType: 'all',
+    }) as any[]
+
+    // There is a "path" property, but it's serialized in a way that is harder to parse than "pointer"
+    if (!output.every((result) => _safeHasProp(result, 'value') && _safeHasProp(result, 'pointer'))) {
+      throw new Error("Fallback JSONPath output is missing either one or both the 'value' or 'pointer' property")
+    }
+
+    return output.map((result) => {
+      const resolvedPath = _parseJsonPathPointer(result.pointer)
+      return { resolvedPath, value: result.value }
+    })
+  }
+}
+
+type TruthyWithMessageOptions = {
+  fallbackExtractor?: FallbackExtractor
+}
+
 // The logic in this function will eventully replace `truthyWithMessage`
 export const isTruthyElseFailMessage =
-  (
-    failMsgSupplier: MessageFn,
-    options: {
-      fallbackExtractor?: FallbackExtractor
-    }
-  ) =>
+  (failMsgSupplier: MessageFn, options: TruthyWithMessageOptions) =>
   (input: string, _: unknown, context: RulesetFunctionContext) => {
     const messages: IFunctionResult[] = []
 
@@ -62,26 +83,12 @@ export const isTruthyElseFailMessage =
       return messages
     }
 
+    const { path } = context
     if (!options.fallbackExtractor) {
-      const message = failMsgSupplier({ path: context.path, isFallback: false })
+      const message = failMsgSupplier({ path, isFallback: false })
       messages.push({ message })
     } else {
-      const { path, document } = context
-      const jsonPathExtractor = (fallbackGiven: string) => {
-        const jsonSchema = document.data
-        const output = JSONPath({ path: fallbackGiven, json: jsonSchema as object, resultType: 'all' }) as any[]
-
-        // There is a "path" property, but it's serialized and is harder to parse than "pointer"
-        if (!output.every((result) => _safeHasProp(result, 'value') && _safeHasProp(result, 'pointer'))) {
-          throw new Error("Fallback JSONPath output is missing either one or both the 'value' or 'pointer' property")
-        }
-
-        return output.map((result) => {
-          const resolvedPath = _parseJsonPathPointer(result.pointer)
-          return { resolvedPath, value: result.value }
-        })
-      }
-
+      const jsonPathExtractor = useJsonPathExtractor(context.document)
       try {
         const fallbackResult = options.fallbackExtractor(path, jsonPathExtractor)
         if (fallbackResult === null || isFalsy(fallbackResult.value)) {
