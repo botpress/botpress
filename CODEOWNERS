@@ -23,13 +23,13 @@
 /packages/zai @allardy @slvnperron @botpress/squid @botpress/leads
 
 # Bots
-/bots @botpress/squid @botpress/kraken @botpress/leads
+/bots @botpress/shell @botpress/squid @botpress/kraken @botpress/leads
 
 # Plugins
-/plugins @botpress/squid @botpress/kraken @botpress/leads
+/plugins @botpress/shell @botpress/leads
 
 # Integrations
-/integrations @botpress/squid @botpress/leads
+/integrations @botpress/shell @botpress/leads
 
 ## Utils
 /integrations/browser @allardy @botpress/starfish @botpress/leads

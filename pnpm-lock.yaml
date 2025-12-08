@@ -2643,8 +2643,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2743,8 +2743,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
         version: 0.31.0
@@ -2846,8 +2846,8 @@ importers:
         specifier: 1.27.2
         version: link:../client
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2886,8 +2886,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: 1.2.1
-        version: 1.2.1
+        specifier: 1.2.3
+        version: 1.2.3
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2932,8 +2932,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.2.3
+        version: 1.2.3
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -3920,12 +3920,8 @@ packages:
   '@bpinternal/yargs-extra@0.0.3':
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
 
-  '@bpinternal/zui@1.2.1':
-    resolution: {integrity: sha512-zx5/IXu6OBwDlAyfQcm2PctBweMxrKYhGZno/dh7hKinyKK8wJKNbOD/weDLG0RDpvffekv/Nxyx240wTLmY4Q==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-
-  '@bpinternal/zui@1.2.2':
-    resolution: {integrity: sha512-Ngs3ySRoDTfWAeGYLnKLr4D4nvMh+MGlDt4vEzXnTzIWcvWK+u1CVPt81nr9ZgHzkhJkZEkZVgwbwADp7rQcrQ==}
+  '@bpinternal/zui@1.2.3':
+    resolution: {integrity: sha512-0tGOqZskA3o//PO1lbrkkkQOKiLnzeahp7wantz2d+aIIPkyEtA1FFZ3SdIIGDBiN0VuY3E3Bwx4zzmAosomoA==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -12913,9 +12909,7 @@ snapshots:
       yargs: 17.7.2
       yn: 4.0.0
 
-  '@bpinternal/zui@1.2.1': {}
-
-  '@bpinternal/zui@1.2.2': {}
+  '@bpinternal/zui@1.2.3': {}
 
   '@colors/colors@1.6.0': {}
 

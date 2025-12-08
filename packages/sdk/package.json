@@ -30,7 +30,7 @@
     "tsup": "^8.0.2"
   },
   "peerDependencies": {
-    "@bpinternal/zui": "1.2.1",
+    "@bpinternal/zui": "1.2.3",
     "esbuild": "^0.16.12"
   },
   "peerDependenciesMeta": {
