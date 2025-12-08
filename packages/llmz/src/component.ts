@@ -151,8 +151,6 @@ export function getComponentReference(component: ComponentDefinition): string {
     default:
       doc += '**Props:**\n\n'
       doc += getPropsDoc(component.default.props)
-      doc += '**Children:**\n\n'
-      doc += getChildrenDoc(component.default.children)
       doc += getExamplesDoc(component.examples)
       break
   }
