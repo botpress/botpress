@@ -542,12 +542,12 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/jsonwebtoken':
         specifier: ^9.0.3
         version: 9.0.3
@@ -2466,9 +2466,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      nimma:
-        specifier: ^0.7.2
-        version: 0.7.2
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -9396,10 +9393,6 @@ packages:
   nimma@0.2.2:
     resolution: {integrity: sha512-V52MLl7BU+tH2Np9tDrIXK8bql3MVUadnMIl/0/oZSGC9keuro0O9UUv9QKp0aMvtN8HRew4G7byY7H4eWsxaQ==}
     engines: {node: ^12.20 || >=14.13}
-
-  nimma@0.7.2:
-    resolution: {integrity: sha512-C8fBUhKxqMh/XosH4I+N/+RRYCeetffu12INdRKwuMq9TKV8uIYyzjgZS7B5cPxtU0KDFihaByW56e+aw2eVPw==}
-    engines: {node: '>=18'}
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -19686,10 +19679,6 @@ snapshots:
     optionalDependencies:
       jsonpath-plus: 6.0.1
       lodash.topath: 4.5.2
-
-  nimma@0.7.2:
-    dependencies:
-      astring: 1.9.0
 
   no-case@3.0.4:
     dependencies:
