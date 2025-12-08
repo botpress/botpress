@@ -1,72 +1,42 @@
-import { isBrowser } from 'browser-or-node'
-import * as onNewMessageHandler from './onNewMessageHandler'
-import { updateAllConversations } from './updateAllConversations'
+import * as errorWrapper from './error-wrapper'
+import * as handlers from './handlers'
 import * as bp from '.botpress'
-
-const HOUR_MILLISECONDS = 60 * 60 * 1000
 
 const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.afterIncomingMessage('*', async (props) => {
-  if (isBrowser) {
-    return
-  }
-  const conversation = await props.conversations['*']['*'].getById({ id: props.data.conversationId })
-  await onNewMessageHandler.onNewMessage({ ...props, conversation })
+plugin.on.afterIncomingMessage(
+  '*',
+  errorWrapper.wrap(handlers.handleAfterIncomingMessage, 'trying to process incoming message')
+)
 
-  if (props.configuration.aiEnabled) {
-    const events = await props.events.updateAiInsight.list({ status: 'scheduled' }).take(1)
+plugin.on.afterOutgoingMessage(
+  '*',
+  errorWrapper.wrap(handlers.handleAfterOutgoingMessage, 'trying to process outgoing message')
+)
 
-    if (events.length === 0) {
-      const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
-      await props.events.updateAiInsight.schedule({}, { dateTime })
-    }
-  }
+plugin.on.event('updateAiInsight', errorWrapper.wrap(handlers.handleUpdateAiInsight, 'trying to update AI insight'))
 
-  return undefined
-})
+plugin.on.workflowStart(
+  'updateAllConversations',
+  errorWrapper.wrap(handlers.handleStartUpdateAllConversations, 'trying to start the updateAllConversations workflow')
+)
 
-plugin.on.afterOutgoingMessage('*', async (props) => {
-  if (isBrowser) {
-    return
-  }
-  const conversation = await props.conversations['*']['*'].getById({ id: props.data.message.conversationId })
-  await onNewMessageHandler.onNewMessage({ ...props, conversation })
-  return undefined
-})
+plugin.on.workflowContinue(
+  'updateAllConversations',
+  errorWrapper.wrap(
+    handlers.handleContinueUpdateAllConversations,
+    'trying to continue the updateAllConversations workflow'
+  )
+)
 
-plugin.on.event('updateAiInsight', async (props) => {
-  if (isBrowser) {
-    props.logger.error('This event is not supported by the browser')
-    return
-  }
-
-  const workflows = await props.workflows.updateAllConversations
-    .listInstances({ statuses: ['pending', 'cancelled', 'listening', 'paused'] })
-    .take(1)
-
-  if (workflows.length === 0) {
-    await props.workflows.updateAllConversations.startNewInstance({ input: {} })
-  }
-})
-
-plugin.on.workflowStart('updateAllConversations', async (props) => {
-  props.logger.info('Starting updateAllConversations workflow')
-  await updateAllConversations(props)
-
-  return undefined
-})
-
-plugin.on.workflowContinue('updateAllConversations', async (props) => {
-  await updateAllConversations(props)
-
-  return undefined
-})
-
-plugin.on.workflowTimeout('updateAllConversations', async (props) => {
-  await props.workflow.setFailed({ failureReason: 'Workflow timed out' })
-})
+plugin.on.workflowTimeout(
+  'updateAllConversations',
+  errorWrapper.wrap(
+    handlers.handleStartUpdateAllConversations,
+    'trying to process the timeout of the updateAllConversations workflow'
+  )
+)
 
 export default plugin

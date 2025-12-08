@@ -10,7 +10,7 @@ export const onNewMessage = async (props: OnNewMessageProps) => {
     .listParticipants()
     .takeAll()
     .then((participants) => participants.length)
-
+  // throw new Error('testError')
   await props.conversation.update({
     tags: {
       message_count: message_count.toString(),
