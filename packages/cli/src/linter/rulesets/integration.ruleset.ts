@@ -1,6 +1,6 @@
 import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
-import { isTruthyElseFailMessage, truthyWithMessage } from '../spectral-functions'
+import { truthyWithMessage } from '../spectral-functions'
 
 export const INTEGRATION_RULESET = {
   extends: [],
@@ -148,7 +148,7 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: isTruthyElseFailMessage({
+          function: truthyWithMessage({
             failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-3)}"`,
             fallbackExtractor: (failedPath, jsonPathExtractor) => {
               const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
@@ -167,7 +167,7 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: isTruthyElseFailMessage({
+          function: truthyWithMessage({
             failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-2)}"`,
             fallbackExtractor: (failedPath, jsonPathExtractor) => {
               const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
