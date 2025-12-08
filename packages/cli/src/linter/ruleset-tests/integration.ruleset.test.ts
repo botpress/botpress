@@ -694,6 +694,23 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     // assert
     expect(results).toHaveLength(0)
   })
+
+  // e.g. When there is a ".nullable()" before the ".title()" on an object schema
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const properties = {
+      [paramName]: { anyOf: [{ type: 'object', 'x-zui': { title: TRUTHY_STRING } }, { type: 'null' }], 'x-zui': {} },
+    }
+    const definition = {
+      configuration: { schema: { properties } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
 })
 
 describeRule('configuration-fields-must-have-a-description', (lint) => {
@@ -731,6 +748,23 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       configuration: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  // e.g. When there is a ".nullable()" before the ".describe()" on an object schema
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const properties = {
+      [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] },
+    }
+    const definition = {
+      configuration: { schema: { properties } },
     } as const satisfies PartialIntegration
 
     // act
