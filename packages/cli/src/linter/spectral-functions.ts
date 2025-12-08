@@ -17,7 +17,7 @@ type FallbackExtractor = (
   jsonPathExtractor: (fallbackGiven: string) => { resolvedPath: JsonPath; value: any }[]
 ) => { path: JsonPath; value: string } | null
 
-const isFalsy = (input: string): boolean => {
+const _isFalsy = (input: string): boolean => {
   return !input
 }
 
@@ -27,7 +27,7 @@ const isFalsy = (input: string): boolean => {
 export const truthyWithMessage = (fn: MessageFn) => (input: string, _: unknown, context: RulesetFunctionContext) => {
   const messages: IFunctionResult[] = []
 
-  if (isFalsy(input)) {
+  if (_isFalsy(input)) {
     const message = fn({ path: context.path, isFallback: false })
     messages.push({ message })
   }
@@ -83,7 +83,7 @@ export function isTruthyElseFailMessage(failMsgSupplierOrOptions: MessageFn | Tr
   return (input: string, _: unknown, context: RulesetFunctionContext) => {
     const messages: IFunctionResult[] = []
 
-    if (!isFalsy(input)) {
+    if (!_isFalsy(input)) {
       return messages
     }
 
@@ -95,7 +95,7 @@ export function isTruthyElseFailMessage(failMsgSupplierOrOptions: MessageFn | Tr
       const jsonPathFn = _extractJsonPath.bind(null, context.document)
       try {
         const fallbackResult = fallbackExtractor(path, jsonPathFn)
-        if (fallbackResult === null || isFalsy(fallbackResult.value)) {
+        if (fallbackResult === null || _isFalsy(fallbackResult.value)) {
           const isFallback = fallbackResult !== null
           const resolvedPath = isFallback ? fallbackResult.path : path
 
