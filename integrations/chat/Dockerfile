@@ -25,7 +25,7 @@ COPY ./packages /usr/app/packages
 COPY ./tsconfig.json /usr/app/tsconfig.json
 
 
-COPY integrations/chat ./chat
+COPY integrations/chat ./integrations/chat
 
 COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 
@@ -34,17 +34,17 @@ COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 
 # Install build tools, install all deps (build native addons), rebuild from source, then remove build tools
 RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --dir integrations/chat
 
 # Use production node environment by default.
 ENV NODE_ENV=production
 
-RUN echo -e "const server = require('./chat/.botpress/dist/index.cjs')\nserver.default.start()" > server.js
+RUN echo "const server = require('./integrations/chat/.botpress/dist/index.cjs')\nserver.default.start()" > server.js
 
 RUN pnpm --filter @botpress/cli run bundle
 
-
-RUN node ./packages/cli/dist/cli.js build --workDir ./chat
+RUN node ./packages/cli/dist/cli.js build --workDir ./integrations/chat
 
 WORKDIR /usr/app
 
-CMD ["node", "./packages/cli/dist/cli.js", "serve"]
+CMD ["node", "server.js"]
