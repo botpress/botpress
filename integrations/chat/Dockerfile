@@ -39,12 +39,16 @@ RUN pnpm install --frozen-lockfile --dir integrations/chat
 # Use production node environment by default.
 ENV NODE_ENV=production
 
-RUN echo "const server = require('./integrations/chat/.botpress/dist/index.cjs')\nserver.default.start()" > server.js
 
 RUN pnpm --filter @botpress/cli run bundle
 
 RUN node ./packages/cli/dist/cli.js build --workDir ./integrations/chat
 
 WORKDIR /usr/app
+
+FROM node:${NODE_VERSION}-bullseye-slim AS deploy
+
+COPY --from=base usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
+RUN echo "const server = require('./index.cjs')\nserver.default.start()" > server.js
 
 ENTRYPOINT ["node", "server.js"]
