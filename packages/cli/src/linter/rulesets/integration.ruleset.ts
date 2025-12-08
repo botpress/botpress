@@ -148,20 +148,14 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: isTruthyElseFailMessage(
-            ({ path }) => {
-              return `configuration parameter "${path.at(-3)}"`
+          function: isTruthyElseFailMessage({
+            failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-3)}"`,
+            fallbackExtractor: (failedPath, jsonPathExtractor) => {
+              const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
+              const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.['x-zui']?.title === 'string')
+              return match ? { value: match.value['x-zui'].title, path: match.resolvedPath } : null
             },
-            {
-              fallbackExtractor: (failedPath, jsonPathExtractor) => {
-                const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
-                const match = jsonPathExtractor(newPath).find(
-                  ({ value }) => typeof value?.['x-zui']?.title === 'string'
-                )
-                return match ? { value: match.value['x-zui'].title, path: match.resolvedPath } : null
-              },
-            }
-          ),
+          }),
         },
       ],
     },
@@ -173,7 +167,8 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: isTruthyElseFailMessage(({ path }) => `configuration parameter "${path.at(-2)}"`, {
+          function: isTruthyElseFailMessage({
+            failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-2)}"`,
             fallbackExtractor: (failedPath, jsonPathExtractor) => {
               const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
               const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.description === 'string')
