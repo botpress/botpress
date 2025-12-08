@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { blockSchema } from './schemas/block-schemas'
+import { blockSchema } from 'definitions/schemas/block-schemas'
 
 export const actions = {
   addPageToDb: {
