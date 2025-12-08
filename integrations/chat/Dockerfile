@@ -94,15 +94,18 @@ COPY --chown=node:node package.json pnpm-workspace.yaml ./
 COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=deps /usr/src/app/packages ./packages
 
+# Copy built cli
+COPY --chown=node:node --from=build /usr/src/app/packages/cli/dist ./packages/cli/dist
+
 # Copy the chat integration package.json and built output
 COPY --chown=node:node --from=build /usr/src/app/integrations/chat/package.json ./integrations/chat/
 COPY --chown=node:node --from=build /usr/src/app/integrations/chat/.botpress ./integrations/chat/.botpress
 
 # Set working directory to the integration
-WORKDIR /usr/src/app/
+WORKDIR /usr/src/app
 
 # Expose the port that the application listens on.
 EXPOSE 8072
 
 # Run the application.
-CMD ["pnpm", "bp", "serve"]
+CMD ["node", "./packages/cli/dist/cli.js", "serve"]
