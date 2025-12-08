@@ -7,20 +7,6 @@ import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
   states: {
-    recentlyLinted: {
-      type: 'bot',
-      schema: sdk.z.object({
-        issues: sdk.z
-          .array(
-            sdk.z.object({
-              id: sdk.z.string(),
-              lintedAt: sdk.z.string().datetime(),
-            })
-          )
-          .title('Recently Linted Issues')
-          .describe('List of recently linted issues'),
-      }),
-    },
     watchedTeams: {
       type: 'bot',
       schema: sdk.z.object({
@@ -54,14 +40,21 @@ export default new sdk.BotDefinition({
         ),
       }),
     },
-    notificationChannelName: {
+    notificationChannels: {
       type: 'bot',
       schema: sdk.z.object({
-        name: sdk.z
-          .string()
-          .optional()
-          .title('Notification Channel Name')
-          .describe('The Slack channel where notifications will be posted'),
+        channels: sdk.z
+          .array(
+            sdk.z.object({
+              name: sdk.z.string().title('Name').describe('The channel name'),
+              teams: sdk.z
+                .array(sdk.z.string())
+                .title('Teams')
+                .describe('The teams for which notifications will be sent to the channel'),
+            })
+          )
+          .title('Channel')
+          .describe('The Slack channel where notifications will be sent'),
       }),
     },
   },
@@ -75,6 +68,9 @@ export default new sdk.BotDefinition({
     timeToLintAll: {
       schema: sdk.z.object({}),
     },
+    timeToCheckIssuesState: {
+      schema: sdk.z.object({}),
+    },
   },
   recurringEvents: {
     timeToLintAll: {
@@ -82,6 +78,13 @@ export default new sdk.BotDefinition({
       type: 'timeToLintAll',
       schedule: {
         cron: '0 8 * * 1',
+      },
+    },
+    timeToCheckIssuesState: {
+      payload: sdk.z.object({}),
+      type: 'timeToCheckIssuesState',
+      schedule: {
+        cron: '0 * * * *',
       },
     },
   },

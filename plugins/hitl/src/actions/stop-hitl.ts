@@ -30,12 +30,7 @@ export const stopHitl: bp.PluginProps['actions']['stopHitl'] = async (props) => 
     upstreamConversationId,
   })
 
-  await downstreamCm.respond({
-    type: 'text',
-    text: sessionConfig.onUserHitlCancelledMessage?.length
-      ? sessionConfig.onUserHitlCancelledMessage
-      : DEFAULT_USER_HITL_CANCELLED_MESSAGE,
-  })
+  await downstreamCm.maybeRespondText(sessionConfig.onUserHitlCancelledMessage, DEFAULT_USER_HITL_CANCELLED_MESSAGE)
 
   await Promise.allSettled([
     upstreamCm.setHitlInactive(conv.HITL_END_REASON.CLOSE_ACTION_CALLED),

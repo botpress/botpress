@@ -1,24 +1,13 @@
 import * as lin from '@linear/sdk'
 import * as utils from '..'
 import * as genenv from '../../../.genenv'
+import * as types from '../../types'
 import * as graphql from './graphql-queries'
 
 const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
-export type TeamKey = (typeof TEAM_KEYS)[number]
+type TeamKey = (typeof TEAM_KEYS)[number]
 
-const STATE_KEYS = [
-  'IN_PROGRESS',
-  'MERGED_STAGING',
-  'PRODUCTION_DONE',
-  'BACKLOG',
-  'TODO',
-  'TRIAGE',
-  'CANCELED',
-  'BLOCKED',
-  'STALE',
-] as const
-export type StateKey = (typeof STATE_KEYS)[number]
-type State = { state: lin.WorkflowState; key: StateKey }
+type State = { state: lin.WorkflowState; key: types.StateKey }
 
 const RESULTS_PER_PAGE = 200
 
@@ -40,6 +29,9 @@ export class LinearApi {
   }
 
   public async getMe(): Promise<lin.User> {
+    if (this._viewer) {
+      return this._viewer
+    }
     const me = await this._client.viewer
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')
@@ -71,11 +63,13 @@ export class LinearApi {
     filter: {
       teamKeys: string[]
       issueNumber?: number
-      statusesToOmit?: StateKey[]
+      statesToOmit?: types.StateKey[]
+      statesToInclude?: types.StateKey[]
+      updatedBefore?: types.ISO8601Duration
     },
     nextPage?: string
   ): Promise<{ issues: graphql.Issue[]; pagination?: graphql.Pagination }> {
-    const { teamKeys, issueNumber, statusesToOmit } = filter
+    const { teamKeys, issueNumber, statesToOmit, statesToInclude, updatedBefore } = filter
 
     const teams = await this.getTeams()
     const teamsExist = teamKeys.every((key) => teams.some((team) => team.key === key))
@@ -83,20 +77,17 @@ export class LinearApi {
       return { issues: [] }
     }
 
-    const states = await this.getStates()
-    const stateNamesToOmit = statusesToOmit?.map((key) => {
-      const matchingStates = states.filter((state) => state.key === key)
-      if (matchingStates[0]) {
-        return matchingStates[0].state.name
-      }
-      return ''
-    })
-
     const queryInput: graphql.GRAPHQL_QUERIES['listIssues'][graphql.QUERY_INPUT] = {
       filter: {
         team: { key: { in: teamKeys } },
         ...(issueNumber && { number: { eq: issueNumber } }),
-        ...(stateNamesToOmit && { state: { name: { nin: stateNamesToOmit } } }),
+        state: {
+          name: {
+            ...(statesToOmit && { nin: await this._stateKeysToStates(statesToOmit) }),
+            ...(statesToInclude && { in: await this._stateKeysToStates(statesToInclude) }),
+          },
+        },
+        ...(updatedBefore && { updatedAt: { lt: updatedBefore } }),
       },
       ...(nextPage && { after: nextPage }),
       first: RESULTS_PER_PAGE,
@@ -120,7 +111,7 @@ export class LinearApi {
     return label || undefined
   }
 
-  public async issueStatus(issue: graphql.Issue): Promise<StateKey> {
+  public async issueState(issue: graphql.Issue): Promise<types.StateKey> {
     const states = await this.getStates()
     const state = states.find((s) => s.state.id === issue.state.id)
     if (!state) {
@@ -174,7 +165,7 @@ export class LinearApi {
     return this._states
   }
 
-  public async getStateRecords(): Promise<Record<TeamKey, Record<StateKey, lin.WorkflowState>>> {
+  public async getStateRecords(): Promise<Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>> {
     if (!this._states) {
       const states = await LinearApi._listAllStates(this._client)
       this._states = LinearApi._toStateObjects(states)
@@ -182,15 +173,15 @@ export class LinearApi {
     const safeStates = this._states
     const teams = await this.getTeamRecords()
 
-    return new Proxy({} as Record<TeamKey, Record<StateKey, lin.WorkflowState>>, {
+    return new Proxy({} as Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>, {
       get: (_, teamKey: TeamKey) => {
         const teamId = teams[teamKey].id
         if (!teamId) {
           throw new Error(`Team with key "${teamKey}" not found.`)
         }
 
-        return new Proxy({} as Record<StateKey, lin.WorkflowState>, {
-          get: (_, stateKey: StateKey) => {
+        return new Proxy({} as Record<types.StateKey, lin.WorkflowState>, {
+          get: (_, stateKey: types.StateKey) => {
             const state = safeStates.find((s) => s.key === stateKey && s.state.teamId === teamId)
 
             if (!state) {
@@ -200,6 +191,17 @@ export class LinearApi {
           },
         })
       },
+    })
+  }
+
+  private async _stateKeysToStates(keys: types.StateKey[]) {
+    const states = await this.getStates()
+    return keys?.map((key) => {
+      const matchingStates = states.filter((state) => state.key === key)
+      if (matchingStates[0]) {
+        return matchingStates[0].state.name
+      }
+      return ''
     })
   }
 
@@ -228,7 +230,7 @@ export class LinearApi {
   private static _toStateObjects(states: lin.WorkflowState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
-      const key = utils.string.toScreamingSnakeCase(state.name) as StateKey
+      const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey
       stateObjects.push({ key, state })
     }
     return stateObjects

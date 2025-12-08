@@ -58,7 +58,7 @@ const getSystemMessage: Prompt['getSystemMessage'] = async (props) => {
 `
   }
 
-  for (const tool of props.globalTools) {
+  for (const tool of props.globalTools.filter((t) => t.name.toLowerCase() !== 'message')) {
     dts += (await tool.getTypings()) + '\n'
     tool_names.push(tool.name)
   }
