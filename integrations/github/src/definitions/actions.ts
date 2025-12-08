@@ -45,7 +45,16 @@ const sendRawGraphqlQuery = {
   input: {
     schema: z.object({
       query: z.string().title('Query').describe('The GraphQL query'),
-      parameters: z.record(z.any()).optional().title('Parameters').describe('The query parameters'),
+      parameters: z
+        .array(
+          z.object({
+            name: z.string().title('Name').describe('The parameter name'),
+            value: z.any().title('Value').describe('The parameter value'),
+          })
+        )
+        .optional()
+        .title('Parameters')
+        .describe('The query parameters'),
     }),
   },
   output: {
