@@ -47,4 +47,4 @@ RUN node ./packages/cli/dist/cli.js build --workDir ./integrations/chat
 
 WORKDIR /usr/app
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["node", "server.js"]
