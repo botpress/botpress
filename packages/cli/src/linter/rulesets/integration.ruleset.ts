@@ -170,7 +170,7 @@ export const INTEGRATION_RULESET = {
           function: truthyWithMessage({
             failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-2)}"`,
             fallbackExtractor: (failedPath, jsonPathExtractor) => {
-              const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
+              const newPath = `$.${failedPath.slice(0, -1).join('.')}.anyOf[*]`
               const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.description === 'string')
               return match ? { value: match.value.description, path: match.resolvedPath } : null
             },
