@@ -155,7 +155,9 @@ export const INTEGRATION_RULESET = {
             {
               fallbackExtractor: (failedPath, jsonPathExtractor) => {
                 const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
-                const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.['x-zui'].title === 'string')
+                const match = jsonPathExtractor(newPath).find(
+                  ({ value }) => typeof value?.['x-zui']?.title === 'string'
+                )
                 return match ? { value: match.value['x-zui'].title, path: match.resolvedPath } : null
               },
             }
@@ -174,7 +176,7 @@ export const INTEGRATION_RULESET = {
           function: isTruthyElseFailMessage(({ path }) => `configuration parameter "${path.at(-2)}"`, {
             fallbackExtractor: (failedPath, jsonPathExtractor) => {
               const newPath = `$.${failedPath.slice(0, -2).join('.')}.anyOf[*]`
-              const match = jsonPathExtractor(newPath).find(({ value }) => typeof value.description === 'string')
+              const match = jsonPathExtractor(newPath).find(({ value }) => typeof value?.description === 'string')
               return match ? { value: match.value.description, path: match.resolvedPath } : null
             },
           }),
