@@ -1,6 +1,7 @@
 import { IFunctionResult, RuleDefinition, RulesetFunctionContext } from '@stoplight/spectral-core'
 import type { JsonPath } from '@stoplight/types'
 import { JSONPath } from 'jsonpath-plus'
+import { Logger } from '../logger'
 
 type SpectralDocument = RulesetFunctionContext['document']
 type RulesetThenFn = Exclude<RuleDefinition['then'], Array<any>>['function']
@@ -58,7 +59,9 @@ export function truthyWithMessage(failMsgSupplierOrOptions: MessageFn | TruthyWi
         }
       } catch (thrown: unknown) {
         const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-        console.error(`Ruleset failed in either the fallback extractor or the message supplier -> ${error.message}`)
+        new Logger().error(
+          `Ruleset failed in either the fallback extractor or the message supplier -> ${error.message}`
+        )
       }
     }
 
