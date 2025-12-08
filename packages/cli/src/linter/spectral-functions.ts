@@ -52,7 +52,9 @@ export function truthyWithMessage(failMsgSupplierOrOptions: MessageFn | TruthyWi
           const resolvedPath = isFallback ? fallbackResult.path : path
 
           if (!Array.isArray(resolvedPath)) {
-            throw new Error('The resolved path was not provided')
+            // This is likely due to a mistake in the fallbackExtractor,
+            // which is easy to make since there are "any" types involved
+            throw new Error('The resolved path was not provided or is invalid')
           }
 
           const message = failMsgSupplier({ path: resolvedPath, isFallback })
