@@ -1,7 +1,8 @@
 import { IFunctionResult, RulesetFunctionContext } from '@stoplight/spectral-core'
-import { IDocument } from '@stoplight/spectral-core/dist/document'
 import type { JsonPath } from '@stoplight/types'
 import { JSONPath } from 'jsonpath-plus'
+
+type SpectralDocument = RulesetFunctionContext['document']
 
 type MessageFn = ({ path, isFallback }: { path: (string | number)[]; isFallback: boolean }) => string
 
@@ -49,7 +50,7 @@ const _safeHasProp = (obj: unknown, key: string) => {
   return {}.hasOwnProperty.call(obj ?? {}, key)
 }
 
-const useJsonPathExtractor = (schemaDocument: IDocument) => {
+const useJsonPathExtractor = (schemaDocument: SpectralDocument) => {
   return (fallbackGiven: string) => {
     const output = JSONPath({
       path: fallbackGiven,
