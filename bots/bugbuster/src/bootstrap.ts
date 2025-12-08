@@ -1,3 +1,4 @@
+import { CommandProcessor } from './services/command-processor'
 import { IssueProcessor } from './services/issue-processor'
 import { IssueStateChecker } from './services/issue-state-checker'
 import { RecentlyLintedManager } from './services/recently-linted-manager'
@@ -14,6 +15,7 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
   const recentlyLintedManager = new RecentlyLintedManager(linear)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
   const issueStateChecker = new IssueStateChecker(linear, logger)
+  const commandProcessor = new CommandProcessor(client, teamsManager, ctx.botId)
 
   return {
     botpress,
@@ -22,5 +24,6 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
     recentlyLintedManager,
     issueProcessor,
     issueStateChecker,
+    commandProcessor,
   }
 }

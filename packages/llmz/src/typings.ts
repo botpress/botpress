@@ -112,7 +112,7 @@ declare const ${schema.identifier}: ${typings};${closingTag}`)
   }
 
   if (schema instanceof KeyValue) {
-    if (schema.value instanceof z.ZodOptional) {
+    if (schema.value instanceof z.ZodOptional || schema.value instanceof z.ZodDefault) {
       let innerType = schema.value._def.innerType as z.Schema
       if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
         innerType = innerType?.describe(schema.value.description)

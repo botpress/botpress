@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { IntegrationLogger, z, ZodIssueCode } from '@botpress/sdk'
-import Firecrawl from '@mendable/firecrawl-js'
+import Firecrawl, { SdkError } from '@mendable/firecrawl-js'
+import { trackEvent } from '../tracking'
 import { isValidGlob, matchGlob } from '../utils/globs'
 import * as bp from '.botpress'
 
@@ -129,14 +130,32 @@ class Accumulator {
 const firecrawlMap = async (props: { url: string; logger: IntegrationLogger; timeout: number }): Promise<string[]> => {
   const firecrawl = new Firecrawl({ apiKey: bp.secrets.FIRECRAWL_API_KEY })
 
-  const result = await firecrawl.map(props.url, {
-    sitemap: 'include',
-    limit: 10_000,
-    timeout: Math.max(1000, props.timeout - 2000),
-    includeSubdomains: true,
-  })
+  try {
+    const result = await firecrawl.map(props.url, {
+      sitemap: 'include',
+      limit: 10_000,
+      timeout: Math.max(1000, props.timeout - 2000),
+      includeSubdomains: true,
+    })
 
-  return result.links.map((x) => x.url)
+    return result.links.map((x) => x.url)
+  } catch (err) {
+    props.logger.error('There was an error while calling Firecrawl map API.', err)
+
+    if (err instanceof SdkError) {
+      const isRateLimit = err.status === 429 || err.message.includes('rate limit')
+      await trackEvent('firecrawl_error', {
+        url: props.url,
+        operation: 'map',
+        errorType: isRateLimit ? 'rate_limited' : 'api_error',
+        errorMessage: err.message,
+        statusCode: err.status,
+        errorCode: err.code,
+      })
+    }
+
+    throw err
+  }
 }
 
 export const discoverUrls: bp.IntegrationProps['actions']['discoverUrls'] = async ({ input, logger, metadata }) => {
@@ -164,6 +183,15 @@ export const discoverUrls: bp.IntegrationProps['actions']['discoverUrls'] = asyn
   await Promise.allSettled([firecrawl])
 
   metadata.setCost(accumulator.cost)
+
+  await trackEvent('urls_discovered', {
+    baseUrl: input.url,
+    urlCount: accumulator.urls.size,
+    excludedCount: accumulator.excluded,
+    stopReason: accumulator.stopReason ?? 'end_of_results',
+    hasIncludeFilters: (input.include?.length ?? 0) > 0,
+    hasExcludeFilters: (input.exclude?.length ?? 0) > 0,
+  })
 
   return {
     excluded: accumulator.excluded,
