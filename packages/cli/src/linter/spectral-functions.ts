@@ -1,10 +1,21 @@
-import { IFunctionResult, RulesetFunctionContext } from '@stoplight/spectral-core'
+import { IFunctionResult, RuleDefinition, RulesetFunctionContext } from '@stoplight/spectral-core'
 import type { JsonPath } from '@stoplight/types'
 import { JSONPath } from 'jsonpath-plus'
 
 type SpectralDocument = RulesetFunctionContext['document']
+type RulesetThenFn = Exclude<RuleDefinition['then'], Array<any>>['function']
 
 type MessageFn = ({ path, isFallback }: { path: (string | number)[]; isFallback: boolean }) => string
+type TruthyWithMessageOptions = {
+  failMsgSupplier: MessageFn
+  fallbackExtractor: FallbackExtractor
+}
+
+/** Extracts a fallback result that will be tested for truthyness */
+type FallbackExtractor = (
+  failedPath: JsonPath,
+  jsonPathExtractor: (fallbackGiven: string) => { resolvedPath: JsonPath; value: any }[]
+) => { path: JsonPath; value: string } | null
 
 const isFalsy = (input: string): boolean => {
   return !input
@@ -24,14 +35,6 @@ export const truthyWithMessage = (fn: MessageFn) => (input: string, _: unknown, 
   return messages
 }
 
-type FallbackResult = { path: JsonPath; value: string } | null
-
-/** Extracts a fallback result that will be tested for truthyness */
-type FallbackExtractor = (
-  failedPath: JsonPath,
-  jsonPathExtractor: (fallbackGiven: string) => { resolvedPath: JsonPath; value: any }[]
-) => FallbackResult
-
 /** Parses the equivalent of Stoplight's JsonPath from the JsonPath-plus "pointer" output */
 const _parseJsonPathPointer = (pointer: string): JsonPath => {
   return pointer
@@ -50,34 +53,34 @@ const _safeHasProp = (obj: unknown, key: string) => {
   return {}.hasOwnProperty.call(obj ?? {}, key)
 }
 
-const useJsonPathExtractor = (schemaDocument: SpectralDocument) => {
-  return (fallbackGiven: string) => {
-    const output = JSONPath({
-      path: fallbackGiven,
-      json: schemaDocument.data as object,
-      resultType: 'all',
-    }) as any[]
+const _extractJsonPath = (schemaDocument: SpectralDocument, fallbackJsonPath: string) => {
+  const output = JSONPath({
+    path: fallbackJsonPath,
+    json: schemaDocument.data as object,
+    resultType: 'all',
+  }) as any[]
 
-    // There is a "path" property, but it's serialized in a way that is harder to parse than "pointer"
-    if (!output.every((result) => _safeHasProp(result, 'value') && _safeHasProp(result, 'pointer'))) {
-      throw new Error("Fallback JSONPath output is missing either one or both the 'value' or 'pointer' property")
-    }
-
-    return output.map((result) => {
-      const resolvedPath = _parseJsonPathPointer(result.pointer)
-      return { resolvedPath, value: result.value }
-    })
+  // There is a "path" property, but it's serialized in a way that is harder to parse than "pointer"
+  if (!output.every((result) => _safeHasProp(result, 'value') && _safeHasProp(result, 'pointer'))) {
+    throw new Error("Fallback JSONPath output is missing either one or both the 'value' or 'pointer' property")
   }
-}
 
-type TruthyWithMessageOptions = {
-  fallbackExtractor?: FallbackExtractor
+  return output.map((result) => {
+    const resolvedPath = _parseJsonPathPointer(result.pointer)
+    return { resolvedPath, value: result.value }
+  })
 }
 
 // The logic in this function will eventully replace `truthyWithMessage`
-export const isTruthyElseFailMessage =
-  (failMsgSupplier: MessageFn, options: TruthyWithMessageOptions) =>
-  (input: string, _: unknown, context: RulesetFunctionContext) => {
+export function isTruthyElseFailMessage(failMsgSupplier: MessageFn): RulesetThenFn
+export function isTruthyElseFailMessage(options: TruthyWithMessageOptions): RulesetThenFn
+export function isTruthyElseFailMessage(failMsgSupplierOrOptions: MessageFn | TruthyWithMessageOptions): RulesetThenFn {
+  const { failMsgSupplier, fallbackExtractor } =
+    typeof failMsgSupplierOrOptions === 'function'
+      ? { failMsgSupplier: failMsgSupplierOrOptions }
+      : failMsgSupplierOrOptions
+
+  return (input: string, _: unknown, context: RulesetFunctionContext) => {
     const messages: IFunctionResult[] = []
 
     if (!isFalsy(input)) {
@@ -85,13 +88,13 @@ export const isTruthyElseFailMessage =
     }
 
     const { path } = context
-    if (!options.fallbackExtractor) {
+    if (!fallbackExtractor) {
       const message = failMsgSupplier({ path, isFallback: false })
       messages.push({ message })
     } else {
-      const jsonPathExtractor = useJsonPathExtractor(context.document)
+      const jsonPathFn = _extractJsonPath.bind(null, context.document)
       try {
-        const fallbackResult = options.fallbackExtractor(path, jsonPathExtractor)
+        const fallbackResult = fallbackExtractor(path, jsonPathFn)
         if (fallbackResult === null || isFalsy(fallbackResult.value)) {
           const isFallback = fallbackResult !== null
           const resolvedPath = isFallback ? fallbackResult.path : path
@@ -111,3 +114,4 @@ export const isTruthyElseFailMessage =
 
     return messages
   }
+}
