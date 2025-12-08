@@ -516,3 +516,4 @@ export const blockSchema = sdk.z
   ])
   .describe('The block to append to the page. Select a block type and provide the required fields.')
 
+export type NotionBlock = sdk.z.infer<typeof blockSchema>

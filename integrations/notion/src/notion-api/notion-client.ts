@@ -5,6 +5,7 @@ import { NotionOAuthClient } from './notion-oauth-client'
 import { NotionToMdxClient } from './notion-to-mdx-client'
 import type * as types from './types'
 import * as bp from '.botpress'
+import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints'
 
 export class NotionClient {
   private readonly _notion: notionhq.Client
@@ -104,7 +105,7 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to append block to page')
-  public async appendBlockToPage({ pageId, block }: { pageId: string; block: any }): Promise<void> {
+  public async appendBlockToPage({ pageId, block }: { pageId: string; block: BlockObjectRequest }): Promise<void> {
     void (await this._notion.blocks.children.append({
       block_id: pageId,
       children: [block],

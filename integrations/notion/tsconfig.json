@@ -6,5 +6,5 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts", "definitions/schemas/.ignore.me.block-schemas.ts"]
+  "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }
