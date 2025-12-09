@@ -8,15 +8,15 @@ const plugin = new bp.Plugin({
 
 plugin.on.afterIncomingMessage(
   '*',
-  errorWrapper.wrap(handlers.handleAfterIncomingMessage, 'trying to process incoming message')
+  errorWrapper.wrap(handlers.handleAfterIncomingMessage, 'trying to process an incoming message')
 )
 
 plugin.on.afterOutgoingMessage(
   '*',
-  errorWrapper.wrap(handlers.handleAfterOutgoingMessage, 'trying to process outgoing message')
+  errorWrapper.wrap(handlers.handleAfterOutgoingMessage, 'trying to process an outgoing message')
 )
 
-plugin.on.event('updateAiInsight', errorWrapper.wrap(handlers.handleUpdateAiInsight, 'trying to update AI insight'))
+plugin.on.event('updateAiInsight', errorWrapper.wrap(handlers.handleUpdateAiInsight, 'trying to update an AI insight'))
 
 plugin.on.workflowStart(
   'updateAllConversations',
