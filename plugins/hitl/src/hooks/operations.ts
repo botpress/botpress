@@ -19,7 +19,7 @@ export type AssignAgentOptions = {
  * Also links the webchat user if applicable and sends the agent assigned message.
  */
 export const assignAgent = async (options: AssignAgentOptions): Promise<boolean> => {
-  const { props, downstreamConversation, humanAgentUserId, forceLinkWebchatUser = false } = options
+  const { props, downstreamConversation, humanAgentUserId, forceLinkWebchatUser = true } = options
 
   const upstreamConversationId = downstreamConversation.tags.upstream
   if (!upstreamConversationId?.length) {
