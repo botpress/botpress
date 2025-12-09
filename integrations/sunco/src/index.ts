@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { executeConversationStarted } from './events/conversation-started'
+import { executeConversationCreated } from './events/conversation-created'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
@@ -162,7 +162,7 @@ const integration = new bp.Integration({
 
     for (const event of data.events) {
       if (event.type === 'conversation:create') {
-        await executeConversationStarted({ event, client, logger })
+        await executeConversationCreated({ event, client, logger })
       } else if (event.type !== 'conversation:message') {
         console.warn('Received an event that is not a message')
         continue

@@ -1,7 +1,7 @@
 import type { ConversationCreateEvent } from '../messaging-events'
 import { Logger, Client } from '.botpress'
 
-export const executeConversationStarted = async (props: {
+export const executeConversationCreated = async (props: {
   event: ConversationCreateEvent
   client: Client
   logger: Logger
@@ -31,7 +31,7 @@ export const executeConversationStarted = async (props: {
   })
 
   await client.createEvent({
-    type: 'conversationStarted',
+    type: 'conversationCreated',
     conversationId: conversation.id,
     userId: user.id,
     payload: {
