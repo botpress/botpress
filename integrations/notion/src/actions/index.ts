@@ -5,8 +5,8 @@ import { deleteBlock } from './delete-block'
 import { filesReadonlyListItemsInFolder } from './files-readonly/list-items-in-folder'
 import { filesReadonlyTransferFileToBotpress } from './files-readonly/transfer-file-to-botpress'
 import { getDb } from './get-db'
-import { queryByTitle } from './query-by-title'
 import { getPage } from './get-page'
+import { queryByTitle } from './query-by-title'
 import * as bp from '.botpress'
 
 export const actions = {
