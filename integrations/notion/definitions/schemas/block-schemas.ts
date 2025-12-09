@@ -4,7 +4,6 @@ import * as sdk from '@botpress/sdk'
 // Reusable Sub-Schemas
 // ============================================
 
-// Color enum for blocks
 const colorEnum = sdk.z.enum([
   'default',
   'gray',
@@ -28,7 +27,6 @@ const colorEnum = sdk.z.enum([
   'red_background',
 ])
 
-// Rich text annotations
 const annotationsSchema = sdk.z
   .object({
     bold: sdk.z.boolean().optional(),
@@ -40,7 +38,6 @@ const annotationsSchema = sdk.z
   })
   .optional()
 
-// Rich text item
 const richTextItemSchema = sdk.z.object({
   type: sdk.z.enum(['text', 'mention', 'equation']).optional().default('text'),
   text: sdk.z
@@ -57,21 +54,18 @@ const richTextItemSchema = sdk.z.object({
   annotations: annotationsSchema,
 })
 
-// Array of rich text items
 const richTextArraySchema = sdk.z
   .array(richTextItemSchema)
   .min(1)
   .title('Rich Text')
   .describe('Array of rich text objects containing the content')
 
-// Caption for media blocks
 const captionSchema = sdk.z
   .array(richTextItemSchema)
   .optional()
   .title('Caption')
   .describe('Optional caption for the media')
 
-// External URL for media
 const externalUrlSchema = sdk.z.object({
   type: sdk.z.literal('external').optional().default('external'),
   external: sdk.z.object({
@@ -80,7 +74,6 @@ const externalUrlSchema = sdk.z.object({
   caption: captionSchema,
 })
 
-// Icon for callout blocks
 const iconSchema = sdk.z
   .discriminatedUnion('type', [
     sdk.z.object({
@@ -96,7 +89,6 @@ const iconSchema = sdk.z
   ])
   .optional()
 
-// Language enum for code blocks
 const languageEnum = sdk.z.enum([
   'abap',
   'agda',
@@ -193,7 +185,6 @@ const languageEnum = sdk.z.enum([
 // Individual Block Type Schemas
 // ============================================
 
-// Paragraph block
 const paragraphBlockSchema = sdk.z.object({
   type: sdk.z.literal('paragraph'),
   paragraph: sdk.z.object({
@@ -202,7 +193,6 @@ const paragraphBlockSchema = sdk.z.object({
   }),
 })
 
-// Heading 1 block
 const heading1BlockSchema = sdk.z.object({
   type: sdk.z.literal('heading_1'),
   heading_1: sdk.z.object({
@@ -212,7 +202,6 @@ const heading1BlockSchema = sdk.z.object({
   }),
 })
 
-// Heading 2 block
 const heading2BlockSchema = sdk.z.object({
   type: sdk.z.literal('heading_2'),
   heading_2: sdk.z.object({
@@ -222,7 +211,6 @@ const heading2BlockSchema = sdk.z.object({
   }),
 })
 
-// Heading 3 block
 const heading3BlockSchema = sdk.z.object({
   type: sdk.z.literal('heading_3'),
   heading_3: sdk.z.object({
@@ -232,7 +220,6 @@ const heading3BlockSchema = sdk.z.object({
   }),
 })
 
-// Bulleted list item block
 const bulletedListItemBlockSchema = sdk.z.object({
   type: sdk.z.literal('bulleted_list_item'),
   bulleted_list_item: sdk.z.object({
@@ -241,7 +228,6 @@ const bulletedListItemBlockSchema = sdk.z.object({
   }),
 })
 
-// Numbered list item block
 const numberedListItemBlockSchema = sdk.z.object({
   type: sdk.z.literal('numbered_list_item'),
   numbered_list_item: sdk.z.object({
@@ -250,7 +236,6 @@ const numberedListItemBlockSchema = sdk.z.object({
   }),
 })
 
-// Quote block
 const quoteBlockSchema = sdk.z.object({
   type: sdk.z.literal('quote'),
   quote: sdk.z.object({
@@ -259,7 +244,6 @@ const quoteBlockSchema = sdk.z.object({
   }),
 })
 
-// To-do block
 const toDoBlockSchema = sdk.z.object({
   type: sdk.z.literal('to_do'),
   to_do: sdk.z.object({
@@ -269,7 +253,6 @@ const toDoBlockSchema = sdk.z.object({
   }),
 })
 
-// Toggle block
 const toggleBlockSchema = sdk.z.object({
   type: sdk.z.literal('toggle'),
   toggle: sdk.z.object({
@@ -278,7 +261,6 @@ const toggleBlockSchema = sdk.z.object({
   }),
 })
 
-// Template block
 const templateBlockSchema = sdk.z.object({
   type: sdk.z.literal('template'),
   template: sdk.z.object({
@@ -286,7 +268,6 @@ const templateBlockSchema = sdk.z.object({
   }),
 })
 
-// Callout block
 const calloutBlockSchema = sdk.z.object({
   type: sdk.z.literal('callout'),
   callout: sdk.z.object({
@@ -296,7 +277,6 @@ const calloutBlockSchema = sdk.z.object({
   }),
 })
 
-// Code block
 const codeBlockSchema = sdk.z.object({
   type: sdk.z.literal('code'),
   code: sdk.z.object({
@@ -306,25 +286,21 @@ const codeBlockSchema = sdk.z.object({
   }),
 })
 
-// Image block
 const imageBlockSchema = sdk.z.object({
   type: sdk.z.literal('image'),
   image: externalUrlSchema,
 })
 
-// Video block
 const videoBlockSchema = sdk.z.object({
   type: sdk.z.literal('video'),
   video: externalUrlSchema,
 })
 
-// PDF block
 const pdfBlockSchema = sdk.z.object({
   type: sdk.z.literal('pdf'),
   pdf: externalUrlSchema,
 })
 
-// File block
 const fileBlockSchema = sdk.z.object({
   type: sdk.z.literal('file'),
   file: sdk.z.object({
@@ -337,13 +313,11 @@ const fileBlockSchema = sdk.z.object({
   }),
 })
 
-// Audio block
 const audioBlockSchema = sdk.z.object({
   type: sdk.z.literal('audio'),
   audio: externalUrlSchema,
 })
 
-// Embed block
 const embedBlockSchema = sdk.z.object({
   type: sdk.z.literal('embed'),
   embed: sdk.z.object({
@@ -352,7 +326,6 @@ const embedBlockSchema = sdk.z.object({
   }),
 })
 
-// Bookmark block
 const bookmarkBlockSchema = sdk.z.object({
   type: sdk.z.literal('bookmark'),
   bookmark: sdk.z.object({
@@ -361,7 +334,6 @@ const bookmarkBlockSchema = sdk.z.object({
   }),
 })
 
-// Equation block
 const equationBlockSchema = sdk.z.object({
   type: sdk.z.literal('equation'),
   equation: sdk.z.object({
@@ -369,19 +341,16 @@ const equationBlockSchema = sdk.z.object({
   }),
 })
 
-// Divider block
 const dividerBlockSchema = sdk.z.object({
   type: sdk.z.literal('divider'),
   divider: sdk.z.object({}).optional().default({}),
 })
 
-// Breadcrumb block
 const breadcrumbBlockSchema = sdk.z.object({
   type: sdk.z.literal('breadcrumb'),
   breadcrumb: sdk.z.object({}).optional().default({}),
 })
 
-// Table of contents block
 const tableOfContentsBlockSchema = sdk.z.object({
   type: sdk.z.literal('table_of_contents'),
   table_of_contents: sdk.z.object({
@@ -389,7 +358,6 @@ const tableOfContentsBlockSchema = sdk.z.object({
   }),
 })
 
-// Link to page block
 const linkToPageBlockSchema = sdk.z.object({
   type: sdk.z.literal('link_to_page'),
   link_to_page: sdk.z.discriminatedUnion('type', [
@@ -408,7 +376,6 @@ const linkToPageBlockSchema = sdk.z.object({
   ]),
 })
 
-// Table row block
 const tableRowBlockSchema = sdk.z.object({
   type: sdk.z.literal('table_row'),
   table_row: sdk.z.object({
@@ -418,7 +385,6 @@ const tableRowBlockSchema = sdk.z.object({
   }),
 })
 
-// Table block
 const tableBlockSchema = sdk.z.object({
   type: sdk.z.literal('table'),
   table: sdk.z.object({
@@ -438,7 +404,6 @@ const tableBlockSchema = sdk.z.object({
   }),
 })
 
-// Column list block (for layouts with columns)
 const columnListBlockSchema = sdk.z.object({
   type: sdk.z.literal('column_list'),
   column_list: sdk.z.object({
@@ -458,7 +423,6 @@ const columnListBlockSchema = sdk.z.object({
   }),
 })
 
-// Synced block (for synced content)
 const syncedBlockSchema = sdk.z.object({
   type: sdk.z.literal('synced_block'),
   synced_block: sdk.z.object({
