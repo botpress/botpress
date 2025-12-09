@@ -15,7 +15,7 @@ type TruthyWithMessageOptions = {
 /** Extracts a fallback result that will be tested for truthyness */
 type FallbackExtractor = (
   failedPath: JsonPath,
-  jsonPathExtractor: (fallbackGiven: string) => { resolvedPath: JsonPath; value: any }[]
+  jsonPathExtractor: (fallbackPath: string) => { resolvedPath: JsonPath; value: any }[]
 ) => { path: JsonPath; value: string } | null
 
 const _anyOfFallbackExtractor = (
