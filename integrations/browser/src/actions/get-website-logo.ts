@@ -1,3 +1,4 @@
+import { trackEvent } from '../tracking'
 import * as bp from '.botpress'
 
 const COST_PER_LOOKUP = 0.25
@@ -39,6 +40,12 @@ export const getWebsiteLogo: bp.IntegrationProps['actions']['getWebsiteLogo'] = 
   })
 
   metadata.setCost(COST_PER_LOOKUP)
+
+  await trackEvent('logo_fetched', {
+    domain,
+    size: input.size || 128,
+    greyscale: input.greyscale || false,
+  })
 
   return {
     logoUrl: file.url,

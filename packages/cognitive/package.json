@@ -35,7 +35,7 @@
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@bpinternal/zui": "1.2.1",
+    "@bpinternal/zui": "1.2.3",
     "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",

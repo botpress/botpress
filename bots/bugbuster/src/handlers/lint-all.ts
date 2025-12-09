@@ -3,14 +3,11 @@ import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
-  const { client, workflow, conversation } = props
-
-  const conversationId = conversation?.id
+  const { client, workflow, ctx, conversation } = props
 
   const { botpress, issueProcessor } = boot.bootstrap(props)
 
-  const _handleError = (context: string) => (thrown: unknown) =>
-    botpress.handleError({ context, conversationId }, thrown)
+  const _handleError = (context: string) => (thrown: unknown) => botpress.handleError({ context }, thrown)
 
   const {
     state: {
@@ -75,8 +72,29 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
     endCursor = pagedIssues.pagination?.endCursor
   } while (hasNextPage)
 
-  if (conversationId) {
-    await botpress.respondText(conversationId, _buildResultMessage(lintResults)).catch(() => {})
+  if (conversation?.id) {
+    await botpress.respondText(conversation.id, _buildResultMessage(lintResults)).catch(() => {})
+    await workflow.setCompleted()
+    return
+  }
+
+  const {
+    state: {
+      payload: { channels },
+    },
+  } = await client.getOrSetState({
+    id: ctx.botId,
+    name: 'notificationChannels',
+    type: 'bot',
+    payload: { channels: [] },
+  })
+
+  for (const channel of channels) {
+    const relevantIssues = lintResults.filter((result) =>
+      channel.teams.some((team) => result.identifier.includes(team))
+    )
+
+    await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
   }
 
   await workflow.setCompleted()
