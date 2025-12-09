@@ -8,7 +8,7 @@ type RulesetThenFn = Exclude<RuleDefinition['then'], Array<any>>['function']
 
 type MessageFn = ({ path, isFallback }: { path: (string | number)[]; isFallback: boolean }) => string
 type TruthyWithMessageOptions = {
-  failMsgSupplier: MessageFn
+  failMsgMapper: MessageFn
   fallbackExtractor: FallbackExtractor
 }
 
@@ -53,13 +53,11 @@ export const descriptionFallbackExtractor: FallbackExtractor = _anyOfFallbackExt
  * @remark When using the `fallbackExtractor`, it's expected to use a portion
  *  of the resolved path so the fallback query continues from that point.
  */
-export function truthyWithMessage(failMsgSupplier: MessageFn): RulesetThenFn
+export function truthyWithMessage(failMsgMapper: MessageFn): RulesetThenFn
 export function truthyWithMessage(options: TruthyWithMessageOptions): RulesetThenFn
-export function truthyWithMessage(failMsgSupplierOrOptions: MessageFn | TruthyWithMessageOptions): RulesetThenFn {
-  const { failMsgSupplier, fallbackExtractor } =
-    typeof failMsgSupplierOrOptions === 'function'
-      ? { failMsgSupplier: failMsgSupplierOrOptions }
-      : failMsgSupplierOrOptions
+export function truthyWithMessage(failMsgMapperOrOptions: MessageFn | TruthyWithMessageOptions): RulesetThenFn {
+  const { failMsgMapper, fallbackExtractor } =
+    typeof failMsgMapperOrOptions === 'function' ? { failMsgMapper: failMsgMapperOrOptions } : failMsgMapperOrOptions
 
   const logger = new Logger()
   return (input: string, _: unknown, context: RulesetFunctionContext) => {
@@ -71,7 +69,7 @@ export function truthyWithMessage(failMsgSupplierOrOptions: MessageFn | TruthyWi
 
     const { path } = context
     if (!fallbackExtractor) {
-      const message = failMsgSupplier({ path, isFallback: false })
+      const message = failMsgMapper({ path, isFallback: false })
       messages.push({ message })
     } else {
       const jsonPathFn = _extractJsonPath.bind(null, context.document)
@@ -87,7 +85,7 @@ export function truthyWithMessage(failMsgSupplierOrOptions: MessageFn | TruthyWi
             throw new Error('The resolved path was not provided or is invalid')
           }
 
-          const message = failMsgSupplier({ path: resolvedPath, isFallback })
+          const message = failMsgMapper({ path: resolvedPath, isFallback })
           messages.push({ message })
         }
       } catch (thrown: unknown) {

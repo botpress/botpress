@@ -14,7 +14,7 @@ export const BOT_RULESET = {
         {
           field: 'x-zui.title',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`,
+            failMsgMapper: ({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -30,7 +30,7 @@ export const BOT_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`,
+            failMsgMapper: ({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
@@ -45,7 +45,7 @@ export const BOT_RULESET = {
         {
           field: 'title',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-3)}"`,
+            failMsgMapper: ({ path }) => `configuration parameter "${path.at(-3)}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -60,7 +60,7 @@ export const BOT_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `configuration parameter "${path.at(-2)}"`,
+            failMsgMapper: ({ path }) => `configuration parameter "${path.at(-2)}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
@@ -160,7 +160,7 @@ export const BOT_RULESET = {
         {
           field: 'x-zui.title',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`,
+            failMsgMapper: ({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -176,7 +176,7 @@ export const BOT_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgSupplier: ({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`,
+            failMsgMapper: ({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
