@@ -667,7 +667,7 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
-  test.each(PARAM_NAMES)('missing title nested in anyOf should trigger (%s)', async (paramName) => {
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
     // arrange
     const properties = {
       [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} },
@@ -765,6 +765,21 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: { schema: { properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -777,6 +792,25 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'description'])
+    expect(results[0]?.message).toContain('description')
+  })
+
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] } },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'anyOf', '0', 'description'])
     expect(results[0]?.message).toContain('description')
   })
 
@@ -796,11 +830,12 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
   // e.g. When there is a ".nullable()" before the ".describe()" on an object schema
   test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
     // arrange
-    const properties = {
-      [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] },
-    }
     const definition = {
-      configuration: { schema: { properties } },
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] } },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
