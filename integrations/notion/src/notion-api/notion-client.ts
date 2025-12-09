@@ -5,6 +5,7 @@ import { NotionOAuthClient } from './notion-oauth-client'
 import { NotionToMdxClient } from './notion-to-mdx-client'
 import type * as types from './types'
 import * as bp from '.botpress'
+import { PartialDatabaseObjectResponse, PartialPageObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
 
 export class NotionClient {
   private readonly _notion: notionhq.Client
@@ -104,49 +105,20 @@ export class NotionClient {
 
   @handleErrors('Failed to search by title')
   public async searchByTitle({ title }: { title?: string }) {
-    const response = await this._notion.search({
-      query: title,
-      filter: {
-        property: 'object',
-        value: 'page',
-      },
-    })
+    const [response, databaseResponse] = await Promise.all([  
+      this._notion.search({  
+        query: title,  
+        filter: { property: "object", value: "page" },  
+      }),  
+      this._notion.search({  
+        query: title,  
+        filter: { property: "object", value: "database" },  
+      }),  
+    ]);  
+    
+    const allResults = [...response.results, ...databaseResponse.results];  
 
-    const databaseResponse = await this._notion.search({
-      query: title,
-      filter: {
-        property: 'object',
-        value: 'database',
-      },
-    })
-
-    const allResults = [...response.results, ...databaseResponse.results]
-
-    const formattedResults = allResults
-      .filter(
-        (result): result is types.NotionTopLevelItem => 'parent' in result && !('in_trash' in result && result.in_trash)
-      )
-      .map((result) => {
-        let resultTitle = ''
-
-        if (result.object === 'page' && 'properties' in result) {
-          const titleProp = Object.values(result.properties as Record<string, any>).find(
-            (prop: any) => prop.type === 'title'
-          )
-          if (titleProp && 'title' in titleProp && Array.isArray(titleProp.title)) {
-            resultTitle = titleProp.title.map((t: any) => t.plain_text).join('')
-          }
-        } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
-          resultTitle = (result.title as any[]).map((t: any) => t.plain_text).join('')
-        }
-
-        return {
-          id: result.id,
-          title: resultTitle,
-          type: result.object,
-          url: result.url,
-        }
-      })
+    const formattedResults = this._formatSearchResults(allResults)
 
     return { results: formattedResults }
   }
@@ -226,5 +198,34 @@ export class NotionClient {
     const markdown = await this._notionToMdxClient.convertNotionPageToMarkdown({ pageId })
 
     return { markdown }
+  }
+
+  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDatabaseObjectResponse)[]) {
+    return results
+      .filter(
+        (result): result is types.NotionTopLevelItem => 'parent' in result && !('archived' in result && result.archived)
+      )
+      .map((result) => {
+        let resultTitle = ''
+  
+        if (result.object === 'page' && 'properties' in result) {
+          const titleProp = Object.values(result.properties).find(
+            (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } => 
+              typeof prop === 'object' && prop !== null && 'type' in prop && prop.type === 'title'
+          )
+          if (titleProp) {
+            resultTitle = titleProp.title.map((t) => t.plain_text).join('')
+          }
+        } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
+          resultTitle = result.title.map((t) => t.plain_text).join('')
+        }
+  
+        return {
+          id: result.id,
+          title: resultTitle,
+          type: result.object,
+          url: result.url,
+        }
+      })
   }
 }
