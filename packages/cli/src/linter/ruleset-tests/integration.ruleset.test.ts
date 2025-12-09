@@ -699,7 +699,7 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
   test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
     // arrange
     const properties = {
-      [paramName]: { anyOf: [{ type: 'object', 'x-zui': { title: TRUTHY_STRING } }, { type: 'null' }], 'x-zui': {} },
+      [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }], [ZUI]: {} },
     }
     const definition = {
       configuration: { schema: { properties } },
