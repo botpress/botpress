@@ -2225,6 +2225,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -2239,6 +2240,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, 'description'])
+    expect(results[0]?.message).toContain('description')
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
