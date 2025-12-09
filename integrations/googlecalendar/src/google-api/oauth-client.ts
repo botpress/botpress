@@ -46,7 +46,7 @@ export const getAuthenticatedOAuth2Client = async ({
       email: ctx.configuration.clientEmail,
       key: ctx.configuration.privateKey.split(String.raw`\n`).join('\n'),
       scopes: OAUTH_SCOPES,
-      subject: ctx.configuration.impersonateEmail,
+      subject: ctx.configuration?.impersonateEmail || undefined, // Ensure that the impersonate email is undefined if empty string
     })
   }
 

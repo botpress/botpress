@@ -1,9 +1,10 @@
 /* bplint-disable */
+import { posthogHelper } from '@botpress/common'
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { actions, events, subdomain } from './definitions'
 
 export const INTEGRATION_NAME = 'bamboohr'
-export const INTEGRATION_VERSION = '2.0.0'
+export const INTEGRATION_VERSION = '2.0.1'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -40,6 +41,7 @@ export default new IntegrationDefinition({
     OAUTH_CLIENT_ID: {
       description: 'The OAuth Client ID provided by BambooHR from the developer portal.',
     },
+    ...posthogHelper.COMMON_SECRET_NAMES,
   },
   states: {
     oauth: {
