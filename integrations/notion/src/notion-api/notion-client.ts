@@ -1,11 +1,15 @@
 import * as notionhq from '@notionhq/client'
+import {
+  PartialDatabaseObjectResponse,
+  PartialPageObjectResponse,
+  RichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { NotionOAuthClient } from './notion-oauth-client'
 import { NotionToMdxClient } from './notion-to-mdx-client'
 import type * as types from './types'
 import * as bp from '.botpress'
-import { PartialDatabaseObjectResponse, PartialPageObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
 
 export class NotionClient {
   private readonly _notion: notionhq.Client
@@ -105,18 +109,18 @@ export class NotionClient {
 
   @handleErrors('Failed to search by title')
   public async searchByTitle({ title }: { title?: string }) {
-    const [response, databaseResponse] = await Promise.all([  
-      this._notion.search({  
-        query: title,  
-        filter: { property: "object", value: "page" },  
-      }),  
-      this._notion.search({  
-        query: title,  
-        filter: { property: "object", value: "database" },  
-      }),  
-    ]);  
-    
-    const allResults = [...response.results, ...databaseResponse.results];  
+    const [response, databaseResponse] = await Promise.all([
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'page' },
+      }),
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'database' },
+      }),
+    ])
+
+    const allResults = [...response.results, ...databaseResponse.results]
 
     const formattedResults = this._formatSearchResults(allResults)
 
@@ -207,10 +211,10 @@ export class NotionClient {
       )
       .map((result) => {
         let resultTitle = ''
-  
+
         if (result.object === 'page' && 'properties' in result) {
           const titleProp = Object.values(result.properties).find(
-            (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } => 
+            (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } =>
               typeof prop === 'object' && prop !== null && 'type' in prop && prop.type === 'title'
           )
           if (titleProp) {
@@ -219,7 +223,7 @@ export class NotionClient {
         } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
           resultTitle = result.title.map((t) => t.plain_text).join('')
         }
-  
+
         return {
           id: result.id,
           title: resultTitle,
