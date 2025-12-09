@@ -124,12 +124,16 @@ export class NotionClient {
     const allResults = [...response.results, ...databaseResponse.results]
 
     const formattedResults = allResults
-      .filter((result): result is types.NotionTopLevelItem => 'parent' in result && !('in_trash' in result && result.in_trash))
+      .filter(
+        (result): result is types.NotionTopLevelItem => 'parent' in result && !('in_trash' in result && result.in_trash)
+      )
       .map((result) => {
         let resultTitle = ''
-        
+
         if (result.object === 'page' && 'properties' in result) {
-          const titleProp = Object.values(result.properties as Record<string, any>).find((prop: any) => prop.type === 'title')
+          const titleProp = Object.values(result.properties as Record<string, any>).find(
+            (prop: any) => prop.type === 'title'
+          )
           if (titleProp && 'title' in titleProp && Array.isArray(titleProp.title)) {
             resultTitle = titleProp.title.map((t: any) => t.plain_text).join('')
           }

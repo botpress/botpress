@@ -6,4 +6,3 @@ export const queryByTitle = wrapAction(
     return await notionClient.searchByTitle({ title })
   }
 )
-

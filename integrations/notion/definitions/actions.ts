@@ -99,14 +99,17 @@ export const actions = {
   },
   queryByTitle: {
     title: 'Query by Title',
-    description: 'Search for pages and databases in Notion. Optionally filter by title. Only returns items that have been shared with the integration.',
+    description:
+      'Search for pages and databases in Notion. Optionally filter by title. Only returns items that have been shared with the integration.',
     input: {
       schema: sdk.z.object({
         title: sdk.z
           .string()
           .optional()
           .title('Title')
-          .describe('Optional search query to match against page and database titles. If not provided, returns all accessible pages and databases.'),
+          .describe(
+            'Optional search query to match against page and database titles. If not provided, returns all accessible pages and databases.'
+          ),
       }),
     },
     output: {
