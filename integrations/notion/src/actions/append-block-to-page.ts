@@ -1,6 +1,5 @@
+import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints'
 import { wrapAction } from '../action-wrapper'
-import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints';
-
 
 export const appendBlockToPage = wrapAction(
   { actionName: 'appendBlockToPage', errorMessage: 'Failed to append block to page' },

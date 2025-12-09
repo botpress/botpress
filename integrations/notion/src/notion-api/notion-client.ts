@@ -1,11 +1,11 @@
 import * as notionhq from '@notionhq/client'
+import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { NotionOAuthClient } from './notion-oauth-client'
 import { NotionToMdxClient } from './notion-to-mdx-client'
 import type * as types from './types'
 import * as bp from '.botpress'
-import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints'
 
 export class NotionClient {
   private readonly _notion: notionhq.Client
