@@ -51,7 +51,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `input parameter "${path.at(-3)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `input parameter "${path.at(-3)}" of action "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -63,7 +66,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `input parameter "${path.at(-2)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `input parameter "${path.at(-2)}" of action "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -75,7 +81,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-3)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `output parameter "${path.at(-3)}" of action "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -87,7 +96,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-2)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `output parameter "${path.at(-2)}" of action "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -99,7 +111,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -112,7 +127,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -192,9 +210,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(
-            ({ path }) => `configuration field "${path.at(-3)}" of configuration "${path[1]}"`
-          ),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `configuration field "${path.at(-3)}" of configuration "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -206,9 +225,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(
-            ({ path }) => `configuration field "${path.at(-2)}" of configuration "${path[1]}"`
-          ),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `configuration field "${path.at(-2)}" of configuration "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -329,7 +349,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -342,7 +365,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgSupplier: ({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
