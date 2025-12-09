@@ -3,6 +3,7 @@ import * as utils from '..'
 import * as genenv from '../../../.genenv'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
+import { Client } from '.botpress'
 
 type State = { state: lin.WorkflowState; key: types.StateKey }
 
@@ -13,12 +14,15 @@ export class LinearApi {
   private _states?: State[] = undefined
   private _viewer?: lin.User = undefined
 
-  private constructor(private _client: lin.LinearClient) {}
+  private constructor(
+    private _client: lin.LinearClient,
+    private _bpClient: Client
+  ) {}
 
-  public static create(): LinearApi {
+  public static create(bpClient: Client): LinearApi {
     const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
 
-    return new LinearApi(client)
+    return new LinearApi(client, bpClient)
   }
 
   public get client(): lin.LinearClient {
@@ -205,6 +209,17 @@ export class LinearApi {
     queryName: K,
     variables: graphql.GRAPHQL_QUERIES[K][graphql.QUERY_INPUT]
   ): Promise<graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]> {
+    const params = Object.entries(variables).map(([name, value]) => ({
+      name,
+      value,
+    }))
+    await this._bpClient.callAction({
+      type: 'linear:sendRawGraphqlQuery',
+      input: {
+        query: graphql.GRAPHQL_QUERIES[queryName].query,
+        parameters: params,
+      },
+    })
     return (await this._client.client.rawRequest(graphql.GRAPHQL_QUERIES[queryName].query, variables))
       .data as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
