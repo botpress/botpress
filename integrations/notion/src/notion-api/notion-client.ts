@@ -1,5 +1,10 @@
 import * as notionhq from '@notionhq/client'
-import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints'
+import {
+  BlockObjectRequest,
+  PartialDatabaseObjectResponse,
+  PartialPageObjectResponse,
+  RichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { NotionOAuthClient } from './notion-oauth-client'
@@ -109,6 +114,24 @@ export class NotionClient {
       block_id: pageId,
       children: [block],
     }))
+  @handleErrors('Failed to search by title')
+  public async searchByTitle({ title }: { title?: string }) {
+    const [response, databaseResponse] = await Promise.all([
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'page' },
+      }),
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'database' },
+      }),
+    ])
+
+    const allResults = [...response.results, ...databaseResponse.results]
+
+    const formattedResults = this._formatSearchResults(allResults)
+
+    return { results: formattedResults }
   }
 
   @handleErrors('Failed to get database')
@@ -186,5 +209,34 @@ export class NotionClient {
     const markdown = await this._notionToMdxClient.convertNotionPageToMarkdown({ pageId })
 
     return { markdown }
+  }
+
+  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDatabaseObjectResponse)[]) {
+    return results
+      .filter(
+        (result): result is types.NotionTopLevelItem => 'parent' in result && !('archived' in result && result.archived)
+      )
+      .map((result) => {
+        let resultTitle = ''
+
+        if (result.object === 'page' && 'properties' in result) {
+          const titleProp = Object.values(result.properties).find(
+            (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } =>
+              typeof prop === 'object' && prop !== null && 'type' in prop && prop.type === 'title'
+          )
+          if (titleProp) {
+            resultTitle = titleProp.title.map((t) => t.plain_text).join('')
+          }
+        } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
+          resultTitle = result.title.map((t) => t.plain_text).join('')
+        }
+
+        return {
+          id: result.id,
+          title: resultTitle,
+          type: result.object,
+          url: result.url,
+        }
+      })
   }
 }
