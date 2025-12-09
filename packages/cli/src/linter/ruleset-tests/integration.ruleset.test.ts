@@ -669,11 +669,12 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
 
   test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
     // arrange
-    const properties = {
-      [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} },
-    }
     const definition = {
-      configuration: { schema: { properties } },
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
@@ -702,11 +703,14 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
 
   test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
     // arrange
-    const properties = {
-      [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }], [ZUI]: {} },
-    }
     const definition = {
-      configuration: { schema: { properties } },
+      configuration: {
+        schema: {
+          properties: {
+            [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }], [ZUI]: {} },
+          },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
@@ -734,11 +738,14 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
   // e.g. When there is a ".nullable()" before the ".title()" on an object schema
   test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
     // arrange
-    const properties = {
-      [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }], [ZUI]: {} },
-    }
     const definition = {
-      configuration: { schema: { properties } },
+      configuration: {
+        schema: {
+          properties: {
+            [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }], [ZUI]: {} },
+          },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
