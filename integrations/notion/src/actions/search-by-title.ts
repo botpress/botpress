@@ -1,7 +1,7 @@
 import { wrapAction } from '../action-wrapper'
 
-export const queryByTitle = wrapAction(
-  { actionName: 'queryByTitle', errorMessage: 'Failed to query by title' },
+export const searchByTitle = wrapAction(
+  { actionName: 'searchByTitle', errorMessage: 'Failed to search by title' },
   async ({ notionClient }, { title }) => {
     return await notionClient.searchByTitle({ title })
   }

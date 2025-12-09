@@ -120,8 +120,8 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
-  queryByTitle: {
-    title: 'Query by Title',
+  searchByTitle: {
+    title: 'Search by Title',
     description:
       'Search for pages and databases in Notion. Optionally filter by title. Only returns items that have been shared with the integration.',
     input: {
