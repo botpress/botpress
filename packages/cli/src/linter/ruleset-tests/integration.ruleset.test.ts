@@ -289,6 +289,7 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -345,6 +346,7 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
       'title',
     ])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -426,6 +428,7 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -486,6 +489,7 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
       'description',
     ])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
@@ -564,6 +568,7 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -629,6 +634,7 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
       'title',
     ])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -710,6 +716,7 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -770,6 +777,7 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
       'description',
     ])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
@@ -846,6 +854,7 @@ describeRule('event-outputparams-should-have-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -899,6 +908,7 @@ describeRule('event-outputparams-should-have-title', (lint) => {
       'title',
     ])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -974,6 +984,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -1021,6 +1032,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
       'description',
     ])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
@@ -1171,6 +1183,7 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -1207,6 +1220,7 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'anyOf', '0', ZUI, 'title'])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -1272,6 +1286,7 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -1306,6 +1321,7 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'anyOf', '0', 'description'])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
@@ -1467,6 +1483,7 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configurations', CONFIG_NAME, 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -1517,6 +1534,7 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
       'title',
     ])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -1596,6 +1614,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['configurations', CONFIG_NAME, 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -1645,6 +1664,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
       'description',
     ])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
@@ -2123,6 +2143,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -2171,6 +2192,7 @@ describeRule('state-fields-should-have-title', (lint) => {
       'title',
     ])
     expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
@@ -2246,6 +2268,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -2291,6 +2314,7 @@ describeRule('state-fields-must-have-description', (lint) => {
       'description',
     ])
     expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
