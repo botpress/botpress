@@ -13,6 +13,7 @@ import {
   type PostMessageRequest,
   type MessageAuthor,
   type MessageContent,
+  Message,
 } from './sunshine-api'
 
 export class SuncoClientError extends RuntimeError {
@@ -282,7 +283,7 @@ class SuncoClient {
     messageParts: Array<MessageContent>
   ) {
     try {
-      let message
+      let message: Message | undefined
 
       let author: MessageAuthor
       if (typeof userIdOrAuthor === 'string') {
