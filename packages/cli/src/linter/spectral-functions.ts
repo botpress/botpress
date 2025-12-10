@@ -120,7 +120,12 @@ const _extractJsonPath = (schemaDocument: SpectralDocument, fallbackJsonPath: st
     path: fallbackJsonPath,
     json: schemaDocument.data as object,
     resultType: 'all',
-  }) as any[]
+  })
+
+  // Sanity check (Error should never actually be thrown)
+  if (!Array.isArray(output)) {
+    throw new Error('JSONPath output is not an array')
+  }
 
   // There is a "path" property, but it's serialized in a way that is harder to parse than "pointer"
   if (!output.every((result) => _safeHasProp(result, 'value') && _safeHasProp(result, 'pointer'))) {
