@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { executeConversationCreated } from './events/conversation-created'
 import { register, unregister } from './setup'
 import { createClient } from './sunshine-api'
 import * as bp from '.botpress'
@@ -153,7 +154,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client }) => {
+  handler: async ({ req, client, logger }) => {
     if (!req.body) {
       console.warn('Handler received an empty body')
       return
@@ -162,7 +163,9 @@ const integration = new bp.Integration({
     const data = JSON.parse(req.body)
 
     for (const event of data.events) {
-      if (event.type !== 'conversation:message') {
+      if (event.type === 'conversation:create') {
+        await executeConversationCreated({ event, client, logger })
+      } else if (event.type !== 'conversation:message') {
         console.warn('Received an event that is not a message')
         continue
       }
