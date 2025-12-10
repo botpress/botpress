@@ -14,7 +14,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'title',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `input parameter "${path.at(-3)}" of action "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `input parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -29,7 +30,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `input parameter "${path.at(-2)}" of action "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `input parameter "${path.at(isFallback ? -4 : -2)}" of action "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
@@ -44,7 +46,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'title',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `output parameter "${path.at(-3)}" of action "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -59,7 +62,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `output parameter "${path.at(-2)}" of action "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of action "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
@@ -74,7 +78,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'x-zui.title',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of event "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -90,7 +95,8 @@ export const INTERFACE_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of event "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
@@ -132,7 +138,7 @@ export const INTERFACE_RULESET = {
         {
           field: 'x-zui.title',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `field "${path.at(-3)}" of entity "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -5 : -3)}" of entity "${path[1]}"`,
             fallbackExtractor: titleFallbackExtractor,
           }),
         },
@@ -147,7 +153,7 @@ export const INTERFACE_RULESET = {
         {
           field: 'description',
           function: truthyWithMessage({
-            failMsgMapper: ({ path }) => `field "${path.at(-2)}" of entity "${path[1]}"`,
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -4 : -2)}" of entity "${path[1]}"`,
             fallbackExtractor: descriptionFallbackExtractor,
           }),
         },
