@@ -1,3 +1,4 @@
+import { isBrowser } from 'browser-or-node'
 import { handleError } from './error-handler'
 import * as handlers from './handlers'
 import * as bp from '.botpress'
@@ -7,18 +8,28 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.afterIncomingMessage('*', async (props) => {
+  if (isBrowser) {
+    return
+  }
   return await handlers
     .handleAfterIncomingMessage(props)
     .catch(handleError({ context: 'trying to process an incoming message', logger: props.logger }))
 })
 
 plugin.on.afterOutgoingMessage('*', async (props) => {
+  if (isBrowser) {
+    return
+  }
   return await handlers
     .handleAfterOutgoingMessage(props)
     .catch(handleError({ context: 'trying to process an outgoing message', logger: props.logger }))
 })
 
 plugin.on.event('updateAiInsight', async (props) => {
+  if (isBrowser) {
+    props.logger.error('This event is not supported by the browser')
+    return
+  }
   return await handlers
     .handleUpdateAiInsight(props)
     .catch(handleError({ context: 'trying to update an AI insight', logger: props.logger }))

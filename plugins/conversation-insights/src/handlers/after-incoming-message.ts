@@ -1,13 +1,9 @@
-import { isBrowser } from 'browser-or-node'
 import * as onNewMessageHandler from '../onNewMessageHandler'
 import * as bp from '.botpress'
 
 const HOUR_MILLISECONDS = 60 * 60 * 1000
 
 export const handleAfterIncomingMessage: bp.HookHandlers['after_incoming_message']['*'] = async (props) => {
-  if (isBrowser) {
-    return
-  }
   const conversation = await props.conversations['*']['*'].getById({ id: props.data.conversationId })
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
