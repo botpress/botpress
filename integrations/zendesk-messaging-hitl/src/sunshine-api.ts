@@ -52,12 +52,16 @@ export type UpdateAppRequest = {
   metadata?: unknown
 }
 
+export type AppListFilter = {
+  serviceAccountId?: string
+}
+
 export type AppsApi = {
   getApp(appId: string): Promise<{ app: App }>
   createApp(appPost: CreateAppRequest): Promise<{ app: App }>
   updateApp(appId: string, appUpdate: UpdateAppRequest): Promise<{ app: App }>
-  deleteApp(appId: string): Promise<void>
-  listApps(): Promise<{ apps?: App[] }>
+  deleteApp(appId: string): Promise<object>
+  listApps(opts?: { page?: Page; filter?: AppListFilter }): Promise<{ apps?: App[] }>
 }
 
 // ============================================================================
@@ -89,9 +93,9 @@ export type UpdateUserRequest = {
 export type UsersApi = {
   getUser(appId: string, userIdOrExternalId: string): Promise<{ user: User }>
   createUser(appId: string, userPost: CreateUserRequest): Promise<{ user: User }>
-  updateUser(appId: string, userId: string, userUpdate: UpdateUserRequest): Promise<{ user: User }>
-  deleteUser(appId: string, userId: string): Promise<void>
-  listUsers(appId: string, page?: number, limit?: number): Promise<{ users?: User[] }>
+  updateUser(appId: string, userIdOrExternalId: string, userUpdate: UpdateUserRequest): Promise<{ user: User }>
+  deleteUser(appId: string, userIdOrExternalId: string): Promise<object>
+  deleteUserPersonalInformation(appId: string, userIdOrExternalId: string): Promise<{ user: User }>
 }
 
 // ============================================================================
@@ -133,6 +137,17 @@ export type UpdateConversationRequest = {
   metadata?: Record<string, unknown>
 }
 
+export type ConversationListFilter = {
+  userId?: string
+  userExternalId?: string
+}
+
+export type Page = {
+  after?: string
+  before?: string
+  size?: number
+}
+
 export type ConversationsApi = {
   getConversation(appId: string, conversationId: string): Promise<{ conversation: Conversation }>
   createConversation(
@@ -144,8 +159,12 @@ export type ConversationsApi = {
     conversationId: string,
     conversationUpdate: UpdateConversationRequest
   ): Promise<{ conversation: Conversation }>
-  deleteConversation(appId: string, conversationId: string): Promise<void>
-  listConversations(appId: string, page?: number, limit?: number): Promise<{ conversations?: Conversation[] }>
+  deleteConversation(appId: string, conversationId: string): Promise<object>
+  listConversations(
+    appId: string,
+    filter: ConversationListFilter,
+    opts?: { page?: Page }
+  ): Promise<{ conversations?: Conversation[] }>
 }
 
 // ============================================================================
@@ -226,9 +245,9 @@ export type PostMessageRequest = {
 
 export type MessagesApi = {
   postMessage(appId: string, conversationId: string, messagePost: PostMessageRequest): Promise<{ messages?: Message[] }>
-  listMessages(appId: string, conversationId: string, page?: number, limit?: number): Promise<{ messages?: Message[] }>
-  deleteMessage(appId: string, conversationId: string, messageId: string): Promise<void>
-  deleteAllMessages(appId: string, conversationId: string): Promise<void>
+  listMessages(appId: string, conversationId: string, opts?: { page?: Page }): Promise<{ messages?: Message[] }>
+  deleteMessage(appId: string, conversationId: string, messageId: string): Promise<object>
+  deleteAllMessages(appId: string, conversationId: string): Promise<object>
 }
 
 // ============================================================================
@@ -255,6 +274,10 @@ export type UpdateIntegrationRequest = {
   displayName?: string
 }
 
+export type IntegrationListFilter = {
+  types?: string
+}
+
 export type IntegrationsApi = {
   getIntegration(appId: string, integrationId: string): Promise<{ integration: Integration }>
   createIntegration(appId: string, integrationPost: CreateIntegrationRequest): Promise<{ integration: Integration }>
@@ -263,8 +286,11 @@ export type IntegrationsApi = {
     integrationId: string,
     integrationUpdate: UpdateIntegrationRequest
   ): Promise<{ integration: Integration }>
-  deleteIntegration(appId: string, integrationId: string): Promise<void>
-  listIntegrations(appId: string): Promise<{ integrations?: Integration[] }>
+  deleteIntegration(appId: string, integrationId: string): Promise<object>
+  listIntegrations(
+    appId: string,
+    opts?: { page?: Page; filter?: IntegrationListFilter }
+  ): Promise<{ integrations?: Integration[] }>
 }
 
 // ============================================================================
@@ -294,20 +320,16 @@ export type UpdateWebhookRequest = {
 }
 
 export type WebhooksApi = {
-  getIntegrationWebhook(appId: string, integrationId: string, webhookId: string): Promise<{ webhook: Webhook }>
-  createIntegrationWebhook(
-    appId: string,
-    integrationId: string,
-    webhookPost: CreateWebhookRequest
-  ): Promise<{ webhook: Webhook }>
-  updateIntegrationWebhook(
+  getWebhook(appId: string, integrationId: string, webhookId: string): Promise<{ webhook: Webhook }>
+  createWebhook(appId: string, integrationId: string, webhookPost: CreateWebhookRequest): Promise<{ webhook: Webhook }>
+  updateWebhook(
     appId: string,
     integrationId: string,
     webhookId: string,
     webhookUpdate: UpdateWebhookRequest
   ): Promise<{ webhook: Webhook }>
-  deleteIntegrationWebhook(appId: string, integrationId: string, webhookId: string): Promise<void>
-  listIntegrationWebhooks(appId: string, integrationId: string): Promise<{ webhooks?: Webhook[] }>
+  deleteWebhook(appId: string, integrationId: string, webhookId: string): Promise<object>
+  listWebhooks(appId: string, integrationId: string): Promise<{ webhooks?: Webhook[] }>
 }
 
 // ============================================================================
@@ -316,19 +338,23 @@ export type WebhooksApi = {
 
 export type Switchboard = {
   id: string
-  name?: string
-  integrationId?: string
+  enabled?: boolean
+  defaultSwitchboardIntegrationId?: string
+}
+
+export type SwitchboardUpdateBody = {
+  enabled?: boolean
+  defaultSwitchboardIntegrationId?: string
 }
 
 export type SwitchboardsApi = {
-  getSwitchboard(appId: string, switchboardId: string): Promise<{ switchboard: Switchboard }>
-  createSwitchboard(appId: string, switchboardPost: { name?: string }): Promise<{ switchboard: Switchboard }>
+  createSwitchboard(appId: string): Promise<{ switchboard: Switchboard }>
   updateSwitchboard(
     appId: string,
     switchboardId: string,
-    switchboardUpdate: { name?: string }
+    switchboardUpdate: SwitchboardUpdateBody
   ): Promise<{ switchboard: Switchboard }>
-  deleteSwitchboard(appId: string, switchboardId: string): Promise<void>
+  deleteSwitchboard(appId: string, switchboardId: string): Promise<object>
   listSwitchboards(appId: string): Promise<{ switchboards?: Switchboard[] }>
 }
 
@@ -356,11 +382,6 @@ export type UpdateSwitchboardIntegrationRequest = {
 }
 
 export type SwitchboardIntegrationsApi = {
-  getSwitchboardIntegration(
-    appId: string,
-    switchboardId: string,
-    switchboardIntegrationId: string
-  ): Promise<{ switchboardIntegration: SwitchboardIntegration }>
   createSwitchboardIntegration(
     appId: string,
     switchboardId: string,
@@ -372,7 +393,7 @@ export type SwitchboardIntegrationsApi = {
     switchboardIntegrationId: string,
     switchboardIntegrationUpdate: UpdateSwitchboardIntegrationRequest
   ): Promise<{ switchboardIntegration: SwitchboardIntegration }>
-  deleteSwitchboardIntegration(appId: string, switchboardId: string, switchboardIntegrationId: string): Promise<void>
+  deleteSwitchboardIntegration(appId: string, switchboardId: string, switchboardIntegrationId: string): Promise<object>
   listSwitchboardIntegrations(
     appId: string,
     switchboardId: string
@@ -383,24 +404,25 @@ export type SwitchboardIntegrationsApi = {
 // SwitchboardActionsApi Types
 // ============================================================================
 
-export type PassControlRequest = {
+export type PassControlBody = {
   switchboardIntegration: string
   metadata?: Record<string, string>
 }
 
-export type OfferControlRequest = {
+export type OfferControlBody = {
   switchboardIntegration: string
   metadata?: Record<string, string>
 }
 
-export type ReleaseControlRequest = {
-  reason?: string
+export type AcceptControlBody = {
+  metadata?: Record<string, string>
 }
 
 export type SwitchboardActionsApi = {
-  passControl(appId: string, conversationId: string, passControlBody: PassControlRequest): Promise<void>
-  offerControl(appId: string, conversationId: string, offerControlBody: OfferControlRequest): Promise<void>
-  releaseControl(appId: string, conversationId: string, releaseControlBody: ReleaseControlRequest): Promise<void>
+  passControl(appId: string, conversationId: string, passControlBody: PassControlBody): Promise<object>
+  offerControl(appId: string, conversationId: string, offerControlBody: OfferControlBody): Promise<object>
+  acceptControl(appId: string, conversationId: string, acceptControlBody: AcceptControlBody): Promise<object>
+  releaseControl(appId: string, conversationId: string): Promise<object>
 }
 
 // ============================================================================
@@ -410,14 +432,39 @@ export type SwitchboardActionsApi = {
 export type Client = {
   id: string
   type?: string
-  userId?: string
+  status?: 'active' | 'pending' | 'inactive' | 'blocked'
+  integrationId?: string
+  displayName?: string
+  avatarUrl?: string
+  info?: Record<string, unknown>
+  raw?: Record<string, unknown>
+  lastSeen?: string
+  linkedAt?: string
+  externalId?: string
+}
+
+export type ClientMatchCriteria = {
+  type: string
+  integrationId?: string
+  externalId?: string
+  [key: string]: unknown
+}
+
+export type ClientCreateBody = {
+  matchCriteria: ClientMatchCriteria
+  confirmation?: {
+    type: 'immediate' | 'userActivity' | 'prompt'
+    message?: { author: MessageAuthor; content: MessageContent }
+  }
+  target?: {
+    conversationId?: string
+  }
 }
 
 export type ClientsApi = {
-  getClient(appId: string, userId: string, clientId: string): Promise<{ client: Client }>
-  createClient(appId: string, userId: string, clientPost: { type?: string }): Promise<{ client: Client }>
-  deleteClient(appId: string, userId: string, clientId: string): Promise<void>
-  listClients(appId: string, userId: string): Promise<{ clients?: Client[] }>
+  createClient(appId: string, userIdOrExternalId: string, clientCreate: ClientCreateBody): Promise<{ client: Client }>
+  removeClient(appId: string, userIdOrExternalId: string, clientId: string): Promise<object>
+  listClients(appId: string, userIdOrExternalId: string, opts?: { page?: Page }): Promise<{ clients?: Client[] }>
 }
 
 // ============================================================================
@@ -426,60 +473,91 @@ export type ClientsApi = {
 
 export type Participant = {
   id: string
+  oderId?: string
+  userExternalId?: string
+  unreadCount?: number
+  lastRead?: string
+}
+
+export type ParticipantJoinBody = {
   userId?: string
-  joinDate?: string
+  userExternalId?: string
+  subscribeSDKClient?: boolean
+}
+
+export type ParticipantLeaveBody = {
+  participantId?: string
+  userId?: string
+  userExternalId?: string
 }
 
 export type ParticipantsApi = {
-  addParticipant(
+  joinConversation(
     appId: string,
     conversationId: string,
-    participantPost: { userId: string; subscribeSDKClient?: boolean }
+    participantJoinBody: ParticipantJoinBody
   ): Promise<{ participant: Participant }>
-  removeParticipant(appId: string, conversationId: string, participantId: string): Promise<void>
-  listParticipants(appId: string, conversationId: string): Promise<{ participants?: Participant[] }>
+  leaveConversation(appId: string, conversationId: string, participantLeaveBody: ParticipantLeaveBody): Promise<object>
+  listParticipants(
+    appId: string,
+    conversationId: string,
+    opts?: { page?: Page }
+  ): Promise<{ participants?: Participant[] }>
 }
 
 // ============================================================================
 // AttachmentsApi Types
 // ============================================================================
 
-export type Attachment = {
-  id: string
+export type AttachmentSchema = {
   mediaUrl?: string
   mediaType?: string
   mediaSize?: number
 }
 
+export type AttachmentDeleteBody = {
+  mediaUrl: string
+}
+
+export type AttachmentMediaTokenBody = {
+  attachmentPaths: string[]
+}
+
+export type AttachmentMediaTokenResponse = {
+  mediaToken?: string
+}
+
 export type AttachmentsApi = {
-  getAttachment(appId: string, attachmentId: string): Promise<{ attachment: Attachment }>
   uploadAttachment(
     appId: string,
-    attachmentPost: { source?: string; access?: string }
-  ): Promise<{ attachment: Attachment }>
-  deleteAttachment(appId: string, attachmentId: string): Promise<void>
+    access: 'public' | 'private',
+    source: File | Blob,
+    opts?: { _for?: string; conversationId?: string }
+  ): Promise<{ attachment: AttachmentSchema }>
+  deleteAttachment(appId: string, attachmentDeleteBody: AttachmentDeleteBody): Promise<object>
+  generateMediaJsonWebToken(
+    appId: string,
+    attachmentMediaTokenBody: AttachmentMediaTokenBody
+  ): Promise<AttachmentMediaTokenResponse>
+  setCookie(appId: string): Promise<object>
 }
 
 // ============================================================================
 // ActivitiesApi Types
 // ============================================================================
 
-export type Activity = {
-  id: string
-  type?: string
-  author?: {
-    type?: string
+export type ActivityPostType = 'conversation:read' | 'typing:start' | 'typing:stop'
+
+export type ActivityPost = {
+  author: {
+    type: 'user' | 'business'
     userId?: string
   }
+  type: ActivityPostType
 }
 
 export type ActivitiesApi = {
-  listActivities(
-    appId: string,
-    conversationId: string,
-    page?: number,
-    limit?: number
-  ): Promise<{ activities?: Activity[] }>
+  postActivity(appId: string, conversationId: string, activityPost: ActivityPost): Promise<object>
 }
 
 // ============================================================================
