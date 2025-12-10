@@ -788,6 +788,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
   })
 
   test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
@@ -824,6 +825,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI, 'title'])
+    expect(results[0]?.message).toContain('title')
   })
 
   test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
@@ -911,6 +913,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
   })
 
   test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
@@ -947,6 +950,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, 'description'])
+    expect(results[0]?.message).toContain('description')
   })
 
   test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
