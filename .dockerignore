@@ -30,8 +30,5 @@
 **/values.dev.yaml
 **/build
 **/dist
-# Include pre-built workspace packages needed for the build (except CLI which has native modules)
-!packages/*/dist
-packages/cli/dist
 LICENSE
 README.md
