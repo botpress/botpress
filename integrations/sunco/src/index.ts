@@ -1,6 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { executeConversationCreated } from './events/conversation-created'
+import { register, unregister } from './setup'
+import { createClient } from './sunshine-api'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
@@ -37,8 +39,8 @@ const POSTBACK_PREFIX = 'postback::'
 const SAY_PREFIX = 'say::'
 
 const integration = new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
+  register,
+  unregister,
   actions: {
     startTypingIndicator: async ({ client, ctx, input }) => {
       const { conversationId } = input
@@ -278,21 +280,6 @@ function getConversationId(conversation: SendMessageProps['conversation']) {
   return conversationId
 }
 
-function createClient(keyId: string, keySecret: string) {
-  const client = new SunshineConversationsClient.ApiClient()
-  const auth = client.authentications['basicAuth']
-  auth.username = keyId
-  auth.password = keySecret
-
-  return {
-    messages: new SunshineConversationsClient.MessagesApi(client),
-    activity: new SunshineConversationsClient.ActivitiesApi(client),
-    apps: new SunshineConversationsClient.AppsApi(client),
-    conversations: new SunshineConversationsClient.ConversationsApi(client),
-    users: new SunshineConversationsClient.UsersApi(client),
-  }
-}
-
 type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
@@ -306,7 +293,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
 
   const { messages } = await client.messages.postMessage(ctx.configuration.appId, getConversationId(conversation), data)
 
-  const message = messages[0]
+  const message = messages?.[0]
 
   if (!message) {
     throw new Error('Message not sent')
@@ -330,13 +317,13 @@ async function sendActivity({ client, ctx, conversationId, typingStatus, markAsR
   const { appId, keyId, keySecret } = ctx.configuration
   const suncoClient = createClient(keyId, keySecret)
   if (markAsRead) {
-    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(appId, suncoConversationId, {
       type: 'conversation:read',
       author: { type: 'business' },
     })
   }
   if (typingStatus) {
-    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(appId, suncoConversationId, {
       type: `typing:${typingStatus}`,
       author: { type: 'business' },
     })
