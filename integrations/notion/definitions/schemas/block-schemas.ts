@@ -39,7 +39,7 @@ const annotationsSchema = sdk.z
   .optional()
 
 const richTextItemSchema = sdk.z.object({
-  type: sdk.z.enum(['text', 'mention', 'equation']).optional().default('text'),
+  type: sdk.z.enum(['text', 'mention', 'equation']).optional(),
   text: sdk.z
     .object({
       content: sdk.z.string().describe('The text content'),
@@ -47,8 +47,7 @@ const richTextItemSchema = sdk.z.object({
         .object({
           url: sdk.z.string().url().describe('The URL to link to'),
         })
-        .optional()
-        .nullable(),
+        .nullish(),
     })
     .optional(),
   annotations: annotationsSchema,
@@ -67,7 +66,7 @@ const captionSchema = sdk.z
   .describe('Optional caption for the media')
 
 const externalUrlSchema = sdk.z.object({
-  type: sdk.z.literal('external').optional().default('external'),
+  type: sdk.z.literal('external').optional(),
   external: sdk.z.object({
     url: sdk.z.string().url().describe('The external URL of the media'),
   }),
@@ -248,7 +247,7 @@ const toDoBlockSchema = sdk.z.object({
   type: sdk.z.literal('to_do'),
   to_do: sdk.z.object({
     rich_text: richTextArraySchema,
-    checked: sdk.z.boolean().optional().default(false).describe('Whether the to-do is checked'),
+    checked: sdk.z.boolean().optional().describe('Whether the to-do is checked (defaults to false if not provided)'),
     color: colorEnum.optional().describe('The color of the to-do'),
   }),
 })
@@ -304,7 +303,7 @@ const pdfBlockSchema = sdk.z.object({
 const fileBlockSchema = sdk.z.object({
   type: sdk.z.literal('file'),
   file: sdk.z.object({
-    type: sdk.z.literal('external').optional().default('external'),
+    type: sdk.z.literal('external').optional(),
     external: sdk.z.object({
       url: sdk.z.string().url().describe('The external URL of the file'),
     }),
@@ -343,12 +342,12 @@ const equationBlockSchema = sdk.z.object({
 
 const dividerBlockSchema = sdk.z.object({
   type: sdk.z.literal('divider'),
-  divider: sdk.z.object({}).optional().default({}),
+  divider: sdk.z.object({}).optional(),
 })
 
 const breadcrumbBlockSchema = sdk.z.object({
   type: sdk.z.literal('breadcrumb'),
-  breadcrumb: sdk.z.object({}).optional().default({}),
+  breadcrumb: sdk.z.object({}).optional(),
 })
 
 const tableOfContentsBlockSchema = sdk.z.object({
@@ -394,7 +393,7 @@ const tableBlockSchema = sdk.z.object({
     children: sdk.z
       .array(
         sdk.z.object({
-          type: sdk.z.literal('table_row').optional().default('table_row'),
+          type: sdk.z.literal('table_row').optional(),
           table_row: sdk.z.object({
             cells: sdk.z.array(sdk.z.array(richTextItemSchema)),
           }),
@@ -410,10 +409,10 @@ const columnListBlockSchema = sdk.z.object({
     children: sdk.z
       .array(
         sdk.z.object({
-          type: sdk.z.literal('column').optional().default('column'),
+          type: sdk.z.literal('column').optional(),
           column: sdk.z.object({
             children: sdk.z
-              .array(sdk.z.object({}).passthrough())
+              .array(sdk.z.record(sdk.z.any()))
               .optional()
               .describe('Blocks within the column - can contain any block type except column_list and column'),
           }),
@@ -428,7 +427,7 @@ const syncedBlockSchema = sdk.z.object({
   synced_block: sdk.z.object({
     synced_from: sdk.z
       .object({
-        type: sdk.z.literal('block_id').optional().default('block_id'),
+        type: sdk.z.literal('block_id').optional(),
         block_id: sdk.z.string().describe('The ID of the original synced block'),
       })
       .nullable()
