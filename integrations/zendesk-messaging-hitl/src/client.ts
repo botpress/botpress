@@ -458,13 +458,12 @@ class SuncoClient {
     }
   }
 
-  public async switchboardActionsReleaseControl(conversationId: string, reason?: string) {
+  public async switchboardActionsReleaseControl(conversationId: string) {
     try {
       await this._client.switchboardActions.releaseControl(this._appId, conversationId)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'release control from switchboard', {
         conversationId,
-        reason,
       })
     }
   }
