@@ -1,3 +1,4 @@
+import { Client } from '@botpress/client'
 import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
@@ -35,7 +36,6 @@ import { Trace } from './types.js'
 
 import { init, stripInvalidIdentifiers } from './utils.js'
 import { runAsyncFunction } from './vm.js'
-import { Client } from '@botpress/client'
 
 const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : JSON.stringify(err))
 
