@@ -31,6 +31,7 @@
     "jsonrepair": "^3.10.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@types/lodash": "^4.14.191",
     "dotenv": "^16.4.4",
@@ -41,7 +42,7 @@
   "peerDependencies": {
     "@botpress/client": "1.27.2",
     "@bpinternal/thicktoken": "^1.0.1",
-    "@bpinternal/zui": "1.2.1",
+    "@bpinternal/zui": "1.2.3",
     "lodash": "^4.17.21",
     "vitest": "^2 || ^3 || ^4 || ^5"
   },

@@ -4,9 +4,10 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'twilio'
+export const INTEGRATION_VERSION = '1.0.4'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '1.0.2',
+  version: INTEGRATION_VERSION,
   title: 'Twilio',
   description: 'Send and receive messages, voice calls, emails, SMS, and more.',
   icon: 'icon.svg',
@@ -36,7 +37,7 @@ export default new IntegrationDefinition({
     channel: {
       title: 'Conversation Channel',
       description: 'A channel for sending and receiving messages through Twilio Conversations',
-      messages: messages.defaults,
+      messages: { ...messages.defaults, bloc: messages.markdownBloc },
       message: {
         tags: {
           id: {

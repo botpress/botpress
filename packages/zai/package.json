@@ -39,7 +39,8 @@
     "p-limit": "^7.2.0"
   },
   "devDependencies": {
-    "@botpress/client": "workspace:^",
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/vai": "workspace:*",
     "@size-limit/file": "^11.1.6",
@@ -55,7 +56,7 @@
   },
   "peerDependencies": {
     "@bpinternal/thicktoken": "^1.0.0",
-    "@bpinternal/zui": "^1.2.2"
+    "@bpinternal/zui": "^1.2.3"
   },
   "engines": {
     "node": ">=18.0.0"

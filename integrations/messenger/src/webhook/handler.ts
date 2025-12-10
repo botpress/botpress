@@ -59,14 +59,15 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
   try {
     const response = await _handler(props)
+
     if (response?.status && response.status >= 400) {
-      const errorMessage = `Messenger handler failed with status ${response.status}: ${response.body}`
-      props.logger.error(errorMessage)
+      throw new Error(`${response.status}: ${response.body}`)
     }
+
     return response
   } catch (thrown: unknown) {
-    const errorMsg = thrown instanceof Error ? thrown.message : String(thrown)
-    const errorMessage = `Messenger handler failed with error: ${errorMsg}`
+    const error = thrown instanceof Error ? thrown.message : String(thrown)
+    const errorMessage = `Messenger handler failed with error: ${error}`
     props.logger.error(errorMessage)
     return { status: 500, body: errorMessage }
   }

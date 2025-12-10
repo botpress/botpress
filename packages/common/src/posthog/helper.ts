@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+
 import { EventMessage, PostHog } from 'posthog-node'
 
 export const COMMON_SECRET_NAMES = {
@@ -11,10 +12,11 @@ export const COMMON_SECRET_NAMES = {
 type PostHogConfig = {
   key: string
   integrationName: string
+  integrationVersion: string
 }
 
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName } = config
+  const { key, integrationName, integrationVersion } = config
   const client = new PostHog(key, {
     host: 'https://us.i.posthog.com',
   })
@@ -24,6 +26,7 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
       properties: {
         ...props.properties,
         integrationName,
+        integrationVersion,
       },
     }
     await client.captureImmediate(signedProps)
@@ -76,8 +79,12 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
-
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
+      }
+
       await sendPosthogEvent(
         {
           distinctId: distinctId ?? 'no id',
@@ -85,7 +92,9 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg,
+            ...additionalProps,
           },
         },
         config
@@ -101,6 +110,11 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
   return async (...args: any[]) => {
     const resp: void | Response = await fn(...args)
     if (resp instanceof Response && isServerErrorStatus(resp.status)) {
+      const additionalProps = {
+        configurationType: args[0]?.ctx?.configurationType,
+        integrationId: args[0]?.ctx?.integrationId,
+      }
+
       if (!resp.body) {
         await sendPosthogEvent(
           {
@@ -109,7 +123,9 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
             properties: {
               from: fn.name,
               integrationName: config.integrationName,
+              integrationVersion: config.integrationVersion,
               errMsg: 'Empty Body',
+              ...additionalProps,
             },
           },
           config
@@ -123,7 +139,9 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
           properties: {
             from: fn.name,
             integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
             errMsg: JSON.stringify(resp.body),
+            ...additionalProps,
           },
         },
         config

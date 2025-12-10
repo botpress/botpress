@@ -14,39 +14,122 @@ export const bambooHrOauthTokenResponse = z.object({
 
 export const bambooHrWebhookCreateResponse = z.object({
   id: z.string().title('Webhook ID').describe('The unique identifier for the created webhook.'),
-  created: z.string().title('Created At').describe('The timestamp at which the webhook was created.'),
   privateKey: z.string().title('Private Key').describe('The private key to validate incoming webhooks.'),
 })
 
 /** Fields that can be monitored for updates as a webhook event */
-export const bambooHrEmployeeWebhookFields = z.object({
-  firstName: z.string().title('First Name').describe("Employee's first name."),
-  lastName: z.string().title('Last Name').describe("Employee's last name."),
-  preferredName: z.string().nullable().optional().title('Preferred Name').describe("Employee's preferred name."),
-  jobTitle: z.string().nullable().optional().title('Job Title').describe("Employee's job title."),
-  department: z.string().nullable().optional().title('Department').describe("Employee's department."),
-  division: z.string().nullable().optional().title('Division').describe("Employee's division."),
-  location: z.string().nullable().optional().title('Location').describe("Employee's work location."),
-  mobilePhone: z.string().nullable().optional().title('Mobile Phone').describe("Employee's mobile phone number."),
-  workPhone: z.string().nullable().optional().title('Work Phone').describe("Employee's work phone number."),
-  workPhoneExtension: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Work Phone Extension')
-    .describe("Employee's work phone extension."),
-  homePhone: z.string().nullable().optional().title('Home Phone').describe("Employee's home phone number."),
-  workEmail: z.string().nullable().optional().title('Work Email').describe("Employee's work email address."),
-  homeEmail: z.string().nullable().optional().title('Home Email').describe("Employee's home email address."),
-  hireDate: z.string().nullable().optional().title('Hire Date').describe("Employee's hire date (YYYY-MM-DD)."),
-  terminationDate: z
-    .string()
-    .nullable()
-    .optional()
-    .title('Termination Date')
-    .describe("Employee's termination date (YYYY-MM-DD)."),
-  status: z.literal('Active').or(z.literal('Inactive')).title('Status').describe("Employee's status."),
-})
+export const bambooHrEmployeeWebhookFields = z
+  .object({
+    customBenefitIDNumber: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Benefit ID Number')
+      .describe('Custom benefit ID number.'),
+    customCitizenshipCertificate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Citizenship Certificate')
+      .describe('Custom citizenship certificate.'),
+    payChangeReason: z.string().nullable().optional().title('Pay Change Reason').describe('Pay change reason.'),
+    payRateEffectiveDate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Pay Rate Effective Date')
+      .describe('Pay rate effective date.'),
+    department: z.string().nullable().optional().title('Department').describe('Department.'),
+    division: z.string().nullable().optional().title('Division').describe('Division.'),
+    employeeNumber: z.string().nullable().optional().title('Employee Number').describe('Employee number.'),
+    employeeTaxType: z.string().nullable().optional().title('Employee Tax Type').describe('Employee tax type.'),
+    employmentHistoryStatus: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Employment History Status')
+      .describe('Employment history status.'),
+    employeeStatusDate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Employee Status Date')
+      .describe('Employee status date.'),
+    ethnicity: z.string().nullable().optional().title('Ethnicity').describe('Ethnicity.'),
+    facebook: z.string().nullable().optional().title('Facebook').describe('Facebook.'),
+    firstName: z.string().nullable().optional().title('First Name').describe('First name.'),
+    gender: z.string().nullable().optional().title('Gender').describe('Gender.'),
+    hireDate: z.string().nullable().optional().title('Hire Date').describe('Hire date.'),
+    homeEmail: z.string().nullable().optional().title('Home Email').describe('Home email.'),
+    homePhone: z.string().nullable().optional().title('Home Phone').describe('Home phone.'),
+    jobTitle: z.string().nullable().optional().title('Job Title').describe('Job title.'),
+    lastName: z.string().nullable().optional().title('Last Name').describe('Last name.'),
+    linkedIn: z.string().nullable().optional().title('LinkedIn').describe('LinkedIn.'),
+    location: z.string().nullable().optional().title('Location').describe('Location.'),
+    maritalStatus: z.string().nullable().optional().title('Marital Status').describe('Marital status.'),
+    middleName: z.string().nullable().optional().title('Middle Name').describe('Middle name.'),
+    mobilePhone: z.string().nullable().optional().title('Mobile Phone').describe('Mobile phone.'),
+    customNIN1: z.string().nullable().optional().title('Custom NIN1').describe('Custom NIN1.'),
+    nationality: z.string().nullable().optional().title('Nationality').describe('Nationality.'),
+    originalHireDate: z.string().nullable().optional().title('Original Hire Date').describe('Original hire date.'),
+    overtimeRate: z.string().nullable().optional().title('Overtime Rate').describe('Overtime rate.'),
+    exempt: z.string().nullable().optional().title('Exempt').describe('Exempt.'),
+    payPer: z.string().nullable().optional().title('Pay Per').describe('Pay per.'),
+    paySchedule: z.string().nullable().optional().title('Pay Schedule').describe('Pay schedule.'),
+    payRate: z.string().nullable().optional().title('Pay Rate').describe('Pay rate.'),
+    payType: z.string().nullable().optional().title('Pay Type').describe('Pay type.'),
+    preferredName: z.string().nullable().optional().title('Preferred Name').describe('Preferred name.'),
+    customProbationaryPeriodEndDate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Probationary Period End Date')
+      .describe('Custom probationary period end date.'),
+    customProbationaryPeriodStartDate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Probationary Period Start Date')
+      .describe('Custom probationary period start date.'),
+    customProjectedTerminationDate: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Projected Termination Date')
+      .describe('Custom projected termination date.'),
+    customROESATCompleted: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom ROESAT Completed')
+      .describe('Custom ROESAT completed.'),
+    reportsTo: z.string().nullable().optional().title('Reports To').describe('Reports to.'),
+    customShirtsize: z.string().nullable().optional().title('Custom Shirt Size').describe('Custom shirt size.'),
+    status: z.string().nullable().optional().title('Status').describe('Status.'),
+    teams: z.string().nullable().optional().title('Teams').describe('Teams.'),
+    customTerminationCode: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Termination Code')
+      .describe('Custom termination code.'),
+    customTerminationNoticeGiven: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Custom Termination Notice Given')
+      .describe('Custom termination notice given.'),
+    twitterFeed: z.string().nullable().optional().title('Twitter Feed').describe('Twitter feed.'),
+    workEmail: z.string().nullable().optional().title('Work Email').describe('Work email.'),
+    workPhoneExtension: z
+      .string()
+      .nullable()
+      .optional()
+      .title('Work Phone Extension')
+      .describe('Work phone extension.'),
+    workPhone: z.string().nullable().optional().title('Work Phone').describe('Work phone.'),
+  })
+  .passthrough()
 
 const bambooHrEmployeeBaseEvent = z.object({
   id: employeeId,
