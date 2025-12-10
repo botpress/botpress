@@ -8,6 +8,7 @@ export const updateAllConversations = async (props: WorkflowProps) => {
   const conversations = props.conversations['*']['*'].list({ tags: { isDirty: 'true' } })
   const dirtyConversations = await conversations.takePage(1)
 
+  props.logger.debug('updating convos', dirtyConversations.length)
   const promises: Promise<void>[] = []
   for (const conversation of dirtyConversations) {
     const firstMessagePage = await conversation.listMessages().takePage(1)

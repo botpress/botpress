@@ -13,6 +13,7 @@ type UpdateTitleAndSummaryProps = Omit<CommonProps, 'messages'> & {
   client: cognitive.BotpressClientLike
 }
 export const updateTitleAndSummary = async (props: UpdateTitleAndSummaryProps) => {
+  props.logger.debug('updating title and summary)')
   const summaryPrompt = summarizer.createPrompt({
     messages: props.messages,
     botId: props.ctx.botId,
