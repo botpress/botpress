@@ -43,7 +43,6 @@ RUN pnpm --filter @botpress/chat run build
 RUN pnpm --filter @botpress/sdk run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
-# RUN node ./packages/cli/dist/cli.js build --workDir ./integrations/chat
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
