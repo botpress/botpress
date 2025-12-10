@@ -21,6 +21,8 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       return await handlers.handlePageDeletedEvent(props)
     } else if (handlers.isPageMovedEvent(props)) {
       return await handlers.handlePageMovedEvent(props)
+    } else if (handlers.isCommentCreatedEvent(props)) {
+      return await handlers.handleCommentCreatedEvent(props)
     }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))

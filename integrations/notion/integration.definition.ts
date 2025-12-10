@@ -3,7 +3,7 @@ import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, configurations, events, identifier, secrets, states, user } from './definitions'
 
 export const INTEGRATION_NAME = 'notion'
-export const INTEGRATION_VERSION = '2.2.1'
+export const INTEGRATION_VERSION = '2.2.3'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
