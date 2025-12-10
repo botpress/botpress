@@ -1,4 +1,4 @@
-/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
+// zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import chat from './bp_modules/chat'
