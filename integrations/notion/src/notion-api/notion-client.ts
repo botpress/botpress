@@ -114,6 +114,8 @@ export class NotionClient {
       block_id: pageId,
       children: [block],
     }))
+  }
+
   @handleErrors('Failed to search by title')
   public async searchByTitle({ title }: { title?: string }) {
     const [response, databaseResponse] = await Promise.all([

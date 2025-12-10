@@ -136,35 +136,37 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({}),
-  searchByTitle: {
-    title: 'Search by Title',
-    description:
-      'Search for pages and databases in Notion. Optionally filter by title. Only returns items that have been shared with the integration.',
-    input: {
-      schema: sdk.z.object({
-        title: sdk.z
-          .string()
-          .optional()
-          .title('Title')
-          .describe(
-            'Optional search query to match against page and database titles. If not provided, returns all accessible pages and databases.'
-          ),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        results: sdk.z
-          .array(
-            sdk.z.object({
-              id: sdk.z.string().title('ID').describe('The ID of the page or database'),
-              title: sdk.z.string().title('Title').describe('The title of the page or database'),
-              type: sdk.z.string().title('Type').describe('The type of the result (page or database)'),
-              url: sdk.z.string().title('URL').describe('The URL to the page or database'),
-            })
-          )
-          .title('Results')
-          .describe('Array of pages and databases matching the search query'),
-      }),
+      searchByTitle: {
+        title: 'Search by Title',
+        description:
+          'Search for pages and databases in Notion. Optionally filter by title. Only returns items that have been shared with the integration.',
+        input: {
+          schema: sdk.z.object({
+            title: sdk.z
+              .string()
+              .optional()
+              .title('Title')
+              .describe(
+                'Optional search query to match against page and database titles. If not provided, returns all accessible pages and databases.'
+              ),
+          }),
+        },
+        output: {
+          schema: sdk.z.object({
+            results: sdk.z
+              .array(
+                sdk.z.object({
+                  id: sdk.z.string().title('ID').describe('The ID of the page or database'),
+                  title: sdk.z.string().title('Title').describe('The title of the page or database'),
+                  type: sdk.z.string().title('Type').describe('The type of the result (page or database)'),
+                  url: sdk.z.string().title('URL').describe('The URL to the page or database'),
+                })
+              )
+              .title('Results')
+              .describe('Array of pages and databases matching the search query'),
+          }),
+        },
+      },
     },
   },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
