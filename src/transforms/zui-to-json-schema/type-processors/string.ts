@@ -49,8 +49,10 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
         break
       case 'datetime':
         schema.format = 'date-time'
-        schema.pattern = generateDatetimeRegex(check).source
-        schema[zuiKey] = { ...schema[zuiKey], precision: check.precision, offset: check.offset }
+        if (check.precision !== null || check.offset) {
+          schema.pattern = generateDatetimeRegex(check).source
+          schema[zuiKey] = { ...schema[zuiKey], precision: check.precision, offset: check.offset }
+        }
         break
       case 'url':
         schema.format = 'uri'
