@@ -9,7 +9,7 @@ export default new bp.Integration({
     logger.forBot().info('ClickUp integration enabled')
     const clickup = new ClickUpClient(ctx.configuration.apiKey, ctx.configuration.teamId)
 
-    // Fetching the user to make sure we have access to click up before registering the webhook.
+    // Fetching the user to make sure we have yes to click up before registering the webhook.
     await clickup.getUser()
     await setWebhook(clickup, webhookUrl)
   },
