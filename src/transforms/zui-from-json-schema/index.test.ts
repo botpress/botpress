@@ -185,23 +185,26 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
     assert(zSchema).toEqual(expected)
   })
 
-  test('should map DiscriminatedUnionSchema to ZodUnion', () => {
-    const jSchema = buildSchema({
-      anyOf: [
-        {
-          type: 'object',
-          properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
-          required: ['type', 'a'],
-        },
-        {
-          type: 'object',
-          properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
-          required: ['type', 'b'],
-        },
-      ],
-    })
+  test('should map DiscriminatedUnionSchema to ZodDiscriminatedUnion', () => {
+    const jSchema = buildSchema(
+      {
+        anyOf: [
+          {
+            type: 'object',
+            properties: { type: { type: 'string', const: 'A' }, a: { type: 'string' } },
+            required: ['type', 'a'],
+          },
+          {
+            type: 'object',
+            properties: { type: { type: 'string', const: 'B' }, b: { type: 'number' } },
+            required: ['type', 'b'],
+          },
+        ],
+      },
+      { def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' } },
+    )
     const zSchema = fromJSONSchema(jSchema)
-    const expected = z.union([
+    const expected = z.discriminatedUnion('type', [
       z.object({ type: z.literal('A'), a: z.string() }),
       z.object({ type: z.literal('B'), b: z.number() }),
     ])
@@ -662,9 +665,23 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
       expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
     })
 
-    test('should preserve discriminated union with descriptions', () => {
+    test('should preserve union with descriptions', () => {
       const original = z
         .union([
+          z.object({ type: z.literal('success'), data: z.string().describe('Success data') }),
+          z.object({ type: z.literal('error'), message: z.string().describe('Error message') }),
+        ])
+        .describe('API Response')
+
+      const restored = roundTrip(original)
+
+      expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
+      expect(restored._def.description).toBe('API Response')
+    })
+
+    test('should preserve discriminated union with descriptions', () => {
+      const original = z
+        .discriminatedUnion('type', [
           z.object({ type: z.literal('success'), data: z.string().describe('Success data') }),
           z.object({ type: z.literal('error'), message: z.string().describe('Error message') }),
         ])
@@ -930,7 +947,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
       expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
     })
 
-    test('should preserve complex discriminated union structure', () => {
+    test('should preserve complex union structure', () => {
       const original = z.union([
         z.object({
           kind: z.literal('circle'),
@@ -944,6 +961,24 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
           kind: z.literal('rectangle'),
           width: z.number(),
           height: z.number(),
+        }),
+      ])
+      const restored = roundTrip(original)
+
+      expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
+    })
+
+    test('should preserve discriminated union of objects with optional fields', () => {
+      const original = z.discriminatedUnion('type', [
+        z.object({
+          type: z.literal('A'),
+          value: z.string(),
+          extra: z.number().optional(),
+        }),
+        z.object({
+          type: z.literal('B'),
+          data: z.boolean(),
+          meta: z.string().optional(),
         }),
       ])
       const restored = roundTrip(original)

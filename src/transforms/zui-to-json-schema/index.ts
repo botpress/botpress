@@ -109,8 +109,11 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
       return {
         description: def.description,
         anyOf: def.options.map((option) => toJSONSchema(option)),
-        'x-zui': def['x-zui'],
-      } satisfies json.UnionSchema
+        'x-zui': {
+          ...def['x-zui'],
+          def: { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion, discriminator: def.discriminator },
+        },
+      } satisfies json.DiscriminatedUnionSchema
 
     case z.ZodFirstPartyTypeKind.ZodIntersection:
       const left = toJSONSchema(def.left)

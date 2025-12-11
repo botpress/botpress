@@ -379,6 +379,13 @@ describe.concurrent('transformPipeline', () => {
     const srcSchema = z.union([z.string(), z.number()])
     assert(srcSchema).toTransformBackToItself()
   })
+  it('should map ZodDiscriminatedUnion to itself', async () => {
+    const srcSchema = z.discriminatedUnion('type', [
+      z.object({ type: z.literal('foo'), foo: z.string() }).strict(),
+      z.object({ type: z.literal('bar'), bar: z.number() }).strict(),
+    ])
+    assert(srcSchema).toTransformBackToItself()
+  })
   it('should map ZodIntersection to itself', async () => {
     const srcSchema = z.intersection(
       z.object({ type: z.literal('foo'), foo: z.string() }),

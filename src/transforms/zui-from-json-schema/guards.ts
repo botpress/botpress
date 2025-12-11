@@ -19,3 +19,7 @@ export const isUndefinedSchema = (s: JSONSchema7): s is json.UndefinedSchema =>
 
 export const isUnknownSchema = (s: JSONSchema7): s is json.UnknownSchema =>
   !s.not && (s as json.UnknownSchema)['x-zui']?.def?.typeName === z.ZodFirstPartyTypeKind.ZodUnknown
+
+export const isDiscriminatedUnionSchema = (s: JSONSchema7): s is json.DiscriminatedUnionSchema =>
+  s.anyOf !== undefined &&
+  (s as json.DiscriminatedUnionSchema)['x-zui']?.def?.typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion

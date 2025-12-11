@@ -13,6 +13,10 @@ type NullableDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodNullabl
 type OptionalDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodOptional }, Partial<z.ZodOptionalDef>>
 type UndefinedDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodUndefined }, Partial<z.ZodUndefinedDef>>
 type UnknownDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodUnknown }, Partial<z.ZodUnknownDef>>
+type DiscriminatedUnionDef = util.Satisfies<
+  { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion; discriminator?: string },
+  Partial<z.ZodDiscriminatedUnionDef>
+>
 
 /**
  * ZuiJSONSchema:
@@ -99,7 +103,7 @@ export type AnySchema = BaseZuiJSONSchema
 export type UnknownSchema = BaseZuiJSONSchema<UnknownDef>
 export type ArraySchema = _ArraySchema & BaseZuiJSONSchema
 export type UnionSchema = _UnionSchema & BaseZuiJSONSchema
-export type DiscriminatedUnionSchema = _DiscriminatedUnionSchema & BaseZuiJSONSchema
+export type DiscriminatedUnionSchema = _DiscriminatedUnionSchema & BaseZuiJSONSchema<DiscriminatedUnionDef>
 export type IntersectionSchema = _IntersectionSchema & BaseZuiJSONSchema
 export type SetSchema = _SetSchema & BaseZuiJSONSchema
 export type EnumSchema = _EnumSchema & BaseZuiJSONSchema

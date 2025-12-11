@@ -156,6 +156,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (schema.anyOf.length === 0) {
       return DEFAULT_TYPE
     }
+
     if (schema.anyOf.length === 1) {
       return _fromJSONSchema(schema.anyOf[0])
     }
@@ -168,6 +169,16 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (guards.isNullableSchema(schema)) {
       const inner = _fromJSONSchema(schema.anyOf[0])
       return inner.nullable()
+    }
+
+    if (guards.isDiscriminatedUnionSchema(schema) && schema['x-zui']?.def?.discriminator) {
+      const { discriminator } = schema['x-zui'].def
+      const options = schema.anyOf.map(_fromJSONSchema) as [
+        z.ZodDiscriminatedUnionOption<string>,
+        z.ZodDiscriminatedUnionOption<string>,
+        ...z.ZodDiscriminatedUnionOption<string>[],
+      ]
+      return z.discriminatedUnion(discriminator, options)
     }
 
     const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
