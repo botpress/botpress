@@ -4,7 +4,7 @@ import hitl from './bp_modules/hitl'
 
 export default new sdk.IntegrationDefinition({
   name: 'zendesk-messaging-hitl',
-  version: '0.1.0',
+  version: '0.1.1',
   title: 'Zendesk Messaging HITL',
   description: 'This integration allows your bot to use Sunshine Conversations (Sunco) as a HITL Provider for Zendesk',
   icon: 'icon.svg',
@@ -53,7 +53,7 @@ export default new sdk.IntegrationDefinition({
       description: 'A support request',
       schema: sdk.z.object({
         priority: sdk.z
-          .enum(['Low', 'Medium', 'High', 'Urgent'])
+          .enum(['Low', 'Normal', 'High', 'Urgent'])
           .title('Priority')
           .describe('Priority of the conversation. Leave empty for default priority.')
           .optional(),

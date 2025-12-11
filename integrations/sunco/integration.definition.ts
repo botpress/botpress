@@ -7,7 +7,7 @@ import { events } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '1.1.0',
+  version: '1.1.1',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',

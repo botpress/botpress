@@ -1,6 +1,26 @@
 // @ts-expect-error No types for sunshine-conversations-client
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
+export function createClient(keyId: string, keySecret: string) {
+  const apiClient = new SunshineConversationsApi.ApiClient()
+  const auth = apiClient.authentications['basicAuth']
+  auth.username = keyId
+  auth.password = keySecret
+
+  return {
+    activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
+    apps: new SunshineConversationsApi.AppsApi(apiClient),
+    users: new SunshineConversationsApi.UsersApi(apiClient),
+    conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
+    messages: new SunshineConversationsApi.MessagesApi(apiClient),
+    webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
+    integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
+    switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
+    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
+    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
+  }
+}
+
 // The typings below were generated using AI based on dist from sunshine-conversations-client
 
 // ============================================================================
