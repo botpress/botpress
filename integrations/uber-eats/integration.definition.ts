@@ -14,6 +14,15 @@ export default new IntegrationDefinition({
       storeId: z.string().title('Store ID').optional(),
     }),
   },
+  states: {
+    oauthToken: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().nullable(),
+        expiresAt: z.number().nullable(),
+      }),
+    },
+  },
   actions: {
     getOrders: {
       title: 'Get Recent Orders',

@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios'
 import * as bp from '.botpress'
 
-const TOKEN_STATE_KEY = 'oauth-token'
+const TOKEN_STATE_KEY = 'oauthToken'
 const DEFAULT_SCOPE = 'eats.store eats.order'
 
 export class UberEatsClient {
@@ -95,5 +95,10 @@ export class UberEatsClient {
     }
 
     return await this._requestNewToken()
+  }
+
+  public async testConnection() {
+    await this._getAccessToken()
+    return true
   }
 }

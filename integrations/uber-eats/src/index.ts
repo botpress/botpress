@@ -1,33 +1,55 @@
-import * as sdk from '@botpress/sdk'
+import { UberEatsClient } from './api/uber-client'
+import { handler } from './handler'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when an integration configuration is saved.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    // throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  actions: {
-    helloWorld: async (props) => {
-      /**
-       * This is called when a bot calls the action `helloWorld`.
-       */
-      props.logger.forBot().info('Hello World!') // this log will be visible by the bots that use this integration
+  register: async ({ ctx, client, logger }) => {
+    const uber = new UberEatsClient({
+      clientId: ctx.configuration.clientId,
+      clientSecret: ctx.configuration.clientSecret,
+      bpClient: client,
+      ctx,
+    })
 
-      let { name } = props.input
-      name = name || 'World'
-      return { message: `Hello "${name}"! Nice to meet youuuu hehehe ;)` }
+    await uber.testConnection()
+
+    logger.forBot().info('Uber Eats credentials validated.')
+  },
+
+  unregister: async () => {},
+  actions: {
+    getOrders: async (props) => {
+      props.logger.forBot().info('Mock: Fetching recent Uber Eats orders...')
+
+      // Mock fake orders
+      return {
+        orders: [
+          {
+            id: 'order_123',
+            status: 'PLACED',
+            items: [{ name: 'Pizza', qty: 1 }],
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: 'order_456',
+            status: 'NEW',
+            items: [{ name: 'Burger', qty: 2 }],
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      }
+    },
+
+    acceptOrder: async (props) => {
+      const { orderId } = props.input
+      props.logger.forBot().info(`Mock: Accepting order ${orderId}...`)
+
+      // Pretend we called Uber API
+      await new Promise((resolve) => setTimeout(resolve, 300)) // fake latency
+
+      return {}
     },
   },
   channels: {},
-  handler: async () => {},
+  handler,
 })
