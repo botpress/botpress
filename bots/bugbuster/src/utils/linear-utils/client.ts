@@ -216,14 +216,13 @@ export class LinearApi {
       name,
       value,
     }))
-    await this._bpClient.callAction({
+    const result = await this._bpClient.callAction({
       type: 'linear:sendRawGraphqlQuery',
       input: {
         query: graphql.GRAPHQL_QUERIES[queryName].query,
         parameters: params,
       },
     })
-    return (await this._client.client.rawRequest(graphql.GRAPHQL_QUERIES[queryName].query, variables))
-      .data as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
+    return result.output.result as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
 }
