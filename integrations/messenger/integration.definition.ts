@@ -5,6 +5,7 @@ import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
 import { messages } from './definitions/channels/channel/messages'
+import { actions } from './definitions/actions'
 
 export const INTEGRATION_NAME = 'messenger'
 export const INTEGRATION_VERSION = '5.0.4'
@@ -147,7 +148,7 @@ export default new IntegrationDefinition({
       },
     },
   },
-  actions: {},
+  actions,
   events: {},
   states: {
     oauth: {
