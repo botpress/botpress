@@ -17,7 +17,7 @@ plugin.on.afterIncomingMessage('*', async (props) => {
   await onNewMessageHandler.onNewMessage({ ...props, conversation })
 
   if (props.configuration.aiEnabled) {
-    const events = await props.events.updateAiInsight.list().take(1)
+    const events = await props.events.updateAiInsight.list({ status: 'scheduled' }).take(1)
 
     if (events.length === 0) {
       const dateTime = new Date(Date.now() + HOUR_MILLISECONDS).toISOString()
