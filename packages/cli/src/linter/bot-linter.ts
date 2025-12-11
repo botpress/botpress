@@ -4,7 +4,7 @@ import { BaseLinter } from './base-linter'
 import { BOT_RULESET } from './rulesets/bot.ruleset'
 
 export class BotLinter extends BaseLinter<CreateBotRequestBody> {
-  public constructor(definition: CreateBotRequestBody, logger: Logger) {
+  public constructor(definition: CreateBotRequestBody, logger?: Logger) {
     super(definition, BOT_RULESET, logger)
   }
 }

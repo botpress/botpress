@@ -9,7 +9,7 @@ export type AggregateIntegrationBody = Omit<CreateIntegrationRequestBody, 'secre
   Pick<sdk.IntegrationDefinitionProps, 'secrets'>
 
 export class IntegrationLinter extends BaseLinter<AggregateIntegrationBody> {
-  public constructor(definition: AggregateIntegrationBody, logger: Logger) {
+  public constructor(definition: AggregateIntegrationBody, logger?: Logger) {
     super(definition, INTEGRATION_RULESET, logger)
   }
 }

@@ -5,7 +5,7 @@ import { TRUTHY_WITH_MESSAGE_ID } from './spectral-functions'
 
 type ProblemSeverity = 0 | 1 | 2 | 3
 
-const _injectLoggerIntoRulesetOptions = (ruleset: RulesetDefinition, logger: Logger) => {
+const _injectLoggerIntoRulesetOptions = (ruleset: RulesetDefinition, logger?: Logger) => {
   // This is the most jankiest thing I've ever done but
   // Spectral was never designed to be extended at all
   if ('rules' in ruleset) {
@@ -32,7 +32,7 @@ export abstract class BaseLinter<TDefinition> {
   private readonly _spectralDocument: Document<unknown, JsonParserResult<unknown>>
   private _results: ISpectralDiagnostic[] = []
 
-  protected constructor(definition: TDefinition, ruleset: RulesetDefinition, logger: Logger) {
+  protected constructor(definition: TDefinition, ruleset: RulesetDefinition, logger?: Logger) {
     _injectLoggerIntoRulesetOptions(ruleset, logger)
 
     const json = JSON.stringify(definition)
