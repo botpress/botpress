@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError } from '@botpress/sdk'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 
