@@ -12,7 +12,7 @@ const RESULTS_PER_PAGE = 200
 export class LinearApi {
   private _teams?: lin.Team[] = undefined
   private _states?: State[] = undefined
-  private _viewer?: lin.User = undefined
+  private _viewerId?: string = undefined
 
   private constructor(
     private _client: lin.LinearClient,
@@ -29,16 +29,19 @@ export class LinearApi {
     return this._client
   }
 
-  public async getMe(): Promise<lin.User> {
-    if (this._viewer) {
-      return this._viewer
+  public async getViewerId(): Promise<string> {
+    if (this._viewerId) {
+      return this._viewerId
     }
-    const me = await this._client.viewer
+    const { output: me } = await this._bpClient.callAction({
+      type: 'linear:getUser',
+      input: {},
+    })
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')
     }
-    this._viewer = me
-    return this._viewer
+    this._viewerId = me.linearId
+    return this._viewerId
   }
 
   public async isTeam(teamKey: string) {
@@ -123,11 +126,11 @@ export class LinearApi {
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
     const comments = issue.comments.nodes
-    const me = await this.getMe()
+    const me = await this.getViewerId()
 
     const promises: Promise<lin.CommentPayload>[] = []
     for (const comment of comments) {
-      if (comment.user?.id === me.id && !comment.parentId && !comment.resolvedAt) {
+      if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
         promises.push(this._client.commentResolve(comment.id))
       }
     }
