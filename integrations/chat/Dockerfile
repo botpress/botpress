@@ -16,7 +16,7 @@ WORKDIR /usr/app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install pnpm and build dependencies
-RUN npm install --frozen-lockfile -g pnpm@${PNPM_VERSION} && echo "PNPM version: ${PNPM_VERSION}"
+RUN npm install -g pnpm@${PNPM_VERSION} && echo "PNPM version: ${PNPM_VERSION}"
 
 # copy package dependencies
 COPY ./packages /usr/app/packages
