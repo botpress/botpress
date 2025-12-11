@@ -1,0 +1,16 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "dev-workspace/my-integration",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.27.2",
+    "@botpress/sdk": "5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
