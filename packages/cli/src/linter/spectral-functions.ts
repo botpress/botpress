@@ -3,6 +3,8 @@ import type { JsonPath, Segment } from '@stoplight/types'
 import { JSONPath } from 'jsonpath-plus'
 import { Logger } from '../logger'
 
+export const TRUTHY_WITH_MESSAGE_ID = 'truthyWithMessage'
+
 type SpectralDocument = RulesetFunctionContext['document']
 type RulesetThenFn = Exclude<RuleDefinition['then'], Array<any>>['function']
 
@@ -51,13 +53,14 @@ export function truthyWithMessage(failMsgMapperOrOptions: MessageFn | TruthyWith
   const { failMsgMapper, fallbackExtractor } =
     typeof failMsgMapperOrOptions === 'function' ? { failMsgMapper: failMsgMapperOrOptions } : failMsgMapperOrOptions
 
-  const logger = new Logger()
-  return (input: string, _: unknown, context: RulesetFunctionContext) => {
+  const fn = (input: string, options: unknown, context: RulesetFunctionContext) => {
     const messages: IFunctionResult[] = []
 
     if (!_isFalsy(input)) {
       return messages
     }
+
+    const logger = _extractLoggerFromOptions(options)
 
     const { path } = context
     if (!fallbackExtractor) {
@@ -85,13 +88,30 @@ export function truthyWithMessage(failMsgMapperOrOptions: MessageFn | TruthyWith
         }
       } catch (thrown: unknown) {
         const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-        logger.error(`Ruleset failed in either the fallback extractor or the message supplier -> ${error.message}`)
+        const message = `[${_getRuleDescriptor(context)}] Ruleset failed in either the fallback extractor or the message supplier -> ${error.message}`
+        if (logger) {
+          logger.error(message)
+        } else {
+          messages.push({
+            message: message + '\n[IGNORE] ->',
+          })
+        }
       }
     }
 
     return messages
   }
+
+  Object.defineProperty(fn, 'name', {
+    value: TRUTHY_WITH_MESSAGE_ID,
+    configurable: false,
+    writable: false,
+  })
+  return fn
 }
+
+const _getRuleDescriptor = (context: RulesetFunctionContext): string | null =>
+  ('name' in context.rule ? `${context.rule.name}` : context.rule.description) ?? '<unknown-rule>'
 
 const _isFalsy = (input: string): boolean => {
   return !input
@@ -107,6 +127,10 @@ const _parseJsonPathPointer = (pointer: string): JsonPath => {
       const numOrNan = Number(segment)
       return isNaN(numOrNan) ? segment : numOrNan
     })
+}
+
+const _isObjectAndHasProp = <K extends string>(obj: unknown, key: K): obj is Record<K, unknown> => {
+  return typeof obj === 'object' ? _safeHasProp(obj, key) : false
 }
 
 // This is safer than `"key" in obj` when
@@ -136,4 +160,12 @@ const _extractJsonPath = (schemaDocument: SpectralDocument, fallbackJsonPath: st
     const resolvedPath = _parseJsonPathPointer(result.pointer)
     return { resolvedPath, value: result.value }
   })
+}
+
+const _extractLoggerFromOptions = (options: unknown): Logger | null => {
+  if (!_isObjectAndHasProp(options, 'logger')) {
+    return null
+  }
+
+  return options.logger instanceof Logger ? options.logger : null
 }
