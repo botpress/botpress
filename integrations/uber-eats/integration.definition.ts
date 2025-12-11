@@ -1,4 +1,12 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import {
+  UberDeliveryStateChangedEvent,
+  UberOrdersFailureEvent,
+  UberOrdersFulfillmentIssuesResolvedEvent,
+  UberOrdersNotificationEvent,
+  UberOrdersReleaseEvent,
+  UberOrdersScheduledNotificationEvent,
+} from 'src/events/webhook-event'
 
 export default new IntegrationDefinition({
   name: 'ubereats',
@@ -46,12 +54,29 @@ export default new IntegrationDefinition({
     },
   },
   events: {
-    orderCreated: {
-      title: 'Order Created',
-      description: 'Triggered when a new order is placed.',
-      schema: z.object({
-        orderId: z.string(),
-      }),
+    ordersNotification: {
+      title: 'Orders Notification',
+      schema: UberOrdersNotificationEvent,
+    },
+    ordersScheduledNotification: {
+      title: 'Orders Scheduled Notification',
+      schema: UberOrdersScheduledNotificationEvent,
+    },
+    ordersRelease: {
+      title: 'Orders Release',
+      schema: UberOrdersReleaseEvent,
+    },
+    ordersFailure: {
+      title: 'Orders Failure',
+      schema: UberOrdersFailureEvent,
+    },
+    ordersFulfillmentIssuesResolved: {
+      title: 'Orders Fulfillment Issue Resolved',
+      schema: UberOrdersFulfillmentIssuesResolvedEvent,
+    },
+    deliveryStateChanged: {
+      title: 'Delivery State Changed',
+      schema: UberDeliveryStateChangedEvent,
     },
   },
 })
