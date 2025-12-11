@@ -35,43 +35,43 @@ export const UberBaseWebhook = {
 
 export const UberOrderStatus = z.string().describe('Raw order status, example: "pos"')
 
-const UberOrderMeta = z.object({
+export const UberOrderMeta = z.object({
   user_id: z.string().uuid(),
   resource_id: z.string().uuid(),
   status: UberOrderStatus,
 })
 
-const UberOrdersNotificationEvent = z.object({
+export const UberOrdersNotificationEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('orders.notification'),
   meta: UberOrderMeta,
 })
 
-const UberOrdersScheduledNotificationEvent = z.object({
+export const UberOrdersScheduledNotificationEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('orders.scheduled.notification'),
   meta: UberOrderMeta,
 })
 
-const UberOrdersReleaseEvent = z.object({
+export const UberOrdersReleaseEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('orders.release'),
   meta: UberOrderMeta,
 })
 
-const UberOrdersFailureEvent = z.object({
+export const UberOrdersFailureEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('orders.failure'),
   meta: UberOrderMeta,
 })
 
-const UberOrdersFulfillmentIssuesResolvedEvent = z.object({
+export const UberOrdersFulfillmentIssuesResolvedEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('orders.fulfillment_issues.resolved'),
   meta: UberOrderMeta,
 })
 
-const UberDeliveryStateChangedEvent = z.object({
+export const UberDeliveryStateChangedEvent = z.object({
   ...UberBaseWebhook,
   event_type: z.literal('delivery.state_changed'),
   meta: z.object({
@@ -93,3 +93,4 @@ export const UberSupportedWebhookEvents = z.discriminatedUnion('event_type', [
 ])
 
 export type UberSupportedWebhookEvent = z.infer<typeof UberSupportedWebhookEvents>
+export type UberWebhookEventType = UberSupportedWebhookEvent['event_type']
