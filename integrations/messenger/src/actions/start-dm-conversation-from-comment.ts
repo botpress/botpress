@@ -2,7 +2,9 @@ import { RuntimeError } from '@botpress/sdk'
 import { createAuthenticatedMessengerClient } from 'src/misc/messenger-client'
 import * as bp from '.botpress'
 
-const startDmConversationFromComment: bp.IntegrationProps['actions']['startDmConversationFromComment'] = async (props) => {
+const startDmConversationFromComment: bp.IntegrationProps['actions']['startDmConversationFromComment'] = async (
+  props
+) => {
   const { client, ctx, input, logger } = props
   if (ctx.configurationType === 'sandbox') {
     throw new RuntimeError('Starting a conversation is not supported in sandbox mode')
