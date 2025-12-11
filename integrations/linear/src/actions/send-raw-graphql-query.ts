@@ -18,7 +18,7 @@ export const sendRawGraphqlQuery: bp.IntegrationProps['actions']['sendRawGraphql
   try {
     const linearClient = await getLinearClient(args, ctx.integrationId)
     const result = await linearClient.client.rawRequest(query, mappedParams)
-    return { result }
+    return { result: result.data }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
     throw new RuntimeError(`Failed to query the Linear API: ${error.message}`)
