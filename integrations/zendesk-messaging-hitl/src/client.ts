@@ -13,6 +13,7 @@ import {
   type PostMessageRequest,
   type MessageAuthor,
   type MessageContent,
+  Message,
 } from './sunshine-api'
 
 export class SuncoClientError extends RuntimeError {
@@ -282,7 +283,7 @@ class SuncoClient {
     messageParts: Array<MessageContent>
   ) {
     try {
-      let message
+      let message: Message | undefined
 
       let author: MessageAuthor
       if (typeof userIdOrAuthor === 'string') {
@@ -360,27 +361,6 @@ class SuncoClient {
       return result.integration
     } catch (thrown: unknown) {
       this._handleError(thrown, 'create integration')
-    }
-  }
-
-  public async createWebhook(integrationId: string, webhookUrl: string) {
-    try {
-      return this._client.webhooks.createIntegrationWebhook(this._appId, integrationId, {
-        target: webhookUrl,
-        triggers: ['conversation:message', 'conversation:read'],
-        includeFullUser: false,
-        includeFullSource: false,
-      })
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'create webhook', { integrationId })
-    }
-  }
-
-  public async deleteWebhook(integrationId: string, webhookId: string) {
-    try {
-      await this._client.webhooks.deleteIntegrationWebhook(this._appId, integrationId, webhookId)
-    } catch (thrown: unknown) {
-      this._handleError(thrown, 'delete webhook', { integrationId, webhookId })
     }
   }
 
@@ -478,15 +458,12 @@ class SuncoClient {
     }
   }
 
-  public async switchboardActionsReleaseControl(conversationId: string, reason?: string) {
+  public async switchboardActionsReleaseControl(conversationId: string) {
     try {
-      await this._client.switchboardActions.releaseControl(this._appId, conversationId, {
-        ...(reason && { reason }),
-      })
+      await this._client.switchboardActions.releaseControl(this._appId, conversationId)
     } catch (thrown: unknown) {
       this._handleError(thrown, 'release control from switchboard', {
         conversationId,
-        reason,
       })
     }
   }

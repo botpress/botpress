@@ -97,7 +97,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ inp
     const suncoClient = getSuncoClient(ctx.configuration)
 
     logger.forBot().info(`Releasing control from switchboard for conversation ${suncoConversationId}`)
-    await suncoClient.switchboardActionsReleaseControl(suncoConversationId, 'ticketClosed')
+    await suncoClient.switchboardActionsReleaseControl(suncoConversationId)
     logger.forBot().info(`HITL conversation ${suncoConversationId} stopped and control released`)
   } catch (thrown: unknown) {
     const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
