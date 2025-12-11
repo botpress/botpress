@@ -2,8 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import { createAuthenticatedMessengerClient } from 'src/misc/messenger-client'
 import * as bp from '.botpress'
 
-const dmConversationFromComment: bp.IntegrationProps['actions']['dmConversationFromComment'] = async (props) => {
-  const { client, ctx, input } = props
+const startDmConversationFromComment: bp.IntegrationProps['actions']['startDmConversationFromComment'] = async (props) => {
+  const { client, ctx, input, logger } = props
   if (ctx.configurationType === 'sandbox') {
     throw new RuntimeError('Starting a conversation is not supported in sandbox mode')
   }
@@ -39,7 +39,7 @@ const dmConversationFromComment: bp.IntegrationProps['actions']['dmConversationF
     })
     .catch((thrown) => {
       const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new RuntimeError(`Failed to create synthetic message from comment ${commentId}: ${error.message}`)
+      logger.forBot().error(`Failed to create synthetic message from comment ${commentId}: ${error.message}`)
     })
 
   return {
@@ -47,4 +47,4 @@ const dmConversationFromComment: bp.IntegrationProps['actions']['dmConversationF
   }
 }
 
-export default dmConversationFromComment
+export default startDmConversationFromComment

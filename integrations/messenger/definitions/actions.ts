@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 
 export const actions = {
-  dmConversationFromComment: {
+  startDmConversationFromComment: {
     title: 'Start DM Conversation from Comment',
     description: 'Start a DM conversation from a comment',
     input: {
