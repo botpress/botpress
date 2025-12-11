@@ -10,7 +10,7 @@ export const bootstrap = (props: types.CommonHandlerProps) => {
   const { client, logger, ctx } = props
   const botpress = utils.botpress.BotpressApi.create(props)
 
-  const linear = utils.linear.LinearApi.create()
+  const linear = utils.linear.LinearApi.create(client)
   const teamsManager = new TeamsManager(linear, client, ctx.botId)
   const recentlyLintedManager = new RecentlyLintedManager(linear)
   const issueProcessor = new IssueProcessor(logger, linear, teamsManager)
