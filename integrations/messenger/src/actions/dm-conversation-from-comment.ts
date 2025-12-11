@@ -25,6 +25,9 @@ const dmConversationFromComment: bp.IntegrationProps['actions']['dmConversationF
     channel: 'channel',
     tags: { id: recipientId },
     discriminateByTags: ['id'],
+  }).catch((thrown) => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get or create conversation for recipient ${recipientId}: ${error.message}`)
   })
   
   await client.createMessage({
