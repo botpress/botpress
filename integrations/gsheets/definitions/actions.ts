@@ -53,8 +53,8 @@ const getValues = {
   },
 } as const satisfies ActionDef
 
-const updateValues = {
-  title: 'Update Values',
+const setValues = {
+  title: 'Set Values',
   description: 'Sets values in a range in the spreadsheet.',
   input: {
     schema: z.object({
@@ -92,12 +92,20 @@ const updateValues = {
 const appendValues = {
   title: 'Append Values',
   description:
-    'Appends values to the spreadsheet. The input range is used to search for existing data and find a "table" within that range. Values will be appended to the next row of the table, starting with the first column of the table.',
+    'Appends values to the spreadsheet. The input startColumn is used to search for existing data and find a "table" within that range. Values will be appended to the next row of the table, starting with the first column of the table.',
   input: {
     schema: z.object({
-      range: _commonFields.range.describe(
-        'The A1 notation of a range to search for a logical table of data. Values are appended after the last row of the table. (e.g. "Sheet1!A1:B2")'
-      ),
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .describe(
+          'The start column letter(s) (e.g. "A", "B", "AA"). The range will be constructed from this column row 1 to column row 100000.'
+        ),
       majorDimension: _commonFields.majorDimension
         .optional()
         .describe(
@@ -430,5 +438,5 @@ export const actions = {
   renameSheet,
   setSheetVisibility,
   unprotectRange,
-  updateValues,
+  setValues,
 } as const satisfies ActionDefinitions

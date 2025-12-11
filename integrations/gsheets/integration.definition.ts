@@ -12,9 +12,12 @@ import {
   user,
 } from './definitions'
 
+export const INTEGRATION_NAME = 'gsheets'
+export const INTEGRATION_VERSION = '2.0.0'
+
 export default new sdk.IntegrationDefinition({
-  name: 'gsheets',
-  version: '1.1.3',
+  name: INTEGRATION_NAME,
+  version: INTEGRATION_VERSION,
   description: 'Access, update, and append Google Sheets data.',
   title: 'Google Sheets',
   readme: 'hub.md',
