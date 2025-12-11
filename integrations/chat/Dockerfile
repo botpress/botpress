@@ -8,21 +8,17 @@
 
 ARG NODE_VERSION=22.17.0
 ARG PNPM_VERSION=10.12.4
-ARG TYPESCRIPT_VERSION=5.6.3
-ARG TSNODE_VERSION=10.9.2
 
 FROM node:${NODE_VERSION}-bullseye-slim AS base
 
 WORKDIR /usr/app
 
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
 # Install pnpm and build dependencies
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g pnpm@${PNPM_VERSION}
-RUN npm install --save-dev typescript@${TYPESCRIPT_VERSION}
-RUN npm install --save-dev ts-node@${TSNODE_VERSION}
+RUN npm install --frozen-lockfile -g pnpm@${PNPM_VERSION} && echo "PNPM version: ${PNPM_VERSION}"
 
 # copy package dependencies
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY ./packages /usr/app/packages
 COPY ./tsconfig.json /usr/app/tsconfig.json
 COPY integrations/chat ./integrations/chat
@@ -46,7 +42,7 @@ RUN pnpm --filter @botpresshub/chat run build
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
-COPY --from=base usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
-RUN echo "const server = require('./index.cjs')\nserver.default.start()" > server.js
+COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
+RUN echo -e "const server = require('./index.cjs')\nserver.default.start()" > server.js
 
 ENTRYPOINT ["node", "server.js"]
