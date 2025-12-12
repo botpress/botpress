@@ -22,6 +22,7 @@ type IClient = Merge<
   },
   {
     listenConversation: (args: types.ClientRequests['listenConversation']) => Promise<SignalListener>
+    initializeConversation: (args: types.ClientRequests['initializeConversation']) => Promise<SignalListener>
   }
 >
 
@@ -31,6 +32,9 @@ type IAuthenticatedClient = Merge<
   },
   {
     listenConversation: (args: types.AuthenticatedClientRequests['listenConversation']) => Promise<SignalListener>
+    initializeConversation: (
+      args: types.AuthenticatedClientRequests['initializeConversation']
+    ) => Promise<SignalListener>
   }
 >
 
@@ -125,6 +129,14 @@ export class Client implements IClient {
     const signalListener = await SignalListener.listen({
       url: this._apiUrl,
       conversationId: id,
+      userKey,
+      debug: this.props.debug ?? false,
+    })
+    return signalListener
+  }
+  public readonly initializeConversation: IClient['initializeConversation'] = async ({ 'x-user-key': userKey }) => {
+    const signalListener = await SignalListener.initialize({
+      url: this._apiUrl,
       userKey,
       debug: this.props.debug ?? false,
     })
@@ -275,6 +287,8 @@ export class AuthenticatedClient implements IAuthenticatedClient {
     this._client.createEvent({ 'x-user-key': this.user.key, ...x })
   public readonly getEvent: IAuthenticatedClient['getEvent'] = (x) =>
     this._client.getEvent({ 'x-user-key': this.user.key, ...x })
+  public readonly initializeConversation: IAuthenticatedClient['initializeConversation'] = (x) =>
+    this._client.initializeConversation({ 'x-user-key': this.user.key, ...x })
 
   public get list() {
     return {
