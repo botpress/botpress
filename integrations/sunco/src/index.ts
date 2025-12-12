@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { executeConversationCreated } from './events/conversation-created'
+import { executeConversationCreated, handleConversationMessage } from './events'
+import { isSuncoWebhookPayload } from './messaging-events'
 import { register, unregister } from './setup'
 import { createClient } from './sunshine-api'
 import * as bp from '.botpress'
@@ -162,48 +163,19 @@ const integration = new bp.Integration({
 
     const data = JSON.parse(req.body)
 
+    if (!isSuncoWebhookPayload(data)) {
+      logger.forBot().warn('Received an invalid payload from Sunco')
+      return
+    }
+
     for (const event of data.events) {
       if (event.type === 'conversation:create') {
         await executeConversationCreated({ event, client, logger })
-      } else if (event.type !== 'conversation:message') {
-        console.warn('Received an event that is not a message')
-        continue
+      } else if (event.type === 'conversation:message') {
+        await handleConversationMessage(event, client, logger)
+      } else {
+        console.warn(`Received an event of type ${event.type}, which is not supported`)
       }
-
-      const payload = event.payload
-
-      if (payload.message.content.type !== 'text') {
-        console.warn('Received a message that is not a text message')
-        continue
-      }
-
-      if (payload.message.author.type === 'business') {
-        console.warn('Skipping message that is from a business')
-        continue
-      }
-
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          id: payload.conversation.id,
-        },
-      })
-
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: payload.message.author.userId,
-        },
-        name: payload.message.author.displayName,
-        pictureUrl: payload.message.author.avatarUrl,
-      })
-
-      await client.createMessage({
-        tags: { id: payload.message.id },
-        type: 'text',
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: payload.message.content.text },
-      })
     }
   },
 })
