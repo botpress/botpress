@@ -17,14 +17,9 @@ export const handleLinearIssueUpdated: bp.EventHandlers['linear:issueUpdated'] =
     return
   }
 
-  const recentlyLinted = await recentlyLintedManager
-    .getRecentlyLinted()
+  const isRecentlyLinted = await recentlyLintedManager
+    .isRecentlyLinted(issue)
     .catch(_handleError('trying to get recently linted issues'))
 
-  const isRecentlyLinted = recentlyLinted.some(({ id: issueId }) => issue.id === issueId)
-
   await issueProcessor.lintIssue(issue, isRecentlyLinted).catch(_handleError('trying to lint the updated Linear issue'))
-  await recentlyLintedManager
-    .setRecentlyLinted([...recentlyLinted, { id: issue.id, lintedAt: new Date().toISOString() }])
-    .catch(_handleError('trying to update recently linted issues'))
 }

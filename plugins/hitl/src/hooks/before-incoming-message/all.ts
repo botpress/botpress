@@ -5,6 +5,7 @@ import {
   DEFAULT_USER_HITL_CLOSE_COMMAND,
   DEFAULT_USER_HITL_COMMAND_MESSAGE,
 } from 'plugin.definition'
+import { assignAgent } from 'src/hooks/operations'
 import { tryLinkWebchatUser } from 'src/webchat'
 import * as configuration from '../../configuration'
 import * as conv from '../../conv-manager'
@@ -70,6 +71,16 @@ const _handleDownstreamMessage = async (
   props.logger.withConversationId(downstreamConversation.id).info('Sending message to upstream')
 
   const upstreamUserId = await tryLinkWebchatUser(props, { downstreamUser, upstreamConversation })
+
+  if (!downstreamConversation.tags.humanAgentId?.length) {
+    // Try to assing here, if there is no human agent assigned to the downstream conversation
+    await assignAgent({
+      props,
+      downstreamConversation,
+      humanAgentUserId: downstreamUser.id,
+    })
+  }
+
   await upstreamCm.respond({ ...messagePayload, userId: upstreamUserId })
   return consts.STOP_EVENT_HANDLING
 }

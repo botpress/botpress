@@ -88,11 +88,29 @@ const _makeCard = (card: BotpressCard): Attachment => {
   return CardFactory.heroCard(title, images, buttons, { subtitle })
 }
 
-const _makeDropdownCard = (text: string, options: DropdownOption[]): Attachment => {
-  const choices = options.map((option: DropdownOption) => ({
-    title: option.label,
-    value: option.value,
-  }))
+const _distinctByValue = (choice: { value: string }, index: number, arr: { value: string }[]): boolean => {
+  return arr.findIndex((otherChoice) => otherChoice.value === choice.value) === index
+}
+
+const _makeDropdownCard = (text: string, options: DropdownOption[], logger: bp.Logger): Attachment => {
+  const uniqueChoices = options
+    .map((option: DropdownOption) => ({
+      title: option.label,
+      value: option.value,
+    }))
+    // Hotfix: This exists because some client's code was
+    // duplicating the options everytime the workflow was ran
+    .filter(_distinctByValue)
+
+  if (uniqueChoices.length < options.length) {
+    // Normally, it's not the responsibility of the integration
+    // to warn the user of issues in their workflow.
+    logger
+      .forBot()
+      .warn(
+        `The dropdown options contained duplicates (This is likely due to a misconfiguration in the bot workflow).\nReduced from ${options.length} to ${uniqueChoices.length} unique options.`
+      )
+  }
 
   return CardFactory.adaptiveCard({
     // documentation here https://learn.microsoft.com/en-us/adaptive-cards/authoring-cards/text-features
@@ -108,7 +126,7 @@ const _makeDropdownCard = (text: string, options: DropdownOption[]): Attachment 
         type: 'Input.ChoiceSet',
         placeholder: 'Select...',
         style: 'compact',
-        choices,
+        choices: uniqueChoices,
       },
     ],
     actions: [
@@ -202,7 +220,7 @@ const _handleDropdownMessage = async (props: MessageHandlerProps<'dropdown'>) =>
   const { options, text } = props.payload
   const activity: Partial<Activity> = {
     type: 'message',
-    attachments: [_makeDropdownCard(text, options)],
+    attachments: [_makeDropdownCard(text, options, props.logger)],
   }
   await _renderTeams(props, activity)
 }

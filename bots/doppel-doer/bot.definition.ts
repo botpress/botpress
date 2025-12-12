@@ -12,9 +12,6 @@ export default new sdk.BotDefinition({
   recurringEvents: {},
   user: {},
   conversation: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(todoist, {
     alias: 'todoist-src',

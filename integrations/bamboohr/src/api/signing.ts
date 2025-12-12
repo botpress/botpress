@@ -1,30 +1,26 @@
+import * as sdk from '@botpress/sdk'
 import { createHmac, timingSafeEqual } from 'crypto'
-import * as bp from '.botpress'
 
-/** Validates BambooHR incoming request signatures
- *
- * Requires private webhook key stored in state during registration
- *
- * Throws Error with reason if invalid
- */
-export const validateBambooHrSignature = async ({ ctx, client, req }: bp.HandlerProps) => {
+export type ValidateBambooHrSignatureResult =
+  | {
+      success: true
+    }
+  | {
+      success: false
+      reason: string
+    }
+
+export const validateBambooHrSignature = async (
+  req: sdk.Request,
+  privateKey: string
+): Promise<ValidateBambooHrSignatureResult> => {
   const signature = req.headers?.['x-bamboohr-signature']
   const timestamp = req.headers?.['x-bamboohr-timestamp']
   if (!signature || !timestamp) {
-    throw new Error('Missing signature headers to verify webhook event.')
+    return { success: false, reason: 'Missing signature headers to verify webhook event.' }
   }
   if (!req.body) {
-    throw new Error('No request body found to verify signature.')
-  }
-
-  const { state } = await client.getState({
-    name: 'webhook',
-    type: 'integration',
-    id: ctx.integrationId,
-  })
-  const privateKey = state.payload.privateKey
-  if (!privateKey) {
-    throw new Error('No private key found for webhook state.')
+    return { success: false, reason: 'No request body found to verify signature.' }
   }
 
   const computedBuffer = createHmac('sha256', privateKey)
@@ -34,6 +30,8 @@ export const validateBambooHrSignature = async ({ ctx, client, req }: bp.Handler
   const isValid = computedBuffer.length === signatureBuffer.length && timingSafeEqual(computedBuffer, signatureBuffer)
 
   if (!isValid) {
-    throw new Error('Invalid BambooHR webhook signature.')
+    return { success: false, reason: 'Invalid BambooHR webhook signature.' }
   }
+
+  return { success: true }
 }

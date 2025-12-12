@@ -425,6 +425,7 @@ const executeIteration = async ({
       // This can happen when a message is truncated and the content is empty
       typeof x.content !== 'string' || x.content.trim().length > 0
   )
+  iteration.messages = messages
 
   traces.push({
     type: 'llm_call_started',
