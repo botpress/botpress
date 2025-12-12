@@ -2,10 +2,15 @@ import { PluginDefinition, z } from '@botpress/sdk'
 
 export default new PluginDefinition({
   name: 'conversation-insights',
-  version: '0.4.8',
+  version: '0.5.0',
   configuration: {
     schema: z.object({
       aiEnabled: z.boolean().default(true).describe('Set to true to enable title, summary and sentiment ai generation'),
+      aiGenerationInterval: z
+        .number()
+        .optional()
+        .title('AI Generation Interval')
+        .describe('Interval in minutes between AI insight generations'),
     }),
   },
   conversation: {
