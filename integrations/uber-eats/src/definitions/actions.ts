@@ -1,44 +1,56 @@
 import type { ActionDefinition } from '@botpress/sdk'
 import { z } from '@botpress/sdk'
+import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason, UberReadyOrderType } from './constants'
 
-import {
-  UberOrderState,
-  UberOrderStatus,
-  UberRestaurantOrderSchema,
-  UberPaginationDataSchema,
-  getOrderInputSchema,
-  getOrderOutputSchema,
-  acceptOrderInputSchema,
-  acceptOrderOutputSchema,
-  denyOrderInputSchema,
-  denyOrderOutputSchema,
-  markOrderReadyInputSchema,
-  markOrderReadyOutputSchema,
-} from '../api/api-schemas'
-
-export const getOrderActionInputSchema = getOrderInputSchema
-export const getOrderActionOutputSchema = getOrderOutputSchema
-
-export const acceptOrderActionInputSchema = acceptOrderInputSchema
-export const acceptOrderActionOutputSchema = acceptOrderOutputSchema
-
-export const listStoreOrdersActionInputSchema = z.object({
-  state: z.array(UberOrderState).optional().describe('Filter by order state(s)'),
-  status: z.array(UberOrderStatus).optional().describe('Filter by order status(es)'),
-  limit: z.number().int().min(1).max(200).optional(),
-  offset: z.number().int().min(0).optional(),
+const UberOrderSchema = z.object({
+  id: UberUUID.optional(),
+  display_id: z.string().optional(),
+  external_id: z.string().optional(),
+  state: UberOrderState.optional(),
+  status: UberOrderStatus.optional(),
+  store_id: UberUUID.optional(),
+  created_at: z.string().optional(),
+  scheduled_order_time: z.string().optional(),
 })
 
-export const listStoreOrdersActionOutputSchema = z.object({
-  orders: z.array(UberRestaurantOrderSchema),
-  pagination: UberPaginationDataSchema.optional(),
+const acceptOrderActionInputSchema = z.object({
+  orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
 })
 
-export const denyOrderActionInputSchema = denyOrderInputSchema
-export const denyOrderActionOutputSchema = denyOrderOutputSchema
+const acceptOrderActionOutputSchema = z.object({}).describe('Empty response on success')
 
-export const markOrderReadyActionInputSchema = markOrderReadyInputSchema
-export const markOrderReadyActionOutputSchema = markOrderReadyOutputSchema
+const denyOrderActionInputSchema = z.object({
+  orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
+  reason: UberDenyReason.optional().describe('Reason for denying the order'),
+})
+
+const denyOrderActionOutputSchema = z.object({}).describe('Empty response on success')
+
+const markOrderReadyActionInputSchema = z.object({
+  orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
+  orderType: UberReadyOrderType.optional().describe('PICKUP / DELIVERY / UNKNOWN'),
+})
+
+const markOrderReadyActionOutputSchema = z.object({}).describe('Empty response on success')
+
+const getOrderActionInputSchema = z.object({
+  orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
+})
+
+const getOrderActionOutputSchema = z.object({
+  order: UberOrderSchema,
+})
+
+const listStoreOrdersActionInputSchema = z.object({
+  state: z.array(UberOrderState).optional(),
+  status: z.array(UberOrderStatus).optional(),
+  nextToken: z.string().optional().describe('Pagination cursor from the previous response (optional)'),
+})
+
+const listStoreOrdersActionOutputSchema = z.object({
+  orders: z.array(UberOrderSchema).describe('Orders returned in this page'),
+  nextToken: z.string().optional().describe('Cursor to fetch the next page (if available)'),
+})
 
 export const getOrder: ActionDefinition = {
   title: 'Get Order',
@@ -46,6 +58,7 @@ export const getOrder: ActionDefinition = {
   input: { schema: getOrderActionInputSchema },
   output: { schema: getOrderActionOutputSchema },
 }
+
 
 export const listStoreOrders: ActionDefinition = {
   title: 'List Store Orders',
