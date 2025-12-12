@@ -3,6 +3,7 @@ import {
   AcceptOrderOutput,
   DenyOrderOutput,
   GetOrderOutput,
+  ListStoreOrdersInput,
   ListStoreOrdersOutput,
   MarkOrderReadyOutput,
 } from './types'
@@ -48,16 +49,15 @@ export class UberEatsClient {
     return this._request<GetOrderOutput>('GET', `/order/${orderId}`)
   }
 
-  public async listStoreOrders(
-    storeId: string,
-    filters?: {
-      state?: string[]
-      status?: string[]
-    }
-  ) {
-    return this._request<ListStoreOrdersOutput>('GET', `/store/${storeId}/orders`, undefined, {
-      state: filters?.state?.join(','),
-      status: filters?.status?.join(','),
+  public async listStoreOrders(props: ListStoreOrdersInput) {
+    return this._request<ListStoreOrdersOutput>('GET', `/store/${props.store_id}/orders`, undefined, {
+      expand: props.expand?.join(','),
+      state: props.state?.join(','),
+      status: props.status?.join(','),
+      start_time: props.start_time,
+      end_time: props.end_time,
+      next_page_token: props.next_page_token,
+      page_size: props.page_size ?? 50,
     })
   }
 

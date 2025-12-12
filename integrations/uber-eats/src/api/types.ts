@@ -2,8 +2,6 @@ import { z } from '@botpress/sdk'
 import {
   getOrderInputSchema,
   getOrderOutputSchema,
-  listStoreOrdersInputSchema,
-  listStoreOrdersOutputSchema,
   acceptOrderInputSchema,
   acceptOrderOutputSchema,
   denyOrderInputSchema,
@@ -11,12 +9,13 @@ import {
   markOrderReadyInputSchema,
   markOrderReadyOutputSchema,
 } from './api-schemas'
+import { listOrdersInputSchema, listOrdersOutputSchema } from './api-schemas/list-orders-schema'
 
 export type GetOrderInput = z.infer<typeof getOrderInputSchema>
 export type GetOrderOutput = z.infer<typeof getOrderOutputSchema>
 
-export type ListStoreOrdersInput = z.infer<typeof listStoreOrdersInputSchema>
-export type ListStoreOrdersOutput = z.infer<typeof listStoreOrdersOutputSchema>
+export type ListStoreOrdersInput = z.infer<typeof listOrdersInputSchema>
+export type ListStoreOrdersOutput = z.infer<typeof listOrdersOutputSchema>
 
 export type AcceptOrderInput = z.infer<typeof acceptOrderInputSchema>
 export type AcceptOrderOutput = z.infer<typeof acceptOrderOutputSchema>

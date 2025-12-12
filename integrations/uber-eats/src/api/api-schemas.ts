@@ -15,6 +15,14 @@ export const UberDenyReason = z.enum([
   'REASON_TOO_BUSY',
 ])
 
+export const UberPaginationDataSchema = z.object({
+  next_page_token: z
+    .string()
+    .optional()
+    .describe('Token to retrieve the next page. Only returned if there is a next page.'),
+  page_size: z.number().optional().describe('Number of orders in the response for this page'),
+})
+
 export const UberReadyOrderType = z.enum(['PICKUP', 'DELIVERY', 'UNKNOWN'])
 
 export const UberOrderSchema = z
@@ -43,15 +51,6 @@ export const UberRestaurantOrderSchema = z
   .passthrough()
   .describe('GET /v1/delivery/order/{order_id} response')
 
-export const UberPaginationDataSchema = z
-  .object({
-    offset: z.number().int().optional(),
-    limit: z.number().int().optional(),
-    total: z.number().int().optional(),
-  })
-  .passthrough()
-  .describe('Pagination metadata')
-
 export const UberRestaurantOrdersListSchema = z
   .object({
     data: z.array(UberRestaurantOrderSchema).optional(),
@@ -65,21 +64,6 @@ export const getOrderInputSchema = z.object({
 })
 
 export const getOrderOutputSchema = UberRestaurantOrderSchema
-
-export const listStoreOrdersInputSchema = z.object({
-  storeId: UberUUID.title('Store ID').describe('Uber store UUID').optional(),
-
-  state: z.array(UberOrderState).optional().describe('Filter by order state(s)'),
-  status: z.array(UberOrderStatus).optional().describe('Filter by order status(es)'),
-
-  limit: z.number().int().min(1).max(200).optional(),
-  offset: z.number().int().min(0).optional(),
-})
-
-export const listStoreOrdersOutputSchema = z.object({
-  orders: z.array(UberRestaurantOrderSchema),
-  pagination: UberPaginationDataSchema.optional(),
-})
 
 export const acceptOrderInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
