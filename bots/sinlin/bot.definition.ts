@@ -4,11 +4,7 @@ import chat from './bp_modules/chat'
 import linear from './bp_modules/linear'
 import synchronizer from './bp_modules/synchronizer'
 
-export default new sdk.BotDefinition({
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
-})
+export default new sdk.BotDefinition({})
   .addIntegration(linear, {
     enabled: true,
     configurationType: 'apiKey',
