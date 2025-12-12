@@ -32,7 +32,7 @@ const _anyOfFallbackExtractor = (
   }
 
   return (failedPath, jsonPathExtractor) => {
-    const spliceIndex = failedPath.length - pathBackoff * -1
+    const spliceIndex = failedPath.length - pathBackoff
     const newPath = `$.${failedPath.toSpliced(spliceIndex, pathBackoff, 'anyOf[*]', ...pathFromAnyOf).join('.')}`
     const match = jsonPathExtractor(newPath).find(({ value }) => typeof value === 'string')
     return match ? { value: match.value, path: match.resolvedPath } : null
