@@ -268,6 +268,30 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -285,11 +309,77 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: {
+                [paramName]: {
+                  anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }],
+                  [ZUI]: {},
+                },
+              },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'actions',
+      ACTION_NAME,
+      'input',
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      ZUI,
+      'title',
+    ])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: {
+                [paramName]: {
+                  anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }],
+                  [ZUI]: {},
+                },
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -317,6 +407,30 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -342,11 +456,70 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: {
+                [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] },
+              },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'actions',
+      ACTION_NAME,
+      'input',
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      'description',
+    ])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          input: {
+            schema: {
+              properties: {
+                [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] },
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -372,6 +545,30 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
+  })
+
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -400,11 +597,77 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: {
+                [paramName]: {
+                  anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }],
+                  [ZUI]: {},
+                },
+              },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'actions',
+      ACTION_NAME,
+      'output',
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      ZUI,
+      'title',
+    ])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: {
+                [paramName]: {
+                  anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }],
+                  [ZUI]: {},
+                },
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -432,6 +695,30 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -457,11 +744,70 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: {
+                [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] },
+              },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'actions',
+      ACTION_NAME,
+      'output',
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      'description',
+    ])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      actions: {
+        [ACTION_NAME]: {
+          output: {
+            schema: {
+              properties: {
+                [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] },
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -489,6 +835,28 @@ describeRule('event-outputparams-should-have-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -506,11 +874,72 @@ describeRule('event-outputparams-should-have-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: {
+                anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }],
+                [ZUI]: {},
+              },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'events',
+      EVENT_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      ZUI,
+      'title',
+    ])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
         [EVENT_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: {
+                anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }],
+                [ZUI]: {},
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -538,6 +967,26 @@ describeRule('event-outputparams-must-have-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: { properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } } },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -555,11 +1004,61 @@ describeRule('event-outputparams-must-have-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] } },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'events',
+      EVENT_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      'description',
+    ])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
         [EVENT_NAME]: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      events: {
+        [EVENT_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] } },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -667,6 +1166,26 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -682,10 +1201,52 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: {
+            [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }], [ZUI]: {} },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'anyOf', '0', ZUI, 'title'])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       configuration: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  // e.g. When there is a ".nullable()" before the ".title()" on an object schema
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: {
+            [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }], [ZUI]: {} },
+          },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
@@ -712,6 +1273,22 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: { schema: { properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -727,10 +1304,48 @@ describeRule('configuration-fields-must-have-a-description', (lint) => {
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] } },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', paramName, 'anyOf', '0', 'description'])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       configuration: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  // e.g. When there is a ".nullable()" before the ".describe()" on an object schema
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configuration: {
+        schema: {
+          properties: { [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] } },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
@@ -847,6 +1462,30 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configurations', CONFIG_NAME, 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -864,11 +1503,69 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
     expect(results[0]?.message).toContain('title')
   })
 
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }], [ZUI]: {} },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'configurations',
+      CONFIG_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      ZUI,
+      'title',
+    ])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: {
+                anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }],
+                [ZUI]: {},
+              },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -896,6 +1593,30 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configurations', CONFIG_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
@@ -913,11 +1634,65 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
     expect(results[0]?.message).toContain('description')
   })
 
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'configurations',
+      CONFIG_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      'description',
+    ])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
+  })
+
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      configurations: {
+        [CONFIG_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] },
+            },
+          },
+        },
       },
     } as const satisfies PartialIntegration
 
@@ -1346,6 +2121,29 @@ describeRule('state-fields-should-have-title', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+  })
+
+  test.each(PARAM_NAMES)('missing title with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', [ZUI]: {} }, { type: 'null' }], [ZUI]: {} } },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
@@ -1360,12 +2158,71 @@ describeRule('state-fields-should-have-title', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, ZUI, 'title'])
+    expect(results[0]?.message).toContain('title')
+  })
+
+  test.each(PARAM_NAMES)('empty title nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: { anyOf: [{ type: 'object', [ZUI]: { title: EMPTY_STRING } }, { type: 'null' }], [ZUI]: {} },
+            },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'states',
+      STATE_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      ZUI,
+      'title',
+    ])
+    expect(results[0]?.message).toContain('title')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid title nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: {
+              [paramName]: {
+                anyOf: [{ type: 'object', [ZUI]: { title: TRUTHY_STRING } }, { type: 'null' }],
+                [ZUI]: {},
+              },
+            },
+          },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
@@ -1389,6 +2246,29 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+  })
+
+  test.each(PARAM_NAMES)('missing description with anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object' }, { type: 'null' }] } },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
@@ -1403,12 +2283,63 @@ describeRule('state-fields-must-have-description', (lint) => {
     // assert
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', paramName, 'description'])
+    expect(results[0]?.message).toContain('description')
+  })
+
+  test.each(PARAM_NAMES)('empty description nested in anyOf should trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', description: EMPTY_STRING }, { type: 'null' }] } },
+          },
+        },
+      },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual([
+      'states',
+      STATE_NAME,
+      'schema',
+      'properties',
+      paramName,
+      'anyOf',
+      '0',
+      'description',
+    ])
+    expect(results[0]?.message).toContain('description')
+    expect(results[0]?.message).toContain(paramName)
   })
 
   test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+
+  test.each(PARAM_NAMES)('valid description nested in anyOf should not trigger (%s)', async (paramName) => {
+    // arrange
+    const definition = {
+      states: {
+        [STATE_NAME]: {
+          schema: {
+            properties: { [paramName]: { anyOf: [{ type: 'object', description: TRUTHY_STRING }, { type: 'null' }] } },
+          },
+        },
+      },
     } as const satisfies PartialIntegration
 
     // act
