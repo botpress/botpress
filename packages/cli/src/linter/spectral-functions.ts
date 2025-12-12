@@ -31,8 +31,8 @@ const _anyOfFallbackExtractor = (
     throw new Error('Path backoff must be a non-negative integer')
   }
 
-  const spliceIndex = Math.min(pathBackoff * -1, -1)
   return (failedPath, jsonPathExtractor) => {
+    const spliceIndex = failedPath.length - pathBackoff * -1
     const newPath = `$.${failedPath.toSpliced(spliceIndex, pathBackoff, 'anyOf[*]', ...pathFromAnyOf).join('.')}`
     const match = jsonPathExtractor(newPath).find(({ value }) => typeof value === 'string')
     return match ? { value: match.value, path: match.resolvedPath } : null
