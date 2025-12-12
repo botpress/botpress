@@ -1,5 +1,6 @@
 {
   "name": "@botpresshub/zendesk",
+  "description": "Zendesk integration for Botpress",
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
@@ -13,7 +14,9 @@
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.4.0",
     "axios-retry": "^4.5.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "preact": "^10.26.6",
+    "preact-render-to-string": "^6.5.13"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

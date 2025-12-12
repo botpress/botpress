@@ -5,10 +5,11 @@ import * as bp from '.botpress'
 
 export const callApi: bp.IntegrationProps['actions']['callApi'] = async ({
   ctx,
+  client,
   input,
 }): Promise<bp.actions.callApi.output.Output> => {
   const { method, path, headers, params, requestBody } = input
-  const client = getZendeskClient(ctx.configuration)
+  const zendeskClient = await getZendeskClient(client, ctx)
 
   try {
     const requestConfig: AxiosRequestConfig = {
@@ -23,7 +24,7 @@ export const callApi: bp.IntegrationProps['actions']['callApi'] = async ({
       requestConfig.data = requestBody ? JSON.parse(requestBody) : {}
     }
 
-    return await client.makeRequest(requestConfig)
+    return await zendeskClient.makeRequest(requestConfig)
   } catch (error) {
     throw new sdk.RuntimeError(`Error: ${error instanceof Error ? error.message : 'An unknown error occurred'}`)
   }
