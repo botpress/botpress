@@ -1,16 +1,19 @@
 {
-  "name": "@bp-templates/hello-world",
-  "integrationName": "dev-workspace/my-integration",
+  "name": "@botpresshub/ubereats",
+  "integrationName": "ubereats",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "libt": "bp lint"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.27.2",
-    "@botpress/sdk": "5.0.0"
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/common": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }

@@ -37,6 +37,30 @@ export class UberEatsClient {
     })
   }
 
+  public async getOrder(orderId: string) {
+    return this._request('GET', `/orders/${orderId}`)
+  }
+
+  public async getCreatedOrders(storeId: string) {
+    return this._request('GET', `/stores/${storeId}/created-orders`)
+  }
+
+  public async getCanceledOrders(storeId: string) {
+    return this._request('GET', `/stores/${storeId}/canceled-orders`)
+  }
+
+  public async acceptOrder(orderId: string): Promise<void> {
+    await this._request('POST', `/orders/${orderId}/accept_pos_order`)
+  }
+
+  public async denyOrder(orderId: string, reason?: string): Promise<void> {
+    await this._request('POST', `/orders/${orderId}/deny_pos_order`, reason ? { reason } : undefined)
+  }
+
+  public async updateRestaurantDeliveryStatus(orderId: string, status: string): Promise<void> {
+    await this._request('POST', `/orders/${orderId}/delivery_status`, { status })
+  }
+
   private async _requestNewToken(): Promise<string> {
     try {
       const body = new URLSearchParams({
@@ -100,5 +124,22 @@ export class UberEatsClient {
   public async testConnection() {
     await this._getAccessToken()
     return true
+  }
+
+  private async _request<T = unknown>(method: 'GET' | 'POST' | 'PATCH', url: string, data?: unknown): Promise<T> {
+    const token = await this._getAccessToken()
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    }
+
+    const res = await this._axios.request<T>({
+      method,
+      url,
+      data,
+      headers,
+    })
+
+    return res.data
   }
 }
