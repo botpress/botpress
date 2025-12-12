@@ -1909,6 +1909,22 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/uber-eats:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/viber:
     dependencies:
       '@botpress/client':
