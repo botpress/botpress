@@ -1331,8 +1331,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       '@linear/sdk':
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^50.0.0
+        version: 50.0.0
       axios:
         specifier: ^1.4.0
         version: 1.6.3
@@ -4817,10 +4817,6 @@ packages:
   '@line/bot-sdk@9.5.0':
     resolution: {integrity: sha512-PPtul1vzoyZ5HkNqh643YD0TCFqOHI6ld4x69c/prwAxornBxPaeXoHbHcFeK8gaD2W4/666mPQe5K3CmUMepw==}
     engines: {node: '>=18'}
-
-  '@linear/sdk@2.6.0':
-    resolution: {integrity: sha512-L7Bsd5Ooa+RusZ6Y1yuzsq3NnrSOqHbhZHvdY+anNTOEtFPKonFCNeUdWXpBlyM21rzx7MWq+TfjtMo9dbxxPQ==}
-    engines: {node: '>=12.x', yarn: 1.x}
 
   '@linear/sdk@50.0.0':
     resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
@@ -13628,14 +13624,6 @@ snapshots:
       axios: 1.13.1
     transitivePeerDependencies:
       - debug
-
-  '@linear/sdk@2.6.0':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
-      graphql: 15.8.0
-      isomorphic-unfetch: 3.1.0
-    transitivePeerDependencies:
-      - encoding
 
   '@linear/sdk@50.0.0':
     dependencies:

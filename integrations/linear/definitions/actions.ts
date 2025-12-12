@@ -214,6 +214,49 @@ const deleteIssue = {
   },
 } as const satisfies ActionDefinition
 
+<<<<<<< Updated upstream
+=======
+const sendRawGraphqlQuery = {
+  title: 'Send Raw GraphQL Query',
+  description: 'Send a raw GraphQL query to the linear API',
+  input: {
+    schema: z.object({
+      query: z.string().title('Query').describe('The GraphQL query'),
+      parameters: z
+        .array(
+          z.object({
+            name: z.string().title('Name').describe('The parameter name'),
+            value: z.any().title('Value').describe('The parameter value'),
+          })
+        )
+        .optional()
+        .title('Parameters')
+        .describe('The query parameters'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      result: z.unknown().title('Result').describe('The query result'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
+const resolveComment = {
+  title: 'Resolve Comment',
+  description: 'Resolve a comment by id',
+  input: {
+    schema: z.object({
+      id: z.string().title('ID').describe('The comment ID'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean().title('Success').describe('Whether the operation was successful'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
+>>>>>>> Stashed changes
 export const actions = {
   findTarget,
   listIssues,
@@ -225,4 +268,9 @@ export const actions = {
   updateIssue,
   createIssue,
   deleteIssue,
+<<<<<<< Updated upstream
+=======
+  sendRawGraphqlQuery,
+  resolveComment,
+>>>>>>> Stashed changes
 } as const satisfies IntegrationDefinitionProps['actions']
