@@ -179,24 +179,40 @@ const getInfoSpreadsheet = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z.string().title('Spreadsheet ID').nullable().describe('The spreadsheet ID.'),
-        spreadsheetUrl: z.string().title('Spreadsheet URL').nullable().describe('The URL of the spreadsheet.'),
-        dataSources: z.array(z.any()).title('Data Sources').describe('The data sources connected to the spreadsheet.'),
-        dataSourceSchedules: z
-          .array(z.any())
-          .title('Data Source Schedules')
-          .describe('The schedules of the data sources.'),
-        developerMetadata: z
-          .array(z.any())
-          .title('Developer Metadata')
-          .describe('The developer metadata associated with the spreadsheet.'),
-        namedRanges: z.array(z.any()).title('Named Ranges').describe('The named ranges defined in the spreadsheet.'),
-        properties: z.any().title('Properties').describe('The properties of the spreadsheet.'),
-        sheets: z.array(z.any()).title('Sheets').describe('The sheets present in the spreadsheet.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z
+        .union([z.string(), z.null()])
+        .title('Spreadsheet ID')
+        .describe('The unique identifier of the spreadsheet.')
+        .optional(),
+      spreadsheetUrl: z
+        .union([z.string(), z.null()])
+        .title('Spreadsheet URL')
+        .describe('The URL of the spreadsheet.')
+        .optional(),
+      dataSources: z
+        .array(z.any())
+        .describe('The data sources connected to the spreadsheet.')
+        .title('Data Sources')
+        .optional(),
+      dataSourceSchedules: z
+        .array(z.any())
+        .describe('The schedules of the data sources.')
+        .title('Data Source Schedules')
+        .optional(),
+      developerMetadata: z
+        .array(z.any())
+        .describe('The developer metadata associated with the spreadsheet.')
+        .title('Developer Metadata')
+        .optional(),
+      namedRanges: z
+        .array(z.any())
+        .describe('The named ranges defined in the spreadsheet.')
+        .title('Named Ranges')
+        .optional(),
+      properties: z.any().describe('The properties of the spreadsheet.').title('Properties').optional(),
+      sheets: z.array(z.any()).describe('The sheets present in the spreadsheet.').title('Sheets').optional(),
+    }),
   },
 } as const satisfies ActionDef
 

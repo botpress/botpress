@@ -8,9 +8,9 @@ Stay agile and organized by dynamically adding new sheets to accommodate evolvin
 Unfortunately, **automatic configuration is temporarily unavailable**.
 We are currently in the process of getting our Google Sheets integration verified by Google. Once this verification is complete, you will be able to use the automatic configuration method to set up the Google Sheets integration with just a few clicks. Until then, you will need to create your own Google Cloud Platform (GCP) Service Account by following the steps outlined in the `Manual configuration using a service account` section below.
 
-## What Changed in Version 1.2.0
+## Migrating from 1.x.x to 2.x.x
 
-Version `1.2.0` of the Google Sheets integration introduces changes to the _Append Values_ action. If you are migrating from a previous version to `1.2.0`, please note the following changes:
+Version `2.0.0` of the Google Sheets integration introduces changes to the _Append Values_ action. If you are migrating from a previous version to `2.0.0`, please note the following changes:
 
 ### Changes to the Append Values action
 
