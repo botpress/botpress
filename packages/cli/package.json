@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run build:types && pnpm run bundle && pnpm run template:gen",
@@ -45,6 +45,7 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "handlebars": "^4.7.8",
+    "jsonpath-plus": "^10.3.0",
     "latest-version": "5.1.0",
     "lodash": "^4.17.21",
     "prettier": "^3.4.2",
@@ -56,6 +57,7 @@
   },
   "devDependencies": {
     "@bpinternal/log4bot": "^0.0.4",
+    "@stoplight/types": "^14.1.1",
     "@types/bluebird": "^3.5.38",
     "@types/ini": "^4.1.1",
     "@types/json-schema": "^7.0.12",
