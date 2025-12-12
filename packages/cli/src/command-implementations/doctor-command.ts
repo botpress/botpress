@@ -1,0 +1,88 @@
+import * as config from '../config'
+import { runAuthChecks } from '../doctor/checks/auth'
+import { runConfigurationChecks } from '../doctor/checks/configuration'
+import { runDependenciesChecks } from '../doctor/checks/dependencies'
+import { runEnvironmentChecks } from '../doctor/checks/environment'
+import { runNetworkChecks } from '../doctor/checks/network'
+import { runProjectChecks } from '../doctor/checks/project'
+import { runSdkChecks } from '../doctor/checks/sdk'
+import { runSecretsChecks } from '../doctor/checks/secrets'
+import { runSecurityChecks } from '../doctor/checks/security'
+import { formatHumanReadable } from '../doctor/formatter'
+import type { DiagnosticIssue, DiagnosticResult } from '../doctor/types'
+import * as errors from '../errors'
+import type { CommandDefinition } from '../typings'
+import { GlobalCommand } from './global-command'
+
+export type DoctorCommandDefinition = CommandDefinition<typeof config.schemas.doctor>
+
+export class DoctorCommand extends GlobalCommand<DoctorCommandDefinition> {
+  public async run(): Promise<void> {
+    const { workDir, json } = this.argv
+
+    this.logger.log('Running diagnostic checks...', { prefix: '🩺' })
+    this.logger.log('')
+
+    const allIssues: DiagnosticIssue[] = []
+
+    const [
+      envIssues,
+      projectIssues,
+      sdkIssues,
+      authIssues,
+      networkIssues,
+      secretsIssues,
+      configurationIssues,
+      dependenciesIssues,
+      securityIssues,
+    ] = await Promise.all([
+      runEnvironmentChecks(workDir),
+      runProjectChecks(workDir),
+      runSdkChecks(workDir),
+      runAuthChecks(this.argv.botpressHome, this.argv.profile),
+      runNetworkChecks(this.argv.botpressHome, this.argv.profile),
+      runSecretsChecks(workDir),
+      runConfigurationChecks(workDir),
+      runDependenciesChecks(workDir),
+      runSecurityChecks(workDir),
+    ])
+    allIssues.push(
+      ...envIssues,
+      ...projectIssues,
+      ...sdkIssues,
+      ...authIssues,
+      ...networkIssues,
+      ...secretsIssues,
+      ...configurationIssues,
+      ...dependenciesIssues,
+      ...securityIssues
+    )
+
+    const result = this._createResult(allIssues)
+
+    if (json) {
+      this.logger.json(result)
+    } else {
+      const formatted = formatHumanReadable(result)
+      this.logger.log(formatted)
+    }
+
+    if (result.summary.errors > 0) {
+      throw new errors.BotpressCLIError('Doctor found critical issues')
+    }
+  }
+
+  private _createResult(issues: DiagnosticIssue[]): DiagnosticResult {
+    const summary = {
+      total: issues.length,
+      ok: issues.filter((i) => i.status === 'ok').length,
+      warnings: issues.filter((i) => i.status === 'warning').length,
+      errors: issues.filter((i) => i.status === 'error').length,
+    }
+
+    return {
+      issues,
+      summary,
+    }
+  }
+}
