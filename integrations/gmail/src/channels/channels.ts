@@ -170,7 +170,7 @@ const _sendEmailReply = async ({
     cc,
   })
 
-  const res = await googleClient.sendRawEmail(raw, threadId)
+  const res = await googleClient.messages.send(raw, threadId)
 
   await ack({ tags: { id: `${res.id}` } })
 }
