@@ -12,8 +12,8 @@ import { moveSheetHorizontally } from './implementations/move-sheet-horizontally
 import { protectNamedRange } from './implementations/protect-named-range'
 import { renameSheet } from './implementations/rename-sheet'
 import { setSheetVisibility } from './implementations/set-sheet-visibility'
+import { setValues } from './implementations/set-values'
 import { unprotectRange } from './implementations/unprotect-range'
-import { updateValues } from './implementations/update-values'
 import * as bp from '.botpress'
 
 export default {
@@ -32,5 +32,5 @@ export default {
   renameSheet,
   setSheetVisibility,
   unprotectRange,
-  updateValues,
+  setValues,
 } as const satisfies bp.IntegrationProps['actions']
