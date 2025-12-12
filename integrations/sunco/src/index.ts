@@ -174,7 +174,7 @@ const integration = new bp.Integration({
       } else if (event.type === 'conversation:message') {
         await handleConversationMessage(event, client, logger)
       } else {
-        console.warn(`Received an event of type ${event.type} that is not a message`)
+        console.warn(`Received an event of type ${event.type}, which is not supported`)
       }
     }
   },
