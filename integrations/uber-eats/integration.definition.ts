@@ -8,6 +8,19 @@ import {
   UberOrdersScheduledNotificationEvent,
 } from 'src/events/webhook-event'
 
+import {
+  getOrderInputSchema,
+  getOrderOutputSchema,
+  acceptOrderInputSchema,
+  acceptOrderOutputSchema,
+  denyOrderInputSchema,
+  denyOrderOutputSchema,
+  listStoreOrdersInputSchema,
+  listStoreOrdersOutputSchema,
+  markOrderReadyInputSchema,
+  markOrderReadyOutputSchema,
+} from './src/api/api-schemas'
+
 export default new IntegrationDefinition({
   name: 'ubereats',
   title: 'Uber Eats',
@@ -32,25 +45,39 @@ export default new IntegrationDefinition({
     },
   },
   actions: {
-    getOrders: {
-      title: 'Get Recent Orders',
-      description: 'Fetch recent orders from Uber Eats',
-      input: { schema: z.object({}) },
-      output: {
-        schema: z.object({
-          orders: z.array(z.any()),
-        }),
-      },
+    getOrder: {
+      title: 'Get Order',
+      description: 'Fetch a single Uber Eats order by ID.',
+      input: { schema: getOrderInputSchema },
+      output: { schema: getOrderOutputSchema },
     },
+
+    listStoreOrders: {
+      title: 'List Store Orders',
+      description: 'List orders for a store with optional state/status filters.',
+      input: { schema: listStoreOrdersInputSchema },
+      output: { schema: listStoreOrdersOutputSchema },
+    },
+
     acceptOrder: {
-      title: 'Accept an Order',
+      title: 'Accept Order',
       description: 'Accept an incoming Uber Eats order.',
-      input: {
-        schema: z.object({
-          orderId: z.string(),
-        }),
-      },
-      output: { schema: z.object({}) },
+      input: { schema: acceptOrderInputSchema },
+      output: { schema: acceptOrderOutputSchema },
+    },
+
+    denyOrder: {
+      title: 'Deny Order',
+      description: 'Deny an Uber Eats order.',
+      input: { schema: denyOrderInputSchema },
+      output: { schema: denyOrderOutputSchema },
+    },
+
+    markOrderReady: {
+      title: 'Mark Order Ready',
+      description: 'Mark an order as ready for pickup.',
+      input: { schema: markOrderReadyInputSchema },
+      output: { schema: markOrderReadyOutputSchema },
     },
   },
   events: {

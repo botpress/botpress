@@ -1,4 +1,11 @@
 import axios, { type AxiosInstance } from 'axios'
+import {
+  AcceptOrderOutput,
+  DenyOrderOutput,
+  GetOrderOutput,
+  ListStoreOrdersOutput,
+  MarkOrderReadyOutput,
+} from './types'
 import * as bp from '.botpress'
 
 const TOKEN_STATE_KEY = 'oauthToken'
@@ -32,33 +39,38 @@ export class UberEatsClient {
     this._ctx = ctx
 
     this._axios = axios.create({
-      baseURL: 'https://api.uber.com/v1/eats',
+      baseURL: 'https://api.uber.com/v1/delivery',
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
   public async getOrder(orderId: string) {
-    return this._request('GET', `/orders/${orderId}`)
+    return this._request<GetOrderOutput>('GET', `/order/${orderId}`)
   }
 
-  public async getCreatedOrders(storeId: string) {
-    return this._request('GET', `/stores/${storeId}/created-orders`)
+  public async listStoreOrders(
+    storeId: string,
+    filters?: {
+      state?: string[]
+      status?: string[]
+    }
+  ) {
+    return this._request<ListStoreOrdersOutput>('GET', `/store/${storeId}/orders`, undefined, {
+      state: filters?.state?.join(','),
+      status: filters?.status?.join(','),
+    })
   }
 
-  public async getCanceledOrders(storeId: string) {
-    return this._request('GET', `/stores/${storeId}/canceled-orders`)
+  public async acceptOrder(orderId: string): Promise<AcceptOrderOutput> {
+    return this._request<AcceptOrderOutput>('POST', `/order/${orderId}/accept`)
   }
 
-  public async acceptOrder(orderId: string): Promise<void> {
-    await this._request('POST', `/orders/${orderId}/accept_pos_order`)
+  public async denyOrder(orderId: string, reason?: string): Promise<DenyOrderOutput> {
+    return this._request<DenyOrderOutput>('POST', `/order/${orderId}/deny`, reason ? { reason } : undefined)
   }
 
-  public async denyOrder(orderId: string, reason?: string): Promise<void> {
-    await this._request('POST', `/orders/${orderId}/deny_pos_order`, reason ? { reason } : undefined)
-  }
-
-  public async updateRestaurantDeliveryStatus(orderId: string, status: string): Promise<void> {
-    await this._request('POST', `/orders/${orderId}/delivery_status`, { status })
+  public async markOrderReady(orderId: string): Promise<MarkOrderReadyOutput> {
+    return this._request<MarkOrderReadyOutput>('POST', `/order/${orderId}/ready`)
   }
 
   private async _requestNewToken(): Promise<string> {
@@ -126,18 +138,22 @@ export class UberEatsClient {
     return true
   }
 
-  private async _request<T = unknown>(method: 'GET' | 'POST' | 'PATCH', url: string, data?: unknown): Promise<T> {
+  private async _request<T>(
+    method: 'GET' | 'POST' | 'PATCH',
+    url: string,
+    data?: unknown,
+    params?: Record<string, unknown>
+  ): Promise<T> {
     const token = await this._getAccessToken()
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    }
 
     const res = await this._axios.request<T>({
       method,
       url,
       data,
-      headers,
+      params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
 
     return res.data
