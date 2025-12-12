@@ -1,6 +1,6 @@
 {
   "name": "@botpress/vai",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Vitest AI (vai) – a vitest extension for testing with LLMs",
   "types": "./dist/index.d.ts",
   "exports": {
