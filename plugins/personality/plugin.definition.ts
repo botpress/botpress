@@ -18,7 +18,4 @@ export default new sdk.PluginDefinition({
   interfaces: {
     llm: sdk.version.allWithinMajorOf(llm),
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })

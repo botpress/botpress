@@ -3,10 +3,11 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
+import { events } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '1.0.4',
+  version: '1.1.1',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
@@ -43,7 +44,7 @@ export default new IntegrationDefinition({
     },
   },
   actions: {},
-  events: {},
+  events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {

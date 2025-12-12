@@ -22,7 +22,8 @@ export abstract class BaseLinter<TDefinition> {
 
   public logResults(logger: Logger) {
     for (const result of this.getSortedResults()) {
-      const message = `${result.path}: ${result.message}`
+      const resultPath = result.path.trim() || '{root}'
+      const message = `${resultPath}: ${result.message}`
 
       this._logResultMessage(logger, message, result.severity)
     }
