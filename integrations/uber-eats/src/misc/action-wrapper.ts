@@ -14,6 +14,7 @@ export const wrapUberAction = <TProps extends bp.AnyActionProps, TResult>(
       clientSecret: props.ctx.configuration.clientSecret,
       bpClient: props.client,
       ctx: props.ctx,
+      logger: props.logger,
     })
 
     return fn({ ...props, uber })

@@ -11,6 +11,7 @@ export default new bp.Integration({
       clientSecret: ctx.configuration.clientSecret,
       bpClient: client,
       ctx,
+      logger,
     })
     try {
       await uber.testConnection()
