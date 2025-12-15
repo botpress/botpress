@@ -18,19 +18,34 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      clientId: z.string().title('Client ID').describe('Uber application client ID'),
-      clientSecret: z.string().title('Client Secret').secret().describe('Uber application client secret'),
-      storeId: z.string().title('Store ID').describe('Uber Eats store UUID'),
+      clientId: z
+        .string()
+        .min(1, 'Client ID cannot be empty')
+        .title('Client ID')
+        .describe('Uber application client ID'),
+
+      clientSecret: z
+        .string()
+        .min(1, 'Client Secret cannot be empty')
+        .title('Client Secret')
+        .secret()
+        .describe('Uber application client secret used for OAuth authentication'),
+
+      storeId: z.string().uuid('Store ID must be a valid UUID').title('Store ID').describe('Uber Eats store UUID'),
+
       webhookSigningKey: z
         .string()
+        .min(1, 'Webhook signing key cannot be empty')
         .title('Webhook Signing Key')
         .secret()
         .describe(
-          'Secret key used to verify the HMAC signature of incoming Uber Eats webhook requests. ' +
-            'This key is provided by Uber when configuring webhooks and is independent from the OAuth client secret.'
+          'Secret key used to verify the HMAC-SHA256 signature of incoming Uber Eats webhook requests ' +
+            '(X-Uber-Signature). This key is configured in the Uber Developer Dashboard and is ' +
+            'separate from the OAuth client secret.'
         ),
     }),
   },
+
   states: {
     oauthToken: {
       type: 'integration',
