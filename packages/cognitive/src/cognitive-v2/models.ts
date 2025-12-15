@@ -6,6 +6,22 @@ export type RemoteModel = Model & {
 }
 
 export const models: Record<string, RemoteModel> = {
+  'openai:gpt-5.2-2025-12-11': {
+    id: 'openai:gpt-5.2-2025-12-11',
+    name: 'GPT-5.2',
+    description:
+      'GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reasoning to allocate computation dynamically, responding quickly to simple queries while spending more depth on complex tasks.',
+    input: {
+      maxTokens: 400000,
+      costPer1MTokens: 1.75,
+    },
+    output: {
+      maxTokens: 128000,
+      costPer1MTokens: 14,
+    },
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    lifecycle: 'production',
+  },
   'openai:gpt-5.1-2025-11-13': {
     id: 'openai:gpt-5.1-2025-11-13',
     name: 'GPT-5.1',
@@ -19,7 +35,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 10,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
   },
   'openai:gpt-5-2025-08-07': {
@@ -35,7 +51,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 10,
     },
-    tags: ['reasoning', 'general-purpose'],
+    tags: ['reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
     aliases: ['gpt-5'],
   },
@@ -52,7 +68,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 2,
     },
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
     aliases: ['gpt-5-mini'],
   },
@@ -69,7 +85,7 @@ export const models: Record<string, RemoteModel> = {
       maxTokens: 128000,
       costPer1MTokens: 0.4,
     },
-    tags: ['low-cost', 'reasoning', 'general-purpose'],
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
     aliases: ['gpt-5-nano'],
   },
