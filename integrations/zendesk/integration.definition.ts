@@ -6,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '2.8.6',
+  version: '3.0.0',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -17,7 +17,18 @@ export default new sdk.IntegrationDefinition({
   user,
   actions,
   events,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your app',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your app',
+    },
+    CODE_CHALLENGE: {
+      description: 'The code challenge for PKCE',
+    },
+  },
   entities: {
     hitlTicket: {
       schema: sdk.z.object({

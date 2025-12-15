@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import chat from './bp_modules/chat'
