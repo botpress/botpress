@@ -21,6 +21,14 @@ export default new IntegrationDefinition({
       clientId: z.string().title('Client ID').describe('Uber application client ID'),
       clientSecret: z.string().title('Client Secret').secret().describe('Uber application client secret'),
       storeId: z.string().title('Store ID').describe('Uber Eats store UUID'),
+      webhookSigningKey: z
+        .string()
+        .title('Webhook Signing Key')
+        .secret()
+        .describe(
+          'Secret key used to verify the HMAC signature of incoming Uber Eats webhook requests. ' +
+            'This key is provided by Uber when configuring webhooks and is independent from the OAuth client secret.'
+        ),
     }),
   },
   states: {

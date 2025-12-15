@@ -13,7 +13,7 @@ const webhookToBotpressEvent: Record<UberWebhookEventType, keyof bp.events.Event
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, client, logger, ctx }) => {
   try {
-    verifyUberSignature(req, ctx.configuration.clientSecret)
+    verifyUberSignature(req, ctx.configuration.webhookSigningKey)
   } catch {
     logger.forBot().warn('Invalid Uber webhook signature')
     return { status: 401 }
