@@ -14,6 +14,12 @@ const UberOrderSchema = z.object({
   scheduledOrderEndTime: z.string().optional(),
 })
 
+export const UberDenyReasonSchema = z.object({
+  type: UberDenyReason.optional().describe('Category of cancellation'),
+  info: z.string().optional().describe('Additional free-text explanation'),
+  clientErrorCode: z.string().optional().describe('Partner-provided error code'),
+})
+
 export const acceptOrderActionInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
 })
@@ -22,7 +28,7 @@ export const acceptOrderActionOutputSchema = z.object({}).describe('Empty respon
 
 export const denyOrderActionInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
-  reason: UberDenyReason.optional().describe('Reason for denying the order'),
+  reason: UberDenyReasonSchema,
 })
 
 export const denyOrderActionOutputSchema = z.object({}).describe('Empty response on success')

@@ -44,8 +44,8 @@ export class UberEatsClient {
     return uberApi.acceptOrder(orderId, {}, await this._authOptions())
   }
 
-  public async denyOrder(orderId: string) {
-    return uberApi.denyOrder(orderId, {}, await this._authOptions())
+  public async denyOrder(orderId: string, body: uberApi.DenyOrderBody) {
+    return uberApi.denyOrder(orderId, body, await this._authOptions())
   }
 
   public async markOrderReady(orderId: string) {
