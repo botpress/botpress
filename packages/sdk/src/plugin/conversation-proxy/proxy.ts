@@ -26,7 +26,7 @@ export const proxyConversations = <TPlugin extends BasePlugin>(props: {
                 list(listProps): any {
                   const integrationName =
                     props.plugin?.interfaces[interfaceOrIntegrationAlias]?.integrationAlias ??
-                    props.plugin?.integrations[interfaceOrIntegrationAlias]?.integrationAlias!
+                    props.plugin?.integrations[interfaceOrIntegrationAlias]?.integrationAlias
 
                   const actualChannelName =
                     props.plugin?.interfaces[interfaceOrIntegrationAlias]?.channels?.[channel]?.name ?? channel
@@ -35,8 +35,8 @@ export const proxyConversations = <TPlugin extends BasePlugin>(props: {
                     props.client
                       .listConversations({
                         ...prefixTagsIfNeeded(listProps ?? {}, { alias: props.plugin?.alias }),
-                        channel: actualChannelName,
-                        integrationName,
+                        channel: actualChannelName === '*' ? undefined : actualChannelName,
+                        integrationName: integrationName === '*' ? undefined : integrationName,
                         nextToken,
                       })
                       .then(({ meta, conversations }) => ({

@@ -1,4 +1,3 @@
-/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import todoist from './bp_modules/todoist'
@@ -12,9 +11,6 @@ export default new sdk.BotDefinition({
   recurringEvents: {},
   user: {},
   conversation: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(todoist, {
     alias: 'todoist-src',

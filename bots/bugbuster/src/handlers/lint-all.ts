@@ -90,15 +90,11 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   })
 
   for (const channel of channels) {
-    const conversationId = await _getConversationId(client, channel.name).catch(
-      _handleError(`trying to get the conversation ID of Slack channel '${channel.name}'`)
-    )
-
     const relevantIssues = lintResults.filter((result) =>
       channel.teams.some((team) => result.identifier.includes(team))
     )
 
-    await botpress.respondText(conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
   }
 
   await workflow.setCompleted()
@@ -124,14 +120,4 @@ const _buildResultMessage = (results: types.LintResult[]) => {
   }
 
   return `Linting complete. ${messageDetail}`
-}
-
-const _getConversationId = async (client: bp.Client, channelName: string) => {
-  const conversation = await client.callAction({
-    type: 'slack:startChannelConversation',
-    input: {
-      channelName,
-    },
-  })
-  return conversation.output.conversationId
 }

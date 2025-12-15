@@ -542,12 +542,12 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
     devDependencies:
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/jsonwebtoken':
         specifier: ^9.0.3
         version: 9.0.3
@@ -2133,6 +2133,31 @@ importers:
         specifier: ^4.14.191
         version: 4.14.195
 
+  integrations/zendesk-messaging-hitl:
+    dependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      sunshine-conversations-client:
+        specifier: ^9.12.0
+        version: 9.14.0(@babel/core@7.28.0)
+    devDependencies:
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
+
   integrations/zoho:
     dependencies:
       '@botpress/client':
@@ -2404,7 +2429,7 @@ importers:
         specifier: 1.27.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2457,6 +2482,9 @@ importers:
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
+      jsonpath-plus:
+        specifier: ^10.3.0
+        version: 10.3.0
       latest-version:
         specifier: 5.1.0
         version: 5.1.0
@@ -2485,6 +2513,9 @@ importers:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
+      '@stoplight/types':
+        specifier: ^14.1.1
+        version: 14.1.1
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
@@ -2522,7 +2553,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2538,7 +2569,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2551,7 +2582,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2567,7 +2598,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2583,7 +2614,7 @@ importers:
         specifier: 1.27.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.0.0
+        specifier: 5.0.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2643,8 +2674,8 @@ importers:
         specifier: workspace:*
         version: link:../common
       '@bpinternal/zui':
-        specifier: 1.2.3
-        version: 1.2.3
+        specifier: 1.3.1
+        version: 1.3.1
       '@size-limit/file':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -2743,8 +2774,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       '@bpinternal/zui':
-        specifier: 1.2.3
-        version: 1.2.3
+        specifier: 1.3.1
+        version: 1.3.1
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
         version: 0.31.0
@@ -2846,8 +2877,8 @@ importers:
         specifier: 1.27.2
         version: link:../client
       '@bpinternal/zui':
-        specifier: 1.2.3
-        version: 1.2.3
+        specifier: 1.3.1
+        version: 1.3.1
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2886,8 +2917,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: 1.2.3
-        version: 1.2.3
+        specifier: 1.3.1
+        version: 1.3.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2932,8 +2963,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.2.3
-        version: 1.2.3
+        specifier: ^1.3.1
+        version: 1.3.1
       json5:
         specifier: ^2.2.3
         version: 2.2.3
@@ -3920,8 +3951,8 @@ packages:
   '@bpinternal/yargs-extra@0.0.3':
     resolution: {integrity: sha512-e/unlq0LX4CJUv1jGOv1UgwB/h2M0NCXnwD4lEw496GpkQikO668RS+BBlRhkqdGfZmvKDkXZZ96xJCn+i6Ymg==}
 
-  '@bpinternal/zui@1.2.3':
-    resolution: {integrity: sha512-0tGOqZskA3o//PO1lbrkkkQOKiLnzeahp7wantz2d+aIIPkyEtA1FFZ3SdIIGDBiN0VuY3E3Bwx4zzmAosomoA==}
+  '@bpinternal/zui@1.3.1':
+    resolution: {integrity: sha512-vj0Xl5mzzNFKzt569+xAGMs3+8dJJSFq1RoLYv2xHf6XLljbPnGASYwyFspO8GQkJMLzLZUQ36TMFLVwg2yTPg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@colors/colors@1.6.0':
@@ -4774,8 +4805,20 @@ packages:
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
 
+  '@jsep-plugin/assignment@1.3.0':
+    resolution: {integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+
   '@jsep-plugin/regex@1.0.3':
     resolution: {integrity: sha512-XfZgry4DwEZvSFtS/6Y+R48D7qJYJK6R9/yJFyUFHCIUMEEHuJ4X95TDgJp5QkmzfLYvapMPzskV5HpIDrREug==}
+    engines: {node: '>= 10.16.0'}
+    peerDependencies:
+      jsep: ^0.4.0||^1.0.0
+
+  '@jsep-plugin/regex@1.0.4':
+    resolution: {integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==}
     engines: {node: '>= 10.16.0'}
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
@@ -8722,6 +8765,10 @@ packages:
     resolution: {integrity: sha512-i1rBX5N7VPl0eYb6+mHNp52sEuaS2Wi8CDYx1X5sn9naevL78+265XJqy1qENEk7mRKwS06NHpUqiBwR7qeodw==}
     engines: {node: '>= 10.16.0'}
 
+  jsep@1.4.0:
+    resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
+    engines: {node: '>= 10.16.0'}
+
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
@@ -8792,6 +8839,11 @@ packages:
 
   jsonfile@6.2.0:
     resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
+
+  jsonpath-plus@10.3.0:
+    resolution: {integrity: sha512-8TNmfeTCk2Le33A3vRRwtuworG/L5RrgMvdjhKZxvyShO+mBu2fP50OWUjRLNtvw344DdDarFh9buFAZs5ujeA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   jsonpath-plus@6.0.1:
     resolution: {integrity: sha512-EvGovdvau6FyLexFH2OeXfIITlgIbgZoAZe3usiySeaIDm5QS+A10DKNpaPBBqqRSZr2HN6HVNXxtwUAr2apEw==}
@@ -12909,7 +12961,7 @@ snapshots:
       yargs: 17.7.2
       yn: 4.0.0
 
-  '@bpinternal/zui@1.2.3': {}
+  '@bpinternal/zui@1.3.1': {}
 
   '@colors/colors@1.6.0': {}
 
@@ -13586,9 +13638,17 @@ snapshots:
 
   '@jsdevtools/ono@7.1.3': {}
 
+  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
+
   '@jsep-plugin/regex@1.0.3(jsep@1.3.9)':
     dependencies:
       jsep: 1.3.9
+
+  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
+    dependencies:
+      jsep: 1.4.0
 
   '@jsep-plugin/ternary@1.1.3(jsep@1.3.9)':
     dependencies:
@@ -18742,6 +18802,8 @@ snapshots:
 
   jsep@1.3.9: {}
 
+  jsep@1.4.0: {}
+
   jsesc@3.1.0: {}
 
   json-bigint@1.0.0:
@@ -18826,6 +18888,12 @@ snapshots:
       universalify: 2.0.1
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  jsonpath-plus@10.3.0:
+    dependencies:
+      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
+      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
+      jsep: 1.4.0
 
   jsonpath-plus@6.0.1:
     optional: true

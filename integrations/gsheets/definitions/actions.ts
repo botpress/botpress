@@ -53,8 +53,8 @@ const getValues = {
   },
 } as const satisfies ActionDef
 
-const updateValues = {
-  title: 'Update Values',
+const setValues = {
+  title: 'Set Values',
   description: 'Sets values in a range in the spreadsheet.',
   input: {
     schema: z.object({
@@ -92,12 +92,20 @@ const updateValues = {
 const appendValues = {
   title: 'Append Values',
   description:
-    'Appends values to the spreadsheet. The input range is used to search for existing data and find a "table" within that range. Values will be appended to the next row of the table, starting with the first column of the table.',
+    'Appends values to the spreadsheet. The input startColumn is used to search for existing data and find a "table" within that range. Values will be appended to the next row of the table, starting with the first column of the table.',
   input: {
     schema: z.object({
-      range: _commonFields.range.describe(
-        'The A1 notation of a range to search for a logical table of data. Values are appended after the last row of the table. (e.g. "Sheet1!A1:B2")'
-      ),
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .describe(
+          'The start column letter(s) (e.g. "A", "B", "AA"). The range will be constructed from this column row 1 to column row 100000.'
+        ),
       majorDimension: _commonFields.majorDimension
         .optional()
         .describe(
@@ -171,24 +179,40 @@ const getInfoSpreadsheet = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z.string().title('Spreadsheet ID').nullable().describe('The spreadsheet ID.'),
-        spreadsheetUrl: z.string().title('Spreadsheet URL').nullable().describe('The URL of the spreadsheet.'),
-        dataSources: z.array(z.any()).title('Data Sources').describe('The data sources connected to the spreadsheet.'),
-        dataSourceSchedules: z
-          .array(z.any())
-          .title('Data Source Schedules')
-          .describe('The schedules of the data sources.'),
-        developerMetadata: z
-          .array(z.any())
-          .title('Developer Metadata')
-          .describe('The developer metadata associated with the spreadsheet.'),
-        namedRanges: z.array(z.any()).title('Named Ranges').describe('The named ranges defined in the spreadsheet.'),
-        properties: z.any().title('Properties').describe('The properties of the spreadsheet.'),
-        sheets: z.array(z.any()).title('Sheets').describe('The sheets present in the spreadsheet.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z
+        .union([z.string(), z.null()])
+        .title('Spreadsheet ID')
+        .describe('The unique identifier of the spreadsheet.')
+        .optional(),
+      spreadsheetUrl: z
+        .union([z.string(), z.null()])
+        .title('Spreadsheet URL')
+        .describe('The URL of the spreadsheet.')
+        .optional(),
+      dataSources: z
+        .array(z.any())
+        .describe('The data sources connected to the spreadsheet.')
+        .title('Data Sources')
+        .optional(),
+      dataSourceSchedules: z
+        .array(z.any())
+        .describe('The schedules of the data sources.')
+        .title('Data Source Schedules')
+        .optional(),
+      developerMetadata: z
+        .array(z.any())
+        .describe('The developer metadata associated with the spreadsheet.')
+        .title('Developer Metadata')
+        .optional(),
+      namedRanges: z
+        .array(z.any())
+        .describe('The named ranges defined in the spreadsheet.')
+        .title('Named Ranges')
+        .optional(),
+      properties: z.any().describe('The properties of the spreadsheet.').title('Properties').optional(),
+      sheets: z.array(z.any()).describe('The sheets present in the spreadsheet.').title('Sheets').optional(),
+    }),
   },
 } as const satisfies ActionDef
 
@@ -430,5 +454,5 @@ export const actions = {
   renameSheet,
   setSheetVisibility,
   unprotectRange,
-  updateValues,
+  setValues,
 } as const satisfies ActionDefinitions

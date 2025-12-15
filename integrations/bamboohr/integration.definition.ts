@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { posthogHelper } from '@botpress/common'
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { actions, events, subdomain } from './definitions'
