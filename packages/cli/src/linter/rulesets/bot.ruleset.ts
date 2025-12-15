@@ -1,6 +1,6 @@
 import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy } from '@stoplight/spectral-functions'
-import { truthyWithMessage } from '../spectral-functions'
+import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
 
 export const BOT_RULESET = {
   extends: [],
@@ -13,7 +13,11 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of event "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -26,7 +30,11 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of event "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -38,7 +46,10 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-3)}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -50,7 +61,10 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-2)}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -4 : -2)}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -147,7 +161,10 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -5 : -3)}" of state "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -160,7 +177,10 @@ export const BOT_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -4 : -2)}" of state "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
