@@ -22,11 +22,25 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'gpt-5.2-2025-12-11': {
+    name: 'GPT-5.2',
+    description:
+      'GPT-5.2 is the latest frontier-grade model in the GPT-5 series, offering stronger agentic and long context perfomance compared to GPT-5.1. It uses adaptive reasoning to allocate computation dynamically, responding quickly to simple queries while spending more depth on complex tasks.',
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
+    input: {
+      costPer1MTokens: 1.75,
+      maxTokens: 400_000,
+    },
+    output: {
+      costPer1MTokens: 14,
+      maxTokens: 128_000,
+    },
+  },
   'gpt-5.1-2025-11-13': {
     name: 'GPT-5.1',
     description:
       "GPT-5.1 is OpenAI's latest and most advanced AI model. It is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5.1 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.",
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     input: {
       costPer1MTokens: 1.25,
       maxTokens: 400_000,
@@ -40,7 +54,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     name: 'GPT-5',
     description:
       'GPT-5 is a reasoning model that chooses the best way to respond based on task complexity and user intent. GPT-5 delivers expert-level performance across coding, math, writing, health, and visual perception, with improved accuracy, speed, and reduced hallucinations. It excels in complex tasks, long-context understanding, multimodal inputs (text and images), and safe, nuanced responses.',
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     input: {
       costPer1MTokens: 1.25,
       maxTokens: 400_000,
@@ -54,7 +68,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     name: 'GPT-5 Mini',
     description:
       'GPT-5 Mini is a lightweight and cost-effective version of GPT-5, optimized for applications where speed and efficiency matter more than full advanced capabilities. It is designed for cost-sensitive use cases such as chatbots, content generation, and high-volume usage, striking a balance between performance and affordability, making it suitable for simpler tasks that do not require deep multi-step reasoning or the full reasoning power of GPT-5',
-    tags: ['recommended', 'reasoning', 'general-purpose'],
+    tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     input: {
       costPer1MTokens: 0.25,
       maxTokens: 400_000,
@@ -68,7 +82,7 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
     name: 'GPT-5 Nano',
     description:
       'GPT-5 Nano is an ultra-lightweight version of GPT-5 optimized for speed and very low latency, making it ideal for use cases like simple chatbots, basic content generation, summarization, and classification tasks.',
-    tags: ['low-cost', 'reasoning', 'general-purpose'],
+    tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
     input: {
       costPer1MTokens: 0.05,
       maxTokens: 400_000,
@@ -349,18 +363,19 @@ export default new bp.Integration({
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
           overrideRequest: (request) => {
             const isReasoningModel =
-              input.model?.id.startsWith('gpt-5-') ||
+              input.model?.id.startsWith('gpt-5.2-') ||
               input.model?.id.startsWith('gpt-5.1-') ||
-              input.model?.id.startsWith('o1-') ||
+              input.model?.id.startsWith('gpt-5-') ||
+              input.model?.id.startsWith('o4-') ||
               input.model?.id.startsWith('o3-') ||
-              input.model?.id.startsWith('o4-')
+              input.model?.id.startsWith('o1-')
 
             if (isReasoningModel) {
               if (input.reasoningEffort) {
                 request.reasoning_effort = validateOpenAIReasoningEffort(input, logger)
               } else {
-                if (input.model?.id.startsWith('gpt-5.1-')) {
-                  // GPT-5.1 is a hybrid reasoning model that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
+                if (input.model?.id.startsWith('gpt-5.2-') || input.model?.id.startsWith('gpt-5.1-')) {
+                  // GPT-5.1 and GPT-5.2 are hybrid reasoning models that supports optional reasoning, so if no reasoning effort is specified we assume the user doesn't want the model to do reasoning (to reduce cost/latency).
                   request.reasoning_effort = 'none'
                 } else if (input.model?.id.startsWith('gpt-5-')) {
                   // GPT-5 is a hybrid model but it doesn't support optional reasoning, so if reasoning effort isn't specified we assume the user wants to use the least amount of reasoning possible (to reduce cost/latency).
