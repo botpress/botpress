@@ -101,10 +101,7 @@ export class UberEatsClient {
       type: 'integration',
       name: TOKEN_STATE_KEY,
       id: this._ctx.integrationId,
-      payload: {
-        accessToken: null,
-        expiresAt: null,
-      },
+      payload: {},
     })
 
     const accessToken = state.payload.accessToken

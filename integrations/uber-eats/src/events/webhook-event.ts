@@ -1,17 +1,5 @@
 import { z } from '@botpress/sdk'
 
-export const UberEventType = z
-  .enum([
-    'delivery.state_changed',
-    'orders.status_changed',
-    'orders.created',
-    'orders.canceled',
-    'orders.ready_for_pickup',
-    'orders.notification',
-  ])
-  .title('Event type')
-  .describe('Uber Eats webhook event type')
-
 export const UberOrderDeliveryState = z
   .enum([
     'SCHEDULED',
