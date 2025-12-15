@@ -1,7 +1,7 @@
 import { Request } from '@botpress/sdk'
 import crypto from 'crypto'
 
-export const verifyUberSignature = (req: Request, webhookSigningKey: string) => {
+export const verifyUberSignature = (req: Request, signingKey: string) => {
   const signature = req.headers['x-uber-signature']
 
   if (!signature) {
@@ -16,9 +16,12 @@ export const verifyUberSignature = (req: Request, webhookSigningKey: string) => 
     throw new Error('Expected raw body string for signature verification')
   }
 
-  const computed = crypto.createHmac('sha256', webhookSigningKey).update(req.body, 'utf8').digest('hex').toLowerCase()
+  const computed = crypto.createHmac('sha256', signingKey).update(req.body, 'utf8').digest('hex').toLowerCase()
 
-  if (computed !== signature.toLowerCase()) {
+  const expected = Buffer.from(computed, 'hex')
+  const received = Buffer.from(signature.toLowerCase(), 'hex')
+
+  if (expected.length !== received.length || !crypto.timingSafeEqual(expected, received)) {
     throw new Error('Invalid Uber webhook signature')
   }
 
