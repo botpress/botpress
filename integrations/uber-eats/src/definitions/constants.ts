@@ -12,5 +12,3 @@ export const UberDenyReason = z.enum([
   'REASON_UNABLE_TO_FULFILL',
   'REASON_TOO_BUSY',
 ])
-
-export const UberReadyOrderType = z.enum(['PICKUP', 'DELIVERY', 'UNKNOWN'])

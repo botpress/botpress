@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@botpress/sdk'
 import { z } from '@botpress/sdk'
-import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason, UberReadyOrderType } from './constants'
+import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason } from './constants'
 
 const UberOrderSchema = z.object({
   id: UberUUID.optional(),
@@ -29,7 +29,6 @@ export const denyOrderActionOutputSchema = z.object({}).describe('Empty response
 
 export const markOrderReadyActionInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
-  orderType: UberReadyOrderType.optional().describe('PICKUP / DELIVERY / UNKNOWN'),
 })
 
 export const markOrderReadyActionOutputSchema = z.object({}).describe('Empty response on success')
