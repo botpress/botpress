@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { actions } from './actions'
 import { UberEatsClient } from './api/uber-client'
 import { handler } from './handler'
@@ -11,8 +12,11 @@ export default new bp.Integration({
       bpClient: client,
       ctx,
     })
-
-    await uber.testConnection()
+    try {
+      await uber.testConnection()
+    } catch (error) {
+      throw new sdk.RuntimeError('Uber Eats integration setup failed. Check provided credentials')
+    }
 
     logger.forBot().info('Uber Eats credentials validated.')
   },
