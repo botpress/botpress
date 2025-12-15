@@ -11,9 +11,12 @@ import {
   secrets,
 } from './definitions'
 
+export const INTEGRATION_NAME = 'gmail'
+export const INTEGRATION_VERSION = '1.0.0 '
+
 export default new sdk.IntegrationDefinition({
-  name: 'gmail',
-  version: '0.6.5',
+  name: INTEGRATION_NAME,
+  version: '1.0.0',
   title: 'Gmail',
   description: "Send, receive, and manage emails directly within your bot's workflow.",
   icon: 'icon.svg',
@@ -27,7 +30,4 @@ export default new sdk.IntegrationDefinition({
   events,
   states,
   secrets,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
