@@ -39,15 +39,15 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
 }
 
 export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
-  integrationProps.register = wrapFunction(integrationProps.register, config, 'register')
-  integrationProps.unregister = wrapFunction(integrationProps.unregister, config, 'unregister')
-  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config, 'handler')
+  integrationProps.register = wrapFunction(integrationProps.register, config, 'register', 'registration')
+  integrationProps.unregister = wrapFunction(integrationProps.unregister, config, 'unregister', 'registration')
+  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config, 'handler', 'handler')
 
   if (integrationProps.actions) {
     for (const actionType of Object.keys(integrationProps.actions)) {
       const actionFn = integrationProps.actions[actionType]
       if (typeof actionFn === 'function') {
-        integrationProps.actions[actionType] = wrapFunction(actionFn, config, actionType)
+        integrationProps.actions[actionType] = wrapFunction(actionFn, config, actionType, 'actions')
       }
     }
   }
@@ -59,7 +59,7 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
       Object.keys(channel.messages).forEach((messageType) => {
         const messageFn = channel.messages[messageType]
         if (typeof messageFn === 'function') {
-          channel.messages[messageType] = wrapFunction(messageFn, config, channelName)
+          channel.messages[messageType] = wrapFunction(messageFn, config, channelName, 'channels')
         }
       })
     }
@@ -67,7 +67,7 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
   return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig, functionName: string) {
+function wrapFunction(fn: Function, config: PostHogConfig, functionName: string, functionArea: string) {
   return async (...args: any[]) => {
     try {
       return await fn(...args)
@@ -85,6 +85,7 @@ function wrapFunction(fn: Function, config: PostHogConfig, functionName: string)
           event: 'unhandled_error',
           properties: {
             from: functionName,
+            area: functionArea,
             integrationName: config.integrationName,
             integrationVersion: config.integrationVersion,
             errMsg,
