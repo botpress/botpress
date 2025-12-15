@@ -5,21 +5,18 @@ import { handler } from './handler'
 import { register, unregister } from './setup'
 
 import * as bp from '.botpress'
-@posthogHelper.wrapIntegration({
+
+const posthogConfig = {
   integrationName: INTEGRATION_NAME,
-  integrationVersion: INTEGRATION_VERSION,
   key: bp.secrets.POSTHOG_KEY,
-})
-class BambooHrIntegration extends bp.Integration {
-  public constructor() {
-    super({
-      register,
-      unregister,
-      actions,
-      channels: {},
-      handler,
-    })
-  }
+  integrationVersion: INTEGRATION_VERSION,
+}
+const integrationConfig: bp.IntegrationProps = {
+  register,
+  unregister,
+  actions,
+  channels: {},
+  handler,
 }
 
-export default new BambooHrIntegration()
+export default posthogHelper.wrapIntegration(posthogConfig, integrationConfig)
