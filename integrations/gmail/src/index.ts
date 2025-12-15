@@ -6,7 +6,7 @@ import { register, unregister } from './setup'
 import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-const posthogConfig = {
+export const posthogConfig = {
   integrationName: INTEGRATION_NAME,
   key: bp.secrets.POSTHOG_KEY,
   integrationVersion: INTEGRATION_VERSION,
