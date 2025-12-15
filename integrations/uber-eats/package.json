@@ -8,8 +8,8 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

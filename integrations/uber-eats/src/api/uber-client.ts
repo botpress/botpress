@@ -1,12 +1,5 @@
-import axios, { type AxiosInstance } from 'axios'
-import {
-  AcceptOrderOutput,
-  DenyOrderOutput,
-  GetOrderOutput,
-  ListStoreOrdersInput,
-  ListStoreOrdersOutput,
-  MarkOrderReadyOutput,
-} from './types'
+import axios from 'axios'
+import * as uberApi from './generated/api'
 import * as bp from '.botpress'
 
 const TOKEN_STATE_KEY = 'oauthToken'
@@ -16,7 +9,6 @@ export class UberEatsClient {
   private _clientId: string
   private _clientSecret: string
   private _scope: string
-  private _axios: AxiosInstance
   private _bpClient: bp.Client
   private _ctx: bp.Context
 
@@ -38,39 +30,26 @@ export class UberEatsClient {
     this._clientSecret = clientSecret
     this._bpClient = bpClient
     this._ctx = ctx
-
-    this._axios = axios.create({
-      baseURL: 'https://api.uber.com/v1/delivery',
-      headers: { 'Content-Type': 'application/json' },
-    })
   }
 
   public async getOrder(orderId: string) {
-    return this._request<GetOrderOutput>('GET', `/order/${orderId}`)
+    return uberApi.getOrder(orderId)
   }
 
-  public async listStoreOrders(props: ListStoreOrdersInput) {
-    return this._request<ListStoreOrdersOutput>('GET', `/store/${props.store_id}/orders`, undefined, {
-      expand: props.expand?.join(','),
-      state: props.state?.join(','),
-      status: props.status?.join(','),
-      start_time: props.start_time,
-      end_time: props.end_time,
-      next_page_token: props.next_page_token,
-      page_size: props.page_size ?? 50,
-    })
+  public async listStoreOrders(props: uberApi.GetOrdersParams) {
+    return uberApi.getOrders(this._ctx.configuration.storeId, props, await this._authOptions())
   }
 
-  public async acceptOrder(orderId: string): Promise<AcceptOrderOutput> {
-    return this._request<AcceptOrderOutput>('POST', `/order/${orderId}/accept`)
+  public async acceptOrder(orderId: string) {
+    return uberApi.acceptOrder(orderId, {}, await this._authOptions())
   }
 
-  public async denyOrder(orderId: string, reason?: string): Promise<DenyOrderOutput> {
-    return this._request<DenyOrderOutput>('POST', `/order/${orderId}/deny`, reason ? { reason } : undefined)
+  public async denyOrder(orderId: string) {
+    return uberApi.denyOrder(orderId, {}, await this._authOptions())
   }
 
-  public async markOrderReady(orderId: string): Promise<MarkOrderReadyOutput> {
-    return this._request<MarkOrderReadyOutput>('POST', `/order/${orderId}/ready`)
+  public async markOrderReady(orderId: string) {
+    return uberApi.orderReady(orderId, {}, await this._authOptions())
   }
 
   private async _requestNewToken(): Promise<string> {
@@ -138,24 +117,8 @@ export class UberEatsClient {
     return true
   }
 
-  private async _request<T>(
-    method: 'GET' | 'POST' | 'PATCH',
-    url: string,
-    data?: unknown,
-    params?: Record<string, unknown>
-  ): Promise<T> {
+  private async _authOptions(): Promise<{ headers: Record<string, string> }> {
     const token = await this._getAccessToken()
-
-    const res = await this._axios.request<T>({
-      method,
-      url,
-      data,
-      params,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    return res.data
+    return { headers: { Authorization: `Bearer ${token}` } }
   }
 }

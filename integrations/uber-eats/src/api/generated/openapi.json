@@ -1,0 +1,3907 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Order Fulfillment API",
+    "description": "For API testing via Postman, ensure your application's scopes are approved, and then click [here](https://god.gw.postman.com/run-collection/6384856-15146fc5-4e59-4f50-85c8-64567630e791?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D6384856-15146fc5-4e59-4f50-85c8-64567630e791%26entityType%3Dcollection%26workspaceId%3De5995580-1109-4772-a883-92e9531beae5#?env%5BUber%20Eats%20Marketplace%20API%5D=W3sia2V5IjoidWJlcl9hcGlfY2xpZW50X2lkIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlLCJzZXNzaW9uVmFsdWUiOiIiLCJzZXNzaW9uSW5kZXgiOjB9LHsia2V5IjoidWJlcl9hcGlfY2xpZW50X3NlY3JldCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZSwidHlwZSI6InNlY3JldCIsInNlc3Npb25WYWx1ZSI6IiIsInNlc3Npb25JbmRleCI6MX0seyJrZXkiOiJzdG9yZV9pZCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZSwic2Vzc2lvblZhbHVlIjoiIiwic2Vzc2lvbkluZGV4IjoyfSx7ImtleSI6ImJhc2VfdXJsIiwidmFsdWUiOiJodHRwczovL2FwaS51YmVyLmNvbSIsImVuYWJsZWQiOnRydWUsInR5cGUiOiJkZWZhdWx0Iiwic2Vzc2lvblZhbHVlIjoiaHR0cHM6Ly9hcGkudWJlci5jb20iLCJzZXNzaW9uSW5kZXgiOjN9LHsia2V5IjoiZWF0c19zdG9yZV90b2tlbiIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZSwidHlwZSI6ImFueSIsInNlc3Npb25WYWx1ZSI6IiIsInNlc3Npb25JbmRleCI6NH0seyJrZXkiOiJzY29wZXMiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWUsInR5cGUiOiJkZWZhdWx0Iiwic2Vzc2lvblZhbHVlIjoiIiwic2Vzc2lvbkluZGV4Ijo1fSx7ImtleSI6Im9yZGVyX2lkIiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlLCJ0eXBlIjoiZGVmYXVsdCIsInNlc3Npb25WYWx1ZSI6IiIsInNlc3Npb25JbmRleCI6Nn1d)  to fork the collection.\n\n# Table of contents\n- [Order Webhooks](#tag/WebhookEvents)\n- [Get Order Details](#tag/GetOrder)\n- [List Orders Details](#tag/GetOrders)\n- [Accept Order](#tag/AcceptOrder)\n- [Deny Order](#tag/DenyOrder)\n- [Cancel Order](#tag/CancelOrder)\n- [Mark Order Ready](#tag/OrderReady)\n- [Adjust Order Price](#tag/AdjustOrderPrice)\n- [Update Order Ready Time](#tag/UpdateOrderReadyTime)\n- [Resolve Fulfillment Issues](#tag/ResolveOrderFulfillmentIssue)\n"
+  },
+  "servers": [
+    {
+      "url": "https://api.uber.com"
+    }
+  ],
+  "paths": {
+    "/v1/delivery/order/{order_id}": {
+      "get": {
+        "operationId": "getOrder",
+        "summary": "Order Details",
+        "tags": [
+          "GetOrder"
+        ],
+        "description": "Provides detailed information regarding an Uber Eats active order that can be expanded to provide additional order information.",
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier for a given order. This is the identifier that is expected to be quoted for support queries and is otherwise known as the ‘order id’.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "description": "Comma-separated list of fields to expand. Expected values 'carts','deliveries' and/or 'payment'. By default, these fields in the MerchantOrder are omitted from the response unless specified. For example ‘carts,payment’ returns an order with the ‘carts’ and ‘payment’ fields included.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/restaurant_order"
+                    },
+                    {
+                      "$ref": "#/components/schemas/retail_order"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/store/{store_id}/orders": {
+      "get": {
+        "operationId": "getOrders",
+        "summary": "List Orders Details",
+        "tags": [
+          "GetOrders"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "A list with detailed information regarding Uber Eats orders for a chosen restaurant",
+        "parameters": [
+          {
+            "name": "store_id",
+            "in": "path",
+            "description": "A unique identifier for a given restaurant. This is the identifier that is expected to be quoted for support queries and is otherwise known as the ‘store_id’.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expand",
+            "in": "query",
+            "description": "Comma-separated list of fields to expand. Expected values 'carts','deliveries' and/or 'payment'. By default, these fields in the MerchantOrder are omitted from the response unless specified. For example ‘carts,payment’ returns an order with the ‘carts’ and ‘payment’ field included.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of states. If omitted, orders in all states are returned. For example, ‘OFFERED,ACCEPTED’ filters orders down to orders with these 2 states. Expected values:\n| Name                       | Description                            |\n| -------------------------- | ---------------------------------------|\n| `OFFERED`                  | Order has been offered to the merchant |\n| `ACCEPTED`                 | Merchant has accepted the order        |\n| `HANDED_OFF`               | Order has been fully handed off to delivery partners. If there are multiple delivery partners, an order will only transition to this state only when all delivery partners have picked up the order. |\n| `SUCCEEDED`                | Order was successfully delivered       |\n| `FAILED`                   | Order failed for any reason            |\n| `UNKNOWN`                  | Catch-all for unrecognized states      |\n"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated list of statuses. If omitted, orders in all statuses are returned. For example, ‘SCHEDULED,ACTIVE’ filters orders down to orders with these 2 statuses. Expected values:\n| Name                       | Description                            |\n| -------------------------- | ---------------------------------------|\n| `SCHEDULED`                | Order is scheduled for a future time   |\n| `ACTIVE`                   | Order is active                        |\n| `COMPLETED`                | Order is completed                     |\n| `UNKNOWN`                  | Catch-all for unrecognized statuses    |\n"
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Timestamp in RFC3339 format. Filters down to orders created after this time. Must be before end_time if specified. If both start_time and end_time are not specified, all orders will be returned. Note that only orders within 60 days are returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "Timestamp in RFC3339 format. Filters down to orders created before this time. Must be after start_time if specified. If start_time is not specified, it is defaulted to 60 days ago.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "next_page_token",
+            "in": "query",
+            "description": "Pagination information - token to retrieve the next page. This token is provided in the pagination_data field if the response is paginated",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "Pagination information - Number of orders in a single page. Only a maximum of 50 can be specified. If omitted, defaults to 50.",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of orders with details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/restaurant_order"
+                      }
+                    },
+                    "pagination_data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/pagination_data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/accept": {
+      "post": {
+        "operationId": "acceptOrder",
+        "summary": "Accept Order",
+        "tags": [
+          "AcceptOrder"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "Allows Acceptance of an Uber Eats Order for timing of pickup to be updated for the customer or courier.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "Unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Optional request body for accepting an order.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ready_for_pickup_time": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2023-01-04T18:50:05.000Z",
+                    "description": "An absolute RFC3339 timestamp, if passed, will inform how long the Order will take to prepare and have it ready to be picked up by a courier."
+                  },
+                  "external_reference_id": {
+                    "type": "string",
+                    "description": "It is the reference id from the external integrator for this specific Order if they have one and choose to send it.",
+                    "example": "pizza_cheese"
+                  },
+                  "accepted_by": {
+                    "type": "string",
+                    "description": "A free text field to indicate who the order was accepted by (i.e. Jane Smith, John Citizen).",
+                    "example": "John Smith"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/deny": {
+      "post": {
+        "operationId": "DenyOrder",
+        "summary": "Deny Order",
+        "tags": [
+          "DenyOrder"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "Allows an Uber Eats Order to be denied. You must supply a denial reason and can optionally supply a free form text to provide Uber further context as to why the order was unable to be accepted.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "request body for deny reasons",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deny_reason": {
+                    "$ref": "#/components/schemas/deny_reason"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/cancel": {
+      "post": {
+        "operationId": "cancelOrder",
+        "summary": "Cancel Order",
+        "tags": [
+          "CancelOrder"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "Allows cancellation of an Uber Eats Order",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The reason for canceling the order",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cancellation_reason": {
+                    "$ref": "#/components/schemas/cancellation_reason"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/ready": {
+      "post": {
+        "operationId": "orderReady",
+        "summary": "Order Ready",
+        "tags": [
+          "OrderReady"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "Mark an order as ready for pickup. Merchants can call this endpoint when done preparing an order.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/components/schemas/EmptyBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ok"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/adjust-price": {
+      "post": {
+        "operationId": "adjustOrderPrice",
+        "summary": "Adjust Order Price",
+        "description": "Adjusts the price of an order of an active order for an Eater and awaits confirmation from the customer.",
+        "tags": [
+          "AdjustOrderPrice"
+        ],
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/components/schemas/adjust_price"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tax_rate_applied": {
+                      "type": "boolean",
+                      "description": "Whether or not the specified tax rate in the request is actually applied. This is false for stores in tax exclusive region that uses the Vertex tax engine.",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/update-ready-time": {
+      "post": {
+        "operationId": "updateOrderReadyTime",
+        "summary": "Update Order Ready Time",
+        "security": [
+          {
+            "auth": [
+              "eats.order"
+            ]
+          }
+        ],
+        "description": "Allows updating the time that an Eats Order will be ready to be picked up by a delivery partner. This can only be called when the Order is in the Accepted State and has not been marked as READY_TO_HANDOFF in the preparation_status. This endpoint will error out if can_adjust_ready_for_pickup_time is false.",
+        "tags": [
+          "UpdateOrderReadyTime"
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ready_for_pickup_time": {
+                    "type": "string",
+                    "description": "Timestamp in RFC3339 format that an Order will be ready to be picked up by a Delivery Partner. This will error out if incorrectly formatted or if a past time is sent.",
+                    "example": "2023-01-04T18:50:05.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delivery/order/{order_id}/resolve-fulfillment-issues": {
+      "post": {
+        "operationId": "resolveOrderFulfillmentIssue",
+        "summary": "Resolve Fulfillment Issues",
+        "security": [
+          {
+            "auth": [
+              "eats.order",
+              "eats.store.orders.read"
+            ]
+          }
+        ],
+        "description": "Allows merchants to resolve fulfillment issues (e.g. out of item, cannot fulfill special instructions etc.) for a Uber Delivery Order. If successful, a customer can select to accept or adjust the cart for item, or cancel. Execution of this endpoint will be followed with order.fulfillment_issues.resolved or order.failed webhook.",
+        "tags": [
+          "ResolveOrderFulfillmentIssue"
+        ],
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "A unique identifier of the order.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/restaurant_resolve_fulfillment_issues"
+                  },
+                  {
+                    "$ref": "#/components/schemas/retail_resolve_fulfillment_issues"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "x-next": {
+                "description": "A link to the next page of responses",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/restaurant_response_fulfillment_issues"
+                    },
+                    {
+                      "$ref": "#/components/schemas/retail_response_fulfillment_issues"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "webhookEvents": {
+      "post": {
+        "summary": "Order Webhook Event Types",
+        "tags": [
+          "WebhookEvents"
+        ],
+        "description": "The below order webhooks can be managed within the [Integration Configuration API Suite](/docs/eats/references/api/integration_activation_suite). The API version you set will determine the webhooks and resource_href passed in webhook body.\n\n- `orders.notification` - notification to retrieve order.\n- `orders.scheduled.notification` - notification to retrieve scheduled order. This event is only triggered if you are at minimum the API version 1.0.0.\n- `orders.release` - notification triggered when a courier has reach a predetermined geo-fence from the location. Typically used for quick service restaurants with low prep times.\n- `orders.failure` - notification for failed orders. Note that this is passed as soon as an order is failed, you may experience and error if there is an immediate request to retrieve the order details.\n- `orders.fulfillment_issues.resolved` - notification event when fulfillment issues are resolved by the customer on Uber's end. This event is triggered when Resolve for Fulfillment endpoint is called or when a user is informed of a fulfillment issue by any means.\n- `delivery.state_changed` - notification of Delivery Status can be used to track the delivery state. This event is triggered when the delivery state changes.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/orders.notification"
+                  },
+                  {
+                    "$ref": "#/components/schemas/orders.scheduled.notification"
+                  },
+                  {
+                    "$ref": "#/components/schemas/orders.release"
+                  },
+                  {
+                    "$ref": "#/components/schemas/orders.failure"
+                  },
+                  {
+                    "$ref": "#/components/schemas/orders.fulfillment_issues.resolved"
+                  },
+                  {
+                    "$ref": "#/components/schemas/delivery.state_changed"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook successfully received"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bad_request_error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorized_error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/not_found_error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internal_server_error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "auth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the implicit grant flow. [More info](https://developer.uber.com/docs/eats/guides/authentication)",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://auth.uber.com/oauth/v2/token",
+            "scopes": {
+              "eats.order": "Indicates a token has permission to update and retrieve order information."
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "action_type": {
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/restaurant_action_type"
+          },
+          {
+            "$ref": "#/components/schemas/retail_action_type"
+          }
+        ]
+      },
+      "restaurant_action_type": {
+        "title": "For Restaurants",
+        "type": "string",
+        "description": ">\nSpecifies the action type to resolve the fulfillment issue.\n| String            |  Description                                                                     |\n| ------------------| ---------------------------------------------------------------------------------|\n|  `ASK_CUSTOMER`     | Allows merchants to request customers to update their order to resolve fulfillment issues. In the instance where `order.customers.can_respond_to_fulfillment_issues` is `true` customers can choose a specific replacement or remove the affected item. Once the customer responds, a webhook `order.fulfillment_issues.resolved` is sent to the merchant, indicating that the customer has resolved the fulfillment issue. This action is available for \"Restaurant\" merchants only. |\n",
+        "enum": [
+          "ASK_CUSTOMER"
+        ]
+      },
+      "retail_action_type": {
+        "title": "For Retailers",
+        "type": "string",
+        "description": ">\nSpecifies the action type to resolve the fulfillment issue in the instance where issue_type is `OUT_OF_ITEM`:\n\n| String             |  Description                                                                     |\n| ------------------ | ---------------------------------------------------------------------------------|\n|  `SUBSTITUTE_ME`    | Allows merchant to replace an item with customer's specific replacement preference. This action should only be used when the customer's preferred action is `SUBSTITUTE_ME` and  it's available for \"Retail\" merchants only.                               |\n|  `REPLACE_FOR_ME`    | Allows merchant to choose a replacement to send to the customers. If \"Replacement Tracking & Approvals\" (RT&A) is enabled, it allows customers to approve or reject replacement suggestions. If RT&A is not enabled (default configuration), the substitution is approved automatically. This action is available for \"Retail\" merchants only. |\n|  `REMOVE_ITEM`       | Allows merchant to remove an item if it's unavailable. This action is available for \"Retail\" merchants only.  |\n",
+        "enum": [
+          "SUBSTITUTE_ME",
+          "REPLACE_FOR_ME",
+          "REMOVE_ITEM"
+        ],
+        "example": "REPLACE_FOR_ME"
+      },
+      "store": {
+        "type": "object",
+        "description": "Details of the store.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the store.",
+            "example": "bd1ed236-ee79-11ed-a05b-0242ac120003"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the store",
+            "example": "Uber's Pizza Palace"
+          },
+          "partner_identifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/partner_identifiers"
+            }
+          },
+          "uber_merchant_type": {
+            "type": "object",
+            "description": "Uber's internal standardized categorization of merchants.",
+            "$ref": "#/components/schemas/UberMerchantType"
+          }
+        }
+      },
+      "UberMerchantType": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Uber's internal standardized categorization of merchants.",
+            "enum": [
+              "MERCHANT_TYPE_UNKNOWN",
+              "MERCHANT_TYPE_RESTAURANT",
+              "MERCHANT_TYPE_GROCERY",
+              "MERCHANT_TYPE_LIQUOR",
+              "MERCHANT_TYPE_SPECIALTY_FOOD",
+              "MERCHANT_TYPE_CONVENIENCE",
+              "MERCHANT_TYPE_PHARMACY",
+              "MERCHANT_TYPE_FLORIST",
+              "MERCHANT_TYPE_PET_SUPPLY",
+              "MERCHANT_TYPE_RETAIL",
+              "MERCHANT_TYPE_VIRTUAL_RESTAURANT"
+            ],
+            "example": "MERCHANT_TYPE_RESTAURANT"
+          }
+        }
+      },
+      "partner_identifiers": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "A unique identifier for the partner.",
+            "example": "store1"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the identifier.",
+            "enum": [
+              "MERCHANT_STORE_ID",
+              "INTEGRATOR_STORE_ID",
+              "INTEGRATOR_BRAND_ID",
+              "ORDER_MANAGER_CLIENT_ID"
+            ]
+          }
+        }
+      },
+      "quantity": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "example": 1
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "POUND",
+              "PIECE",
+              "KILOGRAM",
+              "GRAM"
+            ],
+            "example": "PIECE"
+          }
+        }
+      },
+      "quantity PIW": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "example": 1
+          },
+          "in_sellable_unit": {
+            "type": "object",
+            "description": "Represents the quantity of a cart item in the units that were already presented to the customer",
+            "properties": {
+              "measurement_unit": {
+                "type": "object",
+                "description": "Unit in which the quantity is measured with. \"Kg\", \"Lb\", \"Un\", \"Meter\", etc.",
+                "properties": {
+                  "measurement_type": {
+                    "type": "string",
+                    "description": "The type of measurement type, which can be a physical dimension (weight), or whole number based system.",
+                    "example": "MEASUREMENT_TYPE_COUNT",
+                    "enum": [
+                      "MEASUREMENT_TYPE_COUNT",
+                      "MEASUREMENT_TYPE_WEIGHT"
+                    ]
+                  },
+                  "weight": {
+                    "type": "object",
+                    "description": "Description of the weight of the item, if the measurement type is MEASUREMENT_TYPE_WEIGHT",
+                    "properties": {
+                      "unit_type": {
+                        "type": "string",
+                        "example": null,
+                        "description": "The weight unit type that is being used for the item.",
+                        "enum": [
+                          "WEIGHT_UNIT_TYPE_METRIC_GRAM",
+                          "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_ONCE",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_POUND"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "amount_e5": {
+                "type": "integer",
+                "example": 200000,
+                "description": "Numeric value of the quantity. It is based on the measurement unit and it is in E5 format. Eg for 2.1 lb of an item, the amount would be 21000 in E5, based on the formula X * 10^5"
+              }
+            }
+          },
+          "in_priceable_unit": {
+            "type": "object",
+            "description": "Represents the quantity of a cart item in the priceable unit at the store. Not necessarily the same as what the customer added.",
+            "properties": {
+              "measurement_unit": {
+                "type": "object",
+                "description": "Unit in which the quantity is measured with. \"Kg\", \"Lb\", \"Un\", \"Meter\", etc.",
+                "properties": {
+                  "measurement_type": {
+                    "type": "string",
+                    "example": "MEASUREMENT_TYPE_WEIGHT",
+                    "enum": [
+                      "MEASUREMENT_TYPE_COUNT",
+                      "MEASUREMENT_TYPE_WEIGHT"
+                    ]
+                  },
+                  "weight": {
+                    "type": "object",
+                    "description": "Description of the weight of the item, if the measurement type is MEASUREMENT_TYPE_WEIGHT",
+                    "properties": {
+                      "unit_type": {
+                        "type": "string",
+                        "example": "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                        "description": "The weight unit type that is being used for the item.",
+                        "enum": [
+                          "WEIGHT_UNIT_TYPE_METRIC_GRAM",
+                          "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_ONCE",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_POUND"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "amount_e5": {
+                "type": "integer",
+                "example": 140000,
+                "description": "Numeric value of the quantity. It is based on the measurement unit and it is in E5 format. Eg for 2.1 lb of an item, the amount would be 21000 in E5, based on the formula X * 10^5"
+              }
+            }
+          }
+        }
+      },
+      "PIW": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "example": 1
+          },
+          "in_sellable_unit": {
+            "type": "object",
+            "description": "Represents the quantity of a cart item in the units that were already presented to the customer",
+            "properties": {
+              "measurement_unit": {
+                "type": "object",
+                "description": "Unit in which the quantity is measured with. \"Kg\", \"Lb\", \"Un\", \"Meter\", etc.",
+                "properties": {
+                  "measurement_type": {
+                    "type": "string",
+                    "description": "The type of measurement type, which can be a physical dimension (weight), or whole number based system.",
+                    "example": "MEASUREMENT_TYPE_COUNT",
+                    "enum": [
+                      "MEASUREMENT_TYPE_COUNT",
+                      "MEASUREMENT_TYPE_WEIGHT"
+                    ]
+                  },
+                  "weight": {
+                    "type": "object",
+                    "description": "Description of the weight of the item, if the measurement type is MEASUREMENT_TYPE_WEIGHT",
+                    "properties": {
+                      "unit_type": {
+                        "type": "string",
+                        "example": null,
+                        "description": "The weight unit type that is being used for the item.",
+                        "enum": [
+                          "WEIGHT_UNIT_TYPE_METRIC_GRAM",
+                          "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_ONCE",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_POUND"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "amount_e5": {
+                "type": "integer",
+                "example": 200000,
+                "description": "Numeric value of the quantity. It is based on the measurement unit and it is in E5 format. Eg for 2.1 lb of an item, the amount would be 21000 in E5, based on the formula X * 10^5"
+              }
+            }
+          },
+          "in_priceable_unit": {
+            "type": "object",
+            "description": "Represents the quantity of a cart item in the priceable unit at the store. Not necessarily the same as what the customer added.",
+            "properties": {
+              "measurement_unit": {
+                "type": "object",
+                "description": "Unit in which the quantity is measured with. \"Kg\", \"Lb\", \"Un\", \"Meter\", etc.",
+                "properties": {
+                  "measurement_type": {
+                    "type": "string",
+                    "example": "MEASUREMENT_TYPE_WEIGHT",
+                    "enum": [
+                      "MEASUREMENT_TYPE_COUNT",
+                      "MEASUREMENT_TYPE_WEIGHT"
+                    ]
+                  },
+                  "weight": {
+                    "type": "object",
+                    "description": "Description of the weight of the item, if the measurement type is MEASUREMENT_TYPE_WEIGHT",
+                    "properties": {
+                      "unit_type": {
+                        "type": "string",
+                        "example": "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                        "description": "The weight unit type that is being used for the item.",
+                        "enum": [
+                          "WEIGHT_UNIT_TYPE_METRIC_GRAM",
+                          "WEIGHT_UNIT_TYPE_METRIC_KILOGRAM",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_ONCE",
+                          "WEIGHT_UNIT_TYPE_IMPERIAL_POUND"
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "amount_e5": {
+                "type": "integer",
+                "example": 140000,
+                "description": "Numeric value of the quantity. It is based on the measurement unit and it is in E5 format. Eg for 2.1 lb of an item, the amount would be 21000 in E5, based on the formula X * 10^5"
+              }
+            }
+          }
+        }
+      },
+      "time_range": {
+        "type": "object",
+        "description": "Timestamp in RFC3339 format. Available for scheduled orders only. The customer-specified time of when they prefer the order to be delivered.",
+        "properties": {
+          "start_time": {
+            "type": "string",
+            "format": "date",
+            "example": "2016-09-01T10:11:12.123456-0500"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date",
+            "example": "2016-09-01T10:11:12.123456-0500"
+          }
+        }
+      },
+      "item": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/item_id"
+          },
+          "cart_item_id": {
+            "$ref": "#/components/schemas/cart_item_id"
+          },
+          "customer_id": {
+            "$ref": "#/components/schemas/customer_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/item_title"
+          },
+          "external_data": {
+            "type": "string",
+            "description": "Free form string field that permits data provided by the Partner to be sent back.",
+            "example": "chz_piz_18"
+          },
+          "quantity": {
+            "type": "object",
+            "$ref": "#/components/schemas/quantity PIW"
+          },
+          "default_quantity": {
+            "type": "object",
+            "$ref": "#/components/schemas/quantity"
+          },
+          "customer_request": {
+            "type": "object",
+            "$ref": "#/components/schemas/customer_request"
+          },
+          "selected_modifier_groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/selected_modifier_groups"
+            }
+          },
+          "picture_url": {
+            "$ref": "#/components/schemas/item_picture_url"
+          },
+          "fulfillment_action": {
+            "$ref": "#/components/schemas/fulfillment_issue_action"
+          }
+        }
+      },
+      "item_title": {
+        "type": "string",
+        "description": "The name of the item on Uber.",
+        "example": "Cheese Pizza 18"
+      },
+      "item_id": {
+        "type": "string",
+        "description": "An external identifier, provided by the Partner or generated by Uber.",
+        "example": "pizza_cheese"
+      },
+      "cart_item_id": {
+        "type": "string",
+        "description": "The shopping cart item ID. It refers to the specific line item in the cart.",
+        "example": "c751e24c-ee7a-11ed-a05b-0242ac120003"
+      },
+      "customer_id": {
+        "type": "string",
+        "description": "The Customer ID that this item is for.",
+        "example": "092400ec-ee7b-11ed-a05b-0242ac120003"
+      },
+      "item_picture_url": {
+        "type": "string",
+        "description": "A link to the image of the item."
+      },
+      "root_item": {
+        "type": "object",
+        "description": "The item affected by the fulfillment issue.",
+        "properties": {
+          "cart_item_id": {
+            "$ref": "#/components/schemas/cart_item_id"
+          }
+        }
+      },
+      "item_substitutes": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/item_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/item_title"
+          }
+        }
+      },
+      "item_substitute": {
+        "type": "object",
+        "description": "The item to be substituted in the instance where `action_type` is `SUBSTITUTE_ME` or `REPLACE_FOR_ME`.",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/item_id"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/PIW"
+          }
+        }
+      },
+      "suspend_until": {
+        "type": "string",
+        "description": "Time and date to set this item out of stock in RFC3339 format.",
+        "format": "date",
+        "example": "2016-09-01T10:11:12.12-0500"
+      },
+      "store_response": {
+        "type": "string",
+        "description": "Free form response from restaurant explaining why there was a fulfillment issue.",
+        "example": "The store ran out of stock."
+      },
+      "fulfillment_issue_item": {
+        "type": "object",
+        "description": "The item affected by the fulfillment issue.",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/item_id"
+          },
+          "cart_item_id": {
+            "$ref": "#/components/schemas/cart_item_id"
+          },
+          "customer_id": {
+            "$ref": "#/components/schemas/customer_id"
+          },
+          "title": {
+            "$ref": "#/components/schemas/item_title"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/quantity"
+          },
+          "picture_url": {
+            "$ref": "#/components/schemas/item_picture_url"
+          }
+        }
+      },
+      "fulfillment_issue_action": {
+        "type": "object",
+        "description": "Provides the preferences selected by the customer in case the item is unavailable.",
+        "properties": {
+          "action_type": {
+            "$ref": "#/components/schemas/retail_action_type"
+          },
+          "item_substitutes": {
+            "type": "array",
+            "description": "Array of items to be substituted in the instance where customer's specific replacement preference `action_type` is `SUBSTITUTE_ME`.",
+            "items": {
+              "$ref": "#/components/schemas/item_substitutes"
+            }
+          }
+        }
+      },
+      "selected_modifier_groups": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The identifier of the modifier group provided by the Merchant.",
+            "example": "18_pizza_toppings"
+          },
+          "title": {
+            "type": "string",
+            "description": "The name of the modifier group.",
+            "example": "Pizza Toppings for 18\""
+          },
+          "external_data": {
+            "type": "string",
+            "description": "Free text metadata for the modifier group.",
+            "example": "piz_top_18"
+          },
+          "selected_items": {
+            "type": "array",
+            "description": "Items that were selected as options in this modifier group.",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+          },
+          "removed_items": {
+            "type": "array",
+            "description": "Items that were removed as options in this modifier group.",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+          }
+        }
+      },
+      "orders.scheduled.notification": {
+        "type": "object",
+        "description": "Payload for scheduled order notifications. This event is only triggered if you are at minimum the API version 1.0. The resource_href is determined based on the API version set within [Integration Configuration](/docs/eats/references/api/integration_activation_suite)",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "orders.scheduled.notification"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resource_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "orders.notification": {
+        "type": "object",
+        "description": "Payload for order notifications. The resource_href is determined based on the API version set within [Integration Configuration](/docs/eats/references/api/integration_activation_suite)",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "orders.notification"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resource_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "orders.release": {
+        "type": "object",
+        "description": "Notification that is passed when a courier has reach a predetermined geo-fence from the location. Note that these must be enabled via the [Integration Configuration API](/docs/eats/references/api/integration_activation_suite).",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "orders.release"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resource_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "orders.failure": {
+        "type": "object",
+        "description": "Notification for failed orders. Note that this is passed as soon as an order is failed, you may experience and error if there is an immediate request to retrieve the order details.",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "orders.failure"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resource_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "orders.fulfillment_issues.resolved": {
+        "type": "object",
+        "description": "Notification event when fulfillment issues are resolved by the customer on Uber's end. This event is triggered when Resolve for Fulfillment endpoint is called or when a user is informed of a fulfillment issue by any means.",
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "orders.fulfillment_issues.resolved"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "resource_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "status": {
+                "$ref": "#/components/schemas/status"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "delivery.state_changed": {
+        "type": "object",
+        "description": null,
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "example": "delivery.state_changed"
+          },
+          "event_time": {
+            "$ref": "#/components/schemas/event_time"
+          },
+          "resource_href": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://api.uber.com/v1/delivery/order/1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "courier_trip_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "store_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "order_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "external_order_id": {
+                "type": "string",
+                "example": "order123"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "SCHEDULED",
+                  "EN_ROUTE_TO_PICKUP",
+                  "ARRIVED_AT_PICKUP",
+                  "EN_ROUTE_TO_DROPOFF",
+                  "ARRIVED_AT_DROPOFF",
+                  "COMPLETED",
+                  "FAILED"
+                ],
+                "example": "EN_ROUTE_TO_PICKUP"
+              }
+            }
+          },
+          "webhook_meta": {
+            "$ref": "#/components/schemas/webhook_meta"
+          }
+        }
+      },
+      "status": {
+        "type": "string",
+        "example": "pos"
+      },
+      "event_time": {
+        "type": "integer",
+        "format": "unix_timestamp",
+        "example": 1729651095000
+      },
+      "webhook_meta": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "webhook_config_id": {
+            "type": "string",
+            "example": "eats-restaurant-order-experience.order-webhooks"
+          },
+          "webhook_msg_timestamp": {
+            "type": "integer",
+            "format": "unix_timestamp",
+            "example": 1729651095
+          },
+          "webhook_msg_uuid": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "order_customer": {
+        "type": "array",
+        "description": "List of customers associated with the order.",
+        "items": {
+          "$ref": "#/components/schemas/customer"
+        }
+      },
+      "customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the customer.",
+            "example": "9ae8779e-1cd7-5322-86b6-d7955afd051b"
+          },
+          "name": {
+            "type": "object",
+            "$ref": "#/components/schemas/name"
+          },
+          "order_history": {
+            "type": "object",
+            "$ref": "#/components/schemas/order_history"
+          },
+          "contact": {
+            "type": "object",
+            "description": "The contact details of a Customer.",
+            "properties": {
+              "phone": {
+                "type": "object",
+                "$ref": "#/components/schemas/phone"
+              }
+            }
+          },
+          "is_primary_customer": {
+            "type": "boolean",
+            "description": "In a group order, indicates if this is the customer who created the order.",
+            "example": true
+          },
+          "tax_profiles": {
+            "type": "array",
+            "description": "The customer tax profile information.",
+            "items": {
+              "$ref": "#/components/schemas/tax_profiles"
+            }
+          },
+          "can_respond_to_fulfillment_issues": {
+            "type": "boolean",
+            "description": "Indicates whether a customer can respond to revise fulfillment issues.",
+            "example": true
+          }
+        }
+      },
+      "customer_request": {
+        "type": "object",
+        "properties": {
+          "allergy": {
+            "type": "string",
+            "description": "Metadata on allergens selected by the Customer.",
+            "$ref": "#/components/schemas/allergy"
+          },
+          "special_instructions": {
+            "type": "string",
+            "description": "Item level instructions provided by the Customer.",
+            "example": "Add extra sauce"
+          }
+        }
+      },
+      "allergy": {
+        "properties": {
+          "allergens": {
+            "type": "array",
+            "description": "A selected list of allergens. Common enumerated allergens include but are not limited to - DAIRY, EGG, FISH, PEANUTS",
+            "items": {
+              "type": "string",
+              "example": "PEANUTS"
+            }
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Customer entered free text related to allergens.",
+            "example": "I am allergic to peanuts."
+          }
+        }
+      },
+      "tax_profiles": {
+        "type": "object",
+        "properties": {
+          "tax_id": {
+            "type": "string",
+            "description": "The taxpayer identifier number. It is an identifier that tax authorities use (i.e. IRS) to identify a taxpayer, be it an individual or a business entity.",
+            "example": "123abc"
+          },
+          "tax_id_type": {
+            "type": "string",
+            "description": "The type of tax identifier.",
+            "enum": [
+              "NIF",
+              "CPF",
+              "CORPORATE_TAX_ID",
+              "NIP",
+              "twn-vat"
+            ]
+          },
+          "customer_full_name": {
+            "type": "string",
+            "description": "The full name of the Customer for Tax Reporting Purposes.",
+            "example": "John Smith"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email contact for the Customer.",
+            "example": "john@smith.com"
+          },
+          "legal_entity_name": {
+            "type": "string",
+            "description": "The legal entity for the tax profile.",
+            "example": "John Smith, LLC"
+          },
+          "billing_address": {
+            "type": "string",
+            "description": "The billing address of the entity.",
+            "example": "1 Broadway, New York, NY 11109"
+          },
+          "country": {
+            "type": "string",
+            "description": "The country for the tax profile.",
+            "example": "United States"
+          },
+          "tax_profile_metadata": {
+            "type": "object",
+            "description": "Additional metadata for the tax profile.",
+            "properties": {
+              "mobile_barcode": {
+                "type": "string",
+                "description": "(Taiwan market only) Mobile barcode."
+              },
+              "digital_certificate_code": {
+                "type": "string",
+                "description": "(Taiwan market only) Citizen digital certificate."
+              },
+              "donation_code": {
+                "type": "string",
+                "description": "(Taiwan market only) Donation code."
+              }
+            }
+          },
+          "encrypted_tax_id": {
+            "type": "object",
+            "description": "The encrypted tax identifier.",
+            "$ref": "#/components/schemas/encrypted_data"
+          }
+        }
+      },
+      "encrypted_data": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The encrypted data key."
+          },
+          "cipher_text": {
+            "type": "string",
+            "description": "The cipher text for the data."
+          }
+        }
+      },
+      "phone": {
+        "type": "object",
+        "description": "The phone number of the Customer or Delivery Partner.",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "The phone number of the Customer or Delivery Partner.",
+            "example": "+1-800-999-9999"
+          },
+          "pin_code": {
+            "type": "string",
+            "description": "The code to enter when the phone number is anonymized.",
+            "example": "888 52 337"
+          },
+          "country_iso2": {
+            "type": "string",
+            "description": "Country ISO code of the phone number",
+            "example": "US"
+          }
+        }
+      },
+      "order_history": {
+        "type": "object",
+        "description": "Order history of the customer",
+        "properties": {
+          "past_order_count": {
+            "type": "integer",
+            "description": "The number of times that a Customer has ordered from the given location.",
+            "example": 3
+          }
+        }
+      },
+      "name": {
+        "type": "object",
+        "description": "The name details for the Customer or Delivery Partner.",
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "description": "The display name of the Customer or Delivery Partner.",
+            "example": "Uber L"
+          },
+          "first_name": {
+            "type": "string",
+            "description": "The given name of the Customer or Delivery Partner.",
+            "example": "Uber"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "The surname or last name of the Customer or Delivery Partner.",
+            "example": "L"
+          }
+        }
+      },
+      "order_delivery": {
+        "type": "array",
+        "description": "List of deliveries associated with the order. This field is not available for a completed order.",
+        "items": {
+          "$ref": "#/components/schemas/delivery"
+        }
+      },
+      "delivery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the delivery",
+            "example": "1676a555-1a6f-4d49-be91-c9bb8f94af49"
+          },
+          "delivery_partner": {
+            "type": "object",
+            "$ref": "#/components/schemas/delivery_partner"
+          },
+          "status": {
+            "type": "string",
+            "description": "The current state of the delivery",
+            "enum": [
+              "SCHEDULED",
+              "EN_ROUTE_TO_PICKUP",
+              "ARRIVED_AT_PICKUP",
+              "EN_ROUTE_TO_DROPOFF",
+              "COMPLETED",
+              "FAILED"
+            ],
+            "example": "EN_ROUTE_TO_PICKUP"
+          },
+          "location": {
+            "type": "object",
+            "$ref": "#/components/schemas/location"
+          },
+          "estimated_pick_up_time": {
+            "type": "string",
+            "description": "Timestamp in RFC3339 format. The estimated time at which the order will be picked up",
+            "example": "2016-09-01T10:11:12.123456-0500"
+          },
+          "interaction_type": {
+            "type": "string",
+            "description": "Interaction type of the delivery",
+            "enum": [
+              "DOOR_TO_DOOR",
+              "CURBSIDE",
+              "LEAVE_AT_DOOR",
+              "DELIVER_TO_DOOR"
+            ],
+            "example": "DELIVER_TO_DOOR"
+          },
+          "delivery_partner_marked_not_ready_time": {
+            "type": "string",
+            "description": "Timestamp in RFC3339 format. Timestamp of when a delivery partner marks an order as not ready",
+            "format": "date",
+            "example": "2016-09-01T10:11:12.123456-0500"
+          },
+          "estimated_dropoff_time": {
+            "type": "string",
+            "description": "Timestamp in RFC3339 format. The estimated time at which the order will be dropped off",
+            "example": "2025-02-11T18:30:00.000Z"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Delivery instructions provided to the partner.",
+            "example": "Please do not ring doorbell."
+          }
+        }
+      },
+      "location": {
+        "type": "object",
+        "description": "Details relating to the geographical location for a delivery to be fulfilled. This is typically only populated when a merchant is set handle Bring-Your-Own-Courier (\"BYOC\") orders. For all other fulfillment types, like \"DELIVERY_BY_UBER\", this object is omitted.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Indicates which location field will be provided.",
+            "enum": [
+              "STREET_ADDRESS",
+              "GOOGLE_PLACE"
+            ],
+            "example": "GOOGLE_PLACE"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the location.",
+            "example": "23119fca-ec44-5c6d-8dc9-2ac8cdde310d"
+          },
+          "street_address_line_one": {
+            "type": "string",
+            "description": "First line of street address of the location.",
+            "example": "175 Greenwich St"
+          },
+          "street_address_line_two": {
+            "type": "string",
+            "description": "Second line of street address of the location.",
+            "example": "44-023"
+          },
+          "latitude": {
+            "type": "string",
+            "description": "The latitude for the location.",
+            "example": "38.8951"
+          },
+          "longitude": {
+            "type": "string",
+            "description": "The longitude for the location.",
+            "example": "-77.0364"
+          },
+          "unit_number": {
+            "type": "string",
+            "description": "The apartment number or suite, if provided.",
+            "example": "1"
+          },
+          "business_name": {
+            "type": "string",
+            "description": "Name of the building or business, if provided.",
+            "example": "Uber Technologies Inc."
+          },
+          "city": {
+            "type": "string",
+            "description": "The city code of the location.",
+            "example": "NY"
+          },
+          "country": {
+            "type": "string",
+            "description": "The country code of the location.",
+            "example": "US"
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "The postal code of the location.",
+            "example": "10007"
+          },
+          "location_type_value": {
+            "type": "string",
+            "description": "A unique identifier for the location in the Google Places database. Will only be provided when type = GOOGLE_PLACE. The value that accompanies the location type constant. The current use case for this is to provide the Google Places ID back to the client. This value is used as input to the Google Maps (Places) API to retrieve the location details for the order. It essentially functions as a means to use Google Maps API data instead of Uber provided address details.",
+            "example": "asf-123ijfdishs_"
+          },
+          "client_provided_street_address_line_one": {
+            "type": "string",
+            "description": "The first line address as provided by the client. The current use case for this is to provide the first line address as entered by the customer (i.e. eater). This differs from street_address_line_one in the same struct as the field is usually resolved rather than manually inputted."
+          }
+        }
+      },
+      "delivery_partner": {
+        "type": "object",
+        "description": "Delivery partner information",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for the delivery Partner."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "display_name": {
+                "type": "string",
+                "example": "Jason"
+              }
+            }
+          },
+          "vehicle": {
+            "type": "object",
+            "$ref": "#/components/schemas/vehicle"
+          },
+          "picture_url": {
+            "type": "string",
+            "description": "A URL that provides a link to an image of the Delivery Partner.",
+            "example": "https://d1w2poirtb3as9.cloudfront.net/image.jpeg"
+          },
+          "contact": {
+            "type": "object",
+            "properties": {
+              "phone": {
+                "type": "object",
+                "properties": {
+                  "country_iso2": {
+                    "type": "string",
+                    "example": "US"
+                  },
+                  "number": {
+                    "type": "string",
+                    "example": "+13127666835"
+                  },
+                  "pin_code": {
+                    "type": "string",
+                    "description": "The pin code to access the anonymized phone number.",
+                    "example": "07357935"
+                  }
+                }
+              }
+            }
+          },
+          "current_location": {
+            "type": "object",
+            "$ref": "#/components/schemas/delivery_partner_location"
+          }
+        }
+      },
+      "delivery_partner_location": {
+        "type": "object",
+        "description": "Location of the delivery partner",
+        "properties": {
+          "latitude": {
+            "type": "string",
+            "description": "Latitude of the current location of the delivery partner.",
+            "example": "38.8951"
+          },
+          "longitude": {
+            "type": "string",
+            "description": "Longitude of the current location of the delivery partner.",
+            "example": "-77.0364"
+          }
+        }
+      },
+      "vehicle": {
+        "type": "object",
+        "description": "Information about the vehicle of the Delivery Partner",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of modality.",
+            "enum": [
+              "CAR",
+              "BICYCLE",
+              "MOTORBIKE",
+              "PEDESTRIAN"
+            ]
+          },
+          "make": {
+            "type": "string",
+            "description": "The make of a vehicle.",
+            "example": "Honda"
+          },
+          "model": {
+            "type": "string",
+            "description": "The model of the vehicle.",
+            "example": "Accord"
+          },
+          "color": {
+            "type": "string",
+            "description": "The color of the vehicle.",
+            "example": "red"
+          },
+          "license_plate": {
+            "type": "string",
+            "description": "The licence plate of the vehicle, if applicable.",
+            "example": "T124224"
+          },
+          "is_autonomous": {
+            "type": "boolean",
+            "description": "(Autonomous delivery only) Indicates if this delivery is via autonomous vehicle."
+          },
+          "hand_off_instructions": {
+            "type": "string",
+            "description": "(Autonomous delivery only) Instructions for merchant to put the order in the autonomous vehicle."
+          },
+          "pass_code": {
+            "type": "string",
+            "description": "(Autonomous delivery only) Passcode to open the compartment of the autonomous vehicle.",
+            "example": "abc123"
+          }
+        }
+      },
+      "restaurant_shopping_cart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier that represents the shopping cart."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+          },
+          "fulfillment_issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/restaurant_fulfillment_issue"
+            }
+          },
+          "special_instructions": {
+            "type": "string",
+            "description": "Order level instructions.",
+            "example": "Please add extra sauce."
+          },
+          "include_single_use_items": {
+            "type": "boolean",
+            "description": "A flag that indicates whether single use items are to be included with the order."
+          },
+          "revision_id": {
+            "type": "string",
+            "description": "An identifier that represents the version of the shopping cart."
+          },
+          "restricted_items": {
+            "type": "object",
+            "$ref": "#/components/schemas/restricted_items"
+          }
+        }
+      },
+      "retail_shopping_cart": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier that represents the shopping cart."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+          },
+          "fulfillment_issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/retail_fulfillment_issue"
+            }
+          },
+          "special_instructions": {
+            "type": "string",
+            "description": "Order level instructions.",
+            "example": "Please add extra sauce."
+          },
+          "include_single_use_items": {
+            "type": "boolean",
+            "description": "A flag that indicates whether single use items are to be included with the order."
+          },
+          "revision_id": {
+            "type": "string",
+            "description": "An identifier that represents the version of the shopping cart."
+          },
+          "restricted_items": {
+            "type": "object",
+            "$ref": "#/components/schemas/restricted_items"
+          }
+        }
+      },
+      "restaurant_issue_type": {
+        "type": "string",
+        "description": "The type of fulfillment issue.",
+        "enum": [
+          "OUT_OF_ITEM",
+          "OUT_OF_MODIFIER_OPTION",
+          "CANNOT_FULFILL_ALLERGY_REQUEST",
+          "CANNOT_FULFILL_MERCHANT_INSTRUCTION"
+        ]
+      },
+      "retail_issue_type": {
+        "type": "string",
+        "description": ">\nThe type of fulfillment issues :\n\n| String             |  Description                                                                     |\n| ------------------ | ---------------------------------------------------------------------------------|\n|  `OUT_OF_ITEM`     | The requested item was not found. Please refer to the `action_type` details below. |\n|  `PARTIAL_AVAILABILITY`    | The requested item was found, but not in quantity enough to fulfill the order. No `action_type` is required. |\n|  `FOUND_ITEM`     | Item was found and in enough quantity to fulfill the order. No `action_type` is required. |\n",
+        "enum": [
+          "OUT_OF_ITEM",
+          "PARTIAL_AVAILABILITY",
+          "FOUND_ITEM"
+        ]
+      },
+      "restaurant_fulfillment_issue": {
+        "type": "object",
+        "properties": {
+          "issue_type": {
+            "$ref": "#/components/schemas/restaurant_issue_type"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/restaurant_action_type"
+          },
+          "root_item": {
+            "$ref": "#/components/schemas/fulfillment_issue_item"
+          },
+          "item_availability": {
+            "$ref": "#/components/schemas/item_availability"
+          },
+          "item_substitute": {
+            "$ref": "#/components/schemas/item_substitute"
+          },
+          "suspend_until": {
+            "$ref": "#/components/schemas/suspend_until"
+          },
+          "store_response": {
+            "$ref": "#/components/schemas/store_response"
+          },
+          "customer_ack_type": {
+            "type": "string",
+            "description": "Specifies the customer acknowledgment type required for a replacement including the customer’s response. This field is only populated for “Retail” merchants only.\n| String | Description |\n| ------ | ----- |\n| `ACK_DISABLED` | \"Replacement Tracking & Approvals\" (RT&A) is not enabled |\n",
+            "enum": [
+              "ACK_DISABLED"
+            ],
+            "example": "ACK_DISABLED"
+          }
+        }
+      },
+      "retail_fulfillment_issue": {
+        "type": "object",
+        "properties": {
+          "issue_type": {
+            "$ref": "#/components/schemas/retail_issue_type"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/retail_action_type"
+          },
+          "root_item": {
+            "$ref": "#/components/schemas/fulfillment_issue_item"
+          },
+          "item_availability": {
+            "$ref": "#/components/schemas/item_availability"
+          },
+          "item_substitute": {
+            "$ref": "#/components/schemas/item_substitute"
+          },
+          "suspend_until": {
+            "$ref": "#/components/schemas/suspend_until"
+          },
+          "store_response": {
+            "$ref": "#/components/schemas/store_response"
+          },
+          "customer_ack_type": {
+            "type": "string",
+            "description": "Specifies the customer acknowledgment type required for a replacement including the customer’s response. This field is only populated for “Retail” merchants only.\n| String | Description |\n| ------ | ----- |\n| `ACK_DISABLED` | \"Replacement Tracking & Approvals\" (RT&A) is not enabled |\n| `NO_ACK_REQUIRED` | Customer acknowledgment for replacements is not required. |\n| `AWAITING_ACTION` | Awaiting customer acknowledgment of replacement. |\n| `SUBSTITUTION_REJECTED` | The customer rejects the replacement suggestions provided by the merchant, the affected item is automatically removed from the order. The Merchant can suggest a new replacement.|\n| `SUBSTITUTION_APPROVED` | The customer approves the replacement suggestions provided by the merchant. No further action is required from the merchant.|\n",
+            "enum": [
+              "ACK_DISABLED",
+              "NO_ACK_REQUIRED",
+              "AWAITING_ACTION",
+              "SUBSTITUTION_REJECTED",
+              "SUBSTITUTION_APPROVED"
+            ],
+            "example": "AWAITING_ACTION"
+          }
+        }
+      },
+      "restaurant_resolve_fulfillment_issues": {
+        "type": "object",
+        "title": "For Restaurants",
+        "properties": {
+          "fulfillment_issues": {
+            "type": "array",
+            "description": "Issues affecting merchant’s ability to fulfill the order.",
+            "items": {
+              "$ref": "#/components/schemas/restaurant_resolve_fulfillment_issue"
+            }
+          }
+        }
+      },
+      "restaurant_resolve_fulfillment_issue": {
+        "type": "object",
+        "properties": {
+          "issue_type": {
+            "$ref": "#/components/schemas/restaurant_issue_type"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/restaurant_action_type"
+          },
+          "item": {
+            "$ref": "#/components/schemas/root_item"
+          },
+          "suspend_until": {
+            "$ref": "#/components/schemas/suspend_until"
+          },
+          "store_response": {
+            "$ref": "#/components/schemas/store_response"
+          }
+        }
+      },
+      "retail_resolve_fulfillment_issues": {
+        "type": "object",
+        "title": "For Retailers",
+        "properties": {
+          "fulfillment_issues": {
+            "type": "array",
+            "description": "Issues affecting merchant’s ability to fulfill the order.",
+            "items": {
+              "$ref": "#/components/schemas/retail_resolve_fulfillment_issue"
+            }
+          }
+        }
+      },
+      "retail_resolve_fulfillment_issue": {
+        "type": "object",
+        "properties": {
+          "issue_type": {
+            "$ref": "#/components/schemas/retail_issue_type"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/retail_action_type"
+          },
+          "item": {
+            "$ref": "#/components/schemas/root_item"
+          },
+          "item_availability": {
+            "$ref": "#/components/schemas/item_availability"
+          },
+          "item_substitute": {
+            "$ref": "#/components/schemas/item_substitute"
+          },
+          "suspend_until": {
+            "$ref": "#/components/schemas/suspend_until"
+          },
+          "store_response": {
+            "$ref": "#/components/schemas/store_response"
+          }
+        }
+      },
+      "restaurant_response_fulfillment_issues": {
+        "type": "object",
+        "title": "For Restaurants",
+        "properties": {
+          "should_wait_for_customer_response": {
+            "type": "boolean",
+            "description": "Whether or not the merchant should wait for the customer to resolve the fulfillment issue (or order cancellation due to timeout waiting for customer response). If true, waiting for either the `order.fulfillment_issues.resolved` webhook or the `order.failed webhook`.",
+            "example": true
+          }
+        }
+      },
+      "retail_response_fulfillment_issues": {
+        "type": "object",
+        "title": "For Retailers",
+        "properties": {
+          "should_wait_for_customer_response": {
+            "type": "boolean",
+            "description": "Whether or not the merchant should wait for the customer to resolve the fulfillment issue.",
+            "example": false
+          }
+        }
+      },
+      "fulfillment_cart_item_id": {
+        "type": "object",
+        "properties": {
+          "cart_item_id": {
+            "type": "string",
+            "description": "Cart item ID of the affected item. Corresponds to the same field on order.carts items within the Get Order Details reponse.",
+            "example": "c751e24c-ee7a-11ed-a05b-0242ac120003"
+          }
+        }
+      },
+      "restricted_items": {
+        "type": "object",
+        "properties": {
+          "alcohol": {
+            "type": "object",
+            "$ref": "#/components/schemas/alcohol"
+          },
+          "tobacco": {
+            "type": "object",
+            "$ref": "#/components/schemas/tabacco"
+          }
+        }
+      },
+      "alcohol": {
+        "type": "object",
+        "properties": {
+          "contain_alcoholic_item": {
+            "type": "boolean",
+            "description": "Flag that indicates whether there are any alcoholic items in the order.",
+            "example": false
+          }
+        }
+      },
+      "tabacco": {
+        "type": "object",
+        "properties": {
+          "contain_tobacco_product": {
+            "type": "boolean",
+            "description": "Flag that indicates whether there are any items that contain tobacco."
+          }
+        }
+      },
+      "item_availability": {
+        "type": "object",
+        "description": "Provides info on the available items in the instance where `issue_type` is `PARTIAL_AVAILABILITY` or `FOUND_ITEM`.",
+        "properties": {
+          "items_available": {
+            "type": "object",
+            "$ref": "#/components/schemas/PIW"
+          }
+        }
+      },
+      "failure_info": {
+        "type": "object",
+        "description": "Information on why an order failed. Only available for orders with state of `FAILED`.",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Reason why an order failed.",
+            "enum": [
+              "POS_DENIED",
+              "ACCEPT_TIMED_OUT",
+              "DELIVERY_FAILED",
+              "CANCELED",
+              "UNKNOWN"
+            ]
+          },
+          "failure_attributed_to_party": {
+            "type": "string",
+            "description": "The party who canceled the order. Only available if the attribution can be reasonably determined.",
+            "enum": [
+              "UNKNOWN",
+              "MERCHANT",
+              "CUSTOMER",
+              "UBER",
+              "DELIVERY_PARTNER"
+            ]
+          },
+          "will_merchant_be_paid": {
+            "type": "boolean",
+            "description": "Whether or not the merchant will be paid for this order failure. Only available if reason is CANCELED."
+          },
+          "description": {
+            "type": "string",
+            "description": "If provided, a descriptive reason selected by the party. For example, for delivery partner cancellations, it could be ‘could not find customer’"
+          }
+        }
+      },
+      "preparation_time": {
+        "type": "object",
+        "description": "Info related to preparation times of this order.",
+        "properties": {
+          "ready_for_pickup_time_secs": {
+            "type": "integer",
+            "description": "Amount of time it takes from the point of order acceptance until an order is ready to be picked up. This is a duration value in seconds.",
+            "example": 500
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of the ready_for_pickup_time_secs value",
+            "enum": [
+              "PREDICTED_BY_UBER",
+              "DEFAULT",
+              "MERCHANT_PROVIDED"
+            ]
+          },
+          "ready_for_pickup_time": {
+            "type": "string",
+            "format": "date",
+            "example": "2016-09-01T10:11:12.123456-0500",
+            "description": "Timestamp in RFC3339 format. The estimated time when the order would be ready for pickup."
+          }
+        }
+      },
+      "action_eligibility": {
+        "type": "object",
+        "description": "Actions that the Merchant can undertake on the order.",
+        "properties": {
+          "adjust_ready_for_pickup_time": {
+            "type": "object",
+            "description": "Whether or not the ready for pickup time can be adjusted. If this is false then clients should not pass in the corresponding field in the AcceptOrder endpoint nor should they call the UpdateOrderReadyForPickupTime endpoint.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          },
+          "mark_out_of_item": {
+            "type": "object",
+            "description": "A flag that indicates whether the order is eligible for out-of-item actions using the Resolve Fulfillment Issues endpoint.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          },
+          "cancel": {
+            "type": "object",
+            "description": "Indicates whether an order can be canceled.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          },
+          "mark_cannot_fulfill": {
+            "type": "object",
+            "description": "Indicates whether an Order can make use of the regular cannot fulfill instructions flow.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          },
+          "adjust_etd_time": {
+            "type": "object",
+            "description": "Indicates whether an estimated time of delivery can be updated for an order.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          },
+          "customer_request_etd": {
+            "type": "object",
+            "description": "Indicates whether the customer can request for an estimated time of delivery update.",
+            "$ref": "#/components/schemas/action_eligibility_details"
+          }
+        }
+      },
+      "action_eligibility_details": {
+        "type": "object",
+        "properties": {
+          "is_eligible": {
+            "type": "boolean",
+            "description": "Flag indicating whether the action is eligible."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Description giving context on why the action is eligible or not."
+          }
+        }
+      },
+      "restaurant_order": {
+        "type": "object",
+        "title": "For Restaurants",
+        "properties": {
+          "order": {
+            "description": "Details of the order.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/order_id"
+              },
+              "display_id": {
+                "$ref": "#/components/schemas/order_display_id"
+              },
+              "external_id": {
+                "$ref": "#/components/schemas/order_external_id"
+              },
+              "state": {
+                "$ref": "#/components/schemas/order_state"
+              },
+              "status": {
+                "$ref": "#/components/schemas/order_status"
+              },
+              "preparation_status": {
+                "$ref": "#/components/schemas/order_preparation_status"
+              },
+              "ordering_platform": {
+                "$ref": "#/components/schemas/order_ordering_platform"
+              },
+              "fulfillment_type": {
+                "$ref": "#/components/schemas/order_fulfillment_type"
+              },
+              "scheduled_order_target_delivery_time_range": {
+                "$ref": "#/components/schemas/time_range"
+              },
+              "store": {
+                "$ref": "#/components/schemas/store"
+              },
+              "customers": {
+                "$ref": "#/components/schemas/order_customer"
+              },
+              "deliveries": {
+                "$ref": "#/components/schemas/order_delivery"
+              },
+              "carts": {
+                "type": "array",
+                "description": "List of shopping carts associated with the order.",
+                "items": {
+                  "$ref": "#/components/schemas/restaurant_shopping_cart"
+                }
+              },
+              "payment": {
+                "$ref": "#/components/schemas/payment"
+              },
+              "is_order_accuracy_risk": {
+                "$ref": "#/components/schemas/is_order_accuracy_risk"
+              },
+              "store_instructions": {
+                "$ref": "#/components/schemas/order_store_instructions"
+              },
+              "preparation_time": {
+                "$ref": "#/components/schemas/preparation_time"
+              },
+              "completed_time": {
+                "$ref": "#/components/schemas/order_completed_time"
+              },
+              "eligible_actions": {
+                "$ref": "#/components/schemas/action_eligibility"
+              },
+              "failure_info": {
+                "$ref": "#/components/schemas/failure_info"
+              },
+              "created_time": {
+                "$ref": "#/components/schemas/order_created_time"
+              },
+              "has_membership_pass": {
+                "$ref": "#/components/schemas/order_has_membership_pass"
+              },
+              "retailer_loyalty_info": {
+                "$ref": "#/components/schemas/retailer_loyalty_info"
+              },
+              "order_tracking_metadata": {
+                "$ref": "#/components/schemas/order_tracking_metadata"
+              }
+            }
+          }
+        }
+      },
+      "retail_order": {
+        "type": "object",
+        "title": "For Retailers",
+        "properties": {
+          "order": {
+            "type": "object",
+            "description": "Details of the order.",
+            "properties": {
+              "id": {
+                "$ref": "#/components/schemas/order_id"
+              },
+              "display_id": {
+                "$ref": "#/components/schemas/order_display_id"
+              },
+              "external_id": {
+                "$ref": "#/components/schemas/order_external_id"
+              },
+              "state": {
+                "$ref": "#/components/schemas/order_state"
+              },
+              "status": {
+                "$ref": "#/components/schemas/order_status"
+              },
+              "preparation_status": {
+                "$ref": "#/components/schemas/order_preparation_status"
+              },
+              "ordering_platform": {
+                "$ref": "#/components/schemas/order_ordering_platform"
+              },
+              "fulfillment_type": {
+                "$ref": "#/components/schemas/order_fulfillment_type"
+              },
+              "scheduled_order_target_delivery_time_range": {
+                "$ref": "#/components/schemas/time_range"
+              },
+              "store": {
+                "$ref": "#/components/schemas/store"
+              },
+              "customers": {
+                "$ref": "#/components/schemas/order_customer"
+              },
+              "deliveries": {
+                "$ref": "#/components/schemas/order_delivery"
+              },
+              "carts": {
+                "type": "array",
+                "description": "List of shopping carts associated with the order.",
+                "items": {
+                  "$ref": "#/components/schemas/retail_shopping_cart"
+                }
+              },
+              "payment": {
+                "$ref": "#/components/schemas/payment"
+              },
+              "is_order_accuracy_risk": {
+                "$ref": "#/components/schemas/is_order_accuracy_risk"
+              },
+              "store_instructions": {
+                "$ref": "#/components/schemas/order_store_instructions"
+              },
+              "preparation_time": {
+                "$ref": "#/components/schemas/preparation_time"
+              },
+              "completed_time": {
+                "$ref": "#/components/schemas/order_completed_time"
+              },
+              "eligible_actions": {
+                "$ref": "#/components/schemas/action_eligibility"
+              },
+              "failure_info": {
+                "$ref": "#/components/schemas/failure_info"
+              },
+              "created_time": {
+                "$ref": "#/components/schemas/order_created_time"
+              },
+              "has_membership_pass": {
+                "$ref": "#/components/schemas/order_has_membership_pass"
+              },
+              "retailer_loyalty_info": {
+                "type": "object",
+                "$ref": "#/components/schemas/retailer_loyalty_info"
+              },
+              "order_tracking_metadata": {
+                "type": "object",
+                "$ref": "#/components/schemas/order_tracking_metadata"
+              }
+            }
+          }
+        }
+      },
+      "order_fulfillment_type": {
+        "type": "string",
+        "enum": [
+          "DELIVERY_BY_UBER",
+          "DELIVERY_BY_MERCHANT",
+          "DINE_IN",
+          "PICKUP"
+        ],
+        "description": "| String              | Description |\n| -------- | ----------- |\n| `DELIVERY_BY_UBER`    | Delivered by Uber. |\n| `DELIVERY_BY_MERCHANT` | Delivered by partner's couriers Bring Your Own Courier (BYOC). |\n| `DINE_IN`             | Dining in. |\n| `PICKUP`              | Customer picking up the order. |\n"
+      },
+      "order_ordering_platform": {
+        "type": "string",
+        "enum": [
+          "UBER_EATS",
+          "POSTMATES"
+        ],
+        "description": "The Uber property under which the order was placed."
+      },
+      "order_status": {
+        "type": "string",
+        "enum": [
+          "SCHEDULED",
+          "ACTIVE",
+          "COMPLETED",
+          "UNKNOWN"
+        ],
+        "description": "| String    | Description |\n| --------- | ----------- |\n| `SCHEDULED` | Order is scheduled for a future time. |\n| `ACTIVE`    | Order is active. |\n| `COMPLETED` | Order is completed. |\n"
+      },
+      "order_preparation_status": {
+        "type": "string",
+        "enum": [
+          "PREPARING",
+          "OUT_OF_ITEM_PENDING_CUSTOMER_RESPONSE",
+          "READY_FOR_HANDOFF"
+        ],
+        "description": "| String     | Description |\n| ---------- | -------------- |\n| `PREPARING`                        | Order is being prepared. |\n| `OUT_OF_ITEM_PENDING_CUSTOMER_RESPONSE` | Merchant has indicated out of item and the order is now waiting on customer response. |\n| `READY_FOR_HANDOFF`                | Order is ready to be handed off. |\n"
+      },
+      "order_state": {
+        "type": "string",
+        "enum": [
+          "CREATED",
+          "OFFERED",
+          "ACCEPTED",
+          "HANDED_OFF",
+          "SUCCEEDED",
+          "FAILED",
+          "UNKNOWN"
+        ],
+        "description": "| String | Description |\n| ------ | ----- |\n| `OFFERED` | Order has been offered to the merchant. |\n| `ACCEPTED` | Merchant has accepted the order. |\n| `HANDED_OFF` | Order has been fully handed off to delivery partners. If there are multiple delivery partners, an order will only transition to this state only when all delivery partners have picked up the order. |\n| `SUCCEEDED` | Order was successfully delivered. |\n| `FAILED` | Order failed for any reason. |\n| `UNKNOWN` | Catch all for unrecognized states. |\n"
+      },
+      "order_external_id": {
+        "type": "string",
+        "description": "An external unique identifier for the order provided by the Merchant. This can be set by the application within the Accept Order request.",
+        "example": "UBER_EATS_ORDER_1"
+      },
+      "order_display_id": {
+        "type": "string",
+        "description": "An identifier for the order that is displayed on the receipt or other Merchant surfaces.",
+        "example": "2A003"
+      },
+      "order_id": {
+        "type": "string",
+        "description": "A unique identifier for a given order. This is the identifier that is expected to be quoted for support queries and is otherwise known as the ‘order id’.",
+        "example": "bd1ed236-ee79-11ed-a05b-0242ac12A003"
+      },
+      "is_order_accuracy_risk": {
+        "type": "boolean",
+        "description": "Marks an order that has the highest potential to be inaccurate (i.e. missing items)."
+      },
+      "order_store_instructions": {
+        "type": "string",
+        "description": "Customer specified instructions for the Merchant on the order.",
+        "example": "add example ketchup"
+      },
+      "order_completed_time": {
+        "type": "string",
+        "format": "date",
+        "example": "2016-09-01T10:11:12.123456-0500",
+        "description": "Timestamp in RFC3339 format. Timestamp of when the order is no longer active (i.e. successfully delivered, failed etc.). Only available for a completed order."
+      },
+      "order_created_time": {
+        "type": "string",
+        "description": "Timestamp in RFC3339 format. Creation time of the order.",
+        "example": "2016-09-01T10:11:12.123456-0500"
+      },
+      "order_has_membership_pass": {
+        "type": "boolean",
+        "description": "Indicates whether an order is benefiting from Eats Pass membership.",
+        "example": true
+      },
+      "deny_reason": {
+        "type": "object",
+        "properties": {
+          "info": {
+            "type": "string",
+            "description": "A free text string that holds additional information for the denial/cancellation.",
+            "example": "Item is not available"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of category of cancellation:\n\n| Name                       | Description                       |\n| -------------------------- | --------------------------------- |\n| `ITEM_ISSUE`               | Issue with an item or modifier    |\n| `KITCHEN_CLOSED`           | Kitchen is closed                 |\n| `CUSTOMER_CALLED_TO_CANCEL`| Customer called to cancel         |\n| `RESTAURANT_TOO_BUSY`      | Restaurant is too busy            |\n| `ORDER_VALIDATION`         | Order validation error            |\n| `STORE_CLOSED`             | Store is closed                   |\n| `TECHNICAL_FAILURE`        | Technical failure                 |\n| `POS_NOT_READY`            | POS not ready                     |\n| `POS_OFFLINE`              | POS is offline                    |\n| `CAPACITY`                 | Store order capacity is full      |\n| `ADDRESS`                  | Problem with address              |\n| `SPECIAL_INSTRUCTIONS`     | Special instructions issue        |\n| `PRICING`                  | Pricing issues                    |\n| `UNKNOWN`                  | Unknown reason                    |\n| `OTHER`                    | Other                             |\n",
+            "enum": [
+              "ITEM_ISSUE",
+              "KITCHENCLOSED",
+              "CUSTOMER_CALLED_TO_CANCEL",
+              "RESTAURANT_TOO_BUSY",
+              "ORDER_VALIDATION",
+              "STORE_CLOSED",
+              "TECHNICAL_FAILURE",
+              "POS_NOT_READY",
+              "POS_OFFLINE",
+              "CAPACITY",
+              "ADDRESS",
+              "SPECIAL_INSTRUCTIONS",
+              "PRICING",
+              "UNKNOWN",
+              "OTHER"
+            ]
+          },
+          "client_error_code": {
+            "type": "string",
+            "description": "A partner provided error code.",
+            "example": "408"
+          },
+          "item_metadata": {
+            "type": "object",
+            "$ref": "#/components/schemas/item_metadata"
+          }
+        }
+      },
+      "item_metadata": {
+        "type": "object",
+        "description": "An object that houses metadata related to items that resulted in the deny request.",
+        "properties": {
+          "invalid_item": {
+            "type": "object",
+            "description": "A list of items with issues that resulted in the deny call.",
+            "$ref": "#/components/schemas/invalid_item"
+          }
+        }
+      },
+      "invalid_item": {
+        "type": "array",
+        "description": "An object that encapsulates specific item data related to a deny call",
+        "items": {
+          "$ref": "#/components/schemas/invalid_items"
+        }
+      },
+      "invalid_items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of the impacted item. This is expected to be the Uber UUID of the impacted item or modifier (option).",
+            "example": "d3ffe8b6-ee90-11ed-a05b-0242ac120003chz_piz_18"
+          },
+          "type": {
+            "type": "string",
+            "description": "The specific type of item issue.",
+            "enum": [
+              "NOT_ON_MENU",
+              "UNAVAILABLE",
+              "MISSING_INFO",
+              "PRICING",
+              "QUANTITY",
+              "OUT_OF_ITEM",
+              "OTHER"
+            ]
+          },
+          "client_error_code": {
+            "type": "string",
+            "description": "The client error code associated with the item issue.",
+            "example": "408"
+          },
+          "info": {
+            "type": "string",
+            "description": "A free text field that can be used to provide additional context to the item issue.",
+            "example": "Broken oven."
+          },
+          "external_id": {
+            "type": "string",
+            "description": "The id of the impacted item as identified by the client system. Whereas item_id is expected to be the Uber UUID of the item, this field is intended to be the identifier of the item as per the client system.",
+            "example": "chz_piz_18"
+          }
+        }
+      },
+      "cancellation_reason": {
+        "type": "object",
+        "description": "The reason for canceling the order",
+        "$ref": "#/components/schemas/deny_reason"
+      },
+      "EmptyBody": {
+        "type": "object"
+      },
+      "adjust_price": {
+        "type": "object",
+        "description": "The adjustment of order price",
+        "properties": {
+          "amount_e5": {
+            "type": "number",
+            "description": "Amount expressed as a whole number with multiplier as 10^-5, e.g. 1.2345 will be represented as 12345 Price can be adjusted upwards or downwards. Note that there is a maximum price that can be adjusted. If not configured, it is defaulted to 5000000 ($50 in local currency). A bad request error will be returned for an amount violating this constraint. To adjust price downwards, use a negative value. The resulting price cannot be less than 0. Otherwise a bad request error will be returned."
+          },
+          "tax_rate": {
+            "type": "string",
+            "description": "Tax rate to adjust the order with, in percentage. For example, specify “8.75” for a 8.75% tax rate. In tax inclusive regions (where tax is included in the item price), this value must be provided. In tax exclusive regions, this value can only be provided if the merchant is not using the Vertex tax engine. Tax rate provided in the request will be a no-op. The response will return an indication if the tax rate provided is actually being applied. Excessively high tax rate (e.g. 100%) will result in a bad request error."
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "REQUESTED_ADD_ONS",
+              "BIGGER_SIZE",
+              "NEW_ITEM_ADDED",
+              "ITEM_SOLD_OUT",
+              "REMOVED_ITEM",
+              "ADD_ON_UNAVAILABLE",
+              "OTHER"
+            ],
+            "description": "| String |    Description |\n| ----- | ------------|\n| `REQUESTED_ADD_ONS` | Customer requested an add on. |\n| `BIGGER_SIZE` | Customer requested bigger size item. |\n| `NEW_ITEM_ADDED` | A new item is added to the order. |\n| `ITEM_SOLD_OUT` | A item is sold out. |\n| `REMOVED_ITEM` | An item is removed from the order. |\n| `ADD_ON_UNAVAILABLE` | A requested add on is unavailable. |\n| `OTHER` | Other reasons. Note that the custom_reason field below must be populated if this is specified. |\n"
+          },
+          "custom_reason": {
+            "type": "string",
+            "description": "Free-form string. Must be provided if OTHER is specified as reason."
+          }
+        }
+      },
+      "payment": {
+        "type": "object",
+        "description": "Payment details on the order.",
+        "properties": {
+          "payment_detail": {
+            "type": "object",
+            "description": "The payment details on the order.",
+            "$ref": "#/components/schemas/payment_detail"
+          },
+          "tax_reporting": {
+            "type": "object",
+            "description": "Detailed information about the tax charges calculated on the Order.",
+            "$ref": "#/components/schemas/tax_reporting"
+          }
+        }
+      },
+      "tax_reporting": {
+        "type": "object",
+        "description": "Detailed information about the tax charges calculated on the Order.",
+        "properties": {
+          "breakdown": {
+            "type": "object",
+            "description": "A breakdown of taxes in the order.",
+            "$ref": "#/components/schemas/breakdown"
+          },
+          "origin": {
+            "type": "object",
+            "description": "The tax location information for the orders origin.",
+            "$ref": "#/components/schemas/tax_location"
+          },
+          "destination": {
+            "type": "object",
+            "description": "The tax location for the orders destination.",
+            "$ref": "#/components/schemas/tax_location"
+          },
+          "remittance_info": {
+            "type": "array",
+            "description": "A breakdown of the remittance information for a given tax type.",
+            "items": {
+              "$ref": "#/components/schemas/remittance_info"
+            }
+          }
+        }
+      },
+      "remittance_info": {
+        "type": "object",
+        "description": "Remittance details of the taxes in the order and the responsible entity.",
+        "properties": {
+          "entity": {
+            "type": "string",
+            "description": "The entity that is responsible for remittance.",
+            "enum": [
+              "UBER",
+              "MERCHANT",
+              "DELIVERY_PARTNER",
+              "CUSTOMER"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "The specific type of tax to be remitted.",
+            "enum": [
+              "SUBTOTAL",
+              "DELIVERY_FEE"
+            ]
+          },
+          "amount": {
+            "type": "object",
+            "description": "The amount that the entity is responsible for remitting.",
+            "$ref": "#/components/schemas/currency_amount"
+          }
+        }
+      },
+      "breakdown": {
+        "type": "object",
+        "description": "The breakdown of tax charges on the order.",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "A list of tax items, where each entry provides details of the taxes calculated for a given shopping cart item.",
+            "items": {
+              "$ref": "#/components/schemas/tax_item"
+            }
+          },
+          "fees": {
+            "type": "array",
+            "description": "A list of tax items, where each entry provides details of the taxes calculated on fees that are associated with a given shopping cart item.",
+            "items": {
+              "$ref": "#/components/schemas/tax_item"
+            }
+          },
+          "promotions": {
+            "type": "array",
+            "description": "A list of tax items, where each entry provides details of the taxes calculated on promotions that are associated with a given shopping cart item.",
+            "items": {
+              "$ref": "#/components/schemas/tax_item"
+            }
+          }
+        }
+      },
+      "tax_item": {
+        "type": "object",
+        "description": "The tax information related to a single shopping cart item (instance_id) or tax type.",
+        "properties": {
+          "instance_id": {
+            "type": "string",
+            "description": "The shopping cart item that the tax info is associated with. If empty, it means that the given tax item is not associated with a specific cart item."
+          },
+          "description": {
+            "type": "string",
+            "description": "The type of tax that this info is associated with.",
+            "enum": [
+              "DELIVERY_FEE",
+              "SERVICE_FEE",
+              "SMALL_ORDER_FEE",
+              "Etc."
+            ]
+          },
+          "gross_amount": {
+            "type": "object",
+            "description": "The total amount of the charge including taxes for this item.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "net_amount": {
+            "type": "object",
+            "description": "The total amount of the charge less any taxes applicable to the item.",
+            "$ref": "#/components/schemas/currency_amount"
+          }
+        }
+      },
+      "tax_location": {
+        "type": "object",
+        "description": "Tax location information for a given entity",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The location id as provided by Uber Tax."
+          },
+          "country_iso2": {
+            "type": "string",
+            "description": "The ISO2 country code for the given tax location."
+          },
+          "postal_code": {
+            "type": "string",
+            "description": "The postal or zip code."
+          }
+        }
+      },
+      "payment_detail": {
+        "type": "object",
+        "description": "A breakdown of payment information on the order.",
+        "properties": {
+          "order_total": {
+            "type": "object",
+            "description": "The total of all the items, fees, taxes, promotions on the order.",
+            "$ref": "#/components/schemas/money"
+          },
+          "item_charges": {
+            "type": "object",
+            "description": "The total of all the shopping cart items including any taxes on the order.",
+            "$ref": "#/components/schemas/item_charge_summary"
+          },
+          "fees": {
+            "type": "object",
+            "description": "The total of all the fees on the order, including any taxes on the order.",
+            "$ref": "#/components/schemas/merchant_fee_summary"
+          },
+          "tips": {
+            "type": "object",
+            "description": "The total tips including any taxes on it for the order.",
+            "$ref": "#/components/schemas/merchant_tip_summary"
+          },
+          "promotions": {
+            "type": "object",
+            "description": "The total of all promotions on the order, including any taxes.",
+            "$ref": "#/components/schemas/promotion_summary"
+          },
+          "adjustment": {
+            "type": "object",
+            "description": "Price adjustments merchants applied to this order.",
+            "$ref": "#/components/schemas/price_adjustment_summary"
+          },
+          "currency_code": {
+            "type": "string",
+            "description": "The currency in which the order has taken place."
+          },
+          "cash_amount_due": {
+            "type": "object",
+            "description": "The amount of cash to be collected from a Customer.",
+            "$ref": "#/components/schemas/money"
+          }
+        }
+      },
+      "money": {
+        "type": "object",
+        "description": "The money representation of a charge.",
+        "properties": {
+          "display_amount": {
+            "type": "string",
+            "description": "Display amount for the charge. It is designed to factor in whether the charge is inclusive or exclusive of tax."
+          },
+          "net": {
+            "type": "object",
+            "description": "The amount of the charge, not inclusive of taxes.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "tax": {
+            "type": "object",
+            "description": "The tax on the charge.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "gross": {
+            "type": "object",
+            "description": "The total of the charge, inclusive of taxes.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "is_tax_inclusive": {
+            "type": "boolean",
+            "description": "Is the charge inclusive or exclusive of tax.",
+            "example": true
+          }
+        }
+      },
+      "item_charge_summary": {
+        "type": "object",
+        "description": "An object that represents item charges",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "Subtotal (cost of all items) without promotions applied.",
+            "$ref": "#/components/schemas/money"
+          },
+          "subtotal_including_promos": {
+            "type": "object",
+            "description": "Subtotal inclusive of the discounts on the item.",
+            "$ref": "#/components/schemas/money"
+          },
+          "price_breakdown": {
+            "type": "array",
+            "description": "Pricing data for each item in the order",
+            "items": {
+              "$ref": "#/components/schemas/item_price"
+            }
+          }
+        }
+      },
+      "item_price": {
+        "type": "object",
+        "description": "An object that contains information related to the price of a single item.",
+        "properties": {
+          "cart_item_id": {
+            "$ref": "#/components/schemas/cart_item_id"
+          },
+          "price_type": {
+            "type": "string",
+            "description": "The entity type of which this price applies to.",
+            "example": "OPTION"
+          },
+          "quantity": {
+            "type": "object",
+            "description": "Quantity of the item in the cart",
+            "$ref": "#/components/schemas/quantity PIW"
+          },
+          "total": {
+            "type": "object",
+            "description": "Total price of the item based on the quantity selected and charge thresholds before discounts are applied.",
+            "$ref": "#/components/schemas/total"
+          },
+          "discount": {
+            "type": "object",
+            "description": "Discount-related information, if applicable",
+            "$ref": "#/components/schemas/item_discount"
+          },
+          "unit": {
+            "type": "object",
+            "description": "Price of a single unit of the item. In cases where `quantity.amount` is 1, this should be equivalent to `total`",
+            "$ref": "#/components/schemas/money"
+          },
+          "base_non_loyalty_unit": {
+            "type": "object",
+            "description": "Price of a single unit of the item before any loyalty discounts are applied.",
+            "$ref": "#/components/schemas/money"
+          }
+        }
+      },
+      "item_discount": {
+        "type": "object",
+        "description": "Object that contains discount related to the items.",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "the money representation of the item charge.",
+            "$ref": "#/components/schemas/money"
+          },
+          "quantity": {
+            "type": "object",
+            "description": "Quantity of items discount applies",
+            "$ref": "#/components/schemas/quantity"
+          }
+        }
+      },
+      "total": {
+        "type": "object",
+        "description": "Total for money values",
+        "properties": {
+          "display_amount": {
+            "type": "string",
+            "description": "How we expect the amount to be displayed. It is designed to factor in whether the charge is inclusive or exclusive of tax. It provides a convenient way for consumers to display the line item amount.",
+            "example": 1500000
+          },
+          "net": {
+            "type": "object",
+            "description": "the amount of the change, not inclusive of tax.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "tax": {
+            "type": "object",
+            "description": "the tax on the charge.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "gross": {
+            "type": "object",
+            "description": "the total of the charge, inclusive of tax.",
+            "$ref": "#/components/schemas/currency_amount"
+          },
+          "is_tax_inclusive": {
+            "type": "boolean",
+            "description": "Is the charge inclusive or exclusive of tax."
+          }
+        }
+      },
+      "merchant_fee_summary": {
+        "type": "object",
+        "description": "A breakdown of the fees applicable to a given order.",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "The total of the fees on the order",
+            "$ref": "#/components/schemas/money"
+          },
+          "details": {
+            "type": "array",
+            "description": "A breakdown of the fees that contribute to the total.",
+            "items": {
+              "$ref": "#/components/schemas/merchant_fee"
+            }
+          }
+        }
+      },
+      "merchant_fee": {
+        "type": "object",
+        "description": "A description of a single Merchant Fee on an order.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "SMALL_ORDER_FEE",
+              "DELIVERY_FEE",
+              "PICK_AND_PACK_FEE",
+              "BAG_FEE"
+            ],
+            "description": "The identifier for a given fee."
+          },
+          "amount": {
+            "type": "object",
+            "description": "The amount charged on a given fee (id)",
+            "$ref": "#/components/schemas/money"
+          }
+        }
+      },
+      "merchant_tip_summary": {
+        "type": "object",
+        "description": "A summary of Merchant Tips",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "The total amount of the Merchant tip on the order.",
+            "$ref": "#/components/schemas/money"
+          }
+        }
+      },
+      "promotion_summary": {
+        "type": "object",
+        "description": "An object that represents details on the promotions in the order.",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "The total amount of the promotion on the order.",
+            "$ref": "#/components/schemas/money"
+          },
+          "details": {
+            "type": "array",
+            "description": "A breakdown of the promotions applied on the order.",
+            "items": {
+              "$ref": "#/components/schemas/promotion_detail"
+            }
+          },
+          "order_total_excluding_promos": {
+            "type": "object",
+            "description": "The order total without any promotions applied.",
+            "$ref": "#/components/schemas/money"
+          }
+        }
+      },
+      "promotion_detail": {
+        "type": "object",
+        "description": "The details about an individual promotion.",
+        "properties": {
+          "external_promotion_id": {
+            "type": "string",
+            "description": "An identifier that represents a single promotion that has been provided by a Partner."
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of promotion (i.e. BOGO, GETXGETY, FREE_ITEM, DISCOUNTED_ITEM, BOGA, CATEGORY_DISCOUNT, FLAT, PERCENT, etc)"
+          },
+          "discount_value": {
+            "type": "string",
+            "description": "The promotion amount."
+          },
+          "discount_percentage": {
+            "type": "string",
+            "description": "The percentage of the discount."
+          },
+          "discount_delivery_fee_value": {
+            "type": "string",
+            "description": "This indicates the delivery fee value applied from the promotion",
+            "example": 100
+          },
+          "discount_items": {
+            "type": "array",
+            "$ref": "#/components/schemas/discount_items"
+          },
+          "promotion_uuid": {
+            "type": "string",
+            "description": "This is the unique promotion uuid associated with promotion."
+          },
+          "promo_funding_splits": {
+            "type": "array",
+            "description": "This is an array of objects, each element displaying the funding provider for this promotion and giving the exact amount paid by that funding provider.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "funding_source": {
+                  "type": "string",
+                  "description": "The source of the funding for the promotion."
+                },
+                "amount_paid": {
+                  "type": "object",
+                  "description": "The amount allocated from this funding source.",
+                  "$ref": "#/components/schemas/money"
+                }
+              }
+            }
+          }
+        }
+      },
+      "price_adjustment_summary": {
+        "type": "object",
+        "description": "An object that represents the details on the price adjustment.",
+        "properties": {
+          "total": {
+            "type": "object",
+            "description": "The total of the price adjustment.",
+            "$ref": "#/components/schemas/money"
+          },
+          "details": {
+            "type": "object",
+            "description": "A detailed breakdown of the adjustments on the order.",
+            "$ref": "#/components/schemas/adjustment_details"
+          }
+        }
+      },
+      "adjustment_details": {
+        "type": "object",
+        "description": "An object that provides details of the adjustments on the order.",
+        "properties": {
+          "amount": {
+            "type": "object",
+            "description": "The amount of the adjustment",
+            "$ref": "#/components/schemas/money"
+          },
+          "reason": {
+            "type": "string",
+            "description": "The reason for the adjustment",
+            "example": "Customer requested extra meat on salad bowl."
+          }
+        }
+      },
+      "currency_amount": {
+        "type": "object",
+        "description": "The details about the amount and its currency",
+        "properties": {
+          "amount_e5": {
+            "type": "number",
+            "description": "The amount expressed as a whole number with multiplier 10^5, e.g. 1.2345 will be represented as 12345",
+            "example": 750000
+          },
+          "currency_code": {
+            "type": "string",
+            "description": "3-letter alphanumeric code indicating the currency, e.g. USD",
+            "example": "USD"
+          },
+          "formatted": {
+            "type": "string",
+            "description": "Localized amount, e.g. $1.23",
+            "example": "$7.50"
+          }
+        }
+      },
+      "retailer_loyalty_info": {
+        "type": "object",
+        "description": "Retailer loyalty identifier.",
+        "properties": {
+          "loyalty_number": {
+            "type": "string",
+            "description": "Retailer loyalty number",
+            "example": 1240822
+          }
+        }
+      },
+      "order_tracking_metadata": {
+        "type": "object",
+        "description": "Field to store order tracking metadata for BYOC orders. This is only populated when a merchant is set to handle Bring-Your-Own-Courier (\"BYOC\") orders. For all other fulfillment types, like \"DELIVERY_BY_UBER\", this object is omitted.",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "BYOC Order Tracking HTTP URL that represents the QR code content.",
+            "example": "https://earn.sng.link/A3ir4p/eh3s?_dl=uberdriver://byoc-mode?code=fedbab8e-cbce-484e-9d90-067489017968&_smtype=3&pcn=byoc_ot&$deeplink_path=uberdriver://byoc-mode?code=fedbab8e-cbce-484e-9dh0-067489917961"
+          }
+        }
+      },
+      "discount_items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "external_id": {
+              "type": "string",
+              "description": "This is the partner's external ID for the applied promotion.",
+              "example": "promo_123"
+            },
+            "discounted_quantity": {
+              "type": "integer",
+              "description": "This is the quantity of the item with a promotion applied.",
+              "example": 1
+            },
+            "discount_amount_applied": {
+              "type": "integer",
+              "description": "This is the total saving amount for the certain items with a promo applied. Example “-5000” means the order saves 50 in local currency for the target item.",
+              "example": -5000
+            }
+          }
+        }
+      },
+      "pagination_data": {
+        "type": "object",
+        "description": "Pagination information",
+        "properties": {
+          "next_page_token": {
+            "type": "string",
+            "description": "Token to retrieve the next page. This is only returned if there is a next page."
+          },
+          "page_size": {
+            "type": "number",
+            "description": "Number of orders in the response for this page"
+          }
+        }
+      },
+      "feedback": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "string",
+            "description": "Unique identifier of the store.",
+            "example": "4f6d8de4-bb1d-4cf6-81c3-fe981b184751"
+          },
+          "delivery_id": {
+            "type": "string",
+            "description": "Unique identifier of the delivery.",
+            "example": "62950941-7cc9-4c4c-82ff-57d6cc2452df"
+          },
+          "rating": {
+            "type": "string",
+            "description": "Rating for the delivery partner\n| String    | Description |\n| ---- | ---- |\n| `THUMBS_UP` | delivery partner performed well |\n| `THUMBS_DOWN` | there was an issue with the delivery partner’s performance |\n",
+            "example": "THUMBS_UP"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Description of why the delivery partner is being given a rating.",
+            "example": "Professional"
+          }
+        }
+      },
+      "error": {
+        "type": "object",
+        "description": "bad_request",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "description": "Error message not standardized. Application code will provide contextual error message"
+          }
+        }
+      },
+      "bad_request_error": {
+        "type": "object",
+        "description": "bad_request",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "bad_request",
+            "description": "Description of the error."
+          },
+          "message": {
+            "type": "string",
+            "example": "Error message not standardized. Application code will provide contextual error message",
+            "description": "Description details of the error."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the error.",
+            "properties": {
+              "field_violations": {
+                "type": "array",
+                "description": "A list of invalid or missing fields passed in the request.",
+                "items": {
+                  "type": "string",
+                  "example": "order_id, expand"
+                }
+              },
+              "should_retry": {
+                "type": "boolean",
+                "example": true,
+                "description": "Only provided for API Version 2.0.0 and higher. Indicates if the request should be retried."
+              },
+              "recommended_retry_interval_secs": {
+                "type": "integer",
+                "example": 60,
+                "description": "Only provided for API Version 2.0.0 and higher. The recommended wait interval in seconds between retries. Only provided if should_retry is true."
+              },
+              "reference_documentation_url": {
+                "type": "string",
+                "example": "https://developer.uber.com/docs/eats/references/api/order_suite",
+                "description": "Only provided for API Version 2.0.0 and higher. Link to reference documentation about the error."
+              },
+              "erroneous_field": {
+                "type": "string",
+                "example": "order_id",
+                "description": "Only provided for API Version 2.0.0 and higher. Indicates which field passed in could be changed to fix the error."
+              }
+            }
+          }
+        }
+      },
+      "unauthorized_error": {
+        "type": "object",
+        "description": "unauthorized",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "unauthorized",
+            "description": "Description of the error."
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid OAuth 2.0 credentials provided. | Error message not standardized. Application code will provide contextual error message",
+            "description": "Description details of the error."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the error.",
+            "$ref": "#/components/schemas/error_metadata"
+          }
+        }
+      },
+      "not_found_error": {
+        "type": "object",
+        "description": "not_found",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "not_found",
+            "description": "Description of the error."
+          },
+          "message": {
+            "type": "string",
+            "example": "Order not found | Error message not standardized. Application code will provide contextual error message",
+            "description": "Description details of the error."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the error.",
+            "$ref": "#/components/schemas/error_metadata"
+          }
+        }
+      },
+      "internal_server_error": {
+        "type": "object",
+        "description": "internal_server_error",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "internal_server_error",
+            "description": "Description of the error."
+          },
+          "message": {
+            "type": "string",
+            "example": "An internal error has occurred. Please contact support if this persists.",
+            "description": "Description details of the error."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the error.",
+            "$ref": "#/components/schemas/error_metadata"
+          }
+        }
+      },
+      "error_metadata": {
+        "type": "object",
+        "description": "Only provided for API Version 2.0.0 and higher. Additional metadata about an error.",
+        "properties": {
+          "should_retry": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates if the request should be retried."
+          },
+          "recommended_retry_interval_secs": {
+            "type": "integer",
+            "example": 60,
+            "description": "The recommended wait interval in seconds between retries."
+          },
+          "reference_documentation_url": {
+            "type": "string",
+            "example": "https://developer.uber.com/docs/eats/references/api/order_suite",
+            "description": "Link to reference documentation about the error."
+          },
+          "erroneous_field": {
+            "type": "string",
+            "example": "order_id",
+            "description": "Indicates which field passed in could be changed to fix the error."
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "payload reverted for unsucessful API transactions.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "Unauthorized",
+            "description": "description of the error."
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid OAuth 2.0 credentials provided. | Error message not standardized. Application code will provide contextual error message",
+            "description": "description details of the error."
+          }
+        }
+      }
+    }
+  }
+}
