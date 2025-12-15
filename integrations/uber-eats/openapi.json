@@ -15,15 +15,11 @@
       "get": {
         "operationId": "getOrder",
         "summary": "Order Details",
-        "tags": [
-          "GetOrder"
-        ],
+        "tags": ["GetOrder"],
         "description": "Provides detailed information regarding an Uber Eats active order that can be expanded to provide additional order information.",
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "parameters": [
@@ -111,14 +107,10 @@
       "get": {
         "operationId": "getOrders",
         "summary": "List Orders Details",
-        "tags": [
-          "GetOrders"
-        ],
+        "tags": ["GetOrders"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "A list with detailed information regarding Uber Eats orders for a chosen restaurant",
@@ -266,14 +258,10 @@
       "post": {
         "operationId": "acceptOrder",
         "summary": "Accept Order",
-        "tags": [
-          "AcceptOrder"
-        ],
+        "tags": ["AcceptOrder"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "Allows Acceptance of an Uber Eats Order for timing of pickup to be updated for the customer or courier.",
@@ -368,14 +356,10 @@
       "post": {
         "operationId": "DenyOrder",
         "summary": "Deny Order",
-        "tags": [
-          "DenyOrder"
-        ],
+        "tags": ["DenyOrder"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "Allows an Uber Eats Order to be denied. You must supply a denial reason and can optionally supply a free form text to provide Uber further context as to why the order was unable to be accepted.",
@@ -457,14 +441,10 @@
       "post": {
         "operationId": "cancelOrder",
         "summary": "Cancel Order",
-        "tags": [
-          "CancelOrder"
-        ],
+        "tags": ["CancelOrder"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "Allows cancellation of an Uber Eats Order",
@@ -546,14 +526,10 @@
       "post": {
         "operationId": "orderReady",
         "summary": "Order Ready",
-        "tags": [
-          "OrderReady"
-        ],
+        "tags": ["OrderReady"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "Mark an order as ready for pickup. Merchants can call this endpoint when done preparing an order.",
@@ -630,14 +606,10 @@
         "operationId": "adjustOrderPrice",
         "summary": "Adjust Order Price",
         "description": "Adjusts the price of an order of an active order for an Eater and awaits confirmation from the customer.",
-        "tags": [
-          "AdjustOrderPrice"
-        ],
+        "tags": ["AdjustOrderPrice"],
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "parameters": [
@@ -729,15 +701,11 @@
         "summary": "Update Order Ready Time",
         "security": [
           {
-            "auth": [
-              "eats.order"
-            ]
+            "auth": ["eats.order"]
           }
         ],
         "description": "Allows updating the time that an Eats Order will be ready to be picked up by a delivery partner. This can only be called when the Order is in the Accepted State and has not been marked as READY_TO_HANDOFF in the preparation_status. This endpoint will error out if can_adjust_ready_for_pickup_time is false.",
-        "tags": [
-          "UpdateOrderReadyTime"
-        ],
+        "tags": ["UpdateOrderReadyTime"],
         "parameters": [
           {
             "name": "order_id",
@@ -818,16 +786,11 @@
         "summary": "Resolve Fulfillment Issues",
         "security": [
           {
-            "auth": [
-              "eats.order",
-              "eats.store.orders.read"
-            ]
+            "auth": ["eats.order", "eats.store.orders.read"]
           }
         ],
         "description": "Allows merchants to resolve fulfillment issues (e.g. out of item, cannot fulfill special instructions etc.) for a Uber Delivery Order. If successful, a customer can select to accept or adjust the cart for item, or cancel. Execution of this endpoint will be followed with order.fulfillment_issues.resolved or order.failed webhook.",
-        "tags": [
-          "ResolveOrderFulfillmentIssue"
-        ],
+        "tags": ["ResolveOrderFulfillmentIssue"],
         "parameters": [
           {
             "name": "order_id",
@@ -931,9 +894,7 @@
     "webhookEvents": {
       "post": {
         "summary": "Order Webhook Event Types",
-        "tags": [
-          "WebhookEvents"
-        ],
+        "tags": ["WebhookEvents"],
         "description": "The below order webhooks can be managed within the [Integration Configuration API Suite](/docs/eats/references/api/integration_activation_suite). The API version you set will determine the webhooks and resource_href passed in webhook body.\n\n- `orders.notification` - notification to retrieve order.\n- `orders.scheduled.notification` - notification to retrieve scheduled order. This event is only triggered if you are at minimum the API version 1.0.0.\n- `orders.release` - notification triggered when a courier has reach a predetermined geo-fence from the location. Typically used for quick service restaurants with low prep times.\n- `orders.failure` - notification for failed orders. Note that this is passed as soon as an order is failed, you may experience and error if there is an immediate request to retrieve the order details.\n- `orders.fulfillment_issues.resolved` - notification event when fulfillment issues are resolved by the customer on Uber's end. This event is triggered when Resolve for Fulfillment endpoint is called or when a user is informed of a fulfillment issue by any means.\n- `delivery.state_changed` - notification of Delivery Status can be used to track the delivery state. This event is triggered when the delivery state changes.\n",
         "requestBody": {
           "required": true,
@@ -1043,19 +1004,13 @@
         "title": "For Restaurants",
         "type": "string",
         "description": ">\nSpecifies the action type to resolve the fulfillment issue.\n| String            |  Description                                                                     |\n| ------------------| ---------------------------------------------------------------------------------|\n|  `ASK_CUSTOMER`     | Allows merchants to request customers to update their order to resolve fulfillment issues. In the instance where `order.customers.can_respond_to_fulfillment_issues` is `true` customers can choose a specific replacement or remove the affected item. Once the customer responds, a webhook `order.fulfillment_issues.resolved` is sent to the merchant, indicating that the customer has resolved the fulfillment issue. This action is available for \"Restaurant\" merchants only. |\n",
-        "enum": [
-          "ASK_CUSTOMER"
-        ]
+        "enum": ["ASK_CUSTOMER"]
       },
       "retail_action_type": {
         "title": "For Retailers",
         "type": "string",
         "description": ">\nSpecifies the action type to resolve the fulfillment issue in the instance where issue_type is `OUT_OF_ITEM`:\n\n| String             |  Description                                                                     |\n| ------------------ | ---------------------------------------------------------------------------------|\n|  `SUBSTITUTE_ME`    | Allows merchant to replace an item with customer's specific replacement preference. This action should only be used when the customer's preferred action is `SUBSTITUTE_ME` and  it's available for \"Retail\" merchants only.                               |\n|  `REPLACE_FOR_ME`    | Allows merchant to choose a replacement to send to the customers. If \"Replacement Tracking & Approvals\" (RT&A) is enabled, it allows customers to approve or reject replacement suggestions. If RT&A is not enabled (default configuration), the substitution is approved automatically. This action is available for \"Retail\" merchants only. |\n|  `REMOVE_ITEM`       | Allows merchant to remove an item if it's unavailable. This action is available for \"Retail\" merchants only.  |\n",
-        "enum": [
-          "SUBSTITUTE_ME",
-          "REPLACE_FOR_ME",
-          "REMOVE_ITEM"
-        ],
+        "enum": ["SUBSTITUTE_ME", "REPLACE_FOR_ME", "REMOVE_ITEM"],
         "example": "REPLACE_FOR_ME"
       },
       "store": {
@@ -1119,12 +1074,7 @@
           "type": {
             "type": "string",
             "description": "The type of the identifier.",
-            "enum": [
-              "MERCHANT_STORE_ID",
-              "INTEGRATOR_STORE_ID",
-              "INTEGRATOR_BRAND_ID",
-              "ORDER_MANAGER_CLIENT_ID"
-            ]
+            "enum": ["MERCHANT_STORE_ID", "INTEGRATOR_STORE_ID", "INTEGRATOR_BRAND_ID", "ORDER_MANAGER_CLIENT_ID"]
           }
         }
       },
@@ -1137,12 +1087,7 @@
           },
           "unit": {
             "type": "string",
-            "enum": [
-              "POUND",
-              "PIECE",
-              "KILOGRAM",
-              "GRAM"
-            ],
+            "enum": ["POUND", "PIECE", "KILOGRAM", "GRAM"],
             "example": "PIECE"
           }
         }
@@ -1166,10 +1111,7 @@
                     "type": "string",
                     "description": "The type of measurement type, which can be a physical dimension (weight), or whole number based system.",
                     "example": "MEASUREMENT_TYPE_COUNT",
-                    "enum": [
-                      "MEASUREMENT_TYPE_COUNT",
-                      "MEASUREMENT_TYPE_WEIGHT"
-                    ]
+                    "enum": ["MEASUREMENT_TYPE_COUNT", "MEASUREMENT_TYPE_WEIGHT"]
                   },
                   "weight": {
                     "type": "object",
@@ -1208,10 +1150,7 @@
                   "measurement_type": {
                     "type": "string",
                     "example": "MEASUREMENT_TYPE_WEIGHT",
-                    "enum": [
-                      "MEASUREMENT_TYPE_COUNT",
-                      "MEASUREMENT_TYPE_WEIGHT"
-                    ]
+                    "enum": ["MEASUREMENT_TYPE_COUNT", "MEASUREMENT_TYPE_WEIGHT"]
                   },
                   "weight": {
                     "type": "object",
@@ -1260,10 +1199,7 @@
                     "type": "string",
                     "description": "The type of measurement type, which can be a physical dimension (weight), or whole number based system.",
                     "example": "MEASUREMENT_TYPE_COUNT",
-                    "enum": [
-                      "MEASUREMENT_TYPE_COUNT",
-                      "MEASUREMENT_TYPE_WEIGHT"
-                    ]
+                    "enum": ["MEASUREMENT_TYPE_COUNT", "MEASUREMENT_TYPE_WEIGHT"]
                   },
                   "weight": {
                     "type": "object",
@@ -1302,10 +1238,7 @@
                   "measurement_type": {
                     "type": "string",
                     "example": "MEASUREMENT_TYPE_WEIGHT",
-                    "enum": [
-                      "MEASUREMENT_TYPE_COUNT",
-                      "MEASUREMENT_TYPE_WEIGHT"
-                    ]
+                    "enum": ["MEASUREMENT_TYPE_COUNT", "MEASUREMENT_TYPE_WEIGHT"]
                   },
                   "weight": {
                     "type": "object",
@@ -1928,13 +1861,7 @@
           "tax_id_type": {
             "type": "string",
             "description": "The type of tax identifier.",
-            "enum": [
-              "NIF",
-              "CPF",
-              "CORPORATE_TAX_ID",
-              "NIP",
-              "twn-vat"
-            ]
+            "enum": ["NIF", "CPF", "CORPORATE_TAX_ID", "NIP", "twn-vat"]
           },
           "customer_full_name": {
             "type": "string",
@@ -2096,12 +2023,7 @@
           "interaction_type": {
             "type": "string",
             "description": "Interaction type of the delivery",
-            "enum": [
-              "DOOR_TO_DOOR",
-              "CURBSIDE",
-              "LEAVE_AT_DOOR",
-              "DELIVER_TO_DOOR"
-            ],
+            "enum": ["DOOR_TO_DOOR", "CURBSIDE", "LEAVE_AT_DOOR", "DELIVER_TO_DOOR"],
             "example": "DELIVER_TO_DOOR"
           },
           "delivery_partner_marked_not_ready_time": {
@@ -2129,10 +2051,7 @@
           "type": {
             "type": "string",
             "description": "Indicates which location field will be provided.",
-            "enum": [
-              "STREET_ADDRESS",
-              "GOOGLE_PLACE"
-            ],
+            "enum": ["STREET_ADDRESS", "GOOGLE_PLACE"],
             "example": "GOOGLE_PLACE"
           },
           "id": {
@@ -2274,12 +2193,7 @@
           "type": {
             "type": "string",
             "description": "The type of modality.",
-            "enum": [
-              "CAR",
-              "BICYCLE",
-              "MOTORBIKE",
-              "PEDESTRIAN"
-            ]
+            "enum": ["CAR", "BICYCLE", "MOTORBIKE", "PEDESTRIAN"]
           },
           "make": {
             "type": "string",
@@ -2405,11 +2319,7 @@
       "retail_issue_type": {
         "type": "string",
         "description": ">\nThe type of fulfillment issues :\n\n| String             |  Description                                                                     |\n| ------------------ | ---------------------------------------------------------------------------------|\n|  `OUT_OF_ITEM`     | The requested item was not found. Please refer to the `action_type` details below. |\n|  `PARTIAL_AVAILABILITY`    | The requested item was found, but not in quantity enough to fulfill the order. No `action_type` is required. |\n|  `FOUND_ITEM`     | Item was found and in enough quantity to fulfill the order. No `action_type` is required. |\n",
-        "enum": [
-          "OUT_OF_ITEM",
-          "PARTIAL_AVAILABILITY",
-          "FOUND_ITEM"
-        ]
+        "enum": ["OUT_OF_ITEM", "PARTIAL_AVAILABILITY", "FOUND_ITEM"]
       },
       "restaurant_fulfillment_issue": {
         "type": "object",
@@ -2438,9 +2348,7 @@
           "customer_ack_type": {
             "type": "string",
             "description": "Specifies the customer acknowledgment type required for a replacement including the customer’s response. This field is only populated for “Retail” merchants only.\n| String | Description |\n| ------ | ----- |\n| `ACK_DISABLED` | \"Replacement Tracking & Approvals\" (RT&A) is not enabled |\n",
-            "enum": [
-              "ACK_DISABLED"
-            ],
+            "enum": ["ACK_DISABLED"],
             "example": "ACK_DISABLED"
           }
         }
@@ -2636,24 +2544,12 @@
           "reason": {
             "type": "string",
             "description": "Reason why an order failed.",
-            "enum": [
-              "POS_DENIED",
-              "ACCEPT_TIMED_OUT",
-              "DELIVERY_FAILED",
-              "CANCELED",
-              "UNKNOWN"
-            ]
+            "enum": ["POS_DENIED", "ACCEPT_TIMED_OUT", "DELIVERY_FAILED", "CANCELED", "UNKNOWN"]
           },
           "failure_attributed_to_party": {
             "type": "string",
             "description": "The party who canceled the order. Only available if the attribution can be reasonably determined.",
-            "enum": [
-              "UNKNOWN",
-              "MERCHANT",
-              "CUSTOMER",
-              "UBER",
-              "DELIVERY_PARTNER"
-            ]
+            "enum": ["UNKNOWN", "MERCHANT", "CUSTOMER", "UBER", "DELIVERY_PARTNER"]
           },
           "will_merchant_be_paid": {
             "type": "boolean",
@@ -2677,11 +2573,7 @@
           "source": {
             "type": "string",
             "description": "Source of the ready_for_pickup_time_secs value",
-            "enum": [
-              "PREDICTED_BY_UBER",
-              "DEFAULT",
-              "MERCHANT_PROVIDED"
-            ]
+            "enum": ["PREDICTED_BY_UBER", "DEFAULT", "MERCHANT_PROVIDED"]
           },
           "ready_for_pickup_time": {
             "type": "string",
@@ -2920,52 +2812,27 @@
       },
       "order_fulfillment_type": {
         "type": "string",
-        "enum": [
-          "DELIVERY_BY_UBER",
-          "DELIVERY_BY_MERCHANT",
-          "DINE_IN",
-          "PICKUP"
-        ],
+        "enum": ["DELIVERY_BY_UBER", "DELIVERY_BY_MERCHANT", "DINE_IN", "PICKUP"],
         "description": "| String              | Description |\n| -------- | ----------- |\n| `DELIVERY_BY_UBER`    | Delivered by Uber. |\n| `DELIVERY_BY_MERCHANT` | Delivered by partner's couriers Bring Your Own Courier (BYOC). |\n| `DINE_IN`             | Dining in. |\n| `PICKUP`              | Customer picking up the order. |\n"
       },
       "order_ordering_platform": {
         "type": "string",
-        "enum": [
-          "UBER_EATS",
-          "POSTMATES"
-        ],
+        "enum": ["UBER_EATS", "POSTMATES"],
         "description": "The Uber property under which the order was placed."
       },
       "order_status": {
         "type": "string",
-        "enum": [
-          "SCHEDULED",
-          "ACTIVE",
-          "COMPLETED",
-          "UNKNOWN"
-        ],
+        "enum": ["SCHEDULED", "ACTIVE", "COMPLETED", "UNKNOWN"],
         "description": "| String    | Description |\n| --------- | ----------- |\n| `SCHEDULED` | Order is scheduled for a future time. |\n| `ACTIVE`    | Order is active. |\n| `COMPLETED` | Order is completed. |\n"
       },
       "order_preparation_status": {
         "type": "string",
-        "enum": [
-          "PREPARING",
-          "OUT_OF_ITEM_PENDING_CUSTOMER_RESPONSE",
-          "READY_FOR_HANDOFF"
-        ],
+        "enum": ["PREPARING", "OUT_OF_ITEM_PENDING_CUSTOMER_RESPONSE", "READY_FOR_HANDOFF"],
         "description": "| String     | Description |\n| ---------- | -------------- |\n| `PREPARING`                        | Order is being prepared. |\n| `OUT_OF_ITEM_PENDING_CUSTOMER_RESPONSE` | Merchant has indicated out of item and the order is now waiting on customer response. |\n| `READY_FOR_HANDOFF`                | Order is ready to be handed off. |\n"
       },
       "order_state": {
         "type": "string",
-        "enum": [
-          "CREATED",
-          "OFFERED",
-          "ACCEPTED",
-          "HANDED_OFF",
-          "SUCCEEDED",
-          "FAILED",
-          "UNKNOWN"
-        ],
+        "enum": ["CREATED", "OFFERED", "ACCEPTED", "HANDED_OFF", "SUCCEEDED", "FAILED", "UNKNOWN"],
         "description": "| String | Description |\n| ------ | ----- |\n| `OFFERED` | Order has been offered to the merchant. |\n| `ACCEPTED` | Merchant has accepted the order. |\n| `HANDED_OFF` | Order has been fully handed off to delivery partners. If there are multiple delivery partners, an order will only transition to this state only when all delivery partners have picked up the order. |\n| `SUCCEEDED` | Order was successfully delivered. |\n| `FAILED` | Order failed for any reason. |\n| `UNKNOWN` | Catch all for unrecognized states. |\n"
       },
       "order_external_id": {
@@ -3077,15 +2944,7 @@
           "type": {
             "type": "string",
             "description": "The specific type of item issue.",
-            "enum": [
-              "NOT_ON_MENU",
-              "UNAVAILABLE",
-              "MISSING_INFO",
-              "PRICING",
-              "QUANTITY",
-              "OUT_OF_ITEM",
-              "OTHER"
-            ]
+            "enum": ["NOT_ON_MENU", "UNAVAILABLE", "MISSING_INFO", "PRICING", "QUANTITY", "OUT_OF_ITEM", "OTHER"]
           },
           "client_error_code": {
             "type": "string",
@@ -3194,20 +3053,12 @@
           "entity": {
             "type": "string",
             "description": "The entity that is responsible for remittance.",
-            "enum": [
-              "UBER",
-              "MERCHANT",
-              "DELIVERY_PARTNER",
-              "CUSTOMER"
-            ]
+            "enum": ["UBER", "MERCHANT", "DELIVERY_PARTNER", "CUSTOMER"]
           },
           "type": {
             "type": "string",
             "description": "The specific type of tax to be remitted.",
-            "enum": [
-              "SUBTOTAL",
-              "DELIVERY_FEE"
-            ]
+            "enum": ["SUBTOTAL", "DELIVERY_FEE"]
           },
           "amount": {
             "type": "object",
@@ -3254,12 +3105,7 @@
           "description": {
             "type": "string",
             "description": "The type of tax that this info is associated with.",
-            "enum": [
-              "DELIVERY_FEE",
-              "SERVICE_FEE",
-              "SMALL_ORDER_FEE",
-              "Etc."
-            ]
+            "enum": ["DELIVERY_FEE", "SERVICE_FEE", "SMALL_ORDER_FEE", "Etc."]
           },
           "gross_amount": {
             "type": "object",
@@ -3498,12 +3344,7 @@
         "properties": {
           "id": {
             "type": "string",
-            "enum": [
-              "SMALL_ORDER_FEE",
-              "DELIVERY_FEE",
-              "PICK_AND_PACK_FEE",
-              "BAG_FEE"
-            ],
+            "enum": ["SMALL_ORDER_FEE", "DELIVERY_FEE", "PICK_AND_PACK_FEE", "BAG_FEE"],
             "description": "The identifier for a given fee."
           },
           "amount": {

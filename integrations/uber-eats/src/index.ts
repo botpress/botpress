@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
-import { actions } from './actions'
-import { UberEatsClient } from './api/uber-client'
-import { handler } from './handler'
 import * as bp from '.botpress'
+import { actions } from '@/actions'
+import { UberEatsClient } from '@/api/uber-client'
+import { handler } from '@/handler'
 
 export default new bp.Integration({
   register: async ({ ctx, client, logger }) => {
@@ -14,7 +14,7 @@ export default new bp.Integration({
     })
     try {
       await uber.testConnection()
-    } catch (error) {
+    } catch {
       throw new sdk.RuntimeError('Uber Eats integration setup failed. Check provided credentials')
     }
 

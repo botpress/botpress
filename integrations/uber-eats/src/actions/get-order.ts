@@ -1,6 +1,6 @@
-import { orderMapper } from 'src/mappers/order.mapper'
-import { wrapUberAction } from 'src/misc/action-wrapper'
 import * as bp from '.botpress'
+import { orderMapper } from '@/mappers/order.mapper'
+import { wrapUberAction } from '@/misc/action-wrapper'
 
 export const getOrder: bp.IntegrationProps['actions']['getOrder'] = wrapUberAction(async ({ uber, input }) => {
   const response = await uber.getOrder(input.orderId)

@@ -1,5 +1,6 @@
-import { UberSupportedWebhookEvents, UberWebhookEventType } from './events/webhook-event'
 import * as bp from '.botpress'
+import { verifyUberSignature } from '@/events/verify-uber-signature'
+import { UberSupportedWebhookEvents, UberWebhookEventType } from '@/events/webhook-event'
 
 const webhookToBotpressEvent: Record<UberWebhookEventType, keyof bp.events.Events> = {
   'orders.notification': 'ordersNotification',
@@ -10,7 +11,14 @@ const webhookToBotpressEvent: Record<UberWebhookEventType, keyof bp.events.Event
   'delivery.state_changed': 'deliveryStateChanged',
 } as const
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, client, logger, ctx }) => {
+  try {
+    verifyUberSignature(req, ctx.configuration.clientSecret)
+  } catch {
+    logger.forBot().warn('Invalid Uber webhook signature')
+    return { status: 401 }
+  }
+
   if (!req.body) {
     logger.forBot().warn('Received empty Uber Eats webhook body')
     return { status: 400 }

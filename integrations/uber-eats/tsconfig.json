@@ -3,6 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "strict": true,
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,

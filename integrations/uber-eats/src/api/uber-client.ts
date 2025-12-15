@@ -1,6 +1,7 @@
+import type { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
-import * as uberApi from './generated/api'
 import * as bp from '.botpress'
+import * as uberApi from '@/gen/api'
 
 const TOKEN_STATE_KEY = 'oauthToken'
 const DEFAULT_SCOPE = 'eats.store eats.order'
@@ -11,6 +12,7 @@ export class UberEatsClient {
   private _scope: string
   private _bpClient: bp.Client
   private _ctx: bp.Context
+  private _logger: IntegrationLogger
 
   public constructor({
     clientId,
@@ -18,22 +20,25 @@ export class UberEatsClient {
     scope = DEFAULT_SCOPE,
     bpClient,
     ctx,
+    logger,
   }: {
     clientId: string
     clientSecret: string
     scope?: string
     bpClient: bp.Client
     ctx: bp.Context
+    logger: IntegrationLogger
   }) {
     this._scope = scope
     this._clientId = clientId
     this._clientSecret = clientSecret
     this._bpClient = bpClient
     this._ctx = ctx
+    this._logger = logger
   }
 
   public async getOrder(orderId: string) {
-    return uberApi.getOrder(orderId)
+    return uberApi.getOrder(orderId, {}, await this._authOptions())
   }
 
   public async listStoreOrders(props: uberApi.GetOrdersParams) {
@@ -74,7 +79,7 @@ export class UberEatsClient {
       await this._saveToken(access_token, expires_in)
       return access_token
     } catch (error) {
-      console.warn('Uber Eats token request failed:', error)
+      this._logger.warn('Uber Eats token request failed:', error)
       throw error
     }
   }

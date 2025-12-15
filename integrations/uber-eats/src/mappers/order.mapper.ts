@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { getOrderActionOutputSchema, listStoreOrdersActionOutputSchema } from 'src/definitions/actions'
-import * as uberApi from '../api/generated/api'
+import * as uberApi from '@/gen/api'
 
 type GetOrderActionOutput = z.infer<typeof getOrderActionOutputSchema>
 type ListOrderActionOutput = z.infer<typeof listStoreOrdersActionOutputSchema>

@@ -1,5 +1,5 @@
-import { wrapUberAction } from 'src/misc/action-wrapper'
 import * as bp from '.botpress'
+import { wrapUberAction } from '@/misc/action-wrapper'
 
 export const markOrderReady: bp.IntegrationProps['actions']['markOrderReady'] = wrapUberAction(
   async ({ uber, input }) => {

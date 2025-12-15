@@ -1,24 +1,35 @@
-import type { ActionDefinition } from '@botpress/sdk'
-import { z } from '@botpress/sdk'
-import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason } from './constants'
+import { z, type ActionDefinition } from '@botpress/sdk'
+import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason } from '@/definitions/constants'
 
-const UberOrderSchema = z.object({
-  id: UberUUID.optional(),
-  displayId: z.string().optional(),
-  externalId: z.string().optional(),
-  state: UberOrderState.optional(),
-  status: UberOrderStatus.optional(),
-  storeId: UberUUID.optional(),
-  createdAt: z.string().optional(),
-  scheduledOrderStartTime: z.string().optional(),
-  scheduledOrderEndTime: z.string().optional(),
-})
+const UberOrderSchema = z
+  .object({
+    id: UberUUID.optional().title('Order ID').describe('Uber order UUID'),
+    displayId: z.string().optional().title('Display ID').describe('Human-readable order identifier'),
+    externalId: z.string().optional().title('External ID').describe('Partner-defined external order identifier'),
+    state: UberOrderState.optional().title('Order state').describe('Order state'),
+    status: UberOrderStatus.optional().title('Order status').describe('Order status'),
+    storeId: UberUUID.optional().title('Store ID').describe('Uber Eats store UUID'),
+    createdAt: z.string().optional().title('Created at').describe('RFC3339 timestamp when the order was created'),
+    scheduledOrderStartTime: z
+      .string()
+      .optional()
+      .title('Scheduled start time')
+      .describe('RFC3339 timestamp when a scheduled order window starts'),
+    scheduledOrderEndTime: z
+      .string()
+      .optional()
+      .title('Scheduled end time')
+      .describe('RFC3339 timestamp when a scheduled order window ends'),
+  })
+  .describe('Uber Eats order summary')
 
-export const UberDenyReasonSchema = z.object({
-  type: UberDenyReason.optional().describe('Category of cancellation'),
-  info: z.string().optional().describe('Additional free-text explanation'),
-  clientErrorCode: z.string().optional().describe('Partner-provided error code'),
-})
+export const UberDenyReasonSchema = z
+  .object({
+    type: UberDenyReason.optional().title('Reason type').describe('Category of cancellation'),
+    info: z.string().optional().title('Additional info').describe('Additional free-text explanation'),
+    clientErrorCode: z.string().optional().title('Client error code').describe('Partner-provided error code'),
+  })
+  .describe('Reason used to deny an order')
 
 export const acceptOrderActionInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
@@ -28,7 +39,7 @@ export const acceptOrderActionOutputSchema = z.object({}).describe('Empty respon
 
 export const denyOrderActionInputSchema = z.object({
   orderId: UberUUID.title('Order ID').describe('Uber order UUID'),
-  reason: UberDenyReasonSchema,
+  reason: UberDenyReasonSchema.title('Deny reason').describe('Reason for denying the order'),
 })
 
 export const denyOrderActionOutputSchema = z.object({}).describe('Empty response on success')
@@ -44,22 +55,41 @@ export const getOrderActionInputSchema = z.object({
 })
 
 export const getOrderActionOutputSchema = z.object({
-  order: UberOrderSchema,
+  order: UberOrderSchema.describe('Uber Eats order details'),
 })
 
 export const listStoreOrdersActionInputSchema = z.object({
-  expand: z.string().optional().describe('Comma-separated: carts,deliveries,payment'),
-  state: z.array(UberOrderState).optional(),
-  status: z.array(UberOrderStatus).optional(),
-  startTime: z.string().optional().describe('RFC3339 timestamp (created after)'),
-  endTime: z.string().optional().describe('RFC3339 timestamp (created before)'),
-  nextToken: z.string().optional().describe('Pagination cursor from the previous response (optional)'),
-  pageSize: z.number().int().min(1).max(50).optional().describe('Orders per page (max 50, default 50)'),
+  expand: z.string().optional().title('Expand').describe('Comma-separated expansions: carts,deliveries,payment'),
+  state: z.array(UberOrderState).optional().title('Order state').describe('Filter by order state'),
+  status: z.array(UberOrderStatus).optional().title('Order status').describe('Filter by order status'),
+  startTime: z
+    .string()
+    .optional()
+    .title('Start time')
+    .describe('RFC3339 timestamp: include orders created after this time'),
+  endTime: z
+    .string()
+    .optional()
+    .title('End time')
+    .describe('RFC3339 timestamp: include orders created before this time'),
+  nextToken: z
+    .string()
+    .optional()
+    .title('Next page token')
+    .describe('Pagination cursor returned by a previous call (optional)'),
+  pageSize: z
+    .number()
+    .int()
+    .min(1)
+    .max(50)
+    .optional()
+    .title('Page size')
+    .describe('Orders per page (max 50, default 50)'),
 })
 
 export const listStoreOrdersActionOutputSchema = z.object({
-  orders: z.array(UberOrderSchema).describe('Orders returned in this page'),
-  nextToken: z.string().optional().describe('Cursor to fetch the next page (if available)'),
+  orders: z.array(UberOrderSchema).title('Orders').describe('Orders returned in this page'),
+  nextToken: z.string().optional().title('Next page token').describe('Cursor to fetch the next page (if available)'),
 })
 
 export const getOrder: ActionDefinition = {

@@ -1,5 +1,5 @@
-import { wrapUberAction } from 'src/misc/action-wrapper'
 import * as bp from '.botpress'
+import { wrapUberAction } from '@/misc/action-wrapper'
 
 export const denyOrder: bp.IntegrationProps['actions']['denyOrder'] = wrapUberAction(async ({ uber, input }) => {
   return await uber.denyOrder(input.orderId, {
