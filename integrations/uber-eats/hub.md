@@ -3,6 +3,7 @@
 The **Uber Eats integration** allows your Botpress bot to interact with Uber Eats orders and delivery lifecycle events.
 
 It supports:
+
 - Fetching and listing orders
 - Accepting or denying incoming orders
 - Marking orders as ready for pickup
@@ -31,7 +32,8 @@ You will need to provide the following values when configuring the integration:
   This is used as the default store when listing or managing orders.
 
 The integration automatically:
-- Requests OAuth access tokens using the *client credentials* flow
+
+- Requests OAuth access tokens using the _client credentials_ flow
 - Caches tokens securely in integration state
 - Refreshes tokens when they expire
 
@@ -45,51 +47,106 @@ No additional manual authentication steps are required.
 
 This integration exposes the following actions to bot developers:
 
-#### **Get Order**
+### **Get Order**
+
 Fetch a single Uber Eats order by ID.
 
-- **Input**
-  - `orderId` – The Uber Eats order ID
+**Input**
 
-- **Output**
-  - Full order object returned by the Uber Eats API
+- `orderId` _(string)_  
+  Uber Eats order UUID.
+
+**Output**
+
+- `order` _(object)_
+  - `id` _(string, optional)_
+  - `displayId` _(string, optional)_
+  - `externalId` _(string, optional)_
+  - `state` _(string, optional)_
+  - `status` _(string, optional)_
+  - `storeId` _(string, optional)_
+  - `createdAt` _(string, optional)_
+  - `scheduledOrderStartTime` _(string, optional)_
+  - `scheduledOrderEndTime` _(string, optional)_
 
 ---
 
-#### **List Store Orders**
-List orders for a store with optional filters.
+### **List Store Orders**
 
-- **Input**
-  - `state` (optional) – Filter by order state(s)
-  - `status` (optional) – Filter by order status(es)
+List orders for the configured store with optional filters and pagination.
 
-- **Output**
-  - List of orders for the configured store
+**Input**
+
+- `expand` _(string, optional)_  
+  Comma-separated values (e.g. `carts,deliveries,payment`)
+- `state` _(string[], optional)_  
+  Filter by order states
+- `status` _(string[], optional)_  
+  Filter by order statuses
+- `startTime` _(string, optional)_  
+  RFC3339 timestamp (orders created after this time)
+- `endTime` _(string, optional)_  
+  RFC3339 timestamp (orders created before this time)
+- `nextToken` _(string, optional)_  
+  Pagination cursor from a previous response
+- `pageSize` _(number, optional)_  
+  Orders per page (1–50, default 50)
+
+**Output**
+
+- `orders` _(object[])_  
+  List of orders
+- `nextToken` _(string, optional)_  
+  Cursor to fetch the next page of results
 
 ---
 
-#### **Accept Order**
+### **Accept Order**
+
 Accept an incoming Uber Eats order.
 
-- **Input**
-  - `orderId`
+**Input**
+
+- `orderId` _(string)_  
+  Uber Eats order UUID.
+
+**Output**
+
+- Empty object on success
 
 ---
 
-#### **Deny Order**
-Deny an Uber Eats order.
+### **Deny Order**
 
-- **Input**
-  - `orderId`
-  - `reason` (optional)
+Deny an incoming Uber Eats order.
+
+**Input**
+
+- `orderId` _(string)_  
+  Uber Eats order UUID.
+- `reason` _(object)_
+  - `type` _(string, optional)_ – Category of cancellation
+  - `info` _(string, optional)_ – Additional free-text explanation
+  - `clientErrorCode` _(string, optional)_ – Partner-provided error code
+
+**Output**
+
+- Empty object on success
 
 ---
 
-#### **Mark Order Ready**
+### **Mark Order Ready**
+
 Mark an order as ready for pickup.
 
-- **Input**
-  - `orderId`
+**Input**
+
+- `orderId` _(string)_  
+  Uber Eats order UUID.
+
+**Output**
+
+- Empty object on success
 
 ---
 
@@ -105,6 +162,7 @@ The integration listens to Uber Eats webhooks and emits structured Botpress even
 - **Delivery State Changed**
 
 These events can be used to:
+
 - Trigger workflows when new orders arrive
 - Update conversations when delivery status changes
 - Notify operators of failures or required actions
@@ -134,6 +192,7 @@ Webhook requests are authenticated using Uber’s HMAC signature mechanism.
 ## Changelog
 
 ### 0.1.0
+
 - Initial release
 - Implemented order retrieval and management actions
 - Implemented webhook event handling
