@@ -39,15 +39,15 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
 }
 
 export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
-  integrationProps.register = wrapFunction(integrationProps.register, config)
-  integrationProps.unregister = wrapFunction(integrationProps.unregister, config)
-  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config)
+  integrationProps.register = wrapFunction(integrationProps.register, config, 'register')
+  integrationProps.unregister = wrapFunction(integrationProps.unregister, config, 'unregister')
+  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config, 'handler')
 
   if (integrationProps.actions) {
     for (const actionType of Object.keys(integrationProps.actions)) {
       const actionFn = integrationProps.actions[actionType]
       if (typeof actionFn === 'function') {
-        integrationProps.actions[actionType] = wrapFunction(actionFn, config)
+        integrationProps.actions[actionType] = wrapFunction(actionFn, config, actionType)
       }
     }
   }
@@ -59,7 +59,7 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
       Object.keys(channel.messages).forEach((messageType) => {
         const messageFn = channel.messages[messageType]
         if (typeof messageFn === 'function') {
-          channel.messages[messageType] = wrapFunction(messageFn, config)
+          channel.messages[messageType] = wrapFunction(messageFn, config, channelName)
         }
       })
     }
@@ -67,7 +67,7 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
   return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig) {
+function wrapFunction(fn: Function, config: PostHogConfig, functionName: string) {
   return async (...args: any[]) => {
     try {
       return await fn(...args)
@@ -84,7 +84,7 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
           distinctId: distinctId ?? 'no id',
           event: 'unhandled_error',
           properties: {
-            from: fn.name,
+            from: functionName,
             integrationName: config.integrationName,
             integrationVersion: config.integrationVersion,
             errMsg,
