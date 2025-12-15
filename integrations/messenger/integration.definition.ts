@@ -7,7 +7,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
-export const INTEGRATION_VERSION = '5.0.4'
+export const INTEGRATION_VERSION = '5.0.5'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
