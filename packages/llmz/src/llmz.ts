@@ -444,10 +444,7 @@ const executeIteration = async ({
     stopSequences: ctx.version.getStopTokens(),
   })
 
-  const out =
-    output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
-      ? output.output.choices[0].content
-      : null
+  const out = typeof output.output.choices?.[0]?.content === 'string' ? output.output.choices[0].content : null
 
   if (!out) {
     throw new CognitiveError('LLM did not return any text output')
