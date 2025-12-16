@@ -47,7 +47,7 @@ export default new sdk.IntegrationDefinition({
     },
   },
   __advanced: {
-    useLegacyZuiTransformer: false,
+    useLegacyZuiTransformer: true,
   },
 })
   .extend(readable, ({ entities }) => ({

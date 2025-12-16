@@ -1344,7 +1344,13 @@
                                 "required": ["type", "action_id"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 5,
                           "type": "array"
@@ -1412,7 +1418,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "type": "array"
@@ -2092,7 +2104,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "hint": {
                           "additionalProperties": false,
@@ -2810,7 +2828,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "fields": {
                           "items": {
@@ -2843,7 +2867,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "minItems": 1,
@@ -2879,7 +2909,13 @@
                               "required": ["type", "text"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "type": {
                           "const": "section",
@@ -2889,7 +2925,13 @@
                       "required": ["type"],
                       "type": "object"
                     }
-                  ]
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "discriminator": "type",
+                      "typeName": "ZodDiscriminatedUnion"
+                    }
+                  }
                 },
                 "maxItems": 50,
                 "type": "array"
@@ -3860,7 +3902,13 @@
                                 "required": ["type", "action_id"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 5,
                           "type": "array"
@@ -3928,7 +3976,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "type": "array"
@@ -4608,7 +4662,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "hint": {
                           "additionalProperties": false,
@@ -5326,7 +5386,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "fields": {
                           "items": {
@@ -5359,7 +5425,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "minItems": 1,
@@ -5395,7 +5467,13 @@
                               "required": ["type", "text"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "type": {
                           "const": "section",
@@ -5405,7 +5483,13 @@
                       "required": ["type"],
                       "type": "object"
                     }
-                  ]
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "discriminator": "type",
+                      "typeName": "ZodDiscriminatedUnion"
+                    }
+                  }
                 },
                 "maxItems": 50,
                 "type": "array"
@@ -6384,7 +6468,13 @@
                                 "required": ["type", "action_id"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 5,
                           "type": "array"
@@ -6452,7 +6542,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "type": "array"
@@ -7132,7 +7228,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "hint": {
                           "additionalProperties": false,
@@ -7850,7 +7952,13 @@
                               "required": ["type", "action_id"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "fields": {
                           "items": {
@@ -7883,7 +7991,13 @@
                                 "required": ["type", "text"],
                                 "type": "object"
                               }
-                            ]
+                            ],
+                            "x-zui": {
+                              "def": {
+                                "discriminator": "type",
+                                "typeName": "ZodDiscriminatedUnion"
+                              }
+                            }
                           },
                           "maxItems": 10,
                           "minItems": 1,
@@ -7919,7 +8033,13 @@
                               "required": ["type", "text"],
                               "type": "object"
                             }
-                          ]
+                          ],
+                          "x-zui": {
+                            "def": {
+                              "discriminator": "type",
+                              "typeName": "ZodDiscriminatedUnion"
+                            }
+                          }
                         },
                         "type": {
                           "const": "section",
@@ -7929,7 +8049,13 @@
                       "required": ["type"],
                       "type": "object"
                     }
-                  ]
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "discriminator": "type",
+                      "typeName": "ZodDiscriminatedUnion"
+                    }
+                  }
                 },
                 "maxItems": 50,
                 "type": "array"

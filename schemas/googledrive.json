@@ -1403,7 +1403,13 @@
                   "required": ["id", "name", "mimeType", "type"],
                   "type": "object"
                 }
-              ]
+              ],
+              "x-zui": {
+                "def": {
+                  "discriminator": "type",
+                  "typeName": "ZodDiscriminatedUnion"
+                }
+              }
             },
             "description": "Map of known files",
             "type": "object",

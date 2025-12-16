@@ -35,8 +35,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Data received from Make.com, will be the string `Accepted` if successful and no data is returned",
               "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                },
                 "title": "Response"
               }
             },

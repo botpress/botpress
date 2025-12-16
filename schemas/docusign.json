@@ -339,8 +339,10 @@
                         "type": "null"
                       }
                     ],
-                    "description": "The unix timestamp (milliseconds) that the selected account will be refreshed (Only when not explicitly selected in the config)",
                     "x-zui": {
+                      "def": {
+                        "typeName": "ZodNullable"
+                      },
                       "title": "Refresh At"
                     }
                   }
@@ -355,8 +357,10 @@
                 "type": "null"
               }
             ],
-            "description": "The docusign account's info",
             "x-zui": {
+              "def": {
+                "typeName": "ZodNullable"
+              },
               "title": "Account Info"
             }
           }
@@ -416,8 +420,10 @@
                 "type": "null"
               }
             ],
-            "description": "The parameters used for accessing the Docusign API and refreshing the access token",
             "x-zui": {
+              "def": {
+                "typeName": "ZodNullable"
+              },
               "title": "OAuth Parameters"
             }
           }

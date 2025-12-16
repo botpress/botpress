@@ -216,7 +216,12 @@
                 {
                   "type": "null"
                 }
-              ]
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
             },
             "resource_type": {
               "description": "The resource type of the user",

@@ -224,6 +224,6 @@ export default new IntegrationDefinition({
     },
   },
   __advanced: {
-    useLegacyZuiTransformer: false,
+    useLegacyZuiTransformer: true,
   },
 })
