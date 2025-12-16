@@ -1,0 +1,579 @@
+{
+  "actions": {
+    "generateBarChart": {
+      "description": "Generate a Bar chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "description": "The title of the Bar Chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Bar Chart Title"
+              }
+            },
+            "xAxisTitle": {
+              "description": "The title of the x axis",
+              "type": "string",
+              "x-zui": {
+                "title": "X Axis Title"
+              }
+            },
+            "xData": {
+              "description": "The data for the x axis",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "X Data"
+              }
+            },
+            "yAxisTitle": {
+              "description": "The title of the y axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Y Axis Title"
+              }
+            },
+            "yData": {
+              "description": "The data for the y axis",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Y Data"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Bar Chart"
+    },
+    "generateBubbleChart": {
+      "description": "Generate a bubble Chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "The data to plot",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "r": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["x", "y", "r"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Data"
+              }
+            },
+            "title": {
+              "description": "The title of the bubble chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Bubble Chart Title"
+              }
+            },
+            "xAxisTitle": {
+              "description": "The title of the x axis",
+              "type": "string",
+              "x-zui": {
+                "title": "X Axis Title"
+              }
+            },
+            "yAxisTitle": {
+              "description": "The title of the y axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Y Axis Title"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Bubble Chart"
+    },
+    "generateDoughnutChart": {
+      "description": "Generate a Doughnut Chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "The data to plot",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Data"
+              }
+            },
+            "labels": {
+              "description": "The labels for the data",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "title": {
+              "description": "The title of the doughnut chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Doughnut Chart Title"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Doughnut Chart"
+    },
+    "generateHorizontalBarChart": {
+      "description": "Generate a horizontal Chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "description": "The title of the bar chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Bar Chart Title"
+              }
+            },
+            "xAxisTitle": {
+              "description": "The title of the x axis",
+              "type": "string",
+              "x-zui": {
+                "title": "X Axis Title"
+              }
+            },
+            "xData": {
+              "description": "The data for the x axis",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "X Data"
+              }
+            },
+            "yAxisTitle": {
+              "description": "The title of the y axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Y Axis Title"
+              }
+            },
+            "yData": {
+              "description": "The data for the y axis",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Y Data"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Horizontal Bar Chart"
+    },
+    "generateLinePlot": {
+      "description": "Generate a line plot",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "description": "The title of the plot",
+              "type": "string",
+              "x-zui": {
+                "title": "Line Plot Title"
+              }
+            },
+            "xAxisTitle": {
+              "description": "The title of the x axis",
+              "type": "string",
+              "x-zui": {
+                "title": "X Axis Title"
+              }
+            },
+            "xData": {
+              "description": "The data for the x axis",
+              "items": {
+                "type": ["string", "number"],
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "X Data"
+              }
+            },
+            "yAxisTitle": {
+              "description": "The title of the y axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Y Axis Title"
+              }
+            },
+            "yData": {
+              "description": "the data for the y axis",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Y Data"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Line Plot"
+    },
+    "generatePieChart": {
+      "description": "Generate a pie chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "The data to plot",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Data"
+              }
+            },
+            "labels": {
+              "description": "The labels for the data",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "title": {
+              "description": "The title of the pie chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Pie Chart Title"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Pie Chart"
+    },
+    "generateRadarChart": {
+      "description": "Generate a radar Chart",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "axisTitle": {
+              "description": "The title of the axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Axis Title"
+              }
+            },
+            "data": {
+              "description": "The data to plot",
+              "items": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Data"
+              }
+            },
+            "labels": {
+              "description": "The labels for the data",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "title": {
+              "description": "The title of the radar chart",
+              "type": "string",
+              "x-zui": {
+                "title": "Radar Chart Title"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Radar Chart"
+    },
+    "generateScatterPlot": {
+      "description": "Generate a scatter plot",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "The data to plot",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "y": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["x", "y"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Data"
+              }
+            },
+            "title": {
+              "description": "The title of the scatter plot",
+              "type": "string",
+              "x-zui": {
+                "title": "Scatter Plot Title"
+              }
+            },
+            "xAxisTitle": {
+              "description": "The title of the x axis",
+              "type": "string",
+              "x-zui": {
+                "title": "X Axis Title"
+              }
+            },
+            "yAxisTitle": {
+              "description": "The title of the y axis",
+              "type": "string",
+              "x-zui": {
+                "title": "Y Axis Title"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "imageUrl": {
+              "description": "The url of the generated image",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Scatter Plot"
+    }
+  },
+  "description": "Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.",
+  "interfaces": {},
+  "name": "charts",
+  "version": "0.2.4"
+}

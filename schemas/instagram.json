@@ -1,0 +1,941 @@
+{
+  "actions": {
+    "getOrCreateConversationDm": {
+      "description": "Proactively create a conversation from a bot",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "conversation": {
+              "additionalProperties": false,
+              "description": "The conversation object fields",
+              "properties": {
+                "commentId": {
+                  "description": "The Instagram comment ID under which the direct message conversation was started",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Comment ID"
+                  }
+                },
+                "id": {
+                  "description": "The Instagram user ID of the user in the conversation",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "User ID"
+                  }
+                }
+              },
+              "required": ["id"],
+              "type": "object",
+              "x-zui": {
+                "title": "Conversation"
+              }
+            }
+          },
+          "required": ["conversation"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "name": "getOrCreateConversationDm",
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "description": "The Botpress ID of the created conversation",
+              "type": "string",
+              "x-zui": {
+                "title": "Conversation ID"
+              }
+            }
+          },
+          "required": ["conversationId"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Get or Create a Conversation"
+    },
+    "getOrCreateUser": {
+      "description": "Proactively create a user from a bot",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "email": {
+              "description": "The email of the user",
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "name": {
+              "description": "The name of the user",
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            },
+            "pictureUrl": {
+              "description": "The URL of the user profile picture",
+              "type": "string",
+              "x-zui": {
+                "title": "Picture URL"
+              }
+            },
+            "user": {
+              "additionalProperties": false,
+              "description": "The user object fields",
+              "properties": {
+                "id": {
+                  "description": "The Instagram user ID",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "ID"
+                  }
+                }
+              },
+              "required": ["id"],
+              "type": "object",
+              "x-zui": {
+                "title": "User"
+              }
+            }
+          },
+          "required": ["user"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "userId": {
+              "description": "The Botpress ID of the created user",
+              "type": "string",
+              "x-zui": {
+                "title": "User ID"
+              }
+            }
+          },
+          "required": ["userId"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Get or Create a User"
+    }
+  },
+  "channels": {
+    "channel": {
+      "conversation": {
+        "tags": {
+          "commentId": {
+            "description": "The Instagram comment ID under which the direct message conversation was started",
+            "title": "Comment ID"
+          },
+          "id": {
+            "description": "The Instagram user ID of the user in the conversation",
+            "title": "Conversation ID"
+          },
+          "lastCommentId": {
+            "description": "The Instagram comment ID of the last comment from which a direct message was sent",
+            "title": "Last Comment ID"
+          }
+        }
+      },
+      "description": "Direct message conversation between an Instagram user and the bot",
+      "message": {
+        "tags": {
+          "commentId": {
+            "description": "The Instagram comment ID under which the direct message conversation was started",
+            "title": "Comment ID"
+          },
+          "id": {
+            "description": "The Instagram message ID",
+            "title": "Message ID"
+          },
+          "recipientId": {
+            "description": "The Instagram user ID of the message recipient",
+            "title": "Recipient ID"
+          },
+          "senderId": {
+            "description": "The Instagram user ID of the message sender",
+            "title": "Sender ID"
+          }
+        }
+      },
+      "messages": {
+        "audio": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "audioUrl": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              },
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              }
+            },
+            "required": ["audioUrl"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "bloc": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "text": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["text"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "text",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "imageUrl": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["imageUrl"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "image",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "audioUrl": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["audioUrl"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "audio",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "videoUrl": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["videoUrl"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "video",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "fileUrl": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["fileUrl"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "file",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "address": {
+                              "type": "string",
+                              "x-zui": {}
+                            },
+                            "latitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "x-zui": {}
+                            },
+                            "title": {
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["latitude", "longitude"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "location",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "markdown": {
+                              "minLength": 1,
+                              "type": "string",
+                              "x-zui": {}
+                            }
+                          },
+                          "required": ["markdown"],
+                          "type": "object",
+                          "x-zui": {}
+                        },
+                        "type": {
+                          "const": "markdown",
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object",
+                      "x-zui": {}
+                    }
+                  ],
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "card": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": {
+                      "enum": ["postback", "url", "say"],
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "label": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object",
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              },
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              },
+              "subtitle": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["title", "actions"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "carousel": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": {
+                            "enum": ["postback", "url", "say"],
+                            "type": "string",
+                            "x-zui": {}
+                          },
+                          "label": {
+                            "minLength": 1,
+                            "type": "string",
+                            "x-zui": {}
+                          },
+                          "value": {
+                            "minLength": 1,
+                            "type": "string",
+                            "x-zui": {}
+                          }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object",
+                        "x-zui": {}
+                      },
+                      "type": "array",
+                      "x-zui": {}
+                    },
+                    "imageUrl": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "subtitle": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "title": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object",
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              }
+            },
+            "required": ["items"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "choice": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object",
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string",
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object",
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "image": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["imageUrl"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "location": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "latitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "longitude": {
+                "type": "number",
+                "x-zui": {}
+              },
+              "title": {
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "text": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "type": "object",
+            "x-zui": {}
+          }
+        },
+        "video": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "commentId": {
+                "description": "The Instagram comment ID under which the direct message conversation was started",
+                "type": "string",
+                "x-zui": {
+                  "title": "Comment ID"
+                }
+              },
+              "videoUrl": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["videoUrl"],
+            "type": "object",
+            "x-zui": {}
+          }
+        }
+      },
+      "title": "Direct Message"
+    },
+    "commentReplies": {
+      "conversation": {
+        "tags": {
+          "id": {
+            "description": "The Instagram comment ID under which the reply was posted",
+            "title": "Comment ID"
+          },
+          "postId": {
+            "description": "The Instagram post ID where the comment was posted",
+            "title": "Post ID"
+          },
+          "userId": {
+            "description": "The Instagram user ID of the user who sent the comment",
+            "title": "User ID"
+          }
+        }
+      },
+      "description": "Replies to comments on an Instagram post",
+      "message": {
+        "tags": {
+          "id": {
+            "description": "The unique ID of the comment",
+            "title": "Comment ID"
+          },
+          "postId": {
+            "description": "The Instagram post ID where the comment was posted",
+            "title": "Post ID"
+          }
+        }
+      },
+      "messages": {
+        "text": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "type": "object",
+            "x-zui": {}
+          }
+        }
+      },
+      "title": "Comment Replies"
+    }
+  },
+  "description": "Automate interactions, manage comments, and send/receive messages all in real-time.",
+  "entities": {
+    "dm": {
+      "description": "An Instagram direct message conversation",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "description": "The conversation object fields",
+        "properties": {
+          "commentId": {
+            "description": "The Instagram comment ID under which the direct message conversation was started",
+            "type": "string",
+            "x-zui": {
+              "title": "Comment ID"
+            }
+          },
+          "id": {
+            "description": "The Instagram user ID of the user in the conversation",
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          }
+        },
+        "required": ["id"],
+        "type": "object",
+        "x-zui": {
+          "title": "Conversation"
+        }
+      },
+      "title": "Direct Message"
+    },
+    "user": {
+      "description": "An Instagram user",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "description": "The user object fields",
+        "properties": {
+          "id": {
+            "description": "The Instagram user ID",
+            "type": "string",
+            "x-zui": {
+              "title": "ID"
+            }
+          }
+        },
+        "required": ["id"],
+        "type": "object",
+        "x-zui": {
+          "title": "User"
+        }
+      },
+      "title": "User"
+    }
+  },
+  "events": {},
+  "interfaces": {
+    "proactive-conversation<dm>": {
+      "actions": {
+        "getOrCreateConversation": {
+          "name": "getOrCreateConversationDm"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "conversation": {
+          "name": "dm"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "proactive-conversation",
+      "version": "0.0.4"
+    },
+    "proactive-user<user>": {
+      "actions": {
+        "getOrCreateUser": {
+          "name": "getOrCreateUser"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "user": {
+          "name": "user"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "proactive-user",
+      "version": "0.0.3"
+    }
+  },
+  "name": "instagram",
+  "states": {
+    "oauth": {
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "description": "Access token used to authenticate requests to the Instagram API",
+            "type": "string",
+            "x-zui": {
+              "title": "Access token"
+            }
+          },
+          "expirationTime": {
+            "description": "The time when the access token expires, expressed as a Unix timestamp (epoch) in milliseconds",
+            "type": "number",
+            "x-zui": {
+              "title": "Expiration time"
+            }
+          },
+          "instagramId": {
+            "description": "The Instagram account ID associated with the access token",
+            "type": "string",
+            "x-zui": {
+              "title": "Instagram account ID"
+            }
+          }
+        },
+        "required": ["accessToken", "instagramId", "expirationTime"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Instagram",
+  "user": {
+    "tags": {
+      "id": {
+        "description": "The Instagram user ID",
+        "title": "User ID"
+      }
+    }
+  },
+  "version": "4.1.4"
+}

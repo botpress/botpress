@@ -1,0 +1,1669 @@
+{
+  "actions": {
+    "createPost": {
+      "description": "Create a post on feature base",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "authorName": {
+              "description": "Used when you provide an email. If the email is not associated with an existing user, a new user will be created with this name.",
+              "type": "string",
+              "x-zui": {
+                "title": "Author Name"
+              }
+            },
+            "category": {
+              "description": "The board (a.k.a category) of the submission.",
+              "type": "string",
+              "x-zui": {
+                "title": "Category"
+              }
+            },
+            "commentsAllowed": {
+              "description": "Flag indicating whether comments are allowed on the submission.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Comments Allowed"
+              }
+            },
+            "content": {
+              "description": "The content of the submission. Can be an empty string.",
+              "type": "string",
+              "x-zui": {
+                "title": "Content"
+              }
+            },
+            "date": {
+              "description": "Set the post creation date.",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "Date"
+              }
+            },
+            "email": {
+              "description": "The email of the user submitting the post. Will create a new user if the email is not associated with an existing user.",
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "status": {
+              "description": "The status of the submission.",
+              "type": "string",
+              "x-zui": {
+                "title": "Status"
+              }
+            },
+            "tags": {
+              "description": "The tags associated with the submission. Needs to be an array of tag names.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Tags"
+              }
+            },
+            "title": {
+              "description": "The title of the submission. It must be at least 2 characters long.",
+              "type": "string",
+              "x-zui": {
+                "title": "Title"
+              }
+            }
+          },
+          "required": ["title", "category"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "submission": {
+              "additionalProperties": false,
+              "description": "Represent the created post.",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "x-zui": {}
+                }
+              },
+              "required": ["id"],
+              "type": "object",
+              "x-zui": {
+                "title": "Submission"
+              }
+            }
+          },
+          "required": ["submission"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Create a post"
+    },
+    "deletePost": {
+      "description": "Delete a post",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "The id of the submission.",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            }
+          },
+          "required": ["id"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Delete post"
+    },
+    "getBoard": {
+      "description": "Get a board by ID",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "The unique identifier of the board to retrieve.",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "description": "A single board",
+          "properties": {
+            "category": {
+              "description": "The name of the board/category. Example: \"Feature Requests\"",
+              "type": "string",
+              "x-zui": {
+                "title": "Category"
+              }
+            },
+            "customInputFields": {
+              "description": "An array of custom input fields ids that apply to this board.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Custom Input Fields"
+              }
+            },
+            "defaultAuthorOnly": {
+              "description": "Flag indicating whether posts in this board are visible to the author only by default.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Default Author Only"
+              }
+            },
+            "defaultCompanyOnly": {
+              "description": "Flag indicating whether posts in this board are visible to the company only by default.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Default Company Only"
+              }
+            },
+            "disableFollowUpQuestions": {
+              "description": "Flag indicating whether follow-up questions are disabled for this board.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Disable Follow Up Questions"
+              }
+            },
+            "disablePostCreation": {
+              "description": "Flag indicating whether post creation is disabled for this board.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Disable Post Creation"
+              }
+            },
+            "hiddenFromRoles": {
+              "description": "An array of roles that cannot see this board.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Hidden From Roles"
+              }
+            },
+            "id": {
+              "description": "The unique identifier of the board.",
+              "type": "string",
+              "x-zui": {
+                "title": "id"
+              }
+            },
+            "private": {
+              "description": "Flag indicating whether this board is private.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Private"
+              }
+            },
+            "roles": {
+              "description": "An array of roles that have access to this board.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Roles"
+              }
+            },
+            "segmentIds": {
+              "description": "An array of segment IDs associated with this board.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Segment Ids"
+              }
+            }
+          },
+          "required": ["id", "category", "segmentIds", "roles", "hiddenFromRoles", "customInputFields"],
+          "type": "object",
+          "x-zui": {
+            "title": "Board"
+          }
+        }
+      },
+      "title": "Get a board"
+    },
+    "getComments": {
+      "description": "Get a comments thread",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "changelogId": {
+              "description": "The id of the changelog to get comments for. Accepts both ObjectId and slug. Example: \"65f5f3c037fc63b7d43d0f16\" or \"my-changelog-slug\"",
+              "type": "string",
+              "x-zui": {
+                "title": "changelogId"
+              }
+            },
+            "commentThreadId": {
+              "description": "Given a specific comment id, this will return all comments in the thread with the root comment being the comment with the given id.",
+              "type": "string",
+              "x-zui": {
+                "title": "Comment Thread Id"
+              }
+            },
+            "inReview": {
+              "description": "Filter comments by whether they are in review. Set to true to get only comments that are in review.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "In Review"
+              }
+            },
+            "limit": {
+              "description": "Number of results per page. Default is 10.",
+              "type": "number",
+              "x-zui": {
+                "title": "Limit"
+              }
+            },
+            "nextToken": {
+              "description": "Page number. Starts at 1",
+              "type": "string",
+              "x-zui": {
+                "title": "Next Token"
+              }
+            },
+            "page": {
+              "description": "Page number. Default is 1.",
+              "type": "number",
+              "x-zui": {
+                "title": "Page"
+              }
+            },
+            "privacy": {
+              "description": "Filter comments by privacy setting. Allowed values: \"public\", \"private\", \"all\"",
+              "enum": ["public", "private", "all"],
+              "type": "string",
+              "x-zui": {
+                "title": "Privacy"
+              }
+            },
+            "sortBy": {
+              "description": "Sort order of the results.",
+              "enum": ["best", "top", "new", "old"],
+              "type": "string",
+              "x-zui": {
+                "title": "SortBy"
+              }
+            },
+            "submissionId": {
+              "description": "The id of the submission to get comments for.",
+              "type": "string",
+              "x-zui": {
+                "title": "SubmissionId"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "results": {
+              "description": "A list of comments.",
+              "items": {
+                "additionalProperties": false,
+                "description": "Represent a single comment.",
+                "properties": {
+                  "author": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "authorId": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "authorPicture": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "downvoted": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "downvotes": {
+                    "type": "number",
+                    "x-zui": {}
+                  },
+                  "emailSent": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "inReview": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "isDeleted": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "isPrivate": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "isSpam": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "organization": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "parentComment": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "path": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "pinned": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "sendNotification": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "submission": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "upvoted": {
+                    "type": "boolean",
+                    "x-zui": {}
+                  },
+                  "upvotes": {
+                    "type": "number",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id"],
+                "type": "object",
+                "x-zui": {
+                  "title": "Comment"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Comments"
+              }
+            }
+          },
+          "required": ["results"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Get Comments"
+    },
+    "listBoards": {
+      "description": "List all boards",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "results": {
+              "description": "An array of boards.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "category": {
+                    "description": "The name of the board/category. Example: \"Feature Requests\"",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Category"
+                    }
+                  },
+                  "customInputFields": {
+                    "description": "An array of custom input fields ids that apply to this board.",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Custom Input Fields"
+                    }
+                  },
+                  "defaultAuthorOnly": {
+                    "description": "Flag indicating whether posts in this board are visible to the author only by default.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Default Author Only"
+                    }
+                  },
+                  "defaultCompanyOnly": {
+                    "description": "Flag indicating whether posts in this board are visible to the company only by default.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Default Company Only"
+                    }
+                  },
+                  "disableFollowUpQuestions": {
+                    "description": "Flag indicating whether follow-up questions are disabled for this board.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Disable Follow Up Questions"
+                    }
+                  },
+                  "disablePostCreation": {
+                    "description": "Flag indicating whether post creation is disabled for this board.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Disable Post Creation"
+                    }
+                  },
+                  "hiddenFromRoles": {
+                    "description": "An array of roles that cannot see this board.",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Hidden From Roles"
+                    }
+                  },
+                  "id": {
+                    "description": "The unique identifier of the board.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "id"
+                    }
+                  },
+                  "private": {
+                    "description": "Flag indicating whether this board is private.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Private"
+                    }
+                  },
+                  "roles": {
+                    "description": "An array of roles that have access to this board.",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Roles"
+                    }
+                  },
+                  "segmentIds": {
+                    "description": "An array of segment IDs associated with this board.",
+                    "items": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Segment Ids"
+                    }
+                  }
+                },
+                "required": ["id", "category", "segmentIds", "roles", "hiddenFromRoles", "customInputFields"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Results"
+              }
+            }
+          },
+          "required": ["results"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "List boards"
+    },
+    "listPosts": {
+      "description": "List all posts",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "description": "Filter posts by providing an array of category(board) names.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Category"
+              }
+            },
+            "endDate": {
+              "description": "Get posts created before a specific date.",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "End Date"
+              }
+            },
+            "id": {
+              "description": "Find submission by it's id.",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            },
+            "limit": {
+              "description": "Number of results per page",
+              "type": "number",
+              "x-zui": {
+                "title": "Limit"
+              }
+            },
+            "nextToken": {
+              "description": "Page number. Starts at 1",
+              "type": "string",
+              "x-zui": {
+                "title": "Next Token"
+              }
+            },
+            "page": {
+              "description": "Page number. Starts at 1",
+              "type": "number",
+              "x-zui": {
+                "title": "Page"
+              }
+            },
+            "q": {
+              "description": "Search for posts by title or content.",
+              "type": "string",
+              "x-zui": {
+                "title": "Query"
+              }
+            },
+            "sortBy": {
+              "description": "Sort posts by a specific attribute.",
+              "type": "string",
+              "x-zui": {
+                "title": "Sort By"
+              }
+            },
+            "startDate": {
+              "description": "Get posts created after a specific date.",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date"
+              }
+            },
+            "status": {
+              "description": "Filter posts by status ids.",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Status"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "description": "Use the token to fetch the next page of posts.",
+              "type": "string",
+              "x-zui": {
+                "title": "Next Token"
+              }
+            },
+            "results": {
+              "description": "An array of posts.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "author": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "authorId": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "organization": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "postCategory": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["category"],
+                    "type": "object",
+                    "x-zui": {}
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["title", "content", "author", "authorId", "organization", "postCategory", "id"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Results"
+              }
+            }
+          },
+          "required": ["results"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "List posts"
+    },
+    "updatePost": {
+      "description": "Update a post",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "category": {
+              "description": "The category of the submission. Example: \"💡 Feature Request\"",
+              "type": "string",
+              "x-zui": {
+                "title": "Category"
+              }
+            },
+            "commentsAllowed": {
+              "description": "Flag indicating whether comments are allowed on the submission. Example: true",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Comments Allowed"
+              }
+            },
+            "content": {
+              "description": "The HTML content of the post. Example: \"<p>It would be great to have dark mode support for better viewing at night.</p>\"",
+              "type": "string",
+              "x-zui": {
+                "title": "Content"
+              }
+            },
+            "date": {
+              "description": "The post creation date.",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "Date"
+              }
+            },
+            "id": {
+              "description": "The id of the submission.",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            },
+            "inReview": {
+              "description": "Flag indicating whether the submission is in review. In review posts are not visible to users.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "In Review"
+              }
+            },
+            "sendStatusUpdateEmail": {
+              "description": "Flag indicating whether to send a status update email to the upvoters. Default: false",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Send Status Update Email"
+              }
+            },
+            "status": {
+              "description": "The status of the submission. Example: \"In Progress\"",
+              "type": "string",
+              "x-zui": {
+                "title": "Status"
+              }
+            },
+            "tags": {
+              "description": "The tags of the submission. Example: [\"tag1\", \"tag2\"]",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Tags"
+              }
+            },
+            "title": {
+              "description": "The title of the post. Example: \"Add dark mode support\"",
+              "type": "string",
+              "x-zui": {
+                "title": "Title"
+              }
+            }
+          },
+          "required": ["id"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Update post"
+    }
+  },
+  "channels": {
+    "comments": {
+      "conversation": {
+        "tags": {
+          "rootCommentId": {
+            "description": "The Feature Base ID of the root comment of the reply chain",
+            "title": "Root Comment ID"
+          },
+          "submissionId": {
+            "description": "The Feature Base ID of the submission (post) where the comment was posted",
+            "title": "Submission ID"
+          }
+        }
+      },
+      "description": "Comment section of a post",
+      "message": {
+        "tags": {
+          "id": {
+            "description": "The Feature Base ID of the comment",
+            "title": "ID"
+          }
+        }
+      },
+      "messages": {
+        "text": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "type": "object",
+            "x-zui": {}
+          }
+        }
+      },
+      "title": "Comments"
+    }
+  },
+  "description": "Integration with Feature Base for Botpress",
+  "events": {
+    "postCreated": {
+      "description": "A post was created on a board.",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "description": "Date when the event was created",
+            "type": "string",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "data": {
+            "additionalProperties": false,
+            "description": "Event data",
+            "properties": {
+              "item": {
+                "additionalProperties": false,
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Category Id"
+                    }
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Content"
+                    }
+                  },
+                  "date": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Date"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Id"
+                    }
+                  },
+                  "postCategory": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Category"
+                    }
+                  },
+                  "postStatus": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "type": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Status"
+                    }
+                  },
+                  "slug": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Slug"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Type"
+                    }
+                  },
+                  "user": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "profilePicture": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "User"
+                    }
+                  }
+                },
+                "type": "object",
+                "x-zui": {}
+              }
+            },
+            "required": ["item"],
+            "type": "object",
+            "x-zui": {
+              "title": "Data"
+            }
+          },
+          "deliveryAttempts": {
+            "description": "The number of times the event tried to be delivered",
+            "type": "number",
+            "x-zui": {
+              "title": "Delivery Attempts"
+            }
+          },
+          "deliveryStatus": {
+            "description": "The status of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Delivery Status"
+            }
+          },
+          "firstSentAt": {
+            "description": "First delivery time",
+            "type": "string",
+            "x-zui": {
+              "title": "First Sent At"
+            }
+          },
+          "id": {
+            "description": "ID of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Id"
+            }
+          },
+          "organizationId": {
+            "description": "Organization associated with the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Organization Id"
+            }
+          },
+          "topic": {
+            "const": "post.created",
+            "description": "The topic of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Topic"
+            }
+          },
+          "type": {
+            "description": "The type of event",
+            "type": "string",
+            "x-zui": {
+              "title": "Type"
+            }
+          },
+          "webhookId": {
+            "description": "The ID of the webhook",
+            "type": "string",
+            "x-zui": {
+              "title": "Webhook Id"
+            }
+          }
+        },
+        "required": ["type", "organizationId", "id", "topic", "data"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Post Created"
+    },
+    "postDeleted": {
+      "description": "A post was deleted on a board.",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "description": "Date when the event was created",
+            "type": "string",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "data": {
+            "additionalProperties": false,
+            "description": "Event data",
+            "properties": {
+              "item": {
+                "additionalProperties": false,
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Category Id"
+                    }
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Content"
+                    }
+                  },
+                  "date": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Date"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Id"
+                    }
+                  },
+                  "postCategory": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Category"
+                    }
+                  },
+                  "postStatus": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "type": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Status"
+                    }
+                  },
+                  "slug": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Slug"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Type"
+                    }
+                  },
+                  "user": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "profilePicture": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "User"
+                    }
+                  }
+                },
+                "type": "object",
+                "x-zui": {}
+              }
+            },
+            "required": ["item"],
+            "type": "object",
+            "x-zui": {
+              "title": "Data"
+            }
+          },
+          "deliveryAttempts": {
+            "description": "The number of times the event tried to be delivered",
+            "type": "number",
+            "x-zui": {
+              "title": "Delivery Attempts"
+            }
+          },
+          "deliveryStatus": {
+            "description": "The status of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Delivery Status"
+            }
+          },
+          "firstSentAt": {
+            "description": "First delivery time",
+            "type": "string",
+            "x-zui": {
+              "title": "First Sent At"
+            }
+          },
+          "id": {
+            "description": "ID of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Id"
+            }
+          },
+          "organizationId": {
+            "description": "Organization associated with the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Organization Id"
+            }
+          },
+          "topic": {
+            "const": "post.deleted",
+            "description": "The topic of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Topic"
+            }
+          },
+          "type": {
+            "description": "The type of event",
+            "type": "string",
+            "x-zui": {
+              "title": "Type"
+            }
+          },
+          "webhookId": {
+            "description": "The ID of the webhook",
+            "type": "string",
+            "x-zui": {
+              "title": "Webhook Id"
+            }
+          }
+        },
+        "required": ["type", "organizationId", "id", "topic", "data"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Post Deleted"
+    },
+    "postUpdated": {
+      "description": "A post was updated on a board.",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "description": "Date when the event was created",
+            "type": "string",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "data": {
+            "additionalProperties": false,
+            "description": "Event data",
+            "properties": {
+              "changes": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "x-zui": {}
+                    },
+                    "newValue": {
+                      "x-zui": {}
+                    },
+                    "oldValue": {
+                      "x-zui": {}
+                    }
+                  },
+                  "required": ["field"],
+                  "type": "object",
+                  "x-zui": {}
+                },
+                "type": "array",
+                "x-zui": {}
+              },
+              "item": {
+                "additionalProperties": false,
+                "properties": {
+                  "categoryId": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Category Id"
+                    }
+                  },
+                  "content": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Content"
+                    }
+                  },
+                  "date": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Date"
+                    }
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Id"
+                    }
+                  },
+                  "postCategory": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Category"
+                    }
+                  },
+                  "postStatus": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "type": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Post Status"
+                    }
+                  },
+                  "slug": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Slug"
+                    }
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Title"
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Type"
+                    }
+                  },
+                  "user": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "profilePicture": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "User"
+                    }
+                  }
+                },
+                "type": "object",
+                "x-zui": {}
+              }
+            },
+            "required": ["item", "changes"],
+            "type": "object",
+            "x-zui": {
+              "title": "Data"
+            }
+          },
+          "deliveryAttempts": {
+            "description": "The number of times the event tried to be delivered",
+            "type": "number",
+            "x-zui": {
+              "title": "Delivery Attempts"
+            }
+          },
+          "deliveryStatus": {
+            "description": "The status of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Delivery Status"
+            }
+          },
+          "firstSentAt": {
+            "description": "First delivery time",
+            "type": "string",
+            "x-zui": {
+              "title": "First Sent At"
+            }
+          },
+          "id": {
+            "description": "ID of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Id"
+            }
+          },
+          "organizationId": {
+            "description": "Organization associated with the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Organization Id"
+            }
+          },
+          "topic": {
+            "const": "post.updated",
+            "description": "The topic of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Topic"
+            }
+          },
+          "type": {
+            "description": "The type of event",
+            "type": "string",
+            "x-zui": {
+              "title": "Type"
+            }
+          },
+          "webhookId": {
+            "description": "The ID of the webhook",
+            "type": "string",
+            "x-zui": {
+              "title": "Webhook Id"
+            }
+          }
+        },
+        "required": ["type", "organizationId", "id", "topic", "data"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Post Updated"
+    },
+    "postVoted": {
+      "description": "A post was voted on a board.",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "description": "Date when the event was created",
+            "type": "string",
+            "x-zui": {
+              "title": "Created At"
+            }
+          },
+          "data": {
+            "additionalProperties": false,
+            "description": "Event data",
+            "properties": {
+              "item": {
+                "additionalProperties": false,
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "submissionId": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "user": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "profilePicture": {
+                        "type": "string",
+                        "x-zui": {}
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object",
+                    "x-zui": {}
+                  }
+                },
+                "type": "object",
+                "x-zui": {}
+              }
+            },
+            "required": ["item"],
+            "type": "object",
+            "x-zui": {
+              "title": "Data"
+            }
+          },
+          "deliveryAttempts": {
+            "description": "The number of times the event tried to be delivered",
+            "type": "number",
+            "x-zui": {
+              "title": "Delivery Attempts"
+            }
+          },
+          "deliveryStatus": {
+            "description": "The status of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Delivery Status"
+            }
+          },
+          "firstSentAt": {
+            "description": "First delivery time",
+            "type": "string",
+            "x-zui": {
+              "title": "First Sent At"
+            }
+          },
+          "id": {
+            "description": "ID of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Id"
+            }
+          },
+          "organizationId": {
+            "description": "Organization associated with the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Organization Id"
+            }
+          },
+          "topic": {
+            "const": "post.voted",
+            "description": "The topic of the event",
+            "type": "string",
+            "x-zui": {
+              "title": "Topic"
+            }
+          },
+          "type": {
+            "description": "The type of event",
+            "type": "string",
+            "x-zui": {
+              "title": "Type"
+            }
+          },
+          "webhookId": {
+            "description": "The ID of the webhook",
+            "type": "string",
+            "x-zui": {
+              "title": "Webhook Id"
+            }
+          }
+        },
+        "required": ["type", "organizationId", "id", "topic", "data"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Post voted"
+    }
+  },
+  "interfaces": {},
+  "name": "feature-base",
+  "title": "Feature Base",
+  "user": {
+    "tags": {
+      "id": {
+        "description": "The Feature Base ID of the user",
+        "title": "ID"
+      }
+    }
+  },
+  "version": "1.0.0"
+}

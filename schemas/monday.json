@@ -1,0 +1,49 @@
+{
+  "actions": {
+    "createItem": {
+      "description": "Create a new item.",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "boardId": {
+              "description": "The board's unique identifier. The new item will be added to this board.",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            },
+            "itemName": {
+              "description": "The new item's name.",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            }
+          },
+          "required": ["boardId", "itemName"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Create Item"
+    }
+  },
+  "description": "Manage items in Monday boards.",
+  "interfaces": {},
+  "name": "monday",
+  "states": {},
+  "title": "Monday",
+  "version": "1.0.0"
+}

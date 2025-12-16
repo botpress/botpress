@@ -1,0 +1,1149 @@
+{
+  "actions": {
+    "createRecord": {
+      "description": "Create a new record in an Attio object",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "values": {
+                  "description": "Array of attribute slug/ID to value(s)",
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attribute": {
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Attribute"
+                        }
+                      },
+                      "value": {
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Value"
+                        }
+                      }
+                    },
+                    "required": ["attribute", "value"],
+                    "type": "object",
+                    "x-zui": {}
+                  },
+                  "type": "array",
+                  "x-zui": {
+                    "title": "Values"
+                  }
+                }
+              },
+              "required": ["values"],
+              "type": "object",
+              "x-zui": {}
+            },
+            "object": {
+              "description": "Object slug or UUID",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["object", "data"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "description": "The created record",
+              "properties": {
+                "created_at": {
+                  "description": "RFC3339 timestamp when the record was created",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "id": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "object_id": {
+                      "description": "The Attio object ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Object ID"
+                      }
+                    },
+                    "workspace_id": {
+                      "description": "The Attio workspace ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Workspace ID"
+                      }
+                    }
+                  },
+                  "required": ["workspace_id", "object_id"],
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Record Identifier"
+                  }
+                },
+                "values": {
+                  "additionalProperties": {
+                    "x-zui": {}
+                  },
+                  "description": "Map of attribute slug or ID to its value (single value or array of values)",
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Values"
+                  }
+                },
+                "web_url": {
+                  "description": "URL of the record in Attio UI",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Web URL"
+                  }
+                }
+              },
+              "required": ["id", "created_at", "web_url", "values"],
+              "type": "object",
+              "x-zui": {
+                "title": "Record"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "Create Record Response"
+          }
+        }
+      },
+      "title": "Create Record"
+    },
+    "getObject": {
+      "description": "Get a single Attio object by slug or ID",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "object": {
+              "description": "Object slug or UUID",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["object"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "description": "The requested object",
+              "properties": {
+                "api_slug": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "created_at": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "id": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "object_id": {
+                      "description": "The Attio object ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Object ID"
+                      }
+                    },
+                    "workspace_id": {
+                      "description": "The Attio workspace ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Workspace ID"
+                      }
+                    }
+                  },
+                  "required": ["workspace_id", "object_id"],
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Record Identifier"
+                  }
+                },
+                "plural_noun": {
+                  "type": "string",
+                  "x-zui": {}
+                },
+                "singular_noun": {
+                  "type": "string",
+                  "x-zui": {}
+                }
+              },
+              "type": "object",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "Get Object Response"
+          }
+        }
+      },
+      "title": "Get Object"
+    },
+    "getRecord": {
+      "description": "Get a single record by object and record ID",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "additionalProperties": false,
+              "properties": {
+                "object_id": {
+                  "description": "The Attio object ID",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Object ID"
+                  }
+                },
+                "record_id": {
+                  "description": "Record UUID",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Record ID"
+                  }
+                },
+                "workspace_id": {
+                  "description": "The Attio workspace ID",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Workspace ID"
+                  }
+                }
+              },
+              "required": ["workspace_id", "object_id", "record_id"],
+              "type": "object",
+              "x-zui": {
+                "title": "Record Identifier"
+              }
+            },
+            "object": {
+              "description": "Object slug or UUID",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["object", "id"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "created_at": {
+                  "description": "RFC3339 timestamp when the record was created",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "id": {
+                  "additionalProperties": false,
+                  "description": "The fetched identifier",
+                  "properties": {
+                    "object_id": {
+                      "description": "The Attio object ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Object ID"
+                      }
+                    },
+                    "workspace_id": {
+                      "description": "The Attio workspace ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Workspace ID"
+                      }
+                    }
+                  },
+                  "required": ["workspace_id", "object_id"],
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Identifier"
+                  }
+                },
+                "values": {
+                  "additionalProperties": {
+                    "x-zui": {}
+                  },
+                  "description": "Map of attribute slug/ID to value(s)",
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Values"
+                  }
+                },
+                "web_url": {
+                  "description": "URL of the record in Attio UI",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Web URL"
+                  }
+                }
+              },
+              "required": ["id", "web_url", "values", "created_at"],
+              "type": "object",
+              "x-zui": {}
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "Get Record Response"
+          }
+        }
+      },
+      "title": "Get Record"
+    },
+    "listAttributes": {
+      "description": "List attributes for a given Attio object",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "object": {
+              "description": "Object slug or UUID",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["object"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "List of attributes",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "api_slug": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "description": {
+                    "type": ["string", "null"],
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attribute_id": {
+                        "type": "string",
+                        "x-zui": {}
+                      },
+                      "object_id": {
+                        "description": "The Attio object ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Object ID"
+                        }
+                      },
+                      "workspace_id": {
+                        "description": "The Attio workspace ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Workspace ID"
+                        }
+                      }
+                    },
+                    "required": ["workspace_id", "object_id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Record Identifier"
+                    }
+                  },
+                  "options": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "label": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "name": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "slug": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "title": {
+                          "type": "string",
+                          "x-zui": {}
+                        },
+                        "value": {
+                          "type": "string",
+                          "x-zui": {}
+                        }
+                      },
+                      "type": "object",
+                      "x-zui": {}
+                    },
+                    "type": "array",
+                    "x-zui": {}
+                  },
+                  "slug": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "title": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "type": "object",
+                "x-zui": {
+                  "title": "Attribute"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Attributes"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "List Attributes Response"
+          }
+        }
+      },
+      "title": "List Attributes"
+    },
+    "listObjects": {
+      "description": "List Attio objects in the workspace",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "List of objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "api_slug": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "created_at": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "object_id": {
+                        "description": "The Attio object ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Object ID"
+                        }
+                      },
+                      "workspace_id": {
+                        "description": "The Attio workspace ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Workspace ID"
+                        }
+                      }
+                    },
+                    "required": ["workspace_id", "object_id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Record Identifier"
+                    }
+                  },
+                  "plural_noun": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "singular_noun": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "type": "object",
+                "x-zui": {
+                  "title": "Object"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Objects"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "List Objects Response"
+          }
+        }
+      },
+      "title": "List Objects"
+    },
+    "listRecords": {
+      "description": "List records of an Attio object with optional filters, sorts and pagination",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "filter": {
+              "description": "Filtering object. See Attio Shorthand Filtering guide",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "attribute": {
+                    "minLength": 1,
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Attribute"
+                    }
+                  },
+                  "value": {
+                    "minLength": 1,
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Value"
+                    }
+                  }
+                },
+                "required": ["attribute", "value"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Filter"
+              }
+            },
+            "limit": {
+              "description": "Max number of records to return (default 500)",
+              "type": "number",
+              "x-zui": {
+                "title": "Limit"
+              }
+            },
+            "object": {
+              "description": "Object slug or UUID, e.g. 'people'",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            },
+            "offset": {
+              "description": "Number of records to skip (default 0)",
+              "type": "number",
+              "x-zui": {
+                "title": "Offset"
+              }
+            },
+            "sorts": {
+              "description": "Sorting instructions. See Attio sorting guide",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "attribute": {
+                    "minLength": 1,
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Attribute"
+                    }
+                  },
+                  "direction": {
+                    "enum": ["asc", "desc"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Direction"
+                    }
+                  },
+                  "field": {
+                    "minLength": 1,
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Field"
+                    }
+                  }
+                },
+                "required": ["direction", "attribute", "field"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Sorting"
+              }
+            }
+          },
+          "required": ["object"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "description": "List of records",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "created_at": {
+                    "description": "RFC3339 timestamp when the record was created",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Created At"
+                    }
+                  },
+                  "id": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "object_id": {
+                        "description": "The Attio object ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Object ID"
+                        }
+                      },
+                      "workspace_id": {
+                        "description": "The Attio workspace ID",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Workspace ID"
+                        }
+                      }
+                    },
+                    "required": ["workspace_id", "object_id"],
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Record Identifier"
+                    }
+                  },
+                  "values": {
+                    "additionalProperties": {
+                      "x-zui": {}
+                    },
+                    "description": "Map of attribute slug or ID to its value (single value or array of values)",
+                    "type": "object",
+                    "x-zui": {
+                      "title": "Values"
+                    }
+                  },
+                  "web_url": {
+                    "description": "URL of the record in Attio UI",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Web URL"
+                    }
+                  }
+                },
+                "required": ["id", "created_at", "web_url", "values"],
+                "type": "object",
+                "x-zui": {
+                  "title": "Record"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Records"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "List Records Response"
+          }
+        }
+      },
+      "title": "List Records"
+    },
+    "updateRecord": {
+      "description": "Update an existing record by object and record ID",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "properties": {
+                "values": {
+                  "description": "Array of attribute slug/ID to value(s) to upsert",
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attribute": {
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Attribute"
+                        }
+                      },
+                      "value": {
+                        "minLength": 1,
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Value"
+                        }
+                      }
+                    },
+                    "required": ["attribute", "value"],
+                    "type": "object",
+                    "x-zui": {}
+                  },
+                  "type": "array",
+                  "x-zui": {
+                    "title": "Values"
+                  }
+                }
+              },
+              "required": ["values"],
+              "type": "object",
+              "x-zui": {}
+            },
+            "id": {
+              "additionalProperties": false,
+              "properties": {
+                "object_id": {
+                  "description": "The Attio object ID",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Object ID"
+                  }
+                },
+                "record_id": {
+                  "description": "Record UUID",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Record ID"
+                  }
+                },
+                "workspace_id": {
+                  "description": "The Attio workspace ID",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Workspace ID"
+                  }
+                }
+              },
+              "required": ["workspace_id", "object_id", "record_id"],
+              "type": "object",
+              "x-zui": {
+                "title": "Record Identifier"
+              }
+            },
+            "object": {
+              "description": "Object slug or UUID",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Object"
+              }
+            }
+          },
+          "required": ["object", "id", "data"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "data": {
+              "additionalProperties": false,
+              "description": "The updated record",
+              "properties": {
+                "created_at": {
+                  "description": "RFC3339 timestamp when the record was created",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Created At"
+                  }
+                },
+                "id": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "object_id": {
+                      "description": "The Attio object ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Object ID"
+                      }
+                    },
+                    "workspace_id": {
+                      "description": "The Attio workspace ID",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Workspace ID"
+                      }
+                    }
+                  },
+                  "required": ["workspace_id", "object_id"],
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Record Identifier"
+                  }
+                },
+                "values": {
+                  "additionalProperties": {
+                    "x-zui": {}
+                  },
+                  "description": "Map of attribute slug or ID to its value (single value or array of values)",
+                  "type": "object",
+                  "x-zui": {
+                    "title": "Values"
+                  }
+                },
+                "web_url": {
+                  "description": "URL of the record in Attio UI",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Web URL"
+                  }
+                }
+              },
+              "required": ["id", "created_at", "web_url", "values"],
+              "type": "object",
+              "x-zui": {
+                "title": "Record"
+              }
+            }
+          },
+          "required": ["data"],
+          "type": "object",
+          "x-zui": {
+            "title": "Update Record Response"
+          }
+        }
+      },
+      "title": "Update Record"
+    }
+  },
+  "description": "Interact with Attio from your chatbot",
+  "events": {
+    "recordCreated": {
+      "description": "A new record has been created in Attio",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "The actor identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor ID"
+                }
+              },
+              "type": {
+                "description": "The type of actor (e.g., workspace-member)",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor Type"
+                }
+              }
+            },
+            "required": ["type", "id"],
+            "type": "object",
+            "x-zui": {}
+          },
+          "event_type": {
+            "const": "record.created",
+            "type": "string",
+            "x-zui": {}
+          },
+          "id": {
+            "additionalProperties": false,
+            "properties": {
+              "object_id": {
+                "description": "The Attio object ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Object ID"
+                }
+              },
+              "record_id": {
+                "description": "The record identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Record ID"
+                }
+              },
+              "workspace_id": {
+                "description": "The Attio workspace ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Workspace ID"
+                }
+              }
+            },
+            "required": ["workspace_id", "object_id", "record_id"],
+            "type": "object",
+            "x-zui": {
+              "title": "Record Identifier"
+            }
+          }
+        },
+        "required": ["event_type", "id", "actor"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Record Created"
+    },
+    "recordDeleted": {
+      "description": "A record has been deleted in Attio",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "The actor identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor ID"
+                }
+              },
+              "type": {
+                "description": "The type of actor (e.g., workspace-member)",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor Type"
+                }
+              }
+            },
+            "required": ["type", "id"],
+            "type": "object",
+            "x-zui": {}
+          },
+          "event_type": {
+            "const": "record.deleted",
+            "type": "string",
+            "x-zui": {}
+          },
+          "id": {
+            "additionalProperties": false,
+            "properties": {
+              "object_id": {
+                "description": "The Attio object ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Object ID"
+                }
+              },
+              "record_id": {
+                "description": "The record identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Record ID"
+                }
+              },
+              "workspace_id": {
+                "description": "The Attio workspace ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Workspace ID"
+                }
+              }
+            },
+            "required": ["workspace_id", "object_id", "record_id"],
+            "type": "object",
+            "x-zui": {
+              "title": "Record Identifier"
+            }
+          }
+        },
+        "required": ["event_type", "id", "actor"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Record Deleted"
+    },
+    "recordUpdated": {
+      "description": "A record has been updated in Attio",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "The actor identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor ID"
+                }
+              },
+              "type": {
+                "description": "The type of actor (e.g., workspace-member)",
+                "type": "string",
+                "x-zui": {
+                  "title": "Actor Type"
+                }
+              }
+            },
+            "required": ["type", "id"],
+            "type": "object",
+            "x-zui": {}
+          },
+          "event_type": {
+            "const": "record.updated",
+            "type": "string",
+            "x-zui": {}
+          },
+          "id": {
+            "additionalProperties": false,
+            "properties": {
+              "object_id": {
+                "description": "The Attio object ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Object ID"
+                }
+              },
+              "record_id": {
+                "description": "The record identifier",
+                "type": "string",
+                "x-zui": {
+                  "title": "Record ID"
+                }
+              },
+              "workspace_id": {
+                "description": "The Attio workspace ID",
+                "type": "string",
+                "x-zui": {
+                  "title": "Workspace ID"
+                }
+              }
+            },
+            "required": ["workspace_id", "object_id", "record_id"],
+            "type": "object",
+            "x-zui": {
+              "title": "Record Identifier"
+            }
+          }
+        },
+        "required": ["event_type", "id", "actor"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "title": "Record Updated"
+    }
+  },
+  "interfaces": {},
+  "name": "attio",
+  "states": {
+    "attioIntegrationInfo": {
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "attioWebhookId": {
+            "description": "ID of the webhook created in Attio for this integration",
+            "type": ["string", "null"],
+            "x-zui": {
+              "title": "Attio Webhook ID"
+            }
+          }
+        },
+        "required": ["attioWebhookId"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Attio",
+  "version": "1.0.0"
+}

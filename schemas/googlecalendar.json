@@ -1,0 +1,1326 @@
+{
+  "actions": {
+    "checkAvailability": {
+      "description": "Checks calendar availability and returns free time slots for the specified date range.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "slotDurationMinutes": {
+              "default": 45,
+              "description": "Duration of each time slot in minutes. Defaults to 45 minutes.",
+              "maximum": 480,
+              "minimum": 15,
+              "type": "number",
+              "x-zui": {
+                "title": "Slot Duration (minutes)"
+              }
+            },
+            "timeMax": {
+              "description": "End of the time range to check (ISO 8601 format, e.g., \"2025-11-05T17:00:00-04:00\").",
+              "type": "string",
+              "x-zui": {
+                "title": "End Time"
+              }
+            },
+            "timeMin": {
+              "description": "Start of the time range to check (ISO 8601 format, e.g., \"2025-11-05T09:00:00-04:00\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Time"
+              }
+            },
+            "timezone": {
+              "default": "America/Toronto",
+              "description": "Timezone for formatting output (e.g., \"America/Toronto\"). Defaults to America/Toronto.",
+              "type": "string",
+              "x-zui": {
+                "title": "Timezone"
+              }
+            }
+          },
+          "required": ["timeMin", "timeMax"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "busySlots": {
+              "description": "Array of busy time slots in ISO format.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "end": {
+                    "description": "ISO 8601 formatted end time of the busy slot.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Time"
+                    }
+                  },
+                  "start": {
+                    "description": "ISO 8601 formatted start time of the busy slot.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Time"
+                    }
+                  }
+                },
+                "required": ["start", "end"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Busy Slots"
+              }
+            },
+            "formattedFreeSlots": {
+              "description": "Array of human-readable formatted free slots (e.g., \"9:00 AM – 9:45 AM\").",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Formatted Free Slots"
+              }
+            },
+            "freeSlots": {
+              "description": "Array of available time slots in ISO format.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "end": {
+                    "description": "ISO 8601 formatted end time of the free slot.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Time"
+                    }
+                  },
+                  "start": {
+                    "description": "ISO 8601 formatted start time of the free slot.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Time"
+                    }
+                  }
+                },
+                "required": ["start", "end"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Free Slots"
+              }
+            }
+          },
+          "required": ["freeSlots", "formattedFreeSlots", "busySlots"],
+          "type": "object"
+        }
+      },
+      "title": "Check Availability"
+    },
+    "createEvent": {
+      "description": "Creates a new event in the calendar.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "The definition of the new event.",
+          "properties": {
+            "attendees": {
+              "description": "List of attendees for the event. Email invitations will be sent automatically.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "displayName": {
+                    "description": "The name of the attendee. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "email": {
+                    "description": "The email address of the attendee.",
+                    "format": "email",
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "optional": {
+                    "default": false,
+                    "description": "Whether this is an optional attendee. Optional. The default is False.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Optional Attendee"
+                    }
+                  }
+                },
+                "required": ["email"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Attendees"
+              }
+            },
+            "colorId": {
+              "description": "The color ID of the event. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "description": {
+              "description": "Description of the event. Can contain HTML. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "enableGoogleMeet": {
+              "default": false,
+              "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Enable Google Meet"
+              }
+            },
+            "endDateTime": {
+              "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can Invite Others"
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can See Other Guests"
+              }
+            },
+            "location": {
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "recurrence": {
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+              "items": {
+                "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "sendNotifications": {
+              "default": true,
+              "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Send Notifications"
+              }
+            },
+            "startDateTime": {
+              "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\".",
+              "enum": ["confirmed", "tentative", "cancelled"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Status"
+              }
+            },
+            "summary": {
+              "description": "Title of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\".",
+              "enum": ["default", "public", "private", "confidential"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Visibility"
+              }
+            }
+          },
+          "required": ["summary", "startDateTime", "endDateTime"],
+          "type": "object",
+          "x-zui": {
+            "title": "New Event"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "The data of the new event.",
+          "properties": {
+            "attendees": {
+              "description": "List of attendees for the event. Email invitations will be sent automatically.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "displayName": {
+                    "description": "The name of the attendee. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "email": {
+                    "description": "The email address of the attendee.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "optional": {
+                    "default": false,
+                    "description": "Whether this is an optional attendee. Optional. The default is False.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Optional Attendee"
+                    }
+                  },
+                  "responseStatus": {
+                    "description": "The attendee's response status. Read-only when creating events.",
+                    "enum": ["needsAction", "declined", "tentative", "accepted"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Response Status"
+                    }
+                  }
+                },
+                "required": ["email"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Attendees"
+              }
+            },
+            "colorId": {
+              "description": "The color ID of the event. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "conferenceLink": {
+              "description": "The Google Meet link for the event. This is automatically generated when enableGoogleMeet is true.",
+              "type": "string",
+              "x-zui": {
+                "title": "Conference Link"
+              }
+            },
+            "description": {
+              "description": "Description of the event. Can contain HTML. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "enableGoogleMeet": {
+              "default": false,
+              "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Enable Google Meet"
+              }
+            },
+            "endDateTime": {
+              "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "eventType": {
+              "description": "Specific type of the event. This cannot be modified after the event is created.",
+              "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Type"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can Invite Others"
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can See Other Guests"
+              }
+            },
+            "htmlLink": {
+              "description": "URL of the event page in the Google Calendar Web UI.",
+              "type": "string",
+              "x-zui": {
+                "title": "HTML Link"
+              }
+            },
+            "id": {
+              "description": "Opaque identifier of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "location": {
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "recurrence": {
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+              "items": {
+                "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "sendNotifications": {
+              "default": true,
+              "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Send Notifications"
+              }
+            },
+            "startDateTime": {
+              "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\".",
+              "enum": ["confirmed", "tentative", "cancelled"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Status"
+              }
+            },
+            "summary": {
+              "description": "Title of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\".",
+              "enum": ["default", "public", "private", "confidential"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Visibility"
+              }
+            }
+          },
+          "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
+          "type": "object",
+          "x-zui": {
+            "title": "Created Event"
+          }
+        }
+      },
+      "title": "Create Event"
+    },
+    "deleteEvent": {
+      "description": "Deletes an event from the calendar.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "eventId": {
+              "description": "The ID of the calendar event to delete.",
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            }
+          },
+          "required": ["eventId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      },
+      "title": "Delete Event"
+    },
+    "listEvents": {
+      "description": "Retrieves events from the calendar.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "default": 100,
+              "description": "The maximum number of events to return. Defaults to 100.",
+              "maximum": 2500,
+              "minimum": 1,
+              "type": "number",
+              "x-zui": {
+                "title": "Number of events to retrieve"
+              }
+            },
+            "pageToken": {
+              "description": "Token specifying which result page to return.",
+              "type": "string",
+              "x-zui": {
+                "title": "Page token"
+              }
+            },
+            "timeMin": {
+              "description": "Only return events occurring on or after this date. Must be in RFC3339 format. Defaults to now if not specified.",
+              "type": "string",
+              "x-zui": {
+                "title": "On or after"
+              }
+            }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "events": {
+              "description": "The list of calendar events.",
+              "items": {
+                "additionalProperties": false,
+                "description": "The calendar event data.",
+                "properties": {
+                  "attendees": {
+                    "description": "List of attendees for the event. Email invitations will be sent automatically.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "displayName": {
+                          "description": "The name of the attendee. Optional.",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Display Name"
+                          }
+                        },
+                        "email": {
+                          "description": "The email address of the attendee.",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Email"
+                          }
+                        },
+                        "optional": {
+                          "default": false,
+                          "description": "Whether this is an optional attendee. Optional. The default is False.",
+                          "type": "boolean",
+                          "x-zui": {
+                            "title": "Optional Attendee"
+                          }
+                        },
+                        "responseStatus": {
+                          "description": "The attendee's response status. Read-only when creating events.",
+                          "enum": ["needsAction", "declined", "tentative", "accepted"],
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Response Status"
+                          }
+                        }
+                      },
+                      "required": ["email"],
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Attendees"
+                    }
+                  },
+                  "colorId": {
+                    "description": "The color ID of the event. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Color ID"
+                    }
+                  },
+                  "conferenceLink": {
+                    "description": "The Google Meet link for the event. This is automatically generated when enableGoogleMeet is true.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Conference Link"
+                    }
+                  },
+                  "description": {
+                    "description": "Description of the event. Can contain HTML. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Description"
+                    }
+                  },
+                  "enableGoogleMeet": {
+                    "default": false,
+                    "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Enable Google Meet"
+                    }
+                  },
+                  "endDateTime": {
+                    "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "End Date/Time"
+                    }
+                  },
+                  "eventType": {
+                    "description": "Specific type of the event. This cannot be modified after the event is created.",
+                    "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event Type"
+                    }
+                  },
+                  "guestsCanInviteOthers": {
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Guests Can Invite Others"
+                    }
+                  },
+                  "guestsCanSeeOtherGuests": {
+                    "default": true,
+                    "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Guests Can See Other Guests"
+                    }
+                  },
+                  "htmlLink": {
+                    "description": "URL of the event page in the Google Calendar Web UI.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "HTML Link"
+                    }
+                  },
+                  "id": {
+                    "description": "Opaque identifier of the event.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event ID"
+                    }
+                  },
+                  "location": {
+                    "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Location"
+                    }
+                  },
+                  "recurrence": {
+                    "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+                    "items": {
+                      "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "RFC5545 line"
+                      }
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Recurrence"
+                    }
+                  },
+                  "sendNotifications": {
+                    "default": true,
+                    "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Send Notifications"
+                    }
+                  },
+                  "startDateTime": {
+                    "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Start Date/Time"
+                    }
+                  },
+                  "status": {
+                    "default": "confirmed",
+                    "description": "Status of the event. Optional. The default value is \"confirmed\".",
+                    "enum": ["confirmed", "tentative", "cancelled"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event Status"
+                    }
+                  },
+                  "summary": {
+                    "description": "Title of the event.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Summary"
+                    }
+                  },
+                  "visibility": {
+                    "default": "default",
+                    "description": "Visibility of the event. Optional. The default value is \"default\".",
+                    "enum": ["default", "public", "private", "confidential"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Event Visibility"
+                    }
+                  }
+                },
+                "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
+                "type": "object",
+                "x-zui": {
+                  "title": "Event"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Events"
+              }
+            },
+            "nextPageToken": {
+              "description": "Token used to access the next page of this result. Omitted if no further results are available.",
+              "type": "string",
+              "x-zui": {
+                "title": "Next page token"
+              }
+            }
+          },
+          "required": ["events"],
+          "type": "object"
+        }
+      },
+      "title": "List Events"
+    },
+    "updateEvent": {
+      "description": "Updates an existing event in the calendar. Omitted properties are left unchanged.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "attendees": {
+              "description": "List of attendees for the event.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "displayName": {
+                    "description": "The name of the attendee. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "email": {
+                    "description": "The email address of the attendee.",
+                    "format": "email",
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "optional": {
+                    "default": false,
+                    "description": "Whether this is an optional attendee. Optional. The default is False.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Optional Attendee"
+                    }
+                  }
+                },
+                "required": ["email"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Attendees"
+              }
+            },
+            "colorId": {
+              "description": "The color ID of the event. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "description": {
+              "description": "Description of the event. Can contain HTML. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "enableGoogleMeet": {
+              "default": false,
+              "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Enable Google Meet"
+              }
+            },
+            "endDateTime": {
+              "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can Invite Others"
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can See Other Guests"
+              }
+            },
+            "id": {
+              "description": "The ID of the calendar event to update.",
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "location": {
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "recurrence": {
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+              "items": {
+                "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "sendNotifications": {
+              "default": true,
+              "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Send Notifications"
+              }
+            },
+            "startDateTime": {
+              "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\".",
+              "enum": ["confirmed", "tentative", "cancelled"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Status"
+              }
+            },
+            "summary": {
+              "description": "Title of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\".",
+              "enum": ["default", "public", "private", "confidential"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Visibility"
+              }
+            }
+          },
+          "required": ["id", "summary", "startDateTime", "endDateTime"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "The data of the event.",
+          "properties": {
+            "attendees": {
+              "description": "List of attendees for the event. Email invitations will be sent automatically.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "displayName": {
+                    "description": "The name of the attendee. Optional.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "email": {
+                    "description": "The email address of the attendee.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Email"
+                    }
+                  },
+                  "optional": {
+                    "default": false,
+                    "description": "Whether this is an optional attendee. Optional. The default is False.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Optional Attendee"
+                    }
+                  },
+                  "responseStatus": {
+                    "description": "The attendee's response status. Read-only when creating events.",
+                    "enum": ["needsAction", "declined", "tentative", "accepted"],
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Response Status"
+                    }
+                  }
+                },
+                "required": ["email"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Attendees"
+              }
+            },
+            "colorId": {
+              "description": "The color ID of the event. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Color ID"
+              }
+            },
+            "conferenceLink": {
+              "description": "The Google Meet link for the event. This is automatically generated when enableGoogleMeet is true.",
+              "type": "string",
+              "x-zui": {
+                "title": "Conference Link"
+              }
+            },
+            "description": {
+              "description": "Description of the event. Can contain HTML. Optional.",
+              "type": "string",
+              "x-zui": {
+                "title": "Description"
+              }
+            },
+            "enableGoogleMeet": {
+              "default": false,
+              "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Enable Google Meet"
+              }
+            },
+            "endDateTime": {
+              "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "End Date/Time"
+              }
+            },
+            "eventType": {
+              "description": "Specific type of the event. This cannot be modified after the event is created.",
+              "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Type"
+              }
+            },
+            "guestsCanInviteOthers": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can Invite Others"
+              }
+            },
+            "guestsCanSeeOtherGuests": {
+              "default": true,
+              "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Guests Can See Other Guests"
+              }
+            },
+            "htmlLink": {
+              "description": "URL of the event page in the Google Calendar Web UI.",
+              "type": "string",
+              "x-zui": {
+                "title": "HTML Link"
+              }
+            },
+            "id": {
+              "description": "Opaque identifier of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Event ID"
+              }
+            },
+            "location": {
+              "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Location"
+              }
+            },
+            "recurrence": {
+              "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+              "items": {
+                "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+                "type": "string",
+                "x-zui": {
+                  "title": "RFC5545 line"
+                }
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Recurrence"
+              }
+            },
+            "sendNotifications": {
+              "default": true,
+              "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Send Notifications"
+              }
+            },
+            "startDateTime": {
+              "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+              "type": "string",
+              "x-zui": {
+                "title": "Start Date/Time"
+              }
+            },
+            "status": {
+              "default": "confirmed",
+              "description": "Status of the event. Optional. The default value is \"confirmed\".",
+              "enum": ["confirmed", "tentative", "cancelled"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Status"
+              }
+            },
+            "summary": {
+              "description": "Title of the event.",
+              "type": "string",
+              "x-zui": {
+                "title": "Summary"
+              }
+            },
+            "visibility": {
+              "default": "default",
+              "description": "Visibility of the event. Optional. The default value is \"default\".",
+              "enum": ["default", "public", "private", "confidential"],
+              "type": "string",
+              "x-zui": {
+                "title": "Event Visibility"
+              }
+            }
+          },
+          "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
+          "type": "object",
+          "x-zui": {
+            "title": "Updated Event"
+          }
+        }
+      },
+      "title": "Update Event"
+    }
+  },
+  "description": "Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.",
+  "entities": {
+    "event": {
+      "description": "An event in a Google Calendar",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "attendees": {
+            "description": "List of attendees for the event. Email invitations will be sent automatically.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "displayName": {
+                  "description": "The name of the attendee. Optional.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Display Name"
+                  }
+                },
+                "email": {
+                  "description": "The email address of the attendee.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Email"
+                  }
+                },
+                "optional": {
+                  "default": false,
+                  "description": "Whether this is an optional attendee. Optional. The default is False.",
+                  "type": "boolean",
+                  "x-zui": {
+                    "title": "Optional Attendee"
+                  }
+                },
+                "responseStatus": {
+                  "description": "The attendee's response status. Read-only when creating events.",
+                  "enum": ["needsAction", "declined", "tentative", "accepted"],
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Response Status"
+                  }
+                }
+              },
+              "required": ["email"],
+              "type": "object"
+            },
+            "type": "array",
+            "x-zui": {
+              "title": "Attendees"
+            }
+          },
+          "colorId": {
+            "description": "The color ID of the event. Optional.",
+            "type": "string",
+            "x-zui": {
+              "title": "Color ID"
+            }
+          },
+          "conferenceLink": {
+            "description": "The Google Meet link for the event. This is automatically generated when enableGoogleMeet is true.",
+            "type": "string",
+            "x-zui": {
+              "title": "Conference Link"
+            }
+          },
+          "description": {
+            "description": "Description of the event. Can contain HTML. Optional.",
+            "type": "string",
+            "x-zui": {
+              "title": "Description"
+            }
+          },
+          "enableGoogleMeet": {
+            "default": false,
+            "description": "Whether to enable Google Meet for the event. Optional. The default value is false.",
+            "type": "boolean",
+            "x-zui": {
+              "title": "Enable Google Meet"
+            }
+          },
+          "endDateTime": {
+            "description": "The end date and time in RFC3339 format (e.g., \"2023-12-31T12:00:00.000Z\").",
+            "type": "string",
+            "x-zui": {
+              "title": "End Date/Time"
+            }
+          },
+          "eventType": {
+            "description": "Specific type of the event. This cannot be modified after the event is created.",
+            "enum": ["default", "birthday", "focusTime", "fromGmail", "outOfOffice", "workingLocation"],
+            "type": "string",
+            "x-zui": {
+              "title": "Event Type"
+            }
+          },
+          "guestsCanInviteOthers": {
+            "default": true,
+            "description": "Whether attendees other than the organizer can invite others to the event. Optional. The default is True.",
+            "type": "boolean",
+            "x-zui": {
+              "title": "Guests Can Invite Others"
+            }
+          },
+          "guestsCanSeeOtherGuests": {
+            "default": true,
+            "description": "Whether attendees other than the organizer can see who the event's attendees are. Optional. The default is True.",
+            "type": "boolean",
+            "x-zui": {
+              "title": "Guests Can See Other Guests"
+            }
+          },
+          "htmlLink": {
+            "description": "URL of the event page in the Google Calendar Web UI.",
+            "type": "string",
+            "x-zui": {
+              "title": "HTML Link"
+            }
+          },
+          "id": {
+            "description": "Opaque identifier of the event.",
+            "type": "string",
+            "x-zui": {
+              "title": "Event ID"
+            }
+          },
+          "location": {
+            "description": "Geographic location of the event as free-form text. Optional. (e.g., \"Meeting Room\").",
+            "type": "string",
+            "x-zui": {
+              "title": "Location"
+            }
+          },
+          "recurrence": {
+            "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545. This field is omitted for single events or instances of recurring events.",
+            "items": {
+              "description": "RRULE, EXRULE, RDATE or EXDATE line, as specified in RFC5545. Note that DTSTART and DTEND lines are not allowed in this field",
+              "type": "string",
+              "x-zui": {
+                "title": "RFC5545 line"
+              }
+            },
+            "type": "array",
+            "x-zui": {
+              "title": "Recurrence"
+            }
+          },
+          "sendNotifications": {
+            "default": true,
+            "description": "Whether to send notifications to attendees. Optional. The default value is true.",
+            "type": "boolean",
+            "x-zui": {
+              "title": "Send Notifications"
+            }
+          },
+          "startDateTime": {
+            "description": "The start date and time in RFC3339 format (e.g., \"2023-12-31T10:00:00.000Z\").",
+            "type": "string",
+            "x-zui": {
+              "title": "Start Date/Time"
+            }
+          },
+          "status": {
+            "default": "confirmed",
+            "description": "Status of the event. Optional. The default value is \"confirmed\".",
+            "enum": ["confirmed", "tentative", "cancelled"],
+            "type": "string",
+            "x-zui": {
+              "title": "Event Status"
+            }
+          },
+          "summary": {
+            "description": "Title of the event.",
+            "type": "string",
+            "x-zui": {
+              "title": "Summary"
+            }
+          },
+          "visibility": {
+            "default": "default",
+            "description": "Visibility of the event. Optional. The default value is \"default\".",
+            "enum": ["default", "public", "private", "confidential"],
+            "type": "string",
+            "x-zui": {
+              "title": "Event Visibility"
+            }
+          }
+        },
+        "required": ["id", "summary", "startDateTime", "endDateTime", "eventType", "htmlLink"],
+        "type": "object"
+      },
+      "title": "Google Calendar Event"
+    }
+  },
+  "events": {},
+  "interfaces": {},
+  "name": "googlecalendar",
+  "states": {
+    "oAuthConfig": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "refreshToken": {
+            "description": "The refresh token to use to authenticate with Google APIs. It gets exchanged for a bearer token",
+            "type": "string",
+            "x-zui": {
+              "title": "Refresh token"
+            }
+          }
+        },
+        "required": ["refreshToken"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Google Calendar",
+  "version": "2.0.5"
+}

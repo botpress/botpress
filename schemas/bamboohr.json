@@ -1,0 +1,2379 @@
+{
+  "actions": {
+    "getCompanyInfo": {
+      "description": "Retrieve information about the company.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "additionalProperties": false,
+              "description": "Address of the company.",
+              "properties": {
+                "city": {
+                  "anyOf": [
+                    {
+                      "description": "City.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "City"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                },
+                "country": {
+                  "anyOf": [
+                    {
+                      "description": "Country.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Country"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                },
+                "line1": {
+                  "anyOf": [
+                    {
+                      "description": "First line of the street.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Address Line 1"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                },
+                "line2": {
+                  "anyOf": [
+                    {
+                      "description": "Second line of the street.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "Address Line 2"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                },
+                "state": {
+                  "anyOf": [
+                    {
+                      "description": "State or province.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "State"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                },
+                "zip": {
+                  "anyOf": [
+                    {
+                      "description": "ZIP code.",
+                      "type": "string",
+                      "x-zui": {
+                        "title": "ZIP Code"
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "typeName": "ZodNullable"
+                    }
+                  }
+                }
+              },
+              "type": "object",
+              "x-zui": {
+                "title": "Address"
+              }
+            },
+            "displayName": {
+              "description": "Display name of the company.",
+              "type": "string",
+              "x-zui": {
+                "title": "Display Name"
+              }
+            },
+            "legalName": {
+              "description": "Legal name of the company.",
+              "type": "string",
+              "x-zui": {
+                "title": "Legal Name"
+              }
+            },
+            "phone": {
+              "anyOf": [
+                {
+                  "description": "Phone number of the company.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Phone Number"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            }
+          },
+          "required": ["legalName", "displayName", "address"],
+          "type": "object"
+        }
+      },
+      "title": "Get Company Info"
+    },
+    "getEmployeeBasicInfo": {
+      "description": "Retrieve basic information about an employee by their ID.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the employee.",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Employee ID"
+              }
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": true,
+          "properties": {
+            "customBenefitIDNumber": {
+              "anyOf": [
+                {
+                  "description": "Custom benefit ID number.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Benefit ID Number"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customCitizenshipCertificate": {
+              "anyOf": [
+                {
+                  "description": "Custom citizenship certificate.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Citizenship Certificate"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customNIN1": {
+              "anyOf": [
+                {
+                  "description": "Custom NIN1.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom NIN1"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customProbationaryPeriodEndDate": {
+              "anyOf": [
+                {
+                  "description": "Custom probationary period end date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Probationary Period End Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customProbationaryPeriodStartDate": {
+              "anyOf": [
+                {
+                  "description": "Custom probationary period start date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Probationary Period Start Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customProjectedTerminationDate": {
+              "anyOf": [
+                {
+                  "description": "Custom projected termination date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Projected Termination Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customROESATCompleted": {
+              "anyOf": [
+                {
+                  "description": "Custom ROESAT completed.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom ROESAT Completed"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customShirtsize": {
+              "anyOf": [
+                {
+                  "description": "Custom shirt size.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Shirt Size"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customTerminationCode": {
+              "anyOf": [
+                {
+                  "description": "Custom termination code.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Termination Code"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "customTerminationNoticeGiven": {
+              "anyOf": [
+                {
+                  "description": "Custom termination notice given.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Custom Termination Notice Given"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "department": {
+              "anyOf": [
+                {
+                  "description": "Department.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Department"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "displayName": {
+              "description": "Employee's display name.",
+              "type": "string",
+              "x-zui": {
+                "title": "Display Name"
+              }
+            },
+            "division": {
+              "anyOf": [
+                {
+                  "description": "Division.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Division"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "employeeNumber": {
+              "anyOf": [
+                {
+                  "description": "Employee number.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Employee Number"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "employeeStatusDate": {
+              "anyOf": [
+                {
+                  "description": "Employee status date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Employee Status Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "employeeTaxType": {
+              "anyOf": [
+                {
+                  "description": "Employee tax type.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Employee Tax Type"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "employmentHistoryStatus": {
+              "anyOf": [
+                {
+                  "description": "Employment history status.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Employment History Status"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "ethnicity": {
+              "anyOf": [
+                {
+                  "description": "Ethnicity.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Ethnicity"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "exempt": {
+              "anyOf": [
+                {
+                  "description": "Exempt.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Exempt"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "facebook": {
+              "anyOf": [
+                {
+                  "description": "Facebook.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Facebook"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "firstName": {
+              "anyOf": [
+                {
+                  "description": "First name.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "First Name"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "gender": {
+              "anyOf": [
+                {
+                  "description": "Gender.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Gender"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "hireDate": {
+              "anyOf": [
+                {
+                  "description": "Hire date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Hire Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "homeEmail": {
+              "anyOf": [
+                {
+                  "description": "Home email.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Home Email"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "homePhone": {
+              "anyOf": [
+                {
+                  "description": "Home phone.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Home Phone"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "id": {
+              "description": "Unique identifier for the employee.",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Employee ID"
+              }
+            },
+            "jobTitle": {
+              "anyOf": [
+                {
+                  "description": "Job title.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Job Title"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "lastChanged": {
+              "description": "Full timestamp of the last change to the employee record.",
+              "type": "string",
+              "x-zui": {
+                "title": "Last Changed"
+              }
+            },
+            "lastName": {
+              "anyOf": [
+                {
+                  "description": "Last name.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Last Name"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "linkedIn": {
+              "anyOf": [
+                {
+                  "description": "LinkedIn.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "LinkedIn"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "location": {
+              "anyOf": [
+                {
+                  "description": "Location.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Location"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "maritalStatus": {
+              "anyOf": [
+                {
+                  "description": "Marital status.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Marital Status"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "middleName": {
+              "anyOf": [
+                {
+                  "description": "Middle name.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Middle Name"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "mobilePhone": {
+              "anyOf": [
+                {
+                  "description": "Mobile phone.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Mobile Phone"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "nationality": {
+              "anyOf": [
+                {
+                  "description": "Nationality.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Nationality"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "originalHireDate": {
+              "anyOf": [
+                {
+                  "description": "Original hire date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Original Hire Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "overtimeRate": {
+              "anyOf": [
+                {
+                  "description": "Overtime rate.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Overtime Rate"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "payChangeReason": {
+              "anyOf": [
+                {
+                  "description": "Pay change reason.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Change Reason"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "payPer": {
+              "anyOf": [
+                {
+                  "description": "Pay per.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Per"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "payRate": {
+              "anyOf": [
+                {
+                  "description": "Pay rate.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Rate"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "payRateEffectiveDate": {
+              "anyOf": [
+                {
+                  "description": "Pay rate effective date.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Rate Effective Date"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "paySchedule": {
+              "anyOf": [
+                {
+                  "description": "Pay schedule.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Schedule"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "payType": {
+              "anyOf": [
+                {
+                  "description": "Pay type.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Pay Type"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "preferredName": {
+              "anyOf": [
+                {
+                  "description": "Preferred name.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Preferred Name"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "reportsTo": {
+              "anyOf": [
+                {
+                  "description": "Reports to.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Reports To"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "description": "Status.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Status"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "supervisorEid": {
+              "anyOf": [
+                {
+                  "description": "Employee's supervisor's ID.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Supervisor ID"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "teams": {
+              "anyOf": [
+                {
+                  "description": "Teams.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Teams"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "twitterFeed": {
+              "anyOf": [
+                {
+                  "description": "Twitter feed.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Twitter Feed"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "workEmail": {
+              "anyOf": [
+                {
+                  "description": "Work email.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Work Email"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "workPhone": {
+              "anyOf": [
+                {
+                  "description": "Work phone.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Work Phone"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            },
+            "workPhoneExtension": {
+              "anyOf": [
+                {
+                  "description": "Work phone extension.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Work Phone Extension"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                }
+              }
+            }
+          },
+          "required": ["id", "lastChanged", "displayName"],
+          "type": "object"
+        }
+      },
+      "title": "Get Basic Info"
+    },
+    "getEmployeeCustomInfo": {
+      "description": "Retrieve custom information about an employee by their ID and specified fields.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "fields": {
+              "description": "List of custom field names to retrieve for the employee.",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array",
+              "x-zui": {
+                "title": "Custom Fields"
+              }
+            },
+            "id": {
+              "description": "Unique identifier for the employee.",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Employee ID"
+              }
+            }
+          },
+          "required": ["id", "fields"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the employee.",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Employee ID"
+              }
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "title": "Get Custom Info"
+    },
+    "listEmployees": {
+      "description": "Retrieve a list of all employees with IDs and names. Warning: this endpoint may not be enabled in your workspace.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "employees": {
+              "description": "List of employees in the directory. Includes only ID and display name.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "displayName": {
+                    "description": "Employee's display name.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Display Name"
+                    }
+                  },
+                  "id": {
+                    "description": "Unique identifier for the employee.",
+                    "minLength": 1,
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Employee ID"
+                    }
+                  }
+                },
+                "required": ["id", "displayName"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Employees"
+              }
+            }
+          },
+          "required": ["employees"],
+          "type": "object"
+        }
+      },
+      "title": "List Employees"
+    }
+  },
+  "description": "Retrieve your BambooHR information",
+  "events": {
+    "employeeCreated": {
+      "description": "Triggers when a new employee is created in BambooHR.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "Unique identifier for the employee.",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": {
+              "title": "Employee ID"
+            }
+          },
+          "timestamp": {
+            "description": "Timestamp in ISO 8601 format.",
+            "type": "string",
+            "x-zui": {
+              "title": "Timestamp"
+            }
+          }
+        },
+        "required": ["id", "timestamp"],
+        "type": "object"
+      },
+      "title": "Employee Created"
+    },
+    "employeeDeleted": {
+      "description": "Triggers when an employee is deleted from BambooHR. Terminating employees will trigger the \"Employee Updated\" event instead.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "Unique identifier for the employee.",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": {
+              "title": "Employee ID"
+            }
+          },
+          "timestamp": {
+            "description": "Timestamp in ISO 8601 format.",
+            "type": "string",
+            "x-zui": {
+              "title": "Timestamp"
+            }
+          }
+        },
+        "required": ["id", "timestamp"],
+        "type": "object"
+      },
+      "title": "Employee Deleted"
+    },
+    "employeeUpdated": {
+      "description": "Triggers when an existing employee is updated in BambooHR.",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "changedFields": {
+            "description": "List of fields that were changed in this event.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "x-zui": {
+              "title": "Changed Fields"
+            }
+          },
+          "fields": {
+            "additionalProperties": true,
+            "description": "All fields subscribed to for the employee, including unchanged fields.",
+            "properties": {
+              "customBenefitIDNumber": {
+                "anyOf": [
+                  {
+                    "description": "Custom benefit ID number.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Benefit ID Number"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customCitizenshipCertificate": {
+                "anyOf": [
+                  {
+                    "description": "Custom citizenship certificate.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Citizenship Certificate"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customNIN1": {
+                "anyOf": [
+                  {
+                    "description": "Custom NIN1.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom NIN1"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customProbationaryPeriodEndDate": {
+                "anyOf": [
+                  {
+                    "description": "Custom probationary period end date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Probationary Period End Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customProbationaryPeriodStartDate": {
+                "anyOf": [
+                  {
+                    "description": "Custom probationary period start date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Probationary Period Start Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customProjectedTerminationDate": {
+                "anyOf": [
+                  {
+                    "description": "Custom projected termination date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Projected Termination Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customROESATCompleted": {
+                "anyOf": [
+                  {
+                    "description": "Custom ROESAT completed.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom ROESAT Completed"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customShirtsize": {
+                "anyOf": [
+                  {
+                    "description": "Custom shirt size.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Shirt Size"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customTerminationCode": {
+                "anyOf": [
+                  {
+                    "description": "Custom termination code.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Termination Code"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "customTerminationNoticeGiven": {
+                "anyOf": [
+                  {
+                    "description": "Custom termination notice given.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Custom Termination Notice Given"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "department": {
+                "anyOf": [
+                  {
+                    "description": "Department.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Department"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "division": {
+                "anyOf": [
+                  {
+                    "description": "Division.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Division"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "employeeNumber": {
+                "anyOf": [
+                  {
+                    "description": "Employee number.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Employee Number"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "employeeStatusDate": {
+                "anyOf": [
+                  {
+                    "description": "Employee status date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Employee Status Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "employeeTaxType": {
+                "anyOf": [
+                  {
+                    "description": "Employee tax type.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Employee Tax Type"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "employmentHistoryStatus": {
+                "anyOf": [
+                  {
+                    "description": "Employment history status.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Employment History Status"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "ethnicity": {
+                "anyOf": [
+                  {
+                    "description": "Ethnicity.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Ethnicity"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "exempt": {
+                "anyOf": [
+                  {
+                    "description": "Exempt.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Exempt"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "facebook": {
+                "anyOf": [
+                  {
+                    "description": "Facebook.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Facebook"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "firstName": {
+                "anyOf": [
+                  {
+                    "description": "First name.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "First Name"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "gender": {
+                "anyOf": [
+                  {
+                    "description": "Gender.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Gender"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "hireDate": {
+                "anyOf": [
+                  {
+                    "description": "Hire date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Hire Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "homeEmail": {
+                "anyOf": [
+                  {
+                    "description": "Home email.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Home Email"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "homePhone": {
+                "anyOf": [
+                  {
+                    "description": "Home phone.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Home Phone"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "jobTitle": {
+                "anyOf": [
+                  {
+                    "description": "Job title.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Job Title"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "lastName": {
+                "anyOf": [
+                  {
+                    "description": "Last name.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Last Name"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "linkedIn": {
+                "anyOf": [
+                  {
+                    "description": "LinkedIn.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "LinkedIn"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "location": {
+                "anyOf": [
+                  {
+                    "description": "Location.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Location"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "maritalStatus": {
+                "anyOf": [
+                  {
+                    "description": "Marital status.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Marital Status"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "middleName": {
+                "anyOf": [
+                  {
+                    "description": "Middle name.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Middle Name"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "mobilePhone": {
+                "anyOf": [
+                  {
+                    "description": "Mobile phone.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Mobile Phone"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "nationality": {
+                "anyOf": [
+                  {
+                    "description": "Nationality.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Nationality"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "originalHireDate": {
+                "anyOf": [
+                  {
+                    "description": "Original hire date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Original Hire Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "overtimeRate": {
+                "anyOf": [
+                  {
+                    "description": "Overtime rate.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Overtime Rate"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "payChangeReason": {
+                "anyOf": [
+                  {
+                    "description": "Pay change reason.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Change Reason"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "payPer": {
+                "anyOf": [
+                  {
+                    "description": "Pay per.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Per"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "payRate": {
+                "anyOf": [
+                  {
+                    "description": "Pay rate.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Rate"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "payRateEffectiveDate": {
+                "anyOf": [
+                  {
+                    "description": "Pay rate effective date.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Rate Effective Date"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "paySchedule": {
+                "anyOf": [
+                  {
+                    "description": "Pay schedule.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Schedule"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "payType": {
+                "anyOf": [
+                  {
+                    "description": "Pay type.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pay Type"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "preferredName": {
+                "anyOf": [
+                  {
+                    "description": "Preferred name.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Preferred Name"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "reportsTo": {
+                "anyOf": [
+                  {
+                    "description": "Reports to.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Reports To"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "description": "Status.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Status"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "teams": {
+                "anyOf": [
+                  {
+                    "description": "Teams.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Teams"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "twitterFeed": {
+                "anyOf": [
+                  {
+                    "description": "Twitter feed.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Twitter Feed"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "workEmail": {
+                "anyOf": [
+                  {
+                    "description": "Work email.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Work Email"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "workPhone": {
+                "anyOf": [
+                  {
+                    "description": "Work phone.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Work Phone"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              },
+              "workPhoneExtension": {
+                "anyOf": [
+                  {
+                    "description": "Work phone extension.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Work Phone Extension"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "x-zui": {
+                  "def": {
+                    "typeName": "ZodNullable"
+                  }
+                }
+              }
+            },
+            "type": "object",
+            "x-zui": {
+              "title": "Fields"
+            }
+          },
+          "id": {
+            "description": "Unique identifier for the employee.",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": {
+              "title": "Employee ID"
+            }
+          },
+          "timestamp": {
+            "description": "Timestamp in ISO 8601 format.",
+            "type": "string",
+            "x-zui": {
+              "title": "Timestamp"
+            }
+          }
+        },
+        "required": ["id", "timestamp", "fields", "changedFields"],
+        "type": "object"
+      },
+      "title": "Employee Updated"
+    }
+  },
+  "interfaces": {},
+  "name": "bamboohr",
+  "states": {
+    "oauth": {
+      "schema": {
+        "additionalProperties": false,
+        "description": "Parameters required to authenticate via OAuth. Not required if using API Key.",
+        "properties": {
+          "accessToken": {
+            "description": "Temporary access token for the API.",
+            "type": "string",
+            "x-zui": {
+              "title": "Temporary Access Token"
+            }
+          },
+          "domain": {
+            "description": "The domain of the company.",
+            "type": "string",
+            "x-zui": {
+              "title": "Domain"
+            }
+          },
+          "expiresAt": {
+            "description": "Timestamp (in ms from epoch) at which the token expires.",
+            "type": "number",
+            "x-zui": {
+              "title": "Expiration Timestamp"
+            }
+          },
+          "refreshToken": {
+            "description": "Token used to refresh the access token.",
+            "type": "string",
+            "x-zui": {
+              "title": "Refresh Token"
+            }
+          },
+          "scopes": {
+            "description": "Scopes for the token (space-separated).",
+            "type": "string",
+            "x-zui": {
+              "title": "Scopes"
+            }
+          }
+        },
+        "required": ["domain", "accessToken", "refreshToken", "expiresAt", "scopes"],
+        "type": "object",
+        "x-zui": {
+          "title": "OAuth Parameters"
+        }
+      },
+      "type": "integration"
+    },
+    "webhook": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "description": "The ID of the webhook as provided by BambooHR when the webhook was created.",
+                "type": "string",
+                "x-zui": {
+                  "title": "Webhook ID"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-zui": {
+              "def": {
+                "typeName": "ZodNullable"
+              }
+            }
+          },
+          "privateKey": {
+            "anyOf": [
+              {
+                "description": "The private key provided by BambooHR to validate the webhook.",
+                "type": "string",
+                "x-zui": {
+                  "title": "Private Key"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-zui": {
+              "def": {
+                "typeName": "ZodNullable"
+              }
+            }
+          }
+        },
+        "required": ["privateKey", "id"],
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "BambooHR",
+  "version": "2.0.1"
+}

@@ -1,0 +1,503 @@
+{
+  "actions": {
+    "browsePages": {
+      "billable": true,
+      "cacheable": true,
+      "description": "Extract the full content & the metadata of the specified pages as markdown.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "maxAge": {
+              "default": 604800,
+              "description": "Maximum age of the cached page content (in seconds)",
+              "type": "number",
+              "x-zui": {
+                "title": "Max Age"
+              }
+            },
+            "timeout": {
+              "default": 30000,
+              "description": "Timeout for the request (in milliseconds)",
+              "type": "number",
+              "x-zui": {
+                "title": "Time Out"
+              }
+            },
+            "urls": {
+              "description": "The list of url to browse",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Urls"
+              }
+            },
+            "waitFor": {
+              "default": 350,
+              "description": "Time to wait before extracting the content (in milliseconds). Set this value higher for dynamic pages.",
+              "type": "number",
+              "x-zui": {
+                "title": "Wait For"
+              }
+            }
+          },
+          "required": ["urls"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "results": {
+              "description": "The list of pages browsed",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "favicon": {
+                    "type": "string"
+                  },
+                  "raw": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": ["url", "content", "raw"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["results"],
+          "type": "object"
+        }
+      },
+      "title": "Browse Pages"
+    },
+    "captureScreenshot": {
+      "billable": true,
+      "cacheable": true,
+      "description": "Capture a screenshot of the specified page.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "cssToInject": {
+              "description": "CSS code to inject into the page before taking the screenshot",
+              "type": "string",
+              "x-zui": {
+                "displayAs": [
+                  "text",
+                  {
+                    "growVertically": true,
+                    "multiLine": true
+                  }
+                ],
+                "title": "CSS To Inject"
+              }
+            },
+            "fullPage": {
+              "default": true,
+              "description": "Whether the screenshot is fullscreen or not",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Full Page"
+              }
+            },
+            "height": {
+              "default": 1920,
+              "description": "The height of the screenshot",
+              "type": "number",
+              "x-zui": {
+                "title": "Height"
+              }
+            },
+            "javascriptToInject": {
+              "description": "JavaScript code to inject into the page before taking the screenshot",
+              "type": "string",
+              "x-zui": {
+                "displayAs": [
+                  "text",
+                  {
+                    "growVertically": true,
+                    "multiLine": true
+                  }
+                ],
+                "title": "Javascript to Inject"
+              }
+            },
+            "url": {
+              "description": "The url to screenshot",
+              "type": "string",
+              "x-zui": {
+                "title": "Url"
+              }
+            },
+            "width": {
+              "default": 1080,
+              "description": "The width of the screenshot",
+              "type": "number",
+              "x-zui": {
+                "title": "Width"
+              }
+            }
+          },
+          "required": ["url"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "htmlUrl": {
+              "description": "URL to the HTML page of the screenshot",
+              "type": "string",
+              "x-zui": {
+                "title": "Html Url"
+              }
+            },
+            "imageUrl": {
+              "description": "URL to the captured screenshot",
+              "type": "string",
+              "x-zui": {
+                "title": "Image Url"
+              }
+            }
+          },
+          "required": ["imageUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Capture Screenshot"
+    },
+    "discoverUrls": {
+      "billable": true,
+      "cacheable": false,
+      "description": "Discovers the URLs of a website by finding links using sitemaps, robots.txt, and crawling.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "default": 5000,
+              "description": "The number of urls",
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "number",
+              "x-zui": {
+                "title": "Count"
+              }
+            },
+            "exclude": {
+              "description": "List of glob patterns to exclude URLs from the discovery. All URLs matching these patterns will be excluded from the results, even if they are included in the \"include\" patterns.",
+              "items": {
+                "description": "Glob pattern to match URLs. Use * for wildcard matching",
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxItems": 100,
+              "type": "array",
+              "x-zui": {
+                "title": "Exclude"
+              }
+            },
+            "include": {
+              "description": "List of glob patterns to include URLs from the discovery",
+              "items": {
+                "description": "Glob pattern to match URLs. Use * for wildcard matching",
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxItems": 100,
+              "type": "array",
+              "x-zui": {
+                "title": "Include"
+              }
+            },
+            "onlyHttps": {
+              "default": true,
+              "description": "Whether to only include HTTPS pages",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Only HTTPS"
+              }
+            },
+            "url": {
+              "description": "The URL of the website to discover URLs from. Can be a domain like example.com or a full URL like sub.example.com/page",
+              "type": "string",
+              "x-zui": {
+                "title": "Url"
+              }
+            }
+          },
+          "required": ["url"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "excluded": {
+              "description": "Number of URLs excluded due to robots.txt or filter",
+              "type": "number",
+              "x-zui": {
+                "title": "Excluded"
+              }
+            },
+            "stopReason": {
+              "description": "Reason for stopping the URLs discovery. ",
+              "enum": ["urls_limit_reached", "end_of_results", "time_limit_reached"],
+              "type": "string",
+              "x-zui": {
+                "title": "Stop Reason"
+              }
+            },
+            "urls": {
+              "description": "List of discovered URLs",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Urls"
+              }
+            }
+          },
+          "required": ["urls", "excluded", "stopReason"],
+          "type": "object"
+        }
+      },
+      "title": "Discover Website URLs"
+    },
+    "getWebsiteLogo": {
+      "billable": true,
+      "cacheable": false,
+      "description": "Get the logo of the specified website.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "domain": {
+              "description": "The domain of the website to get the logo from (eg. \"example.com\")",
+              "type": "string",
+              "x-zui": {
+                "title": "Domain"
+              }
+            },
+            "greyscale": {
+              "default": false,
+              "description": "Whether to return the logo in grayscale (black & white)",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Grayscale"
+              }
+            },
+            "size": {
+              "default": "128",
+              "description": "Size of the logo to return (64, 128 or 256, 512 pixels)",
+              "enum": ["64", "128", "256", "512"],
+              "type": "string",
+              "x-zui": {
+                "title": "Size"
+              }
+            }
+          },
+          "required": ["domain"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "logoUrl": {
+              "description": "URL to the website logo",
+              "type": "string",
+              "x-zui": {
+                "title": "Logo Url"
+              }
+            }
+          },
+          "required": ["logoUrl"],
+          "type": "object"
+        }
+      },
+      "title": "Get Website Logo"
+    },
+    "webSearch": {
+      "billable": true,
+      "cacheable": true,
+      "description": "Search information on the web. You need to browse to that page to get the full content of the page.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "browsePages": {
+              "default": false,
+              "description": "Whether to browse to the pages to get the full content",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Browse Pages"
+              }
+            },
+            "count": {
+              "default": 10,
+              "description": "Number of search results to return (default: 10)",
+              "maximum": 20,
+              "minimum": 1,
+              "type": "number",
+              "x-zui": {
+                "title": "Count"
+              }
+            },
+            "excludeSites": {
+              "description": "Exclude these domains from the search (max 20)",
+              "items": {
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+                "type": "string"
+              },
+              "maxItems": 20,
+              "type": "array",
+              "x-zui": {
+                "title": "Exclude Site"
+              }
+            },
+            "freshness": {
+              "description": "Only consider results from the last day, week or month",
+              "enum": ["Day", "Week", "Month"],
+              "type": "string",
+              "x-zui": {
+                "title": "Freshness"
+              }
+            },
+            "includeSites": {
+              "description": "Include only these domains in the search (max 20)",
+              "items": {
+                "maxLength": 50,
+                "minLength": 3,
+                "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$",
+                "type": "string"
+              },
+              "maxItems": 20,
+              "type": "array",
+              "x-zui": {
+                "title": "Include Site"
+              }
+            },
+            "query": {
+              "description": "What are we searching for?",
+              "maxLength": 1000,
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Query"
+              }
+            }
+          },
+          "required": ["query"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "results": {
+              "description": "Results of the search",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "links": {
+                    "description": "Useful links on the page",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["name", "url"],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "description": "Title of the page",
+                    "type": "string"
+                  },
+                  "page": {
+                    "additionalProperties": false,
+                    "description": "The page itself",
+                    "properties": {
+                      "content": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "favicon": {
+                        "type": "string"
+                      },
+                      "raw": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["url", "content", "raw"],
+                    "type": "object"
+                  },
+                  "snippet": {
+                    "description": "A short summary of the page",
+                    "type": "string"
+                  },
+                  "url": {
+                    "description": "URL of the page",
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "url", "snippet"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["results"],
+          "type": "object"
+        }
+      },
+      "title": "Web Search"
+    }
+  },
+  "description": "Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.",
+  "interfaces": {},
+  "name": "browser",
+  "title": "Browser",
+  "version": "0.8.2"
+}

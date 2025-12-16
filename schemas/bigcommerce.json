@@ -1,0 +1,85 @@
+{
+  "actions": {
+    "syncProducts": {
+      "description": "Get all products from BigCommerce and sync them to a Botpress table with background processing",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "backgroundErrors": {
+              "description": "Errors encountered during background processing",
+              "items": {
+                "type": "string",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {}
+            },
+            "backgroundProcessing": {
+              "description": "Whether background processing was used",
+              "type": "boolean",
+              "x-zui": {}
+            },
+            "firstPageProcessed": {
+              "description": "Number of products processed from first page",
+              "type": "number",
+              "x-zui": {}
+            },
+            "lastProcessedPage": {
+              "description": "Last page processed during background processing",
+              "type": "number",
+              "x-zui": {}
+            },
+            "message": {
+              "description": "Status message",
+              "type": "string",
+              "x-zui": {}
+            },
+            "productsCount": {
+              "description": "Total number of products processed",
+              "type": "number",
+              "x-zui": {}
+            },
+            "success": {
+              "description": "Whether the sync was successful",
+              "type": "boolean",
+              "x-zui": {}
+            },
+            "totalPages": {
+              "description": "Total number of pages",
+              "type": "number",
+              "x-zui": {}
+            }
+          },
+          "required": [
+            "success",
+            "message",
+            "productsCount",
+            "firstPageProcessed",
+            "totalPages",
+            "backgroundProcessing"
+          ],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Sync Products"
+    }
+  },
+  "description": "Sync products from BigCommerce to Botpress",
+  "interfaces": {},
+  "name": "bigcommerce",
+  "states": {},
+  "title": "BigCommerce",
+  "version": "3.2.0"
+}

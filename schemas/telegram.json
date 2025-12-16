@@ -1,0 +1,567 @@
+{
+  "actions": {
+    "startTypingIndicator": {
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "description": "The message ID to which the typing indicator should be attached",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "The timeout in milliseconds after which the typing indicator should stop",
+              "type": "number"
+            }
+          },
+          "required": ["conversationId", "messageId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      }
+    },
+    "stopTypingIndicator": {
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "description": "The message ID from which the typing indicator should be removed",
+              "type": "string"
+            }
+          },
+          "required": ["conversationId", "messageId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      }
+    }
+  },
+  "channels": {
+    "channel": {
+      "conversation": {
+        "tags": {
+          "chatId": {
+            "description": "The conversation Chat id",
+            "title": "Chat ID"
+          },
+          "fromUserId": {
+            "description": "The conversation From User id",
+            "title": "From User ID"
+          },
+          "fromUserName": {
+            "description": "The conversation from user name",
+            "title": "From User Name"
+          },
+          "fromUserUsername": {
+            "description": "The converstation from user username",
+            "title": "From User UserName"
+          },
+          "id": {
+            "description": "The conversation ID",
+            "title": "ID"
+          }
+        }
+      },
+      "description": "Telegram Channel",
+      "message": {
+        "tags": {
+          "chatId": {
+            "description": "The message Chat id",
+            "title": "Chat ID"
+          },
+          "id": {
+            "description": "The message id",
+            "title": "ID"
+          }
+        }
+      },
+      "messages": {
+        "audio": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "audioUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "caption": {
+                "description": "The caption/transcription of the audio message",
+                "type": "string"
+              }
+            },
+            "required": ["audioUrl"],
+            "type": "object"
+          }
+        },
+        "bloc": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "text": {
+                              "description": "The text content of the Telegram message (Limit 4096 characters)",
+                              "maxLength": 4096,
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["text"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "text",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "caption": {
+                              "description": "The caption/description of the image",
+                              "type": "string"
+                            },
+                            "imageUrl": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["imageUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "image",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "audioUrl": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "caption": {
+                              "description": "The caption/transcription of the audio message",
+                              "type": "string"
+                            }
+                          },
+                          "required": ["audioUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "audio",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "videoUrl": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["videoUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "video",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "fileUrl": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "title": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": ["fileUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "file",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "address": {
+                              "type": "string"
+                            },
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["latitude", "longitude"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "location",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "card": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": {
+                      "enum": ["postback", "url", "say"],
+                      "type": "string"
+                    },
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "subtitle": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["title", "actions"],
+            "type": "object"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": {
+                            "enum": ["postback", "url", "say"],
+                            "type": "string"
+                          },
+                          "label": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "value": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "imageUrl": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "subtitle": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "title": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "choice": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "file": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "fileUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["fileUrl"],
+            "type": "object"
+          }
+        },
+        "image": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "caption": {
+                "description": "The caption/description of the image",
+                "type": "string"
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["imageUrl"],
+            "type": "object"
+          }
+        },
+        "location": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object"
+          }
+        },
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "description": "The text content of the Telegram message (Limit 4096 characters)",
+                "maxLength": 4096,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text"],
+            "type": "object"
+          }
+        },
+        "video": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "videoUrl": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["videoUrl"],
+            "type": "object"
+          }
+        }
+      },
+      "title": "Channel"
+    }
+  },
+  "description": "Engage with your audience in real-time.",
+  "events": {},
+  "interfaces": {
+    "typing-indicator": {
+      "actions": {
+        "startTypingIndicator": {
+          "name": "startTypingIndicator"
+        },
+        "stopTypingIndicator": {
+          "name": "stopTypingIndicator"
+        }
+      },
+      "channels": {},
+      "entities": {},
+      "events": {},
+      "id": "",
+      "name": "typing-indicator",
+      "version": "0.0.3"
+    }
+  },
+  "name": "telegram",
+  "title": "Telegram",
+  "user": {
+    "tags": {
+      "id": {
+        "description": "The id of the user",
+        "title": "ID"
+      }
+    }
+  },
+  "version": "1.0.2"
+}

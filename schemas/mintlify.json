@@ -1,0 +1,357 @@
+{
+  "actions": {
+    "createAgentJob": {
+      "description": "Creates a new agent job that can generate and edit documentation in a branch based on a prompt.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "branchName": {
+              "description": "The name of the branch the Mintlify agent will make changes on. If the branch doesn't exist, it'll automatically be created.",
+              "type": "string",
+              "x-zui": {
+                "title": "Branch name"
+              }
+            },
+            "prompt": {
+              "description": "The prompt to send the Mintlify agent",
+              "type": "string",
+              "x-zui": {
+                "title": "Prompt"
+              }
+            }
+          },
+          "required": ["prompt", "branchName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "response": {
+              "description": "Streaming response containing the agent job execution details and results.",
+              "type": "string",
+              "x-zui": {
+                "title": "Response"
+              }
+            }
+          },
+          "required": ["response"],
+          "type": "object"
+        }
+      },
+      "title": "Create Agent job"
+    },
+    "getAgentJobById": {
+      "description": "Retrieve the details and status of a specific agent job by its ID.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "jobId": {
+              "description": "The unique identifier of the agent job to retrieve",
+              "type": "string",
+              "x-zui": {
+                "title": "Job ID"
+              }
+            }
+          },
+          "required": ["jobId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "branch": {
+              "anyOf": [
+                {
+                  "description": "Git branch name where changes were made.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Branch"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "x-zui": {
+                "def": {
+                  "typeName": "ZodNullable"
+                },
+                "title": "Branch"
+              }
+            },
+            "createdAt": {
+              "description": "Timestamp when the session was created.",
+              "type": "string",
+              "x-zui": {
+                "title": "Created at"
+              }
+            },
+            "haultReason": {
+              "description": "Reason for session halt.",
+              "type": "string",
+              "x-zui": {
+                "title": "Hault reason"
+              }
+            },
+            "haulted": {
+              "description": "Whether the session execution was halted.",
+              "type": "boolean",
+              "x-zui": {
+                "title": "Haulted"
+              }
+            },
+            "messageToUser": {
+              "description": "Message for the user about the session outcome.",
+              "type": "string",
+              "x-zui": {
+                "title": "Message to user"
+              }
+            },
+            "pullRequestLink": {
+              "description": "Link to the created pull request.",
+              "type": "string",
+              "x-zui": {
+                "title": "Pull request link"
+              }
+            },
+            "sessionId": {
+              "description": "The ID of the session.",
+              "type": "string",
+              "x-zui": {
+                "title": "Session ID"
+              }
+            },
+            "subdomain": {
+              "description": "The subdomain this session belongs to",
+              "type": "string",
+              "x-zui": {
+                "title": "Subdomain"
+              }
+            },
+            "todos": {
+              "description": "List of todo items from the session.",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "description": "Brief description of the task.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Content"
+                    }
+                  },
+                  "id": {
+                    "description": "Unique identifier for the todo item.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "ID"
+                    }
+                  },
+                  "priority": {
+                    "description": "Priority level of the task",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Priority"
+                    }
+                  },
+                  "status": {
+                    "description": "Current status of the task.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Status"
+                    }
+                  }
+                },
+                "required": ["content", "status", "priority", "id"],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Todos"
+              }
+            }
+          },
+          "required": [
+            "sessionId",
+            "subdomain",
+            "branch",
+            "haulted",
+            "haultReason",
+            "pullRequestLink",
+            "messageToUser",
+            "todos",
+            "createdAt"
+          ],
+          "type": "object"
+        }
+      },
+      "title": "Get Agent Job by ID"
+    },
+    "getAllAgentJobs": {
+      "description": "Retrieve all agent jobs, including their status and details.",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "allSessions": {
+              "description": "Array of all agent sessions for the domain",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "branch": {
+                    "anyOf": [
+                      {
+                        "description": "Git branch name where changes were made.",
+                        "type": "string",
+                        "x-zui": {
+                          "title": "Branch"
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "x-zui": {
+                      "def": {
+                        "typeName": "ZodNullable"
+                      },
+                      "title": "Branch"
+                    }
+                  },
+                  "createdAt": {
+                    "description": "Timestamp when the session was created.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Created at"
+                    }
+                  },
+                  "haultReason": {
+                    "description": "Reason for session halt.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Hault reason"
+                    }
+                  },
+                  "haulted": {
+                    "description": "Whether the session execution was halted.",
+                    "type": "boolean",
+                    "x-zui": {
+                      "title": "Haulted"
+                    }
+                  },
+                  "messageToUser": {
+                    "description": "Message for the user about the session outcome.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Message to user"
+                    }
+                  },
+                  "pullRequestLink": {
+                    "description": "Link to the created pull request.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Pull request link"
+                    }
+                  },
+                  "sessionId": {
+                    "description": "The ID of the session.",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Session ID"
+                    }
+                  },
+                  "subdomain": {
+                    "description": "The subdomain this session belongs to",
+                    "type": "string",
+                    "x-zui": {
+                      "title": "Subdomain"
+                    }
+                  },
+                  "todos": {
+                    "description": "List of todo items from the session.",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "content": {
+                          "description": "Brief description of the task.",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Content"
+                          }
+                        },
+                        "id": {
+                          "description": "Unique identifier for the todo item.",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "ID"
+                          }
+                        },
+                        "priority": {
+                          "description": "Priority level of the task",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Priority"
+                          }
+                        },
+                        "status": {
+                          "description": "Current status of the task.",
+                          "type": "string",
+                          "x-zui": {
+                            "title": "Status"
+                          }
+                        }
+                      },
+                      "required": ["content", "status", "priority", "id"],
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "x-zui": {
+                      "title": "Todos"
+                    }
+                  }
+                },
+                "required": [
+                  "sessionId",
+                  "subdomain",
+                  "branch",
+                  "haulted",
+                  "haultReason",
+                  "pullRequestLink",
+                  "messageToUser",
+                  "todos",
+                  "createdAt"
+                ],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "All sessions"
+              }
+            }
+          },
+          "required": ["allSessions"],
+          "type": "object"
+        }
+      },
+      "title": "Get All Agent Jobs"
+    }
+  },
+  "description": "Create and retrieve agent jobs in your Mintlify documentation",
+  "interfaces": {},
+  "name": "mintlify",
+  "title": "Mintlify",
+  "version": "1.0.0"
+}

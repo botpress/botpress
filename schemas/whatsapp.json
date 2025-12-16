@@ -1,0 +1,1290 @@
+{
+  "actions": {
+    "sendTemplateMessage": {
+      "description": "Sends a WhatsApp Message Template to a user in an existing conversation",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversation": {
+              "additionalProperties": false,
+              "description": "Details of the conversation",
+              "properties": {
+                "botPhoneNumberId": {
+                  "description": "Phone number ID to use as sender (uses the default phone number ID if not provided)",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Bot Phone Number ID"
+                  }
+                },
+                "templateLanguage": {
+                  "description": "Language of the WhatsApp Message Template to start the conversation with. Defaults to \"en\" (English)",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template language"
+                  }
+                },
+                "templateName": {
+                  "description": "Name of the WhatsApp Message Template to start the conversation with",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template name"
+                  }
+                },
+                "templateVariablesJson": {
+                  "description": "JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template variables"
+                  }
+                },
+                "userPhone": {
+                  "description": "Phone number of the WhatsApp user to start a conversation with. Add the country code (e.g. +81 for japan)",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "User Phone Number"
+                  }
+                }
+              },
+              "required": ["userPhone", "templateName"],
+              "type": "object",
+              "x-zui": {
+                "title": "Conversation Details"
+              }
+            }
+          },
+          "required": ["conversation"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "description": "ID of the conversation created",
+              "type": "string",
+              "x-zui": {
+                "title": "Conversation ID"
+              }
+            }
+          },
+          "required": ["conversationId"],
+          "type": "object"
+        }
+      },
+      "title": "Send Template Message"
+    },
+    "startConversation": {
+      "description": "Proactively starts a conversation with a WhatsApp user by sending them a message using a WhatsApp Message Template",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversation": {
+              "additionalProperties": false,
+              "description": "Details of the conversation",
+              "properties": {
+                "botPhoneNumberId": {
+                  "description": "Phone number ID to use as sender (uses the default phone number ID if not provided)",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Bot Phone Number ID"
+                  }
+                },
+                "templateLanguage": {
+                  "description": "Language of the WhatsApp Message Template to start the conversation with. Defaults to \"en\" (English)",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template language"
+                  }
+                },
+                "templateName": {
+                  "description": "Name of the WhatsApp Message Template to start the conversation with",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template name"
+                  }
+                },
+                "templateVariablesJson": {
+                  "description": "JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Message Template variables"
+                  }
+                },
+                "userPhone": {
+                  "description": "Phone number of the WhatsApp user to start a conversation with. Add the country code (e.g. +81 for japan)",
+                  "minLength": 1,
+                  "type": "string",
+                  "x-zui": {
+                    "title": "User Phone Number"
+                  }
+                }
+              },
+              "required": ["userPhone", "templateName"],
+              "type": "object",
+              "x-zui": {
+                "title": "Conversation Details"
+              }
+            }
+          },
+          "required": ["conversation"],
+          "type": "object"
+        }
+      },
+      "name": "startConversation",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "description": "The Botpress ID of the created conversation",
+              "type": "string",
+              "x-zui": {
+                "title": "Conversation ID"
+              }
+            }
+          },
+          "required": ["conversationId"],
+          "type": "object"
+        }
+      },
+      "title": "Start Conversation"
+    },
+    "startTypingIndicator": {
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "description": "The message ID to which the typing indicator should be attached",
+              "type": "string"
+            },
+            "timeout": {
+              "description": "The timeout in milliseconds after which the typing indicator should stop",
+              "type": "number"
+            }
+          },
+          "required": ["conversationId", "messageId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      }
+    },
+    "stopTypingIndicator": {
+      "attributes": {
+        "bpActionHiddenInStudio": "true"
+      },
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "conversationId": {
+              "type": "string"
+            },
+            "messageId": {
+              "description": "The message ID from which the typing indicator should be removed",
+              "type": "string"
+            }
+          },
+          "required": ["conversationId", "messageId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      }
+    }
+  },
+  "channels": {
+    "channel": {
+      "conversation": {
+        "tags": {
+          "botPhoneNumberId": {
+            "description": "WhatsApp Phone Number ID of the bot",
+            "title": "Bot Phone Number ID"
+          },
+          "userPhone": {
+            "description": "Phone number of the WhatsApp user having a conversation with the bot.",
+            "title": "User Phone Number"
+          }
+        }
+      },
+      "description": "Conversation between a WhatsApp user and the bot",
+      "message": {
+        "tags": {
+          "id": {
+            "description": "The WhatsApp message ID",
+            "title": "Message ID"
+          },
+          "reaction": {
+            "description": "A reaction added to the message",
+            "title": "Reaction"
+          },
+          "replyTo": {
+            "description": "The ID of the message that this message is a reply to",
+            "title": "Reply To"
+          }
+        }
+      },
+      "messages": {
+        "audio": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "audioUrl": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["audioUrl"],
+            "type": "object"
+          }
+        },
+        "bloc": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["text"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "text",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "markdown": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["markdown"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "markdown",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "imageUrl": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["imageUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "image",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "audioUrl": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["audioUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "audio",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "videoUrl": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["videoUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "video",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "fileUrl": {
+                              "type": "string"
+                            },
+                            "filename": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["fileUrl"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "file",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "payload": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "address": {
+                              "type": "string"
+                            },
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": ["latitude", "longitude"],
+                          "type": "object"
+                        },
+                        "type": {
+                          "const": "location",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["type", "payload"],
+                      "type": "object"
+                    }
+                  ],
+                  "x-zui": {
+                    "def": {
+                      "discriminator": "type",
+                      "typeName": "ZodDiscriminatedUnion"
+                    }
+                  }
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "card": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "actions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "action": {
+                      "enum": ["postback", "url", "say"],
+                      "type": "string"
+                    },
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["action", "label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "subtitle": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["title", "actions"],
+            "type": "object"
+          }
+        },
+        "carousel": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "actions": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "action": {
+                            "enum": ["postback", "url", "say"],
+                            "type": "string"
+                          },
+                          "label": {
+                            "minLength": 1,
+                            "type": "string"
+                          },
+                          "value": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "required": ["action", "label", "value"],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "imageUrl": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "subtitle": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "title": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["title", "actions"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": ["items"],
+            "type": "object"
+          }
+        },
+        "choice": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "buttonLabel": {
+                "description": "Label for the dropdown button",
+                "maxLength": 20,
+                "type": "string",
+                "x-zui": {
+                  "title": "Button Label"
+                }
+              },
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "dropdown": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "buttonLabel": {
+                "description": "Label for the dropdown button",
+                "maxLength": 20,
+                "type": "string",
+                "x-zui": {
+                  "title": "Button Label"
+                }
+              },
+              "options": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "value": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": ["label", "value"],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text", "options"],
+            "type": "object"
+          }
+        },
+        "file": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "fileUrl": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "filename": {
+                "type": "string"
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["fileUrl"],
+            "type": "object"
+          }
+        },
+        "image": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "caption": {
+                "type": "string"
+              },
+              "imageUrl": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["imageUrl"],
+            "type": "object"
+          }
+        },
+        "location": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": ["latitude", "longitude"],
+            "type": "object"
+          }
+        },
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "description": "Underlying value of the message, if any (e.g. button payload, list reply payload, etc.)",
+                "type": "string",
+                "x-zui": {
+                  "title": "value"
+                }
+              }
+            },
+            "required": ["text"],
+            "type": "object"
+          }
+        },
+        "video": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "videoUrl": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["videoUrl"],
+            "type": "object"
+          }
+        }
+      },
+      "title": "WhatsApp conversation"
+    }
+  },
+  "description": "Send and receive messages through WhatsApp.",
+  "entities": {
+    "proactiveConversation": {
+      "description": "Proactive conversation with a WhatsApp user",
+      "schema": {
+        "additionalProperties": false,
+        "description": "Details of the conversation",
+        "properties": {
+          "botPhoneNumberId": {
+            "description": "Phone number ID to use as sender (uses the default phone number ID if not provided)",
+            "type": "string",
+            "x-zui": {
+              "title": "Bot Phone Number ID"
+            }
+          },
+          "templateLanguage": {
+            "description": "Language of the WhatsApp Message Template to start the conversation with. Defaults to \"en\" (English)",
+            "type": "string",
+            "x-zui": {
+              "title": "Message Template language"
+            }
+          },
+          "templateName": {
+            "description": "Name of the WhatsApp Message Template to start the conversation with",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": {
+              "title": "Message Template name"
+            }
+          },
+          "templateVariablesJson": {
+            "description": "JSON array representation of variable values to pass to the WhatsApp Message Template (if required by the template). Currently, only positional parameters are supported.",
+            "type": "string",
+            "x-zui": {
+              "title": "Message Template variables"
+            }
+          },
+          "userPhone": {
+            "description": "Phone number of the WhatsApp user to start a conversation with. Add the country code (e.g. +81 for japan)",
+            "minLength": 1,
+            "type": "string",
+            "x-zui": {
+              "title": "User Phone Number"
+            }
+          }
+        },
+        "required": ["userPhone", "templateName"],
+        "type": "object",
+        "x-zui": {
+          "title": "Conversation Details"
+        }
+      },
+      "title": "Proactive Conversation"
+    }
+  },
+  "events": {
+    "messageTemplateComponentsUpdate": {
+      "description": "Triggered when a template is edited",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The message_template_components_update webhook notifies you of changes to a template's components.",
+        "properties": {
+          "buttons": {
+            "description": "Array of button objects, if present.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "button_phone_number": {
+                  "description": "Button phone number.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Button Phone Number"
+                  }
+                },
+                "button_text": {
+                  "description": "Button label text.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Button Label Text"
+                  }
+                },
+                "button_type": {
+                  "description": "Button type.",
+                  "enum": [
+                    "CATALOG",
+                    "COPY_CODE",
+                    "EXTENSION",
+                    "FLOW",
+                    "MPM",
+                    "ORDER_DETAILS",
+                    "OTP",
+                    "PHONE_NUMBER",
+                    "POSTBACK",
+                    "REMINDER",
+                    "SEND_LOCATION",
+                    "SPM",
+                    "QUICK_REPLY",
+                    "URL",
+                    "VOICE_CALL"
+                  ],
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Button Type"
+                  }
+                },
+                "button_url": {
+                  "description": "Button URL.",
+                  "type": "string",
+                  "x-zui": {
+                    "title": "Button URL"
+                  }
+                }
+              },
+              "required": ["button_type", "button_text"],
+              "type": "object"
+            },
+            "type": "array",
+            "x-zui": {
+              "title": "Buttons"
+            }
+          },
+          "element": {
+            "description": "Template body text.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Body Text"
+            }
+          },
+          "footer": {
+            "description": "Template Footer Text.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Footer Text"
+            }
+          },
+          "id": {
+            "description": "Template ID.",
+            "type": "number",
+            "x-zui": {
+              "title": "Template Id"
+            }
+          },
+          "language": {
+            "description": "Template language and locale code.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Language"
+            }
+          },
+          "name": {
+            "description": "Template name.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Name"
+            }
+          },
+          "title": {
+            "description": "Template Header Text.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Header Text"
+            }
+          }
+        },
+        "required": ["id", "name", "language", "element"],
+        "type": "object",
+        "x-zui": {
+          "title": "Message Template Components Update"
+        }
+      },
+      "title": "Message Template Components Update"
+    },
+    "messageTemplateQualityUpdate": {
+      "description": "Triggered when a template's quality score changes",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The message_template_quality_update webhook notifies you of changes to a template's quality score.",
+        "properties": {
+          "id": {
+            "description": "Template ID.",
+            "type": "number",
+            "x-zui": {
+              "title": "Template Id"
+            }
+          },
+          "language": {
+            "description": "Template language and locale code.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Language"
+            }
+          },
+          "name": {
+            "description": "Template name.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Name"
+            }
+          },
+          "new_quality_score": {
+            "description": "New template quality score.",
+            "enum": ["GREEN", "RED", "YELLOW", "UNKNOWN"],
+            "type": "string",
+            "x-zui": {
+              "title": "New Quality Score"
+            }
+          },
+          "previous_quality_score": {
+            "description": "Previous template quality score.",
+            "enum": ["GREEN", "RED", "YELLOW", "UNKNOWN"],
+            "type": "string",
+            "x-zui": {
+              "title": "Previous Quality Score"
+            }
+          }
+        },
+        "required": ["previous_quality_score", "new_quality_score", "id", "name", "language"],
+        "type": "object",
+        "x-zui": {
+          "title": "Message Template Quality Update"
+        }
+      },
+      "title": "Message Template Quality Update"
+    },
+    "messageTemplateStatusUpdate": {
+      "description": "Triggered when a template is approved, rejected or disabled",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The message_template_status_update webhook notifies you of changes to the status of an existing template.",
+        "properties": {
+          "disable_info": {
+            "additionalProperties": false,
+            "description": "only included if template disabled",
+            "properties": {
+              "disable_date": {
+                "description": "Unix timestamp indicating when the template was disabled.",
+                "type": "number",
+                "x-zui": {
+                  "title": "Disable Timestamp"
+                }
+              }
+            },
+            "required": ["disable_date"],
+            "type": "object",
+            "x-zui": {
+              "title": "Disable Info"
+            }
+          },
+          "event": {
+            "description": "Template status event.",
+            "enum": [
+              "APPROVED",
+              "ARCHIVED",
+              "DELETED",
+              "DISABLED",
+              "FLAGGED",
+              "IN_APPEAL",
+              "LIMIT_EXCEEDED",
+              "LOCKED",
+              "PAUSED",
+              "PENDING",
+              "REINSTATED",
+              "PENDING_DELETION",
+              "REJECTED"
+            ],
+            "type": "string",
+            "x-zui": {
+              "title": "Template Status Event"
+            }
+          },
+          "id": {
+            "description": "Template ID.",
+            "type": "number",
+            "x-zui": {
+              "title": "Template Id"
+            }
+          },
+          "language": {
+            "description": "Language and locale code.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Language"
+            }
+          },
+          "name": {
+            "description": "Template name.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Name"
+            }
+          },
+          "other_info": {
+            "additionalProperties": false,
+            "description": "only included if template locked or unlocked",
+            "properties": {
+              "description": {
+                "description": "String describing why the template was locked or unlocked.",
+                "type": "string",
+                "x-zui": {
+                  "title": "Description"
+                }
+              },
+              "title": {
+                "description": "Title of template pause or unpause event.",
+                "enum": ["FIRST_PAUSE", "SECOND_PAUSE", "RATE_LIMITING_PAUSE", "UNPAUSE", "DISABLED"],
+                "type": "string",
+                "x-zui": {
+                  "title": "Title"
+                }
+              }
+            },
+            "required": ["title", "description"],
+            "type": "object",
+            "x-zui": {
+              "title": "Other Info"
+            }
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "description": "Template rejection reason, if rejected.",
+                "enum": [
+                  "ABUSIVE_CONTENT",
+                  "CATEGORY_NOT_AVAILABLE",
+                  "INCORRECT_CATEGORY",
+                  "INVALID_FORMAT",
+                  "NONE",
+                  "PROMOTIONAL",
+                  "SCAM",
+                  "TAG_CONTENT_MISMATCH"
+                ],
+                "type": "string",
+                "x-zui": {
+                  "title": "Rejection Reason"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "x-zui": {
+              "def": {
+                "typeName": "ZodNullable"
+              },
+              "title": "Rejection Reason"
+            }
+          }
+        },
+        "required": ["event", "id", "name", "language", "reason"],
+        "type": "object",
+        "x-zui": {
+          "title": "Message Template Status Update"
+        }
+      },
+      "title": "Message Template Status Update"
+    },
+    "reactionAdded": {
+      "description": "Triggered when a user adds a reaction to a message",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "conversationId": {
+            "description": "ID of the conversation",
+            "type": "string",
+            "x-zui": {
+              "title": "Conversation ID"
+            }
+          },
+          "messageId": {
+            "description": "ID of the message that was reacted to",
+            "type": "string",
+            "x-zui": {
+              "title": "Message ID"
+            }
+          },
+          "reaction": {
+            "description": "The reaction that was added",
+            "type": "string",
+            "x-zui": {
+              "title": "Reaction"
+            }
+          },
+          "userId": {
+            "description": "ID of the user who added the reaction",
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          }
+        },
+        "required": ["reaction", "messageId"],
+        "type": "object"
+      },
+      "title": "Reaction Added"
+    },
+    "reactionRemoved": {
+      "description": "Triggered when a user removes a reaction from a message",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "conversationId": {
+            "description": "ID of the conversation",
+            "type": "string",
+            "x-zui": {
+              "title": "Conversation ID"
+            }
+          },
+          "messageId": {
+            "description": "ID of the message that was reacted to",
+            "type": "string",
+            "x-zui": {
+              "title": "Message ID"
+            }
+          },
+          "reaction": {
+            "description": "The reaction that was removed",
+            "type": "string",
+            "x-zui": {
+              "title": "Reaction"
+            }
+          },
+          "userId": {
+            "description": "ID of the user who removed the reaction",
+            "type": "string",
+            "x-zui": {
+              "title": "User ID"
+            }
+          }
+        },
+        "required": ["reaction", "messageId"],
+        "type": "object"
+      },
+      "title": "Reaction Removed"
+    },
+    "templateCategoryUpdate": {
+      "description": "Triggered when the category of a WhatsApp template is changed — whether manually or by an automated process, or when such a change is about to occur.",
+      "schema": {
+        "additionalProperties": false,
+        "description": "The template_category_update webhook notifies you of changes to template's category.",
+        "properties": {
+          "correct_category": {
+            "description": "The category that the template will be recategorized as in 24 hours.",
+            "type": "string",
+            "x-zui": {
+              "title": "Correct Category"
+            }
+          },
+          "id": {
+            "description": "Template ID.",
+            "type": "number",
+            "x-zui": {
+              "title": "Template Id"
+            }
+          },
+          "language": {
+            "description": "Template language and locale code.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Language"
+            }
+          },
+          "name": {
+            "description": "Template name.",
+            "type": "string",
+            "x-zui": {
+              "title": "Template Name"
+            }
+          },
+          "new_category": {
+            "description": "The template's new category.",
+            "type": "string",
+            "x-zui": {
+              "title": "New Category"
+            }
+          },
+          "previous_category": {
+            "description": "The template's previous category.",
+            "type": "string",
+            "x-zui": {
+              "title": "Previous Category"
+            }
+          }
+        },
+        "required": ["id", "name", "language"],
+        "type": "object",
+        "x-zui": {
+          "title": "Template Category Update"
+        }
+      },
+      "title": "Template Category Update"
+    }
+  },
+  "interfaces": {
+    "proactive-conversation<proactiveConversation>": {
+      "actions": {
+        "getOrCreateConversation": {
+          "name": "startConversation"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "conversation": {
+          "name": "proactiveConversation"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "proactive-conversation",
+      "version": "0.0.4"
+    },
+    "typing-indicator": {
+      "actions": {
+        "startTypingIndicator": {
+          "name": "startTypingIndicator"
+        },
+        "stopTypingIndicator": {
+          "name": "stopTypingIndicator"
+        }
+      },
+      "channels": {},
+      "entities": {},
+      "events": {},
+      "id": "",
+      "name": "typing-indicator",
+      "version": "0.0.3"
+    }
+  },
+  "name": "whatsapp",
+  "states": {
+    "credentials": {
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "description": "Access token used to authenticate requests to the WhatsApp Business Platform API",
+            "type": "string",
+            "x-zui": {
+              "title": "Access token"
+            }
+          },
+          "defaultBotPhoneNumberId": {
+            "description": "Default Phone ID used by the bot for starting conversations",
+            "type": "string",
+            "x-zui": {
+              "title": "Default Bot Phone Number ID"
+            }
+          },
+          "wabaId": {
+            "description": "WhatsApp Business Account ID used to subscribe to webhook events",
+            "type": "string",
+            "x-zui": {
+              "title": "WhatsApp Business Account ID"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "WhatsApp",
+  "user": {
+    "tags": {
+      "name": {
+        "description": "WhatsApp user display name",
+        "title": "Name"
+      },
+      "userId": {
+        "description": "WhatsApp user ID",
+        "title": "User ID"
+      }
+    }
+  },
+  "version": "4.5.19"
+}

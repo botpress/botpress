@@ -1,0 +1,124 @@
+{
+  "actions": {
+    "fromHtml": {
+      "description": "Converts an HTML document to a PDF file",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "filename": {
+              "default": "generated.pdf",
+              "description": "The filename of the PDF",
+              "minLength": 1,
+              "pattern": "\\.pdf$",
+              "type": "string",
+              "x-zui": {
+                "title": "Filename"
+              }
+            },
+            "html": {
+              "description": "The HTML content to convert to PDF",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "HTML"
+              }
+            }
+          },
+          "required": ["html"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "fileId": {
+              "description": "The generated PDF file ID",
+              "type": "string",
+              "x-zui": {
+                "title": "File ID"
+              }
+            },
+            "fileUrl": {
+              "description": "The public URL to download the PDF",
+              "type": "string",
+              "x-zui": {
+                "title": "File URL"
+              }
+            }
+          },
+          "required": ["fileId", "fileUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "HTML to PDF"
+    },
+    "fromMarkdown": {
+      "description": "Converts a markdown content to a PDF file",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "filename": {
+              "default": "generated.pdf",
+              "description": "The filename of the PDF",
+              "minLength": 1,
+              "pattern": "\\.pdf$",
+              "type": "string",
+              "x-zui": {
+                "title": "Filename"
+              }
+            },
+            "markdown": {
+              "description": "The markdown content to convert to PDF",
+              "minLength": 1,
+              "type": "string",
+              "x-zui": {
+                "title": "Markdown"
+              }
+            }
+          },
+          "required": ["markdown"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "fileId": {
+              "description": "The generated PDF file ID",
+              "type": "string",
+              "x-zui": {
+                "title": "File ID"
+              }
+            },
+            "fileUrl": {
+              "description": "The public URL to download the PDF",
+              "type": "string",
+              "x-zui": {
+                "title": "File URL"
+              }
+            }
+          },
+          "required": ["fileId", "fileUrl"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Markdown to PDF"
+    }
+  },
+  "description": "Converts markdown content to PDF using PDFShift",
+  "interfaces": {},
+  "name": "pdf-generator",
+  "version": "0.0.3"
+}

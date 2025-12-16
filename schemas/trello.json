@@ -1,0 +1,4865 @@
+{
+  "actions": {
+    "addCardComment": {
+      "description": "Add a new comment to a card",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for adding a comment to a card",
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card to which a comment will be added",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            },
+            "commentBody": {
+              "description": "The body text of the comment",
+              "type": "string",
+              "x-zui": {
+                "title": "Comment Body"
+              }
+            }
+          },
+          "required": ["cardId", "commentBody"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for adding a comment to a card",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            },
+            "newCommentId": {
+              "description": "Unique identifier of the newly created comment",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            }
+          },
+          "required": ["message", "newCommentId"],
+          "type": "object"
+        }
+      },
+      "title": "Add card comment"
+    },
+    "boardList": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "name": "boardList",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "id": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id", "name"],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      }
+    },
+    "boardMemberList": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "name": "boardMemberList",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "fullName": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id", "username", "fullName"],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      }
+    },
+    "boardMemberRead": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "boardMemberRead",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "fullName": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "username", "fullName"],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "boardRead": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "boardRead",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "name"],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "cardCreate": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "dueDate": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "labelIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "listId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "memberIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ],
+              "type": "object"
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      },
+      "name": "cardCreate",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "labelIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "listId": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "memberIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "cardDelete": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "cardDelete",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object"
+        }
+      }
+    },
+    "cardList": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "name": "cardList",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "dueDate": {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "id": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "isClosed": {
+                        "type": "boolean"
+                      },
+                      "isCompleted": {
+                        "type": "boolean"
+                      },
+                      "labelIds": {
+                        "items": {
+                          "maxLength": 24,
+                          "minLength": 24,
+                          "pattern": "^[0-9a-fA-F]{24}$",
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "listId": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "memberIds": {
+                        "items": {
+                          "maxLength": 24,
+                          "minLength": 24,
+                          "pattern": "^[0-9a-fA-F]{24}$",
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "verticalPosition": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "description",
+                      "listId",
+                      "verticalPosition",
+                      "isClosed",
+                      "isCompleted",
+                      "labelIds",
+                      "memberIds"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      }
+    },
+    "cardMemberList": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "name": "cardMemberList",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "fullName": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "username": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id", "username", "fullName"],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      }
+    },
+    "cardMemberRead": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "cardMemberRead",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "fullName": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "username": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "username", "fullName"],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "cardRead": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "cardRead",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "labelIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "listId": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "memberIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "cardUpdate": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "item": {
+              "additionalProperties": false,
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "dueDate": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "labelIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "listId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "memberIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ],
+              "type": "object"
+            }
+          },
+          "required": ["id", "item"],
+          "type": "object"
+        }
+      },
+      "name": "cardUpdate",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "isClosed": {
+                      "type": "boolean"
+                    },
+                    "isCompleted": {
+                      "type": "boolean"
+                    },
+                    "labelIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "listId": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "memberIds": {
+                      "items": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "verticalPosition": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "listId",
+                    "verticalPosition",
+                    "isClosed",
+                    "isCompleted",
+                    "labelIds",
+                    "memberIds"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "createCard": {
+      "description": "Create a card and add it to a list",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for creating a new card",
+          "properties": {
+            "cardBody": {
+              "description": "Body text of the new card",
+              "type": "string",
+              "x-zui": {
+                "title": "Card Body"
+              }
+            },
+            "cardName": {
+              "description": "Name of the new card",
+              "type": "string",
+              "x-zui": {
+                "title": "Card Name"
+              }
+            },
+            "dueDate": {
+              "description": "The due date of the card in ISO 8601 format (Optional).",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "Due Date"
+              }
+            },
+            "labels": {
+              "description": "Labels to add to the card (Optional). This should be a list of label IDs.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels"
+              }
+            },
+            "listId": {
+              "description": "ID of the list in which to insert the new card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            },
+            "members": {
+              "description": "Members to add to the card (Optional). This should be a list of member IDs.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Members"
+              }
+            }
+          },
+          "required": ["listId", "cardName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for creating a card",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            },
+            "newCardId": {
+              "description": "Unique identifier of the new card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            }
+          },
+          "required": ["message", "newCardId"],
+          "type": "object"
+        }
+      },
+      "title": "Create new card"
+    },
+    "getAllBoardMembers": {
+      "description": "Get all members of a board",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting all members of a board",
+          "properties": {
+            "boardId": {
+              "description": "Unique identifier of the board",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            }
+          },
+          "required": ["boardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting all members of a board",
+          "properties": {
+            "members": {
+              "description": "Array of member objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "username", "fullName"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["members"],
+          "type": "object"
+        }
+      },
+      "title": "Get all board members"
+    },
+    "getAllBoards": {
+      "description": "Get all boards managed by the authenticated user",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting all boards",
+          "properties": {},
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting all boards",
+          "properties": {
+            "boards": {
+              "description": "Array of board objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["boards"],
+          "type": "object"
+        }
+      },
+      "title": "Get all boards"
+    },
+    "getAllCardMembers": {
+      "description": "Get all members of a card",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting all members of a card",
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            }
+          },
+          "required": ["cardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting all members of a card",
+          "properties": {
+            "members": {
+              "description": "Array of member objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "username", "fullName"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["members"],
+          "type": "object"
+        }
+      },
+      "title": "Get all card members"
+    },
+    "getBoardById": {
+      "description": "Get a board by its unique identifier",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a board from its ID",
+          "properties": {
+            "boardId": {
+              "description": "Unique identifier of the board",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            }
+          },
+          "required": ["boardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a board from its ID",
+          "properties": {
+            "board": {
+              "additionalProperties": false,
+              "description": "The board object",
+              "properties": {
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name"],
+              "type": "object"
+            }
+          },
+          "required": ["board"],
+          "type": "object"
+        }
+      },
+      "title": "Get board by ID"
+    },
+    "getBoardMembersByDisplayName": {
+      "description": "Find all members whose display name match this name",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a member from its name",
+          "properties": {
+            "boardId": {
+              "description": "Unique identifier of the board",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            },
+            "displayName": {
+              "description": "Display name of the member",
+              "type": "string",
+              "x-zui": {
+                "title": "Display Name"
+              }
+            }
+          },
+          "required": ["boardId", "displayName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a member from its name",
+          "properties": {
+            "members": {
+              "description": "Array of member objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "username", "fullName"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["members"],
+          "type": "object"
+        }
+      },
+      "title": "Get members by name"
+    },
+    "getBoardsByDisplayName": {
+      "description": "Find all boards whose display name match this name",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a board ID from its name",
+          "properties": {
+            "boardName": {
+              "description": "Display name of the board",
+              "type": "string",
+              "x-zui": {
+                "title": "Board Name"
+              }
+            }
+          },
+          "required": ["boardName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a board from its name",
+          "properties": {
+            "boards": {
+              "description": "Array of board objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["boards"],
+          "type": "object"
+        }
+      },
+      "title": "Get boards by name"
+    },
+    "getCardById": {
+      "description": "Get a card by its unique identifier",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a card from its ID",
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            }
+          },
+          "required": ["cardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a card from its ID",
+          "properties": {
+            "card": {
+              "additionalProperties": false,
+              "description": "The card object",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "dueDate": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "isClosed": {
+                  "type": "boolean"
+                },
+                "isCompleted": {
+                  "type": "boolean"
+                },
+                "labelIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "listId": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "memberIds": {
+                  "items": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "verticalPosition": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "listId",
+                "verticalPosition",
+                "isClosed",
+                "isCompleted",
+                "labelIds",
+                "memberIds"
+              ],
+              "type": "object"
+            }
+          },
+          "required": ["card"],
+          "type": "object"
+        }
+      },
+      "title": "Get card by ID"
+    },
+    "getCardsByDisplayName": {
+      "description": "Find all lists whose display name match this name",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a card ID from its name",
+          "properties": {
+            "cardName": {
+              "description": "Display name of the card",
+              "type": "string",
+              "x-zui": {
+                "title": "Card Name"
+              }
+            },
+            "listId": {
+              "description": "Unique identifier of the list",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            }
+          },
+          "required": ["listId", "cardName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a card ID from its name",
+          "properties": {
+            "cards": {
+              "description": "Array of card objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "labelIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "listId": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "memberIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["cards"],
+          "type": "object"
+        }
+      },
+      "title": "Find cards by name name"
+    },
+    "getCardsInList": {
+      "description": "Get all cards in a list",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting all cards in a list",
+          "properties": {
+            "listId": {
+              "description": "Unique identifier of the list",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            }
+          },
+          "required": ["listId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting all cards in a list",
+          "properties": {
+            "cards": {
+              "description": "Array of card objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "labelIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "listId": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "memberIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["cards"],
+          "type": "object"
+        }
+      },
+      "title": "Get cards in list"
+    },
+    "getListById": {
+      "description": "Get a list by its unique identifier",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a list from its ID",
+          "properties": {
+            "listId": {
+              "description": "Unique identifier of the list",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            }
+          },
+          "required": ["listId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a list from its ID",
+          "properties": {
+            "list": {
+              "additionalProperties": false,
+              "description": "The list object",
+              "properties": {
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "name"],
+              "type": "object"
+            }
+          },
+          "required": ["list"],
+          "type": "object"
+        }
+      },
+      "title": "Get list by ID"
+    },
+    "getListsByDisplayName": {
+      "description": "Find all lists whose display name match this name",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a list ID from its name",
+          "properties": {
+            "boardId": {
+              "description": "Unique identifier of the board",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            },
+            "listName": {
+              "description": "Display name of the list",
+              "type": "string",
+              "x-zui": {
+                "title": "List Name"
+              }
+            }
+          },
+          "required": ["boardId", "listName"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a list ID from its name",
+          "properties": {
+            "lists": {
+              "description": "Array of list objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["lists"],
+          "type": "object"
+        }
+      },
+      "title": "Get lists by name"
+    },
+    "getListsInBoard": {
+      "description": "Get all lists in a board",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting all lists in a board",
+          "properties": {
+            "boardId": {
+              "description": "Unique identifier of the board",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Board ID"
+              }
+            }
+          },
+          "required": ["boardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting all lists in a board",
+          "properties": {
+            "lists": {
+              "description": "Array of list objects",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id", "name"],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": ["lists"],
+          "type": "object"
+        }
+      },
+      "title": "Get lists in board"
+    },
+    "getMemberByIdOrUsername": {
+      "description": "Get a member by their unique identifier or username",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for getting a member from its ID or username",
+          "properties": {
+            "memberIdOrUsername": {
+              "anyOf": [
+                {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "description": "ID or username of the member to get",
+              "x-zui": {
+                "title": "Member ID or Username"
+              }
+            }
+          },
+          "required": ["memberIdOrUsername"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for getting a member by its ID or username",
+          "properties": {
+            "member": {
+              "additionalProperties": false,
+              "description": "The member object",
+              "properties": {
+                "fullName": {
+                  "type": "string"
+                },
+                "id": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": ["id", "username", "fullName"],
+              "type": "object"
+            }
+          },
+          "required": ["member"],
+          "type": "object"
+        }
+      },
+      "title": "Get member by ID or username"
+    },
+    "listList": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "name": "listList",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "items": {
+                "allOf": [
+                  {
+                    "properties": {
+                      "id": {
+                        "maxLength": 24,
+                        "minLength": 24,
+                        "pattern": "^[0-9a-fA-F]{24}$",
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id", "name"],
+                    "type": "object"
+                  },
+                  {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["id"],
+                    "type": "object"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "meta": {
+              "additionalProperties": false,
+              "properties": {
+                "nextToken": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "required": ["items", "meta"],
+          "type": "object"
+        }
+      }
+    },
+    "listRead": {
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"],
+          "type": "object"
+        }
+      },
+      "name": "listRead",
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "item": {
+              "allOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id", "name"],
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["id"],
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": ["item"],
+          "type": "object"
+        }
+      }
+    },
+    "moveCardDown": {
+      "description": "Move a card n spaces down",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            },
+            "moveDownByNSpaces": {
+              "default": 1,
+              "description": "Number of spaces by which to move the card down",
+              "minimum": 1,
+              "type": "number",
+              "x-zui": {
+                "title": "Move Down By N Spaces"
+              }
+            }
+          },
+          "required": ["cardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for moving a card down",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            }
+          },
+          "required": ["message"],
+          "type": "object"
+        }
+      },
+      "title": "Move card down"
+    },
+    "moveCardToList": {
+      "description": "Move a card to another list within the same board",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            },
+            "newListId": {
+              "description": "Unique identifier of the list in which the card will be moved",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "New List ID"
+              }
+            }
+          },
+          "required": ["cardId", "newListId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for moving a card to a list",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            }
+          },
+          "required": ["message"],
+          "type": "object"
+        }
+      },
+      "title": "Move card to another list"
+    },
+    "moveCardUp": {
+      "description": "Move a card n spaces up",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            },
+            "moveUpByNSpaces": {
+              "default": 1,
+              "description": "Number of spaces by which to move the card up",
+              "minimum": 1,
+              "type": "number",
+              "x-zui": {
+                "title": "Move Up By N Spaces"
+              }
+            }
+          },
+          "required": ["cardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for moving a card up",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            }
+          },
+          "required": ["message"],
+          "type": "object"
+        }
+      },
+      "title": "Move card up"
+    },
+    "updateCard": {
+      "description": "Update the details of a card",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Input schema for creating a new card",
+          "properties": {
+            "bodyText": {
+              "description": "Body text of the new card (Optional). Leave empty to keep the current body.",
+              "type": "string",
+              "x-zui": {
+                "title": "Body Text"
+              }
+            },
+            "cardId": {
+              "description": "Unique identifier of the card",
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Card ID"
+              }
+            },
+            "closedState": {
+              "description": "Whether the card should be archived (Optional). Enter \"open\", \"archived\" (without quotes), or leave empty to keep the previous status.",
+              "enum": ["open", "archived"],
+              "type": "string",
+              "x-zui": {
+                "title": "Closed State"
+              }
+            },
+            "completeState": {
+              "description": "Whether the card should be marked as complete (Optional). Enter \"complete\", \"incomplete\" (without quotes), or leave empty to keep the previous status.",
+              "enum": ["complete", "incomplete"],
+              "type": "string",
+              "x-zui": {
+                "title": "State Completion"
+              }
+            },
+            "dueDate": {
+              "description": "The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.",
+              "format": "date-time",
+              "type": "string",
+              "x-zui": {
+                "title": "Due Date"
+              }
+            },
+            "labelsToAdd": {
+              "description": "Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels to Add"
+              }
+            },
+            "labelsToRemove": {
+              "description": "Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Labels to Remove"
+              }
+            },
+            "membersToAdd": {
+              "description": "Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Members to Add"
+              }
+            },
+            "membersToRemove": {
+              "description": "Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.",
+              "items": {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Members to Remove"
+              }
+            },
+            "name": {
+              "description": "The name of the card (Optional) (e.g. \"My Test Card\"). Leave empty to keep the current name.",
+              "type": "string",
+              "x-zui": {
+                "title": "Name"
+              }
+            }
+          },
+          "required": ["cardId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "Output schema for updating a card",
+          "properties": {
+            "message": {
+              "description": "Output message",
+              "type": "string"
+            }
+          },
+          "required": ["message"],
+          "type": "object"
+        }
+      },
+      "title": "Update card"
+    }
+  },
+  "channels": {
+    "cardComments": {
+      "conversation": {
+        "tags": {
+          "cardId": {
+            "description": "unique identifier of the card",
+            "title": "Card ID"
+          },
+          "cardName": {
+            "description": "display name of the card",
+            "title": "Card name"
+          },
+          "lastCommentId": {
+            "description": "unique identifier of the last comment sent by the integration in this conversation",
+            "title": "Last comment ID"
+          },
+          "listId": {
+            "description": "unique identifier of the list",
+            "title": "List ID"
+          },
+          "listName": {
+            "description": "display name of the list",
+            "title": "Card ID"
+          }
+        }
+      },
+      "description": "Channel for managing comments on Trello cards",
+      "message": {
+        "tags": {
+          "commentId": {
+            "description": "unique identifier of the comment",
+            "title": "Comment ID"
+          }
+        }
+      },
+      "messages": {
+        "text": {
+          "schema": {
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": ["text"],
+            "type": "object"
+          }
+        }
+      },
+      "title": "Card Comments"
+    }
+  },
+  "description": "Update cards, add comments, create new cards, and read board members from your chatbot.",
+  "entities": {
+    "board": {
+      "description": "A Trello board",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name"],
+        "type": "object"
+      },
+      "title": "Board"
+    },
+    "boardMember": {
+      "description": "A member of a Trello board",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "username", "fullName"],
+        "type": "object"
+      },
+      "title": "Board Member"
+    },
+    "card": {
+      "description": "A card in a Trello list",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "dueDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "labelIds": {
+            "items": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "listId": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "memberIds": {
+            "items": {
+              "maxLength": 24,
+              "minLength": 24,
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "verticalPosition": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "listId",
+          "verticalPosition",
+          "isClosed",
+          "isCompleted",
+          "labelIds",
+          "memberIds"
+        ],
+        "type": "object"
+      },
+      "title": "Card"
+    },
+    "cardMember": {
+      "description": "A member assigned to a Trello card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "id": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "username", "fullName"],
+        "type": "object"
+      },
+      "title": "Card Member"
+    },
+    "list": {
+      "description": "A list in a Trello board",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 24,
+            "minLength": 24,
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "name"],
+        "type": "object"
+      },
+      "title": "List"
+    }
+  },
+  "events": {
+    "addAttachmentToCard": {
+      "description": "Triggered when an attachment is added to a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "attachment": {
+            "additionalProperties": false,
+            "description": "Attachment that was added to the card",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the attachment",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the attachment",
+                "type": "string"
+              },
+              "previewUrl": {
+                "description": "URL of the attachment preview",
+                "format": "uri",
+                "type": "string"
+              },
+              "previewUrl2x": {
+                "description": "URL of the attachment preview in 2x",
+                "format": "uri",
+                "type": "string"
+              },
+              "url": {
+                "description": "URL of the attachment",
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Attachment"
+            }
+          },
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          }
+        },
+        "required": ["card", "attachment"],
+        "type": "object"
+      },
+      "title": "Attachment added to card"
+    },
+    "addLabelToCard": {
+      "description": "Triggered when a label is added to a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was modified",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was modified",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "label": {
+            "additionalProperties": false,
+            "description": "Label that was added to the card",
+            "properties": {
+              "color": {
+                "description": "Color of the label",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the label",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the label",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name", "color"],
+            "type": "object",
+            "x-zui": {
+              "title": "Label"
+            }
+          }
+        },
+        "required": ["card", "label"],
+        "type": "object"
+      },
+      "title": "Label added to card"
+    },
+    "addMemberToCard": {
+      "description": "Triggered when a member is added to a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "member": {
+            "additionalProperties": false,
+            "description": "Member that was added to the card",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the member",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Full name of the member",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Member"
+            }
+          }
+        },
+        "required": ["card", "member"],
+        "type": "object"
+      },
+      "title": "Member added to card"
+    },
+    "cardCreated": {
+      "name": "cardCreated",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "labelIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "listId": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "memberIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id"],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": ["item"],
+        "type": "object"
+      }
+    },
+    "cardDeleted": {
+      "name": "cardDeleted",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "type": "object"
+      }
+    },
+    "cardUpdated": {
+      "name": "cardUpdated",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "item": {
+            "allOf": [
+              {
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  "id": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "isClosed": {
+                    "type": "boolean"
+                  },
+                  "isCompleted": {
+                    "type": "boolean"
+                  },
+                  "labelIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "listId": {
+                    "maxLength": 24,
+                    "minLength": 24,
+                    "pattern": "^[0-9a-fA-F]{24}$",
+                    "type": "string"
+                  },
+                  "memberIds": {
+                    "items": {
+                      "maxLength": 24,
+                      "minLength": 24,
+                      "pattern": "^[0-9a-fA-F]{24}$",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "verticalPosition": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description",
+                  "listId",
+                  "verticalPosition",
+                  "isClosed",
+                  "isCompleted",
+                  "labelIds",
+                  "memberIds"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": ["id"],
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": ["item"],
+        "type": "object"
+      }
+    },
+    "commentCard": {
+      "description": "Triggered when a comment is added to a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          },
+          "text": {
+            "description": "Text of the comment",
+            "type": "string",
+            "x-zui": {
+              "title": "Text"
+            }
+          }
+        },
+        "required": ["card", "text"],
+        "type": "object"
+      },
+      "title": "Comment added to card"
+    },
+    "createCard": {
+      "description": "Triggered when a card is created",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was created",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was created",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was created",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          }
+        },
+        "required": ["card"],
+        "type": "object"
+      },
+      "title": "Card created"
+    },
+    "createCheckItem": {
+      "description": "Triggered when a check item is added to a checklist of a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "checkItem": {
+            "additionalProperties": false,
+            "description": "Check item that was added to the checklist",
+            "properties": {
+              "due": {
+                "description": "Due date of the check item",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the check item",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the check item",
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "incomplete",
+                    "type": "string"
+                  }
+                ],
+                "description": "State of the check item"
+              },
+              "textData": {
+                "additionalProperties": false,
+                "properties": {
+                  "emoji": {
+                    "additionalProperties": false,
+                    "description": "Emoji of the check item",
+                    "properties": {},
+                    "type": "object"
+                  }
+                },
+                "required": ["emoji"],
+                "type": "object"
+              }
+            },
+            "required": ["id", "name", "state", "textData"],
+            "type": "object",
+            "x-zui": {
+              "title": "Check Item"
+            }
+          },
+          "checklist": {
+            "additionalProperties": false,
+            "description": "Checklist where the item was added",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the checklist",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the checklist",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Checklist"
+            }
+          }
+        },
+        "required": ["card", "checklist", "checkItem"],
+        "type": "object"
+      },
+      "title": "Check item created"
+    },
+    "deleteAttachmentFromCard": {
+      "description": "Triggered when an attachment is deleted from a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "attachment": {
+            "additionalProperties": false,
+            "description": "Attachment that was deleted from the card",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the attachment",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the attachment",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Attachment"
+            }
+          },
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          }
+        },
+        "required": ["card", "attachment"],
+        "type": "object"
+      },
+      "title": "Attachment deleted from card"
+    },
+    "deleteCard": {
+      "description": "Triggered when a card is deleted",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was deleted",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was deleted",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": ["id"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was deleted",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          }
+        },
+        "required": ["card"],
+        "type": "object"
+      },
+      "title": "Card deleted"
+    },
+    "deleteCheckItem": {
+      "description": "Triggered when a check item is removed from a checklist of a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "checkItem": {
+            "additionalProperties": false,
+            "description": "Check item that was removed from the checklist",
+            "properties": {
+              "due": {
+                "description": "Due date of the check item",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the check item",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the check item",
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "incomplete",
+                    "type": "string"
+                  }
+                ],
+                "description": "State of the check item"
+              },
+              "textData": {
+                "additionalProperties": false,
+                "properties": {
+                  "emoji": {
+                    "additionalProperties": false,
+                    "description": "Emoji of the check item",
+                    "properties": {},
+                    "type": "object"
+                  }
+                },
+                "required": ["emoji"],
+                "type": "object"
+              }
+            },
+            "required": ["id", "name", "state", "textData"],
+            "type": "object",
+            "x-zui": {
+              "title": "Check Item"
+            }
+          },
+          "checklist": {
+            "additionalProperties": false,
+            "description": "Checklist where the item was removed",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the checklist",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the checklist",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Checklist"
+            }
+          }
+        },
+        "required": ["card", "checklist", "checkItem"],
+        "type": "object"
+      },
+      "title": "Check item deleted"
+    },
+    "deleteComment": {
+      "description": "Triggered when a comment is deleted",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "additionalProperties": false,
+            "description": "The action details for the deleted comment",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the comment that was deleted",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              }
+            },
+            "required": ["id"],
+            "type": "object",
+            "x-zui": {
+              "title": "Action"
+            }
+          },
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          }
+        },
+        "required": ["card", "action"],
+        "type": "object"
+      },
+      "title": "Comment deleted"
+    },
+    "removeLabelFromCard": {
+      "description": "Triggered when a label is removed from a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was modified",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was modified",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "label": {
+            "additionalProperties": false,
+            "description": "Label that was removed from the card",
+            "properties": {
+              "color": {
+                "description": "Color of the label",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the label",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the label",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name", "color"],
+            "type": "object",
+            "x-zui": {
+              "title": "Label"
+            }
+          }
+        },
+        "required": ["card", "label"],
+        "type": "object"
+      },
+      "title": "Label removed from card"
+    },
+    "removeMemberFromCard": {
+      "description": "Triggered when a member is removed from a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "member": {
+            "additionalProperties": false,
+            "description": "Member that was removed from the card",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the member",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Full name of the member",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Member"
+            }
+          }
+        },
+        "required": ["card", "member"],
+        "type": "object"
+      },
+      "title": "Member removed from card"
+    },
+    "updateCard": {
+      "description": "Triggered when a card is updated",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "closed": {
+                "description": "Whether the card is archived",
+                "type": "boolean"
+              },
+              "desc": {
+                "description": "Description of the card",
+                "type": "string"
+              },
+              "due": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Due date of the card"
+              },
+              "dueComplete": {
+                "description": "Whether the card is completed",
+                "type": "boolean"
+              },
+              "dueReminder": {
+                "anyOf": [
+                  {
+                    "const": -1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                ],
+                "description": "Due reminder of the card"
+              },
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "idLabels": {
+                "description": "Labels attached to the card",
+                "items": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "idList": {
+                "description": "Unique identifier of the list where the card is located",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              },
+              "pos": {
+                "description": "Position of the card",
+                "type": "number"
+              },
+              "start": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Start date of the card"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          },
+          "listAfter": {
+            "additionalProperties": false,
+            "description": "New list where the card is now located",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the new list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the new list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List After"
+            }
+          },
+          "listBefore": {
+            "additionalProperties": false,
+            "description": "Previous list where the card was located",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the previous list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the previous list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List Before"
+            }
+          },
+          "old": {
+            "additionalProperties": false,
+            "description": "Previous state of the card",
+            "properties": {
+              "closed": {
+                "description": "Previous archive state of the card",
+                "type": "boolean"
+              },
+              "desc": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Previous description of the card"
+              },
+              "due": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Previous due date of the card"
+              },
+              "dueComplete": {
+                "description": "Previous completion state of the card",
+                "type": "boolean"
+              },
+              "dueReminder": {
+                "anyOf": [
+                  {
+                    "const": -1,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                ],
+                "description": "Previous due reminder of the card"
+              },
+              "idLabels": {
+                "description": "Previous labels attached to the card",
+                "items": {
+                  "maxLength": 24,
+                  "minLength": 24,
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "idList": {
+                "description": "Previous list where the card was",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Previous name of the card",
+                "type": "string"
+              },
+              "pos": {
+                "description": "Previous position of the card",
+                "type": "number"
+              },
+              "start": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Previous start date of the card"
+              }
+            },
+            "required": ["name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Old"
+            }
+          }
+        },
+        "required": ["card", "old"],
+        "type": "object"
+      },
+      "title": "Card updated"
+    },
+    "updateCheckItem": {
+      "description": "Triggered when a check item is modified in a checklist of a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "checkItem": {
+            "additionalProperties": false,
+            "description": "Check item that was updated",
+            "properties": {
+              "due": {
+                "description": "Due date of the check item",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the check item",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the check item",
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "incomplete",
+                    "type": "string"
+                  }
+                ],
+                "description": "State of the check item"
+              }
+            },
+            "required": ["id", "name", "state"],
+            "type": "object",
+            "x-zui": {
+              "title": "Check Item"
+            }
+          },
+          "checklist": {
+            "additionalProperties": false,
+            "description": "Checklist where the item was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the checklist",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the checklist",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Checklist"
+            }
+          },
+          "old": {
+            "additionalProperties": false,
+            "description": "Old check item data",
+            "properties": {
+              "due": {
+                "description": "Old due date of the check item",
+                "format": "date-time",
+                "type": "string"
+              },
+              "name": {
+                "description": "Old name of the check item",
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "incomplete",
+                    "type": "string"
+                  }
+                ],
+                "description": "Old state of the check item"
+              }
+            },
+            "required": ["name", "state"],
+            "type": "object",
+            "x-zui": {
+              "title": "Old"
+            }
+          }
+        },
+        "required": ["card", "checklist", "checkItem", "old"],
+        "type": "object"
+      },
+      "title": "Check item updated"
+    },
+    "updateCheckItemStateOnCard": {
+      "description": "Triggered when the state of a check item is updated in a checklist of a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "checkItem": {
+            "additionalProperties": false,
+            "description": "Check item that was updated",
+            "properties": {
+              "due": {
+                "description": "Due date of the check item",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique identifier of the check item",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the check item",
+                "type": "string"
+              },
+              "state": {
+                "anyOf": [
+                  {
+                    "const": "complete",
+                    "type": "string"
+                  },
+                  {
+                    "const": "incomplete",
+                    "type": "string"
+                  }
+                ],
+                "description": "State of the check item"
+              },
+              "textData": {
+                "additionalProperties": false,
+                "properties": {
+                  "emoji": {
+                    "additionalProperties": false,
+                    "description": "Emoji of the check item",
+                    "properties": {},
+                    "type": "object"
+                  }
+                },
+                "required": ["emoji"],
+                "type": "object"
+              }
+            },
+            "required": ["id", "name", "state", "textData"],
+            "type": "object",
+            "x-zui": {
+              "title": "Check Item"
+            }
+          },
+          "checklist": {
+            "additionalProperties": false,
+            "description": "Checklist where the item was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the checklist",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the checklist",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Checklist"
+            }
+          }
+        },
+        "required": ["card", "checklist", "checkItem"],
+        "type": "object"
+      },
+      "title": "Check item state updated on card"
+    },
+    "updateComment": {
+      "description": "Triggered when a comment is updated",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "additionalProperties": false,
+            "description": "The action details for the updated comment",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the comment that was updated",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "text": {
+                "description": "New text of the comment",
+                "type": "string"
+              }
+            },
+            "required": ["id", "text"],
+            "type": "object",
+            "x-zui": {
+              "title": "Action"
+            }
+          },
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "list": {
+            "additionalProperties": false,
+            "description": "List where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the list",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the list",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "List"
+            }
+          },
+          "old": {
+            "additionalProperties": false,
+            "description": "Old comment data",
+            "properties": {
+              "text": {
+                "description": "Old text of the comment",
+                "type": "string"
+              }
+            },
+            "required": ["text"],
+            "type": "object",
+            "x-zui": {
+              "title": "Old"
+            }
+          }
+        },
+        "required": ["card", "action", "old"],
+        "type": "object"
+      },
+      "title": "Comment updated"
+    },
+    "voteOnCard": {
+      "description": "Triggered when a vote is added to a card",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "additionalProperties": false,
+            "description": "Board where the card was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the board",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the board",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Board"
+            }
+          },
+          "card": {
+            "additionalProperties": false,
+            "description": "Card that was updated",
+            "properties": {
+              "id": {
+                "description": "Unique identifier of the card",
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "description": "Name of the card",
+                "type": "string"
+              }
+            },
+            "required": ["id", "name"],
+            "type": "object",
+            "x-zui": {
+              "title": "Card"
+            }
+          },
+          "voted": {
+            "description": "Whether the user voted on the card",
+            "type": "boolean",
+            "x-zui": {
+              "title": "Voted"
+            }
+          }
+        },
+        "required": ["voted"],
+        "type": "object"
+      },
+      "title": "Vote on card"
+    }
+  },
+  "interfaces": {
+    "creatable<card>": {
+      "actions": {
+        "create": {
+          "name": "cardCreate"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "events": {
+        "created": {
+          "name": "cardCreated"
+        }
+      },
+      "id": "",
+      "name": "creatable",
+      "version": "0.0.2"
+    },
+    "deletable<card>": {
+      "actions": {
+        "delete": {
+          "name": "cardDelete"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "events": {
+        "deleted": {
+          "name": "cardDeleted"
+        }
+      },
+      "id": "",
+      "name": "deletable",
+      "version": "0.0.2"
+    },
+    "listable<board>": {
+      "actions": {
+        "list": {
+          "name": "boardList"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "board"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2"
+    },
+    "listable<boardMember>": {
+      "actions": {
+        "list": {
+          "name": "boardMemberList"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "boardMember"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2"
+    },
+    "listable<card>": {
+      "actions": {
+        "list": {
+          "name": "cardList"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2"
+    },
+    "listable<cardMember>": {
+      "actions": {
+        "list": {
+          "name": "cardMemberList"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "cardMember"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2"
+    },
+    "listable<list>": {
+      "actions": {
+        "list": {
+          "name": "listList"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "list"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "listable",
+      "version": "0.0.2"
+    },
+    "readable<board>": {
+      "actions": {
+        "read": {
+          "name": "boardRead"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "board"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2"
+    },
+    "readable<boardMember>": {
+      "actions": {
+        "read": {
+          "name": "boardMemberRead"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "boardMember"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2"
+    },
+    "readable<card>": {
+      "actions": {
+        "read": {
+          "name": "cardRead"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2"
+    },
+    "readable<cardMember>": {
+      "actions": {
+        "read": {
+          "name": "cardMemberRead"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "cardMember"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2"
+    },
+    "readable<list>": {
+      "actions": {
+        "read": {
+          "name": "listRead"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "list"
+        }
+      },
+      "events": {},
+      "id": "",
+      "name": "readable",
+      "version": "0.0.2"
+    },
+    "updatable<card>": {
+      "actions": {
+        "update": {
+          "name": "cardUpdate"
+        }
+      },
+      "channels": {},
+      "entities": {
+        "item": {
+          "name": "card"
+        }
+      },
+      "events": {
+        "updated": {
+          "name": "cardUpdated"
+        }
+      },
+      "id": "",
+      "name": "updatable",
+      "version": "0.0.2"
+    }
+  },
+  "name": "trello",
+  "states": {
+    "webhookState": {
+      "schema": {
+        "additionalProperties": false,
+        "description": "State that stores the webhook id for the Trello integration",
+        "properties": {
+          "trelloWebhookId": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "minLength": 24,
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Unique id of the webhook that is created upon integration registration",
+            "x-zui": {
+              "title": "Trello Webhook ID"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "type": "integration"
+    }
+  },
+  "title": "Trello",
+  "user": {
+    "tags": {
+      "userId": {
+        "description": "Unique identifier of the Trello user",
+        "title": "User ID"
+      }
+    }
+  },
+  "version": "1.1.3"
+}

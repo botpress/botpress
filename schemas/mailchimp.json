@@ -1,0 +1,1684 @@
+{
+  "actions": {
+    "addCustomerToCampaign": {
+      "description": "Adds a Customer's Profile to a Campaign",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "address1": {
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
+              "type": "string",
+              "x-zui": {
+                "title": "Address 1"
+              }
+            },
+            "address2": {
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
+              "type": "string",
+              "x-zui": {
+                "title": "Address 2"
+              }
+            },
+            "birthday": {
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
+              "type": "string",
+              "x-zui": {
+                "title": "Birthday"
+              }
+            },
+            "campaignId": {
+              "description": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)",
+              "type": "string",
+              "x-zui": {
+                "title": "The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)"
+              }
+            },
+            "city": {
+              "description": "The city of the customer (e.g. Anytown)",
+              "type": "string",
+              "x-zui": {
+                "title": "City"
+              }
+            },
+            "company": {
+              "description": "The company of the customer (e.g. Acme Inc.)",
+              "type": "string",
+              "x-zui": {
+                "title": "Company"
+              }
+            },
+            "country": {
+              "description": "The country of the customer (e.g. USA)",
+              "type": "string",
+              "x-zui": {
+                "title": "Country"
+              }
+            },
+            "email": {
+              "description": "The email address of the customer (e.g. example@example.com)",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "firstName": {
+              "description": "The first name of the customer (e.g. John)",
+              "type": "string",
+              "x-zui": {
+                "title": "First Name"
+              }
+            },
+            "language": {
+              "description": "The language of the customer (e.g. en)",
+              "type": "string",
+              "x-zui": {
+                "title": "Language"
+              }
+            },
+            "lastName": {
+              "description": "The last name of the customer (e.g. Doe)",
+              "type": "string",
+              "x-zui": {
+                "title": "Last Name"
+              }
+            },
+            "phone": {
+              "description": "The phone number of the customer (e.g. 555-1234)",
+              "type": "string",
+              "x-zui": {
+                "title": "Phone"
+              }
+            },
+            "state": {
+              "description": "The state or province of the customer (e.g. CA)",
+              "type": "string",
+              "x-zui": {
+                "title": "State"
+              }
+            },
+            "zip": {
+              "description": "The zip or postal code of the customer (e.g. 12345)",
+              "type": "string",
+              "x-zui": {
+                "title": "Zip"
+              }
+            }
+          },
+          "required": ["email", "campaignId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "email_address": {
+              "description": "The email address of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "Email Address"
+              }
+            },
+            "id": {
+              "description": "The id of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            },
+            "list_id": {
+              "description": "The list id of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            },
+            "status": {
+              "description": "The status of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "Status"
+              }
+            }
+          },
+          "required": ["id", "email_address", "status", "list_id"],
+          "type": "object"
+        }
+      },
+      "title": "Add Customer Profile to Campaign"
+    },
+    "addCustomerToList": {
+      "description": "Add Customer's Profile to a List/Audience",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "address1": {
+              "description": "The first line of the address of the customer (e.g. 123 St Marie.)",
+              "type": "string",
+              "x-zui": {
+                "title": "Address 1"
+              }
+            },
+            "address2": {
+              "description": "The second line of the address of the customer (e.g. Apt. 4B)",
+              "type": "string",
+              "x-zui": {
+                "title": "Address 2"
+              }
+            },
+            "birthday": {
+              "description": "The birthday of the customer (e.g. 01/01/2000)",
+              "type": "string",
+              "x-zui": {
+                "title": "Birthday"
+              }
+            },
+            "city": {
+              "description": "The city of the customer (e.g. Anytown)",
+              "type": "string",
+              "x-zui": {
+                "title": "City"
+              }
+            },
+            "company": {
+              "description": "The company of the customer (e.g. Acme Inc.)",
+              "type": "string",
+              "x-zui": {
+                "title": "Company"
+              }
+            },
+            "country": {
+              "description": "The country of the customer (e.g. USA)",
+              "type": "string",
+              "x-zui": {
+                "title": "Country"
+              }
+            },
+            "email": {
+              "description": "The email address of the customer (e.g. example@example.com)",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+              "type": "string",
+              "x-zui": {
+                "title": "Email"
+              }
+            },
+            "firstName": {
+              "description": "The first name of the customer (e.g. John)",
+              "type": "string",
+              "x-zui": {
+                "title": "First Name"
+              }
+            },
+            "language": {
+              "description": "The language of the customer (e.g. en)",
+              "type": "string",
+              "x-zui": {
+                "title": "Language"
+              }
+            },
+            "lastName": {
+              "description": "The last name of the customer (e.g. Doe)",
+              "type": "string",
+              "x-zui": {
+                "title": "Last Name"
+              }
+            },
+            "listId": {
+              "description": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)",
+              "type": "string",
+              "x-zui": {
+                "title": "The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)"
+              }
+            },
+            "phone": {
+              "description": "The phone number of the customer (e.g. 555-1234)",
+              "type": "string",
+              "x-zui": {
+                "title": "Phone"
+              }
+            },
+            "state": {
+              "description": "The state or province of the customer (e.g. CA)",
+              "type": "string",
+              "x-zui": {
+                "title": "State"
+              }
+            },
+            "zip": {
+              "description": "The zip or postal code of the customer (e.g. 12345)",
+              "type": "string",
+              "x-zui": {
+                "title": "Zip"
+              }
+            }
+          },
+          "required": ["email", "listId"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "email_address": {
+              "description": "The email address of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "Email Address"
+              }
+            },
+            "id": {
+              "description": "The id of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            },
+            "list_id": {
+              "description": "The list id of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "List ID"
+              }
+            },
+            "status": {
+              "description": "The status of the customer",
+              "type": "string",
+              "x-zui": {
+                "title": "Status"
+              }
+            }
+          },
+          "required": ["id", "email_address", "status", "list_id"],
+          "type": "object"
+        }
+      },
+      "title": "Add Customer Profile to List/Audience"
+    },
+    "getAllCampaigns": {
+      "description": "Get all available campaigns",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "description": "List count to retrieve",
+          "properties": {
+            "count": {
+              "default": 100,
+              "description": "List count to retrieve",
+              "type": "number",
+              "x-zui": {
+                "title": "Count"
+              }
+            }
+          },
+          "type": "object",
+          "x-zui": {
+            "title": "Lists"
+          }
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "_links": {
+              "description": "Links",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "const": "GET",
+                        "type": "string"
+                      },
+                      {
+                        "const": "POST",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PUT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PATCH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DELETE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OPTIONS",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Links"
+              }
+            },
+            "campaigns": {
+              "description": "The list of campaings",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "_links": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "href": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "anyOf": [
+                            {
+                              "const": "GET",
+                              "type": "string"
+                            },
+                            {
+                              "const": "POST",
+                              "type": "string"
+                            },
+                            {
+                              "const": "PUT",
+                              "type": "string"
+                            },
+                            {
+                              "const": "PATCH",
+                              "type": "string"
+                            },
+                            {
+                              "const": "DELETE",
+                              "type": "string"
+                            },
+                            {
+                              "const": "OPTIONS",
+                              "type": "string"
+                            },
+                            {
+                              "const": "HEAD",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "rel": {
+                          "type": "string"
+                        },
+                        "schema": {
+                          "type": "string"
+                        },
+                        "targetSchema": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "ab_split_opts": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "from_name_a": {
+                        "description": "Sender's name for variation A",
+                        "type": "string"
+                      },
+                      "from_name_b": {
+                        "description": "Sender's name for variation B",
+                        "type": "string"
+                      },
+                      "pick_winner": {
+                        "description": "Criteria for picking the winner",
+                        "type": "string"
+                      },
+                      "reply_email_a": {
+                        "description": "Reply-to email address for variation A",
+                        "type": "string"
+                      },
+                      "reply_email_b": {
+                        "description": "Reply-to email address for variation B",
+                        "type": "string"
+                      },
+                      "send_time_a": {
+                        "description": "Send time for variation A",
+                        "type": "string"
+                      },
+                      "send_time_b": {
+                        "description": "Send time for variation B",
+                        "type": "string"
+                      },
+                      "send_time_winner": {
+                        "description": "Send time for the winner",
+                        "type": "string"
+                      },
+                      "split_size": {
+                        "description": "Size of the split",
+                        "type": "number"
+                      },
+                      "split_test": {
+                        "description": "Type of split test (e.g., \"subject\")",
+                        "type": "string"
+                      },
+                      "subject_a": {
+                        "description": "Subject line for variation A",
+                        "type": "string"
+                      },
+                      "subject_b": {
+                        "description": "Subject line for variation B",
+                        "type": "string"
+                      },
+                      "wait_time": {
+                        "description": "Wait time",
+                        "type": "number"
+                      },
+                      "wait_units": {
+                        "description": "Units for waiting (e.g., \"hours\")",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "split_test",
+                      "pick_winner",
+                      "wait_units",
+                      "wait_time",
+                      "split_size",
+                      "from_name_a",
+                      "from_name_b",
+                      "reply_email_a",
+                      "reply_email_b",
+                      "subject_a",
+                      "subject_b",
+                      "send_time_a",
+                      "send_time_b",
+                      "send_time_winner"
+                    ],
+                    "type": "object"
+                  },
+                  "archive_url": {
+                    "type": "string"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "create_time": {
+                    "type": "string"
+                  },
+                  "delivery_status": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "can_cancel": {
+                            "description": "Indicates whether the campaign can be canceled",
+                            "type": "boolean"
+                          },
+                          "emails_canceled": {
+                            "description": "Total emails canceled",
+                            "type": "number"
+                          },
+                          "emails_sent": {
+                            "description": "Total emails sent",
+                            "type": "number"
+                          },
+                          "enabled": {
+                            "const": true,
+                            "description": "Indicates whether delivery status tracking is enabled",
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "description": "Current delivery status",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["enabled", "can_cancel", "status", "emails_sent", "emails_canceled"],
+                        "type": "object"
+                      },
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "enabled": {
+                            "const": false,
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["enabled"],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "emails_sent": {
+                    "type": "number"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "long_archive_url": {
+                    "type": "string"
+                  },
+                  "needs_block_refresh": {
+                    "type": "boolean"
+                  },
+                  "parent_campaign_id": {
+                    "type": "string"
+                  },
+                  "recipients": {
+                    "additionalProperties": true,
+                    "description": "Recipients information",
+                    "properties": {
+                      "list_id": {
+                        "description": "ID of the list",
+                        "type": "string"
+                      },
+                      "list_is_active": {
+                        "description": "Indicates whether the list is active",
+                        "type": "boolean"
+                      },
+                      "list_name": {
+                        "description": "Name of the list",
+                        "type": "string"
+                      },
+                      "recipient_count": {
+                        "description": "Count of recipients",
+                        "type": "number"
+                      },
+                      "segment_opts": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "conditions": {
+                            "description": "Array of conditions",
+                            "items": {
+                              "x-zui": {
+                                "def": {
+                                  "typeName": "ZodUnknown"
+                                }
+                              }
+                            },
+                            "type": "array"
+                          },
+                          "match": {
+                            "description": "Match condition",
+                            "type": "string"
+                          },
+                          "prebuilt_segment_id": {
+                            "description": "ID of the prebuilt segment",
+                            "type": "string"
+                          },
+                          "saved_segment_id": {
+                            "description": "ID of the saved segment",
+                            "type": "number"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "segment_text": {
+                        "description": "Text description of the segment",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "list_id",
+                      "list_is_active",
+                      "list_name",
+                      "segment_text",
+                      "recipient_count",
+                      "segment_opts"
+                    ],
+                    "type": "object"
+                  },
+                  "report_summary": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "click_rate": {
+                        "description": "Click rate",
+                        "type": "number"
+                      },
+                      "clicks": {
+                        "description": "Total clicks",
+                        "type": "number"
+                      },
+                      "ecommerce": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "total_orders": {
+                            "description": "Total ecommerce orders",
+                            "type": "number"
+                          },
+                          "total_revenue": {
+                            "description": "Total ecommerce revenue",
+                            "type": "number"
+                          },
+                          "total_spent": {
+                            "description": "Total amount spent in ecommerce",
+                            "type": "number"
+                          }
+                        },
+                        "required": ["total_orders", "total_spent", "total_revenue"],
+                        "type": "object"
+                      },
+                      "open_rate": {
+                        "description": "Open rate",
+                        "type": "number"
+                      },
+                      "opens": {
+                        "description": "Total opens",
+                        "type": "number"
+                      },
+                      "subscriber_clicks": {
+                        "description": "Subscriber clicks",
+                        "type": "number"
+                      },
+                      "unique_opens": {
+                        "description": "Unique opens",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "opens",
+                      "unique_opens",
+                      "open_rate",
+                      "clicks",
+                      "subscriber_clicks",
+                      "click_rate",
+                      "ecommerce"
+                    ],
+                    "type": "object"
+                  },
+                  "resendable": {
+                    "type": "boolean"
+                  },
+                  "rss_opts": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "constrain_rss_img": {
+                        "description": "Indicates whether to constrain RSS images",
+                        "type": "boolean"
+                      },
+                      "feed_url": {
+                        "description": "URL of the RSS feed",
+                        "type": "string"
+                      },
+                      "frequency": {
+                        "description": "Frequency of sending (e.g., \"daily\")",
+                        "type": "string"
+                      },
+                      "last_sent": {
+                        "description": "Last time the RSS feed was sent",
+                        "type": "string"
+                      },
+                      "schedule": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "daily_send": {
+                            "additionalProperties": false,
+                            "description": "Daily send options",
+                            "properties": {
+                              "friday": {
+                                "type": "boolean"
+                              },
+                              "monday": {
+                                "type": "boolean"
+                              },
+                              "saturday": {
+                                "type": "boolean"
+                              },
+                              "sunday": {
+                                "type": "boolean"
+                              },
+                              "thursday": {
+                                "type": "boolean"
+                              },
+                              "tuesday": {
+                                "type": "boolean"
+                              },
+                              "wednesday": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+                            "type": "object"
+                          },
+                          "hour": {
+                            "description": "Hour of the day for sending",
+                            "type": "number"
+                          },
+                          "monthly_send_date": {
+                            "description": "Date of the month for monthly sending",
+                            "type": "number"
+                          },
+                          "weekly_send_day": {
+                            "description": "Day of the week for weekly sending",
+                            "type": "string"
+                          }
+                        },
+                        "required": ["hour", "daily_send", "weekly_send_day", "monthly_send_date"],
+                        "type": "object"
+                      }
+                    },
+                    "required": ["feed_url", "frequency", "schedule", "last_sent", "constrain_rss_img"],
+                    "type": "object"
+                  },
+                  "send_time": {
+                    "type": "string"
+                  },
+                  "settings": {
+                    "additionalProperties": true,
+                    "description": "Settings for the campaign",
+                    "properties": {
+                      "authenticate": {
+                        "description": "Indicates whether authentication is enabled",
+                        "type": "boolean"
+                      },
+                      "auto_fb_post": {
+                        "description": "Array of Facebook post strings",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "auto_footer": {
+                        "description": "Indicates whether auto-footer is enabled",
+                        "type": "boolean"
+                      },
+                      "auto_tweet": {
+                        "description": "Indicates whether auto-tweet is enabled",
+                        "type": "boolean"
+                      },
+                      "drag_and_drop": {
+                        "description": "Indicates whether drag-and-drop is enabled",
+                        "type": "boolean"
+                      },
+                      "fb_comments": {
+                        "description": "Indicates whether Facebook comments are enabled",
+                        "type": "boolean"
+                      },
+                      "folder_id": {
+                        "description": "ID of the folder",
+                        "type": "string"
+                      },
+                      "from_name": {
+                        "description": "Sender's name",
+                        "type": "string"
+                      },
+                      "inline_css": {
+                        "description": "Indicates whether inline CSS is enabled",
+                        "type": "boolean"
+                      },
+                      "preview_text": {
+                        "description": "Preview text of the campaign",
+                        "type": "string"
+                      },
+                      "reply_to": {
+                        "description": "Reply-to email address",
+                        "type": "string"
+                      },
+                      "subject_line": {
+                        "description": "Subject line of the campaign",
+                        "type": "string"
+                      },
+                      "template_id": {
+                        "description": "ID of the template",
+                        "type": "number"
+                      },
+                      "timewarp": {
+                        "description": "Indicates whether timewarp is enabled",
+                        "type": "boolean"
+                      },
+                      "title": {
+                        "description": "Title of the campaign",
+                        "type": "string"
+                      },
+                      "to_name": {
+                        "description": "Recipient's name",
+                        "type": "string"
+                      },
+                      "use_conversation": {
+                        "description": "Indicates whether to use conversation view",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "subject_line",
+                      "preview_text",
+                      "title",
+                      "from_name",
+                      "reply_to",
+                      "use_conversation",
+                      "to_name",
+                      "folder_id",
+                      "authenticate",
+                      "auto_footer",
+                      "inline_css",
+                      "auto_tweet",
+                      "fb_comments",
+                      "timewarp",
+                      "template_id",
+                      "drag_and_drop"
+                    ],
+                    "type": "object"
+                  },
+                  "social_card": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "description": "Description of the social card",
+                        "type": "string"
+                      },
+                      "image_url": {
+                        "description": "URL of the social card image",
+                        "type": "string"
+                      },
+                      "title": {
+                        "description": "Title of the social card",
+                        "type": "string"
+                      }
+                    },
+                    "required": ["image_url", "description", "title"],
+                    "type": "object"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "tracking": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "capsule": {
+                        "additionalProperties": false,
+                        "description": "Capsule tracking options",
+                        "properties": {
+                          "notes": {
+                            "description": "Indicates whether Capsule notes tracking is enabled",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["notes"],
+                        "type": "object"
+                      },
+                      "clicktale": {
+                        "description": "Clicktale tracking code",
+                        "type": "string"
+                      },
+                      "ecomm360": {
+                        "description": "Indicates whether Ecomm360 is enabled",
+                        "type": "boolean"
+                      },
+                      "goal_tracking": {
+                        "description": "Indicates whether goal tracking is enabled",
+                        "type": "boolean"
+                      },
+                      "google_analytics": {
+                        "description": "Google Analytics tracking code",
+                        "type": "string"
+                      },
+                      "html_clicks": {
+                        "description": "Indicates whether HTML clicks tracking is enabled",
+                        "type": "boolean"
+                      },
+                      "opens": {
+                        "description": "Indicates whether opens tracking is enabled",
+                        "type": "boolean"
+                      },
+                      "salesforce": {
+                        "additionalProperties": false,
+                        "description": "Salesforce tracking options",
+                        "properties": {
+                          "campaign": {
+                            "description": "Indicates whether Salesforce campaign tracking is enabled",
+                            "type": "boolean"
+                          },
+                          "notes": {
+                            "description": "Indicates whether Salesforce notes tracking is enabled",
+                            "type": "boolean"
+                          }
+                        },
+                        "required": ["campaign", "notes"],
+                        "type": "object"
+                      },
+                      "text_clicks": {
+                        "description": "Indicates whether text clicks tracking is enabled",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "opens",
+                      "html_clicks",
+                      "text_clicks",
+                      "goal_tracking",
+                      "ecomm360",
+                      "google_analytics",
+                      "clicktale"
+                    ],
+                    "type": "object"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "variate_settings": {
+                    "additionalProperties": true,
+                    "properties": {
+                      "combinations": {
+                        "description": "Array of combinations",
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "content_description": {
+                              "description": "Content description",
+                              "type": "number"
+                            },
+                            "from_name": {
+                              "description": "Sender's name",
+                              "type": "number"
+                            },
+                            "id": {
+                              "description": "ID of the combination",
+                              "type": "string"
+                            },
+                            "recipients": {
+                              "description": "Recipients",
+                              "type": "number"
+                            },
+                            "reply_to": {
+                              "description": "Reply-to",
+                              "type": "number"
+                            },
+                            "send_time": {
+                              "description": "Send time",
+                              "type": "number"
+                            },
+                            "subject_line": {
+                              "description": "Subject line",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "subject_line",
+                            "send_time",
+                            "from_name",
+                            "reply_to",
+                            "content_description",
+                            "recipients"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "contents": {
+                        "description": "Array of content strings",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "from_names": {
+                        "description": "Array of sender names",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "reply_to_addresses": {
+                        "description": "Array of reply-to email addresses",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "send_times": {
+                        "description": "Array of send times",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "subject_lines": {
+                        "description": "Array of subject lines",
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "test_size": {
+                        "description": "Size of the test",
+                        "type": "number"
+                      },
+                      "wait_time": {
+                        "description": "Wait time",
+                        "type": "number"
+                      },
+                      "winner_criteria": {
+                        "description": "Criteria for choosing the winner",
+                        "type": "string"
+                      },
+                      "winning_campaign_id": {
+                        "description": "ID of the winning campaign",
+                        "type": "string"
+                      },
+                      "winning_combination_id": {
+                        "description": "ID of the winning combination",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "winning_combination_id",
+                      "winning_campaign_id",
+                      "winner_criteria",
+                      "wait_time",
+                      "test_size",
+                      "subject_lines",
+                      "send_times",
+                      "from_names",
+                      "reply_to_addresses",
+                      "contents",
+                      "combinations"
+                    ],
+                    "type": "object"
+                  },
+                  "web_id": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "web_id",
+                  "type",
+                  "create_time",
+                  "archive_url",
+                  "long_archive_url",
+                  "status",
+                  "emails_sent",
+                  "send_time",
+                  "content_type",
+                  "needs_block_refresh",
+                  "resendable",
+                  "settings",
+                  "tracking",
+                  "delivery_status",
+                  "_links"
+                ],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Campaigns"
+              }
+            },
+            "total_items": {
+              "description": "Total number of items",
+              "type": "number",
+              "x-zui": {
+                "title": "Total Items"
+              }
+            }
+          },
+          "required": ["campaigns", "total_items", "_links"],
+          "type": "object"
+        }
+      },
+      "title": "Get All Campaigns"
+    },
+    "getAllLists": {
+      "description": "Get all available email lists/audiences",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "count": {
+              "default": 100,
+              "description": "List count to retrieve",
+              "type": "number",
+              "x-zui": {
+                "title": "Count"
+              }
+            }
+          },
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "_links": {
+              "description": "Link",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "const": "GET",
+                        "type": "string"
+                      },
+                      {
+                        "const": "POST",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PUT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PATCH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DELETE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OPTIONS",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Link"
+              }
+            },
+            "constraints": {
+              "additionalProperties": false,
+              "description": "The constraints of the lists",
+              "properties": {
+                "current_total_instances": {
+                  "description": "Current total instances",
+                  "type": "number"
+                },
+                "max_instances": {
+                  "description": "Maximum instances allowed",
+                  "type": "number"
+                },
+                "may_create": {
+                  "description": "May create flag",
+                  "type": "boolean"
+                }
+              },
+              "required": ["may_create", "max_instances", "current_total_instances"],
+              "type": "object",
+              "x-zui": {
+                "title": "Constraints"
+              }
+            },
+            "lists": {
+              "description": "The array of list",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "_links": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "href": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "anyOf": [
+                            {
+                              "const": "GET",
+                              "type": "string"
+                            },
+                            {
+                              "const": "POST",
+                              "type": "string"
+                            },
+                            {
+                              "const": "PUT",
+                              "type": "string"
+                            },
+                            {
+                              "const": "PATCH",
+                              "type": "string"
+                            },
+                            {
+                              "const": "DELETE",
+                              "type": "string"
+                            },
+                            {
+                              "const": "OPTIONS",
+                              "type": "string"
+                            },
+                            {
+                              "const": "HEAD",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "rel": {
+                          "type": "string"
+                        },
+                        "schema": {
+                          "type": "string"
+                        },
+                        "targetSchema": {
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "beamer_address": {
+                    "type": "string"
+                  },
+                  "campaign_defaults": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "from_email": {
+                        "description": "Default sender email",
+                        "format": "email",
+                        "pattern": "^(?!\\.)(?!.*\\.\\.)([a-zA-Z0-9_+-\\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.)+[a-zA-Z]{2,}$",
+                        "type": "string"
+                      },
+                      "from_name": {
+                        "description": "Default sender name",
+                        "type": "string"
+                      },
+                      "language": {
+                        "description": "Default email language",
+                        "type": "string"
+                      },
+                      "subject": {
+                        "description": "Default email subject",
+                        "type": "string"
+                      }
+                    },
+                    "required": ["from_name", "from_email", "subject", "language"],
+                    "type": "object"
+                  },
+                  "contact": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "address1": {
+                        "description": "Address line 1",
+                        "type": "string"
+                      },
+                      "address2": {
+                        "description": "Address line 2",
+                        "type": "string"
+                      },
+                      "city": {
+                        "description": "City",
+                        "type": "string"
+                      },
+                      "company": {
+                        "description": "Company name",
+                        "type": "string"
+                      },
+                      "country": {
+                        "description": "Country",
+                        "type": "string"
+                      },
+                      "phone": {
+                        "description": "Phone number",
+                        "type": "string"
+                      },
+                      "state": {
+                        "description": "State",
+                        "type": "string"
+                      },
+                      "zip": {
+                        "description": "ZIP code",
+                        "type": "string"
+                      }
+                    },
+                    "required": ["company", "address1", "address2", "city", "state", "zip", "country", "phone"],
+                    "type": "object"
+                  },
+                  "date_created": {
+                    "type": "string"
+                  },
+                  "double_optin": {
+                    "type": "boolean"
+                  },
+                  "email_type_option": {
+                    "type": "boolean"
+                  },
+                  "has_welcome": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "list_rating": {
+                    "type": "number"
+                  },
+                  "marketing_permissions": {
+                    "type": "boolean"
+                  },
+                  "modules": {
+                    "items": {},
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "notify_on_subscribe": {
+                    "type": "string"
+                  },
+                  "notify_on_unsubscribe": {
+                    "type": "string"
+                  },
+                  "permission_reminder": {
+                    "type": "string"
+                  },
+                  "stats": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "avg_sub_rate": {
+                        "description": "Average subscription rate",
+                        "type": "number"
+                      },
+                      "avg_unsub_rate": {
+                        "description": "Average unsubscribe rate",
+                        "type": "number"
+                      },
+                      "campaign_count": {
+                        "description": "Campaign count",
+                        "type": "number"
+                      },
+                      "campaign_last_sent": {
+                        "description": "Last campaign sent date",
+                        "type": "string"
+                      },
+                      "cleaned_count": {
+                        "description": "Cleaned count",
+                        "type": "number"
+                      },
+                      "cleaned_count_since_send": {
+                        "description": "Cleaned count since last send",
+                        "type": "number"
+                      },
+                      "click_rate": {
+                        "description": "Click rate",
+                        "type": "number"
+                      },
+                      "last_sub_date": {
+                        "description": "Last subscription date",
+                        "type": "string"
+                      },
+                      "last_unsub_date": {
+                        "description": "Last unsubscribe date",
+                        "type": "string"
+                      },
+                      "member_count": {
+                        "description": "Member count",
+                        "type": "number"
+                      },
+                      "member_count_since_send": {
+                        "description": "Member count since last send",
+                        "type": "number"
+                      },
+                      "merge_field_count": {
+                        "description": "Merge field count",
+                        "type": "number"
+                      },
+                      "open_rate": {
+                        "description": "Open rate",
+                        "type": "number"
+                      },
+                      "target_sub_rate": {
+                        "description": "Target subscription rate",
+                        "type": "number"
+                      },
+                      "unsubscribe_count": {
+                        "description": "Unsubscribe count",
+                        "type": "number"
+                      },
+                      "unsubscribe_count_since_send": {
+                        "description": "Unsubscribe count since last send",
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "member_count",
+                      "unsubscribe_count",
+                      "cleaned_count",
+                      "member_count_since_send",
+                      "unsubscribe_count_since_send",
+                      "cleaned_count_since_send",
+                      "campaign_count",
+                      "campaign_last_sent",
+                      "merge_field_count",
+                      "avg_sub_rate",
+                      "avg_unsub_rate",
+                      "target_sub_rate",
+                      "open_rate",
+                      "click_rate",
+                      "last_sub_date",
+                      "last_unsub_date"
+                    ],
+                    "type": "object"
+                  },
+                  "subscribe_url_long": {
+                    "type": "string"
+                  },
+                  "subscribe_url_short": {
+                    "type": "string"
+                  },
+                  "use_archive_bar": {
+                    "type": "boolean"
+                  },
+                  "visibility": {
+                    "type": "string"
+                  },
+                  "web_id": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "id",
+                  "web_id",
+                  "name",
+                  "contact",
+                  "permission_reminder",
+                  "use_archive_bar",
+                  "campaign_defaults",
+                  "notify_on_subscribe",
+                  "notify_on_unsubscribe",
+                  "date_created",
+                  "list_rating",
+                  "email_type_option",
+                  "subscribe_url_short",
+                  "subscribe_url_long",
+                  "beamer_address",
+                  "visibility",
+                  "double_optin",
+                  "has_welcome",
+                  "marketing_permissions",
+                  "modules",
+                  "stats",
+                  "_links"
+                ],
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Lists"
+              }
+            }
+          },
+          "required": ["lists", "constraints", "_links"],
+          "type": "object"
+        }
+      },
+      "title": "Get All Email Lists/Audiences"
+    },
+    "sendMassEmailCampaign": {
+      "description": "Mass Mailing of the Campaign by its IDs",
+      "input": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "campaignIds": {
+              "description": "The Campaign IDs (Can be either a string with comma-separated IDs)",
+              "type": "string",
+              "x-zui": {
+                "title": "The Campaign IDs (Can be either a string with comma-separated IDs)"
+              }
+            }
+          },
+          "required": ["campaignIds"],
+          "type": "object"
+        }
+      },
+      "output": {
+        "schema": {
+          "additionalProperties": false,
+          "properties": {
+            "_links": {
+              "description": "Link",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "href": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "anyOf": [
+                      {
+                        "const": "GET",
+                        "type": "string"
+                      },
+                      {
+                        "const": "POST",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PUT",
+                        "type": "string"
+                      },
+                      {
+                        "const": "PATCH",
+                        "type": "string"
+                      },
+                      {
+                        "const": "DELETE",
+                        "type": "string"
+                      },
+                      {
+                        "const": "OPTIONS",
+                        "type": "string"
+                      },
+                      {
+                        "const": "HEAD",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "rel": {
+                    "type": "string"
+                  },
+                  "schema": {
+                    "type": "string"
+                  },
+                  "targetSchema": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array",
+              "x-zui": {
+                "title": "Link"
+              }
+            },
+            "id": {
+              "description": "The id of the campaign",
+              "type": "string",
+              "x-zui": {
+                "title": "ID"
+              }
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "pending",
+                  "type": "string"
+                },
+                {
+                  "const": "preprocessing",
+                  "type": "string"
+                },
+                {
+                  "const": "started",
+                  "type": "string"
+                },
+                {
+                  "const": "finalizing",
+                  "type": "string"
+                },
+                {
+                  "const": "finished",
+                  "type": "string"
+                }
+              ],
+              "description": "The status of the campaign",
+              "x-zui": {
+                "title": "Status"
+              }
+            },
+            "total_operations": {
+              "description": "The number of operation done in the camplain",
+              "type": "number",
+              "x-zui": {
+                "title": "Total Operation"
+              }
+            }
+          },
+          "type": "object"
+        }
+      },
+      "title": "Mass Mailing of the Campaign"
+    }
+  },
+  "channels": {},
+  "description": "Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.",
+  "interfaces": {},
+  "name": "mailchimp",
+  "title": "Mailchimp",
+  "version": "0.3.7"
+}

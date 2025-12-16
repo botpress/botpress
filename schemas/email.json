@@ -1,0 +1,301 @@
+{
+  "actions": {
+    "getEmail": {
+      "description": "Get the email with specified id from the inbox",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["id"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "body": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "date": {
+              "description": "ISO datetime",
+              "type": "string",
+              "x-zui": {}
+            },
+            "firstMessageId": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "id": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "inReplyTo": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "sender": {
+              "type": "string",
+              "x-zui": {}
+            },
+            "subject": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["id", "subject", "sender"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Get emails"
+    },
+    "listEmails": {
+      "description": "List all emails in the inbox",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "nextToken": {
+              "description": "The page number in the inbox. Starts at 0",
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "messages": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "date": {
+                    "description": "ISO datetime",
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "firstMessageId": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "id": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "inReplyTo": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "sender": {
+                    "type": "string",
+                    "x-zui": {}
+                  },
+                  "subject": {
+                    "type": "string",
+                    "x-zui": {}
+                  }
+                },
+                "required": ["id", "subject", "sender"],
+                "type": "object",
+                "x-zui": {}
+              },
+              "type": "array",
+              "x-zui": {}
+            },
+            "nextToken": {
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["messages"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "List emails"
+    },
+    "sendEmail": {
+      "description": "Send an email using SMTP",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "inReplyTo": {
+              "description": "The id of the email you want to reply to",
+              "type": "string",
+              "x-zui": {}
+            },
+            "replyTo": {
+              "description": "The email address to which replies should be sent. This allows recipients to reply to a different address than the sender",
+              "type": "string",
+              "x-zui": {}
+            },
+            "subject": {
+              "description": "The subject of the outgoing email",
+              "type": "string",
+              "x-zui": {}
+            },
+            "text": {
+              "description": "The text contained in the body of the email",
+              "type": "string",
+              "x-zui": {}
+            },
+            "to": {
+              "description": "The email address of the recipient",
+              "type": "string",
+              "x-zui": {}
+            }
+          },
+          "required": ["to"],
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Send Email"
+    },
+    "syncEmails": {
+      "description": "Sends unseen emails as new messages. Call periodically to allow your bot to receive new emails.",
+      "input": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "output": {
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {},
+          "type": "object",
+          "x-zui": {}
+        }
+      },
+      "title": "Sync Emails"
+    }
+  },
+  "channels": {
+    "default": {
+      "conversation": {
+        "tags": {
+          "firstMessageId": {
+            "description": "The id (from the IMAP server) of the first incoming message of the conversation",
+            "title": "First Message Id"
+          },
+          "latestEmail": {
+            "description": "The id of the latest email received (to put in the In-Reply-To header)",
+            "title": "Email id"
+          },
+          "subject": {
+            "description": "Subject for the conversation",
+            "title": "Thread Subject"
+          },
+          "to": {
+            "description": "Recipient email address for the conversation",
+            "title": "Recipient"
+          }
+        }
+      },
+      "message": {
+        "tags": {
+          "id": {
+            "description": "The email id ",
+            "title": "Email id"
+          }
+        }
+      },
+      "messages": {
+        "text": {
+          "schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "minLength": 1,
+                "type": "string",
+                "x-zui": {}
+              }
+            },
+            "required": ["text"],
+            "type": "object",
+            "x-zui": {}
+          }
+        }
+      }
+    }
+  },
+  "interfaces": {},
+  "name": "email",
+  "states": {
+    "lastSyncTimestamp": {
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "lastSyncTimestamp": {
+            "format": "date-time",
+            "type": "string",
+            "x-zui": {}
+          }
+        },
+        "required": ["lastSyncTimestamp"],
+        "type": "object",
+        "x-zui": {}
+      },
+      "type": "integration"
+    },
+    "syncLock": {
+      "schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "currentlySyncing": {
+            "default": false,
+            "type": "boolean",
+            "x-zui": {}
+          }
+        },
+        "type": "object",
+        "x-zui": {}
+      },
+      "type": "integration"
+    }
+  },
+  "user": {
+    "tags": {
+      "email": {
+        "description": "Required",
+        "title": "User email"
+      }
+    }
+  },
+  "version": "0.1.0"
+}
