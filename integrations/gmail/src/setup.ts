@@ -13,16 +13,26 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       logger.forBot().info('Using existing refresh token from state')
       googleClient = await GoogleClient.create({ client, ctx })
     } catch (error) {
-      logger.forBot().error(`${error}`)
-      googleClient = await GoogleClient.createFromAuthorizationCode({
-        client,
-        ctx,
-        authorizationCode: ctx.configuration.oauthAuthorizationCode,
-      })
+      logger.forBot().warn(`${error}`)
+      try {
+        googleClient = await GoogleClient.createFromAuthorizationCode({
+          client,
+          ctx,
+          authorizationCode: ctx.configuration.oauthAuthorizationCode,
+        })
+      } catch (fallbackError) {
+        logger.forBot().error(`Failed to create Google client from authorization code: ${fallbackError}`)
+        throw fallbackError
+      }
     }
   } else {
     logger.forBot().info('Using refresh token from configuration')
-    googleClient = await GoogleClient.create({ client, ctx })
+    try {
+      googleClient = await GoogleClient.create({ client, ctx })
+    } catch (error) {
+      logger.forBot().error(`Failed to create Google client: ${error}`)
+      throw error
+    }
   }
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
