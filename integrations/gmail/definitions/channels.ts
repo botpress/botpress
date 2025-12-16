@@ -28,7 +28,7 @@ export const channels = {
         }),
       },
       bloc: {
-        schema: sdk.messages.defaults.bloc.schema,
+        schema: sdk.messages.markdownBloc.schema,
       },
     },
     message: {

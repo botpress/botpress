@@ -130,7 +130,6 @@ export class GoogleClient {
 
     try {
       const response = await oauth2Client.getToken(authorizationCode)
-
       return response.tokens.refresh_token ?? null
     } catch (thrown) {
       GoogleClient._handleRefreshTokenError({ ctx, thrown })
