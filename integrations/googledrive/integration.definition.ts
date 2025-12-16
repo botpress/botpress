@@ -197,9 +197,6 @@ export default new sdk.IntegrationDefinition({
       description: 'The API key used to access the Google Picker API',
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: false,
-  },
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {

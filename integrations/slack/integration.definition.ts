@@ -29,9 +29,6 @@ export default new IntegrationDefinition({
   events,
   secrets,
   user,
-  __advanced: {
-    useLegacyZuiTransformer: false,
-  },
 }).extend(typingIndicator, () => ({
   entities: {},
 }))

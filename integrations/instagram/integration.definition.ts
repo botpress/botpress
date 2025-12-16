@@ -224,9 +224,6 @@ export default new IntegrationDefinition({
         .describe('The conversation object fields'),
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: false,
-  },
 })
   .extend(proactiveUser, ({ entities }) => ({
     entities: {
