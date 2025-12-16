@@ -104,6 +104,6 @@ export default new sdk.IntegrationDefinition({
     },
   },
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 })

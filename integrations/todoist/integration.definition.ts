@@ -30,6 +30,6 @@ export default new sdk.IntegrationDefinition({
   states,
   user,
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 })

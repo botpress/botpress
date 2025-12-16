@@ -23,6 +23,6 @@ export default new IntegrationDefinition({
     schema: configurationSchema,
   },
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 })

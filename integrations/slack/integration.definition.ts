@@ -30,7 +30,7 @@ export default new IntegrationDefinition({
   secrets,
   user,
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 }).extend(typingIndicator, () => ({
   entities: {},

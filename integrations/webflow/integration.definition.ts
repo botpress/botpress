@@ -49,6 +49,6 @@ export default new IntegrationDefinition({
     commentCreated: events.commentCreated,
   },
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 })

@@ -14,6 +14,6 @@ export default new IntegrationDefinition({
   },
   states,
   __advanced: {
-    useLegacyZuiTransformer: true,
+    useLegacyZuiTransformer: false,
   },
 })
