@@ -7,25 +7,20 @@ import { register, unregister } from './setup'
 import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-export const posthogConfig = {
+export const posthogConfig: posthogHelper.PostHogConfig = {
   integrationName: INTEGRATION_NAME,
-  integrationVersion: INTEGRATION_VERSION,
   key: bp.secrets.POSTHOG_KEY,
+  integrationVersion: INTEGRATION_VERSION,
 }
-@posthogHelper.wrapIntegration(posthogConfig)
-class GmailIntegration extends bp.Integration {
-  public constructor() {
-    super({
-      register,
-      unregister,
-      actions,
-      channels,
-      handler,
-    })
-  }
+const integrationConfig: bp.IntegrationProps = {
+  register,
+  unregister,
+  actions,
+  channels,
+  handler,
 }
 
-const integration = new GmailIntegration()
+const integration = posthogHelper.wrapIntegration(posthogConfig, integrationConfig)
 
 export default sentryHelpers.wrapIntegration(integration, {
   dsn: bp.secrets.SENTRY_DSN,

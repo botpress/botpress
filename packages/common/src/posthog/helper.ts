@@ -9,7 +9,7 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type PostHogConfig = {
+export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
@@ -38,42 +38,36 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
   }
 }
 
-export function wrapIntegration(config: PostHogConfig) {
-  return function <T extends { new (...args: any[]): sdk.Integration<any> }>(constructor: T): T {
-    return class extends constructor {
-      public constructor(...args: any[]) {
-        super(...args)
-        this.props.register = wrapFunction(this.props.register, config)
-        this.props.unregister = wrapFunction(this.props.unregister, config)
-        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config), config)
+export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
+  integrationProps.register = wrapFunction(integrationProps.register, config, 'register')
+  integrationProps.unregister = wrapFunction(integrationProps.unregister, config, 'unregister')
+  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config, 'handler')
 
-        if (this.props.actions) {
-          for (const actionType of Object.keys(this.props.actions)) {
-            const actionFn = this.props.actions[actionType]
-            if (typeof actionFn === 'function') {
-              this.props.actions[actionType] = wrapFunction(actionFn, config)
-            }
-          }
-        }
-
-        if (this.props.channels) {
-          for (const channelName of Object.keys(this.props.channels)) {
-            const channel = this.props.channels[channelName]
-            if (!channel || !channel.messages) continue
-            Object.keys(channel.messages).forEach((messageType) => {
-              const messageFn = channel.messages[messageType]
-              if (typeof messageFn === 'function') {
-                channel.messages[messageType] = wrapFunction(messageFn, config)
-              }
-            })
-          }
-        }
+  if (integrationProps.actions) {
+    for (const actionType of Object.keys(integrationProps.actions)) {
+      const actionFn = integrationProps.actions[actionType]
+      if (typeof actionFn === 'function') {
+        integrationProps.actions[actionType] = wrapFunction(actionFn, config, actionType)
       }
     }
   }
+
+  if (integrationProps.channels) {
+    for (const channelName of Object.keys(integrationProps.channels)) {
+      const channel = integrationProps.channels[channelName]
+      if (!channel || !channel.messages) continue
+      Object.keys(channel.messages).forEach((messageType) => {
+        const messageFn = channel.messages[messageType]
+        if (typeof messageFn === 'function') {
+          channel.messages[messageType] = wrapFunction(messageFn, config, channelName)
+        }
+      })
+    }
+  }
+  return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig) {
+function wrapFunction(fn: Function, config: PostHogConfig, functionName: string) {
   return async (...args: any[]) => {
     try {
       return await fn(...args)
@@ -90,7 +84,7 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
           distinctId: distinctId ?? 'no id',
           event: 'unhandled_error',
           properties: {
-            from: fn.name,
+            from: functionName,
             integrationName: config.integrationName,
             integrationVersion: config.integrationVersion,
             errMsg,
