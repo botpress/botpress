@@ -36,7 +36,7 @@ export type Issue = {
   }
   project: {
     id: string
-    name: string | null
+    name: string
     completedAt: string | null
   } | null
   comments: {
@@ -46,7 +46,7 @@ export type Issue = {
       createdAt: string
       user: {
         id: string
-      }
+      } | null
       parentId: string | null
     }[]
   }
