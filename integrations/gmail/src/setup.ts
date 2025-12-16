@@ -3,19 +3,34 @@ import { posthogConfig } from 'src'
 import { GoogleClient } from './google-api'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async ({ client, ctx }) => {
+export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   const startTime = Date.now()
 
-  const googleClient =
-    ctx.configurationType === 'customApp'
-      ? await GoogleClient.createFromAuthorizationCode({
-          client,
-          ctx,
-          authorizationCode: ctx.configuration.oauthAuthorizationCode,
-        })
-      : await GoogleClient.create({ client, ctx })
+  let googleClient: GoogleClient
 
-  await googleClient.watchIncomingMail()
+  if (ctx.configurationType === 'customApp') {
+    try {
+      logger.forBot().info('Using existing refresh token from state')
+      googleClient = await GoogleClient.create({ client, ctx })
+    } catch (error) {
+      logger.forBot().error(`${error}`)
+      googleClient = await GoogleClient.createFromAuthorizationCode({
+        client,
+        ctx,
+        authorizationCode: ctx.configuration.oauthAuthorizationCode,
+      })
+    }
+  } else {
+    logger.forBot().info('Using refresh token from configuration')
+    googleClient = await GoogleClient.create({ client, ctx })
+  }
+
+  logger.forBot().info('Setting up Gmail watch for incoming emails...')
+  try {
+    await googleClient.watchIncomingMail()
+  } catch (error) {
+    logger.forBot().error(`Failed to set up Gmail watch ${error}`)
+  }
 
   const configurationTimeMs = Date.now() - startTime
 
