@@ -23,7 +23,4 @@ export default new IntegrationDefinition({
   events: {},
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(typingIndicator, () => ({ entities: {} }))
