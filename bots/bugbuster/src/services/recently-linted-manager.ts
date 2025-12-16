@@ -8,7 +8,7 @@ export class RecentlyLintedManager {
   public async isRecentlyLinted(issue: lin.Issue): Promise<boolean> {
     const me = await this._linear.getMe()
     const timestamps = issue.comments.nodes
-      .filter((comment) => comment.user.id === me.id)
+      .filter((comment) => comment.user?.id === me.id)
       .map((comment) => new Date(comment.createdAt).getTime())
     const now = new Date().getTime()
     for (const timestamp of timestamps) {
