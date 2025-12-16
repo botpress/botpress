@@ -9,7 +9,7 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type PostHogConfig = {
+export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string

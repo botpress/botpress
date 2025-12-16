@@ -8,11 +8,6 @@ import { webSearch } from './actions/web-search'
 import { trackEvent } from './tracking'
 import * as bp from '.botpress'
 
-const posthogConfig = {
-  integrationName: INTEGRATION_NAME,
-  key: bp.secrets.POSTHOG_KEY,
-  integrationVersion: INTEGRATION_VERSION,
-}
 const integrationConfig: bp.IntegrationProps = {
   register: async ({ ctx }) => {
     await trackEvent('browser_registered', {
@@ -35,4 +30,11 @@ const integrationConfig: bp.IntegrationProps = {
   handler: async () => {},
 }
 
-export default posthogHelper.wrapIntegration(posthogConfig, integrationConfig)
+export default posthogHelper.wrapIntegration(
+  {
+    integrationName: INTEGRATION_NAME,
+    key: bp.secrets.POSTHOG_KEY,
+    integrationVersion: INTEGRATION_VERSION,
+  },
+  integrationConfig
+)

@@ -5,11 +5,6 @@ import { register, unregister } from './setup'
 import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-const posthogConfig = {
-  integrationName: INTEGRATION_NAME,
-  key: bp.secrets.POSTHOG_KEY,
-  integrationVersion: INTEGRATION_VERSION,
-}
 const integrationConfig: bp.IntegrationProps = {
   register,
   unregister,
@@ -18,4 +13,11 @@ const integrationConfig: bp.IntegrationProps = {
   handler,
 }
 
-export default posthogHelper.wrapIntegration(posthogConfig, integrationConfig)
+export default posthogHelper.wrapIntegration(
+  {
+    integrationName: INTEGRATION_NAME,
+    key: bp.secrets.POSTHOG_KEY,
+    integrationVersion: INTEGRATION_VERSION,
+  },
+  integrationConfig
+)
