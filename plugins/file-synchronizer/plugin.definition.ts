@@ -199,7 +199,4 @@ export default new sdk.PluginDefinition({
   interfaces: {
     'files-readonly': sdk.version.allWithinMajorOf(filesReadonly),
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
