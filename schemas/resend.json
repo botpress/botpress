@@ -4,7 +4,6 @@
       "description": "Sends an email to the specified email address",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "bcc": {
@@ -12,8 +11,7 @@
               "items": {
                 "format": "email",
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -33,8 +31,7 @@
               "items": {
                 "format": "email",
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -78,25 +75,21 @@
             }
           },
           "required": ["from", "to", "subject", "body"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "emailId": {
               "anyOf": [
                 {
                   "minLength": 1,
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 {
-                  "type": "null",
-                  "x-zui": {}
+                  "type": "null"
                 }
               ],
               "description": "The id of a successfully sent email",
@@ -106,8 +99,7 @@
             }
           },
           "required": ["emailId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Send Email"
@@ -118,14 +110,12 @@
     "bounced": {
       "description": "An event that triggers when a sent email bounces. (e.g. Invalid Address, blocked, etc)",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -136,8 +126,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -173,17 +162,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -218,17 +204,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -239,8 +222,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -257,22 +239,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to", "reason", "type", "subtype"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email bounced"
     },
     "clicked": {
       "description": "An event that triggers when a link in the email has been clicked on by the recipient. (Must have 'Click Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -283,8 +262,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -328,17 +306,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -359,17 +334,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -380,8 +352,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -398,22 +369,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to", "clickedAt", "url"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email link clicked"
     },
     "delayedDelivery": {
       "description": "An event that triggers when the Resend API fails a delivery attempt to the recipient's email server. (This will usually re-attempt a few times before stopping)",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -424,8 +392,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -461,17 +428,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -492,17 +456,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -513,8 +474,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -524,22 +484,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email delivery delayed"
     },
     "delivered": {
       "description": "An event that triggers when the Resend API delivers an email to the recipient's email server. (This can also trigger alongside email bounces among other events)",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -550,8 +507,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -587,17 +543,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -618,17 +571,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -639,8 +589,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -650,22 +599,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email delivered"
     },
     "failed": {
       "description": "An event that triggers when the email could not be sent at all.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -676,8 +622,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -713,17 +658,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -751,17 +693,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -772,8 +711,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -783,22 +721,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to", "reason"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email failed to send"
     },
     "markedAsSpam": {
       "description": "An event that triggers when the sent email is marked as spam by the recipient.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -809,8 +744,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -846,17 +780,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -877,17 +808,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -898,8 +826,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -909,22 +836,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email marked as spam"
     },
     "opened": {
       "description": "An event that triggers when the email has been opened by the recipient. (Must have 'Open Tracking' enabled)\n\nNote: This may be subject to privacy regulations of the email recipient's country",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -935,8 +859,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -972,17 +895,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -1011,17 +931,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -1032,8 +949,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -1043,22 +959,19 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to", "openedAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email opened"
     },
     "sent": {
       "description": "An event that triggers when the Resend API has processed and sent the email.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "bcc": {
             "description": "The blind carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -1069,8 +982,7 @@
           "cc": {
             "description": "The carbon copy recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -1106,17 +1018,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -1137,17 +1046,14 @@
               "additionalProperties": false,
               "properties": {
                 "name": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "value": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["name", "value"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "minItems": 1,
             "type": "array",
@@ -1158,8 +1064,7 @@
           "to": {
             "description": "The recipients of the email",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "minItems": 1,
             "type": "array",
@@ -1169,8 +1074,7 @@
           }
         },
         "required": ["createdAt", "subject", "from", "to"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email sent"
     }

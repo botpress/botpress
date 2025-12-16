@@ -4,95 +4,79 @@
       "description": "Create an empty file in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "mimeType": {
               "description": "The media type of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
               "description": "The name of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "parentId": {
               "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["name", "mimeType"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "The file created in Google Drive",
           "properties": {
             "contentHash": {
               "description": "The hash of the file content, or version/revision number",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "lastModifiedDate": {
               "description": "The last modified date of the file in RFC 3339 format",
               "format": "date-time",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "mimeType": {
               "description": "The media type of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
               "description": "The name of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "parentId": {
               "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "path": {
               "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "size": {
               "description": "The size in bytes of the file",
               "minimum": 0,
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
           "required": ["id", "name", "mimeType", "size", "path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create File"
@@ -101,28 +85,23 @@
       "description": "Deletes a file in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete File"
@@ -131,41 +110,34 @@
       "description": "Download data from a file in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
               "description": "The ID of the Google Drive file whose content will be downloaded",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "index": {
               "description": "Indicates if the file is to be indexed or not",
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             }
           },
           "required": ["id", "index"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "bpFileId": {
               "description": "The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["bpFileId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Download file data"
@@ -177,7 +149,6 @@
       "description": "List the files and folders in a folder",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "filters": {
@@ -187,43 +158,35 @@
                 "itemType": {
                   "description": "The entity type",
                   "enum": ["file", "folder"],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "maxSizeInBytes": {
                   "description": "Filter the items by maximum size (in bytes)",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "modifiedAfter": {
                   "description": "Filter the items modified after the given date",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "folderId": {
               "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "nextToken": {
               "description": "The token to get the next page of items. Leave empty to get the first page.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyListItemsInFolder",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -235,105 +198,85 @@
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the file. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "contentHash": {
                         "description": "The hash of the file content, or version/revision number, if available",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "lastModifiedDate": {
                         "description": "The last modified date of the file, if available",
                         "format": "date-time",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "sizeInBytes": {
                         "description": "The file size in bytes, if available",
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "type": {
                         "const": "file",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   {
                     "additionalProperties": false,
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the folder. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
                         "const": "folder",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
-                ],
-                "x-zui": {}
+                ]
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "meta": {
               "additionalProperties": false,
               "properties": {
                 "nextToken": {
                   "description": "The token to get the next page of items.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List items in folder"
@@ -345,7 +288,6 @@
       "description": "Transfer a file from an external service to Botpress",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "file": {
@@ -354,44 +296,36 @@
               "properties": {
                 "absolutePath": {
                   "description": "The absolute path of the file. Leave empty if not available.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "contentHash": {
                   "description": "The hash of the file content, or version/revision number, if available",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "id": {
                   "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "lastModifiedDate": {
                   "description": "The last modified date of the file, if available",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "name": {
                   "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "parentId": {
                   "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "sizeInBytes": {
                   "description": "The file size in bytes, if available",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "type": {
                   "const": "file",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "type", "name"],
@@ -416,25 +350,21 @@
             }
           },
           "required": ["file", "fileKey"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyTransferFileToBotpress",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "botpressFileId": {
               "description": "The file ID of the uploaded file on Botpress",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["botpressFileId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Transfer file to Botpress"
@@ -443,22 +373,18 @@
       "description": "List files in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nextToken": {
               "description": "The token to use to get the next page of results",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -468,80 +394,66 @@
                 "properties": {
                   "contentHash": {
                     "description": "The hash of the file content, or version/revision number",
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "id": {
                     "description": "The ID of the Google Drive file",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "lastModifiedDate": {
                     "description": "The last modified date of the file in RFC 3339 format",
                     "format": "date-time",
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "mimeType": {
                     "description": "The media type of the file",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "name": {
                     "description": "The name of the file",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "parentId": {
                     "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "path": {
                     "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
-                    "type": "array",
-                    "x-zui": {}
+                    "type": "array"
                   },
                   "size": {
                     "description": "The size in bytes of the file",
                     "minimum": 0,
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["id", "name", "mimeType", "size", "path"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "meta": {
               "additionalProperties": false,
               "properties": {
                 "nextToken": {
                   "description": "The token to pass as input to the next call of the list action to list additional items",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Files"
@@ -550,22 +462,18 @@
       "description": "List folders in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nextToken": {
               "description": "The token to use to get the next page of results",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -576,61 +484,50 @@
                   "id": {
                     "description": "The ID of the Google Drive file",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "mimeType": {
                     "const": "application/vnd.google-apps.folder",
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "name": {
                     "description": "The name of the file",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "parentId": {
                     "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                     "minLength": 1,
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "path": {
                     "description": "An array of the path's components sorted by level (root to leaf)",
                     "items": {
                       "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
-                    "type": "array",
-                    "x-zui": {}
+                    "type": "array"
                   }
                 },
                 "required": ["id", "name", "mimeType", "path"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "meta": {
               "additionalProperties": false,
               "properties": {
                 "nextToken": {
                   "description": "The token to pass as input to the next call of the list action to list additional items",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List folders"
@@ -639,83 +536,69 @@
       "description": "Read a file's metadata in a Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "The file read from Google Drive",
           "properties": {
             "contentHash": {
               "description": "The hash of the file content, or version/revision number",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "lastModifiedDate": {
               "description": "The last modified date of the file in RFC 3339 format",
               "format": "date-time",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "mimeType": {
               "description": "The media type of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
               "description": "The name of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "parentId": {
               "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "path": {
               "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "size": {
               "description": "The size in bytes of the file",
               "minimum": 0,
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
           "required": ["id", "name", "mimeType", "size", "path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Read File"
@@ -724,20 +607,16 @@
       "description": "Sync channels for file change subscriptions",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Sync Channels"
@@ -746,95 +625,79 @@
       "description": "Update a file's metadata in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
               "description": "The name of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "parentId": {
               "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id", "name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "The file updated in Google Drive",
           "properties": {
             "contentHash": {
               "description": "The hash of the file content, or version/revision number",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "id": {
               "description": "The ID of the Google Drive file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "lastModifiedDate": {
               "description": "The last modified date of the file in RFC 3339 format",
               "format": "date-time",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "mimeType": {
               "description": "The media type of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "name": {
               "description": "The name of the file",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "parentId": {
               "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "path": {
               "description": "An array of the path's components sorted by level (root to leaf)",
               "items": {
                 "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "size": {
               "description": "The size in bytes of the file",
               "minimum": 0,
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
           "required": ["id", "name", "mimeType", "size", "path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update File"
@@ -843,39 +706,32 @@
       "description": "Upload data to a file in Google Drive",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "mimeType": {
               "description": "Media type of the uploaded content. This will override any previously set media type",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "url": {
               "description": "The URL used to access the file whose content will be uploaded to Google Drive",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id", "url"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Upload file data"
@@ -887,91 +743,76 @@
     "fileCreated": {
       "description": "Triggered when a file is created in Google Drive",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "contentHash": {
             "description": "The hash of the file content, or version/revision number",
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "id": {
             "description": "The ID of the Google Drive file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "lastModifiedDate": {
             "description": "The last modified date of the file in RFC 3339 format",
             "format": "date-time",
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "mimeType": {
             "description": "The media type of the file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "name": {
             "description": "The name of the file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "parentId": {
             "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "path": {
             "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
-            "type": "array",
-            "x-zui": {}
+            "type": "array"
           },
           "size": {
             "description": "The size in bytes of the file",
             "minimum": 0,
-            "type": "number",
-            "x-zui": {}
+            "type": "number"
           }
         },
         "required": ["id", "name", "mimeType", "size", "path"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "File Created"
     },
     "fileDeleted": {
       "description": "Triggered when a file is deleted in Google Drive",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
             "description": "The ID of the Google Drive file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "File Deleted"
     },
     "filesReadonlyAggregateFileChanges": {
       "name": "filesReadonlyAggregateFileChanges",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "modifiedItems": {
@@ -985,52 +826,42 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "deleted": {
                 "description": "The files and folders deleted",
@@ -1041,88 +872,71 @@
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "contentHash": {
                           "description": "The hash of the file content, or version/revision number, if available",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "lastModifiedDate": {
                           "description": "The last modified date of the file, if available",
                           "format": "date-time",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "sizeInBytes": {
                           "description": "The file size in bytes, if available",
-                          "type": "number",
-                          "x-zui": {}
+                          "type": "number"
                         },
                         "type": {
                           "const": "file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "const": "folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "updated": {
                 "description": "The files updated",
@@ -1131,68 +945,55 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               }
             },
             "required": ["created", "updated", "deleted"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["modifiedItems"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "filesReadonlyFileCreated": {
       "name": "filesReadonlyFileCreated",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -1201,60 +1002,49 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "filesReadonlyFileDeleted": {
       "name": "filesReadonlyFileDeleted",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -1263,60 +1053,49 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "filesReadonlyFileUpdated": {
       "name": "filesReadonlyFileUpdated",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -1325,60 +1104,49 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "filesReadonlyFolderDeletedRecursive": {
       "name": "filesReadonlyFolderDeletedRecursive",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "folder": {
@@ -1387,103 +1155,85 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": {
                 "const": "folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["folder"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "folderCreated": {
       "description": "Triggered when a folder is created in Google Drive",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
             "description": "The ID of the Google Drive file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "mimeType": {
             "const": "application/vnd.google-apps.folder",
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "name": {
             "description": "The name of the file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "parentId": {
             "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "path": {
             "description": "An array of the path's components sorted by level (root to leaf)",
             "items": {
               "description": "A component of the path of the file. It corresponds to the name of one of it's parents.",
               "minLength": 1,
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
-            "type": "array",
-            "x-zui": {}
+            "type": "array"
           }
         },
         "required": ["id", "name", "mimeType", "path"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Folder Created"
     },
     "folderDeleted": {
       "description": "Triggered when a folder is deleted in Google Drive",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
             "description": "The ID of the Google Drive file",
             "minLength": 1,
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Folder Deleted"
     }
@@ -1526,7 +1276,6 @@
   "states": {
     "configuration": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "refreshToken": {
@@ -1538,14 +1287,12 @@
           }
         },
         "required": ["refreshToken"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "filesCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "filesCache": {
@@ -1556,54 +1303,45 @@
                   "properties": {
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The ID of the Google Drive file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file in RFC 3339 format",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "mimeType": {
                       "description": "The media type of the file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The name of the file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "size": {
                       "description": "The size in bytes of the file",
                       "minimum": 0,
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "normal",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "name", "mimeType", "size", "type"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "additionalProperties": false,
@@ -1611,35 +1349,29 @@
                     "id": {
                       "description": "The ID of the Google Drive file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "mimeType": {
                       "const": "application/vnd.google-apps.folder",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The name of the file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": {
                       "const": "folder",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "name", "mimeType", "type"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "additionalProperties": false,
@@ -1647,38 +1379,31 @@
                     "id": {
                       "description": "The ID of the Google Drive file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "mimeType": {
                       "const": "application/vnd.google-apps.shortcut",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The name of the file",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The ID of the file that is the parent of this file. If not set, 'My Drive' is the parent",
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": {
                       "const": "shortcut",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "name", "mimeType", "type"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
-              ],
-              "x-zui": {}
+              ]
             },
             "description": "Map of known files",
             "type": "object",
@@ -1688,14 +1413,12 @@
           }
         },
         "required": ["filesCache"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "filesChannelsCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "filesChannelsCache": {
@@ -1705,25 +1428,21 @@
                 "fileId": {
                   "description": "The ID of the Google Drive file",
                   "minLength": 1,
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "id": {
                   "description": "The ID of the channel",
                   "minLength": 1,
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "resourceId": {
                   "description": "The ID of the watched resource (different from the file ID)",
                   "minLength": 1,
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "resourceId", "fileId"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "Serialized set of channels for file change subscriptions",
             "type": "object",
@@ -1733,8 +1452,7 @@
           }
         },
         "required": ["filesChannelsCache"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

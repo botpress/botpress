@@ -4,7 +4,6 @@
       "description": "Converts an HTML document to a PDF file",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "filename": {
@@ -27,13 +26,11 @@
             }
           },
           "required": ["html"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fileId": {
@@ -52,8 +49,7 @@
             }
           },
           "required": ["fileId", "fileUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "HTML to PDF"
@@ -62,7 +58,6 @@
       "description": "Converts a markdown content to a PDF file",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "filename": {
@@ -85,13 +80,11 @@
             }
           },
           "required": ["markdown"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fileId": {
@@ -110,8 +103,7 @@
             }
           },
           "required": ["fileId", "fileUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Markdown to PDF"

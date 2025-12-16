@@ -4,7 +4,6 @@
       "description": "Find a target in a repository",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "channel": {
@@ -31,13 +30,11 @@
             }
           },
           "required": ["query", "channel", "repo"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "targets": {
@@ -62,8 +59,7 @@
                   },
                   "tags": {
                     "additionalProperties": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "description": "The tags associated with the target",
                     "type": "object",
@@ -73,8 +69,7 @@
                   }
                 },
                 "required": ["displayName", "tags", "channel"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -83,8 +78,7 @@
             }
           },
           "required": ["targets"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Find Target"
@@ -176,18 +170,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -278,18 +269,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -360,18 +348,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -446,18 +431,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -548,18 +530,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -571,7 +550,6 @@
     "issueOpened": {
       "description": "Triggered when an issue is opened",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "content": {
@@ -694,8 +672,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -804,8 +781,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -1005,15 +981,13 @@
           "repositoryName",
           "repositoryOwner"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Issue opened"
     },
     "pullRequestMerged": {
       "description": "Triggered when a pull request is merged",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "baseBranch": {
@@ -1150,8 +1124,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -1260,8 +1233,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -1695,15 +1667,13 @@
           }
         },
         "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Pull Request merged"
     },
     "pullRequestOpened": {
       "description": "Triggered when a pull request is opened",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "baseBranch": {
@@ -1840,8 +1810,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -1950,8 +1919,7 @@
                     }
                   },
                   "required": ["id", "nodeId", "url", "name"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "type": "array",
                 "x-zui": {
@@ -2387,15 +2355,13 @@
           }
         },
         "required": ["pullRequest", "eventSender", "id", "title", "content", "targets"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Pull Request opened"
     },
     "pullRequestReviewSubmitted": {
       "description": "Triggered when a review is submitted on a pull request",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "eventSender": {
@@ -2589,8 +2555,7 @@
                         }
                       },
                       "required": ["id", "nodeId", "url", "name", "handle", "botpressUser"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "type": "array",
                     "x-zui": {
@@ -2699,8 +2664,7 @@
                         }
                       },
                       "required": ["id", "nodeId", "url", "name"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "type": "array",
                     "x-zui": {
@@ -3105,8 +3069,7 @@
           }
         },
         "required": ["review", "eventSender"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Pull Request review submitted"
     }
@@ -3116,7 +3079,6 @@
   "states": {
     "configuration": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "githubInstallationId": {
@@ -3135,8 +3097,7 @@
             }
           }
         },
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

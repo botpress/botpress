@@ -4,7 +4,6 @@
       "description": "Add Comment to Task, by task ID",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "comment": {
@@ -23,13 +22,11 @@
             }
           },
           "required": ["taskId", "comment"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "text": {
@@ -41,8 +38,7 @@
             }
           },
           "required": ["text"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Add Comment to Task"
@@ -51,7 +47,6 @@
       "description": "Create Task",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "assignee": {
@@ -106,13 +101,11 @@
             }
           },
           "required": ["name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "permalink_url": {
@@ -124,8 +117,7 @@
             }
           },
           "required": ["permalink_url"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Task"
@@ -134,7 +126,6 @@
       "description": "Find User by userId",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "userEmail": {
@@ -146,13 +137,11 @@
             }
           },
           "required": ["userEmail"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "email": {
@@ -227,8 +216,7 @@
                 {
                   "type": "null"
                 }
-              ],
-              "x-zui": {}
+              ]
             },
             "resource_type": {
               "description": "The resource type of the user",
@@ -265,8 +253,7 @@
                   }
                 },
                 "required": ["gid", "name", "resource_type"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -274,8 +261,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Find User"
@@ -284,7 +270,6 @@
       "description": "Update Task by taskId",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "assignee": {
@@ -338,13 +323,11 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "permalink_url": {
@@ -356,8 +339,7 @@
             }
           },
           "required": ["permalink_url"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update Task"
@@ -369,23 +351,19 @@
       "messages": {
         "audio": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "audioUrl": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["audioUrl"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "bloc": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "items": {
@@ -399,23 +377,19 @@
                           "properties": {
                             "text": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["text"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "text",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -425,23 +399,19 @@
                           "properties": {
                             "imageUrl": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["imageUrl"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "image",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -451,23 +421,19 @@
                           "properties": {
                             "audioUrl": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["audioUrl"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "audio",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -477,23 +443,19 @@
                           "properties": {
                             "videoUrl": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["videoUrl"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "video",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -503,28 +465,23 @@
                           "properties": {
                             "fileUrl": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "title": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["fileUrl"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -533,35 +490,28 @@
                           "additionalProperties": false,
                           "properties": {
                             "address": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             },
                             "latitude": {
-                              "type": "number",
-                              "x-zui": {}
+                              "type": "number"
                             },
                             "longitude": {
-                              "type": "number",
-                              "x-zui": {}
+                              "type": "number"
                             },
                             "title": {
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["latitude", "longitude"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "location",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
@@ -571,39 +521,31 @@
                           "properties": {
                             "markdown": {
                               "minLength": 1,
-                              "type": "string",
-                              "x-zui": {}
+                              "type": "string"
                             }
                           },
                           "required": ["markdown"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         },
                         "type": {
                           "const": "markdown",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["type", "payload"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               }
             },
             "required": ["items"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "card": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "actions": {
@@ -612,51 +554,41 @@
                   "properties": {
                     "action": {
                       "enum": ["postback", "url", "say"],
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "label": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "value": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["action", "label", "value"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "imageUrl": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "subtitle": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "title": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["title", "actions"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "carousel": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "items": {
@@ -669,59 +601,47 @@
                         "properties": {
                           "action": {
                             "enum": ["postback", "url", "say"],
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           "label": {
                             "minLength": 1,
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           },
                           "value": {
                             "minLength": 1,
-                            "type": "string",
-                            "x-zui": {}
+                            "type": "string"
                           }
                         },
                         "required": ["action", "label", "value"],
-                        "type": "object",
-                        "x-zui": {}
+                        "type": "object"
                       },
-                      "type": "array",
-                      "x-zui": {}
+                      "type": "array"
                     },
                     "imageUrl": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "subtitle": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "title": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["title", "actions"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               }
             },
             "required": ["items"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "choice": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "options": {
@@ -730,36 +650,29 @@
                   "properties": {
                     "label": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "value": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["label", "value"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text", "options"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "dropdown": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "options": {
@@ -768,143 +681,115 @@
                   "properties": {
                     "label": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "value": {
                       "minLength": 1,
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["label", "value"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text", "options"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "file": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "fileUrl": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "title": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["fileUrl"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "image": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "imageUrl": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["imageUrl"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "location": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "address": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "latitude": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "longitude": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "title": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["latitude", "longitude"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "markdown": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "markdown": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["markdown"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "video": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "videoUrl": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["videoUrl"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },

@@ -4,7 +4,6 @@
       "description": "Send Data as a JSON string",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "data": {
@@ -17,13 +16,11 @@
             }
           },
           "required": ["data"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "response": {
@@ -52,8 +49,7 @@
             }
           },
           "required": ["success"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Send Data"

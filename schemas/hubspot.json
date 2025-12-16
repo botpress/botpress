@@ -4,7 +4,6 @@
       "description": "Create a contact in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "companies": {
@@ -28,8 +27,7 @@
                   }
                 },
                 "required": ["idOrNameOrDomain"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -78,8 +76,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -101,13 +98,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contact": {
@@ -144,8 +139,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the contact",
                   "type": "object",
@@ -169,8 +163,7 @@
             }
           },
           "required": ["contact"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Contact"
@@ -179,7 +172,6 @@
       "description": "Create a deal in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -210,8 +202,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -220,13 +211,11 @@
             }
           },
           "required": ["name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "deal": {
@@ -256,8 +245,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the deal",
                   "type": "object",
@@ -281,8 +269,7 @@
             }
           },
           "required": ["deal"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Deal"
@@ -291,7 +278,6 @@
       "description": "Create a lead in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contact": {
@@ -329,8 +315,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -339,13 +324,11 @@
             }
           },
           "required": ["name", "contact"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "lead": {
@@ -375,8 +358,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the lead",
                   "type": "object",
@@ -400,8 +382,7 @@
             }
           },
           "required": ["lead"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Lead"
@@ -410,7 +391,6 @@
       "description": "Create a ticket in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "category": {
@@ -476,8 +456,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -514,13 +493,11 @@
             }
           },
           "required": ["subject", "pipeline", "pipelineStage"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "ticket": {
@@ -557,8 +534,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the ticket",
                   "type": "object",
@@ -589,8 +565,7 @@
             }
           },
           "required": ["ticket"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Ticket"
@@ -599,7 +574,6 @@
       "description": "Delete a contact in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contactId": {
@@ -611,13 +585,11 @@
             }
           },
           "required": ["contactId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "Empty output",
           "properties": {},
@@ -633,7 +605,6 @@
       "description": "Delete a deal in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "dealId": {
@@ -645,13 +616,11 @@
             }
           },
           "required": ["dealId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "Empty output",
           "properties": {},
@@ -667,7 +636,6 @@
       "description": "Delete a lead in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "leadId": {
@@ -679,13 +647,11 @@
             }
           },
           "required": ["leadId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "Empty output",
           "properties": {},
@@ -701,7 +667,6 @@
       "description": "Get a contact from Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contactIdOrEmail": {
@@ -713,13 +678,11 @@
             }
           },
           "required": ["contactIdOrEmail"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contact": {
@@ -756,8 +719,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the contact",
                   "type": "object",
@@ -781,8 +743,7 @@
             }
           },
           "required": ["contact"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Contact"
@@ -791,7 +752,6 @@
       "description": "Get a deal from Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "dealId": {
@@ -803,13 +763,11 @@
             }
           },
           "required": ["dealId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "deal": {
@@ -839,8 +797,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the deal",
                   "type": "object",
@@ -864,8 +821,7 @@
             }
           },
           "required": ["deal"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Deal"
@@ -874,7 +830,6 @@
       "description": "Get a lead from Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "leadId": {
@@ -886,13 +841,11 @@
             }
           },
           "required": ["leadId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "lead": {
@@ -922,8 +875,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the lead",
                   "type": "object",
@@ -947,8 +899,7 @@
             }
           },
           "required": ["lead"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Lead"
@@ -957,7 +908,6 @@
       "description": "List contacts in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "meta": {
@@ -979,13 +929,11 @@
             }
           },
           "required": ["meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contacts": {
@@ -1024,8 +972,7 @@
                   },
                   "properties": {
                     "additionalProperties": {
-                      "type": ["string", "null"],
-                      "x-zui": {}
+                      "type": ["string", "null"]
                     },
                     "description": "The properties of the contact",
                     "type": "object",
@@ -1071,8 +1018,7 @@
             }
           },
           "required": ["contacts", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Contacts"
@@ -1081,7 +1027,6 @@
       "description": "Search for a company in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "domain": {
@@ -1099,13 +1044,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "company": {
@@ -1142,8 +1085,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the company",
                   "type": "object",
@@ -1166,8 +1108,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Company"
@@ -1176,7 +1117,6 @@
       "description": "Search for a contact in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "email": {
@@ -1194,13 +1134,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contact": {
@@ -1237,8 +1175,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the contact",
                   "type": "object",
@@ -1261,8 +1198,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Contact"
@@ -1271,7 +1207,6 @@
       "description": "Search for a deal in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -1282,13 +1217,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "deal": {
@@ -1318,8 +1251,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the deal",
                   "type": "object",
@@ -1342,8 +1274,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Deal"
@@ -1352,7 +1283,6 @@
       "description": "Search for a lead in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -1363,13 +1293,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "lead": {
@@ -1399,8 +1327,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the lead",
                   "type": "object",
@@ -1423,8 +1350,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Lead"
@@ -1433,7 +1359,6 @@
       "description": "Update a contact in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contactIdOrEmail": {
@@ -1478,8 +1403,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1488,13 +1412,11 @@
             }
           },
           "required": ["contactIdOrEmail"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contact": {
@@ -1531,8 +1453,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the contact",
                   "type": "object",
@@ -1556,8 +1477,7 @@
             }
           },
           "required": ["contact"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update Contact"
@@ -1566,7 +1486,6 @@
       "description": "Update a deal in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "dealId": {
@@ -1604,8 +1523,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1614,13 +1532,11 @@
             }
           },
           "required": ["dealId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "deal": {
@@ -1650,8 +1566,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the deal",
                   "type": "object",
@@ -1675,8 +1590,7 @@
             }
           },
           "required": ["deal"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update Deal"
@@ -1685,7 +1599,6 @@
       "description": "Update a lead in Hubspot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "leadId": {
@@ -1723,8 +1636,7 @@
                   }
                 },
                 "required": ["name", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1733,13 +1645,11 @@
             }
           },
           "required": ["leadId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "lead": {
@@ -1769,8 +1679,7 @@
                 },
                 "properties": {
                   "additionalProperties": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "description": "The properties of the lead",
                   "type": "object",
@@ -1794,8 +1703,7 @@
             }
           },
           "required": ["lead"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update Lead"
@@ -1806,7 +1714,6 @@
     "companyCreated": {
       "description": "A new company has been created in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "companyId": {
@@ -1839,15 +1746,13 @@
           }
         },
         "required": ["companyId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Company Created"
     },
     "companyDeleted": {
       "description": "A company has been deleted in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "companyId": {
@@ -1859,15 +1764,13 @@
           }
         },
         "required": ["companyId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Company Deleted"
     },
     "contactCreated": {
       "description": "A new contact has been created in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "contactId": {
@@ -1900,15 +1803,13 @@
           }
         },
         "required": ["contactId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Contact Created"
     },
     "contactDeleted": {
       "description": "A contact has been deleted in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "contactId": {
@@ -1920,15 +1821,13 @@
           }
         },
         "required": ["contactId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Contact Deleted"
     },
     "ticketCreated": {
       "description": "A new ticket has been created in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "category": {
@@ -1975,15 +1874,13 @@
           }
         },
         "required": ["ticketId", "pipeline", "stage"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Ticket Created"
     },
     "ticketDeleted": {
       "description": "A ticket has been deleted in Hubspot.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "ticketId": {
@@ -1995,8 +1892,7 @@
           }
         },
         "required": ["ticketId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Ticket Deleted"
     }
@@ -2006,7 +1902,6 @@
   "states": {
     "companiesCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "companies": {
@@ -2028,8 +1923,7 @@
                   }
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of company ids (string) to company details",
             "type": "object",
@@ -2039,14 +1933,12 @@
           }
         },
         "required": ["companies"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "contactPropertyCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "properties": {
@@ -2070,8 +1962,7 @@
                 "options": {
                   "description": "The options of the property if it is an enumeration",
                   "items": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": "array",
                   "x-zui": {
@@ -2090,13 +1981,11 @@
                     "json",
                     "phone_number"
                   ],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["label", "type", "hubspotDefined"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of property names (string) to property details",
             "type": "object",
@@ -2106,14 +1995,12 @@
           }
         },
         "required": ["properties"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "dealPropertyCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "properties": {
@@ -2137,8 +2024,7 @@
                 "options": {
                   "description": "The options of the property if it is an enumeration",
                   "items": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": "array",
                   "x-zui": {
@@ -2157,13 +2043,11 @@
                     "json",
                     "phone_number"
                   ],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["label", "type", "hubspotDefined"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of property names (string) to property details",
             "type": "object",
@@ -2173,14 +2057,12 @@
           }
         },
         "required": ["properties"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "leadPropertyCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "properties": {
@@ -2204,8 +2086,7 @@
                 "options": {
                   "description": "The options of the property if it is an enumeration",
                   "items": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": "array",
                   "x-zui": {
@@ -2224,13 +2105,11 @@
                     "json",
                     "phone_number"
                   ],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["label", "type", "hubspotDefined"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of property names (string) to property details",
             "type": "object",
@@ -2240,14 +2119,12 @@
           }
         },
         "required": ["properties"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "oauthCredentials": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accessToken": {
@@ -2273,14 +2150,12 @@
           }
         },
         "required": ["accessToken", "refreshToken", "expiresAtSeconds"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "ticketPipelineCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "pipelines": {
@@ -2307,8 +2182,7 @@
                       }
                     },
                     "required": ["label"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "description": "A mapping of pipeline stage ids (string) to pipeline stages",
                   "type": "object",
@@ -2318,8 +2192,7 @@
                 }
               },
               "required": ["label", "stages"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of pipeline ids (string) to pipelines",
             "type": "object",
@@ -2329,14 +2202,12 @@
           }
         },
         "required": ["pipelines"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "ticketPropertyCache": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "properties": {
@@ -2360,8 +2231,7 @@
                 "options": {
                   "description": "The options of the property if it is an enumeration",
                   "items": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": "array",
                   "x-zui": {
@@ -2380,13 +2250,11 @@
                     "json",
                     "phone_number"
                   ],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["label", "type", "hubspotDefined"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "description": "A mapping of property names (string) to property details",
             "type": "object",
@@ -2396,8 +2264,7 @@
           }
         },
         "required": ["properties"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

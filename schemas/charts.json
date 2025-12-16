@@ -4,7 +4,6 @@
       "description": "Generate a Bar chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "title": {
@@ -24,8 +23,7 @@
             "xData": {
               "description": "The data for the x axis",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
+                "type": ["string", "number"]
               },
               "type": "array",
               "x-zui": {
@@ -42,8 +40,7 @@
             "yData": {
               "description": "The data for the y axis",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -51,13 +48,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -69,8 +64,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Bar Chart"
@@ -79,7 +73,6 @@
       "description": "Generate a bubble Chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "data": {
@@ -88,21 +81,17 @@
                 "additionalProperties": false,
                 "properties": {
                   "r": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "x": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "y": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["x", "y", "r"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -131,13 +120,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -149,8 +136,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Bubble Chart"
@@ -159,14 +145,12 @@
       "description": "Generate a Doughnut Chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "data": {
               "description": "The data to plot",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -176,8 +160,7 @@
             "labels": {
               "description": "The labels for the data",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -192,13 +175,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -210,8 +191,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Doughnut Chart"
@@ -220,7 +200,6 @@
       "description": "Generate a horizontal Chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "title": {
@@ -240,8 +219,7 @@
             "xData": {
               "description": "The data for the x axis",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
+                "type": ["string", "number"]
               },
               "type": "array",
               "x-zui": {
@@ -258,8 +236,7 @@
             "yData": {
               "description": "The data for the y axis",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -267,13 +244,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -285,8 +260,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Horizontal Bar Chart"
@@ -295,7 +269,6 @@
       "description": "Generate a line plot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "title": {
@@ -315,8 +288,7 @@
             "xData": {
               "description": "The data for the x axis",
               "items": {
-                "type": ["string", "number"],
-                "x-zui": {}
+                "type": ["string", "number"]
               },
               "type": "array",
               "x-zui": {
@@ -333,8 +305,7 @@
             "yData": {
               "description": "the data for the y axis",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -342,13 +313,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -360,8 +329,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Line Plot"
@@ -370,14 +338,12 @@
       "description": "Generate a pie chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "data": {
               "description": "The data to plot",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -387,8 +353,7 @@
             "labels": {
               "description": "The labels for the data",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -403,13 +368,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -421,8 +384,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Pie Chart"
@@ -431,7 +393,6 @@
       "description": "Generate a radar Chart",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "axisTitle": {
@@ -444,8 +405,7 @@
             "data": {
               "description": "The data to plot",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -455,8 +415,7 @@
             "labels": {
               "description": "The labels for the data",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -471,13 +430,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -489,8 +446,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Radar Chart"
@@ -499,7 +455,6 @@
       "description": "Generate a scatter plot",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "data": {
@@ -508,17 +463,14 @@
                 "additionalProperties": false,
                 "properties": {
                   "x": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "y": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["x", "y"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -547,13 +499,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "imageUrl": {
@@ -565,8 +515,7 @@
             }
           },
           "required": ["imageUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Scatter Plot"

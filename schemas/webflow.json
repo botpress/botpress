@@ -4,7 +4,6 @@
       "description": "Create a new collection in your Webflow site.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionInfo": {
@@ -62,13 +61,11 @@
             }
           },
           "required": ["collectionInfo"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionDetails": {
@@ -169,11 +166,9 @@
                       }
                     },
                     "required": ["id", "isRequired", "type", "displayName", "isEditable", "slug", "helpText"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
-                  "type": "array",
-                  "x-zui": {}
+                  "type": "array"
                 },
                 "id": {
                   "description": "Unique identifier for a Collection",
@@ -212,8 +207,7 @@
             }
           },
           "required": ["collectionDetails"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Collection"
@@ -222,7 +216,6 @@
       "description": "Create one or multiple items in a Webflow collection",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -302,8 +295,7 @@
                   }
                 },
                 "required": ["fieldData"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -312,13 +304,11 @@
             }
           },
           "required": ["collectionID", "items"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -403,8 +393,7 @@
                   }
                 },
                 "required": ["fieldData", "lastPublished"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -413,8 +402,7 @@
             }
           },
           "required": ["items"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Collection item(s)"
@@ -423,7 +411,6 @@
       "description": "Delete a specific collection from your Webflow site.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -436,17 +423,14 @@
             }
           },
           "required": ["collectionID"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete Collection"
@@ -455,7 +439,6 @@
       "description": "Delete one or more items from a collection",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -484,11 +467,9 @@
                       }
                     },
                     "required": ["id"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
-                  "type": "array",
-                  "x-zui": {}
+                  "type": "array"
                 }
               },
               "required": ["items"],
@@ -499,17 +480,14 @@
             }
           },
           "required": ["collectionID", "itemIDs"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete Item(s)"
@@ -518,7 +496,6 @@
       "description": "Retrieve detailed information about a specific collection in your Webflow site.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -531,13 +508,11 @@
             }
           },
           "required": ["collectionID"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionDetails": {
@@ -638,11 +613,9 @@
                       }
                     },
                     "required": ["id", "isRequired", "type", "displayName", "isEditable", "slug", "helpText"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
-                  "type": "array",
-                  "x-zui": {}
+                  "type": "array"
                 },
                 "id": {
                   "description": "Unique identifier for a Collection",
@@ -681,8 +654,7 @@
             }
           },
           "required": ["collectionDetails"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Collection Details"
@@ -691,7 +663,6 @@
       "description": "Retrieve a specific item from a Webflow collection using its unique ID.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -720,13 +691,11 @@
             }
           },
           "required": ["collectionID", "itemID"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "itemDetails": {
@@ -817,8 +786,7 @@
             }
           },
           "required": ["itemDetails"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Collection Item"
@@ -827,16 +795,13 @@
       "description": "Retrieve a list of all collections in your Webflow site.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collections": {
@@ -888,8 +853,7 @@
                   }
                 },
                 "required": ["displayName", "singularName"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -898,8 +862,7 @@
             }
           },
           "required": ["collections"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Collections"
@@ -908,7 +871,6 @@
       "description": "List items in a Webflow collection. By default, this lists draft items. To list live items, set the \"Is Live Items\" parameter to true.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -955,13 +917,11 @@
             }
           },
           "required": ["collectionID"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -1046,8 +1006,7 @@
                   }
                 },
                 "required": ["fieldData", "lastPublished"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1090,8 +1049,7 @@
             }
           },
           "required": ["items", "pagination"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Collection Items"
@@ -1100,7 +1058,6 @@
       "description": "Publish one or more items in a collection",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -1128,20 +1085,17 @@
             }
           },
           "required": ["collectionID", "itemIds"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "errors": {
               "description": "Array of errors encountered during publishing",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -1151,8 +1105,7 @@
             "publishedItemIds": {
               "description": "Array of published item IDs",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -1161,8 +1114,7 @@
             }
           },
           "required": ["publishedItemIds", "errors"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Publish Item(s)"
@@ -1171,7 +1123,6 @@
       "description": "Unpublish one or more live items in a collection",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -1199,17 +1150,14 @@
             }
           },
           "required": ["collectionID", "itemIds"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Unpublish Live Item(s)"
@@ -1218,7 +1166,6 @@
       "description": "Update one or more items in a collection",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "collectionID": {
@@ -1298,8 +1245,7 @@
                   }
                 },
                 "required": ["fieldData"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1308,13 +1254,11 @@
             }
           },
           "required": ["collectionID", "items"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -1399,8 +1343,7 @@
                   }
                 },
                 "required": ["fieldData", "lastPublished"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1409,8 +1352,7 @@
             }
           },
           "required": ["items"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update Item(s)"
@@ -1421,7 +1363,6 @@
     "collectionItemCreated": {
       "description": "Information about a new collection item",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "cmsLocaleId": {
@@ -1521,15 +1462,13 @@
           }
         },
         "required": ["id", "workspaceId", "siteId", "collectionId", "fieldData"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Collection Item Created"
     },
     "collectionItemDeleted": {
       "description": "Information about a deleted collection item",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "cmsLocaleId": {
@@ -1629,15 +1568,13 @@
           }
         },
         "required": ["id", "workspaceId", "siteId", "collectionId", "fieldData"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Collection Item Deleted"
     },
     "collectionItemPublished": {
       "description": "Information about a collection item that was published",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "cmsLocaleId": {
@@ -1737,15 +1674,13 @@
           }
         },
         "required": ["id", "workspaceId", "siteId", "collectionId", "fieldData"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Collection Item Published"
     },
     "collectionItemUnpublished": {
       "description": "Information about a collection item that was removed from the live site",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "cmsLocaleId": {
@@ -1845,15 +1780,13 @@
           }
         },
         "required": ["id", "workspaceId", "siteId", "collectionId", "fieldData"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Collection Item Unpublished"
     },
     "collectionItemUpdated": {
       "description": "Information about an updated collection item",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "cmsLocaleId": {
@@ -1953,15 +1886,13 @@
           }
         },
         "required": ["id", "workspaceId", "siteId", "collectionId", "fieldData"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Collection Item Updated"
     },
     "commentCreated": {
       "description": "Information about a new comment thread or reply",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "author": {
@@ -2073,8 +2004,7 @@
                 }
               },
               "required": ["userId", "email", "name"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "type": "array",
             "x-zui": {
@@ -2133,21 +2063,18 @@
           "createdOn",
           "lastUpdated"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "New Comment Thread"
     },
     "formSubmission": {
       "description": "Information about a form that was submitted",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
             "additionalProperties": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "description": "The data submitted in the form",
             "type": "object",
@@ -2218,8 +2145,7 @@
                 }
               },
               "required": ["fieldElementId"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "type": "array",
             "x-zui": {
@@ -2242,15 +2168,13 @@
           }
         },
         "required": ["siteId", "id", "formId", "formElementId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Form Submission"
     },
     "pageCreated": {
       "description": "Information about a new pages",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdOn": {
@@ -2304,15 +2228,13 @@
           }
         },
         "required": ["siteId", "pageId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Page Created"
     },
     "pageDeleted": {
       "description": "Information about a page that was deleted",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdOn": {
@@ -2366,15 +2288,13 @@
           }
         },
         "required": ["siteId", "pageId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Page Deleted"
     },
     "pageMetadataUpdated": {
       "description": "Information about a page's updated metadata and/or settings",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdOn": {
@@ -2428,22 +2348,19 @@
           }
         },
         "required": ["siteId", "pageId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Page Metadata Updated"
     },
     "sitePublish": {
       "description": "Information about a site that was published",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "domain": {
             "description": "The domains that were published",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "type": "array",
             "x-zui": {
@@ -2484,8 +2401,7 @@
           }
         },
         "required": ["publishedOn", "publishedBy"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Site Publish"
     }

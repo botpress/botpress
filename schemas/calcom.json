@@ -4,7 +4,6 @@
       "description": "Books an event for a user",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "conversationId": {
@@ -53,13 +52,11 @@
             }
           },
           "required": ["eventTypeId", "start", "email", "name", "timeZone"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "success": {
@@ -71,8 +68,7 @@
             }
           },
           "required": ["success"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Book an Event"
@@ -81,7 +77,6 @@
       "description": "Generates a link to a calendar",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "conversationId": {
@@ -109,13 +104,11 @@
             }
           },
           "required": ["conversationId", "email", "eventTypeId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "url": {
@@ -127,8 +120,7 @@
             }
           },
           "required": ["url"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Generate a link"
@@ -137,7 +129,6 @@
       "description": "Fetches available time slots for a specific event type within a date range ( default to next 7 days if not provided )",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "endDate": {
@@ -163,27 +154,22 @@
             }
           },
           "required": ["eventTypeId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "slots": {
               "additionalProperties": {
                 "items": {
                   "additionalProperties": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "description": "Available time slots grouped by date",
               "type": "object",
@@ -193,8 +179,7 @@
             }
           },
           "required": ["slots"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Available Time Slots"
@@ -203,7 +188,6 @@
       "description": "Fetches all event types from Cal.com",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "username": {
@@ -215,13 +199,11 @@
             }
           },
           "required": ["username"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "eventTypes": {
@@ -253,8 +235,7 @@
                   "lengthInMinutesOptions": {
                     "description": "Available duration options for the event type",
                     "items": {
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": "array",
                     "x-zui": {
@@ -277,8 +258,7 @@
                   }
                 },
                 "required": ["id", "lengthInMinutes", "title", "slug", "description", "lengthInMinutesOptions"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -287,8 +267,7 @@
             }
           },
           "required": ["eventTypes"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Event Types"

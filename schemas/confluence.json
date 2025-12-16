@@ -3,7 +3,6 @@
     "createPage": {
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "item": {
@@ -34,8 +33,7 @@
                       }
                     }
                   },
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "authorId": {
                   "description": "The account ID of the user who created this page originally.",
@@ -66,13 +64,11 @@
                         }
                       },
                       "required": ["value", "representation"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
                   },
                   "required": ["atlas_doc_format"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "createdAt": {
                   "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -190,24 +186,20 @@
                     }
                   },
                   "required": ["createdAt", "number", "authorId", "minorEdit"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
               },
               "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["item"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "createPage",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "item": {
@@ -239,8 +231,7 @@
                           }
                         }
                       },
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "authorId": {
                       "description": "The account ID of the user who created this page originally.",
@@ -271,13 +262,11 @@
                             }
                           },
                           "required": ["value", "representation"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         }
                       },
                       "required": ["atlas_doc_format"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "createdAt": {
                       "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -395,59 +384,48 @@
                         }
                       },
                       "required": ["createdAt", "number", "authorId", "minorEdit"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
                   },
                   "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       }
     },
     "deletePage": {
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "deletePage",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       }
     },
@@ -458,7 +436,6 @@
       "description": "List the files and folders in a folder",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "filters": {
@@ -468,43 +445,35 @@
                 "itemType": {
                   "description": "The entity type",
                   "enum": ["file", "folder"],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "maxSizeInBytes": {
                   "description": "Filter the items by maximum size (in bytes)",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "modifiedAfter": {
                   "description": "Filter the items modified after the given date",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "folderId": {
               "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "nextToken": {
               "description": "The token to get the next page of items. Leave empty to get the first page.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyListItemsInFolder",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -516,105 +485,85 @@
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the file. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "contentHash": {
                         "description": "The hash of the file content, or version/revision number, if available",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "lastModifiedDate": {
                         "description": "The last modified date of the file, if available",
                         "format": "date-time",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "sizeInBytes": {
                         "description": "The file size in bytes, if available",
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "type": {
                         "const": "file",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   {
                     "additionalProperties": false,
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the folder. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
                         "const": "folder",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
-                ],
-                "x-zui": {}
+                ]
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "meta": {
               "additionalProperties": false,
               "properties": {
                 "nextToken": {
                   "description": "The token to get the next page of items.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List items in folder"
@@ -626,7 +575,6 @@
       "description": "Transfer a file from an external service to Botpress",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "file": {
@@ -635,44 +583,36 @@
               "properties": {
                 "absolutePath": {
                   "description": "The absolute path of the file. Leave empty if not available.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "contentHash": {
                   "description": "The hash of the file content, or version/revision number, if available",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "id": {
                   "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "lastModifiedDate": {
                   "description": "The last modified date of the file, if available",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "name": {
                   "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "parentId": {
                   "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "sizeInBytes": {
                   "description": "The file size in bytes, if available",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "type": {
                   "const": "file",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "type", "name"],
@@ -697,25 +637,21 @@
             }
           },
           "required": ["file", "fileKey"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyTransferFileToBotpress",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "botpressFileId": {
               "description": "The file ID of the uploaded file on Botpress",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["botpressFileId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Transfer file to Botpress"
@@ -723,23 +659,19 @@
     "getPage": {
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "getPage",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "item": {
@@ -771,8 +703,7 @@
                           }
                         }
                       },
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "authorId": {
                       "description": "The account ID of the user who created this page originally.",
@@ -803,13 +734,11 @@
                             }
                           },
                           "required": ["value", "representation"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         }
                       },
                       "required": ["atlas_doc_format"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "createdAt": {
                       "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -927,44 +856,36 @@
                         }
                       },
                       "required": ["createdAt", "number", "authorId", "minorEdit"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
                   },
                   "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       }
     },
     "updatePage": {
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "item": {
               "additionalProperties": false,
@@ -994,8 +915,7 @@
                       }
                     }
                   },
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "authorId": {
                   "description": "The account ID of the user who created this page originally.",
@@ -1026,13 +946,11 @@
                         }
                       },
                       "required": ["value", "representation"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
                   },
                   "required": ["atlas_doc_format"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 "createdAt": {
                   "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -1150,24 +1068,20 @@
                     }
                   },
                   "required": ["createdAt", "number", "authorId", "minorEdit"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
               },
               "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["id", "item"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "updatePage",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "item": {
@@ -1199,8 +1113,7 @@
                           }
                         }
                       },
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "authorId": {
                       "description": "The account ID of the user who created this page originally.",
@@ -1231,13 +1144,11 @@
                             }
                           },
                           "required": ["value", "representation"],
-                          "type": "object",
-                          "x-zui": {}
+                          "type": "object"
                         }
                       },
                       "required": ["atlas_doc_format"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "createdAt": {
                       "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -1355,32 +1266,26 @@
                         }
                       },
                       "required": ["createdAt", "number", "authorId", "minorEdit"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
                   },
                   "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
-              ],
-              "x-zui": {}
+              ]
             }
           },
           "required": ["item"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       }
     }
@@ -1399,17 +1304,14 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -1421,7 +1323,6 @@
     "comment": {
       "description": "A comment on a page in confluence",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "_links": {
@@ -1450,8 +1351,7 @@
               }
             },
             "required": ["webui", "editui", "tinyui"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "body": {
             "additionalProperties": false,
@@ -1475,13 +1375,11 @@
                   }
                 },
                 "required": ["value", "representation"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["atlas_doc_format"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "id": {
             "description": "The ID of the page.",
@@ -1552,20 +1450,17 @@
               }
             },
             "required": ["createdAt", "number", "authorId", "minorEdit", "message"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["id", "title", "status", "pageId", "body", "version", "_links"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Comment"
     },
     "page": {
       "description": "A page in confluence",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "_links": {
@@ -1593,8 +1488,7 @@
                 }
               }
             },
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "authorId": {
             "description": "The account ID of the user who created this page originally.",
@@ -1625,13 +1519,11 @@
                   }
                 },
                 "required": ["value", "representation"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["atlas_doc_format"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "createdAt": {
             "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -1749,20 +1641,17 @@
               }
             },
             "required": ["createdAt", "number", "authorId", "minorEdit"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Page"
     },
     "pageToCreate": {
       "description": "A page in confluence",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "_links": {
@@ -1791,8 +1680,7 @@
               }
             },
             "required": ["webui", "editui", "tinyui"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "authorId": {
             "description": "The account ID of the user who created this page originally.",
@@ -1823,13 +1711,11 @@
                   }
                 },
                 "required": ["value", "representation"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["atlas_doc_format"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           },
           "createdAt": {
             "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -1947,8 +1833,7 @@
               }
             },
             "required": ["createdAt", "number", "authorId", "minorEdit"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": [
@@ -1967,8 +1852,7 @@
           "version",
           "_links"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Page To Create"
     }
@@ -1976,7 +1860,6 @@
   "events": {
     "aggregateFileChanges": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "modifiedItems": {
@@ -1990,52 +1873,42 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "deleted": {
                 "description": "The files and folders deleted",
@@ -2046,88 +1919,71 @@
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "contentHash": {
                           "description": "The hash of the file content, or version/revision number, if available",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "lastModifiedDate": {
                           "description": "The last modified date of the file, if available",
                           "format": "date-time",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "sizeInBytes": {
                           "description": "The file size in bytes, if available",
-                          "type": "number",
-                          "x-zui": {}
+                          "type": "number"
                         },
                         "type": {
                           "const": "file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "const": "folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "updated": {
                 "description": "The files updated",
@@ -2136,67 +1992,54 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               }
             },
             "required": ["created", "updated", "deleted"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["modifiedItems"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileCreated": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2205,59 +2048,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileDeleted": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2266,59 +2098,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileUpdated": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2327,59 +2148,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "folderDeletedRecursive": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "folder": {
@@ -2388,44 +2198,36 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": {
                 "const": "folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["folder"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "pageCreated": {
       "name": "pageCreated",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "item": {
@@ -2457,8 +2259,7 @@
                         }
                       }
                     },
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "authorId": {
                     "description": "The account ID of the user who created this page originally.",
@@ -2489,13 +2290,11 @@
                           }
                         },
                         "required": ["value", "representation"],
-                        "type": "object",
-                        "x-zui": {}
+                        "type": "object"
                       }
                     },
                     "required": ["atlas_doc_format"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "createdAt": {
                     "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -2613,54 +2412,44 @@
                       }
                     },
                     "required": ["createdAt", "number", "authorId", "minorEdit"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
                 },
                 "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               {
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
-            ],
-            "x-zui": {}
+            ]
           }
         },
         "required": ["item"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "pageDeleted": {
       "name": "pageDeleted",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "pageUpdated": {
       "name": "pageUpdated",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "item": {
@@ -2692,8 +2481,7 @@
                         }
                       }
                     },
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "authorId": {
                     "description": "The account ID of the user who created this page originally.",
@@ -2724,13 +2512,11 @@
                           }
                         },
                         "required": ["value", "representation"],
-                        "type": "object",
-                        "x-zui": {}
+                        "type": "object"
                       }
                     },
                     "required": ["atlas_doc_format"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "createdAt": {
                     "description": "Date and time when the page was created. In format 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
@@ -2848,32 +2634,26 @@
                       }
                     },
                     "required": ["createdAt", "number", "authorId", "minorEdit"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
                 },
                 "required": ["id", "spaceId", "parentId", "parentType", "position", "_links"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               {
                 "properties": {
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["id"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
-            ],
-            "x-zui": {}
+            ]
           }
         },
         "required": ["item"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     }
   },

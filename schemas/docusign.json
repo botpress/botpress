@@ -4,7 +4,6 @@
       "description": "Sends an envelope (document) to a recipient to sign it",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "conversationId": {
@@ -57,8 +56,7 @@
                   }
                 },
                 "required": ["name", "email", "role"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "minItems": 1,
               "type": "array",
@@ -75,13 +73,11 @@
             }
           },
           "required": ["templateId", "recipients"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "envelopeId": {
@@ -93,8 +89,7 @@
             }
           },
           "required": ["envelopeId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Send Envelope"
@@ -105,7 +100,6 @@
     "envelopeCompleted": {
       "description": "An event that triggers when an envelope has been completed/signed by all recipient(s)",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
@@ -139,15 +133,13 @@
           }
         },
         "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Envelope Completed"
     },
     "envelopeDeclined": {
       "description": "An event that triggers when a recipient has declined to sign an envelope",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
@@ -181,15 +173,13 @@
           }
         },
         "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Envelope Declined"
     },
     "envelopeResent": {
       "description": "An event that triggers when an envelope is resent to the recipient(s) via the dashboard",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
@@ -223,15 +213,13 @@
           }
         },
         "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Envelope Resent"
     },
     "envelopeSent": {
       "description": "An event that triggers when an envelope is sent to the recipient(s) to be signed",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
@@ -265,15 +253,13 @@
           }
         },
         "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Envelope Sent"
     },
     "envelopeVoided": {
       "description": "An event that triggers when an envelope has been voided by the sender",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
@@ -307,8 +293,7 @@
           }
         },
         "required": ["userId", "accountId", "envelopeId", "triggeredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Envelope Voided"
     }
@@ -318,7 +303,6 @@
   "states": {
     "account": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "account": {
@@ -378,14 +362,12 @@
           }
         },
         "required": ["account"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "configuration": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "oauth": {
@@ -441,8 +423,7 @@
           }
         },
         "required": ["oauth"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

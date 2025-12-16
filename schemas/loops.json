@@ -4,7 +4,6 @@
       "description": "Send a transactional email to a client",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "addToAudience": {
@@ -20,17 +19,14 @@
                 "additionalProperties": false,
                 "properties": {
                   "key": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "value": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["key", "value"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -50,21 +46,17 @@
                 "additionalProperties": false,
                 "properties": {
                   "contentType": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "data": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "filename": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["filename", "contentType", "data"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -74,8 +66,7 @@
             "fileIds": {
               "description": "The Botpress client-generated IDs of the files to be attached to the email. They must have already been uploaded to your bot via the Files API. The name of the file will be used as the filename of the attachment. Use this for a list of templates the user can choose from.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -98,17 +89,14 @@
             }
           },
           "required": ["email", "transactionalId", "dataVariables"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Send Transactional Email"
@@ -119,7 +107,6 @@
     "emailClicked": {
       "description": "Sent when a link in a campaign or loop email is clicked. This event is not available for transactional emails because link clicks are not tracked in transactional emails.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -231,15 +218,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Clicked"
     },
     "emailDelivered": {
       "description": "Sent when an email is delivered to its recipient.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -358,15 +343,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Delivered"
     },
     "emailHardBounced": {
       "description": "Sent when an email hard bounces. Hard bounces are persistent email delivery failures, for example a mailbox that doesn't exist. The email will not be delivered.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -485,15 +468,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Hard Bounced"
     },
     "emailOpened": {
       "description": "Sent when a campaign or loop email is opened. This event is not available for transactional emails because email opens are not tracked for transactional emails.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -605,15 +586,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Opened"
     },
     "emailSoftBounced": {
       "description": "Sent when an email soft bounces. Soft bounces are temporary email delivery failures, for example a connection timing out. Soft bounces are retried multiple times and some times the email is delivered.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -732,15 +711,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Soft Bounced"
     },
     "emailSpamReported": {
       "description": "Sent when a recipient reports your email as spam.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -859,15 +836,13 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Spam Reported"
     },
     "emailUnsubscribed": {
       "description": "Sent when a recipient unsubscribes via the unsubscribe link in an email. This event is not available for transactional emails because unsubscribe links are not included or required for transactional emails.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "campaignId": {
@@ -979,8 +954,7 @@
           }
         },
         "required": ["eventName", "webhookSchemaVersion", "eventTime", "contactIdentity", "email", "sourceType"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Email Unsubscribed"
     }

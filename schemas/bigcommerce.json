@@ -4,61 +4,49 @@
       "description": "Get all products from BigCommerce and sync them to a Botpress table with background processing",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "backgroundErrors": {
               "description": "Errors encountered during background processing",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "backgroundProcessing": {
               "description": "Whether background processing was used",
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             },
             "firstPageProcessed": {
               "description": "Number of products processed from first page",
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "lastProcessedPage": {
               "description": "Last page processed during background processing",
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "message": {
               "description": "Status message",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "productsCount": {
               "description": "Total number of products processed",
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             },
             "success": {
               "description": "Whether the sync was successful",
-              "type": "boolean",
-              "x-zui": {}
+              "type": "boolean"
             },
             "totalPages": {
               "description": "Total number of pages",
-              "type": "number",
-              "x-zui": {}
+              "type": "number"
             }
           },
           "required": [
@@ -69,8 +57,7 @@
             "totalPages",
             "backgroundProcessing"
           ],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Sync Products"

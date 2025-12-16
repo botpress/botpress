@@ -4,7 +4,6 @@
       "description": "Creates a new Stripe customer.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "address": {
@@ -59,13 +58,11 @@
             }
           },
           "required": ["email"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "customer": {
@@ -86,8 +83,7 @@
                     {
                       "type": "null"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 "created": {
                   "description": "The creation timestamp (UNIX) of the customer",
@@ -146,8 +142,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Customer"
@@ -156,7 +151,6 @@
       "description": "Creates a new Stripe customer or retrieves an existing one by email.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "address": {
@@ -211,13 +205,11 @@
             }
           },
           "required": ["email"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "customer": {
@@ -238,8 +230,7 @@
                     {
                       "type": "null"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
                 "created": {
                   "description": "The creation timestamp (UNIX) of the customer",
@@ -316,8 +307,7 @@
                       {
                         "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   "created": {
                     "description": "The creation timestamp (UNIX) of the customer",
@@ -370,8 +360,7 @@
                   }
                 },
                 "required": ["id", "email", "description", "created"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -379,8 +368,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Or Retrieve Customer"
@@ -389,7 +377,6 @@
       "description": "Creates a Stripe payment link for a product.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "adjustableQuantity": {
@@ -455,13 +442,11 @@
             }
           },
           "required": ["productName"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -479,8 +464,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Payment Link"
@@ -489,7 +473,6 @@
       "description": "Creates a Stripe payment link for a subscription product.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "adjustableQuantity": {
@@ -576,13 +559,11 @@
             }
           },
           "required": ["productName"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -600,8 +581,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Subscription Payment Link"
@@ -610,7 +590,6 @@
       "description": "Deactivates a Stripe payment link by ID.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -623,13 +602,11 @@
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "active": {
@@ -654,8 +631,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Deactivate Payment Link"
@@ -664,7 +640,6 @@
       "description": "Finds a Stripe payment link by URL.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "url": {
@@ -677,13 +652,11 @@
             }
           },
           "required": ["url"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -694,8 +667,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Find Payment Link"
@@ -704,7 +676,6 @@
       "description": "Lists Stripe customers, optionally filtered by email.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "email": {
@@ -717,13 +688,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "customers": {
@@ -745,8 +714,7 @@
                         {
                           "type": "null"
                         }
-                      ],
-                      "x-zui": {}
+                      ]
                     },
                     "created": {
                       "description": "The creation timestamp (UNIX) of the customer",
@@ -799,11 +767,9 @@
                     }
                   },
                   "required": ["id", "email", "description", "created"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "description": "A record of customers grouped by email",
               "type": "object",
@@ -812,8 +778,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Customers By Email"
@@ -822,16 +787,13 @@
       "description": "Lists all active Stripe payment links.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "paymentLinks": {
@@ -855,8 +817,7 @@
                   }
                 },
                 "required": ["id", "url"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -864,8 +825,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Payment Links"
@@ -874,16 +834,13 @@
       "description": "Lists all Stripe product prices.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "products": {
@@ -923,8 +880,7 @@
                             {
                               "type": "null"
                             }
-                          ],
-                          "x-zui": {}
+                          ]
                         },
                         "unit_amount": {
                           "description": "The unit amount for the product",
@@ -935,8 +891,7 @@
                         }
                       },
                       "required": ["unit_amount", "currency"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     "type": "array",
                     "x-zui": {
@@ -945,8 +900,7 @@
                   }
                 },
                 "required": ["name", "prices"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "description": "A record of products and their prices",
               "type": "object",
@@ -955,8 +909,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List Product Prices"
@@ -965,7 +918,6 @@
       "description": "Retrieves a Stripe customer by their ID.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -978,13 +930,11 @@
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": true,
           "properties": {
             "created": {
@@ -1016,8 +966,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Retrieve Customer By ID"
@@ -1026,7 +975,6 @@
       "description": "Searches Stripe customers by email, name, or phone.",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "email": {
@@ -1052,13 +1000,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "customers": {
@@ -1080,8 +1026,7 @@
                       {
                         "type": "null"
                       }
-                    ],
-                    "x-zui": {}
+                    ]
                   },
                   "created": {
                     "description": "The creation timestamp (UNIX) of the customer",
@@ -1134,8 +1079,7 @@
                   }
                 },
                 "required": ["id", "email", "description", "created"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1143,8 +1087,7 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Customers By Fields"
@@ -1156,7 +1099,6 @@
     "chargeFailed": {
       "description": "This event occurs when a charge fails in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1204,15 +1146,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Charge Failed"
     },
     "invoicePaymentFailed": {
       "description": "This event occurs when an invoice payment fails in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1260,15 +1200,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Invoice Payment Failed"
     },
     "paymentIntentFailed": {
       "description": "This event occurs when a payment intent fails in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1316,15 +1254,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Payment Intent Failed"
     },
     "subscriptionCreated": {
       "description": "This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1372,15 +1308,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Subscription Created"
     },
     "subscriptionDeleted": {
       "description": "This event occurs when a subscription is canceled/deleted in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1428,15 +1362,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Subscription Deleted"
     },
     "subscriptionScheduleCreated": {
       "description": "This event occurs when a subscription schedule is created in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1484,15 +1416,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Subscription Schedule Created"
     },
     "subscriptionScheduleUpdated": {
       "description": "This event occurs when a subscription schedule is updated in Stripe.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1540,15 +1470,13 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Subscription Schedule Updated"
     },
     "subscriptionUpdated": {
       "description": "This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "data": {
@@ -1596,8 +1524,7 @@
           }
         },
         "required": ["origin", "userId", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Subscription Updated"
     }
@@ -1607,7 +1534,6 @@
   "states": {
     "stripeIntegrationInfo": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "stripeWebhookId": {
@@ -1619,8 +1545,7 @@
           }
         },
         "required": ["stripeWebhookId"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

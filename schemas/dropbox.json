@@ -4,7 +4,6 @@
       "description": "Copy a file or folder to a new location in dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fromPath": {
@@ -25,13 +24,11 @@
             }
           },
           "required": ["fromPath", "toPath"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "newItem": {
@@ -147,8 +144,7 @@
                     "isDownloadable",
                     "modifiedAt"
                   ],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "additionalProperties": false,
@@ -205,8 +201,7 @@
                     }
                   },
                   "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
               ],
               "description": "The newly-created item",
@@ -216,8 +211,7 @@
             }
           },
           "required": ["newItem"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Copy Item"
@@ -226,7 +220,6 @@
       "description": "Upload a file to dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "contents": {
@@ -247,13 +240,11 @@
             }
           },
           "required": ["contents", "path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "newFile": {
@@ -375,8 +366,7 @@
             }
           },
           "required": ["newFile"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Upload File"
@@ -385,7 +375,6 @@
       "description": "Create a folder in dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "path": {
@@ -398,13 +387,11 @@
             }
           },
           "required": ["path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "newFolder": {
@@ -470,8 +457,7 @@
             }
           },
           "required": ["newFolder"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create Folder"
@@ -480,7 +466,6 @@
       "description": "Deletes a file or folder from dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "path": {
@@ -493,17 +478,14 @@
             }
           },
           "required": ["path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete Item"
@@ -512,7 +494,6 @@
       "description": "Download a file from dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "path": {
@@ -525,13 +506,11 @@
             }
           },
           "required": ["path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fileUrl": {
@@ -543,8 +522,7 @@
             }
           },
           "required": ["fileUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Download File"
@@ -553,7 +531,6 @@
       "description": "Download a folder from dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "path": {
@@ -566,13 +543,11 @@
             }
           },
           "required": ["path"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "zipUrl": {
@@ -584,8 +559,7 @@
             }
           },
           "required": ["zipUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Download Folder"
@@ -597,7 +571,6 @@
       "description": "List the files and folders in a folder",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "filters": {
@@ -607,43 +580,35 @@
                 "itemType": {
                   "description": "The entity type",
                   "enum": ["file", "folder"],
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "maxSizeInBytes": {
                   "description": "Filter the items by maximum size (in bytes)",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "modifiedAfter": {
                   "description": "Filter the items modified after the given date",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             },
             "folderId": {
               "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
             "nextToken": {
               "description": "The token to get the next page of items. Leave empty to get the first page.",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyListItemsInFolder",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -655,105 +620,85 @@
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the file. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "contentHash": {
                         "description": "The hash of the file content, or version/revision number, if available",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "lastModifiedDate": {
                         "description": "The last modified date of the file, if available",
                         "format": "date-time",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "sizeInBytes": {
                         "description": "The file size in bytes, if available",
-                        "type": "number",
-                        "x-zui": {}
+                        "type": "number"
                       },
                       "type": {
                         "const": "file",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   {
                     "additionalProperties": false,
                     "properties": {
                       "absolutePath": {
                         "description": "The absolute path of the folder. Leave empty if not available.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
                         "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
                         "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "parentId": {
                         "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
                         "const": "folder",
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id", "type", "name"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
-                ],
-                "x-zui": {}
+                ]
               },
-              "type": "array",
-              "x-zui": {}
+              "type": "array"
             },
             "meta": {
               "additionalProperties": false,
               "properties": {
                 "nextToken": {
                   "description": "The token to get the next page of items.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
-              "type": "object",
-              "x-zui": {}
+              "type": "object"
             }
           },
           "required": ["items", "meta"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List items in folder"
@@ -765,7 +710,6 @@
       "description": "Transfer a file from an external service to Botpress",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "file": {
@@ -774,44 +718,36 @@
               "properties": {
                 "absolutePath": {
                   "description": "The absolute path of the file. Leave empty if not available.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "contentHash": {
                   "description": "The hash of the file content, or version/revision number, if available",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "id": {
                   "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "lastModifiedDate": {
                   "description": "The last modified date of the file, if available",
                   "format": "date-time",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "name": {
                   "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "parentId": {
                   "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 },
                 "sizeInBytes": {
                   "description": "The file size in bytes, if available",
-                  "type": "number",
-                  "x-zui": {}
+                  "type": "number"
                 },
                 "type": {
                   "const": "file",
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id", "type", "name"],
@@ -836,25 +772,21 @@
             }
           },
           "required": ["file", "fileKey"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "name": "filesReadonlyTransferFileToBotpress",
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "botpressFileId": {
               "description": "The file ID of the uploaded file on Botpress",
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             }
           },
           "required": ["botpressFileId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Transfer file to Botpress"
@@ -863,7 +795,6 @@
       "description": "List files and folders in dropbox within a directory",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nextToken": {
@@ -890,13 +821,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "items": {
@@ -1014,8 +943,7 @@
                       "isDownloadable",
                       "modifiedAt"
                     ],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   {
                     "additionalProperties": false,
@@ -1072,11 +1000,9 @@
                       }
                     },
                     "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
-                ],
-                "x-zui": {}
+                ]
               },
               "type": "array",
               "x-zui": {
@@ -1092,8 +1018,7 @@
             }
           },
           "required": ["items"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List items in a folder"
@@ -1102,7 +1027,6 @@
       "description": "Move a file or folder in dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fromPath": {
@@ -1123,13 +1047,11 @@
             }
           },
           "required": ["fromPath", "toPath"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "newItem": {
@@ -1245,8 +1167,7 @@
                     "isDownloadable",
                     "modifiedAt"
                   ],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
                 {
                   "additionalProperties": false,
@@ -1303,8 +1224,7 @@
                     }
                   },
                   "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 }
               ],
               "description": "The item that was moved",
@@ -1314,8 +1234,7 @@
             }
           },
           "required": ["newItem"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Move Item"
@@ -1324,7 +1243,6 @@
       "description": "Search for files and folders in dropbox",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "fileCategories": {
@@ -1342,8 +1260,7 @@
                   "paper",
                   "others"
                 ],
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -1405,13 +1322,11 @@
             }
           },
           "required": ["query"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nextToken": {
@@ -1539,8 +1454,7 @@
                           "isDownloadable",
                           "modifiedAt"
                         ],
-                        "type": "object",
-                        "x-zui": {}
+                        "type": "object"
                       },
                       {
                         "additionalProperties": false,
@@ -1597,8 +1511,7 @@
                           }
                         },
                         "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-                        "type": "object",
-                        "x-zui": {}
+                        "type": "object"
                       }
                     ],
                     "description": "The matched item",
@@ -1616,8 +1529,7 @@
                   }
                 },
                 "required": ["item"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -1626,8 +1538,7 @@
             }
           },
           "required": ["results"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Search Items"
@@ -1639,7 +1550,6 @@
     "file": {
       "description": "A file in a user's Dropbox",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "fileHash": {
@@ -1750,15 +1660,13 @@
           "isDownloadable",
           "modifiedAt"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "File"
     },
     "folder": {
       "description": "A folder in a user's Dropbox",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -1813,8 +1721,7 @@
           }
         },
         "required": ["id", "itemType", "name", "path", "isDeleted", "isShared"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Folder"
     }
@@ -1822,7 +1729,6 @@
   "events": {
     "aggregateFileChanges": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "modifiedItems": {
@@ -1836,52 +1742,42 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "deleted": {
                 "description": "The files and folders deleted",
@@ -1892,88 +1788,71 @@
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "contentHash": {
                           "description": "The hash of the file content, or version/revision number, if available",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "lastModifiedDate": {
                           "description": "The last modified date of the file, if available",
                           "format": "date-time",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "sizeInBytes": {
                           "description": "The file size in bytes, if available",
-                          "type": "number",
-                          "x-zui": {}
+                          "type": "number"
                         },
                         "type": {
                           "const": "file",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     },
                     {
                       "additionalProperties": false,
                       "properties": {
                         "absolutePath": {
                           "description": "The full path of the folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "id": {
                           "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "name": {
                           "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "parentId": {
                           "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         },
                         "type": {
                           "const": "folder",
-                          "type": "string",
-                          "x-zui": {}
+                          "type": "string"
                         }
                       },
                       "required": ["id", "type", "name", "absolutePath"],
-                      "type": "object",
-                      "x-zui": {}
+                      "type": "object"
                     }
-                  ],
-                  "x-zui": {}
+                  ]
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "updated": {
                 "description": "The files updated",
@@ -1982,67 +1861,54 @@
                   "properties": {
                     "absolutePath": {
                       "description": "The full path of the file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "contentHash": {
                       "description": "The hash of the file content, or version/revision number, if available",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "id": {
                       "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "lastModifiedDate": {
                       "description": "The last modified date of the file, if available",
                       "format": "date-time",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "name": {
                       "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "parentId": {
                       "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "sizeInBytes": {
                       "description": "The file size in bytes, if available",
-                      "type": "number",
-                      "x-zui": {}
+                      "type": "number"
                     },
                     "type": {
                       "const": "file",
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     }
                   },
                   "required": ["id", "type", "name", "absolutePath"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               }
             },
             "required": ["created", "updated", "deleted"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["modifiedItems"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileCreated": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2051,59 +1917,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileDeleted": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2112,59 +1967,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "fileUpdated": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "file": {
@@ -2173,59 +2017,48 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "contentHash": {
                 "description": "The hash of the file content, or version/revision number, if available",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The file's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "lastModifiedDate": {
                 "description": "The last modified date of the file, if available",
                 "format": "date-time",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The file's name. This will be displayed in the Botpress UI and be used as the file's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the file is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "sizeInBytes": {
                 "description": "The file size in bytes, if available",
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": {
                 "const": "file",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["file"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     },
     "folderDeletedRecursive": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "folder": {
@@ -2234,38 +2067,31 @@
             "properties": {
               "absolutePath": {
                 "description": "The full path of the folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "id": {
                 "description": "The folder's ID. This could be a unique identifier from the external service, or a relative or absolute path, so long as it's unique.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "name": {
                 "description": "The folder's name. This will be displayed in the Botpress UI and be used as the folder's name on Files API.\"",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "parentId": {
                 "description": "The parent folder ID. Leave empty if the folder is in the root folder.",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": {
                 "const": "folder",
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["id", "type", "name", "absolutePath"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         },
         "required": ["folder"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       }
     }
   },
@@ -2307,13 +2133,11 @@
   "states": {
     "authorization": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accountId": {
             "description": "User ID of the authenticated user",
-            "type": "string",
-            "x-zui": {}
+            "type": "string"
           },
           "authorizationCode": {
             "description": "The Access Code that was exchanged for the refresh token",
@@ -2326,11 +2150,9 @@
           "grantedScopes": {
             "description": "Scopes granted by the user",
             "items": {
-              "type": "string",
-              "x-zui": {}
+              "type": "string"
             },
-            "type": "array",
-            "x-zui": {}
+            "type": "array"
           },
           "refreshToken": {
             "description": "Refresh token used to generate a new access token",
@@ -2341,14 +2163,12 @@
           }
         },
         "required": ["refreshToken", "grantedScopes", "accountId", "authorizationCode"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "realTimeSync": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "fileTreeJson": {
@@ -2367,14 +2187,12 @@
           }
         },
         "required": ["syncCursor", "fileTreeJson"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "setupMeta": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "integrationRegisteredAt": {
@@ -2387,8 +2205,7 @@
           }
         },
         "required": ["integrationRegisteredAt"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

@@ -4,14 +4,12 @@
       "description": "Create a new task in a list",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "assignees": {
               "description": "IDs of the assignees of the task to be created",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -57,8 +55,7 @@
             "tags": {
               "description": "Tags of the task to be created",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -67,13 +64,11 @@
             }
           },
           "required": ["listId", "name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "taskId": {
@@ -85,8 +80,7 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create a task"
@@ -95,7 +89,6 @@
       "description": "Delete a task",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "taskId": {
@@ -107,17 +100,14 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete a task"
@@ -126,7 +116,6 @@
       "description": "Get all the members of a list",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "listId": {
@@ -138,13 +127,11 @@
             }
           },
           "required": ["listId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "members": {
@@ -175,8 +162,7 @@
                   }
                 },
                 "required": ["id", "username", "email"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -185,8 +171,7 @@
             }
           },
           "required": ["members"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get members of a list"
@@ -195,7 +180,6 @@
       "description": "Update the details of a task",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "archived": {
@@ -208,8 +192,7 @@
             "assigneesToAdd": {
               "description": "Members to add to the task",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -219,8 +202,7 @@
             "assigneesToRemove": {
               "description": "Members to remove from the task",
               "items": {
-                "type": "number",
-                "x-zui": {}
+                "type": "number"
               },
               "type": "array",
               "x-zui": {
@@ -265,13 +247,11 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "taskId": {
@@ -283,8 +263,7 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update a task"
@@ -312,7 +291,6 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
@@ -324,8 +302,7 @@
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -337,7 +314,6 @@
     "taskCreated": {
       "description": "Triggered when a task is created",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -349,15 +325,13 @@
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Created"
     },
     "taskDeleted": {
       "description": "Triggered when a task is deleted",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -369,15 +343,13 @@
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Deleted"
     },
     "taskUpdated": {
       "description": "Triggered when a task is updated",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -389,8 +361,7 @@
           }
         },
         "required": ["id"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Updated"
     }

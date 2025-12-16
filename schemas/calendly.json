@@ -4,7 +4,6 @@
       "description": "Generates a link for scheduling an event in Calendly",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "conversationId": {
@@ -24,13 +23,11 @@
             }
           },
           "required": ["conversationId", "eventTypeUrl"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "bookingUrl": {
@@ -58,8 +55,7 @@
             }
           },
           "required": ["bookingUrl", "owner", "ownerType"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Schedule Calendly Event"
@@ -70,7 +66,6 @@
     "eventCanceled": {
       "description": "An event that triggers when an invitee cancels a scheduled event",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "conversationId": {
@@ -161,15 +156,13 @@
           "inviteeEmail",
           "conversationId"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Event Canceled"
     },
     "eventNoShowCreated": {
       "description": "An event that triggers when an invitee is marked as a no-show",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "conversationId": {
@@ -260,15 +253,13 @@
           "inviteeEmail",
           "conversationId"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Event No Show Created"
     },
     "eventNoShowDeleted": {
       "description": "An event that triggers when an invitee is unmarked as a no-show",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "conversationId": {
@@ -359,15 +350,13 @@
           "inviteeEmail",
           "conversationId"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Event No Show Deleted"
     },
     "eventScheduled": {
       "description": "An event that triggers when an invitee fills out and submits a scheduling form",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "conversationId": {
@@ -458,8 +447,7 @@
           "inviteeEmail",
           "conversationId"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Event Scheduled"
     }
@@ -469,7 +457,6 @@
   "states": {
     "configuration": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "oauth": {
@@ -518,14 +505,12 @@
           }
         },
         "required": ["oauth"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "webhooks": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "signingKey": {
@@ -538,8 +523,7 @@
           }
         },
         "required": ["signingKey"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }

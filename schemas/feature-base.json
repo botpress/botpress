@@ -4,7 +4,6 @@
       "description": "Create a post on feature base",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "authorName": {
@@ -60,8 +59,7 @@
             "tags": {
               "description": "The tags associated with the submission. Needs to be an array of tag names.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -77,13 +75,11 @@
             }
           },
           "required": ["title", "category"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "submission": {
@@ -91,8 +87,7 @@
               "description": "Represent the created post.",
               "properties": {
                 "id": {
-                  "type": "string",
-                  "x-zui": {}
+                  "type": "string"
                 }
               },
               "required": ["id"],
@@ -103,8 +98,7 @@
             }
           },
           "required": ["submission"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create a post"
@@ -113,7 +107,6 @@
       "description": "Delete a post",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -125,17 +118,14 @@
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Delete post"
@@ -144,7 +134,6 @@
       "description": "Get a board by ID",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -155,13 +144,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "description": "A single board",
           "properties": {
@@ -175,8 +162,7 @@
             "customInputFields": {
               "description": "An array of custom input fields ids that apply to this board.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -214,8 +200,7 @@
             "hiddenFromRoles": {
               "description": "An array of roles that cannot see this board.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -239,8 +224,7 @@
             "roles": {
               "description": "An array of roles that have access to this board.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -250,8 +234,7 @@
             "segmentIds": {
               "description": "An array of segment IDs associated with this board.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -272,7 +255,6 @@
       "description": "Get a comments thread",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "changelogId": {
@@ -341,13 +323,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "results": {
@@ -357,84 +337,64 @@
                 "description": "Represent a single comment.",
                 "properties": {
                   "author": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "authorId": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "authorPicture": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "content": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "downvoted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "downvotes": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   },
                   "emailSent": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "inReview": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isDeleted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isPrivate": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "isSpam": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "organization": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "parentComment": {
-                    "type": ["string", "null"],
-                    "x-zui": {}
+                    "type": ["string", "null"]
                   },
                   "path": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "pinned": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "sendNotification": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "submission": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "upvoted": {
-                    "type": "boolean",
-                    "x-zui": {}
+                    "type": "boolean"
                   },
                   "upvotes": {
-                    "type": "number",
-                    "x-zui": {}
+                    "type": "number"
                   }
                 },
                 "required": ["id"],
@@ -450,8 +410,7 @@
             }
           },
           "required": ["results"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Comments"
@@ -460,16 +419,13 @@
       "description": "List all boards",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "results": {
@@ -487,8 +443,7 @@
                   "customInputFields": {
                     "description": "An array of custom input fields ids that apply to this board.",
                     "items": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": "array",
                     "x-zui": {
@@ -526,8 +481,7 @@
                   "hiddenFromRoles": {
                     "description": "An array of roles that cannot see this board.",
                     "items": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": "array",
                     "x-zui": {
@@ -551,8 +505,7 @@
                   "roles": {
                     "description": "An array of roles that have access to this board.",
                     "items": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": "array",
                     "x-zui": {
@@ -562,8 +515,7 @@
                   "segmentIds": {
                     "description": "An array of segment IDs associated with this board.",
                     "items": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
                     "type": "array",
                     "x-zui": {
@@ -572,8 +524,7 @@
                   }
                 },
                 "required": ["id", "category", "segmentIds", "roles", "hiddenFromRoles", "customInputFields"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -582,8 +533,7 @@
             }
           },
           "required": ["results"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List boards"
@@ -592,14 +542,12 @@
       "description": "List all posts",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "category": {
               "description": "Filter posts by providing an array of category(board) names.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -667,8 +615,7 @@
             "status": {
               "description": "Filter posts by status ids.",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -676,13 +623,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nextToken": {
@@ -698,45 +643,36 @@
                 "additionalProperties": false,
                 "properties": {
                   "author": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "authorId": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "content": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "id": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "organization": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "postCategory": {
                     "additionalProperties": false,
                     "properties": {
                       "category": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["category"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   },
                   "title": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   }
                 },
                 "required": ["title", "content", "author", "authorId", "organization", "postCategory", "id"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -745,8 +681,7 @@
             }
           },
           "required": ["results"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "List posts"
@@ -755,7 +690,6 @@
       "description": "Update a post",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "category": {
@@ -818,8 +752,7 @@
             "tags": {
               "description": "The tags of the submission. Example: [\"tag1\", \"tag2\"]",
               "items": {
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               },
               "type": "array",
               "x-zui": {
@@ -835,17 +768,14 @@
             }
           },
           "required": ["id"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Update post"
@@ -877,18 +807,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -900,7 +827,6 @@
     "postCreated": {
       "description": "A post was created on a board.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdAt": {
@@ -945,12 +871,10 @@
                     "additionalProperties": false,
                     "properties": {
                       "category": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -962,16 +886,13 @@
                     "additionalProperties": false,
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -1001,20 +922,16 @@
                     "additionalProperties": false,
                     "properties": {
                       "email": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "profilePicture": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id"],
@@ -1024,8 +941,7 @@
                     }
                   }
                 },
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["item"],
@@ -1093,15 +1009,13 @@
           }
         },
         "required": ["type", "organizationId", "id", "topic", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Post Created"
     },
     "postDeleted": {
       "description": "A post was deleted on a board.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdAt": {
@@ -1146,12 +1060,10 @@
                     "additionalProperties": false,
                     "properties": {
                       "category": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -1163,16 +1075,13 @@
                     "additionalProperties": false,
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -1202,20 +1111,16 @@
                     "additionalProperties": false,
                     "properties": {
                       "email": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "profilePicture": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id"],
@@ -1225,8 +1130,7 @@
                     }
                   }
                 },
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["item"],
@@ -1294,15 +1198,13 @@
           }
         },
         "required": ["type", "organizationId", "id", "topic", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Post Deleted"
     },
     "postUpdated": {
       "description": "A post was updated on a board.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdAt": {
@@ -1321,22 +1223,15 @@
                   "additionalProperties": false,
                   "properties": {
                     "field": {
-                      "type": "string",
-                      "x-zui": {}
+                      "type": "string"
                     },
-                    "newValue": {
-                      "x-zui": {}
-                    },
-                    "oldValue": {
-                      "x-zui": {}
-                    }
+                    "newValue": {},
+                    "oldValue": {}
                   },
                   "required": ["field"],
-                  "type": "object",
-                  "x-zui": {}
+                  "type": "object"
                 },
-                "type": "array",
-                "x-zui": {}
+                "type": "array"
               },
               "item": {
                 "additionalProperties": false,
@@ -1369,12 +1264,10 @@
                     "additionalProperties": false,
                     "properties": {
                       "category": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -1386,16 +1279,13 @@
                     "additionalProperties": false,
                     "properties": {
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "type": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "type": "object",
@@ -1425,20 +1315,16 @@
                     "additionalProperties": false,
                     "properties": {
                       "email": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "profilePicture": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id"],
@@ -1448,8 +1334,7 @@
                     }
                   }
                 },
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["item", "changes"],
@@ -1517,15 +1402,13 @@
           }
         },
         "required": ["type", "organizationId", "id", "topic", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Post Updated"
     },
     "postVoted": {
       "description": "A post was voted on a board.",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "createdAt": {
@@ -1543,44 +1426,35 @@
                 "additionalProperties": false,
                 "properties": {
                   "action": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "submissionId": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "type": {
-                    "type": "string",
-                    "x-zui": {}
+                    "type": "string"
                   },
                   "user": {
                     "additionalProperties": false,
                     "properties": {
                       "email": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "id": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "name": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       },
                       "profilePicture": {
-                        "type": "string",
-                        "x-zui": {}
+                        "type": "string"
                       }
                     },
                     "required": ["id"],
-                    "type": "object",
-                    "x-zui": {}
+                    "type": "object"
                   }
                 },
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               }
             },
             "required": ["item"],
@@ -1648,8 +1522,7 @@
           }
         },
         "required": ["type", "organizationId", "id", "topic", "data"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Post voted"
     }

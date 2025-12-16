@@ -4,7 +4,6 @@
       "description": "Change the priority of a task",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "priority": {
@@ -25,17 +24,14 @@
             }
           },
           "required": ["taskId", "priority"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Change Task Priority"
@@ -44,7 +40,6 @@
       "description": "Create a new task",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "content": {
@@ -114,13 +109,11 @@
             }
           },
           "required": ["content"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "taskId": {
@@ -132,8 +125,7 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Create New Task"
@@ -142,16 +134,13 @@
       "description": "Get all projects",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "projects": {
@@ -272,8 +261,7 @@
                   "isTeamInbox",
                   "webUrl"
                 ],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -282,8 +270,7 @@
             }
           },
           "required": ["projects"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get All Projects"
@@ -292,7 +279,6 @@
       "description": "Get all sections in a project",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "projectId": {
@@ -303,13 +289,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "sections": {
@@ -347,8 +331,7 @@
                   }
                 },
                 "required": ["id", "name", "positionWithinParent"],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -357,8 +340,7 @@
             }
           },
           "required": ["sections"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get All Sections"
@@ -367,7 +349,6 @@
       "description": "Find tasks using optional filters",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "labelName": {
@@ -392,13 +373,11 @@
               }
             }
           },
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "tasks": {
@@ -585,8 +564,7 @@
                   "createdAt",
                   "createdBy"
                 ],
-                "type": "object",
-                "x-zui": {}
+                "type": "object"
               },
               "type": "array",
               "x-zui": {
@@ -595,8 +573,7 @@
             }
           },
           "required": ["tasks"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get All Tasks"
@@ -605,7 +582,6 @@
       "description": "Get the ID of the project",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -617,13 +593,11 @@
             }
           },
           "required": ["name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "projectId": {
@@ -635,8 +609,7 @@
             }
           },
           "required": ["projectId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Project ID"
@@ -645,7 +618,6 @@
       "description": "Get the ID of the first task matching the given name",
       "input": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -657,13 +629,11 @@
             }
           },
           "required": ["name"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "output": {
         "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "taskId": {
@@ -675,8 +645,7 @@
             }
           },
           "required": ["taskId"],
-          "type": "object",
-          "x-zui": {}
+          "type": "object"
         }
       },
       "title": "Get Task ID"
@@ -704,18 +673,15 @@
       "messages": {
         "text": {
           "schema": {
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "additionalProperties": false,
             "properties": {
               "text": {
                 "minLength": 1,
-                "type": "string",
-                "x-zui": {}
+                "type": "string"
               }
             },
             "required": ["text"],
-            "type": "object",
-            "x-zui": {}
+            "type": "object"
           }
         }
       },
@@ -727,7 +693,6 @@
     "comment": {
       "description": "A comment on a Todoist task",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "content": {
@@ -767,15 +732,13 @@
           }
         },
         "required": ["id", "postedAt", "content"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Comment"
     },
     "personalLabel": {
       "description": "A personal label in Todoist",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "color": {
@@ -838,15 +801,13 @@
           }
         },
         "required": ["id", "name", "color", "orderWithinList", "isFavorite"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Personal Label"
     },
     "project": {
       "description": "A project in Todoist",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "color": {
@@ -962,15 +923,13 @@
           "isTeamInbox",
           "webUrl"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Project"
     },
     "section": {
       "description": "A section in a Todoist project",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -1003,15 +962,13 @@
           }
         },
         "required": ["id", "name", "positionWithinParent"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Section"
     },
     "sharedLabel": {
       "description": "A shared label in Todoist",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "name": {
@@ -1023,15 +980,13 @@
           }
         },
         "required": ["name"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Shared Label"
     },
     "task": {
       "description": "A task in Todoist",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "assignee": {
@@ -1213,8 +1168,7 @@
           "createdAt",
           "createdBy"
         ],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task"
     }
@@ -1223,7 +1177,6 @@
     "taskAdded": {
       "description": "A task has been added",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "content": {
@@ -1258,15 +1211,13 @@
           }
         },
         "required": ["id", "content", "description", "priority"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Added"
     },
     "taskCompleted": {
       "description": "A task has been completed",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "content": {
@@ -1308,15 +1259,13 @@
           }
         },
         "required": ["user_id", "id", "content", "description", "priority"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Completed"
     },
     "taskPriorityChanged": {
       "description": "The priority of a task has been changed. The old priority is only available if the bot user is at the origin of the change",
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -1346,8 +1295,7 @@
           }
         },
         "required": ["id", "newPriority"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "title": "Task Priority Changed"
     }
@@ -1357,7 +1305,6 @@
   "states": {
     "configuration": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "botUserId": {
@@ -1368,14 +1315,12 @@
             }
           }
         },
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     },
     "credentials": {
       "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "accessToken": {
@@ -1387,8 +1332,7 @@
           }
         },
         "required": ["accessToken"],
-        "type": "object",
-        "x-zui": {}
+        "type": "object"
       },
       "type": "integration"
     }
