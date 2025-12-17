@@ -12,11 +12,11 @@ import {
 } from './definitions'
 
 export const INTEGRATION_NAME = 'gmail'
-export const INTEGRATION_VERSION = '1.0.1 '
+export const INTEGRATION_VERSION = '1.0.2'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '1.0.0',
+  version: INTEGRATION_VERSION,
   title: 'Gmail',
   description: "Send, receive, and manage emails directly within your bot's workflow.",
   icon: 'icon.svg',
