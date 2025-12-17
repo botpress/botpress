@@ -145,8 +145,11 @@ const getUser = {
     schema: z.object({
       linearUserId: z
         .string()
+        .optional()
         .title('User ID')
-        .describe("The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}"),
+        .describe(
+          "The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}. If omitted, returns the current user."
+        ),
     }),
   },
   output: {
