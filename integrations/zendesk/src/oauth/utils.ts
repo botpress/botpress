@@ -1,12 +1,14 @@
 export const stripSubdomain = (input: string): string => {
-  if (input.startsWith('https://') && input.endsWith('.zendesk.com')) {
-    return input.substring('https://'.length, input.length - '.zendesk.com'.length)
+  const trimedInput = input.trim()
+
+  if (trimedInput.startsWith('https://') && trimedInput.endsWith('.zendesk.com')) {
+    return trimedInput.substring('https://'.length, trimedInput.length - '.zendesk.com'.length)
   }
-  if (input.startsWith('http://') && input.endsWith('.zendesk.com')) {
-    return input.substring('http://'.length, input.length - '.zendesk.com'.length)
+  if (trimedInput.startsWith('http://') && trimedInput.endsWith('.zendesk.com')) {
+    return trimedInput.substring('http://'.length, trimedInput.length - '.zendesk.com'.length)
   }
-  if (input.endsWith('.zendesk.com')) {
-    return input.substring(0, input.length - '.zendesk.com'.length)
+  if (trimedInput.endsWith('.zendesk.com')) {
+    return trimedInput.substring(0, trimedInput.length - '.zendesk.com'.length)
   }
-  return input
+  return trimedInput
 }
