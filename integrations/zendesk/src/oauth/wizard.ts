@@ -17,6 +17,10 @@ export const handler = async (props: bp.HandlerProps) => {
       handler: _getSubdomain,
     })
     .addStep({
+      id: 'validate-subdomain',
+      handler: _validateSubdomain,
+    })
+    .addStep({
       id: 'reset',
       handler: _resetHandler,
     })
@@ -62,19 +66,52 @@ const _getSubdomain: WizardHandler = async (props) => {
     pageTitle: 'Get Zendesk Subdomain',
     htmlOrMarkdownPageContents: "To continue, you need to enter your Zendesk's subdomain",
     input: { label: 'e.g. https://{subdomain}.zendesk.com', type: 'text' },
-    nextStepId: 'reset',
+    nextStepId: 'validate-subdomain',
+  })
+}
+
+const _validateSubdomain: WizardHandler = async (props) => {
+  const { client, ctx, responses, inputValue } = props
+  if (inputValue === undefined) {
+    throw new sdk.RuntimeError('The subdomain given was empty')
+  }
+  const subdomain = inputValue.endsWith('.zendesk.com')
+    ? inputValue.slice('https://'.length).slice(0, '.zendesk.com'.length)
+    : inputValue
+  await _patchCredentialsState(client, ctx, { accessToken: undefined, subdomain })
+  return responses.displayButtons({
+    pageTitle: 'Validate Zendesk Subdomain',
+    htmlOrMarkdownPageContents: `Is ${subdomain} your Zendesk's subdomain?`,
+    buttons: [
+      {
+        action: 'navigate',
+        label: 'Yes',
+        navigateToStep: 'reset',
+        buttonType: 'primary',
+      },
+      {
+        action: 'navigate',
+        label: 'No',
+        navigateToStep: 'get-subdomain',
+        buttonType: 'secondary',
+      },
+    ],
   })
 }
 
 const _resetHandler: WizardHandler = async (props) => {
-  const { responses, client, ctx, inputValue } = props
-  if (inputValue === undefined) {
+  const { responses, client, ctx } = props
+  const {
+    state: {
+      payload: { subdomain },
+    },
+  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  if (!subdomain) {
     throw new sdk.RuntimeError('The subdomain given was empty')
   }
-  await _patchCredentialsState(client, ctx, { accessToken: undefined, subdomain: inputValue })
   return responses.redirectToExternalUrl(
     'https://' +
-      inputValue +
+      subdomain +
       '.zendesk.com/oauth/authorizations/new?' +
       'response_type=code' +
       '&redirect_uri=' +
