@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
+import { actions } from 'src/actions'
+import { UberEatsClient } from 'src/api'
+import { handler } from 'src/handler'
 import * as bp from '.botpress'
-import { actions } from '@/actions'
-import { UberEatsClient } from '@/api/uber-client'
-import { handler } from '@/handler'
 
 export default new bp.Integration({
   register: async ({ ctx, client, logger }) => {

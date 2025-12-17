@@ -1,5 +1,5 @@
 import { z, type ActionDefinition } from '@botpress/sdk'
-import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason } from '@/definitions/constants'
+import { UberUUID, UberOrderState, UberOrderStatus, UberDenyReason } from 'src/definitions/constants'
 
 const UberOrderSchema = z
   .object({

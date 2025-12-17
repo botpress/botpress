@@ -1,6 +1,6 @@
+import { verifyUberSignature } from 'src/events/verify-uber-signature'
+import { UberSupportedWebhookEvents, UberWebhookEventType } from 'src/events/webhook-event'
 import * as bp from '.botpress'
-import { verifyUberSignature } from '@/events/verify-uber-signature'
-import { UberSupportedWebhookEvents, UberWebhookEventType } from '@/events/webhook-event'
 
 const webhookToBotpressEvent: Record<UberWebhookEventType, keyof bp.events.Events> = {
   'orders.notification': 'ordersNotification',

@@ -1,6 +1,6 @@
 import { createAsyncFnWrapperWithErrorRedaction, defaultErrorRedactor } from '@botpress/common'
+import { UberEatsClient } from 'src/api'
 import * as bp from '.botpress'
-import { UberEatsClient } from '@/api/uber-client'
 
 const withTryCatch = createAsyncFnWrapperWithErrorRedaction(defaultErrorRedactor)
 

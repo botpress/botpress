@@ -1,7 +1,7 @@
 import type { IntegrationLogger } from '@botpress/sdk'
 import axios from 'axios'
+import * as uberApi from './gen'
 import * as bp from '.botpress'
-import * as uberApi from '@/gen/api'
 
 const TOKEN_STATE_KEY = 'oauthToken'
 const DEFAULT_SCOPE = 'eats.store eats.order'
