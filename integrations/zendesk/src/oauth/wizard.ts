@@ -80,7 +80,7 @@ const _validateSubdomain: WizardHandler = async (props) => {
   await _patchCredentialsState(client, ctx, { accessToken: undefined, subdomain })
   return responses.displayButtons({
     pageTitle: 'Validate Zendesk Subdomain',
-    htmlOrMarkdownPageContents: `Is ${subdomain} your Zendesk's subdomain?`,
+    htmlOrMarkdownPageContents: `Is <strong>${subdomain}</strong> your Zendesk's subdomain?`,
     buttons: [
       {
         action: 'navigate',
