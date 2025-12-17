@@ -1,6 +1,5 @@
 import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
-import { title } from 'process'
 
 const channels = ['pullRequest', 'issue'] as const
 
