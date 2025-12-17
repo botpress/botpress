@@ -2,6 +2,7 @@ import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import { webcrypto } from 'crypto'
+import { stripSubdomain } from './utils'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -75,9 +76,7 @@ const _validateSubdomain: WizardHandler = async (props) => {
   if (inputValue === undefined) {
     throw new sdk.RuntimeError('The subdomain given was empty')
   }
-  const subdomain = inputValue.endsWith('.zendesk.com')
-    ? inputValue.slice('https://'.length).slice(0, '.zendesk.com'.length)
-    : inputValue
+  const subdomain = stripSubdomain(inputValue)
   await _patchCredentialsState(client, ctx, { accessToken: undefined, subdomain })
   return responses.displayButtons({
     pageTitle: 'Validate Zendesk Subdomain',
