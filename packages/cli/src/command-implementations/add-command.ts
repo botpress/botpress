@@ -1,7 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
-import semver from 'semver'
 import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
@@ -108,13 +107,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       await this._uninstall(installPath)
     }
 
-    if (ref.type === 'name' && ref.version === pkgRef.LATEST_TAG) {
-      // If the semver version expression is 'latest', we assume the project
-      // is compatible with all versions of the latest major:
-      const major = semver.major(targetPackage.pkg.version)
-      targetPackage.pkg.version = `>=${major}.0.0 <${major + 1}.0.0`
-    } else if (ref.type === 'name') {
-      // Preserve the semver version expression in the generated code:
+    if (ref.type === 'name') {
       targetPackage.pkg.version = ref.version
     }
 
