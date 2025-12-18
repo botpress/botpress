@@ -1,0 +1,26 @@
+{
+  "name": "@bp-bots/slackbox",
+  "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e SLACKBOX_SLACK_REFRESH_TOKEN -e SLACKBOX_SLACK_CLIENT_ID -e SLACKBOX_SLACK_CLIENT_SECRET -e SLACKBOX_SLACK_SIGNING_SECRET -e SLACKBOX_GMAIL_OAUTH_CLIENT_ID -e SLACKBOX_GMAIL_OAUTH_CLIENT_SECRET -e SLACKBOX_GMAIL_OAUTH_AUTHORIZATION_CODE -e SLACKBOX_GMAIL_PUBSUB_TOPIC_NAME -e SLACKBOX_GMAIL_PUBSUB_WEBHOOK_SHARED_SECRET -e SLACKBOX_GMAIL_PUBSUB_WEBHOOK_SERVICE_ACCOUNT -e SLACKBOX_SLACK_CHANNEL",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpresshub/gmail": "workspace:*",
+    "@botpresshub/slack": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "slack": "../../integrations/slack",
+    "gmail": "../../integrations/gmail"
+  }
+}
