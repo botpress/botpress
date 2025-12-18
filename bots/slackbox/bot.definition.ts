@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
-import gmail from './bp_modules/quack-gmail'
+import gmail from './bp_modules/gmail'
 import slack from './bp_modules/slack'
 
 export default new sdk.BotDefinition({

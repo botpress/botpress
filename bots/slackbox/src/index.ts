@@ -67,8 +67,8 @@ bot.on.message('*', async (props) => {
 })
 
 const _mapGmailToSlack = (conversation: Conversation, message: AnyIncomingMessage<bp.TBot>) => {
-  const subject = (conversation.tags['quack/gmail:subject'] || conversation.tags.subject) as string | undefined
-  const fromEmail = (conversation.tags['quack/gmail:email'] || conversation.tags.email) as string | undefined
+  const subject = (conversation.tags['gmail:subject'] || conversation.tags.subject) as string | undefined
+  const fromEmail = (conversation.tags['gmail:email'] || conversation.tags.email) as string | undefined
   const messageText =
     message.type === 'text' ? (message.payload as { text?: string }).text || 'No content' : 'New email received'
 

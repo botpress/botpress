@@ -21,6 +21,6 @@
   },
   "bpDependencies": {
     "slack": "../../integrations/slack",
-    "quack/gmail": "integration:quack/gmail@1.0.1"
+    "gmail": "../../integrations/gmail"
   }
 }
