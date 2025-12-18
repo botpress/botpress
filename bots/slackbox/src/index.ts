@@ -3,7 +3,7 @@ import { AnyIncomingMessage } from '@botpress/sdk/dist/bot'
 import * as genenv from '../.genenv'
 import * as bp from '.botpress'
 
-const DEFAULT_SLACK_CHANNEL = genenv.SLACKBOX_SLACK_CHANNEL || 'test-slackbox'
+const DEFAULT_SLACK_CHANNEL = genenv.SLACKBOX_SLACK_CHANNEL
 
 const bot = new bp.Bot({
   actions: {},
