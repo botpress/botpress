@@ -242,6 +242,21 @@ const sendRawGraphqlQuery = {
   },
 } as const satisfies ActionDefinition
 
+const resolveComment = {
+  title: 'Resolve Comment',
+  description: 'Resolve a comment by id',
+  input: {
+    schema: z.object({
+      id: z.string().title('ID').describe('The comment ID'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean().title('Success').describe('Whether the operation was successful'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
 export const actions = {
   findTarget,
   listIssues,
@@ -254,4 +269,5 @@ export const actions = {
   createIssue,
   deleteIssue,
   sendRawGraphqlQuery,
+  resolveComment,
 } as const satisfies IntegrationDefinitionProps['actions']
