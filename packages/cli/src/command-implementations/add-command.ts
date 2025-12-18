@@ -90,10 +90,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.InvalidPackageReferenceError(this.argv.packageRef)
     }
 
-    if (parsed.type !== 'name') {
-      return parsed
-    }
-    return
+    return parsed
   }
 
   private async _addSinglePackage(
@@ -116,12 +113,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       // is compatible with all versions of the latest major:
       const major = semver.major(targetPackage.pkg.version)
       targetPackage.pkg.version = `>=${major}.0.0 <${major + 1}.0.0`
-
-      this.logger.log(
-        `Dependency "${packageName}" will be installed with version "${targetPackage.pkg.version}". ` +
-          `To pin a specific version or version range, please change "${targetPackage.type}:${packageName}@latest" ` +
-          'to a specific version number or range instead of "latest".'
-      )
     } else if (ref.type === 'name') {
       // Preserve the semver version expression in the generated code:
       targetPackage.pkg.version = ref.version
