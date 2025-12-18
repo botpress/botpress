@@ -1,5 +1,7 @@
 import { IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { BoardSchema } from './schemas/entities'
+import { trelloIdRegex } from './schemas'
+
+const _optionalTrelloIdRegex = new RegExp(`^$|${trelloIdRegex.source}`)
 
 export const configuration = {
   schema: z.object({
@@ -13,8 +15,11 @@ export const configuration = {
       .title('Trello API Token')
       .describe('Can be obtained by granting access to the application on Trello')
       .secret(),
-    trelloBoardId: BoardSchema.shape.id
-      .describe('Unique identifier of the board to watch for events on Trello')
-      .optional(),
+    trelloBoardId: z
+      .string()
+      .regex(_optionalTrelloIdRegex)
+      .optional()
+      .title('Trello Board ID')
+      .describe('Unique identifier of the board to watch for events on Trello'),
   }),
 } as const satisfies NonNullable<IntegrationDefinitionProps['configuration']>
