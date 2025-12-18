@@ -41,7 +41,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 
   const parseResult = eventPayloadSchema.safeParse(jsonParseResult.data)
   if (!parseResult.success) {
-    logger.forBot().warn('Unsupported Event Payload')
+    logger.forBot().warn('Unsupported Event Payload: ' + parseResult.error.message)
     return
   }
 
