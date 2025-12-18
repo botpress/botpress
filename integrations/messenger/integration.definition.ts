@@ -4,10 +4,11 @@ import * as sdk from '@botpress/sdk'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 import typingIndicator from 'bp_modules/typing-indicator'
+import { actions } from './definitions/actions'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
-export const INTEGRATION_VERSION = '5.0.5'
+export const INTEGRATION_VERSION = '5.1.0'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -147,7 +148,7 @@ export default new IntegrationDefinition({
       },
     },
   },
-  actions: {},
+  actions,
   events: {},
   states: {
     oauth: {
