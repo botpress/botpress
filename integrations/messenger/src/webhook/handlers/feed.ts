@@ -111,7 +111,7 @@ const _handleCommentCreated = async (value: CommentChangeValue, props: bp.Handle
     },
     discriminateByTags: ['id'],
     type: 'text',
-    payload: { text: message },
+    payload: { text: message, commentId },
     userId: user.id,
     conversationId: conversation.id,
   })
