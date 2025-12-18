@@ -9,7 +9,12 @@ export const resolveComment: bp.IntegrationProps['actions']['resolveComment'] = 
 
   const linearClient = await getLinearClient(args, ctx.integrationId)
 
-  const { success } = await linearClient.commentResolve(id)
-
-  return { success }
+  try {
+    const { success } = await linearClient.commentResolve(id)
+    return { success }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    args.logger.error('Failed to resolve comment: ', error.message)
+    return false
+  }
 }
