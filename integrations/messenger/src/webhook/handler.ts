@@ -41,10 +41,10 @@ const _handler: bp.IntegrationProps['handler'] = async (props) => {
 
   const parseResult = eventPayloadSchema.safeParse(jsonParseResult.data)
   if (!parseResult.success) {
-    const errorMessage = `Error while parsing body as Messenger payload: ${parseResult.error.message}`
-    logger.forBot().warn(errorMessage)
-    return { status: 400, body: errorMessage }
+    logger.forBot().warn(`Unsupported Event Payload`)
+    return
   }
+  
   const data = parseResult.data
   for (const entry of data.entry) {
     if ('messaging' in entry) {
