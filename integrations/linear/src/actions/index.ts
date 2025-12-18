@@ -7,6 +7,7 @@ import { listIssues } from './list-issues'
 import { listTeams } from './list-teams'
 import { listUsers } from './list-users'
 import { markAsDuplicate } from './mark-as-duplicate'
+import { resolveComment } from './resolve-comment'
 import { sendRawGraphqlQuery } from './send-raw-graphql-query'
 import { updateIssue } from './update-issue'
 import * as bp from '.botpress'
@@ -23,4 +24,5 @@ export default {
   createIssue,
   deleteIssue,
   sendRawGraphqlQuery,
+  resolveComment,
 } satisfies Partial<bp.IntegrationProps['actions']>
