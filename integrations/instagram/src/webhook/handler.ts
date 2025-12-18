@@ -55,7 +55,7 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
 
   const payloadResult = instagramPayloadSchema.safeParse(data)
   if (!payloadResult.success) {
-    logger.forBot().warn(`Unsupported Event Payload`)
+    logger.forBot().warn('Unsupported Event Payload')
     return { status: 200 }
   }
 
