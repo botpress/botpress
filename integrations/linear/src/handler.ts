@@ -1,5 +1,5 @@
 import { Request } from '@botpress/sdk'
-import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
+import { LinearWebhooks } from '@linear/sdk'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
@@ -8,6 +8,9 @@ import { LinearEvent, handleOauth } from './misc/linear'
 import { Result } from './misc/types'
 import { getLinearClient, getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
+
+const LINEAR_WEBHOOK_SIGNATURE_HEADER = 'linear-signature'
+const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (req.path === '/oauth') {

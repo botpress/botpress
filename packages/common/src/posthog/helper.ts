@@ -15,6 +15,13 @@ export type PostHogConfig = {
   integrationVersion: string
 }
 
+type WrapFunctionProps = {
+  config: PostHogConfig
+  fn: Function
+  functionName: string
+  functionArea: string
+}
+
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
   const { key, integrationName, integrationVersion } = config
   const client = new PostHog(key, {
@@ -39,15 +46,35 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
 }
 
 export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
-  integrationProps.register = wrapFunction(integrationProps.register, config, 'register')
-  integrationProps.unregister = wrapFunction(integrationProps.unregister, config, 'unregister')
-  integrationProps.handler = wrapFunction(wrapHandler(integrationProps.handler, config), config, 'handler')
+  integrationProps.register = wrapFunction({
+    fn: integrationProps.register,
+    config,
+    functionName: 'register',
+    functionArea: 'registration',
+  })
+  integrationProps.unregister = wrapFunction({
+    fn: integrationProps.unregister,
+    config,
+    functionName: 'unregister',
+    functionArea: 'registration',
+  })
+  integrationProps.handler = wrapFunction({
+    fn: wrapHandler(integrationProps.handler, config),
+    config,
+    functionName: 'handler',
+    functionArea: 'handler',
+  })
 
   if (integrationProps.actions) {
     for (const actionType of Object.keys(integrationProps.actions)) {
       const actionFn = integrationProps.actions[actionType]
       if (typeof actionFn === 'function') {
-        integrationProps.actions[actionType] = wrapFunction(actionFn, config, actionType)
+        integrationProps.actions[actionType] = wrapFunction({
+          fn: actionFn,
+          config,
+          functionName: actionType,
+          functionArea: 'actions',
+        })
       }
     }
   }
@@ -59,7 +86,12 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
       Object.keys(channel.messages).forEach((messageType) => {
         const messageFn = channel.messages[messageType]
         if (typeof messageFn === 'function') {
-          channel.messages[messageType] = wrapFunction(messageFn, config, channelName)
+          channel.messages[messageType] = wrapFunction({
+            fn: messageFn,
+            config,
+            functionName: channelName,
+            functionArea: 'channels',
+          })
         }
       })
     }
@@ -67,10 +99,11 @@ export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.Int
   return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig, functionName: string) {
+function wrapFunction(props: WrapFunctionProps) {
+  const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
-      return await fn(...args)
+      fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
@@ -85,6 +118,7 @@ function wrapFunction(fn: Function, config: PostHogConfig, functionName: string)
           event: 'unhandled_error',
           properties: {
             from: functionName,
+            area: functionArea,
             integrationName: config.integrationName,
             integrationVersion: config.integrationVersion,
             errMsg,
