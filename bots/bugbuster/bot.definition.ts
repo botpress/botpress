@@ -46,6 +46,7 @@ export default new sdk.BotDefinition({
         channels: sdk.z
           .array(
             sdk.z.object({
+              conversationId: sdk.z.string().title('Conversation ID').describe('The conversation ID'),
               name: sdk.z.string().title('Name').describe('The channel name'),
               teams: sdk.z
                 .array(sdk.z.string())
@@ -77,14 +78,14 @@ export default new sdk.BotDefinition({
       payload: sdk.z.object({}),
       type: 'timeToLintAll',
       schedule: {
-        cron: '0 8 * * 1',
+        cron: '0 13 * * 1', // runs every week on Monday at 8AM EST
       },
     },
     timeToCheckIssuesState: {
       payload: sdk.z.object({}),
       type: 'timeToCheckIssuesState',
       schedule: {
-        cron: '0 * * * *',
+        cron: '0 * * * *', // runs every hour on the hour
       },
     },
   },

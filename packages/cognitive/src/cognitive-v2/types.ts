@@ -38,6 +38,7 @@ export type Models =
   | 'openai:gpt-5-mini-2025-08-07'
   | 'openai:gpt-5-nano-2025-08-07'
   | 'openai:gpt-5.1-2025-11-13'
+  | 'openai:gpt-5.2-2025-12-11'
   | 'openai:o1-2024-12-17'
   | 'openai:o1-mini-2024-09-12'
   | 'openai:o3-2025-04-16'
