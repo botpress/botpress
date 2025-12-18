@@ -14,7 +14,7 @@ export const resolveComment: bp.IntegrationProps['actions']['resolveComment'] = 
     return { success }
   } catch (thrown) {
     const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-    args.logger.error('Failed to resolve comment: ', error.message)
-    return false
+    args.logger.error('An error occured while trying to resolve comment: ', error.message)
+    return { success: false }
   }
 }
