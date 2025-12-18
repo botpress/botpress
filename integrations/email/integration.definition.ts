@@ -123,7 +123,4 @@ export default new IntegrationDefinition({
       email: { title: 'User email', description: 'Required' },
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
