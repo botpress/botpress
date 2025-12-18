@@ -61,7 +61,8 @@ const _handlerWrapper: typeof _handler = async (props: bp.HandlerProps) => {
     const response = await _handler(props)
 
     if (response?.status && response.status >= 400) {
-      throw new Error(`${response.status}: ${response.body}`)
+      const errorMessage = `Messenger handler failed with status ${response.status}: ${response.body}`
+      props.logger.error(errorMessage)
     }
 
     return response
