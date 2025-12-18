@@ -9,10 +9,17 @@ export const COMMON_SECRET_NAMES = {
   },
 } satisfies sdk.IntegrationDefinitionProps['secrets']
 
-type PostHogConfig = {
+export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
+}
+
+type WrapFunctionProps = {
+  config: PostHogConfig
+  fn: Function
+  functionName: string
+  functionArea: string
 }
 
 export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
@@ -38,45 +45,65 @@ export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfi
   }
 }
 
-export function wrapIntegration(config: PostHogConfig) {
-  return function <T extends { new (...args: any[]): sdk.Integration<any> }>(constructor: T): T {
-    return class extends constructor {
-      public constructor(...args: any[]) {
-        super(...args)
-        this.props.register = wrapFunction(this.props.register, config)
-        this.props.unregister = wrapFunction(this.props.unregister, config)
-        this.props.handler = wrapFunction(wrapHandler(this.props.handler, config), config)
+export function wrapIntegration(config: PostHogConfig, integrationProps: sdk.IntegrationProps<any>) {
+  integrationProps.register = wrapFunction({
+    fn: integrationProps.register,
+    config,
+    functionName: 'register',
+    functionArea: 'registration',
+  })
+  integrationProps.unregister = wrapFunction({
+    fn: integrationProps.unregister,
+    config,
+    functionName: 'unregister',
+    functionArea: 'registration',
+  })
+  integrationProps.handler = wrapFunction({
+    fn: wrapHandler(integrationProps.handler, config),
+    config,
+    functionName: 'handler',
+    functionArea: 'handler',
+  })
 
-        if (this.props.actions) {
-          for (const actionType of Object.keys(this.props.actions)) {
-            const actionFn = this.props.actions[actionType]
-            if (typeof actionFn === 'function') {
-              this.props.actions[actionType] = wrapFunction(actionFn, config)
-            }
-          }
-        }
-
-        if (this.props.channels) {
-          for (const channelName of Object.keys(this.props.channels)) {
-            const channel = this.props.channels[channelName]
-            if (!channel || !channel.messages) continue
-            Object.keys(channel.messages).forEach((messageType) => {
-              const messageFn = channel.messages[messageType]
-              if (typeof messageFn === 'function') {
-                channel.messages[messageType] = wrapFunction(messageFn, config)
-              }
-            })
-          }
-        }
+  if (integrationProps.actions) {
+    for (const actionType of Object.keys(integrationProps.actions)) {
+      const actionFn = integrationProps.actions[actionType]
+      if (typeof actionFn === 'function') {
+        integrationProps.actions[actionType] = wrapFunction({
+          fn: actionFn,
+          config,
+          functionName: actionType,
+          functionArea: 'actions',
+        })
       }
     }
   }
+
+  if (integrationProps.channels) {
+    for (const channelName of Object.keys(integrationProps.channels)) {
+      const channel = integrationProps.channels[channelName]
+      if (!channel || !channel.messages) continue
+      Object.keys(channel.messages).forEach((messageType) => {
+        const messageFn = channel.messages[messageType]
+        if (typeof messageFn === 'function') {
+          channel.messages[messageType] = wrapFunction({
+            fn: messageFn,
+            config,
+            functionName: channelName,
+            functionArea: 'channels',
+          })
+        }
+      })
+    }
+  }
+  return new sdk.Integration(integrationProps)
 }
 
-function wrapFunction(fn: Function, config: PostHogConfig) {
+function wrapFunction(props: WrapFunctionProps) {
+  const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
-      return await fn(...args)
+      fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
@@ -90,7 +117,8 @@ function wrapFunction(fn: Function, config: PostHogConfig) {
           distinctId: distinctId ?? 'no id',
           event: 'unhandled_error',
           properties: {
-            from: fn.name,
+            from: functionName,
+            area: functionArea,
             integrationName: config.integrationName,
             integrationVersion: config.integrationVersion,
             errMsg,

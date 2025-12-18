@@ -1,15 +1,40 @@
 import { Spectral, Document, type ISpectralDiagnostic, type RulesetDefinition } from '@stoplight/spectral-core'
 import { Json as JsonParser, type JsonParserResult } from '@stoplight/spectral-parsers'
 import { type Logger } from '../logger'
+import { TRUTHY_WITH_MESSAGE_ID } from './spectral-functions'
 
 type ProblemSeverity = 0 | 1 | 2 | 3
+
+const _injectLoggerIntoRulesetOptions = (ruleset: RulesetDefinition, logger?: Logger) => {
+  // This is the most jankiest thing I've ever done but
+  // Spectral was never designed to be extended at all
+  if ('rules' in ruleset) {
+    for (const ruleName in ruleset.rules) {
+      const rule = ruleset.rules[ruleName]
+      if (typeof rule !== 'object' || !('then' in rule)) {
+        continue
+      }
+
+      const ruleThens = Array.isArray(rule.then) ? rule.then : [rule.then]
+      for (const then of ruleThens) {
+        if (then.function.name === TRUTHY_WITH_MESSAGE_ID) {
+          const options = (then.functionOptions ?? {}) as Record<string, unknown>
+          options.logger = logger
+          then.functionOptions = options
+        }
+      }
+    }
+  }
+}
 
 export abstract class BaseLinter<TDefinition> {
   private readonly _spectral: Spectral
   private readonly _spectralDocument: Document<unknown, JsonParserResult<unknown>>
   private _results: ISpectralDiagnostic[] = []
 
-  protected constructor(definition: TDefinition, ruleset: RulesetDefinition) {
+  protected constructor(definition: TDefinition, ruleset: RulesetDefinition, logger?: Logger) {
+    _injectLoggerIntoRulesetOptions(ruleset, logger)
+
     const json = JSON.stringify(definition)
     this._spectralDocument = new Document(json, JsonParser)
     this._spectral = new Spectral()
