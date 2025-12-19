@@ -129,7 +129,7 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
   try {
     schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
   } catch {
-    // The above transformers arent the legacy once. They are very strict and might fail on some schema types.
+    // The above transformers arent the legacy ones. They are very strict and might fail on some schema types.
     schema = _schema as any as z.ZodType
   }
 
