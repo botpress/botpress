@@ -33,7 +33,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
   const requester = input.hitlSession?.requesterName
     ? {
         name: input.hitlSession?.requesterName,
-        email: input.hitlSession?.requesterEmail,
+        ...(input.hitlSession?.requesterEmail ? { email: input.hitlSession?.requesterEmail } : {}),
       }
     : { id: zendeskAuthorId }
 
