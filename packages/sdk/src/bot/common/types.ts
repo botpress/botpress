@@ -1,4 +1,4 @@
-import { Join, UnionToIntersection, Split, Cast } from '../../utils/type-utils'
+import { Join, UnionToIntersection, Split, Cast, StringKeys } from '../../utils/type-utils'
 import { BaseBot } from './generic'
 
 export type IntegrationInstanceDefinition = BaseBot['integrations'][string]
@@ -108,3 +108,17 @@ export type EnumerateStates<TBot extends BaseBot> = {
 export type EnumerateTables<TBot extends BaseBot> = {
   [K in keyof TBot['tables']]: TBot['tables'][K]
 }
+
+/**
+ * TODO: we shouldnt have to do this, but this is tmp workaround to prevent from refactoring the whole message enumeration type system
+ */
+export type InferIntegrationFromMessage<
+  TBot extends BaseBot,
+  TMessageKey extends keyof GetMessages<TBot>,
+> = StringKeys<{
+  [TFullMessageKey in keyof EnumerateMessages<TBot> as string extends TFullMessageKey
+    ? string
+    : Split<TFullMessageKey, ':'>[2] extends TMessageKey
+      ? Split<TFullMessageKey, ':'>[0]
+      : never]: null
+}>

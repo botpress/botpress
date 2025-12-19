@@ -243,15 +243,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/logger':
-        specifier: workspace:*
-        version: link:../../plugins/logger
       '@botpresshub/telegram':
         specifier: workspace:*
         version: link:../../integrations/telegram
-      '@botpresshub/webhook':
-        specifier: workspace:*
-        version: link:../../integrations/webhook
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1

@@ -359,4 +359,41 @@ test('GetMessages should return record if TBot is BaseBot', () => {
   >
 })
 
-test('EnumerateInterfaces should enumerate interfaces', () => {})
+test('InferIntegrationFromMessage should infer integration from message key', () => {
+  type Actual = types.InferIntegrationFromMessage<FooBarBazBot, 'messageBar'>
+  type Expected = 'fooBarBaz'
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
+
+test('InferIntegrationFromMessage should infer integration from message key with multiple integrations', () => {
+  type TBot = DefaultBot<{
+    integrations: {
+      fooBarBaz: FooBarBazIntegration
+      anotherIntegration: DefaultIntegration<{
+        channels: {
+          anotherChannel: DefaultChannel<{
+            messages: {
+              messageBar: { anotherField: number }
+            }
+          }>
+        }
+      }>
+    }
+  }>
+
+  type Actual = types.InferIntegrationFromMessage<TBot, 'messageBar'>
+  type Expected = 'fooBarBaz' | 'anotherIntegration'
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
+
+test('InferIntegrationFromMessage should infer never if TBot is EmptyBot', () => {
+  type Actual = types.InferIntegrationFromMessage<EmptyBot, never>
+  type Expected = never
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
+
+test('InferIntegrationFromMessage should infer string if TBot is BaseBot', () => {
+  type Actual = types.InferIntegrationFromMessage<BaseBot, string>
+  type Expected = string
+  type _assertion = utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+})
