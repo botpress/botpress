@@ -9,8 +9,8 @@ import * as bp from '.botpress'
 
 export type TicketRequester =
   | {
-      name: string
-      email: string
+      name?: string
+      email?: string
     }
   | {
       id: string
