@@ -91,11 +91,8 @@ export const getMessageFromSlackEvent = async (
 }
 
 export const safeParseBody = (body: string) => {
-  try {
-    return _safeParseJson(body)
-  } catch {
-    return _safeDecodeURIComponent(body)
-  }
+  const parseResult = _safeParseJson(body)
+  return parseResult.success ? parseResult : _safeDecodeURIComponent(body)
 }
 
 const _safeDecodeURIComponent = (component: string) => {
