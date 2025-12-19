@@ -1,4 +1,4 @@
-import { TypeOf, z, transforms, ZodObject, ZodType, type ZodDef } from '@bpinternal/zui'
+import { TypeOf, z, transforms, ZodObject, ZodType } from '@bpinternal/zui'
 import { JSONSchema7 } from 'json-schema'
 import { isEmpty, uniq } from 'lodash-es'
 import { Serializable, ZuiType } from './types.js'
