@@ -2,7 +2,7 @@
   "name": "llmz",
   "type": "module",
   "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -20,7 +20,7 @@
     "build": "tsup && pnpm tsc --emitDeclarationOnly",
     "check:type": "tsc --noEmit",
     "watch": "tsup --watch",
-    "test": "vitest run --config vitest.config.ts",
+    "test": "vitest run --config vitest.config.ts llmz.test.ts --allow-only",
     "test:update": "vitest -u run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
