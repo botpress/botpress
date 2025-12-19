@@ -13,10 +13,9 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       accessToken: z.string().min(1).title('Access Token').describe('The access token of the Intercom app'),
-      adminId: z.string().min(1).optional().title('Admin ID').describe('The admin ID of the Bot'),
+      adminId: z.string().optional().title('Admin ID').describe('The admin ID of the Bot'),
       clientSecret: z
         .string()
-        .min(1)
         .secret()
         .optional()
         .title('Client Secret')
