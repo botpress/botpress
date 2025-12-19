@@ -44,6 +44,10 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     requester,
     {
       priority: input.hitlSession?.priority,
+      requester: {
+        name: input.hitlSession?.requesterName,
+        email: input.hitlSession?.requesterEmail,
+      },
     }
   )
 
