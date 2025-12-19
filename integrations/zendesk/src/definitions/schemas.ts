@@ -1,6 +1,11 @@
 import { z } from '@botpress/sdk'
 import { omit } from 'lodash'
 
+const requesterSchema = z.object({
+  name: z.string().optional(),
+  email: z.string().optional(),
+})
+
 export const ticketSchema = z.object({
   id: z.number(),
   subject: z.string(),
@@ -8,6 +13,7 @@ export const ticketSchema = z.object({
   status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']),
   priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable(),
   requesterId: z.number(),
+  requester: requesterSchema.optional(),
   assigneeId: z.number().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),

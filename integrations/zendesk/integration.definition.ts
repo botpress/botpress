@@ -6,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '3.0.2',
+  version: '3.0.3',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -48,6 +48,16 @@ export default new sdk.IntegrationDefinition({
           .describe(
             'Photo URL of the chatbot that will be used in the Zendesk ticket. Must be a publicly-accessible PNG image. Defaults to Botpress logo.'
           )
+          .optional(),
+        requesterName: sdk.z
+          .string()
+          .title('Requester Name')
+          .describe('The name of the requester the bot was talking to. This will be set in zendesk.')
+          .optional(),
+        requesterEmail: sdk.z
+          .string()
+          .title('Requester Email')
+          .describe('The email of the requester the bot was talking to. This will be set in zendesk.')
           .optional(),
       }),
     },
