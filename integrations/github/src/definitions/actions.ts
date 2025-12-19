@@ -28,16 +28,16 @@ const findTarget = {
   },
   output: {
     schema: z.object({
-      targets: z.array(
-        z
-          .object({
+      targets: z
+        .array(
+          z.object({
             displayName: z.string().title('Display Name').describe('The display name'),
             tags: z.record(z.string()).title('Tags').describe('The tags'),
             channel: z.enum(channels).title('Channel').describe('The channel'),
           })
-          .title('Targets')
-          .describe('The list of received targets')
-      ),
+        )
+        .title('Targets')
+        .describe('The list of received targets'),
     }),
   },
 }
@@ -49,6 +49,8 @@ const findIssuesOrPullRequests = {
 }
 
 const sendRawGraphqlQuery = {
+  title: 'Send raw GraphQL query',
+  description: "Send a raw query directly to GitHub's GraphQL API",
   input: {
     schema: z.object({
       query: z.string().title('Query').describe('The GraphQL query'),
