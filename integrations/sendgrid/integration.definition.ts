@@ -22,7 +22,6 @@ export default new IntegrationDefinition({
       publicSignatureKey: z
         .string()
         .secret()
-        .min(1)
         .optional()
         .describe(
           'The public key used to verify the cryptographic signature of the webhook requests (Found in the edit webhook menu)'
