@@ -125,7 +125,13 @@ const extract = async <S extends OfType<AnyObjectOrArray>>(
 ): Promise<S['_output']> => {
   ctx.controller.signal.throwIfAborted()
 
-  let schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
+  let schema: z.ZodType
+  try {
+    schema = transforms.fromJSONSchema(transforms.toJSONSchema(_schema as any as z.ZodType))
+  } catch {
+    // The above transformers arent the legacy once. They are very strict and might fail on some schema types.
+    schema = _schema as any as z.ZodType
+  }
 
   const options = Options.parse(_options ?? {})
   const tokenizer = await getTokenizer()
