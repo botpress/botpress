@@ -24,7 +24,6 @@ export default new IntegrationDefinition({
       signingSecret: z
         .string()
         .secret()
-        .min(1)
         .optional()
         .describe(
           'The secret key used to verify the authenticity of the webhook requests (Found in the webhook details page)'
