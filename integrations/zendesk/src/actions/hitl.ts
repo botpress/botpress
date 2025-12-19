@@ -30,18 +30,20 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     chatbotPhotoUrl,
   })
 
+  const requester =
+    input.hitlSession?.requesterEmail || input.hitlSession?.chatbotName
+      ? {
+          name: input.hitlSession?.requesterName,
+          email: input.hitlSession?.requesterEmail,
+        }
+      : { id: zendeskAuthorId }
+
   const ticket = await zendeskClient.createTicket(
     input.title ?? 'Untitled Ticket',
     await _buildTicketBody(props, { chatbotName }),
-    {
-      id: zendeskAuthorId,
-    },
+    requester,
     {
       priority: input.hitlSession?.priority,
-      requester: {
-        name: input.hitlSession?.requesterName,
-        email: input.hitlSession?.requesterEmail,
-      },
     }
   )
 
