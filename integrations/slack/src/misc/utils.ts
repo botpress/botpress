@@ -90,7 +90,27 @@ export const getMessageFromSlackEvent = async (
   return messages[0]
 }
 
-export const safeParseJson = (json: string) => {
+export const safeParseBody = (body: string) => {
+  try {
+    return _safeParseJson(body)
+  } catch {
+    return _safeDecodeURIComponent(body)
+  }
+}
+
+const _safeDecodeURIComponent = (component: string) => {
+  try {
+    const decoded = decodeURIComponent(component)
+    return _safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
+  } catch (thrown: unknown) {
+    return {
+      success: false,
+      error: thrown instanceof Error ? thrown : new Error(String(thrown)),
+    }
+  }
+}
+
+const _safeParseJson = (json: string) => {
   try {
     return {
       success: true,
