@@ -1,6 +1,9 @@
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
+const STATE_NAME_FOR_NEW_ISSUES = 'Triage'
+const TEAM_KEY_FOR_NEW_ISSUES = 'ENG'
+
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
   const githubIssue = props.event.payload
 
@@ -13,24 +16,29 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
     (thrown: unknown): Promise<never> =>
       botpress.handleError({ context, conversationId: undefined }, thrown)
 
-  const githubLabel = await linear
-    .findLabel({ name: 'github', parentName: 'origin' })
-    .catch(_handleError('trying to find the origin/github label in Linear'))
+  const teamStates = await linear
+    .findTeamStates(TEAM_KEY_FOR_NEW_ISSUES)
+    .catch(_handleError('trying to get Linear team states'))
 
-  if (!githubLabel) {
-    props.logger.error('Label origin/github not found in engineering team')
+  if (!teamStates) {
+    props.logger.error(`Error: Linear team '${TEAM_KEY_FOR_NEW_ISSUES}' not found.`)
+    return
   }
 
-  const teams = await linear.getTeamRecords().catch(_handleError('trying to get Linear teams'))
-  const states = await linear.getStateRecords().catch(_handleError('trying to get Linear states'))
+  const state = teamStates.states.nodes.find((el) => el.name === STATE_NAME_FOR_NEW_ISSUES)
+
+  if (!state) {
+    props.logger.error(`Error: Linear state '${STATE_NAME_FOR_NEW_ISSUES}' not found.`)
+    return
+  }
 
   const linearResponse = await linear.client
     .createIssue({
-      teamId: teams.ENG.id,
-      stateId: states.ENG.TRIAGE.id,
+      teamId: teamStates.id,
+      stateId: state.id,
       title: githubIssue.issue.name,
       description: githubIssue.issue.body,
-      labelIds: githubLabel ? [githubLabel.id] : [],
+      labelIds: [],
     })
     .catch(_handleError('trying to create a Linear issue from the GitHub issue'))
 
