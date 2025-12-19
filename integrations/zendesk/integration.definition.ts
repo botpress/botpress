@@ -57,7 +57,9 @@ export default new sdk.IntegrationDefinition({
         requesterEmail: sdk.z
           .string()
           .title('Requester Email')
-          .describe('The email of the requester the bot was talking to. This will be set in zendesk.')
+          .describe(
+            '⚠️This needs a requester name to work. The email of the requester the bot was talking to. This will be set in zendesk.'
+          )
           .optional(),
       }),
     },
