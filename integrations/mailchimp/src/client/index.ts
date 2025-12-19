@@ -61,6 +61,7 @@ export class MailchimpApi {
         merge_fields: {
           FNAME: customer.firstName || '',
           LNAME: customer.lastName || '',
+          COMPANY: customer.company || '',
           BIRTHDAY: customer.birthday || '',
           ADDRESS: {
             addr1: customer.address1 || '',
