@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '2.0.1',
+  version: '2.0.2',
   title: 'Intercom',
   description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
@@ -13,10 +13,9 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       accessToken: z.string().min(1).title('Access Token').describe('The access token of the Intercom app'),
-      adminId: z.string().min(1).optional().title('Admin ID').describe('The admin ID of the Bot'),
+      adminId: z.string().optional().title('Admin ID').describe('The admin ID of the Bot'),
       clientSecret: z
         .string()
-        .min(1)
         .secret()
         .optional()
         .title('Client Secret')
