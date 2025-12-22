@@ -3,7 +3,7 @@ import * as sdk from '@botpress/sdk'
 const SHARED_CONFIGURATION = {
   botAvatarUrl: sdk.z
     .string()
-    .url()
+    // .url() // Uncomment this once either the studio bug of not allowing empty strings is fixed, or the ".or()" in zui/studio is supported.
     .optional()
     .title('Bot avatar URL')
     .describe("URL for the image used as the Slack bot's avatar"),

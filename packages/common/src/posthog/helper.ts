@@ -103,7 +103,7 @@ function wrapFunction(props: WrapFunctionProps) {
   const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
-      fn(...args)
+      return fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
       const distinctId = client.isApiError(thrown) ? thrown.id : undefined
