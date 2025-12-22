@@ -61,6 +61,14 @@ const tNoop = (cb: () => void) =>
     handler: async () => cb(),
   })
 
+const tNoInput = (cb: (arg: any) => void) =>
+  new Tool({
+    name: 'noinput',
+    input: z.object({}),
+    output: z.any(),
+    handler: async (arg) => cb(arg),
+  })
+
 const eDone = new Exit({ name: 'done', description: 'call this when you are done' })
 
 const tPasswordProtectedAdd = (seed: number) =>
@@ -95,6 +103,31 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
   })
 
   describe('executeContext', () => {
+    it('using a tool with no args and no input', async () => {
+      let greeted = false
+      let input = null
+
+      const updatedContext: ExecutionResult = await llmz.executeContext({
+        instructions: `Can you call the no input tool? DO NOT ADD AN EMPTY OBJECT AS INPUT.`,
+        exits: [eDone],
+        tools: [
+          tNoInput((arg) => {
+            greeted = true
+            input = arg
+          }),
+        ],
+        client,
+      })
+
+      const errors = updatedContext.iterations.filter((it) => !!it.error)
+
+      expect(errors.length).toBe(0)
+
+      assertSuccess(updatedContext)
+      expect(greeted).toBe(true)
+      expect(input).toEqual({})
+    })
+
     it('using a tool with no args', async () => {
       let greeted = false
 
