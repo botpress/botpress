@@ -94,7 +94,19 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        object: sdk.z.string().optional().title('Page Object').describe('A stringified representation of the page'),
+        object: sdk.z.string().optional().title('Result Object').describe('The type of object returned'),
+        id: sdk.z.string().optional().title('Result ID').describe('The ID of the object returned'),
+        created_time: sdk.z.string().optional().title('Created Time').describe('The time the object was created'),
+        parent: sdk.z.object({}).passthrough().optional().title('Parent').describe('The parent of the object'),
+        created_by: sdk.z
+          .object({
+            object: sdk.z.string().optional().title('Created By Object').describe('The type of object returned'),
+            id: sdk.z.string().optional().title('Created By ID').describe('The ID of the object returned'),
+          })
+          .optional()
+          .title('Created By')
+          .describe('The user who created the object'),
+        archived: sdk.z.boolean().optional().title('Archived').describe('Whether the object is archived'),
         properties: sdk.z
           .record(sdk.z.string(), sdk.z.object({}).passthrough())
           .optional()
