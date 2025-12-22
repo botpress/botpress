@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition } from '@botpress/sdk'
+import { z, IntegrationDefinition, trans } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from './bp_modules/typing-indicator'
 import { telegramMessageChannels } from './definitions/channels'
