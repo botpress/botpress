@@ -64,7 +64,7 @@
     "typescript-eslint": "^8.42.0",
     "vitest": "^2.1.4"
   },
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.26.1",
   "pnpm": {
     "patchedDependencies": {
       "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
