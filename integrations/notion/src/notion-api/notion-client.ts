@@ -39,7 +39,7 @@ export class NotionClient {
 
   private static async _getAccessToken({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<string> {
     if (ctx.configurationType === 'customApp') {
-      return ctx.configuration.authToken
+      return ctx.configuration.internalIntegrationSecret
     }
 
     const oauthClient = new NotionOAuthClient({ ctx, client })
