@@ -174,6 +174,48 @@ export class NotionClient {
     return 'parent' in page ? page : undefined
   }
 
+  @handleErrors('Failed to get page content')
+  public async getPageContent({ pageId }: { pageId: string }) {
+    const blocks: types.BlockContent[] = []
+    let nextCursor: string | undefined
+
+    do {
+      const response = await this._notion.blocks.children.list({
+        block_id: pageId,
+        start_cursor: nextCursor,
+      })
+
+      for (const block of response.results) {
+        if (!('type' in block)) {
+          continue
+        }
+
+        const blockType = block.type
+        const blockData = block[blockType as keyof typeof block] as Record<string, unknown> | undefined
+        const richText = (blockData?.rich_text as RichTextItemResponse[] | undefined) ?? []
+
+        const parentId =
+          block.parent.type === 'page_id'
+            ? block.parent.page_id
+            : block.parent.type === 'block_id'
+              ? block.parent.block_id
+              : undefined
+
+        blocks.push({
+          blockId: block.id,
+          parentId,
+          type: blockType,
+          hasChildren: block.has_children,
+          richText,
+        })
+      }
+
+      nextCursor = response.next_cursor ?? undefined
+    } while (nextCursor)
+
+    return { blocks }
+  }
+
   @handleErrors('Failed to get database')
   public async getDatabase({ databaseId }: { databaseId: string }) {
     const db = await this._notion.databases.retrieve({ database_id: databaseId })
