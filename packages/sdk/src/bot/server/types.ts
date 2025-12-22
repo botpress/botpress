@@ -226,7 +226,7 @@ export type WorkflowPayloads<TBot extends common.BaseBot> = {
      * # EXPERIMENTAL
      * This API is experimental and may change in the future.
      */
-    workflow: workflowProxy.WorkflowWithUtilities<TBot, TWorkflowName>
+    workflow: workflowProxy.ActionableWorkflow<TBot, TWorkflowName>
   }
 }
 
@@ -431,10 +431,7 @@ export type InjectedBotHandlers<TBot extends common.BaseBot> = {
   }
   workflowHandlers: {
     [TWorkflowUpdateType in WorkflowUpdateType]: {
-      [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: {
-        handler: WorkflowHandlers<TBot>[TWorkflowName]
-        order: number
-      }[]
+      [TWorkflowName in utils.StringKeys<TBot['workflows']>]?: WorkflowHandlers<TBot>[TWorkflowName][]
     }
   }
 }

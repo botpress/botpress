@@ -71,6 +71,7 @@ export namespace IterationStatuses {
     thinking_requested: {
       reason?: string
       variables: Record<string, unknown>
+      metadata?: Record<string, unknown>
     }
   }
 
@@ -416,6 +417,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
     return this._parameters.model
   }
 
+  public set model(value: Models | Models[]) {
+    this._parameters.model = value
+  }
+
   public get temperature() {
     return this._parameters.temperature
   }
@@ -443,6 +448,12 @@ export class Iteration implements Serializable<Iteration.JSON> {
     spend: number
     output: string
     model: string
+    usage: {
+      inputCost: number
+      outputCost: number
+      inputTokens: number
+      outputTokens: number
+    }
   }
 
   public hasExited(this: this): this is this & { status: IterationStatuses.ExitSuccess } {
@@ -626,7 +637,7 @@ export class Context implements Serializable<Context.JSON> {
 
   private _getIterationVariables(): Record<string, any> {
     const lastIteration = this.iterations.at(-1)
-    const variables = {}
+    const variables: Record<string, any> = {}
 
     if (lastIteration?.status.type === 'thinking_requested') {
       const lastThinkingVariables = lastIteration.status.thinking_requested.variables
@@ -637,6 +648,14 @@ export class Context implements Serializable<Context.JSON> {
 
     if (isPlainObject(lastIteration?.variables)) {
       Object.assign(variables, cloneDeep(lastIteration?.variables ?? {}))
+    }
+
+    if (this.snapshot?.status.type === 'resolved') {
+      for (const v of this.snapshot.variables) {
+        if (!v.truncated && v.value !== undefined) {
+          variables[v.name] = v.value
+        }
+      }
     }
 
     return variables

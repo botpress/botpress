@@ -7,20 +7,6 @@ import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
   states: {
-    recentlyLinted: {
-      type: 'bot',
-      schema: sdk.z.object({
-        issues: sdk.z
-          .array(
-            sdk.z.object({
-              id: sdk.z.string(),
-              lintedAt: sdk.z.string().datetime(),
-            })
-          )
-          .title('Recently Linted Issues')
-          .describe('List of recently linted issues'),
-      }),
-    },
     watchedTeams: {
       type: 'bot',
       schema: sdk.z.object({
@@ -30,9 +16,78 @@ export default new sdk.BotDefinition({
           .describe('The keys of the teams for which BugBuster should lint issues'),
       }),
     },
+    lastLintedId: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        id: sdk.z.string().optional().title('ID').describe('The ID of the last successfully linted issue'),
+      }),
+    },
+    lintResults: {
+      type: 'workflow',
+      schema: sdk.z.object({
+        issues: sdk.z.array(
+          sdk.z.discriminatedUnion('result', [
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.literal('failed').title('Result').describe('The lint result'),
+              messages: sdk.z.array(sdk.z.string()).title('Messages').describe('The lint error messages'),
+            }),
+            sdk.z.object({
+              identifier: sdk.z.string().title('Identifier').describe('The issue identifier'),
+              result: sdk.z.enum(['succeeded', 'ignored']).title('Result').describe('The lint result'),
+            }),
+          ])
+        ),
+      }),
+    },
+    notificationChannels: {
+      type: 'bot',
+      schema: sdk.z.object({
+        channels: sdk.z
+          .array(
+            sdk.z.object({
+              conversationId: sdk.z.string().title('Conversation ID').describe('The conversation ID'),
+              name: sdk.z.string().title('Name').describe('The channel name'),
+              teams: sdk.z
+                .array(sdk.z.string())
+                .title('Teams')
+                .describe('The teams for which notifications will be sent to the channel'),
+            })
+          )
+          .title('Channel')
+          .describe('The Slack channel where notifications will be sent'),
+      }),
+    },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+  workflows: {
+    lintAll: {
+      input: { schema: sdk.z.object({}) },
+      output: { schema: sdk.z.object({}) },
+    },
+  },
+  events: {
+    timeToLintAll: {
+      schema: sdk.z.object({}),
+    },
+    timeToCheckIssuesState: {
+      schema: sdk.z.object({}),
+    },
+  },
+  recurringEvents: {
+    timeToLintAll: {
+      payload: sdk.z.object({}),
+      type: 'timeToLintAll',
+      schedule: {
+        cron: '0 13 * * 1', // runs every week on Monday at 8AM EST
+      },
+    },
+    timeToCheckIssuesState: {
+      payload: sdk.z.object({}),
+      type: 'timeToCheckIssuesState',
+      schedule: {
+        cron: '0 * * * *', // runs every hour on the hour
+      },
+    },
   },
 })
   .addIntegration(github, {
@@ -43,7 +98,6 @@ export default new sdk.BotDefinition({
       githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
     },
   })
-  // TODO: replace Telegram with Slack when available
   .addIntegration(telegram, {
     enabled: true,
     configurationType: null,

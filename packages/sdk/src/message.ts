@@ -6,6 +6,9 @@ const textMessageSchema = z.object({
   text: NonEmptyString,
 })
 
+/**
+ * @deprecated
+ */
 const markdownMessageSchema = z.object({
   markdown: NonEmptyString,
 })
@@ -61,9 +64,8 @@ const carouselSchema = z.object({
   items: z.array(cardSchema),
 })
 
-const blocSchema = z.union([
+const blocItemSchema = z.union([
   z.object({ type: z.literal('text'), payload: textMessageSchema }),
-  z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
   z.object({ type: z.literal('image'), payload: imageMessageSchema }),
   z.object({ type: z.literal('audio'), payload: audioMessageSchema }),
   z.object({ type: z.literal('video'), payload: videoMessageSchema }),
@@ -71,14 +73,34 @@ const blocSchema = z.union([
   z.object({ type: z.literal('location'), payload: locationMessageSchema }),
 ])
 
-const blocsSchema = z.object({
-  items: z.array(blocSchema),
+const blocSchema = z.object({
+  items: z.array(blocItemSchema),
 })
 
 /**
  * @deprecated use `text` instead
  */
-export const markdown = { schema: markdownMessageSchema }
+export const markdown = {
+  schema: markdownMessageSchema,
+}
+
+/**
+ * Bloc message that still includes markdown as an item
+ *
+ * @deprecated use `bloc` instead
+ */
+export const markdownBloc = {
+  schema: z.object({
+    items: z.array(
+      z.union([
+        //
+        ...blocItemSchema.options,
+        z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
+      ])
+    ),
+  }),
+}
+
 export const defaults = {
   text: { schema: textMessageSchema },
   image: { schema: imageMessageSchema },
@@ -90,5 +112,5 @@ export const defaults = {
   card: { schema: cardSchema },
   dropdown: { schema: choiceSchema },
   choice: { schema: choiceSchema },
-  bloc: { schema: blocsSchema },
+  bloc: { schema: blocSchema },
 } as const // should use satisfies operator but this works for older versions of TS

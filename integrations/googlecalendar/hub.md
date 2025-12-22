@@ -103,6 +103,22 @@ Once the connection is established, you must specify the identifier of the calen
    - **Calendar ID**: The ID of the Google Calendar to interact with.
    - **Service account private key**: The private key from the Google service account. You can get it from the downloaded JSON file.
    - **Service account email**: The client email from the Google service account. You can get it from the downloaded JSON file.
+   - **Impersonate email** (optional but required for certain features): The email address of the user to impersonate. See the "Using impersonateEmail" section below for details.
+
+#### Using impersonateEmail
+
+The `impersonateEmail` field is **required** for Google Meet creation and attendee invitations. This field must correspond to an email address of a person actually in your Google Workspace.
+
+**When to use impersonateEmail:**
+
+- **Required for**: Creating events with Google Meet links and inviting attendees to events
+- **Not required for**: Creating simple events without meetings or attendees, reading calendar events. If you set it up without configuring the Domain-Wide Delegation, the integration won't configure properly
+
+**How to configure:**
+
+1. The `impersonateEmail` must be a valid email address of a user in your Google Workspace domain.
+2. The service account must have Domain-Wide Delegation enabled.
+3. The user whose email you're impersonating must exist in your Google Workspace and have appropriate calendar permissions.
 
 ## Usage
 

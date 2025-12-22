@@ -1,5 +1,9 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { executeConversationCreated, handleConversationMessage } from './events'
+import { isSuncoWebhookPayload } from './messaging-events'
+import { register, unregister } from './setup'
+import { createClient } from './sunshine-api'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
@@ -36,8 +40,8 @@ const POSTBACK_PREFIX = 'postback::'
 const SAY_PREFIX = 'say::'
 
 const integration = new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
+  register,
+  unregister,
   actions: {
     startTypingIndicator: async ({ client, ctx, input }) => {
       const { conversationId } = input
@@ -151,7 +155,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client }) => {
+  handler: async ({ req, client, logger }) => {
     if (!req.body) {
       console.warn('Handler received an empty body')
       return
@@ -159,46 +163,19 @@ const integration = new bp.Integration({
 
     const data = JSON.parse(req.body)
 
+    if (!isSuncoWebhookPayload(data)) {
+      logger.forBot().warn('Received an invalid payload from Sunco')
+      return
+    }
+
     for (const event of data.events) {
-      if (event.type !== 'conversation:message') {
-        console.warn('Received an event that is not a message')
-        continue
+      if (event.type === 'conversation:create') {
+        await executeConversationCreated({ event, client, logger })
+      } else if (event.type === 'conversation:message') {
+        await handleConversationMessage(event, client, logger)
+      } else {
+        console.warn(`Received an event of type ${event.type}, which is not supported`)
       }
-
-      const payload = event.payload
-
-      if (payload.message.content.type !== 'text') {
-        console.warn('Received a message that is not a text message')
-        continue
-      }
-
-      if (payload.message.author.type === 'business') {
-        console.warn('Skipping message that is from a business')
-        continue
-      }
-
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          id: payload.conversation.id,
-        },
-      })
-
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: payload.message.author.userId,
-        },
-        name: payload.message.author.displayName,
-        pictureUrl: payload.message.author.avatarUrl,
-      })
-
-      await client.createMessage({
-        tags: { id: payload.message.id },
-        type: 'text',
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: payload.message.content.text },
-      })
     }
   },
 })
@@ -275,21 +252,6 @@ function getConversationId(conversation: SendMessageProps['conversation']) {
   return conversationId
 }
 
-function createClient(keyId: string, keySecret: string) {
-  const client = new SunshineConversationsClient.ApiClient()
-  const auth = client.authentications['basicAuth']
-  auth.username = keyId
-  auth.password = keySecret
-
-  return {
-    messages: new SunshineConversationsClient.MessagesApi(client),
-    activity: new SunshineConversationsClient.ActivitiesApi(client),
-    apps: new SunshineConversationsClient.AppsApi(client),
-    conversations: new SunshineConversationsClient.ConversationsApi(client),
-    users: new SunshineConversationsClient.UsersApi(client),
-  }
-}
-
 type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
@@ -303,7 +265,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
 
   const { messages } = await client.messages.postMessage(ctx.configuration.appId, getConversationId(conversation), data)
 
-  const message = messages[0]
+  const message = messages?.[0]
 
   if (!message) {
     throw new Error('Message not sent')
@@ -327,13 +289,13 @@ async function sendActivity({ client, ctx, conversationId, typingStatus, markAsR
   const { appId, keyId, keySecret } = ctx.configuration
   const suncoClient = createClient(keyId, keySecret)
   if (markAsRead) {
-    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(appId, suncoConversationId, {
       type: 'conversation:read',
       author: { type: 'business' },
     })
   }
   if (typingStatus) {
-    await suncoClient.activity.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(appId, suncoConversationId, {
       type: `typing:${typingStatus}`,
       author: { type: 'business' },
     })

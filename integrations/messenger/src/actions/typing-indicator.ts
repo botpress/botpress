@@ -14,7 +14,7 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
 }
 
 const sendSenderActions = async ({
-  props: { client, ctx, input },
+  props: { client, ctx, input, logger },
   actions,
 }: {
   props: bp.ActionProps['startTypingIndicator'] | bp.ActionProps['stopTypingIndicator']
@@ -31,7 +31,10 @@ const sendSenderActions = async ({
   const messengerClient = await createAuthenticatedMessengerClient(client, ctx)
   const userMessengerId = getEndUserMessengerId(conversation)
   for (const action of actions) {
-    await messengerClient.sendSenderAction(userMessengerId, action)
+    await messengerClient.sendSenderAction(userMessengerId, action).catch((thrown) => {
+      const error = thrown instanceof Error ? thrown.message : String(thrown)
+      logger.forBot().debug(`Error sending sender action "${action}": ${error}`)
+    })
   }
   return {}
 }

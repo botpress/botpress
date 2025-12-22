@@ -5,13 +5,11 @@ import {
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
   bambooHrEmployeeDirectoryResponse,
-  bambooHrEmployeeWebhookFields,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
-import { getBambooHrAuthorization } from './auth'
+import * as types from '../types'
+import { BambooHRAuthorization, getCurrentBambooHrAuthorization, refreshBambooHrAuthorization } from './auth'
 import { parseResponseWithErrors } from './utils'
-
-import * as bp from '.botpress'
 
 const getHeaders = (authorization: string) => ({
   Authorization: authorization,
@@ -19,48 +17,41 @@ const getHeaders = (authorization: string) => ({
   Accept: 'application/json',
 })
 
-type ClientProps = Pick<bp.HandlerProps, 'ctx' | 'logger' | 'client'>
-
 export class BambooHRClient {
-  public baseUrl: string
-  private _headers: Record<string, string>
-  private _expiresAt: number
-  private _props: ClientProps
+  private _baseUrl: string
+  private _currentAuth: BambooHRAuthorization
+  private _props: types.CommonHandlerProps
 
-  public static async create(props: ClientProps): Promise<BambooHRClient> {
-    const { authorization, expiresAt } = await getBambooHrAuthorization(props)
-    return new BambooHRClient({ subdomain: props.ctx.configuration.subdomain, authorization, expiresAt, props })
+  public static async create(props: types.CommonHandlerProps): Promise<BambooHRClient> {
+    const currentAuth = await getCurrentBambooHrAuthorization(props)
+    return new BambooHRClient({ subdomain: currentAuth.domain, props, currentAuth })
   }
 
   private constructor({
     subdomain,
-    authorization,
-    expiresAt,
     props,
+    currentAuth,
   }: {
     subdomain: string
-    authorization: string
-    expiresAt: number
-    props: ClientProps
+    props: types.CommonHandlerProps
+    currentAuth: BambooHRAuthorization
   }) {
-    this.baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
-    this._expiresAt = expiresAt
-    this._headers = getHeaders(authorization)
+    this._baseUrl = `https://${subdomain}.bamboohr.com/api/v1`
     this._props = props
+    this._currentAuth = currentAuth
   }
 
-  public async _makeRequest({
+  private async _makeRequest({
     url,
     ...params
   }: Pick<RequestInit, 'method' | 'body'> & { url: URL }): Promise<Response> {
     // Refresh token if too close to expiry
-    if (Date.now() >= this._expiresAt) {
-      const { authorization, expiresAt } = await getBambooHrAuthorization(this._props)
-      this._expiresAt = expiresAt
-      this._headers = getHeaders(authorization)
+    if (Date.now() >= this._currentAuth.expiresAt) {
+      this._currentAuth = await refreshBambooHrAuthorization(this._props, this._currentAuth)
     }
 
-    const res = await fetch(url, { ...params, headers: this._headers })
+    const headers = getHeaders(this._currentAuth.authorization)
+    const res = await fetch(url, { ...params, headers })
     if (!res.ok) {
       // Custom error header from BambooHR with more details
       const additionalInfo = res.headers.get('x-bamboohr-error-message')
@@ -73,16 +64,18 @@ export class BambooHRClient {
   }
 
   public async testAuthorization(): Promise<boolean> {
-    const url = new URL(`${this.baseUrl}/employees/0`)
+    const url = new URL(`${this._baseUrl}/employees/0`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     return res.ok
   }
 
-  public async createWebhook(webhookUrl: string): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
-    const url = new URL(`${this.baseUrl}/webhooks`)
+  public async createWebhook(
+    webhookUrl: string,
+    fields: string[]
+  ): Promise<z.infer<typeof bambooHrWebhookCreateResponse>> {
+    const url = new URL(`${this._baseUrl}/webhooks`)
 
-    const fields = bambooHrEmployeeWebhookFields.keyof().options
     const body = JSON.stringify({
       name: this._props.ctx.integrationId,
       monitorFields: fields.filter((field) => field !== 'terminationDate'), // terminationDate returns error on monitor
@@ -107,15 +100,25 @@ export class BambooHRClient {
   }
 
   public async deleteWebhook(webhookId: string): Promise<Response> {
-    const url = new URL(`${this.baseUrl}/webhooks/${webhookId}`)
+    const url = new URL(`${this._baseUrl}/webhooks/${webhookId}`)
 
     return await this._makeRequest({ method: 'DELETE', url })
   }
 
   // API Methods
 
+  public async getMonitoredFields(): Promise<string[]> {
+    const url = new URL(`${this._baseUrl}/webhooks/monitor_fields`)
+    const res = await this._makeRequest({ method: 'GET', url })
+    const result = await res.json()
+    if ('fields' in result) {
+      return result.fields.map((field: { alias: string }) => field.alias).filter((field: string) => field !== null)
+    }
+    return []
+  }
+
   public async getCompanyInfo(): Promise<z.infer<typeof bambooHrCompanyInfo>> {
-    const url = new URL(`${this.baseUrl}/company_information`)
+    const url = new URL(`${this._baseUrl}/company_information`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrCompanyInfo)
@@ -129,7 +132,7 @@ export class BambooHRClient {
   }
 
   public async getEmployeeBasicInfo(employeeId: string): Promise<z.infer<typeof bambooHrEmployeeBasicInfoResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrEmployeeBasicInfoResponse)
@@ -146,7 +149,7 @@ export class BambooHRClient {
     employeeId: string,
     fields: string[]
   ): Promise<z.infer<typeof bambooHrEmployeeCustomInfoResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}`)
     url.searchParams.append('fields', fields.join(','))
 
     const res = await this._makeRequest({ method: 'GET', url })
@@ -161,14 +164,14 @@ export class BambooHRClient {
   }
 
   public async getEmployeePhoto(employeeId: string, size: string): Promise<Blob> {
-    const url = new URL(`${this.baseUrl}/employees/${employeeId}/photo/${size}`)
+    const url = new URL(`${this._baseUrl}/employees/${employeeId}/photo/${size}`)
 
     const res = await this._makeRequest({ method: 'GET', url })
     return await res.blob()
   }
 
   public async listEmployees(): Promise<z.infer<typeof bambooHrEmployeeDirectoryResponse>> {
-    const url = new URL(`${this.baseUrl}/employees/directory`)
+    const url = new URL(`${this._baseUrl}/employees/directory`)
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrEmployeeDirectoryResponse)
 

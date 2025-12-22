@@ -131,7 +131,8 @@ export class VMLoopSignal extends VMSignal {
 export class ThinkSignal extends VMLoopSignal {
   public constructor(
     public reason: string,
-    public context?: any
+    public context?: any,
+    public metadata?: Record<string, unknown>
   ) {
     super('Think signal received: ' + reason)
     this.message = Signals.serializeError(this)

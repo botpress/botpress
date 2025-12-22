@@ -44,7 +44,10 @@ export {
   BotImplementation as Bot,
   BotImplementationProps as BotProps,
   BotSpecificClient,
-  InjectedBotHandlers as BotHandlers,
+  // NOTE: BotHandlers is needed by the Studio, and InjectedBotHandlers is
+  //       needed for the code generation in the CLI
+  BotHandlers,
+  InjectedBotHandlers,
   TagDefinition as BotTagDefinition,
   StateType as BotStateType,
   StateDefinition as BotStateDefinition,
@@ -74,7 +77,8 @@ export {
   PluginImplementation as Plugin,
   PluginImplementationProps as PluginProps,
   PluginRuntimeProps,
-  InjectedPluginHandlers as PluginHandlers,
+  PluginHandlers,
+  InjectedPluginHandlers,
 } from './plugin'
 
 export * as version from './version-utils'

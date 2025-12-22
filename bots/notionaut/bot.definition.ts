@@ -1,11 +1,8 @@
-/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import chat from './bp_modules/chat'
 import fileSynchronizer from './bp_modules/file-synchronizer'
 import notion from './bp_modules/notion'
-
-const notionFilesReadonly = notion.definition.interfaces['files-readonly']
 
 export default new sdk.BotDefinition({
   configuration: {
@@ -16,9 +13,6 @@ export default new sdk.BotDefinition({
   recurringEvents: {},
   user: {},
   conversation: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(chat, {
     enabled: true,
@@ -39,15 +33,10 @@ export default new sdk.BotDefinition({
       ],
       excludeFiles: [],
     },
-    interfaces: {
+    dependencies: {
       'files-readonly': {
-        id: notion.id,
-        name: notion.name,
-        version: notion.version,
-        entities: notionFilesReadonly.entities,
-        actions: notionFilesReadonly.actions,
-        events: notionFilesReadonly.events,
-        channels: notionFilesReadonly.channels,
+        integrationAlias: 'notion',
+        integrationInterfaceAlias: 'files-readonly',
       },
     },
   })

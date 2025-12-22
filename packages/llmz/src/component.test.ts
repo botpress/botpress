@@ -16,7 +16,7 @@ describe('getComponentReference', () => {
       **Props:**
 
       - \`action: "say" | "url" | "postback"\` (optional) — The action to perform when the button is clicked. Can be "say", "url", or "postback" _Default: \`say\`_
-      - \`label: string\` **(required)** — The text displayed on the button
+      - \`label: string\` **(required)** — The text displayed on the button (min 1 character, max 250 characters)
       - \`value: string\` (optional) — The postback value to send when the button is clicked. Required if action is "postback"
       - \`url: string\` (optional) — The URL to open when the button is clicked. Required if action is "url"
 
@@ -29,7 +29,7 @@ describe('getComponentReference', () => {
       **Say action** — A button that triggers a say action
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
         <Button action="say" label="Hello" />
       </Message>
       \`\`\`
@@ -37,8 +37,10 @@ describe('getComponentReference', () => {
       **Postback action** — A button that sends a postback value
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Choose an option:
         <Button action="postback" label="Buy" value="buy_product" />
+        <Button action="postback" label="Buy" value="buy_product2" />
       </Message>
       \`\`\`
 
@@ -62,7 +64,8 @@ describe('getComponentReference', () => {
       **Basic image** — A simple image with alt text
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        An example image:
         <Image url="https://example.com/photo.jpg" alt="Example image" />
       </Message>
       \`\`\`
@@ -87,7 +90,8 @@ describe('getComponentReference', () => {
       **PDF download** — Send a PDF file with a name
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Here is your report:
         <File url="https://example.com/report.pdf" name="Report.pdf" />
       </Message>
       \`\`\`
@@ -112,7 +116,8 @@ describe('getComponentReference', () => {
       **Intro video** — A video with a title
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Watch this video:
         <Video url="https://example.com/intro.mp4" title="Welcome" />
       </Message>
       \`\`\`
@@ -137,7 +142,8 @@ describe('getComponentReference', () => {
       **Sample audio** — Play a short audio clip with a title
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Listen to this audio:
         <Audio url="https://example.com/audio.mp3" title="Sample" />
       </Message>
       \`\`\`
@@ -164,7 +170,8 @@ describe('getComponentReference', () => {
       **Product card** — A card with an image and two buttons
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Featured product:
         <Card title="Product Name" subtitle="Limited offer">
           <Image url="https://example.com/product.jpg" alt="Product image" />
           <Button action="postback" label="Buy" value="buy_product" />
@@ -193,7 +200,8 @@ describe('getComponentReference', () => {
       **Product carousel** — A carousel with multiple cards
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
+        Here are some products you might like:
         <Carousel>
           <Card title="Item 1" subtitle="First product">
             <Image url="https://example.com/item1.jpg" alt="Item 1" />
@@ -217,16 +225,12 @@ describe('getComponentReference', () => {
 
       _No props._
 
-      **Children:**
-
-      _None allowed._
-
       **Examples:**
 
       **Basic Markdown** — Simple markdown content inside a message
 
       \`\`\`tsx
-      <Message>
+      yield <Message>
         **Hello**, welcome to our service!
       </Message>
       \`\`\`"

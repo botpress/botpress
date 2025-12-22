@@ -40,12 +40,14 @@ export const configurations = {
         .string()
         .min(1)
         .title('Pub/Sub Webhook Shared Secret')
-        .describe('Must be set in GCC under Pub/Sub > Subscriptions'),
+        .describe(
+          'Must be set in GCC under Pub/Sub > Subscriptions > Details > Push endpoint (in the URL is the shared secret)'
+        ),
       pubsubWebhookServiceAccount: z
         .string()
         .min(1)
         .title('Pub/Sub Webhook Service Account')
-        .describe('Must be set in GCC under Pub/Sub > Subscriptions'),
+        .describe('Must be set in GCC under Pub/Sub > Subscriptions > Details > Service account'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']
