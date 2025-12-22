@@ -40,9 +40,10 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
     lints.push(`Issue ${issue.identifier} is missing an estimate.`)
   }
 
-  if (issue.estimate && issue.estimate > 8) {
+  const issueIsEpic = _hasLabel({ issue, label: 'epic', category: 'type' })
+  if (issue.estimate && issue.estimate > 8 && !issueIsEpic) {
     lints.push(
-      `Issue ${issue.identifier} has an estimate greater than 8 (${issue.estimate}). Consider breaking it down.`
+      `Issue ${issue.identifier} has an estimate greater than 8 (${issue.estimate}). Consider breaking it down or making it an epic.`
     )
   }
 
@@ -70,4 +71,9 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
 
 const _hasLabelOfCategory = (issue: lin.Issue, category: string) => {
   return issue.labels.nodes.some((label) => label.parent?.name === category)
+}
+
+const _hasLabel = (props: { issue: lin.Issue; label: string; category?: string }) => {
+  const { issue, label, category } = props
+  return issue.labels.nodes.some((l) => l.name === label && (category ? l.parent?.name === category : true))
 }
