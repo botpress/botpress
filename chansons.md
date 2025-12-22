@@ -4,7 +4,7 @@
 
 I know many of you are currently learning French, and some of you have even asked me for Québec TV series or movies to get used to the Québec accent.
 
-Last weekend, a friend asked me for a list of influential or iconic Québec songs. It took me a couple of hours to put together, and I thought it might be useful to share.
+Last weekend, a friend asked me for a list of influential or iconic Québec songs. It took me a couple of hours to put together, and I thought it might be useful to share. If by any chance digging a Québec song makes you want to practice your French a bit more, then it’s already worth it.
 
 **This is not homework** 😄 You don’t even have to listen to a single song if you don’t want. Pick a few, see what sticks, or ignore them entirely.
 
@@ -14,11 +14,10 @@ I picked the songs based on a few criteria:
 - Cultural or historical relevance
 - Whether I like the song and think it still holds up today
 - With lyrics; nothing instrumental or with too few words
-- Songs from every decade since the 50s
 - Only mainstream, well-known songs. (Obviously, songs from the 50s aren't considered mainstream today, but they were back then.)
 - No artist appearing more than once
 
-Sorry if your favorite song isn’t on the list. I tried my best to remain objective, but it’s obviously influenced by my own tastes. If by any chance digging a Québec song makes you want to practice your French a bit more, then it’s already worth it. If you end up liking any of them, let me know; I might be able to suggest a few more in the same vein.
+Sorry if your favorite song isn’t on the list. I tried my best to remain objective, but it’s obviously influenced by my own tastes. If you end up liking any of them, let me know; I might be able to suggest a few more in the same vein.
 
 Personal thoughts:
 
@@ -68,7 +67,7 @@ Personal thoughts:
 ### 1960s
 
 - [Robert Charlebois - "Lindberg" (1968)](https://open.spotify.com/track/3isO04KVL0KbI88OE6TTeN?si=0d7630ade17a474c)
-- [Gilles Vigneault - "Les gens de mon pays" (1965)](https://open.spotify.com/track/0j5YsSQG3qqlgUWqxSeTNo?si=7ee4b210af114aa3)
+- [Gilles Vigneault - "Si les bateaux" (1963)](https://open.spotify.com/track/1YBhNl9iV4S45720hlZGHx?si=ec52814ca16b48f5)
 
 ### 1950s
 
