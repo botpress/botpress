@@ -183,10 +183,7 @@ export const actions = {
               blockId: sdk.z.string().title('Block ID').describe('The unique ID of the block'),
               parentId: sdk.z.string().optional().title('Parent ID').describe('The ID of the parent page or block'),
               type: sdk.z.string().title('Type').describe('The type of the block (paragraph, heading_1, etc.)'),
-              hasChildren: sdk.z
-                .boolean()
-                .title('Has Children')
-                .describe('Whether the block has nested child blocks'),
+              hasChildren: sdk.z.boolean().title('Has Children').describe('Whether the block has nested child blocks'),
               richText: sdk.z
                 .array(sdk.z.object({}).passthrough())
                 .title('Rich Text')
