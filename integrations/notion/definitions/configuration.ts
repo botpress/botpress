@@ -26,8 +26,11 @@ export const configurations = {
       webhookVerificationSecret: sdk.z
         .string()
         .min(1)
+        .optional()
         .title('Webhook Verification Secret')
-        .describe('Can be found on Notion in your integration settings under the Webhooks tab.'),
+        .describe(
+          'Note: Requires saving the integration in order to generate a new secret. Once the integration has been saved, configure the notion webhook, verify the webhook url, and copy the secrete from the bot logs.'
+        ),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']
