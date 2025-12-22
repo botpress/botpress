@@ -50,6 +50,9 @@ const _validatePayloadSignature = (props: bp.HandlerProps) => {
 
   let bodySignatureFromBotpress: string
   if (props.ctx.configurationType === 'customApp') {
+    if (!props.ctx.configuration.webhookVerificationSecret) {
+      throw new sdk.RuntimeError('Webhook verification secret is not set in the integration configuration')
+    }
     bodySignatureFromBotpress = crypto
       .createHmac('sha256', props.ctx.configuration.webhookVerificationSecret)
       .update(props.req.body ?? '')
