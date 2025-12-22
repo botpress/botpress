@@ -985,14 +985,6 @@ describe('llmz', { retry: 0, timeout: 10_000 }, () => {
         options: { loop: 5 },
         exits: [eDone],
         client,
-        model: (ctx) => {
-          // Use different models on different iterations
-          return ctx.iterations.length === 0 ? 'fast' : 'best'
-        },
-        temperature: (ctx) => {
-          // Use different temperatures on different iterations
-          return ctx.iterations.length === 0 ? 0.5 : 1.0
-        },
       })
 
       assertSuccess(result)
