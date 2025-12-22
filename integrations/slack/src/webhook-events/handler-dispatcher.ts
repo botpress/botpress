@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
-import { safeParseJson } from 'src/misc/utils'
+import { safeParseBody } from 'src/misc/utils'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
 import { isOAuthCallback, handleOAuthCallback } from './handlers/oauth-callback'
@@ -17,8 +17,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   _verifyBodyIsPresent(req)
 
-  const decoded = decodeURIComponent(req.body)
-  const parseRes = safeParseJson(decoded.startsWith('payload=') ? decoded.slice('payload='.length) : decoded)
+  const parseRes = safeParseBody(req.body)
+
   if (!parseRes.success) {
     const { error } = parseRes
     logger.forBot().error('could not parse the JSON', error)

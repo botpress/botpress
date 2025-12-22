@@ -411,6 +411,31 @@ importers:
         specifier: ^4.14.191
         version: 4.14.195
 
+  bots/slackbox:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/gmail':
+        specifier: workspace:*
+        version: link:../../integrations/gmail
+      '@botpresshub/slack':
+        specifier: workspace:*
+        version: link:../../integrations/slack
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+
   bots/synchrotron:
     dependencies:
       '@botpress/client':

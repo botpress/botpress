@@ -28,7 +28,7 @@ const REQUIRED_SLACK_SCOPES = [
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
   logger.forBot().debug('Registering Slack integration')
 
-  await _updateBotpressBotNameAndAvatar(client, ctx)
+  await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
   let slackClient: SlackClient
 
@@ -90,12 +90,17 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   }
 }
 
-const _updateBotpressBotNameAndAvatar = async (client: bp.Client, ctx: bp.Context) => {
+const _updateBotpressBotNameAndAvatar = async ({ client, ctx, logger }: bp.CommonHandlerProps) => {
   const { botAvatarUrl } = ctx.configuration
+
+  const isUrlValid = botAvatarUrl && isValidUrl(botAvatarUrl)
+  if (!isUrlValid) {
+    logger.forBot().warn('The provided bot avatar URL is invalid. Skipping avatar picture update.')
+  }
 
   await client.updateUser({
     id: ctx.botUserId,
-    pictureUrl: botAvatarUrl && isValidUrl(botAvatarUrl) ? botAvatarUrl.trim() : undefined,
+    pictureUrl: isUrlValid ? botAvatarUrl.trim() : undefined,
     name: ctx.configuration.botName?.trim(),
   })
 }

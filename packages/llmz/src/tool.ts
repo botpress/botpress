@@ -674,7 +674,10 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
    *
    * @internal This method is primarily used internally by the LLMz execution engine
    */
-  public async execute(input: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+  public async execute(rawInput: TypeOf<I>, ctx: ToolCallContext): Promise<TypeOf<O>> {
+    const isZodObject = (this.zInput as any)._def.typeName === 'ZodObject'
+    const input = isZodObject ? (rawInput ?? {}) : rawInput
+
     const pInput = (this.zInput as any).safeParse(input)
 
     if (!pInput.success) {

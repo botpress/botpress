@@ -14,7 +14,7 @@ import {
 export default new IntegrationDefinition({
   name: 'resend',
   title: 'Resend',
-  version: '0.1.6',
+  version: '0.1.7',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the Resend email service.',
@@ -24,7 +24,6 @@ export default new IntegrationDefinition({
       signingSecret: z
         .string()
         .secret()
-        .min(1)
         .optional()
         .describe(
           'The secret key used to verify the authenticity of the webhook requests (Found in the webhook details page)'

@@ -4,9 +4,6 @@ import * as genenv from '../../../.genenv'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
 
-const TEAM_KEYS = ['SQD', 'FT', 'BE', 'ENG'] as const
-type TeamKey = (typeof TEAM_KEYS)[number]
-
 type State = { state: lin.WorkflowState; key: types.StateKey }
 
 const RESULTS_PER_PAGE = 200
@@ -133,65 +130,33 @@ export class LinearApi {
     await Promise.all(promises)
   }
 
+  public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {
+    const queryInput: graphql.GRAPHQL_QUERIES['findTeamStates'][graphql.QUERY_INPUT] = {
+      filter: { key: { eq: teamKey } },
+    }
+
+    const data = await this._executeGraphqlQuery('findTeamStates', queryInput)
+
+    const [team] = data.organization.teams.nodes
+    if (!team) {
+      return undefined
+    }
+    return team
+  }
+
   public async getTeams(): Promise<lin.Team[]> {
     if (!this._teams) {
-      this._teams = await LinearApi._listAllTeams(this._client)
+      this._teams = await this._listAllTeams()
     }
     return this._teams
   }
 
-  public async getTeamRecords(): Promise<Record<TeamKey, lin.Team>> {
-    if (!this._teams) {
-      this._teams = await LinearApi._listAllTeams(this._client)
-    }
-    const safeTeams = this._teams
-
-    return new Proxy({} as Record<TeamKey, lin.Team>, {
-      get: async (_, key: TeamKey): Promise<lin.Team> => {
-        const team = safeTeams.find((t) => t.key === key)
-        if (!team) {
-          throw new Error(`Team with key "${key}" not found.`)
-        }
-        return team
-      },
-    })
-  }
-
   public async getStates(): Promise<State[]> {
     if (!this._states) {
-      const states = await LinearApi._listAllStates(this._client)
+      const states = await this._listAllStates()
       this._states = LinearApi._toStateObjects(states)
     }
     return this._states
-  }
-
-  public async getStateRecords(): Promise<Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>> {
-    if (!this._states) {
-      const states = await LinearApi._listAllStates(this._client)
-      this._states = LinearApi._toStateObjects(states)
-    }
-    const safeStates = this._states
-    const teams = await this.getTeamRecords()
-
-    return new Proxy({} as Record<TeamKey, Record<types.StateKey, lin.WorkflowState>>, {
-      get: (_, teamKey: TeamKey) => {
-        const teamId = teams[teamKey].id
-        if (!teamId) {
-          throw new Error(`Team with key "${teamKey}" not found.`)
-        }
-
-        return new Proxy({} as Record<types.StateKey, lin.WorkflowState>, {
-          get: (_, stateKey: types.StateKey) => {
-            const state = safeStates.find((s) => s.key === stateKey && s.state.teamId === teamId)
-
-            if (!state) {
-              throw new Error(`State with key "${stateKey}" not found.`)
-            }
-            return state
-          },
-        })
-      },
-    })
   }
 
   private async _stateKeysToStates(keys: types.StateKey[]) {
@@ -205,22 +170,22 @@ export class LinearApi {
     })
   }
 
-  private static _listAllTeams = async (client: lin.LinearClient): Promise<lin.Team[]> => {
+  private _listAllTeams = async (): Promise<lin.Team[]> => {
     let teams: lin.Team[] = []
     let cursor: string | undefined = undefined
     do {
-      const response = await client.teams({ after: cursor, first: 100 })
+      const response = await this._client.teams({ after: cursor, first: 100 })
       teams = teams.concat(response.nodes)
       cursor = response.pageInfo.endCursor
     } while (cursor)
     return teams
   }
 
-  private static _listAllStates = async (client: lin.LinearClient): Promise<lin.WorkflowState[]> => {
+  private _listAllStates = async (): Promise<lin.WorkflowState[]> => {
     let states: lin.WorkflowState[] = []
     let cursor: string | undefined = undefined
     do {
-      const response = await client.workflowStates({ after: cursor, first: 100 })
+      const response = await this._client.workflowStates({ after: cursor, first: 100 })
       states = states.concat(response.nodes)
       cursor = response.pageInfo.endCursor
     } while (cursor)
