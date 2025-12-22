@@ -18,11 +18,16 @@ export const configurations = {
     title: 'Manual configuration with a custom Notion integration',
     description: 'Configure the integration using a Notion integration token.',
     schema: sdk.z.object({
-      authToken: sdk.z
+      internalIntegrationSecret: sdk.z
         .string()
         .min(1)
-        .title('Notion Integration Token')
-        .describe('Can be found on Notion in your integration settings.'),
+        .title('Internal Integration Secret')
+        .describe('Can be found on Notion in your integration settings under the Configuration tab.'),
+      webhookVerificationSecret: sdk.z
+        .string()
+        .min(1)
+        .title('Webhook Verification Secret')
+        .describe('Can be found on Notion in your integration settings under the Webhooks tab.'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']

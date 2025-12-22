@@ -4,6 +4,8 @@ import * as handlers from './handlers'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  props.logger.forBot().debug('Received webhook event: ' + props.req.body)
+
   if (handlers.isWebhookVerificationRequest(props)) {
     return await handlers.handleWebhookVerificationRequest(props)
   } else if (handlers.isOAuthCallback(props)) {
@@ -35,27 +37,36 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 }
 
 const _validatePayloadSignature = (props: bp.HandlerProps) => {
-  const bodySignatureFromNotion = props.req.headers['X-Notion-Signature'] ?? props.req.headers['x-notion-signature']
+  const rawSignatureHeader = props.req.headers['X-Notion-Signature'] ?? props.req.headers['x-notion-signature']
 
-  if (!bodySignatureFromNotion) {
+  if (!rawSignatureHeader) {
     throw new sdk.RuntimeError('Missing Notion signature in request headers')
   }
 
-  if (props.ctx.configurationType === null) {
-    // We currently don't support webhook verification for custom Notion integrations
-    return
-  }
+  // Notion signature may be prefixed with "v1=" - extract just the hash part
+  const bodySignatureFromNotion = rawSignatureHeader.includes('=')
+    ? rawSignatureHeader.split('=')[1]
+    : rawSignatureHeader
 
-  const bodySignatureFromBotpress =
-    'sha256=' +
-    crypto
+  let bodySignatureFromBotpress: string
+  if (props.ctx.configurationType === 'customApp') {
+    bodySignatureFromBotpress = crypto
+      .createHmac('sha256', props.ctx.configuration.webhookVerificationSecret)
+      .update(props.req.body ?? '')
+      .digest('hex')
+  } else {
+    bodySignatureFromBotpress = crypto
       .createHmac('sha256', bp.secrets.WEBHOOK_VERIFICATION_SECRET)
       .update(props.req.body ?? '')
       .digest('hex')
+  }
+
+  const notionSignatureBuffer = Buffer.from(bodySignatureFromNotion ?? '')
+  const expectedSignatureBuffer = Buffer.from(bodySignatureFromBotpress)
 
   const payloadSignatureMatchesExpectedSignature = crypto.timingSafeEqual(
-    Buffer.from(bodySignatureFromNotion),
-    Buffer.from(bodySignatureFromBotpress)
+    notionSignatureBuffer,
+    expectedSignatureBuffer
   )
 
   if (!payloadSignatureMatchesExpectedSignature) {

@@ -1,4 +1,4 @@
-import * as sdk from "@botpress/sdk";
+import * as sdk from '@botpress/sdk'
 
 export const BASE_EVENT_PAYLOAD = sdk.z.object({
   workspace_id: sdk.z.string().min(1),
@@ -23,7 +23,7 @@ export const events = {
       workspace_name: sdk.z.string().min(1),
       data: sdk.z.object({
         page_id: sdk.z.string().min(1),
-      })
+      }),
     }),
   },
-} as const satisfies sdk.IntegrationDefinitionProps['events'];
+} as const satisfies sdk.IntegrationDefinitionProps['events']
