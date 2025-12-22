@@ -29,7 +29,7 @@ export const configurations = {
         .optional()
         .title('Webhook Verification Secret')
         .describe(
-          'Note: Requires saving the integration in order to generate a new secret. Once the integration has been saved, configure the notion webhook, verify the webhook url, and copy the secrete from the bot logs.'
+          'Note: Requires saving the integration in order to generate a new secret. Once the integration has been saved, configure the notion webhook, verify the webhook url, and copy the secret from the bot logs.'
         ),
     }),
   },
