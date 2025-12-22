@@ -4,7 +4,7 @@
 
 I know many of you are currently learning French, and some of you have asked me for Québec TV shows or movies to get used to the Québec accent.
 
-Last weekend, a friend asked me for a list of influential or iconic Québec songs. It took me a couple hours to get together, I thought it might be useful to share it with all of you.
+Last weekend, a friend asked me for a list of influential or iconic Québec songs. It took me a couple of hours to put it together, and I thought it might be useful to share it with all of you.
 
 This is not homework 😄 You don’t even have to listen to a single song if you don’t want. Pick a few, see what sticks, or ignore them entirely.
 
@@ -14,19 +14,19 @@ I picked the songs based on a few criteria:
 - Cultural or historical relevance
 - Whether I like the song and think it still holds up today
 
-Sorry if your favorite song isn’t on the list. I tried my best to remain objective, but it’s obviously tinted by my own tastes.
+Sorry if your favorite song isn’t on the list. I tried my best to remain objective, but it’s obviously influenced by my own tastes.
 
-I tried to keep things balanced:
+I also tried to keep things balanced:
 
-- songs from every decade since the 50s
-- only mainstream well known songs
-- no artist appearing more than once
+- Songs from every decade since the 50s
+- Only mainstream, well-known songs
+- No artist appearing more than once
 
 If by any chance digging a Québec song makes you want to practice your French a bit more, then it’s already worth it.
 
 If you end up liking any of them, let me know; I might be able to suggest a few more in the same vein.
 
-Working on the list I was surprised to see how big and impactful the 90s decade was for Québec music. I had to leave a lot of good songs out. I think it's the strongest decade in the list.
+While working on the list, I was surprised to see how big and impactful the 90s were for Québec music. I had to leave a lot of good songs out. I think it’s the strongest decade here and a good starting point.
 
 Here’s the list 👇
 
@@ -66,7 +66,7 @@ Here’s the list 👇
 ### 1970s
 
 - Harmonium - "Pour un instant" (1974)
-- Beau Dommage - "23 décembre" (1974)
+- Beau Dommage - "La complainte du phoque en Alaska" (1974)
 - Plume Latraverse - "Jonquière" (1975)
 - Emmanuëlle - "Et c'est pas fini" (1973)
 - Pauline Julien - "Une sorcière comme les autres" (1975)
