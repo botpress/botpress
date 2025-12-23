@@ -113,6 +113,7 @@ const listTeams = {
         .array(
           z.object({
             id: z.string().title('ID').describe('The unique identifier of the entity'),
+            key: z.string().title('Key').describe("The team's key"),
             name: z.string().title('Name').describe("The team's name"),
             description: z.string().optional().title('Description').describe("The team's description"),
             icon: z.string().optional().title('Icon').describe('The icon of the team'),
