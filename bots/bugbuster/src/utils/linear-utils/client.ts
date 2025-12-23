@@ -10,7 +10,7 @@ type State = { state: lin.WorkflowState; key: types.StateKey }
 const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
-  private _teams?: lin.Team[] = undefined
+  private _teams?: types.LinearTeam[] = undefined
   private _states?: State[] = undefined
   private _viewerId?: string = undefined
 
@@ -151,7 +151,7 @@ export class LinearApi {
     return team
   }
 
-  public async getTeams(): Promise<lin.Team[]> {
+  public async getTeams(): Promise<types.LinearTeam[]> {
     if (!this._teams) {
       this._teams = await this._listAllTeams()
     }
@@ -177,15 +177,9 @@ export class LinearApi {
     })
   }
 
-  private _listAllTeams = async (): Promise<lin.Team[]> => {
-    let teams: lin.Team[] = []
-    let cursor: string | undefined = undefined
-    do {
-      const response = await this._client.teams({ after: cursor, first: 100 })
-      teams = teams.concat(response.nodes)
-      cursor = response.pageInfo.endCursor
-    } while (cursor)
-    return teams
+  private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
+    const response = await this._bpClient.callAction({ type: 'linear:listTeams', input: {} })
+    return response.output.teams
   }
 
   private _listAllStates = async (): Promise<lin.WorkflowState[]> => {
