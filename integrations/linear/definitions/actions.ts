@@ -140,13 +140,11 @@ const listStates = {
         .array(
           z.object({
             id: z.string().title('ID').describe('The unique identifier of the entity'),
-            name: z.string().title('Name').describe("The team's name"),
-            description: z.string().optional().title('Description').describe("The team's description"),
-            icon: z.string().optional().title('Icon').describe('The icon of the team'),
+            name: z.string().title('Name').describe("The state's name"),
           })
         )
-        .title('Teams')
-        .describe('The list of teams'),
+        .title('States')
+        .describe('The list of states'),
       nextCursor: z.string().optional().title('Next Cursor').describe('The cursor to fetch the next page'),
     }),
   },

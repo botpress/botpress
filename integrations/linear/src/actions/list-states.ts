@@ -12,6 +12,8 @@ export const listStates: bp.IntegrationProps['actions']['listStates'] = async (a
 
   return {
     nextCursor: states.pageInfo.endCursor,
-    states: {},
+    states: states.nodes.map((state) => {
+      return { id: state.id, name: state.name }
+    }),
   }
 }
