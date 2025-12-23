@@ -5,7 +5,7 @@ import * as types from '../../types'
 import * as graphql from './graphql-queries'
 import { Client } from '.botpress'
 
-type State = { state: lin.WorkflowState; key: types.StateKey }
+type State = { state: types.LinearState; key: types.StateKey }
 
 const RESULTS_PER_PAGE = 200
 
@@ -182,18 +182,26 @@ export class LinearApi {
     return response.output.teams
   }
 
-  private _listAllStates = async (): Promise<lin.WorkflowState[]> => {
-    let states: lin.WorkflowState[] = []
-    let cursor: string | undefined = undefined
-    do {
-      const response = await this._client.workflowStates({ after: cursor, first: 100 })
-      states = states.concat(response.nodes)
-      cursor = response.pageInfo.endCursor
-    } while (cursor)
+  private _listAllStates = async (): Promise<types.LinearState[]> => {
+    let response = await this._bpClient.callAction<'linear:listStates'>({
+      type: 'linear:listStates',
+      input: { count: 100 },
+    })
+    let states: types.LinearState[] = response.output.states
+    let startCursor = response.output.nextCursor
+
+    while (startCursor) {
+      response = await this._bpClient.callAction<'linear:listStates'>({
+        type: 'linear:listStates',
+        input: { count: 100, startCursor },
+      })
+      states = states.concat(response.output.states)
+      startCursor = response.output.nextCursor
+    }
     return states
   }
 
-  private static _toStateObjects(states: lin.WorkflowState[]): State[] {
+  private static _toStateObjects(states: types.LinearState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
       const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey

@@ -41,6 +41,11 @@ export type LinearTeam = {
   icon?: string | undefined
 }
 
+export type LinearState = {
+  id: string
+  name: string
+}
+
 export type ISO8601Duration = string
 
 type CommandResult = { success: boolean; message: string }
