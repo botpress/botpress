@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { trelloIdSchema, boardSchema, CardSchema, ListSchema, MemberSchema } from '../entities'
+import { trelloIdSchema, boardSchema, cardSchema, ListSchema, MemberSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   hasMessage: z.object({
@@ -12,10 +12,10 @@ const GENERIC_SHEMAS = {
     members: z.array(MemberSchema).describe('Array of member objects'),
   }),
   outputsCard: z.object({
-    card: CardSchema.describe('The card object'),
+    card: cardSchema.describe('The card object'),
   }),
   outputsCards: z.object({
-    cards: z.array(CardSchema).describe('Array of card objects'),
+    cards: z.array(cardSchema).describe('Array of card objects'),
   }),
   outputsList: z.object({
     list: ListSchema.describe('The list object'),
@@ -42,7 +42,7 @@ export const addCardCommentOutputSchema = GENERIC_SHEMAS.hasMessage
 export const createCardOutputSchema = GENERIC_SHEMAS.hasMessage
   .merge(
     z.object({
-      newCardId: CardSchema.shape.id.describe('Unique identifier of the new card'),
+      newCardId: cardSchema.shape.id.describe('Unique identifier of the new card'),
     })
   )
   .describe('Output schema for creating a card')

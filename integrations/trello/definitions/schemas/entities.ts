@@ -12,7 +12,7 @@ export const boardSchema = z.object({
 })
 export type Board = z.infer<typeof boardSchema>
 
-export const CardSchema = z.object({
+export const cardSchema = z.object({
   id: trelloIdSchema,
   name: z.string(),
   description: z.string(),
@@ -24,7 +24,7 @@ export const CardSchema = z.object({
   labelIds: z.array(trelloIdSchema),
   memberIds: z.array(trelloIdSchema),
 })
-export type Card = z.infer<typeof CardSchema>
+export type Card = z.infer<typeof cardSchema>
 
 export const ListSchema = z.object({
   id: trelloIdSchema,

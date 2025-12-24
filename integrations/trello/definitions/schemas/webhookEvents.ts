@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from './entities'
+import { boardSchema, cardSchema, ListSchema, MemberSchema, trelloIdSchema } from './entities'
 
 export const TRELLO_EVENTS = {
   addMemberToCard: 'addMemberToCard',
@@ -75,8 +75,8 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: CardSchema.shape.id.describe('Unique identifier of the card'),
-                name: CardSchema.shape.name.describe('Name of the card'),
+                id: cardSchema.shape.id.describe('Unique identifier of the card'),
+                name: cardSchema.shape.name.describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),

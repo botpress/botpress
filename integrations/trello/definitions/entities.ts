@@ -1,11 +1,11 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { boardSchema, CardSchema, ListSchema, MemberSchema } from './schemas/entities'
+import { boardSchema, cardSchema, ListSchema, MemberSchema } from './schemas/entities'
 
 export const entities = {
   card: {
     title: 'Card',
     description: 'A card in a Trello list',
-    schema: CardSchema,
+    schema: cardSchema,
   },
   list: {
     title: 'List',

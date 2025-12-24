@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
+import { boardSchema, cardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
@@ -7,12 +7,12 @@ const GENERIC_SHEMAS = {
     boardId: boardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
   }),
   hasListId: z.object({ listId: ListSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
-  hasCardId: z.object({ cardId: CardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
+  hasCardId: z.object({ cardId: cardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
 } as const
 
 export const addCardCommentInputSchema = z
   .object({
-    cardId: CardSchema.shape.id
+    cardId: cardSchema.shape.id
       .title('Card ID')
       .describe('Unique identifier of the card to which a comment will be added'),
     commentBody: z.string().title('Comment Body').describe('The body text of the comment'),
@@ -22,8 +22,8 @@ export const addCardCommentInputSchema = z
 export const createCardInputSchema = z
   .object({
     listId: ListSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
-    cardName: CardSchema.shape.name.title('Card Name').describe('Name of the new card'),
-    cardBody: CardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
+    cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
+    cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
     members: z
       .array(trelloIdSchema)
       .optional()
@@ -34,7 +34,7 @@ export const createCardInputSchema = z
       .optional()
       .title('Labels')
       .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
-    dueDate: CardSchema.shape.dueDate
+    dueDate: cardSchema.shape.dueDate
       .optional()
       .title('Due Date')
       .describe('The due date of the card in ISO 8601 format (Optional).'),
@@ -44,11 +44,11 @@ export const createCardInputSchema = z
 export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
   .merge(
     z.object({
-      name: CardSchema.shape.name
+      name: cardSchema.shape.name
         .optional()
         .title('Name')
         .describe('The name of the card (Optional) (e.g. "My Test Card"). Leave empty to keep the current name.'),
-      bodyText: CardSchema.shape.description
+      bodyText: cardSchema.shape.description
         .optional()
         .title('Body Text')
         .describe('Body text of the new card (Optional). Leave empty to keep the current body.'),
@@ -96,7 +96,7 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
         .describe(
           'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
-      dueDate: CardSchema.shape.dueDate
+      dueDate: cardSchema.shape.dueDate
         .optional()
         .title('Due Date')
         .describe('The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'),
@@ -162,7 +162,7 @@ export const getCardsInListInputSchema = GENERIC_SHEMAS.hasListId.describe(
 export const getCardsByDisplayNameInputSchema = GENERIC_SHEMAS.hasListId
   .merge(
     z.object({
-      cardName: CardSchema.shape.name.title('Card Name').describe('Display name of the card'),
+      cardName: cardSchema.shape.name.title('Card Name').describe('Display name of the card'),
     })
   )
   .describe('Input schema for getting a card ID from its name')
