@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from '../entities'
 
-const GENERIC_SHEMAS = {
+const GENERIC_SCHEMAS = {
   noInput: z.object({}),
   hasBoardId: z.object({
     boardId: boardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
@@ -41,7 +41,7 @@ export const createCardInputSchema = z
   })
   .describe('Input schema for creating a new card')
 
-export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
+export const updateCardInputSchema = GENERIC_SCHEMAS.hasCardId
   .merge(
     z.object({
       name: cardSchema.shape.name
@@ -104,7 +104,7 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
   )
   .describe('Input schema for creating a new card')
 
-export const moveCardUpInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardUpInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
     moveUpByNSpaces: z
       .number()
@@ -116,7 +116,7 @@ export const moveCardUpInputSchema = GENERIC_SHEMAS.hasCardId.merge(
   })
 )
 
-export const moveCardDownInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardDownInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
     moveDownByNSpaces: moveCardUpInputSchema.shape.moveUpByNSpaces
       .title('Move Down By N Spaces')
@@ -124,7 +124,7 @@ export const moveCardDownInputSchema = GENERIC_SHEMAS.hasCardId.merge(
   })
 )
 
-export const moveCardToListInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardToListInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
     newListId: listSchema.shape.id
       .title('New List ID')
@@ -141,11 +141,11 @@ export const getMemberByIdOrUsernameInputSchema = z
   })
   .describe('Input schema for getting a member from its ID or username')
 
-export const getListsInBoardInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getListsInBoardInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting all lists in a board'
 )
 
-export const getListsByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
+export const getListsByDisplayNameInputSchema = GENERIC_SCHEMAS.hasBoardId
   .merge(
     z.object({
       listName: listSchema.shape.name.title('List Name').describe('Display name of the list'),
@@ -153,13 +153,13 @@ export const getListsByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
   )
   .describe('Input schema for getting a list ID from its name')
 
-export const getListByIdInputSchema = GENERIC_SHEMAS.hasListId.describe('Input schema for getting a list from its ID')
+export const getListByIdInputSchema = GENERIC_SCHEMAS.hasListId.describe('Input schema for getting a list from its ID')
 
-export const getCardsInListInputSchema = GENERIC_SHEMAS.hasListId.describe(
+export const getCardsInListInputSchema = GENERIC_SCHEMAS.hasListId.describe(
   'Input schema for getting all cards in a list'
 )
 
-export const getCardsByDisplayNameInputSchema = GENERIC_SHEMAS.hasListId
+export const getCardsByDisplayNameInputSchema = GENERIC_SCHEMAS.hasListId
   .merge(
     z.object({
       cardName: cardSchema.shape.name.title('Card Name').describe('Display name of the card'),
@@ -167,7 +167,7 @@ export const getCardsByDisplayNameInputSchema = GENERIC_SHEMAS.hasListId
   )
   .describe('Input schema for getting a card ID from its name')
 
-export const getCardByIdInputSchema = GENERIC_SHEMAS.hasCardId.describe('Input schema for getting a card from its ID')
+export const getCardByIdInputSchema = GENERIC_SCHEMAS.hasCardId.describe('Input schema for getting a card from its ID')
 
 export const getBoardsByDisplayNameInputSchema = z
   .object({
@@ -175,23 +175,23 @@ export const getBoardsByDisplayNameInputSchema = z
   })
   .describe('Input schema for getting a board ID from its name')
 
-export const getBoardMembersByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
+export const getBoardMembersByDisplayNameInputSchema = GENERIC_SCHEMAS.hasBoardId
   .merge(
     z.object({
       displayName: boardSchema.shape.name.title('Display Name').describe('Display name of the member'),
     })
   )
   .describe('Input schema for getting a member from its name')
-export const getBoardByIdInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getBoardByIdInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting a board from its ID'
 )
 
-export const getAllBoardsInputSchema = GENERIC_SHEMAS.noInput.describe('Input schema for getting all boards')
+export const getAllBoardsInputSchema = GENERIC_SCHEMAS.noInput.describe('Input schema for getting all boards')
 
-export const getAllBoardMembersInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getAllBoardMembersInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting all members of a board'
 )
 
-export const getAllCardMembersInputSchema = GENERIC_SHEMAS.hasCardId.describe(
+export const getAllCardMembersInputSchema = GENERIC_SCHEMAS.hasCardId.describe(
   'Input schema for getting all members of a card'
 )

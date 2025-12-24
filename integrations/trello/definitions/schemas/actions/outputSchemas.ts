@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { trelloIdSchema, boardSchema, cardSchema, listSchema, memberSchema } from '../entities'
 
-const GENERIC_SHEMAS = {
+const GENERIC_SCHEMAS = {
   hasMessage: z.object({
     message: z.string().describe('Output message'),
   }),
@@ -31,7 +31,7 @@ const GENERIC_SHEMAS = {
   }),
 } as const
 
-export const addCardCommentOutputSchema = GENERIC_SHEMAS.hasMessage
+export const addCardCommentOutputSchema = GENERIC_SCHEMAS.hasMessage
   .merge(
     z.object({
       newCommentId: trelloIdSchema.describe('Unique identifier of the newly created comment'),
@@ -39,7 +39,7 @@ export const addCardCommentOutputSchema = GENERIC_SHEMAS.hasMessage
   )
   .describe('Output schema for adding a comment to a card')
 
-export const createCardOutputSchema = GENERIC_SHEMAS.hasMessage
+export const createCardOutputSchema = GENERIC_SCHEMAS.hasMessage
   .merge(
     z.object({
       newCardId: cardSchema.shape.id.describe('Unique identifier of the new card'),
@@ -47,59 +47,59 @@ export const createCardOutputSchema = GENERIC_SHEMAS.hasMessage
   )
   .describe('Output schema for creating a card')
 
-export const getMemberByIdOrUsernameOutputSchema = GENERIC_SHEMAS.outputsMember.describe(
+export const getMemberByIdOrUsernameOutputSchema = GENERIC_SCHEMAS.outputsMember.describe(
   'Output schema for getting a member by its ID or username'
 )
 
-export const getListsInBoardOutputSchema = GENERIC_SHEMAS.outputsLists.describe(
+export const getListsInBoardOutputSchema = GENERIC_SCHEMAS.outputsLists.describe(
   'Output schema for getting all lists in a board'
 )
 
-export const getListsByDisplayNameOutputSchema = GENERIC_SHEMAS.outputsLists.describe(
+export const getListsByDisplayNameOutputSchema = GENERIC_SCHEMAS.outputsLists.describe(
   'Output schema for getting a list ID from its name'
 )
 
-export const getListByIdOutputSchema = GENERIC_SHEMAS.outputsList.describe(
+export const getListByIdOutputSchema = GENERIC_SCHEMAS.outputsList.describe(
   'Output schema for getting a list from its ID'
 )
 
-export const getCardsInListOutputSchema = GENERIC_SHEMAS.outputsCards.describe(
+export const getCardsInListOutputSchema = GENERIC_SCHEMAS.outputsCards.describe(
   'Output schema for getting all cards in a list'
 )
 
-export const getCardsByDisplayNameOutputSchema = GENERIC_SHEMAS.outputsCards.describe(
+export const getCardsByDisplayNameOutputSchema = GENERIC_SCHEMAS.outputsCards.describe(
   'Output schema for getting a card ID from its name'
 )
 
-export const getCardByIdOutputSchema = GENERIC_SHEMAS.outputsCard.describe(
+export const getCardByIdOutputSchema = GENERIC_SCHEMAS.outputsCard.describe(
   'Output schema for getting a card from its ID'
 )
 
-export const getBoardsByDisplayNameOutputSchema = GENERIC_SHEMAS.outputsBoards.describe(
+export const getBoardsByDisplayNameOutputSchema = GENERIC_SCHEMAS.outputsBoards.describe(
   'Output schema for getting a board from its name'
 )
 
-export const getBoardMembersByDisplayNameOutputSchema = GENERIC_SHEMAS.outputsMembers.describe(
+export const getBoardMembersByDisplayNameOutputSchema = GENERIC_SCHEMAS.outputsMembers.describe(
   'Output schema for getting a member from its name'
 )
 
-export const getBoardByIdOutputSchema = GENERIC_SHEMAS.outputsBoard.describe(
+export const getBoardByIdOutputSchema = GENERIC_SCHEMAS.outputsBoard.describe(
   'Output schema for getting a board from its ID'
 )
 
-export const getAllBoardsOutputSchema = GENERIC_SHEMAS.outputsBoards.describe('Output schema for getting all boards')
+export const getAllBoardsOutputSchema = GENERIC_SCHEMAS.outputsBoards.describe('Output schema for getting all boards')
 
-export const getAllBoardMembersOutputSchema = GENERIC_SHEMAS.outputsMembers.describe(
+export const getAllBoardMembersOutputSchema = GENERIC_SCHEMAS.outputsMembers.describe(
   'Output schema for getting all members of a board'
 )
 
-export const moveCardDownOutputSchema = GENERIC_SHEMAS.hasMessage.describe('Output schema for moving a card down')
-export const moveCardUpOutputSchema = GENERIC_SHEMAS.hasMessage.describe('Output schema for moving a card up')
-export const moveCardToListOutputSchema = GENERIC_SHEMAS.hasMessage.describe(
+export const moveCardDownOutputSchema = GENERIC_SCHEMAS.hasMessage.describe('Output schema for moving a card down')
+export const moveCardUpOutputSchema = GENERIC_SCHEMAS.hasMessage.describe('Output schema for moving a card up')
+export const moveCardToListOutputSchema = GENERIC_SCHEMAS.hasMessage.describe(
   'Output schema for moving a card to a list'
 )
-export const updateCardOutputSchema = GENERIC_SHEMAS.hasMessage.describe('Output schema for updating a card')
+export const updateCardOutputSchema = GENERIC_SCHEMAS.hasMessage.describe('Output schema for updating a card')
 
-export const getAllCardMembersOutputSchema = GENERIC_SHEMAS.outputsMembers.describe(
+export const getAllCardMembersOutputSchema = GENERIC_SCHEMAS.outputsMembers.describe(
   'Output schema for getting all members of a card'
 )
