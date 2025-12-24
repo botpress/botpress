@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from './entities'
+import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from '../schemas/entities'
 
 export const TRELLO_EVENTS = {
   addMemberToCard: 'addMemberToCard',
