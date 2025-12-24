@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { TrelloIDSchema, BoardSchema, CardSchema, ListSchema, MemberSchema } from '../entities'
+import { trelloIdSchema, BoardSchema, CardSchema, ListSchema, MemberSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   hasMessage: z.object({
@@ -34,7 +34,7 @@ const GENERIC_SHEMAS = {
 export const addCardCommentOutputSchema = GENERIC_SHEMAS.hasMessage
   .merge(
     z.object({
-      newCommentId: TrelloIDSchema.describe('Unique identifier of the newly created comment'),
+      newCommentId: trelloIdSchema.describe('Unique identifier of the newly created comment'),
     })
   )
   .describe('Output schema for adding a comment to a card')

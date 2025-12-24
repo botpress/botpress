@@ -2,38 +2,38 @@ import { z } from '@botpress/sdk'
 
 export const trelloIdRegex = /^[0-9a-fA-F]{24}$/
 
-export const TrelloIDSchema = z.string().regex(trelloIdRegex)
+export const trelloIdSchema = z.string().regex(trelloIdRegex)
 
-export type TrelloID = z.infer<typeof TrelloIDSchema>
+export type TrelloID = z.infer<typeof trelloIdSchema>
 
 export const BoardSchema = z.object({
-  id: TrelloIDSchema,
+  id: trelloIdSchema,
   name: z.string(),
 })
 export type Board = z.infer<typeof BoardSchema>
 
 export const CardSchema = z.object({
-  id: TrelloIDSchema,
+  id: trelloIdSchema,
   name: z.string(),
   description: z.string(),
-  listId: TrelloIDSchema,
+  listId: trelloIdSchema,
   verticalPosition: z.number(),
   isClosed: z.boolean(),
   isCompleted: z.boolean(),
   dueDate: z.string().datetime().optional(),
-  labelIds: z.array(TrelloIDSchema),
-  memberIds: z.array(TrelloIDSchema),
+  labelIds: z.array(trelloIdSchema),
+  memberIds: z.array(trelloIdSchema),
 })
 export type Card = z.infer<typeof CardSchema>
 
 export const ListSchema = z.object({
-  id: TrelloIDSchema,
+  id: trelloIdSchema,
   name: z.string(),
 })
 export type List = z.infer<typeof ListSchema>
 
 export const MemberSchema = z.object({
-  id: TrelloIDSchema,
+  id: trelloIdSchema,
   username: z.string(),
   fullName: z.string(),
 })

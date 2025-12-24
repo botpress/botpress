@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, TrelloIDSchema } from '../entities'
+import { BoardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
@@ -25,12 +25,12 @@ export const createCardInputSchema = z
     cardName: CardSchema.shape.name.title('Card Name').describe('Name of the new card'),
     cardBody: CardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
     members: z
-      .array(TrelloIDSchema)
+      .array(trelloIdSchema)
       .optional()
       .title('Members')
       .describe('Members to add to the card (Optional). This should be a list of member IDs.'),
     labels: z
-      .array(TrelloIDSchema)
+      .array(trelloIdSchema)
       .optional()
       .title('Labels')
       .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
@@ -69,28 +69,28 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
         )
         .optional(),
       membersToAdd: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Members to Add')
         .describe(
           'Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       membersToRemove: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Members to Remove')
         .describe(
           'Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       labelsToAdd: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Labels to Add')
         .describe(
           'Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
       labelsToRemove: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Labels to Remove')
         .describe(
