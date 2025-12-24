@@ -1,13 +1,17 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { webhookStateSchema } from './schemas'
-
-export const States = {
-  webhookState: 'webhookState',
-} as const
+import { type IntegrationDefinitionProps, z } from '@botpress/sdk'
+import { trelloIdSchema } from './schemas'
 
 export const states = {
-  [States.webhookState]: {
+  webhookState: {
     type: 'integration',
-    schema: webhookStateSchema,
+    schema: z
+      .object({
+        trelloWebhookId: trelloIdSchema
+          .nullable()
+          .default(null)
+          .title('Trello Webhook ID')
+          .describe('Unique id of the webhook that is created upon integration registration'),
+      })
+      .describe('State that stores the webhook id for the Trello integration'),
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['states']>
