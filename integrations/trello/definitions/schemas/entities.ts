@@ -32,9 +32,9 @@ export const listSchema = z.object({
 })
 export type List = z.infer<typeof listSchema>
 
-export const MemberSchema = z.object({
+export const memberSchema = z.object({
   id: trelloIdSchema,
   username: z.string(),
   fullName: z.string(),
 })
-export type Member = z.infer<typeof MemberSchema>
+export type Member = z.infer<typeof memberSchema>

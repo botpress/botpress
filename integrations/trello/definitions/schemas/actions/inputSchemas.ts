@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, cardSchema, listSchema, MemberSchema, trelloIdSchema } from '../entities'
+import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
@@ -135,7 +135,7 @@ export const moveCardToListInputSchema = GENERIC_SHEMAS.hasCardId.merge(
 export const getMemberByIdOrUsernameInputSchema = z
   .object({
     memberIdOrUsername: z
-      .union([MemberSchema.shape.id, MemberSchema.shape.username])
+      .union([memberSchema.shape.id, memberSchema.shape.username])
       .title('Member ID or Username')
       .describe('ID or username of the member to get'),
   })

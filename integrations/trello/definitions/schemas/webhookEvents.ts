@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, cardSchema, listSchema, MemberSchema, trelloIdSchema } from './entities'
+import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from './entities'
 
 export const TRELLO_EVENTS = {
   addMemberToCard: 'addMemberToCard',
@@ -24,7 +24,7 @@ export const TRELLO_EVENTS = {
 export const genericWebhookEventSchema = z.object({
   action: z.object({
     id: trelloIdSchema.describe('Unique identifier of the action'),
-    idMemberCreator: MemberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
+    idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
     type: z
       .string()
       .refine((e) => Reflect.ownKeys(TRELLO_EVENTS).includes(e))
@@ -33,9 +33,9 @@ export const genericWebhookEventSchema = z.object({
     data: z.any(),
     memberCreator: z
       .object({
-        id: MemberSchema.shape.id.describe('Unique identifier of the member'),
-        fullName: MemberSchema.shape.fullName.describe('Full name of the member'),
-        username: MemberSchema.shape.username.describe('Username of the member'),
+        id: memberSchema.shape.id.describe('Unique identifier of the member'),
+        fullName: memberSchema.shape.fullName.describe('Full name of the member'),
+        username: memberSchema.shape.username.describe('Username of the member'),
         initials: z.string().describe('Initials of the member'),
         avatarHash: z.string().describe('Avatar hash of the member'),
         avatarUrl: z.string().describe('Avatar URL of the member'),
