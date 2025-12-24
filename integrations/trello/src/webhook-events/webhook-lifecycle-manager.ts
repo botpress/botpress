@@ -1,4 +1,3 @@
-import { States } from 'definitions/states'
 import { integrationName } from '../../package.json'
 import { TrelloClient } from '../trello-api/trello-client'
 import * as bp from '.botpress'
@@ -51,7 +50,7 @@ export namespace WebhookLifecycleManager {
     try {
       const webhookState = await client.getState({
         type: 'integration',
-        name: States.webhookState,
+        name: 'webhookState',
         id: ctx.integrationId,
       })
 
@@ -81,7 +80,7 @@ export namespace WebhookLifecycleManager {
   const _setWebhookId = async (client: bp.Client, ctx: bp.Context, webhookId: string): Promise<void> => {
     await client.setState({
       type: 'integration',
-      name: States.webhookState,
+      name: 'webhookState',
       id: ctx.integrationId,
       payload: {
         trelloWebhookId: webhookId,

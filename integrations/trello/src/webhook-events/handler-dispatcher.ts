@@ -7,7 +7,6 @@ import {
   genericWebhookEventSchema,
   TRELLO_EVENTS,
 } from 'definitions/schemas'
-import { States } from 'definitions/states'
 import { CardCommentHandler } from './handlers/card-comment'
 import * as bp from '.botpress'
 
@@ -45,7 +44,7 @@ const _ensureWebhookIsAuthenticated = async ({
 }) => {
   const { state } = await client.getState({
     type: 'integration',
-    name: States.webhookState,
+    name: 'webhookState',
     id: ctx.integrationId,
   })
 
