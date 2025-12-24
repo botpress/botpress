@@ -45,7 +45,7 @@ const _ensureWebhookIsAuthenticated = async ({
 }) => {
   const { state } = await client.getState({
     type: 'integration',
-    name: States.webhookState,
+    name: 'webhookState',
     id: ctx.integrationId,
   })
 
