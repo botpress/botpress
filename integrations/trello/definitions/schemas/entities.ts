@@ -10,6 +10,7 @@ export const BoardSchema = z.object({
   id: TrelloIDSchema,
   name: z.string(),
 })
+export type Board = z.infer<typeof BoardSchema>
 
 export const CardSchema = z.object({
   id: TrelloIDSchema,
@@ -23,19 +24,17 @@ export const CardSchema = z.object({
   labelIds: z.array(TrelloIDSchema),
   memberIds: z.array(TrelloIDSchema),
 })
+export type Card = z.infer<typeof CardSchema>
 
 export const ListSchema = z.object({
   id: TrelloIDSchema,
   name: z.string(),
 })
+export type List = z.infer<typeof ListSchema>
 
 export const MemberSchema = z.object({
   id: TrelloIDSchema,
   username: z.string(),
   fullName: z.string(),
 })
-
-export type Board = z.infer<typeof BoardSchema>
-export type Card = z.infer<typeof CardSchema>
-export type List = z.infer<typeof ListSchema>
 export type Member = z.infer<typeof MemberSchema>
