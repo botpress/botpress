@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from './entities'
+import { boardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from './entities'
 
 export const TRELLO_EVENTS = {
   addMemberToCard: 'addMemberToCard',
@@ -43,11 +43,11 @@ export const genericWebhookEventSchema = z.object({
       .describe('Member who initiated the action'),
   }),
   model: z.object({
-    id: BoardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
+    id: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
   }),
   webhook: z.object({
     id: trelloIdSchema.describe('Unique identifier of the webhook'),
-    idModel: BoardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
+    idModel: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
     active: z.boolean().describe('Whether the webhook is active'),
     consecutiveFailures: z.number().min(0).describe('Number of consecutive failures'),
   }),
@@ -67,8 +67,8 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: BoardSchema.shape.id.describe('Unique identifier of the board'),
-                name: BoardSchema.shape.name.describe('Name of the board'),
+                id: boardSchema.shape.id.describe('Unique identifier of the board'),
+                name: boardSchema.shape.name.describe('Name of the board'),
               })
               .optional()
               .title('Board')

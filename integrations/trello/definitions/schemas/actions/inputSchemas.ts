@@ -1,10 +1,10 @@
 import { z } from '@botpress/sdk'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
+import { boardSchema, CardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
   hasBoardId: z.object({
-    boardId: BoardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
+    boardId: boardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
   }),
   hasListId: z.object({ listId: ListSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
   hasCardId: z.object({ cardId: CardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
@@ -171,14 +171,14 @@ export const getCardByIdInputSchema = GENERIC_SHEMAS.hasCardId.describe('Input s
 
 export const getBoardsByDisplayNameInputSchema = z
   .object({
-    boardName: BoardSchema.shape.name.title('Board Name').describe('Display name of the board'),
+    boardName: boardSchema.shape.name.title('Board Name').describe('Display name of the board'),
   })
   .describe('Input schema for getting a board ID from its name')
 
 export const getBoardMembersByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
   .merge(
     z.object({
-      displayName: BoardSchema.shape.name.title('Display Name').describe('Display name of the member'),
+      displayName: boardSchema.shape.name.title('Display Name').describe('Display name of the member'),
     })
   )
   .describe('Input schema for getting a member from its name')

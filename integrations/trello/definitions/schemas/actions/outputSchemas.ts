@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { trelloIdSchema, BoardSchema, CardSchema, ListSchema, MemberSchema } from '../entities'
+import { trelloIdSchema, boardSchema, CardSchema, ListSchema, MemberSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   hasMessage: z.object({
@@ -24,10 +24,10 @@ const GENERIC_SHEMAS = {
     lists: z.array(ListSchema).describe('Array of list objects'),
   }),
   outputsBoard: z.object({
-    board: BoardSchema.describe('The board object'),
+    board: boardSchema.describe('The board object'),
   }),
   outputsBoards: z.object({
-    boards: z.array(BoardSchema).describe('Array of board objects'),
+    boards: z.array(boardSchema).describe('Array of board objects'),
   }),
 } as const
 

@@ -6,11 +6,11 @@ export const trelloIdSchema = z.string().regex(trelloIdRegex)
 
 export type TrelloID = z.infer<typeof trelloIdSchema>
 
-export const BoardSchema = z.object({
+export const boardSchema = z.object({
   id: trelloIdSchema,
   name: z.string(),
 })
-export type Board = z.infer<typeof BoardSchema>
+export type Board = z.infer<typeof boardSchema>
 
 export const CardSchema = z.object({
   id: trelloIdSchema,
