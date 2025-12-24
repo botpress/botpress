@@ -53,9 +53,9 @@ export const genericWebhookEventSchema = z.object({
   }),
 })
 
-export type allSupportedEvents = keyof typeof TRELLO_EVENTS
-export type genericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
-  action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: allSupportedEvents }
+export type AllSupportedEvents = keyof typeof TRELLO_EVENTS
+export type GenericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
+  action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: AllSupportedEvents }
 }
 
 export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
