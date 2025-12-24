@@ -1,18 +1,18 @@
 import { z } from '@botpress/sdk'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, TrelloIDSchema } from '../entities'
+import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from '../entities'
 
-const GENERIC_SHEMAS = {
+const GENERIC_SCHEMAS = {
   noInput: z.object({}),
   hasBoardId: z.object({
-    boardId: BoardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
+    boardId: boardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
   }),
-  hasListId: z.object({ listId: ListSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
-  hasCardId: z.object({ cardId: CardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
+  hasListId: z.object({ listId: listSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
+  hasCardId: z.object({ cardId: cardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
 } as const
 
 export const addCardCommentInputSchema = z
   .object({
-    cardId: CardSchema.shape.id
+    cardId: cardSchema.shape.id
       .title('Card ID')
       .describe('Unique identifier of the card to which a comment will be added'),
     commentBody: z.string().title('Comment Body').describe('The body text of the comment'),
@@ -21,34 +21,34 @@ export const addCardCommentInputSchema = z
 
 export const createCardInputSchema = z
   .object({
-    listId: ListSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
-    cardName: CardSchema.shape.name.title('Card Name').describe('Name of the new card'),
-    cardBody: CardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
+    listId: listSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
+    cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
+    cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
     members: z
-      .array(TrelloIDSchema)
+      .array(trelloIdSchema)
       .optional()
       .title('Members')
       .describe('Members to add to the card (Optional). This should be a list of member IDs.'),
     labels: z
-      .array(TrelloIDSchema)
+      .array(trelloIdSchema)
       .optional()
       .title('Labels')
       .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
-    dueDate: CardSchema.shape.dueDate
+    dueDate: cardSchema.shape.dueDate
       .optional()
       .title('Due Date')
       .describe('The due date of the card in ISO 8601 format (Optional).'),
   })
   .describe('Input schema for creating a new card')
 
-export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
+export const updateCardInputSchema = GENERIC_SCHEMAS.hasCardId
   .merge(
     z.object({
-      name: CardSchema.shape.name
+      name: cardSchema.shape.name
         .optional()
         .title('Name')
         .describe('The name of the card (Optional) (e.g. "My Test Card"). Leave empty to keep the current name.'),
-      bodyText: CardSchema.shape.description
+      bodyText: cardSchema.shape.description
         .optional()
         .title('Body Text')
         .describe('Body text of the new card (Optional). Leave empty to keep the current body.'),
@@ -69,34 +69,34 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
         )
         .optional(),
       membersToAdd: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Members to Add')
         .describe(
           'Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       membersToRemove: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Members to Remove')
         .describe(
           'Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       labelsToAdd: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Labels to Add')
         .describe(
           'Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
       labelsToRemove: z
-        .array(TrelloIDSchema)
+        .array(trelloIdSchema)
         .optional()
         .title('Labels to Remove')
         .describe(
           'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
-      dueDate: CardSchema.shape.dueDate
+      dueDate: cardSchema.shape.dueDate
         .optional()
         .title('Due Date')
         .describe('The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'),
@@ -104,7 +104,7 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
   )
   .describe('Input schema for creating a new card')
 
-export const moveCardUpInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardUpInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
     moveUpByNSpaces: z
       .number()
@@ -116,7 +116,7 @@ export const moveCardUpInputSchema = GENERIC_SHEMAS.hasCardId.merge(
   })
 )
 
-export const moveCardDownInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardDownInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
     moveDownByNSpaces: moveCardUpInputSchema.shape.moveUpByNSpaces
       .title('Move Down By N Spaces')
@@ -124,9 +124,9 @@ export const moveCardDownInputSchema = GENERIC_SHEMAS.hasCardId.merge(
   })
 )
 
-export const moveCardToListInputSchema = GENERIC_SHEMAS.hasCardId.merge(
+export const moveCardToListInputSchema = GENERIC_SCHEMAS.hasCardId.merge(
   z.object({
-    newListId: ListSchema.shape.id
+    newListId: listSchema.shape.id
       .title('New List ID')
       .describe('Unique identifier of the list in which the card will be moved'),
   })
@@ -135,63 +135,63 @@ export const moveCardToListInputSchema = GENERIC_SHEMAS.hasCardId.merge(
 export const getMemberByIdOrUsernameInputSchema = z
   .object({
     memberIdOrUsername: z
-      .union([MemberSchema.shape.id, MemberSchema.shape.username])
+      .union([memberSchema.shape.id, memberSchema.shape.username])
       .title('Member ID or Username')
       .describe('ID or username of the member to get'),
   })
   .describe('Input schema for getting a member from its ID or username')
 
-export const getListsInBoardInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getListsInBoardInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting all lists in a board'
 )
 
-export const getListsByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
+export const getListsByDisplayNameInputSchema = GENERIC_SCHEMAS.hasBoardId
   .merge(
     z.object({
-      listName: ListSchema.shape.name.title('List Name').describe('Display name of the list'),
+      listName: listSchema.shape.name.title('List Name').describe('Display name of the list'),
     })
   )
   .describe('Input schema for getting a list ID from its name')
 
-export const getListByIdInputSchema = GENERIC_SHEMAS.hasListId.describe('Input schema for getting a list from its ID')
+export const getListByIdInputSchema = GENERIC_SCHEMAS.hasListId.describe('Input schema for getting a list from its ID')
 
-export const getCardsInListInputSchema = GENERIC_SHEMAS.hasListId.describe(
+export const getCardsInListInputSchema = GENERIC_SCHEMAS.hasListId.describe(
   'Input schema for getting all cards in a list'
 )
 
-export const getCardsByDisplayNameInputSchema = GENERIC_SHEMAS.hasListId
+export const getCardsByDisplayNameInputSchema = GENERIC_SCHEMAS.hasListId
   .merge(
     z.object({
-      cardName: CardSchema.shape.name.title('Card Name').describe('Display name of the card'),
+      cardName: cardSchema.shape.name.title('Card Name').describe('Display name of the card'),
     })
   )
   .describe('Input schema for getting a card ID from its name')
 
-export const getCardByIdInputSchema = GENERIC_SHEMAS.hasCardId.describe('Input schema for getting a card from its ID')
+export const getCardByIdInputSchema = GENERIC_SCHEMAS.hasCardId.describe('Input schema for getting a card from its ID')
 
 export const getBoardsByDisplayNameInputSchema = z
   .object({
-    boardName: BoardSchema.shape.name.title('Board Name').describe('Display name of the board'),
+    boardName: boardSchema.shape.name.title('Board Name').describe('Display name of the board'),
   })
   .describe('Input schema for getting a board ID from its name')
 
-export const getBoardMembersByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
+export const getBoardMembersByDisplayNameInputSchema = GENERIC_SCHEMAS.hasBoardId
   .merge(
     z.object({
-      displayName: BoardSchema.shape.name.title('Display Name').describe('Display name of the member'),
+      displayName: boardSchema.shape.name.title('Display Name').describe('Display name of the member'),
     })
   )
   .describe('Input schema for getting a member from its name')
-export const getBoardByIdInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getBoardByIdInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting a board from its ID'
 )
 
-export const getAllBoardsInputSchema = GENERIC_SHEMAS.noInput.describe('Input schema for getting all boards')
+export const getAllBoardsInputSchema = GENERIC_SCHEMAS.noInput.describe('Input schema for getting all boards')
 
-export const getAllBoardMembersInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
+export const getAllBoardMembersInputSchema = GENERIC_SCHEMAS.hasBoardId.describe(
   'Input schema for getting all members of a board'
 )
 
-export const getAllCardMembersInputSchema = GENERIC_SHEMAS.hasCardId.describe(
+export const getAllCardMembersInputSchema = GENERIC_SCHEMAS.hasCardId.describe(
   'Input schema for getting all members of a card'
 )

@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, TrelloIDSchema } from './entities'
+import { boardSchema, cardSchema, listSchema, memberSchema, trelloIdSchema } from './entities'
 
 export const TRELLO_EVENTS = {
   addMemberToCard: 'addMemberToCard',
@@ -23,8 +23,8 @@ export const TRELLO_EVENTS = {
 
 export const genericWebhookEventSchema = z.object({
   action: z.object({
-    id: TrelloIDSchema.describe('Unique identifier of the action'),
-    idMemberCreator: MemberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
+    id: trelloIdSchema.describe('Unique identifier of the action'),
+    idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
     type: z
       .string()
       .refine((e) => Reflect.ownKeys(TRELLO_EVENTS).includes(e))
@@ -33,9 +33,9 @@ export const genericWebhookEventSchema = z.object({
     data: z.any(),
     memberCreator: z
       .object({
-        id: MemberSchema.shape.id.describe('Unique identifier of the member'),
-        fullName: MemberSchema.shape.fullName.describe('Full name of the member'),
-        username: MemberSchema.shape.username.describe('Username of the member'),
+        id: memberSchema.shape.id.describe('Unique identifier of the member'),
+        fullName: memberSchema.shape.fullName.describe('Full name of the member'),
+        username: memberSchema.shape.username.describe('Username of the member'),
         initials: z.string().describe('Initials of the member'),
         avatarHash: z.string().describe('Avatar hash of the member'),
         avatarUrl: z.string().describe('Avatar URL of the member'),
@@ -43,19 +43,19 @@ export const genericWebhookEventSchema = z.object({
       .describe('Member who initiated the action'),
   }),
   model: z.object({
-    id: BoardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
+    id: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
   }),
   webhook: z.object({
-    id: TrelloIDSchema.describe('Unique identifier of the webhook'),
-    idModel: BoardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
+    id: trelloIdSchema.describe('Unique identifier of the webhook'),
+    idModel: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
     active: z.boolean().describe('Whether the webhook is active'),
     consecutiveFailures: z.number().min(0).describe('Number of consecutive failures'),
   }),
 })
 
-export type allSupportedEvents = keyof typeof TRELLO_EVENTS
-export type genericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
-  action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: allSupportedEvents }
+export type AllSupportedEvents = keyof typeof TRELLO_EVENTS
+export type GenericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
+  action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: AllSupportedEvents }
 }
 
 export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
@@ -67,30 +67,30 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: BoardSchema.shape.id.describe('Unique identifier of the board'),
-                name: BoardSchema.shape.name.describe('Name of the board'),
+                id: boardSchema.shape.id.describe('Unique identifier of the board'),
+                name: boardSchema.shape.name.describe('Name of the board'),
               })
               .optional()
               .title('Board')
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: CardSchema.shape.id.describe('Unique identifier of the card'),
-                name: CardSchema.shape.name.describe('Name of the card'),
+                id: cardSchema.shape.id.describe('Unique identifier of the card'),
+                name: cardSchema.shape.name.describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             list: z
               .object({
-                id: ListSchema.shape.id.describe('Unique identifier of the list'),
-                name: ListSchema.shape.name.describe('Name of the list'),
+                id: listSchema.shape.id.describe('Unique identifier of the list'),
+                name: listSchema.shape.name.describe('Name of the list'),
               })
               .optional()
               .title('List')
               .describe('List where the card was updated'),
             attachment: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the attachment'),
+                id: trelloIdSchema.describe('Unique identifier of the attachment'),
                 name: z.string().describe('Name of the attachment'),
                 url: z.string().url().optional().describe('URL of the attachment'),
                 previewUrl: z.string().url().optional().describe('URL of the attachment preview'),
@@ -114,7 +114,7 @@ export const voteOnCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -122,7 +122,7 @@ export const voteOnCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .optional()
@@ -145,7 +145,7 @@ export const updateCommentEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -153,14 +153,14 @@ export const updateCommentEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -168,7 +168,7 @@ export const updateCommentEventSchema = genericWebhookEventSchema.merge(
               .describe('List where the card was updated'),
             action: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the comment that was updated'),
+                id: trelloIdSchema.describe('Unique identifier of the comment that was updated'),
                 text: z.string().describe('New text of the comment'),
               })
               .title('Action')
@@ -195,7 +195,7 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.m
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -203,21 +203,21 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.m
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             checklist: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the checklist'),
+                id: trelloIdSchema.describe('Unique identifier of the checklist'),
                 name: z.string().describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was updated'),
             checkItem: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the check item'),
+                id: trelloIdSchema.describe('Unique identifier of the check item'),
                 name: z.string().describe('Name of the check item'),
                 state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
                 textData: z.object({
@@ -243,7 +243,7 @@ export const updateCheckItemEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -251,21 +251,21 @@ export const updateCheckItemEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             checklist: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the checklist'),
+                id: trelloIdSchema.describe('Unique identifier of the checklist'),
                 name: z.string().describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was updated'),
             checkItem: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the check item'),
+                id: trelloIdSchema.describe('Unique identifier of the check item'),
                 name: z.string().describe('Name of the check item'),
                 state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
                 due: z.string().datetime().optional().describe('Due date of the check item'),
@@ -298,7 +298,7 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -306,11 +306,11 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
-                idList: TrelloIDSchema.optional().describe('Unique identifier of the list where the card is located'),
+                idList: trelloIdSchema.optional().describe('Unique identifier of the list where the card is located'),
                 desc: z.string().optional().describe('Description of the card'),
-                idLabels: z.array(TrelloIDSchema).optional().describe('Labels attached to the card'),
+                idLabels: z.array(trelloIdSchema).optional().describe('Labels attached to the card'),
                 pos: z.number().optional().describe('Position of the card'),
                 start: z.union([z.string().datetime(), z.null()]).optional().describe('Start date of the card'),
                 due: z.union([z.string().datetime(), z.null()]).optional().describe('Due date of the card'),
@@ -327,8 +327,8 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
               .object({
                 name: z.string().describe('Previous name of the card'),
                 desc: z.string().or(z.null()).optional().describe('Previous description of the card'),
-                idList: TrelloIDSchema.optional().describe('Previous list where the card was'),
-                idLabels: z.array(TrelloIDSchema).optional().describe('Previous labels attached to the card'),
+                idList: trelloIdSchema.optional().describe('Previous list where the card was'),
+                idLabels: z.array(trelloIdSchema).optional().describe('Previous labels attached to the card'),
                 pos: z.number().optional().describe('Previous position of the card'),
                 start: z
                   .union([z.string().datetime(), z.null()])
@@ -346,7 +346,7 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Previous state of the card'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -354,7 +354,7 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
               .describe('List where the card was updated'),
             listBefore: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the previous list'),
+                id: trelloIdSchema.describe('Unique identifier of the previous list'),
                 name: z.string().describe('Name of the previous list'),
               })
               .optional()
@@ -362,7 +362,7 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Previous list where the card was located'),
             listAfter: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the new list'),
+                id: trelloIdSchema.describe('Unique identifier of the new list'),
                 name: z.string().describe('Name of the new list'),
               })
               .optional()
@@ -384,7 +384,7 @@ export const removeMemberFromCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -392,14 +392,14 @@ export const removeMemberFromCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             member: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the member'),
+                id: trelloIdSchema.describe('Unique identifier of the member'),
                 name: z.string().describe('Full name of the member'),
               })
               .title('Member')
@@ -420,7 +420,7 @@ export const removeLabelFromCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -428,14 +428,14 @@ export const removeLabelFromCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was modified'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was modified'),
             label: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the label'),
+                id: trelloIdSchema.describe('Unique identifier of the label'),
                 name: z.string().describe('Name of the label'),
                 color: z.string().describe('Color of the label'),
               })
@@ -457,7 +457,7 @@ export const deleteCommentEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -465,14 +465,14 @@ export const deleteCommentEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -480,7 +480,7 @@ export const deleteCommentEventSchema = genericWebhookEventSchema.merge(
               .describe('List where the card was updated'),
             action: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the comment that was deleted'),
+                id: trelloIdSchema.describe('Unique identifier of the comment that was deleted'),
               })
               .title('Action')
               .describe('The action details for the deleted comment'),
@@ -500,7 +500,7 @@ export const deleteCheckItemEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -508,21 +508,21 @@ export const deleteCheckItemEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             checklist: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the checklist'),
+                id: trelloIdSchema.describe('Unique identifier of the checklist'),
                 name: z.string().describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was removed'),
             checkItem: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the check item'),
+                id: trelloIdSchema.describe('Unique identifier of the check item'),
                 name: z.string().describe('Name of the check item'),
                 state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
                 textData: z.object({
@@ -548,7 +548,7 @@ export const deleteCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -556,13 +556,13 @@ export const deleteCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was deleted'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
               })
               .title('Card')
               .describe('Card that was deleted'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -584,7 +584,7 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -592,14 +592,14 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -607,7 +607,7 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
               .describe('List where the card was updated'),
             attachment: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the attachment'),
+                id: trelloIdSchema.describe('Unique identifier of the attachment'),
                 name: z.string().describe('Name of the attachment'),
               })
               .title('Attachment')
@@ -628,7 +628,7 @@ export const createCheckItemEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -636,21 +636,21 @@ export const createCheckItemEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             checklist: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the checklist'),
+                id: trelloIdSchema.describe('Unique identifier of the checklist'),
                 name: z.string().describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was added'),
             checkItem: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the check item'),
+                id: trelloIdSchema.describe('Unique identifier of the check item'),
                 name: z.string().describe('Name of the check item'),
                 state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
                 textData: z.object({
@@ -676,7 +676,7 @@ export const createCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -684,14 +684,14 @@ export const createCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was created'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was created'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -710,11 +710,11 @@ export const commentCardEventSchema = genericWebhookEventSchema.merge(
       z
         .object({
           type: z.literal('commentCard').describe('Type of the action'),
-          id: TrelloIDSchema.describe('Unique identifier of the comment'),
+          id: trelloIdSchema.describe('Unique identifier of the comment'),
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -722,14 +722,14 @@ export const commentCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             list: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the list'),
+                id: trelloIdSchema.describe('Unique identifier of the list'),
                 name: z.string().describe('Name of the list'),
               })
               .optional()
@@ -754,7 +754,7 @@ export const addMemberToCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -762,14 +762,14 @@ export const addMemberToCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             member: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the member'),
+                id: trelloIdSchema.describe('Unique identifier of the member'),
                 name: z.string().describe('Full name of the member'),
               })
               .title('Member')
@@ -790,7 +790,7 @@ export const addLabelToCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -798,14 +798,14 @@ export const addLabelToCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was modified'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was modified'),
             label: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the label'),
+                id: trelloIdSchema.describe('Unique identifier of the label'),
                 name: z.string().describe('Name of the label'),
                 color: z.string().describe('Color of the label'),
               })
@@ -827,7 +827,7 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.merge(
           data: z.object({
             board: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the board'),
+                id: trelloIdSchema.describe('Unique identifier of the board'),
                 name: z.string().describe('Name of the board'),
               })
               .optional()
@@ -835,14 +835,14 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.merge(
               .describe('Board where the card was updated'),
             card: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the card'),
+                id: trelloIdSchema.describe('Unique identifier of the card'),
                 name: z.string().describe('Name of the card'),
               })
               .title('Card')
               .describe('Card that was updated'),
             checklist: z
               .object({
-                id: TrelloIDSchema.describe('Unique identifier of the checklist'),
+                id: trelloIdSchema.describe('Unique identifier of the checklist'),
                 name: z.string().describe('Name of the checklist'),
               })
               .title('Checklist')
