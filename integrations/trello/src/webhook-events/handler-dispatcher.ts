@@ -1,13 +1,12 @@
 import { default as sdk, z } from '@botpress/sdk'
-import { events } from 'definitions/events'
 import {
+  events,
   type AllSupportedEvents,
   commentCardEventSchema,
   type GenericWebhookEvent,
   genericWebhookEventSchema,
   TRELLO_EVENTS,
-} from 'definitions/schemas'
-import { States } from 'definitions/states'
+} from 'definitions/events'
 import { CardCommentHandler } from './handlers/card-comment'
 import * as bp from '.botpress'
 
@@ -45,7 +44,7 @@ const _ensureWebhookIsAuthenticated = async ({
 }) => {
   const { state } = await client.getState({
     type: 'integration',
-    name: States.webhookState,
+    name: 'webhookState',
     id: ctx.integrationId,
   })
 
