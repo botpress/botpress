@@ -113,6 +113,7 @@ const listTeams = {
         .array(
           z.object({
             id: z.string().title('ID').describe('The unique identifier of the entity'),
+            key: z.string().title('Key').describe("The team's key"),
             name: z.string().title('Name').describe("The team's name"),
             description: z.string().optional().title('Description').describe("The team's description"),
             icon: z.string().optional().title('Icon').describe('The icon of the team'),
@@ -120,6 +121,31 @@ const listTeams = {
         )
         .title('Teams')
         .describe('The list of teams'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
+const listStates = {
+  title: 'List States',
+  description: 'List states from Linear',
+  input: {
+    schema: z.object({
+      count: z.number().optional().default(10).title('Fetch Amount').describe('The number of states to return'),
+      startCursor: z.string().optional().title('Start Cursor').describe('The cursor to start from'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      states: z
+        .array(
+          z.object({
+            id: z.string().title('ID').describe('The unique identifier of the entity'),
+            name: z.string().title('Name').describe("The state's name"),
+          })
+        )
+        .title('States')
+        .describe('The list of states'),
+      nextCursor: z.string().optional().title('Next Cursor').describe('The cursor to fetch the next page'),
     }),
   },
 } as const satisfies ActionDefinition
@@ -262,6 +288,7 @@ export const actions = {
   listIssues,
   listTeams,
   listUsers,
+  listStates,
   markAsDuplicate,
   getIssue,
   getUser,
