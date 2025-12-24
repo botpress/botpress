@@ -1,12 +1,12 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, cardSchema, ListSchema, MemberSchema, trelloIdSchema } from '../entities'
+import { boardSchema, cardSchema, listSchema, MemberSchema, trelloIdSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
   hasBoardId: z.object({
     boardId: boardSchema.shape.id.title('Board ID').describe('Unique identifier of the board'),
   }),
-  hasListId: z.object({ listId: ListSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
+  hasListId: z.object({ listId: listSchema.shape.id.title('List ID').describe('Unique identifier of the list') }),
   hasCardId: z.object({ cardId: cardSchema.shape.id.title('Card ID').describe('Unique identifier of the card') }),
 } as const
 
@@ -21,7 +21,7 @@ export const addCardCommentInputSchema = z
 
 export const createCardInputSchema = z
   .object({
-    listId: ListSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
+    listId: listSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
     cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
     cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
     members: z
@@ -126,7 +126,7 @@ export const moveCardDownInputSchema = GENERIC_SHEMAS.hasCardId.merge(
 
 export const moveCardToListInputSchema = GENERIC_SHEMAS.hasCardId.merge(
   z.object({
-    newListId: ListSchema.shape.id
+    newListId: listSchema.shape.id
       .title('New List ID')
       .describe('Unique identifier of the list in which the card will be moved'),
   })
@@ -148,7 +148,7 @@ export const getListsInBoardInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
 export const getListsByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
   .merge(
     z.object({
-      listName: ListSchema.shape.name.title('List Name').describe('Display name of the list'),
+      listName: listSchema.shape.name.title('List Name').describe('Display name of the list'),
     })
   )
   .describe('Input schema for getting a list ID from its name')

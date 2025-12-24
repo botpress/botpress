@@ -26,11 +26,11 @@ export const cardSchema = z.object({
 })
 export type Card = z.infer<typeof cardSchema>
 
-export const ListSchema = z.object({
+export const listSchema = z.object({
   id: trelloIdSchema,
   name: z.string(),
 })
-export type List = z.infer<typeof ListSchema>
+export type List = z.infer<typeof listSchema>
 
 export const MemberSchema = z.object({
   id: trelloIdSchema,

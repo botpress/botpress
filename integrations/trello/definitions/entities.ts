@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { boardSchema, cardSchema, ListSchema, MemberSchema } from './schemas/entities'
+import { boardSchema, cardSchema, listSchema, MemberSchema } from './schemas/entities'
 
 export const entities = {
   card: {
@@ -10,7 +10,7 @@ export const entities = {
   list: {
     title: 'List',
     description: 'A list in a Trello board',
-    schema: ListSchema,
+    schema: listSchema,
   },
   board: {
     title: 'Board',
