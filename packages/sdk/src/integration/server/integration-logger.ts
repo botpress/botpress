@@ -5,14 +5,14 @@ type IntegrationLogOptions = {
   conversationId?: string
   traceId?: string
   visibleToBotOwners?: boolean
-  isOnlyVisibleToBotOwners?: boolean
+  hiddenToIntegrationOwners?: boolean
 }
 
 export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   public constructor(options?: IntegrationLogOptions) {
     super({
       visibleToBotOwners: false,
-      isOnlyVisibleToBotOwners: false,
+      hiddenToIntegrationOwners: false,
       ...options,
     })
   }
@@ -45,9 +45,9 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   /**
    * Used to *not* send the log to the integration owner
    */
-  public withOnlyVisibleToBotOwners(isOnlyVisibleToBotOwners: boolean) {
+  public withHiddenToIntegrationOwners(hiddenToIntegrationOwners: boolean) {
     return this.with({
-      isOnlyVisibleToBotOwners,
+      hiddenToIntegrationOwners,
     })
   }
 
@@ -62,7 +62,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
    * Used to *not* send the log to the integration owner
    */
   public forBotOnly() {
-    return this.withOnlyVisibleToBotOwners(true)
+    return this.withHiddenToIntegrationOwners(true)
   }
 
   protected override getJsonMessage(msg: string) {
@@ -70,7 +70,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
       msg,
       //We need to have snake case 'visible_to_bot_owner' since that is how we used to differentiate between bot and integration logs
       visible_to_bot_owner: this.defaultOptions.visibleToBotOwners,
-      is_only_visible_to_bot_owner: this.defaultOptions.isOnlyVisibleToBotOwners,
+      hidden_to_integration_owner: this.defaultOptions.hiddenToIntegrationOwners,
       options: this.defaultOptions,
     })
   }
