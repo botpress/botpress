@@ -35,7 +35,7 @@ const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
     ticketId: ({ conversation, logger }) => Tags.of(conversation, logger).get('id'),
     zendeskAuthorId: async ({ client, logger, payload, user }) =>
       Tags.of((await client.getUser({ id: payload.userId ?? user.id })).user, logger).get('id'),
-    zendeskClient: ({ ctx }) => getZendeskClient(ctx.configuration),
+    zendeskClient: async ({ client, ctx }) => await getZendeskClient(client, ctx),
   },
 })
 

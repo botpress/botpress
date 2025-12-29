@@ -36,13 +36,17 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
 }
 
 const _isSyncAlreadyInProgress = async (props: bp.ActionHandlerProps) => {
-  const { workflows: runningBuildQueueWorkflows } = await props.workflows.buildQueue.listInstances.running()
+  const runningBuildQueueWorkflows = await props.workflows.buildQueue
+    .listInstances({ statuses: ['pending', 'in_progress', 'listening', 'paused'] })
+    .take(1)
 
   if (runningBuildQueueWorkflows.length > 0) {
     return true
   }
 
-  const { workflows: runningProcessQueueWorkflows } = await props.workflows.processQueue.listInstances.running()
+  const runningProcessQueueWorkflows = await props.workflows.processQueue
+    .listInstances({ statuses: ['pending', 'in_progress', 'listening', 'paused'] })
+    .take(1)
 
   return runningProcessQueueWorkflows.length > 0
 }

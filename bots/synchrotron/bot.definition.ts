@@ -1,11 +1,8 @@
-/* bplint-disable */ // zui `toTypescriptSchema` does not preserve title and description properties
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
 import chat from './bp_modules/chat'
 import dropbox from './bp_modules/dropbox'
 import fileSynchronizer from './bp_modules/file-synchronizer'
-
-const dropboxFilesReadonly = dropbox.definition.interfaces['files-readonly']
 
 export default new sdk.BotDefinition({
   configuration: {
@@ -16,9 +13,6 @@ export default new sdk.BotDefinition({
   recurringEvents: {},
   user: {},
   conversation: {},
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(chat, {
     enabled: true,
@@ -42,15 +36,10 @@ export default new sdk.BotDefinition({
       ],
       excludeFiles: [],
     },
-    interfaces: {
+    dependencies: {
       'files-readonly': {
-        id: dropbox.id,
-        name: dropbox.name,
-        version: dropbox.version,
-        entities: dropboxFilesReadonly.entities,
-        actions: dropboxFilesReadonly.actions,
-        events: dropboxFilesReadonly.events,
-        channels: dropboxFilesReadonly.channels,
+        integrationAlias: 'dropbox',
+        integrationInterfaceAlias: 'files-readonly',
       },
     },
   })

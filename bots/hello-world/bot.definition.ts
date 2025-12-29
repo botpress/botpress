@@ -17,9 +17,6 @@ export default new sdk.BotDefinition({
       },
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })
   .addIntegration(telegram, {
     enabled: true,
@@ -33,5 +30,5 @@ export default new sdk.BotDefinition({
   })
   .addPlugin(logger, {
     configuration: {},
-    interfaces: {},
+    dependencies: {},
   })

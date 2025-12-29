@@ -1,91 +1,74 @@
+import { CommandDefinition } from 'src/types'
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 const MESSAGING_INTEGRATIONS = ['telegram', 'slack']
-const COMMAND_LIST_MESSAGE = `Unknown command. Here's a list of possible commands:
-#health
-#addTeam [teamName]
-#removeTeam [teamName]
-#listTeams
-#lintAll`
-const ARGUMENT_REQUIRED_MESSAGE = 'Error: an argument is required with this command.'
 
 export const handleMessageCreated: bp.MessageHandlers['*'] = async (props) => {
-  const { conversation, message, client } = props
+  const { conversation, message } = props
   if (!MESSAGING_INTEGRATIONS.includes(conversation.integration)) {
     props.logger.info(`Ignoring message from ${conversation.integration}`)
     return
   }
+  if (
+    conversation.integration === 'slack' &&
+    (conversation.channel === 'channel' || conversation.channel === 'thread')
+  ) {
+    return
+  }
 
-  const { botpress, teamsManager } = await boot.bootstrap(props, conversation.id)
+  const { botpress, commandProcessor } = boot.bootstrap(props)
+  const commandListMessage = _buildListCommandsMessage(commandProcessor.commandDefinitions)
 
   if (message.type !== 'text') {
-    await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
+    await botpress.respondText(conversation.id, commandListMessage)
     return
   }
 
   if (!message.payload.text) {
-    await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
+    await botpress.respondText(conversation.id, commandListMessage)
     return
   }
 
-  const [command, teamKey] = message.payload.text.trim().split(' ')
+  const [command, ...args] = message.payload.text.trim().split(' ')
   if (!command) {
-    await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
+    await botpress.respondText(conversation.id, commandListMessage)
     return
   }
 
-  const _handleError = (context: string) => (thrown: unknown) =>
+  const commandDefinition = commandProcessor.commandDefinitions.find((commandImpl) => commandImpl.name === command)
+  if (!commandDefinition) {
+    await botpress.respondText(conversation.id, commandListMessage)
+    return
+  }
+
+  if (commandDefinition.requiredArgs && args.length < commandDefinition.requiredArgs?.length) {
+    await botpress.respondText(
+      conversation.id,
+      `Error: a minimum of ${commandDefinition.requiredArgs.length} argument(s) is required.`
+    )
+    return
+  }
+
+  const _handleError = (context: string, thrown: unknown) =>
     botpress.handleError({ context, conversationId: conversation.id }, thrown)
 
-  switch (command) {
-    case '#addTeam': {
-      if (!teamKey) {
-        await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
-        return
-      }
-
-      await teamsManager.addWatchedTeam(teamKey).catch(_handleError('trying to add a team'))
-
-      await botpress.respondText(
-        conversation.id,
-        `Success: the team with the key '${teamKey}' has been added to the watched team list.`
-      )
-      break
-    }
-    case '#removeTeam': {
-      if (!teamKey) {
-        await botpress.respondText(conversation.id, ARGUMENT_REQUIRED_MESSAGE)
-        return
-      }
-
-      await teamsManager.removeWatchedTeam(teamKey).catch(_handleError('trying to remove a team'))
-      await botpress.respondText(
-        conversation.id,
-        `Success: the team with the key '${teamKey}' has been removed from the watched team list.`
-      )
-      break
-    }
-    case '#listTeams': {
-      const teams = await teamsManager.listWatchedTeams().catch(_handleError('trying to list teams'))
-      await botpress.respondText(conversation.id, teams.join(', '))
-      break
-    }
-    case '#lintAll': {
-      await client.getOrCreateWorkflow({
-        name: 'lintAll',
-        input: {},
-        discriminateByStatusGroup: 'active',
-        conversationId: conversation.id,
-        status: 'pending',
-      })
-
-      await botpress.respondText(conversation.id, "Launched 'lintAll' workflow.")
-      break
-    }
-    default: {
-      await botpress.respondText(conversation.id, COMMAND_LIST_MESSAGE)
-      break
-    }
+  try {
+    const result = await commandDefinition.implementation(args, conversation.id)
+    await botpress.respondText(conversation.id, `${result.success ? '' : 'Error: '}${result.message}`)
+  } catch (thrown) {
+    await _handleError(`trying to run ${commandDefinition.name}`, thrown)
   }
+}
+
+const _buildListCommandsMessage = (definitions: CommandDefinition[]) => {
+  const commands = definitions.map(_buildCommandMessage).join('\n')
+  return `Unknown command. Here's a list of possible commands:\n${commands}`
+}
+
+const _buildCommandMessage = (definition: CommandDefinition) => {
+  const requiredArgs = definition.requiredArgs?.map((arg) => `<${arg}>`).join(' ')
+  const optionalArgs = definition.optionalArgs?.map((arg) => `[${arg}]`).join(' ')
+
+  return `${definition.name} ${requiredArgs ?? ''} ${optionalArgs ?? ''}`
 }

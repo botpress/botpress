@@ -18,7 +18,7 @@ if (!TARGET_LABEL) {
   throw new Error('No TARGET_LABEL environment variable')
 }
 
-await updateLinearIssues()
+void updateLinearIssues()
 
 async function getTeam(): Promise<Team> {
   const client = new LinearClient({ apiKey: LINEAR_API_KEY })
@@ -37,8 +37,8 @@ async function getStates(targetTeam: Team): Promise<{ sourceState: WorkflowState
   if (!sourceState) throw new Error(`Could not find workflow state ${SOURCE_STATE_NAME}`)
   if (!targetState) throw new Error(`Could not find workflow state ${TARGET_STATE_NAME}`)
 
-  console.log(`Found source state: ${sourceState.name} (${sourceState.id})`)
-  console.log(`Found target state: ${targetState.name} (${targetState.id})`)
+  console.info(`Found source state: ${sourceState.name} (${sourceState.id})`)
+  console.info(`Found target state: ${targetState.name} (${targetState.id})`)
 
   return { sourceState, targetState }
 }
@@ -60,9 +60,9 @@ async function getTargetLabels(targetTeam: Team): Promise<IssueLabel[]> {
     throw new Error(`Could not find any labels matching ${TARGET_LABEL}`)
   }
 
-  console.log(`Found ${targetLabels.length} matching label(s):`)
+  console.info(`Found ${targetLabels.length} matching label(s):`)
   targetLabels.forEach((label) => {
-    console.log(`  - ${label.name} (${label.id})`)
+    console.info(`  - ${label.name} (${label.id})`)
   })
 
   return targetLabels
@@ -82,11 +82,11 @@ async function updateLinearIssues() {
     },
   })
 
-  console.log(`Found ${issues.nodes.length} issue(s) in state "${SOURCE_STATE_NAME}"`)
+  console.info(`Found ${issues.nodes.length} issue(s) in state "${SOURCE_STATE_NAME}"`)
 
   await Promise.all(
     issues.nodes.map(async (issue) => {
-      console.log(`Updating issue ${issue.identifier} to ${TARGET_STATE_NAME}`)
+      console.info(`Updating issue ${issue.identifier} to ${TARGET_STATE_NAME}`)
       await issue.update({ stateId: targetState.id })
     })
   )

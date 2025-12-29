@@ -637,7 +637,7 @@ export class Context implements Serializable<Context.JSON> {
 
   private _getIterationVariables(): Record<string, any> {
     const lastIteration = this.iterations.at(-1)
-    const variables = {}
+    const variables: Record<string, any> = {}
 
     if (lastIteration?.status.type === 'thinking_requested') {
       const lastThinkingVariables = lastIteration.status.thinking_requested.variables
@@ -648,6 +648,14 @@ export class Context implements Serializable<Context.JSON> {
 
     if (isPlainObject(lastIteration?.variables)) {
       Object.assign(variables, cloneDeep(lastIteration?.variables ?? {}))
+    }
+
+    if (this.snapshot?.status.type === 'resolved') {
+      for (const v of this.snapshot.variables) {
+        if (!v.truncated && v.value !== undefined) {
+          variables[v.name] = v.value
+        }
+      }
     }
 
     return variables

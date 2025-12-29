@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest'
+import { test, expect, describe } from 'vitest'
 import { transformMarkdown, stripAllHandlers } from './markdown-transformer'
 import { MarkdownHandlers } from './types'
 
@@ -79,14 +79,6 @@ const stripAllTests: Test = {
   },
 }
 
-test.each(Object.entries(stripAllTests))(
-  'Single line test %s',
-  (_testName: string, testValues: { input: string; expected: string }): void => {
-    const actual = transformMarkdown(testValues.input)
-    expect(actual).toBe(testValues.expected)
-  }
-)
-
 const bigInput = `# H1
 ## H2
 ### H3
@@ -164,61 +156,71 @@ emoji direct 😂
 [1] the footnote
 `
 
-test('Multi-line multi markup test', () => {
-  const actual = transformMarkdown(bigInput)
-  expect(actual).toBe(expectedForBigInput)
-})
+describe('Markdown Transformer', () => {
+  test.each(Object.entries(stripAllTests))(
+    'Single line test %s',
+    (_testName: string, testValues: { input: string; expected: string }): void => {
+      const actual = transformMarkdown(testValues.input)
+      expect(actual).toBe(testValues.expected)
+    }
+  )
 
-test('Custom heading handler markup test', () => {
-  const expected = 'heading handled'
-  const customHandlers: MarkdownHandlers = {
-    ...stripAllHandlers,
-    heading: (_node, _visit) => {
-      return expected
-    },
-  }
+  test('Multi-line multi markup test', () => {
+    const actual = transformMarkdown(bigInput)
+    expect(actual).toBe(expectedForBigInput)
+  })
 
-  const actual = transformMarkdown('# any heading`', customHandlers)
+  test('Custom heading handler markup test', () => {
+    const expected = 'heading handled'
+    const customHandlers: MarkdownHandlers = {
+      ...stripAllHandlers,
+      heading: (_node, _visit) => {
+        return expected
+      },
+    }
 
-  expect(actual).toBe(expected)
-})
+    const actual = transformMarkdown('# any heading`', customHandlers)
 
-test('Custom blockQuote handler markup test', () => {
-  const expected = 'quote handled'
-  const customHandlers: MarkdownHandlers = {
-    ...stripAllHandlers,
-    blockquote: (_node, _visit) => {
-      return expected
-    },
-  }
+    expect(actual).toBe(expected)
+  })
 
-  const actual = transformMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
+  test('Custom blockQuote handler markup test', () => {
+    const expected = 'quote handled'
+    const customHandlers: MarkdownHandlers = {
+      ...stripAllHandlers,
+      blockquote: (_node, _visit) => {
+        return expected
+      },
+    }
 
-  expect(actual).toBe(expected)
-})
+    const actual = transformMarkdown('> any quote\n> 1\n> 2\n>3', customHandlers)
 
-test('Custom paragraph handler markup test', () => {
-  const expected = 'paragraph handled'
-  const customHandlers: MarkdownHandlers = {
-    ...stripAllHandlers,
-    paragraph: (_node, _visit) => expected,
-  }
+    expect(actual).toBe(expected)
+  })
 
-  const actual = transformMarkdown('any paragraph', customHandlers)
+  test('Custom paragraph handler markup test', () => {
+    const expected = 'paragraph handled'
+    const customHandlers: MarkdownHandlers = {
+      ...stripAllHandlers,
+      paragraph: (_node, _visit) => expected,
+    }
 
-  expect(actual).toBe(expected)
-})
+    const actual = transformMarkdown('any paragraph', customHandlers)
 
-test('Escape character markup test', () => {
-  const input = '\\# not handled'
-  const expected = '# not handled'
-  const customHandlers: MarkdownHandlers = {
-    ...stripAllHandlers,
-    heading: (_node, _visit) => 'title handled',
-    paragraph: (_node, _visit) => _visit(_node),
-  }
+    expect(actual).toBe(expected)
+  })
 
-  const actual = transformMarkdown(input, customHandlers)
+  test('Escape character markup test', () => {
+    const input = '\\# not handled'
+    const expected = '# not handled'
+    const customHandlers: MarkdownHandlers = {
+      ...stripAllHandlers,
+      heading: (_node, _visit) => 'title handled',
+      paragraph: (_node, _visit) => _visit(_node),
+    }
 
-  expect(actual).toBe(expected)
+    const actual = transformMarkdown(input, customHandlers)
+
+    expect(actual).toBe(expected)
+  })
 })

@@ -182,6 +182,7 @@ describe('snapshots', { retry: 0, timeout: 10_000 }, async () => {
       tools: result.context.tools,
       exits: result.context.exits,
       snapshot,
+      options: { loop: 4 },
     })
 
     assert(final.status === 'success')

@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { IntegrationConfig } from 'src/config/integration-config'
 import { JWTVerifier } from 'src/google-api'
 import { handleIncomingEmail } from './new-mail'
@@ -5,12 +6,17 @@ import { handleOAuthCallback } from './oauth-callback'
 import * as bp from '.botpress'
 
 export const handler = async (props: bp.HandlerProps) => {
+  const { logger } = props
+
   if (props.req.path.startsWith('/oauth')) {
+    logger.forBot().info('Processing OAuth callback')
     return handleOAuthCallback(props)
   }
 
+  logger.forBot().info('Authenticating webhook...')
   if (!(await _isWebhookEventProperlyAuthenticated(props))) {
-    throw new Error('Incoming webhook event is not properly authenticated', { cause: props.req })
+    logger.forBot().error('Webhook authentication failed')
+    throw new sdk.RuntimeError(`Incoming webhook event is not properly authenticated ${props.req}`)
   }
 
   await handleIncomingEmail(props)
