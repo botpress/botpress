@@ -194,12 +194,14 @@ export class NotionClient {
         const blockData = block[blockType as keyof typeof block] as Record<string, unknown> | undefined
         const richText = (blockData?.rich_text as RichTextItemResponse[] | undefined) ?? []
 
-        const parentId =
-          block.parent.type === 'page_id'
-            ? block.parent.page_id
-            : block.parent.type === 'block_id'
-              ? block.parent.block_id
-              : undefined
+        let parentId: string | undefined
+        if (block.parent.type === 'page_id') {
+          parentId = block.parent.page_id
+        } else if (block.parent.type === 'block_id') {
+          parentId = block.parent.block_id
+        } else {
+          parentId = undefined
+        }
 
         blocks.push({
           blockId: block.id,
