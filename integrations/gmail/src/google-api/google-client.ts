@@ -30,14 +30,35 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken?: string
   }) {
+    console.log('Creating Google client', { refreshToken })
     const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
+    if (!token) {
+      throw new sdk.RuntimeError('No refresh token found. Please complete the OAuth flow to obtain a refresh token.')
+    }
+
+    console.log('Token', { token: token ? 'present' : 'missing' })
     const oauth2Client = GoogleClient._getOAuthClient({ ctx })
-    oauth2Client.setCredentials({ refresh_token: token })
+    console.log('OAuth client', { oauth2Client })
 
-    const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
+    // setCredentials peut déclencher un appel réseau pour obtenir un access token
+    // On l'entoure d'un timeout pour éviter les blocages
+    try {
+      oauth2Client.setCredentials({ refresh_token: token })
+      console.log('OAuth client set credentials', { oauth2Client })
+    } catch (error) {
+      console.error('Error setting OAuth credentials', error)
+      throw new sdk.RuntimeError(`Failed to set OAuth credentials: ${error}`)
+    }
+
+    const gmailClient = google.gmail({
+      version: 'v1',
+      auth: oauth2Client,
+      timeout: 30000, // 30 secondes timeout pour les appels API
+    })
     const topicName = IntegrationConfig.getPubSubTopicName({ ctx })
-
+    console.log('Gmail client', { gmailClient })
+    console.log('Topic name', { topicName })
     return new GoogleClient(gmailClient, topicName)
   }
 
@@ -57,11 +78,20 @@ export class GoogleClient {
     return GoogleClient.create({ client, ctx, refreshToken })
   }
 
-  public async watchIncomingMail() {
-    await this._gmail.users.watch({
+  public async watchIncomingMail(timeoutMs: number = 30000) {
+    const watchPromise = this._gmail.users.watch({
       userId: 'me',
       requestBody: { topicName: this._topicName },
     })
+
+    // Ajouter un timeout explicite pour éviter les blocages
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new sdk.RuntimeError(`Gmail watch request timed out after ${timeoutMs}ms`))
+      }, timeoutMs)
+    })
+
+    return Promise.race([watchPromise, timeoutPromise])
   }
 
   public async getMyEmail() {
@@ -83,13 +113,32 @@ export class GoogleClient {
   }
 
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-    })
+    console.log('Getting refresh token from states', { integrationId: ctx.integrationId })
+    try {
+      const { state } = await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken: '',
+          lastHistoryId: undefined,
+        },
+      })
 
-    return state.payload.refreshToken
+      const refreshToken = state.payload.refreshToken || undefined
+      console.log('Refresh token retrieved from states', {
+        integrationId: ctx.integrationId,
+        hasToken: !!refreshToken,
+      })
+
+      return refreshToken
+    } catch (error) {
+      console.error('Error getting refresh token from states', {
+        integrationId: ctx.integrationId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      throw new sdk.RuntimeError(`Failed to get refresh token from states: ${error}`)
+    }
   }
 
   private static async _saveRefreshTokenIntoStates({
@@ -101,12 +150,26 @@ export class GoogleClient {
     ctx: bp.Context
     refreshToken: string
   }) {
-    await client.setState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-      payload: { refreshToken },
-    })
+    // Use patchState to preserve existing fields like lastHistoryId
+    try {
+      await client.patchState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: { refreshToken },
+      })
+    } catch {
+      // If state doesn't exist, create it with getOrSetState
+      await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken,
+          lastHistoryId: undefined,
+        },
+      })
+    }
   }
 
   private static async _exchangeAuthorizationCodeForRefreshToken({
