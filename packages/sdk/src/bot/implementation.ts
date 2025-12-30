@@ -28,10 +28,12 @@ import {
   WorkflowUpdateType,
   InjectedHandlerProps,
   InjectedBotHandlers,
+  RegisterHandler,
 } from './server'
 import { proxyWorkflows, wrapWorkflowInstance } from './workflow-proxy'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
+  register?: RegisterHandler<TBot>
   actions: UnimplementedActionHandlers<TBot, TPlugins>
   plugins: {
     [K in utils.types.StringKeys<TPlugins>]: PluginImplementation<TPlugins[K]>
@@ -41,6 +43,7 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins exte
 export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
   implements InjectedBotHandlers<TBot>
 {
+  private _registerHandler: RegisterHandler<TBot> | undefined
   private _actionHandlers: ActionHandlers<any>
   private _messageHandlers: OrderedMessageHandlersMap<any> = {}
   private _eventHandlers: OrderedEventHandlersMap<any> = {}
@@ -68,8 +71,13 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   private _registerOrder: number = 0
 
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
+    this._registerHandler = props.register
     this._actionHandlers = props.actions as ActionHandlers<TBot>
     this._plugins = props.plugins
+  }
+
+  public get registerHandler(): RegisterHandler<TBot> | undefined {
+    return this._registerHandler
   }
 
   public get actionHandlers(): InjectedBotHandlers<TBot>['actionHandlers'] {
