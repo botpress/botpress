@@ -2,7 +2,7 @@ Connect your Botpress chatbot with Stripe, a popular online payment platform tha
 
 ## Setup and Configuration
 
-To set up the integration, you will need to provide your Stripe `apiKey`. This key be obtained from the Stripe Dashboard. Once the integration is set up, you can use the built-in actions to manage your Stripe data.
+To set up the integration, you will need to provide your Stripe `apiKey`. This key can be obtained from the Stripe Dashboard. Once the integration is set up, you can use the built-in actions to manage your Stripe data.
 
 ### Prerequisites
 
