@@ -4,6 +4,7 @@ import {
   PartialDatabaseObjectResponse,
   PartialPageObjectResponse,
   RichTextItemResponse,
+  UpdatePageParameters,
 } from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
@@ -101,6 +102,20 @@ export class NotionClient {
         },
       ],
     }))
+  }
+
+  @handleErrors('Failed to update page properties')
+  public async updatePageProperties({
+    pageId,
+    properties,
+  }: {
+    pageId: string
+    properties: UpdatePageParameters['properties']
+  }) {
+    return await this._notion.pages.update({
+      page_id: pageId,
+      properties,
+    })
   }
 
   @handleErrors('Failed to delete block')
