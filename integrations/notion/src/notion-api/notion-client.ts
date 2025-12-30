@@ -1,5 +1,6 @@
 import * as notionhq from '@notionhq/client'
 import {
+  BlockObjectResponse,
   PartialDatabaseObjectResponse,
   PartialPageObjectResponse,
   RichTextItemResponse,
@@ -186,13 +187,12 @@ export class NotionClient {
       })
 
       for (const block of response.results) {
-        if (!('type' in block)) {
+        if (!this._isBlockObjectResponse(block)) {
           continue
         }
 
         const blockType = block.type
-        const blockData = block[blockType as keyof typeof block] as Record<string, unknown> | undefined
-        const richText = (blockData?.rich_text as RichTextItemResponse[] | undefined) ?? []
+        const richText = this._extractRichTextFromBlockSwitch(block)
 
         let parentId: string | undefined
         if (block.parent.type === 'page_id') {
@@ -275,5 +275,38 @@ export class NotionClient {
           url: result.url,
         }
       })
+  }
+
+  private _isBlockObjectResponse(block: unknown): block is BlockObjectResponse {
+    return typeof block === 'object' && block !== null && 'type' in block && typeof block.type === 'string'
+  }
+
+  private _extractRichTextFromBlockSwitch(block: BlockObjectResponse): RichTextItemResponse[] {
+    switch (block.type) {
+      case 'paragraph':
+        return block[block.type].rich_text
+      case 'heading_1':
+        return block[block.type].rich_text
+      case 'heading_2':
+        return block[block.type].rich_text
+      case 'heading_3':
+        return block[block.type].rich_text
+      case 'bulleted_list_item':
+        return block[block.type].rich_text
+      case 'numbered_list_item':
+        return block[block.type].rich_text
+      case 'to_do':
+        return block[block.type].rich_text
+      case 'toggle':
+        return block[block.type].rich_text
+      case 'quote':
+        return block[block.type].rich_text
+      case 'callout':
+        return block[block.type].rich_text
+      case 'code':
+        return block[block.type].rich_text
+      default:
+        return []
+    }
   }
 }
