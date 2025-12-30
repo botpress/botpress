@@ -34,7 +34,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   }
 
   /**
-   * Used to *also* send the log to the bot owner
+   * Used send the log to the bot owner
    */
   public withVisibleToBotOwners(visibleToBotOwners: boolean) {
     return this.with({
@@ -43,7 +43,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   }
 
   /**
-   * Used to *not* send the log to the integration owner
+   * Used to *hide* the log from the integration owner
    */
   public withHiddenToIntegrationOwners(hiddenToIntegrationOwners: boolean) {
     return this.with({
@@ -52,17 +52,17 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   }
 
   /**
-   * Used to *also* send the log to the bot owner
+   * Used to send the log to the bot owner _**and**_ the integration owner
    */
   public forBot() {
-    return this.withVisibleToBotOwners(true)
+    return this.withVisibleToBotOwners(true).withHiddenToIntegrationOwners(false)
   }
 
   /**
-   * Used to *not* send the log to the integration owner
+   * Used send the log _**only**_ to the bot owner and _**not**_ the integration owner
    */
   public forBotOnly() {
-    return this.withHiddenToIntegrationOwners(true)
+    return this.withHiddenToIntegrationOwners(true).withVisibleToBotOwners(true)
   }
 
   protected override getJsonMessage(msg: string) {
