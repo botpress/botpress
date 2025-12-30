@@ -59,7 +59,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
   }
 
   /**
-   * Used send the log _**only**_ to the bot owner and _**not**_ the integration owner
+   * Used to send the log _**only**_ to the bot owner and _**not**_ the integration owner
    */
   public forBotOnly() {
     return this.withHiddenToIntegrationOwners(true).withVisibleToBotOwners(true)
