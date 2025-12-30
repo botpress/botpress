@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { getOrCreateUserFromCustomer } from './utils'
 import * as bp from '.botpress'
 
 type Client = bp.Client
@@ -14,20 +15,17 @@ export const fireSubscriptionCreated = async ({
   client: Client
   logger: IntegrationLogger
 }) => {
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id:
-        typeof stripeEvent.data.object.customer === 'string'
-          ? stripeEvent.data.object.customer
-          : stripeEvent.data.object.customer.id,
-    },
-  })
+  const userResponse = await getOrCreateUserFromCustomer(client, stripeEvent.data.object.customer)
+  let userId = 'no user'
+  if (userResponse) {
+    userId = userResponse.user.id
+  }
 
   logger.forBot().debug('Triggering subscription created event')
 
   const payload = {
     origin: 'stripe',
-    userId: user.id,
+    userId,
     data: { type: stripeEvent.type, object: { ...stripeEvent.data.object } },
   } satisfies Events['subscriptionCreated']
 
