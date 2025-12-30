@@ -55,14 +55,20 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
    * Used to send the log to the bot owner _**and**_ the integration owner
    */
   public forBot() {
-    return this.withVisibleToBotOwners(true).withHiddenToIntegrationOwners(false)
+    return this.with({
+      hiddenToIntegrationOwners: false,
+      visibleToBotOwners: true,
+    })
   }
 
   /**
    * Used to send the log _**only**_ to the bot owner and _**not**_ the integration owner
    */
   public forBotOnly() {
-    return this.withHiddenToIntegrationOwners(true).withVisibleToBotOwners(true)
+    return this.with({
+      hiddenToIntegrationOwners: true,
+      visibleToBotOwners: true,
+    })
   }
 
   protected override getJsonMessage(msg: string) {
