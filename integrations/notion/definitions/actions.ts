@@ -163,4 +163,36 @@ export const actions = {
       }),
     },
   },
+  getPageContent: {
+    title: 'Get Page Content',
+    description: 'Get the content blocks of a page or block in Notion',
+    input: {
+      schema: sdk.z.object({
+        pageId: sdk.z
+          .string()
+          .min(1)
+          .title('Page or Block ID')
+          .describe('The ID of the page or block to fetch content from. Can be found in the URL'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        blocks: sdk.z
+          .array(
+            sdk.z.object({
+              blockId: sdk.z.string().title('Block ID').describe('The unique ID of the block'),
+              parentId: sdk.z.string().optional().title('Parent ID').describe('The ID of the parent page or block'),
+              type: sdk.z.string().title('Type').describe('The type of the block (paragraph, heading_1, etc.)'),
+              hasChildren: sdk.z.boolean().title('Has Children').describe('Whether the block has nested child blocks'),
+              richText: sdk.z
+                .array(sdk.z.object({}).passthrough())
+                .title('Rich Text')
+                .describe('The rich text content of the block with formatting information'),
+            })
+          )
+          .title('Blocks')
+          .describe('Array of content blocks from the page'),
+      }),
+    },
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']

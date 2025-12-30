@@ -6,6 +6,7 @@ import { filesReadonlyListItemsInFolder } from './files-readonly/list-items-in-f
 import { filesReadonlyTransferFileToBotpress } from './files-readonly/transfer-file-to-botpress'
 import { getDb } from './get-db'
 import { getPage } from './get-page'
+import { getPageContent } from './get-page-content'
 import { searchByTitle } from './search-by-title'
 import * as bp from '.botpress'
 
@@ -17,6 +18,7 @@ export const actions = {
   filesReadonlyListItemsInFolder,
   filesReadonlyTransferFileToBotpress,
   getDb,
-  searchByTitle,
   getPage,
+  getPageContent,
+  searchByTitle,
 } as const satisfies bp.IntegrationProps['actions']
