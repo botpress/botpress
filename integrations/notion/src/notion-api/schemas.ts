@@ -1,15 +1,13 @@
 import { z } from '@botpress/sdk'
-import { UpdatePageParameters } from '@notionhq/client/build/src/api-endpoints'
 
-const richText = z.object({
-  type: z.literal('text'),
-  text: z.object({ content: z.string(), link: z.object({ url: z.string() }).optional() }),
-  annotations: z.any().optional(),
-  plain_text: z.string().optional(),
-  href: z.string().nullable().optional(),
-})
+const richText = z
+  .object({
+    text: z.object({ content: z.string() }),
+    type: z.literal('text').optional(),
+  })
+  .passthrough()
 
-const titleProp = z.object({ title: z.array(richText) })
+const titleProp = z.object({ type: z.literal('title'), title: z.array(richText) })
 const richTextProp = z.object({ rich_text: z.array(richText) })
 const numberProp = z.object({ number: z.number().nullable() })
 const checkboxProp = z.object({ checkbox: z.boolean() })
@@ -21,7 +19,6 @@ const dateProp = z.object({
     .object({
       start: z.string(),
       end: z.string().optional().nullable(),
-      time_zone: z.string().optional().nullable(),
     })
     .nullable(),
 })
@@ -34,14 +31,14 @@ const filesProp = z.object({
   files: z.array(
     z.union([
       z.object({
-        type: z.literal('external'),
-        name: z.string().optional(),
         external: z.object({ url: z.string() }),
+        name: z.string(),
+        type: z.literal('external').optional(),
       }),
       z.object({
-        type: z.literal('file'),
-        name: z.string().optional(),
-        file: z.object({ url: z.string(), expiry_time: z.string().optional() }).optional(),
+        file: z.object({ url: z.string(), expiry_time: z.string().optional() }),
+        name: z.string(),
+        type: z.literal('file').optional(),
       }),
     ])
   ),

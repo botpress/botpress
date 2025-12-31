@@ -1,7 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import { z } from '@botpress/sdk'
-import { updatePagePropertiesSchema } from '../notion-api/schemas'
 import { wrapAction } from '../action-wrapper'
+import { updatePagePropertiesSchema } from '../notion-api/schemas'
 
 export const updatePageProperties = wrapAction(
   { actionName: 'updatePageProperties', errorMessage: 'Failed to update page properties' },
@@ -17,17 +16,20 @@ export const updatePageProperties = wrapAction(
 
     const updatePagePropertiesResult = updatePagePropertiesSchema.safeParse(parsed)
     if (!updatePagePropertiesResult.success) {
-      throw new RuntimeError('propertiesJson must be a valid Notion properties object. Check the Notion API documentation for the correct format.')
+      throw new RuntimeError(
+        'propertiesJson must be a valid Notion properties object. Check the Notion API documentation for the correct format.'
+      )
     }
 
-    const updatedPage = await notionClient.updatePageProperties({ pageId, properties: updatePagePropertiesResult.data }).catch((thrown) => {
-      const error = thrown instanceof Error ? thrown : new Error(String(thrown))
-      throw new RuntimeError(`Failed to update page properties: ${error.message}`)
-    })
+    const updatedPage = await notionClient
+      .updatePageProperties({ pageId, properties: updatePagePropertiesResult.data })
+      .catch((thrown) => {
+        const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+        throw new RuntimeError(`Failed to update page properties: ${error.message}`)
+      })
 
     return {
       pageId: updatedPage.id,
     }
   }
 )
-
