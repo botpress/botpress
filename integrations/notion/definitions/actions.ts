@@ -133,16 +133,16 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
-  appendBlockToPage: {
-    title: 'Append Block to Page',
-    description: 'Append a markdown text to a page in Notion',
+  appendBlocksToPage: {
+    title: 'Append Blocks to Page',
+    description: 'Append a markdown text to a page in Notion. The markdown text will be converted to notion blocks.',
     input: {
       schema: sdk.z.object({
         pageId: sdk.z
           .string()
           .min(1)
           .title('Page ID')
-          .describe('The ID of the page to append the markdown text to. Can be found in the URL of the page'),
+          .describe('The ID of the page to append the blocks to. Can be found in the URL of the page'),
         markdownText: sdk.z.string().title('Markdown Text').describe('The markdown text to append to the page'),
       }),
     },

@@ -110,7 +110,7 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to append block to page')
-  public async appendBlockToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<void> {
+  public async appendBlocksToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<void> {
     void (await this._notion.blocks.children.append({
       block_id: pageId,
       children: blocks,
