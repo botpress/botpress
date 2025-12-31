@@ -5,6 +5,9 @@ const truncate = (str: string, maxLength: number = 500): string =>
   str.length > maxLength ? `${str.slice(0, maxLength)}...` : str
 
 const bot = new bp.Bot({
+  register: async (props) => {
+    props.logger.info('Registering Hello World bot!')
+  },
   actions: {
     sayHello: async ({ input }) => {
       const name = input?.name || 'World'
