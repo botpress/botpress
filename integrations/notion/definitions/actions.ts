@@ -21,6 +21,32 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
+  updatePageProperties: {
+    title: 'Update Page Properties',
+    description: 'Update one or more properties on a Notion page using raw Notion properties JSON',
+    input: {
+      schema: sdk.z.object({
+        pageId: sdk.z
+          .string()
+          .min(1)
+          .title('Page ID')
+          .describe('The ID of the page to update. Can be found in the page URL'),
+        propertiesJson: sdk.z
+          .string()
+          .min(2)
+          .title('Properties (JSON)')
+          .describe(
+            'JSON object for the Notion properties payload (same format as Notion pages.update). Example: {"Name":{"title":[{"text":{"content":"Title"}}]},"Status":{"select":{"name":"In Progress"}}}'
+          )
+          .placeholder('{"Name":{"title":[{"text":{"content":"Title"}}]},"Status":{"select":{"name":"In Progress"}}}'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        pageId: sdk.z.string().title('Page ID').describe('The updated page ID'),
+      }),
+    },
+  },
   addCommentToPage: {
     title: 'Add Comment to Page',
     description: 'Add a comment to a page in Notion',
