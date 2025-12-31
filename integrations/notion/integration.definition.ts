@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
-import { actions, configuration, configurations, identifier, secrets, states, user } from './definitions'
+import { actions, configuration, configurations, events, identifier, secrets, states, user } from './definitions'
 
 export const INTEGRATION_NAME = 'notion'
 export const INTEGRATION_VERSION = '2.2.4'
@@ -16,6 +16,7 @@ export default new sdk.IntegrationDefinition({
   configuration,
   configurations,
   identifier,
+  events,
   secrets,
   states,
   user,

@@ -10,7 +10,7 @@ export const articlePublished = async (props: {
   ctx: Context
   logger: Logger
 }) => {
-  const { event, client, ctx, logger } = props
+  const { event, client: bpClient, ctx, logger } = props
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     const kbId = ctx.configuration.knowledgeBaseId
@@ -20,7 +20,7 @@ export const articlePublished = async (props: {
       return
     }
 
-    const zendeskClient = getZendeskClient(ctx.configuration)
+    const zendeskClient = await getZendeskClient(bpClient, ctx)
 
     const response: { data: { article: ZendeskArticle } } = await zendeskClient.makeRequest({
       method: 'get',
@@ -35,11 +35,11 @@ export const articlePublished = async (props: {
     }
 
     const payload = getUploadArticlePayload({ kbId, article: publishedArticle })
-    await client.uploadFile(payload)
+    await bpClient.uploadFile(payload)
     logger.forBot().info(`Successfully uploaded published article "${publishedArticle.title}"`)
   }
 
-  await client.createEvent({
+  await bpClient.createEvent({
     type: 'articlePublished',
     payload: {
       articleId: event.detail.id,

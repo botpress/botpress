@@ -14,9 +14,6 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets,
   states,
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {

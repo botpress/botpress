@@ -36,7 +36,7 @@ export type Issue = {
   }
   project: {
     id: string
-    name: string | null
+    name: string
     completedAt: string | null
   } | null
   comments: {
@@ -46,8 +46,18 @@ export type Issue = {
       createdAt: string
       user: {
         id: string
-      }
+      } | null
       parentId: string | null
+    }[]
+  }
+}
+
+export type TeamStates = {
+  id: string
+  states: {
+    nodes: {
+      id: string
+      name: string
     }[]
   }
 }
@@ -128,6 +138,45 @@ export const GRAPHQL_QUERIES = {
         nodes: Issue[]
       }
       pageInfo: Pagination
+    },
+  },
+  findTeamStates: {
+    query: `
+      query GetAllTeams($filter: TeamFilter) {
+        organization {
+          teams(filter: $filter) {
+            nodes {
+              id
+              key
+              states {
+                nodes {
+                  id
+                  name
+                }
+              }
+            }
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      filter: {
+        key?: { eq: string }
+      }
+    },
+    [QUERY_RESPONSE]: {} as {
+      organization: {
+        teams: {
+          nodes: {
+            id: string
+            states: {
+              nodes: {
+                id: string
+                name: string
+              }[]
+            }
+          }[]
+        }
+      }
     },
   },
 } as const satisfies Record<string, GraphQLQuery<object, object>>

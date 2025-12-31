@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ client, ctx }) => {
-    const adminId = ctx.configuration.adminId ?? (await getAdminId(ctx))
+    const adminId = ctx.configuration.adminId || (await getAdminId(ctx))
 
     await client.setState({
       id: ctx.integrationId,
