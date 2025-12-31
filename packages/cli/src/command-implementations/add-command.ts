@@ -327,7 +327,11 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw thrown
     })
 
-    const devId = await cmd.projectCache.get('devId')
+    const devId = await cmd.projectCache.get('devId').catch((thrown) => {
+      const err = errors.BotpressCLIError.wrap(thrown, 'Failed to read project dev ID from cache')
+      this.logger.debug(err.message)
+      return undefined
+    })
 
     const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFileCJS)
     if (!fslib.existsSync(implementationAbsPath)) {
