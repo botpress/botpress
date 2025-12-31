@@ -5,6 +5,9 @@ import { deleteBlock } from './delete-block'
 import { filesReadonlyListItemsInFolder } from './files-readonly/list-items-in-folder'
 import { filesReadonlyTransferFileToBotpress } from './files-readonly/transfer-file-to-botpress'
 import { getDb } from './get-db'
+import { getPage } from './get-page'
+import { getPageContent } from './get-page-content'
+import { searchByTitle } from './search-by-title'
 import * as bp from '.botpress'
 
 export const actions = {
@@ -15,4 +18,7 @@ export const actions = {
   filesReadonlyListItemsInFolder,
   filesReadonlyTransferFileToBotpress,
   getDb,
+  getPage,
+  getPageContent,
+  searchByTitle,
 } as const satisfies bp.IntegrationProps['actions']

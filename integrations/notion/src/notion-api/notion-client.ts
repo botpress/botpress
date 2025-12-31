@@ -1,4 +1,10 @@
 import * as notionhq from '@notionhq/client'
+import {
+  BlockObjectResponse,
+  PartialDatabaseObjectResponse,
+  PartialPageObjectResponse,
+  RichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { NotionOAuthClient } from './notion-oauth-client'
@@ -19,7 +25,6 @@ export class NotionClient {
 
   public static async create({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<NotionClient> {
     const accessToken = await NotionClient._getAccessToken({ ctx, client })
-
     return new NotionClient({
       accessToken,
     })
@@ -35,7 +40,7 @@ export class NotionClient {
 
   private static async _getAccessToken({ ctx, client }: { client: bp.Client; ctx: bp.Context }): Promise<string> {
     if (ctx.configurationType === 'customApp') {
-      return ctx.configuration.authToken
+      return ctx.configuration.internalIntegrationSecret
     }
 
     const oauthClient = new NotionOAuthClient({ ctx, client })
@@ -103,6 +108,26 @@ export class NotionClient {
     void (await this._notion.blocks.delete({ block_id: blockId }))
   }
 
+  @handleErrors('Failed to search by title')
+  public async searchByTitle({ title }: { title?: string }) {
+    const [response, databaseResponse] = await Promise.all([
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'page' },
+      }),
+      this._notion.search({
+        query: title,
+        filter: { property: 'object', value: 'database' },
+      }),
+    ])
+
+    const allResults = [...response.results, ...databaseResponse.results]
+
+    const formattedResults = this._formatSearchResults(allResults)
+
+    return { results: formattedResults }
+  }
+
   @handleErrors('Failed to get database')
   public async getDbWithStructure({ databaseId }: { databaseId: string }) {
     const response = await this._notion.databases.retrieve({ database_id: databaseId })
@@ -147,8 +172,50 @@ export class NotionClient {
   @handleErrors('Failed to retrieve page')
   public async getPage({ pageId }: { pageId: string }) {
     const page = await this._notion.pages.retrieve({ page_id: pageId })
-
     return 'parent' in page ? page : undefined
+  }
+
+  @handleErrors('Failed to get page content')
+  public async getPageContent({ pageId }: { pageId: string }) {
+    const blocks: types.BlockContent[] = []
+    let nextCursor: string | undefined
+
+    do {
+      const response = await this._notion.blocks.children.list({
+        block_id: pageId,
+        start_cursor: nextCursor,
+      })
+
+      for (const block of response.results) {
+        if (!this._isBlockObjectResponse(block)) {
+          continue
+        }
+
+        const blockType = block.type
+        const richText = this._extractRichTextFromBlockSwitch(block)
+
+        let parentId: string | undefined
+        if (block.parent.type === 'page_id') {
+          parentId = block.parent.page_id
+        } else if (block.parent.type === 'block_id') {
+          parentId = block.parent.block_id
+        } else {
+          parentId = undefined
+        }
+
+        blocks.push({
+          blockId: block.id,
+          parentId,
+          type: blockType,
+          hasChildren: block.has_children,
+          richText,
+        })
+      }
+
+      nextCursor = response.next_cursor ?? undefined
+    } while (nextCursor)
+
+    return { blocks }
   }
 
   @handleErrors('Failed to get database')
@@ -179,5 +246,67 @@ export class NotionClient {
     const markdown = await this._notionToMdxClient.convertNotionPageToMarkdown({ pageId })
 
     return { markdown }
+  }
+
+  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDatabaseObjectResponse)[]) {
+    return results
+      .filter(
+        (result): result is types.NotionTopLevelItem => 'parent' in result && !('archived' in result && result.archived)
+      )
+      .map((result) => {
+        let resultTitle = ''
+
+        if (result.object === 'page' && 'properties' in result) {
+          const titleProp = Object.values(result.properties).find(
+            (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } =>
+              typeof prop === 'object' && prop !== null && 'type' in prop && prop.type === 'title'
+          )
+          if (titleProp) {
+            resultTitle = titleProp.title.map((t) => t.plain_text).join('')
+          }
+        } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
+          resultTitle = result.title.map((t) => t.plain_text).join('')
+        }
+
+        return {
+          id: result.id,
+          title: resultTitle,
+          type: result.object,
+          url: result.url,
+        }
+      })
+  }
+
+  private _isBlockObjectResponse(block: unknown): block is BlockObjectResponse {
+    return typeof block === 'object' && block !== null && 'type' in block && typeof block.type === 'string'
+  }
+
+  private _extractRichTextFromBlockSwitch(block: BlockObjectResponse): RichTextItemResponse[] {
+    switch (block.type) {
+      case 'paragraph':
+        return block[block.type].rich_text
+      case 'heading_1':
+        return block[block.type].rich_text
+      case 'heading_2':
+        return block[block.type].rich_text
+      case 'heading_3':
+        return block[block.type].rich_text
+      case 'bulleted_list_item':
+        return block[block.type].rich_text
+      case 'numbered_list_item':
+        return block[block.type].rich_text
+      case 'to_do':
+        return block[block.type].rich_text
+      case 'toggle':
+        return block[block.type].rich_text
+      case 'quote':
+        return block[block.type].rich_text
+      case 'callout':
+        return block[block.type].rich_text
+      case 'code':
+        return block[block.type].rich_text
+      default:
+        return []
+    }
   }
 }

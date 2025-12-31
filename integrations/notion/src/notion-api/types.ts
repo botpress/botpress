@@ -1,7 +1,15 @@
 import type * as notionhq from '@notionhq/client'
-import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { PageObjectResponse, RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
 
 export type NotionPagePropertyTypes = Valueof<PageObjectResponse['properties']>['type']
+
+export type BlockContent = {
+  blockId: string
+  parentId: string | undefined
+  type: string
+  hasChildren: boolean
+  richText: RichTextItemResponse[]
+}
 
 export type NotionTopLevelItem = Extract<
   Awaited<ReturnType<notionhq.Client['search']>>['results'][number],
