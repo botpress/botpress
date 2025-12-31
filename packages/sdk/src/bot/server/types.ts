@@ -397,6 +397,8 @@ export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot> = {
   }
 }
 
+export type RegisterHandler<TBot extends common.BaseBot> = (props: CommonHandlerProps<TBot>) => Promise<void>
+
 /**
  * Bot handlers without InjectedHandlerProps
  *
@@ -405,6 +407,7 @@ export type OrderedWorkflowHandlersMap<TBot extends common.BaseBot> = {
  * "*" is meant the user who registers an handler, not for the user who calls the handler
  */
 export type BotHandlers<TBot extends common.BaseBot> = {
+  registerHandler?: RegisterHandler<TBot>
   actionHandlers: ActionHandlersMap<TBot>
   messageHandlers: MessageHandlersMap<TBot>
   eventHandlers: EventHandlersMap<TBot>
@@ -414,6 +417,7 @@ export type BotHandlers<TBot extends common.BaseBot> = {
 }
 /** identical to BotHandlers, but contains the injected properties */
 export type InjectedBotHandlers<TBot extends common.BaseBot> = {
+  registerHandler?: RegisterHandler<TBot>
   actionHandlers: ActionHandlers<TBot>
   messageHandlers: {
     [TMessageName in utils.StringKeys<IncomingMessages<TBot>>]?: MessageHandlers<TBot>[TMessageName][]
