@@ -135,15 +135,15 @@ export const actions = {
   },
   appendBlockToPage: {
     title: 'Append Block to Page',
-    description: 'Append a block to a page in Notion',
+    description: 'Append a markdown text to a page in Notion',
     input: {
       schema: sdk.z.object({
         pageId: sdk.z
           .string()
           .min(1)
           .title('Page ID')
-          .describe('The ID of the page to append the block to. Can be found in the URL of the page'),
-        block: blockSchema.title('Block').describe('The block to append to the page'),
+          .describe('The ID of the page to append the markdown text to. Can be found in the URL of the page'),
+        markdownText: sdk.z.string().title('Markdown Text').describe('The markdown text to append to the page'),
       }),
     },
     output: {
