@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { getOrCreateUserFromCustomer } from './utils'
+import { getUserIdFromCustomer } from './utils'
 import * as bp from '.botpress'
 
 type Client = bp.Client
@@ -15,11 +15,7 @@ export const fireSubscriptionUpdated = async ({
   client: Client
   logger: IntegrationLogger
 }) => {
-  const userResponse = await getOrCreateUserFromCustomer(client, stripeEvent.data.object.customer)
-  let userId = 'no user'
-  if (userResponse) {
-    userId = userResponse.user.id
-  }
+  const userId = await getUserIdFromCustomer(client, stripeEvent.data.object.customer)
 
   logger.forBot().debug('Triggering subscription updated event')
 

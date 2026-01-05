@@ -1,13 +1,16 @@
 import Stripe from 'stripe'
 import * as bp from '.botpress'
 
-export const isCustomerObject = (obj: any): obj is Stripe.Customer => {
-  return obj && typeof obj === 'object' && 'id' in obj && typeof obj.id === 'string'
+const NO_USER_ID = 'no user'
+type Customer = string | Stripe.Customer | Stripe.DeletedCustomer | null
+
+const isCustomerObject = (obj: unknown): obj is Stripe.Customer => {
+  return obj !== null && typeof obj === 'object' && 'id' in obj && typeof obj.id === 'string'
 }
 
-export const isDeletedCustomerObject = (obj: any): obj is Stripe.DeletedCustomer => {
+const isDeletedCustomerObject = (obj: unknown): obj is Stripe.DeletedCustomer => {
   return (
-    obj &&
+    obj !== null &&
     typeof obj === 'object' &&
     'id' in obj &&
     typeof obj.id === 'string' &&
@@ -16,17 +19,19 @@ export const isDeletedCustomerObject = (obj: any): obj is Stripe.DeletedCustomer
   )
 }
 
-export const getOrCreateUserFromCustomer = async (
-  client: bp.Client,
-  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null
-) => {
-  if (isCustomerObject(customer)) {
+const getOrCreateUserFromCustomer = async (client: bp.Client, customer: Customer) => {
+  if (isDeletedCustomerObject(customer)) {
     return await client.getOrCreateUser({ tags: { id: customer.id } })
-  } else if (isDeletedCustomerObject(customer)) {
+  } else if (isCustomerObject(customer)) {
     return await client.getOrCreateUser({ tags: { id: customer.id } })
   } else if (typeof customer === 'string') {
     return await client.getOrCreateUser({ tags: { id: customer } })
   } else {
     return
   }
+}
+
+export const getUserIdFromCustomer = async (client: bp.Client, customer: Customer): Promise<string> => {
+  const userResponse = await getOrCreateUserFromCustomer(client, customer)
+  return userResponse?.user.id ?? NO_USER_ID
 }
