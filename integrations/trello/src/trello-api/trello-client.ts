@@ -1,4 +1,4 @@
-import type { Board, Card, List, Member, TrelloID } from 'definitions/schemas'
+import type { Board, Card, List, Member, TrelloID, Webhook } from 'definitions/schemas'
 import { TrelloClient as TrelloJs, type Models as TrelloJsModels } from 'trello.js'
 import { handleErrorsDecorator as handleErrors } from './error-handling/error-handler-decorator'
 import { RequestMapping } from './mapping/request-mapping'
@@ -121,14 +121,14 @@ export class TrelloClient {
     description: string
     url: string
     modelId: string
-  }): Promise<string> {
+  }): Promise<Webhook> {
     const webhook = await this._trelloJs.webhooks.createWebhook({
       description,
       callbackURL: url,
       idModel: modelId,
     })
 
-    return ResponseMapping.mapTrelloId(webhook.id)
+    return ResponseMapping.mapWebhook(webhook)
   }
 
   @handleErrors('Failed to delete webhook')

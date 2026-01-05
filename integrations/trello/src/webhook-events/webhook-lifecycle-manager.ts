@@ -69,12 +69,12 @@ export namespace WebhookLifecycleManager {
     logger.forBot().info('Registering Trello webhook...')
 
     const trelloClient = new TrelloClient({ ctx })
-    const webhookId = await trelloClient.createWebhook({
+    const webhook = await trelloClient.createWebhook({
       description: integrationName + ctx.integrationId,
       url: webhookUrl,
       modelId: ctx.configuration.trelloBoardId as string,
     })
-    await _setWebhookId(client, ctx, webhookId)
+    await _setWebhookId(client, ctx, webhook.id)
   }
 
   const _setWebhookId = async (client: bp.Client, ctx: bp.Context, webhookId: string): Promise<void> => {
