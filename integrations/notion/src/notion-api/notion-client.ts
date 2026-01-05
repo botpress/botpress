@@ -2,7 +2,8 @@ import * as notionhq from '@notionhq/client'
 import {
   BlockObjectRequest,
   BlockObjectResponse,
-  PartialDatabaseObjectResponse,
+  DataSourceObjectResponse,
+  PartialDataSourceObjectResponse,
   PartialPageObjectResponse,
   RichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints'
@@ -119,18 +120,18 @@ export class NotionClient {
 
   @handleErrors('Failed to search by title')
   public async searchByTitle({ title }: { title?: string }) {
-    const [response, databaseResponse] = await Promise.all([
+    const [response, dataSourceResponse] = await Promise.all([
       this._notion.search({
         query: title,
         filter: { property: 'object', value: 'page' },
       }),
       this._notion.search({
         query: title,
-        filter: { property: 'object', value: 'database' },
+        filter: { property: 'object', value: 'data_source' },
       }),
     ])
 
-    const allResults = [...response.results, ...databaseResponse.results]
+    const allResults = [...response.results, ...dataSourceResponse.results]
 
     const formattedResults = this._formatSearchResults(allResults)
 
@@ -139,7 +140,7 @@ export class NotionClient {
 
   @handleErrors('Failed to get database')
   public async getDbWithStructure({ databaseId }: { databaseId: string }) {
-    const response = await this._notion.databases.retrieve({ database_id: databaseId })
+    const response = await this._notion.dataSources.retrieve({ data_source_id: databaseId })
 
     // TODO: do not return the raw response; perform mapping
 
@@ -176,6 +177,13 @@ export class NotionClient {
       results: filteredResults,
       nextToken: next_cursor ?? undefined,
     }
+  }
+
+  @handleErrors('Failed to get data source')
+  public async getDataSource({ dataSourceId }: { dataSourceId: string }) {
+    const ds = await this._notion.dataSources.retrieve({ data_source_id: dataSourceId })
+
+    return 'parent' in ds ? ds : undefined
   }
 
   @handleErrors('Failed to retrieve page')
@@ -236,13 +244,15 @@ export class NotionClient {
 
   @handleErrors('Failed to enumerate database children')
   public async enumerateDatabaseChildren({ databaseId, nextToken }: { databaseId: string; nextToken?: string }) {
-    const { next_cursor, results } = await this._notion.databases.query({
-      database_id: databaseId,
+    const { next_cursor, results } = await this._notion.dataSources.query({
+      data_source_id: databaseId,
       in_trash: false,
       start_cursor: nextToken,
     })
 
-    const filteredResults = results.filter((res) => 'parent' in res && !res.in_trash) as types.NotionDatabaseChild[]
+    const filteredResults = results.filter(
+      (res): res is types.NotionDataSourceChild => 'parent' in res && !res.in_trash
+    )
 
     return {
       results: filteredResults,
@@ -257,13 +267,14 @@ export class NotionClient {
     return { markdown }
   }
 
-  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDatabaseObjectResponse)[]) {
+  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDataSourceObjectResponse | DataSourceObjectResponse)[]) {
     return results
       .filter(
         (result): result is types.NotionTopLevelItem => 'parent' in result && !('archived' in result && result.archived)
       )
       .map((result) => {
         let resultTitle = ''
+        let resultUrl = ''
 
         if (result.object === 'page' && 'properties' in result) {
           const titleProp = Object.values(result.properties).find(
@@ -273,15 +284,21 @@ export class NotionClient {
           if (titleProp) {
             resultTitle = titleProp.title.map((t) => t.plain_text).join('')
           }
-        } else if (result.object === 'database' && 'title' in result && Array.isArray(result.title)) {
+          if ('url' in result) {
+            resultUrl = result.url
+          }
+        } else if (result.object === 'data_source' && 'title' in result && Array.isArray(result.title)) {
           resultTitle = result.title.map((t) => t.plain_text).join('')
+          if ('url' in result) {
+            resultUrl = result.url
+          }
         }
 
         return {
           id: result.id,
           title: resultTitle,
           type: result.object,
-          url: result.url,
+          url: resultUrl,
         }
       })
   }
