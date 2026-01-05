@@ -35,10 +35,10 @@ export const configurations = {
         .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
       impersonateEmail: z
         .string()
+        .optional()
         .title('Impersonate email')
-        .email()
         .describe(
-          "The email of the user to impersonate. This is the email of the user you want to impersonate. It's mandatory to invite people or create meetings."
+          "The email of the user to impersonate. This is the email of the user you want to impersonate. It's mandatory for inviting people or creating meetings."
         ),
     }),
   },

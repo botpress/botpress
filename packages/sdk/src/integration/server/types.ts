@@ -1,8 +1,9 @@
 import { type Conversation, type Message, type User } from '@botpress/client'
+import type { commonTypes } from '../../common'
 import { Request, Response } from '../../serve'
 import { Cast, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
-import { BaseIntegration, ToTags } from '../common'
+import { BaseIntegration } from '../common'
 import { type IntegrationLogger } from './integration-logger'
 
 type IntegrationContextConfig<TIntegration extends BaseIntegration> =
@@ -67,7 +68,7 @@ export type ActionHandlers<TIntegration extends BaseIntegration> = {
 }
 
 export type CreateUserPayload<TIntegration extends BaseIntegration> = {
-  tags: ToTags<keyof TIntegration['user']['tags']>
+  tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
 }
 export type CreateUserHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
   CreateUserPayload<TIntegration>
@@ -80,7 +81,7 @@ export type CreateConversationPayload<
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
 > = {
   channel: TChannel
-  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+  tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
 }
 export type CreateConversationHandlerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> &
   CreateConversationPayload<TIntegration>
@@ -99,19 +100,19 @@ export type MessagePayload<
     Conversation,
     {
       channel: TChannel
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
     }
   >
   message: Merge<
     Message,
     {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
   user: Merge<
     User,
     {
-      tags: ToTags<keyof TIntegration['user']['tags']>
+      tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
     }
   >
 }
@@ -121,7 +122,9 @@ export type MessageHandlerProps<
   TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 > = CommonHandlerProps<TIntegration> &
   MessagePayload<TIntegration, TChannel, TMessage> & {
-    ack: (props: { tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']> }) => Promise<void>
+    ack: (props: {
+      tags: commonTypes.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+    }) => Promise<void>
   }
 export type ChannelHandlers<TIntegration extends BaseIntegration> = {
   [ChannelName in keyof TIntegration['channels']]: {

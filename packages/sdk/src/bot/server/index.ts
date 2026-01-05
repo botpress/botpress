@@ -136,9 +136,19 @@ const onPing = async (_: types.ServerProps): Promise<Response> => {
   return SUCCESS_RESPONSE
 }
 
-const onRegister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onRegister = async (serverProps: types.ServerProps): Promise<Response> => {
+  await serverProps.self.registerHandler?.({
+    client: serverProps.client,
+    ctx: serverProps.ctx,
+    logger: serverProps.logger,
+  })
+  return SUCCESS_RESPONSE
+}
 
-const onUnregister = async (_: types.ServerProps): Promise<Response> => SUCCESS_RESPONSE
+const onUnregister = async (_: types.ServerProps): Promise<Response> => {
+  // this is currently never called
+  return SUCCESS_RESPONSE
+}
 
 const onEventReceived = async (serverProps: types.ServerProps): Promise<Response> => {
   const { ctx, logger, req, client, self } = serverProps

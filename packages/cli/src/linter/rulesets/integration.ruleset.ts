@@ -1,6 +1,6 @@
 import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
-import { truthyWithMessage } from '../spectral-functions'
+import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
 
 export const INTEGRATION_RULESET = {
   extends: [],
@@ -51,7 +51,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `input parameter "${path.at(-3)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `input parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -63,7 +67,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `input parameter "${path.at(-2)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `input parameter "${path.at(isFallback ? -4 : -2)}" of action "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -75,7 +83,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-3)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -87,7 +99,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-2)}" of action "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of action "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -99,7 +115,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-3)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of event "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -112,7 +132,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `output parameter "${path.at(-2)}" of event "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of event "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -148,7 +172,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-3)}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -160,7 +187,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-2)}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -4 : -2)}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -186,9 +216,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'title',
-          function: truthyWithMessage(
-            ({ path }) => `configuration field "${path.at(-3)}" of configuration "${path[1]}"`
-          ),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `configuration field "${path.at(isFallback ? -5 : -3)}" of configuration "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -200,9 +232,11 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(
-            ({ path }) => `configuration field "${path.at(-2)}" of configuration "${path[1]}"`
-          ),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `configuration field "${path.at(isFallback ? -4 : -2)}" of configuration "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },
@@ -323,7 +357,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'x-zui.title',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -5 : -3)}" of state "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
         },
       ],
     },
@@ -336,7 +373,10 @@ export const INTEGRATION_RULESET = {
       then: [
         {
           field: 'description',
-          function: truthyWithMessage(({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`),
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -4 : -2)}" of state "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
         },
       ],
     },

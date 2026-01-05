@@ -1,9 +1,10 @@
 import * as sdk from '@botpress/sdk'
+import * as types from '../../types'
 import * as lin from '../../utils/linear-utils'
 import * as tm from '../teams-manager'
 import { lintIssue } from './lint-issue'
 
-const IGNORED_STATUSES: lin.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
+const IGNORED_STATES: types.StateKey[] = ['TRIAGE', 'PRODUCTION_DONE', 'CANCELED', 'STALE']
 const LINTIGNORE_LABEL_NAME = 'lintignore'
 
 export class IssueProcessor {
@@ -43,30 +44,30 @@ export class IssueProcessor {
     return await this._linear.listIssues(
       {
         teamKeys: watchedTeams,
-        statusesToOmit: IGNORED_STATUSES,
+        statesToOmit: IGNORED_STATES,
       },
       endCursor
     )
   }
 
-  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean) {
-    const status = await this._linear.issueStatus(issue)
-    if (IGNORED_STATUSES.includes(status) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
-      return
+  public async lintIssue(issue: lin.Issue, isRecentlyLinted?: boolean): Promise<types.LintResult> {
+    const state = await this._linear.issueState(issue)
+    if (IGNORED_STATES.includes(state) || issue.labels.nodes.some((label) => label.name === LINTIGNORE_LABEL_NAME)) {
+      return { identifier: issue.identifier, result: 'ignored' }
     }
 
-    const errors = await lintIssue(issue, status)
+    const errors = lintIssue(issue, state)
 
     if (errors.length === 0) {
       this._logger.info(`Issue ${issue.identifier} passed all lint checks.`)
       await this._linear.resolveComments(issue)
-      return
+      return { identifier: issue.identifier, result: 'succeeded' }
     }
 
     const warningMessage = `Issue ${issue.identifier} has ${errors.length} lint errors.`
     if (isRecentlyLinted) {
       this._logger.warn(`${warningMessage} Not commenting the issue because it has been linted recently.`)
-      return
+      return { identifier: issue.identifier, result: 'succeeded' }
     }
 
     this._logger.warn(warningMessage)
@@ -79,5 +80,7 @@ export class IssueProcessor {
         ...errors.map((error) => `- ${error.message}`),
       ].join('\n'),
     })
+
+    return { identifier: issue.identifier, messages: errors.map((error) => error.message), result: 'failed' }
   }
 }

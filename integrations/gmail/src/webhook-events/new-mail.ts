@@ -89,7 +89,7 @@ const _processMessage = async (
   googleClient: GoogleClient,
   emailAddress: string
 ) => {
-  const gmailMessage = await googleClient.getMessageById(messageId)
+  const gmailMessage = await googleClient.messages.get(messageId)
   const message = parseMessage(gmailMessage)
   const threadId = message.threadId
 

@@ -22,7 +22,4 @@ export default new IntegrationDefinition({
   configuration: {
     schema: configurationSchema,
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 })

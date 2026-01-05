@@ -1,4 +1,4 @@
-import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
+import { Issue, LinearClient, Team } from '@linear/sdk'
 import { LinearOauthClient } from './linear'
 import { AckFunction, MessageHandlerProps } from './types'
 import * as bp from '.botpress'
@@ -10,50 +10,6 @@ export type LinearClientProps = {
 export function getLinearClient({ client, ctx }: LinearClientProps, integrationId: string) {
   const linearOauthClient = new LinearOauthClient()
   return linearOauthClient.getLinearClient(client, ctx, integrationId)
-}
-
-export function dateToString(obj: Date | undefined) {
-  return obj ? obj.toISOString() : undefined
-}
-
-export function stringToDate(str: string | undefined) {
-  return str ? new Date(str) : undefined
-}
-
-export function toReturnedIssue(issue: Issue) {
-  return {
-    ...issue,
-    createdAt: issue.createdAt.toISOString(),
-    updatedAt: issue.updatedAt.toISOString(),
-    archivedAt: dateToString(issue.archivedAt),
-    canceledAt: dateToString(issue.canceledAt),
-    completedAt: dateToString(issue.completedAt),
-    autoArchivedAt: dateToString(issue.autoArchivedAt),
-    autoClosedAt: dateToString(issue.autoClosedAt),
-    snoozedUntilAt: dateToString(issue.snoozedUntilAt),
-    startedAt: dateToString(issue.startedAt),
-    startedTriageAt: dateToString(issue.startedTriageAt),
-    triagedAt: dateToString(issue.triagedAt),
-  }
-}
-
-export function toReturnedComment(comment: Comment) {
-  return {
-    ...comment,
-    archivedAt: dateToString(comment.archivedAt),
-    editedAt: dateToString(comment.editedAt),
-    createdAt: comment.createdAt.toISOString(),
-    updatedAt: comment.updatedAt.toISOString(),
-  }
-}
-
-export function toReturnedIssueLabel(issueLabel: IssueLabel) {
-  return {
-    ...issueLabel,
-    archivedAt: dateToString(issueLabel.archivedAt),
-    createdAt: issueLabel.createdAt.toISOString(),
-    updatedAt: issueLabel.updatedAt.toISOString(),
-  }
 }
 
 type ValueOf<T> = T[keyof T]

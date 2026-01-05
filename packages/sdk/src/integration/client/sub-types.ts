@@ -44,6 +44,8 @@ export type MessageTags<TIntegration extends common.BaseIntegration> = keyof uti
   }>
 >
 
+export type UserTags<TIntegration extends common.BaseIntegration> = common.ToTags<keyof TIntegration['user']['tags']>
+
 export type TagsOfMessage<
   TIntegration extends common.BaseIntegration,
   TMessageName extends keyof EnumerateMessages<TIntegration>,

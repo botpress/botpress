@@ -28,9 +28,6 @@ export default new sdk.IntegrationDefinition({
       }),
     },
   },
-  __advanced: {
-    useLegacyZuiTransformer: true,
-  },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },
   channels: {

@@ -12,7 +12,7 @@ import {
 export default new IntegrationDefinition({
   name: 'sendgrid',
   title: 'SendGrid',
-  version: '0.1.7',
+  version: '0.1.8',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send markdown rich-text emails using the SendGrid email service.',
@@ -22,7 +22,6 @@ export default new IntegrationDefinition({
       publicSignatureKey: z
         .string()
         .secret()
-        .min(1)
         .optional()
         .describe(
           'The public key used to verify the cryptographic signature of the webhook requests (Found in the edit webhook menu)'
