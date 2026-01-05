@@ -1,5 +1,5 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { boardSchema, cardSchema, listSchema, memberSchema } from './schemas/entities'
+import { type IntegrationDefinitionProps } from '@botpress/sdk'
+import { boardSchema, cardSchema, listSchema, memberSchema } from './schemas'
 
 export const entities = {
   card: {
