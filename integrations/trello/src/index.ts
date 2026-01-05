@@ -35,12 +35,12 @@ import {
   getAllCardMembers,
 } from './actions'
 import { channels } from './channels/publisher-dispatcher'
+import { register, unregister } from './setup'
 import { handler } from './webhook-events'
-import { WebhookLifecycleManager } from './webhook-events/webhook-lifecycle-manager'
 
 const integration = new bp.Integration({
-  register: WebhookLifecycleManager.registerTrelloWebhookIfNotExists,
-  unregister: WebhookLifecycleManager.unregisterTrelloWebhookIfExists,
+  register,
+  unregister,
 
   actions: {
     addCardComment,
