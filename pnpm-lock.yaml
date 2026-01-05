@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.2.4
+        version: 0.2.4
       '@bpinternal/readiness':
         specifier: ^0.0.16
         version: 0.0.16
@@ -1933,8 +1933,6 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
-
-  integrations/uber-eats: {}
 
   integrations/viber:
     dependencies:
@@ -3955,8 +3953,8 @@ packages:
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
-  '@bpinternal/depsynky@0.2.0':
-    resolution: {integrity: sha512-RS9IdcgTLoYhyscACrE2BgqbKAy6Yx3y1ziVR1JMQVy09EXVnsXCbf3Fz35mmp/4W4V5vrk/1oQziADWTNgDqQ==}
+  '@bpinternal/depsynky@0.2.4':
+    resolution: {integrity: sha512-uy6xQef/oDwiwJF6ZaKuFh1QXyHuyO0RPycCHW7tyC1WoVijSjBbAJR7XOfQnzNdpIjsbqj4WPl+joQzD1VT6A==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
 
@@ -4004,10 +4002,6 @@ packages:
 
   '@bpinternal/yargs-extra@0.0.14':
     resolution: {integrity: sha512-CoxnHOLeE/fnoojsU610WmI9ice2m2LSSw1sk8fG396WKWRYwcRoj4yVVu9I1/zi0wWvdBau9Rj6y4DzBOJOhw==}
-    engines: {node: '>=16.0.0', pnpm: 8.6.2}
-
-  '@bpinternal/yargs-extra@0.0.17':
-    resolution: {integrity: sha512-Q8RyT8zZ5NY6enmjFxuaOheujH12V7rWRtBxTBSuZs4EnuxEmDfv9VcdcnRQvk/HvRT/Ps9VshjNr0J8LBt/vw==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/yargs-extra@0.0.20':
@@ -11587,11 +11581,6 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
 
-  yaml@2.4.1:
-    resolution: {integrity: sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==}
-    engines: {node: '>= 14'}
-    hasBin: true
-
   yaml@2.7.0:
     resolution: {integrity: sha512-+hSoy/QHluxmC9kCIJyL/uyFmLmc+e5CFR5Wa+bpIhIj85LVb9ZH2nVnqrHoSvKogwODv0ClqZkmiSSaIH5LTA==}
     engines: {node: '>= 14'}
@@ -13013,15 +13002,15 @@ snapshots:
 
   '@bpinternal/const@0.1.0': {}
 
-  '@bpinternal/depsynky@0.2.0':
+  '@bpinternal/depsynky@0.2.4':
     dependencies:
-      '@bpinternal/yargs-extra': 0.0.17
+      '@bpinternal/yargs-extra': 0.0.20
       chalk: 4.1.2
       glob: 9.3.5
       prettier: 2.8.8
       prompts: 2.4.2
       semver: 7.7.2
-      yaml: 2.4.1
+      yaml: 2.7.0
 
   '@bpinternal/genenv@0.0.1':
     dependencies:
@@ -13112,15 +13101,6 @@ snapshots:
       browser-or-node: 2.1.1
 
   '@bpinternal/yargs-extra@0.0.14':
-    dependencies:
-      '@types/yargs': 17.0.33
-      decamelize: 5.0.1
-      json-schema: 0.4.0
-      lodash: 4.17.21
-      yargs: 17.7.2
-      yn: 4.0.0
-
-  '@bpinternal/yargs-extra@0.0.17':
     dependencies:
       '@types/yargs': 17.0.33
       decamelize: 5.0.1
@@ -22159,8 +22139,6 @@ snapshots:
   yallist@4.0.0: {}
 
   yaml@1.10.2: {}
-
-  yaml@2.4.1: {}
 
   yaml@2.7.0: {}
 
