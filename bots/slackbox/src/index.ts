@@ -17,14 +17,36 @@ bot.on.message('*', async (props) => {
   }
 
   try {
-    const response = await client.callAction({
-      type: 'slack:startChannelConversation',
-      input: {
-        channelName: DEFAULT_SLACK_CHANNEL,
+    const { state: slackState } = await client.getOrSetState({
+      name: 'slackConversationId',
+      type: 'bot',
+      id: ctx.botId,
+      payload: {
+        conversationId: undefined as string | undefined,
       },
     })
 
-    const slackConversationId = response.output.conversationId
+    let slackConversationId = slackState.payload.conversationId
+
+    if (!slackConversationId) {
+      const response = await client.callAction({
+        type: 'slack:startChannelConversation',
+        input: {
+          channelName: DEFAULT_SLACK_CHANNEL,
+        },
+      })
+
+      slackConversationId = response.output.conversationId
+
+      await client.setState({
+        id: ctx.botId,
+        name: 'slackConversationId',
+        type: 'bot',
+        payload: {
+          conversationId: slackConversationId,
+        },
+      })
+    }
 
     const notificationMessage = _mapGmailToSlack(conversation, message)
 
