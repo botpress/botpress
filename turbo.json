@@ -14,6 +14,10 @@
       "outputs": ["bp_modules/**", ".botpress/**"],
       "dependsOn": ["generate", "^build"]
     },
+    "@bpinternal/zui#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["generate", "^build"]
+    },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
       "dependsOn": ["generate", "^build"]
@@ -24,7 +28,7 @@
     },
     "@botpress/sdk#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build", "@bpinternal/zui#build"]
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
@@ -32,15 +36,15 @@
     },
     "@botpress/cognitive#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build", "@bpinternal/zui#build"]
     },
     "@botpress/vai#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build", "@bpinternal/zui#build"]
     },
     "@botpress/zai#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate", "^build"]
+      "dependsOn": ["generate", "^build", "@bpinternal/zui#build"]
     },
     "llmz#build": {
       "outputs": ["dist/**"],
