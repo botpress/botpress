@@ -1,14 +1,32 @@
-import type { Board, Card, List, Member, TrelloID, Webhook } from 'definitions/schemas'
+import { RuntimeError } from '@botpress/sdk'
+import {
+  webhookSchema,
+  type Board,
+  type Card,
+  type List,
+  type Member,
+  type TrelloID,
+  type Webhook,
+} from 'definitions/schemas'
 import { TrelloClient as TrelloJs, type Models as TrelloJsModels } from 'trello.js'
 import { handleErrorsDecorator as handleErrors } from './error-handling/error-handler-decorator'
 import { RequestMapping } from './mapping/request-mapping'
 import { ResponseMapping } from './mapping/response-mapping'
 import * as bp from '.botpress'
 
+const _useHandleCaughtError = (message: string) => {
+  return (thrown: unknown) => {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`${message}: ${error.message}`)
+  }
+}
+
 export class TrelloClient {
   private readonly _trelloJs: TrelloJs
+  private readonly _token: string
 
   public constructor({ ctx }: { ctx: bp.Context }) {
+    this._token = ctx.configuration.trelloApiToken
     this._trelloJs = new TrelloJs({ key: ctx.configuration.trelloApiKey, token: ctx.configuration.trelloApiToken })
   }
 
@@ -110,6 +128,24 @@ export class TrelloClient {
     })
 
     return ResponseMapping.mapMember(member)
+  }
+
+  public listWebhooks(): Promise<Webhook[]> {
+    return this._trelloJs.tokens
+      .getTokenWebhooks<TrelloJsModels.Webhook[]>({
+        token: this._token,
+      })
+      .catch(_useHandleCaughtError('Failed to list webhooks'))
+      .then((rawWebhooks) => {
+        const mappedWebhooks = rawWebhooks.map(ResponseMapping.mapWebhook)
+        const result = webhookSchema.array().safeParse(mappedWebhooks)
+
+        if (!result.success) {
+          throw new RuntimeError('Invalid webhook data received from Trello')
+        }
+
+        return result.data
+      })
   }
 
   @handleErrors('Failed to create webhook')
