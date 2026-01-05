@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import { wrapAction } from '../action-wrapper'
 import { updatePagePropertiesSchema } from '../../definitions/notion-schemas'
+import { wrapAction } from '../action-wrapper'
 
 export const updatePageProperties = wrapAction(
   { actionName: 'updatePageProperties', errorMessage: 'Failed to update page properties' },
