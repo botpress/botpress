@@ -14,15 +14,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "watch": "tsup --watch",
-    "test": "vitest run --bail 1",
-    "dev": "tsx playground.ts",
-    "test:watch": "vitest",
-    "check:type": "tsc --noEmit",
-    "check:format": "prettier --check src/",
-    "fix:format": "prettier --write src/",
-    "check": "pnpm run check:format && pnpm run check:type",
-    "fix": "pnpm run fix:format"
+    "check:type": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.5",
@@ -46,13 +38,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/botpress/packages"
+    "url": "https://github.com/botpress/botpress"
   },
   "author": "Botpress, Inc.",
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0",
-    "pnpm": "8.6.2"
+    "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@10.12.4"
 }

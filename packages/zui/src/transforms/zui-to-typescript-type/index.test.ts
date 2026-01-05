@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { toTypescriptType as toTs } from '.'
 import z, { util, ZodType } from '../../z'
 import * as errors from '../common/errors'
+import { assert } from '../../assertions.utils.test'
 
 const toTypescript = (schema: ZodType): string => {
   const hasTitle = 'title' in schema.ui
@@ -31,7 +32,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTs(fn, { declaration: true })
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       /**
        * Add two numbers together.
        * This is a multiline description
@@ -49,7 +50,7 @@ describe.concurrent('functions', () => {
       .describe('Add two numbers together.\nThis is a multiline description')
 
     const typings = toTs(fn, { declaration: 'type' })
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       /**
        * Add two numbers together.
        * This is a multiline description
@@ -68,7 +69,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       /**
        * Add two numbers together.
        * This is a multiline description
@@ -82,7 +83,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): unknown;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(): unknown;')
   })
 
   it('function with no args and void return', async () => {
@@ -90,7 +91,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): void;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(): void;')
   })
 
   it('async function returning union', async () => {
@@ -101,7 +102,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): Promise<number | string>;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(): Promise<number | string>;')
   })
 
   it('function with multiple args', async () => {
@@ -114,12 +115,12 @@ describe.concurrent('functions', () => {
         // Arg 2
         z.number().describe('This is a number'),
         // Arg 3
-        z.tuple([z.string(), z.number().describe('This is a number')]),
+        z.tuple([z.string(), z.number().describe('This is a number')])
       )
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       declare function fn(
         arg0: {
           a?: number;
@@ -136,19 +137,19 @@ describe.concurrent('functions', () => {
   it('function with optional args', async () => {
     const fn = z.function().title('fn').args(z.string().optional())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(arg0?: string): unknown;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(arg0?: string): unknown;')
   })
 
   it('function with readonly args', async () => {
     const fn = z.function().title('fn').args(z.string().readonly())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(arg0: Readonly<string>): unknown;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(arg0: Readonly<string>): unknown;')
   })
 
   it('function with readonly enumerable args', async () => {
     const fn = z.function().title('fn').args(z.array(z.string()).readonly())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(arg0: Readonly<string[]>): unknown;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(arg0: Readonly<string[]>): unknown;')
   })
 
   it('string literals', async () => {
@@ -156,9 +157,9 @@ describe.concurrent('functions', () => {
       z
         .union([z.literal('Hello, world!'), z.literal('Yoyoyoyo')])
         .describe('yoyoyo\nmultiline')
-        .title('x'),
+        .title('x')
     )
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       /**
        * yoyoyo
        * multiline
@@ -169,34 +170,34 @@ describe.concurrent('functions', () => {
 
   it('number literals', async () => {
     const code = toTypescript(z.literal(1).title('x'))
-    await expect(code).toMatchWithoutFormatting('declare const x: 1')
+    await assert(code).toMatchWithoutFormatting('declare const x: 1')
   })
 
   it('boolean literals', async () => {
     const code = toTypescript(z.literal(true))
-    await expect(code).toMatchWithoutFormatting('declare const x: true')
+    await assert(code).toMatchWithoutFormatting('declare const x: true')
   })
 
   it('undefined literals', async () => {
     const typings = toTypescript(z.literal(undefined))
-    await expect(typings).toMatchWithoutFormatting('declare const x: undefined')
+    await assert(typings).toMatchWithoutFormatting('declare const x: undefined')
   })
 
   it('null literals', async () => {
     const typings = toTypescript(z.literal(null))
-    await expect(typings).toMatchWithoutFormatting('declare const x: null')
+    await assert(typings).toMatchWithoutFormatting('declare const x: null')
   })
 
   it('bigint literals', async () => {
     const n = BigInt(100)
     const typings = toTypescript(z.literal(n))
-    await expect(typings).toMatchWithoutFormatting('declare const x: 100n')
+    await assert(typings).toMatchWithoutFormatting('declare const x: 100n')
   })
 
   it('symbol literals', async () => {
     const n = Symbol('hello')
     const typings = toTypescript(z.literal(n))
-    await expect(typings).toMatchWithoutFormatting('declare const x: symbol')
+    await assert(typings).toMatchWithoutFormatting('declare const x: symbol')
   })
 
   it('non explicitly discriminated union', async () => {
@@ -205,7 +206,7 @@ describe.concurrent('functions', () => {
       z.object({ enabled: z.literal(false), bar: z.number() }),
     ])
     const typings = toTypescript(schema)
-    await expect(typings).toMatchWithoutFormatting(`declare const x: {
+    await assert(typings).toMatchWithoutFormatting(`declare const x: {
           enabled: true;
           foo: string
         } | {
@@ -218,7 +219,7 @@ describe.concurrent('functions', () => {
   it('function with named args', async () => {
     const fn = z.function().title('fn').args(z.string().title('firstName').optional())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(firstName?: string): unknown;')
+    await assert(typings).toMatchWithoutFormatting('declare function fn(firstName?: string): unknown;')
   })
 
   it('mix of named and unnammed params', async () => {
@@ -227,7 +228,7 @@ describe.concurrent('functions', () => {
       .title('fn')
       .args(z.string().title('firstName').optional(), z.number(), z.object({ a: z.string() }).title('obj'))
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare function fn(
           firstName?: string,
           arg1: number,
@@ -244,7 +245,7 @@ describe.concurrent('functions', () => {
       .returns(z.string().nullable().optional())
 
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       declare function fn(
         arg0?: string | null,
         arg1?: number
@@ -264,7 +265,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTs(obj, { declaration: 'type' })
 
-    await expect(typings).toMatchWithoutFormatting('type MyObject = { a: number; b: string };')
+    await assert(typings).toMatchWithoutFormatting('type MyObject = { a: number; b: string };')
   })
 
   it('normal object', async () => {
@@ -272,7 +273,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string };')
+    await assert(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string };')
   })
 
   it('object with title and description', async () => {
@@ -283,7 +284,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         /**
          * This is my object.
          * This is a multiline description.
@@ -307,7 +308,7 @@ describe.concurrent('objects', () => {
                 h: z.array(z.string()).default([]).describe('This is h'),
               })
               .describe('The Knowledge Bases to Query'),
-          }),
+          })
         ),
       })
       .title('MyObject')
@@ -315,7 +316,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTs(obj, { declaration: true, includeClosingTags: true })
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       /**
        * This is my object.
        * This is a multiline description.
@@ -345,7 +346,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string } | null;')
+    await assert(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string } | null;')
   })
 
   it('optionals with default values', async () => {
@@ -353,7 +354,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string } | undefined;')
+    await assert(typings).toMatchWithoutFormatting('declare const MyObject: { a: number; b: string } | undefined;')
   })
 
   it('enum', async () => {
@@ -361,7 +362,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           a: 'hello' | 'world'
         };
@@ -377,7 +378,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** Description */
           someStr?: string
@@ -394,7 +395,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** Description */
           someStr?: string
@@ -411,7 +412,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting('declare const MyObject: { address: {} | null };')
+    await assert(typings).toMatchWithoutFormatting('declare const MyObject: { address: {} | null };')
   })
 
   it('object with a description & readonly', async () => {
@@ -423,7 +424,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** Description */ someStr: Readonly<string>
         };
@@ -439,7 +440,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** Description */
           someStr: Readonly<string>
@@ -456,7 +457,7 @@ describe.concurrent('objects', () => {
             z.object({
               street: z.string(),
               number: z.number(),
-            }),
+            })
           )
           .describe('This is a record'),
       })
@@ -464,7 +465,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** This is a record */
           address: { [key: number]: { street: string; number: number } }
@@ -482,19 +483,19 @@ describe.concurrent('objects', () => {
               status: z.string(),
               error: z.string().optional(),
             })
-            .optional(),
+            .optional()
         ),
       })
       .title('MyObject')
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(
+    await assert(typings).toMatchWithoutFormatting(
       `
         declare const MyObject: {
           computed: { [key: string]: { status: string; error?: string } | undefined }
         };
-      `,
+      `
     )
   })
 
@@ -567,7 +568,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       declare const payment:
         | {
             type: 'Credit Card';
@@ -619,7 +620,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       declare const UserPayment: {
         value:
           | {
@@ -646,16 +647,16 @@ describe.concurrent('objects', () => {
               z.object({
                 street: z.string(),
                 number: z.number(),
-              }),
+              })
             )
-            .describe('This is a record'),
+            .describe('This is a record')
         ),
       })
       .title('MyObject')
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** This is a record */ address: /** This is a record */ {
             [key: number]: { street: string; number: number }
@@ -671,8 +672,8 @@ describe.concurrent('objects', () => {
       .title('MyObject')
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting(
-      'declare function MyObject(arg0: Array<{ a: number; b: string }>): unknown;',
+    await assert(typings).toMatchWithoutFormatting(
+      'declare function MyObject(arg0: Array<{ a: number; b: string }>): unknown;'
     )
   })
 
@@ -680,7 +681,7 @@ describe.concurrent('objects', () => {
     const fn = z.function().args(z.array(z.number()).describe('This is an array of numbers')).title('MyObject')
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare function MyObject(
           /** This is an array of numbers */
           arg0: number[]
@@ -701,7 +702,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           /** This is A */
           a: string
@@ -720,7 +721,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
         declare const MyObject: {
           'Hello World!': string;
           'Hey?'?: string;
@@ -746,7 +747,7 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    await expect(typings).toMatchWithoutFormatting(`
+    await assert(typings).toMatchWithoutFormatting(`
       declare const MyObject: {
         stringLiteral: "1";
         numberLiteral: 1;
@@ -754,8 +755,8 @@ describe.concurrent('objects', () => {
         arrayLiteral: Array<"a">;
         tupleLiteral: ["a", 1];
         emptyTyple: [];
-        nested: {    
-          nestedLiteral: "nested"       
+        nested: {
+          nestedLiteral: "nested"
         };
       };
     `)
@@ -782,10 +783,10 @@ describe.concurrent('objects', () => {
     const typings2 = toTypescript(fn2)
     const typings3 = toTypescript(fn3)
 
-    await expect(typings1).toMatchWithoutFormatting(`declare function fn1(arg0: number | string): number | string`)
-    await expect(typings2).toMatchWithoutFormatting(`declare function fn2(arg0: { id: number[] } | string): unknown`)
-    await expect(typings3).toMatchWithoutFormatting(
-      `declare function fn3(arg0: { id: number[] } | { name: string }): unknown`,
+    await assert(typings1).toMatchWithoutFormatting(`declare function fn1(arg0: number | string): number | string`)
+    await assert(typings2).toMatchWithoutFormatting(`declare function fn2(arg0: { id: number[] } | string): unknown`)
+    await assert(typings3).toMatchWithoutFormatting(
+      `declare function fn3(arg0: { id: number[] } | { name: string }): unknown`
     )
   })
 
@@ -798,8 +799,8 @@ describe.concurrent('objects', () => {
       .required({ Date: true })
 
     const typings = toTypescript(obj)
-    await expect(typings).toMatchWithoutFormatting(`
-      declare const x: { 
+    await assert(typings).toMatchWithoutFormatting(`
+      declare const x: {
       /** Test2 */
       Date: string
       ; 'Hello World!'?: string }
@@ -814,7 +815,7 @@ describe.concurrent('objects', () => {
       .required({ Date: false } as any)
 
     const typings = toTypescript(obj)
-    await expect(typings).toMatchWithoutFormatting(`declare const x: { Date?: string }`)
+    await assert(typings).toMatchWithoutFormatting(`declare const x: { Date?: string }`)
   })
 
   it('chaining optionals only make properties optional once', async () => {
@@ -830,7 +831,7 @@ describe.concurrent('objects', () => {
           foo?: string
         }
       `
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 
   it('chaining optional nullable should still be optional', async () => {
@@ -844,7 +845,7 @@ describe.concurrent('objects', () => {
             foo: string | undefined | null
           }
         `
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 
   it('should not treat default property as optional by default', async () => {
@@ -858,7 +859,7 @@ describe.concurrent('objects', () => {
           foo: string
         }
       `
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 
   it('should treat default property as optional when treatDefaultAsOptional is true', async () => {
@@ -874,7 +875,7 @@ describe.concurrent('objects', () => {
           foo?: string
         }
       `
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 
   it('should treat an any key as optional for backward compatibility', async () => {
@@ -890,7 +891,7 @@ describe.concurrent('objects', () => {
           a?: any
         }
       `
-    await expect(actual).toMatchWithoutFormatting(expected)
+    await assert(actual).toMatchWithoutFormatting(expected)
 
     type S = z.infer<typeof zSchema>
     util.assertEqual<S, { a?: any }>(true)
@@ -907,7 +908,7 @@ describe.concurrent('objects', () => {
           a?: any
         }
       `
-    await expect(actual).toMatchWithoutFormatting(expected)
+    await assert(actual).toMatchWithoutFormatting(expected)
   })
 })
 
@@ -924,14 +925,14 @@ describe.concurrent('generics', () => {
     const schema = z.object({ a: z.string(), b: z.ref('T') }).title('MyObject')
     const typings = toTs(schema, { declaration: 'type' })
 
-    await expect(typings).toMatchWithoutFormatting('type MyObject<T> = { a: string; b: T };')
+    await assert(typings).toMatchWithoutFormatting('type MyObject<T> = { a: string; b: T };')
   })
 
   it('can generate a generic type by formating ref Uri', async () => {
     const schema = z.object({ a: z.string(), b: z.ref('#/$defs/T') }).title('MyObject')
     const typings = toTs(schema, { declaration: 'type' })
 
-    await expect(typings).toMatchWithoutFormatting('type MyObject<DefsT> = { a: string; b: DefsT };')
+    await assert(typings).toMatchWithoutFormatting('type MyObject<DefsT> = { a: string; b: DefsT };')
   })
 })
 
@@ -977,14 +978,14 @@ describe.concurrent('closing tags', () => {
           param3: z.boolean(),
           param4: z.string(),
           param5: z.number(),
-        }),
+        })
       )
       .returns(
         z.object({
           result1: z.string(),
           result2: z.number(),
           result3: z.boolean(),
-        }),
+        })
       )
       .title('LargeFunction')
 
@@ -998,7 +999,7 @@ describe.concurrent('optional', () => {
   it('should handle top level optional schemas as union with undefined', async () => {
     const schema = z.string().optional().title('MyString')
     const typings = toTs(schema, { declaration: true })
-    await expect(typings).toMatchWithoutFormatting('declare const MyString: string | undefined;')
+    await assert(typings).toMatchWithoutFormatting('declare const MyString: string | undefined;')
   })
 
   it('should not treat default schema as optional', async () => {
@@ -1006,7 +1007,7 @@ describe.concurrent('optional', () => {
 
     const typings = toTypescript(schema)
     const expected = `declare const x: string`
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 
   it('should treat default schema as optional when treatDefaultAsOptional is true', async () => {
@@ -1014,6 +1015,6 @@ describe.concurrent('optional', () => {
 
     const typings = toTs(schema, { declaration: true, treatDefaultAsOptional: true })
     const expected = `declare const MyString: string | undefined;`
-    await expect(typings).toMatchWithoutFormatting(expected)
+    await assert(typings).toMatchWithoutFormatting(expected)
   })
 })
