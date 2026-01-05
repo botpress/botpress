@@ -2,7 +2,7 @@ import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
 const STATE_NAME_FOR_NEW_ISSUES = 'Triage'
-const TEAM_KEY_FOR_NEW_ISSUES = 'ENG'
+const TEAM_NAME_FOR_NEW_ISSUES = 'ENG'
 
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
   const githubIssue = props.event.payload
@@ -16,29 +16,15 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
     (thrown: unknown): Promise<never> =>
       botpress.handleError({ context, conversationId: undefined }, thrown)
 
-  const teamStates = await linear
-    .findTeamStates(TEAM_KEY_FOR_NEW_ISSUES)
-    .catch(_handleError('trying to get Linear team states'))
-
-  if (!teamStates) {
-    props.logger.error(`Error: Linear team '${TEAM_KEY_FOR_NEW_ISSUES}' not found.`)
-    return
-  }
-
-  const state = teamStates.states.nodes.find((el) => el.name === STATE_NAME_FOR_NEW_ISSUES)
-
-  if (!state) {
-    props.logger.error(`Error: Linear state '${STATE_NAME_FOR_NEW_ISSUES}' not found.`)
-    return
-  }
-
-  const linearResponse = await linear.client
-    .createIssue({
-      teamId: teamStates.id,
-      stateId: state.id,
-      title: githubIssue.issue.name,
-      description: githubIssue.issue.body,
-      labelIds: [],
+  const linearResponse = await props.client
+    .callAction({
+      type: 'linear:createIssue',
+      input: {
+        teamName: TEAM_NAME_FOR_NEW_ISSUES,
+        description: githubIssue.issue.body,
+        title: githubIssue.issue.name,
+        stateName: STATE_NAME_FOR_NEW_ISSUES,
+      },
     })
     .catch(_handleError('trying to create a Linear issue from the GitHub issue'))
 
@@ -50,7 +36,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   await linear.client
     .createComment({
-      issueId: linearResponse.issueId,
+      issueId: linearResponse.output.issue.id,
       body: comment,
     })
     .catch(_handleError('trying to create a comment on the Linear issue created from GitHub'))
