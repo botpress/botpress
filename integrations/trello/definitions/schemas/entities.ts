@@ -38,3 +38,10 @@ export const memberSchema = z.object({
   fullName: z.string(),
 })
 export type Member = z.infer<typeof memberSchema>
+
+export const webhookSchema = z.object({
+  id: trelloIdSchema,
+  modelId: trelloIdSchema,
+  callbackUrl: z.string().url(),
+})
+export type Webhook = z.infer<typeof webhookSchema>
