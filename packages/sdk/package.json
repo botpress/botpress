@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "../client",
+    "@botpress/client": "1.28.0",
     "browser-or-node": "^2.1.1",
     "semver": "^7.3.8"
   },
