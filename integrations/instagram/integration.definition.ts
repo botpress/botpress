@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 import { dmChannelMessages } from './definitions/channel'
 
 export const INTEGRATION_NAME = 'instagram'
-export const INTEGRATION_VERSION = '4.1.5'
+export const INTEGRATION_VERSION = '4.1.6'
 
 const commonConfigSchema = z.object({
   replyToComments: z

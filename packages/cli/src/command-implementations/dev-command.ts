@@ -134,8 +134,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await supervisor.start()
 
     await this._runBuild()
-    await this._deploy(api, httpTunnelUrl)
     worker = await this._spawnWorker(env, port)
+    await this._deploy(api, httpTunnelUrl)
 
     try {
       const watcher = await utils.filewatcher.FileWatcher.watch(
@@ -190,8 +190,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       return
     }
 
-    await this._deploy(api, tunnelUrl)
     await worker.reload()
+    await this._deploy(api, tunnelUrl)
   }
 
   private _deploy = async (api: apiUtils.ApiClient, tunnelUrl: string) => {
