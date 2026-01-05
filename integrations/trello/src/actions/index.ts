@@ -56,20 +56,21 @@ export const actions = {
   getBoardMembersByDisplayName,
   getAllBoardMembers,
   getAllCardMembers,
-  // -----------------------
-  //    Interface Actions
-  // -----------------------
+  // === Interface Board Actions ===
   boardList,
   boardRead,
-  boardMemberList,
-  boardMemberRead,
+  // === Interface List Actions ===
   listList,
   listRead,
+  // === Interface Card Actions ===
   cardList,
   cardRead,
   cardCreate,
   cardUpdate,
   cardDelete,
+  // === Interface Member Actions ===
+  boardMemberList,
+  boardMemberRead,
   cardMemberList,
   cardMemberRead,
 } as const satisfies bp.IntegrationProps['actions']
