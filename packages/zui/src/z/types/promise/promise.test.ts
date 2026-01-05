@@ -6,7 +6,7 @@ const promSchema = z.promise(
   z.object({
     name: z.string(),
     age: z.number(),
-  }),
+  })
 )
 
 test('promise inference', () => {

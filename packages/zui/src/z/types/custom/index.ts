@@ -15,9 +15,9 @@ export const custom = <T>(
    * ```
    *
    */
-  fatal?: boolean,
+  fatal?: boolean
 ): ZodType<T> => {
-  if (check)
+  if (check) {
     return ZodAny.create().superRefine((data, ctx) => {
       if (!check(data)) {
         const p =
@@ -27,5 +27,6 @@ export const custom = <T>(
         ctx.addIssue({ code: 'custom', ...p2, fatal: _fatal })
       }
     })
+  }
   return ZodAny.create()
 }

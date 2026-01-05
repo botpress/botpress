@@ -6,7 +6,7 @@ test('parse strict object with unknown keys', () => {
     z
       .object({ name: z.string() })
       .strict()
-      .parse({ name: 'bill', unknownKey: 12 } as any),
+      .parse({ name: 'bill', unknownKey: 12 } as any)
   ).toThrow()
 })
 

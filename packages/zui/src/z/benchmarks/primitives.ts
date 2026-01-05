@@ -15,10 +15,10 @@ enumSuite
   .add('invalid', () => {
     try {
       enumSchema.parse('x')
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.enum: ${e.target}`)
+    console.info(`z.enum: ${e.target}`)
   })
 
 const undefinedSuite = new Benchmark.Suite('z.undefined')
@@ -31,10 +31,10 @@ undefinedSuite
   .add('invalid', () => {
     try {
       undefinedSchema.parse(1)
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.undefined: ${e.target}`)
+    console.info(`z.undefined: ${e.target}`)
   })
 
 const literalSuite = new Benchmark.Suite('z.literal')
@@ -49,10 +49,10 @@ literalSuite
   .add('invalid', () => {
     try {
       literalSchema.parse(bad)
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.literal: ${e.target}`)
+    console.info(`z.literal: ${e.target}`)
   })
 
 const numberSuite = new Benchmark.Suite('z.number')
@@ -65,15 +65,15 @@ numberSuite
   .add('invalid type', () => {
     try {
       numberSchema.parse('bad')
-    } catch (e) {}
+    } catch {}
   })
   .add('invalid number', () => {
     try {
       numberSchema.parse(0.5)
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.number: ${e.target}`)
+    console.info(`z.number: ${e.target}`)
   })
 
 const dateSuite = new Benchmark.Suite('z.date')
@@ -88,7 +88,7 @@ dateSuite
   .add('invalid', () => {
     try {
       plainDate.parse(1)
-    } catch (e) {}
+    } catch {}
   })
   .add('valid min and max', () => {
     minMaxDate.parse(new Date('2023-01-01'))
@@ -96,15 +96,15 @@ dateSuite
   .add('invalid min', () => {
     try {
       minMaxDate.parse(new Date('2019-01-01'))
-    } catch (e) {}
+    } catch {}
   })
   .add('invalid max', () => {
     try {
       minMaxDate.parse(new Date('2031-01-01'))
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.date: ${e.target}`)
+    console.info(`z.date: ${e.target}`)
   })
 
 const symbolSuite = new Benchmark.Suite('z.symbol')
@@ -117,10 +117,10 @@ symbolSuite
   .add('invalid', () => {
     try {
       symbolSchema.parse(1)
-    } catch (e) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`z.symbol: ${e.target}`)
+    console.info(`z.symbol: ${e.target}`)
   })
 
 export default {

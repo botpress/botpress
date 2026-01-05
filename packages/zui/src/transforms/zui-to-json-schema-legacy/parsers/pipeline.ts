@@ -5,7 +5,7 @@ import { JsonSchema7AllOfType } from './intersection'
 
 export const parsePipelineDef = (
   def: ZodPipelineDef<any, any>,
-  refs: Refs,
+  refs: Refs
 ): JsonSchema7AllOfType | JsonSchema7Type | undefined => {
   if (refs.pipeStrategy === 'input') {
     return parseDef(def.in._def, refs)

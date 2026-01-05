@@ -39,7 +39,7 @@ test('recursion with z.lazy', () => {
     z.object({
       name: z.string(),
       subcategories: z.array(Category),
-    }),
+    })
   )
   Category.parse(testCategory)
 })
@@ -72,7 +72,7 @@ test('recursion involving union type', () => {
         value: z.number(),
         next: LinkedListSchema,
       }),
-    ]),
+    ])
   )
   LinkedListSchema.parse(linkedListExample)
 })

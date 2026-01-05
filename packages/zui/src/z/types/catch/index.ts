@@ -14,11 +14,11 @@ import {
 } from '../index'
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
-export interface ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   catchValue: CatchFn<T['_output']>
   typeName: ZodFirstPartyTypeKind.ZodCatch
-}
+} & ZodTypeDef
 
 export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   T['_output'],
@@ -84,7 +84,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     type: T,
     params: RawCreateParams & {
       catch: T['_output'] | CatchFn<T['_output']>
-    },
+    }
   ): ZodCatch<T> => {
     return new ZodCatch({
       innerType: type,

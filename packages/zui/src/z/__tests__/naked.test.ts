@@ -10,7 +10,7 @@ test('naked object', () => {
       .object({ name: z.string() })
       .catch(() => ({ name: '' }))
       .naked(),
-    ZodObject,
+    ZodObject
   )
   assert.instanceOf(z.object({ name: z.string() }).optional().nullable().naked(), ZodObject)
   assert.instanceOf(z.object({ name: z.string() }).promise().nullable().naked(), ZodObject)
@@ -23,7 +23,7 @@ test('naked object', () => {
       .optional()
       .nullable()
       .naked(),
-    ZodObject,
+    ZodObject
   )
 
   assert.instanceOf(z.object({ name: z.string() }).readonly().naked(), ZodObject)
@@ -36,7 +36,7 @@ test('lazy', () => {
       .lazy(() => z.string())
       .nullable()
       .naked(),
-    ZodString,
+    ZodString
   )
   assert.instanceOf(
     z
@@ -44,7 +44,7 @@ test('lazy', () => {
       .optional()
       .nullable()
       .naked(),
-    ZodString,
+    ZodString
   )
   assert.instanceOf(
     z
@@ -52,7 +52,7 @@ test('lazy', () => {
       .promise()
       .nullable()
       .naked(),
-    ZodString,
+    ZodString
   )
 
   assert.instanceOf(z.lazy(() => z.object({ name: z.string() })).naked(), ZodObject)
@@ -61,7 +61,7 @@ test('lazy', () => {
       .lazy(() => z.object({ name: z.string() }))
       .nullable()
       .naked(),
-    ZodObject,
+    ZodObject
   )
 })
 
@@ -92,7 +92,7 @@ test('get constructor names', () => {
       .string()
       .catch(() => '')
       .naked().constructor.name,
-    'ZodString',
+    'ZodString'
   )
 
   assert.equal(
@@ -101,7 +101,7 @@ test('get constructor names', () => {
       .catch(() => '')
       .nullable()
       .naked().constructor.name,
-    'ZodString',
+    'ZodString'
   )
 })
 
@@ -113,6 +113,6 @@ test('not naked constructors', () => {
       .string()
       .catch(() => '')
       .nullable().constructor.name,
-    'ZodNullable',
+    'ZodNullable'
   )
 })

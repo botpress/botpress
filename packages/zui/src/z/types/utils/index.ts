@@ -46,8 +46,8 @@ export namespace util {
   }
 
   export const objectKeys: ObjectConstructor['keys'] =
-    typeof Object.keys === 'function' // eslint-disable-line ban/ban
-      ? (obj: any) => Object.keys(obj) // eslint-disable-line ban/ban
+    typeof Object.keys === 'function'
+      ? (obj: any) => Object.keys(obj)
       : (object: any) => {
           const keys = []
           for (const key in object) {
@@ -72,7 +72,7 @@ export namespace util {
 
   export const isInteger: NumberConstructor['isInteger'] =
     typeof Number.isInteger === 'function'
-      ? (val) => Number.isInteger(val) // eslint-disable-line ban/ban
+      ? (val) => Number.isInteger(val)
       : (val) => typeof val === 'number' && isFinite(val) && Math.floor(val) === val
 
   export function joinValues<T extends any[]>(array: T, separator = ' | '): string {
@@ -234,7 +234,7 @@ export const getParsedType = (data: any): ZodParsedType => {
 }
 
 export function processCreateParams(
-  params: RawCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined),
+  params: RawCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)
 ): ProcessedCreateParams {
   if (!params) return {}
 
@@ -248,16 +248,16 @@ export function processCreateParams(
   } = params
 
   if (errorMap && (invalid_type_error || required_error)) {
-    throw new Error(`Can't use "invalid_type_error" or "required_error" in conjunction with custom error map.`)
+    throw new Error('Can\'t use "invalid_type_error" or "required_error" in conjunction with custom error map.')
   }
 
   const filteredZuiExtensions = zuiExtensions
     ? Object.fromEntries(
-        Object.entries(zuiExtensions).filter(([key]) => key !== 'secret' || supportsExtensions?.includes('secret')),
+        Object.entries(zuiExtensions).filter(([key]) => key !== 'secret' || supportsExtensions?.includes('secret'))
       )
     : undefined
 
-  if (errorMap) return { errorMap: errorMap, description, [zuiKey]: filteredZuiExtensions }
+  if (errorMap) return { errorMap, description, [zuiKey]: filteredZuiExtensions }
 
   const customMap: ZodErrorMap = (iss, ctx) => {
     if (iss.code !== 'invalid_type') return { message: ctx.defaultError }

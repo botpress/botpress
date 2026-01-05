@@ -16,12 +16,12 @@ import {
   SyncParseReturnType,
 } from '../index'
 
-export interface ZodSetDef<Value extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodSetDef<Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
   typeName: ZodFirstPartyTypeKind.ZodSet
   minSize: { value: number; message?: string } | null
   maxSize: { value: number; message?: string } | null
-}
+} & ZodTypeDef
 
 export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
   Set<Value['_output']>,
@@ -100,7 +100,7 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
     }
 
     const elements = [...(ctx.data as Set<unknown>).values()].map((item, i) =>
-      valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)),
+      valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i))
     )
 
     if (ctx.common.async) {
@@ -134,7 +134,7 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
 
   static create = <Value extends ZodTypeAny = ZodTypeAny>(
     valueType: Value,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodSet<Value> => {
     return new ZodSet({
       valueType,

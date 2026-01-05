@@ -9,9 +9,9 @@ import {
   processCreateParams,
 } from '../index'
 
-export interface ZodAnyDef extends ZodTypeDef {
+export type ZodAnyDef = {
   typeName: ZodFirstPartyTypeKind.ZodAny
-}
+} & ZodTypeDef
 
 export class ZodAny extends ZodType<any, ZodAnyDef> {
   // to prevent instances of other classes from extending ZodAny. this causes issues with catchall in ZodObject.

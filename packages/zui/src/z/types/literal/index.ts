@@ -14,10 +14,10 @@ import {
   Primitive,
 } from '../index'
 
-export interface ZodLiteralDef<T extends Primitive = Primitive> extends ZodTypeDef {
+export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T
   typeName: ZodFirstPartyTypeKind.ZodLiteral
-}
+} & ZodTypeDef
 
 export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodLiteralDef<T>> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -39,7 +39,7 @@ export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodL
 
   static create = <T extends Primitive>(value: T, params?: RawCreateParams): ZodLiteral<T> => {
     return new ZodLiteral({
-      value: value,
+      value,
       typeName: ZodFirstPartyTypeKind.ZodLiteral,
       ...processCreateParams(params),
     })

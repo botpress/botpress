@@ -11,10 +11,10 @@ import {
   ZodParsedType,
 } from '../index'
 
-export interface ZodNullableDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodNullableDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   typeName: ZodFirstPartyTypeKind.ZodNullable
-}
+} & ZodTypeDef
 
 export type ZodNullableType<T extends ZodTypeAny> = ZodNullable<T>
 

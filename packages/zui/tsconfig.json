@@ -21,7 +21,7 @@
     "noErrorTruncation": true
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*", "vitest.d.ts"],
+  "include": ["src/**/*", "*.ts"],
   "ts-node": {
     "esm": true
   }

@@ -32,7 +32,7 @@ describe('Root schema result after parsing', () => {
 
   it("should not scrub 'any'-schemas from unions when strictUnions=false", () => {
     expect(
-      zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: false }),
+      zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: false })
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
       anyOf: [{ [zuiKey]: {} }, { [zuiKey]: {} }, { type: 'string', [zuiKey]: {} }, { type: 'number', [zuiKey]: {} }],
@@ -42,7 +42,7 @@ describe('Root schema result after parsing', () => {
 
   it("should scrub 'any'-schemas from unions when strictUnions=true", () => {
     expect(
-      zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: true }),
+      zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: true })
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
       anyOf: [{ [zuiKey]: {} }, { [zuiKey]: {} }, { type: 'string', [zuiKey]: {} }, { type: 'number', [zuiKey]: {} }],
@@ -56,8 +56,8 @@ describe('Root schema result after parsing', () => {
         z.object({
           field: z.union([z.any(), z.instanceof(String), z.string(), z.number()]),
         }),
-        { strictUnions: true },
-      ),
+        { strictUnions: true }
+      )
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
       additionalProperties: false,

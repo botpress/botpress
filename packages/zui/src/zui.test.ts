@@ -145,7 +145,7 @@ test('Lazy', () => {
     zui.object({
       type: zui.string(),
       value: zui.number().hidden(true),
-    }),
+    })
   )
 
   schema.parse({ type: 'hello', value: 5 })
@@ -157,7 +157,7 @@ test('array', () => {
       name: zui.string(),
       age: zui.number(),
       aliases: zui.record(zui.string(), zui.object({ name: zui.string() }), {}),
-    }),
+    })
   )
 
   schema.parse([

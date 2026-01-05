@@ -11,10 +11,10 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodOptionalDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodOptionalDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   typeName: ZodFirstPartyTypeKind.ZodOptional
-}
+} & ZodTypeDef
 
 export type ZodOptionalType<T extends ZodTypeAny> = ZodOptional<T>
 

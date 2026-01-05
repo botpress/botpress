@@ -22,7 +22,7 @@ type Builder = [Opener, Closer] | [Opener, MessagePrefix, Closer]
 export function withMessage(
   schema: JsonSchemaObject,
   key: string,
-  get: (props: { value: unknown; json: string }) => Builder | void,
+  get: (props: { value: unknown; json: string }) => Builder | void
 ) {
   const value = schema[key as keyof typeof schema]
 

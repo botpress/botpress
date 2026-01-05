@@ -1,7 +1,7 @@
-import { z } from '../../z/index'
-import { zodToJsonSchema } from './zodToJsonSchema'
-import { Options } from './Options'
 import { JSONSchema7 } from 'json-schema'
+import { z } from '../../z/index'
+import { Options } from './Options'
+import { zodToJsonSchema } from './zodToJsonSchema'
 
 export type ZuiSchemaOptions = {
   /**
@@ -24,7 +24,7 @@ export type ZuiSchemaOptions = {
  */
 export const toJSONSchemaLegacy = (
   zuiType: z.ZodTypeAny,
-  opts: ZuiSchemaOptions = { target: 'openApi3' },
+  opts: ZuiSchemaOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
   const jsonSchema = zodToJsonSchema(zuiType as z.ZodType, opts)
   if (opts.$schemaUrl === false) {

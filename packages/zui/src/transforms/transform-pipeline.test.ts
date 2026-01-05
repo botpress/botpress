@@ -389,7 +389,7 @@ describe.concurrent('transformPipeline', () => {
   it('should map ZodIntersection to itself', async () => {
     const srcSchema = z.intersection(
       z.object({ type: z.literal('foo'), foo: z.string() }),
-      z.object({ type: z.literal('bar'), bar: z.number() }),
+      z.object({ type: z.literal('bar'), bar: z.number() })
     )
     assert(srcSchema).toTransformBackToItself()
   })

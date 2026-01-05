@@ -13,9 +13,9 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodSymbolDef extends ZodTypeDef {
+export type ZodSymbolDef = {
   typeName: ZodFirstPartyTypeKind.ZodSymbol
-}
+} & ZodTypeDef
 
 export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

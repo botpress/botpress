@@ -45,7 +45,6 @@ const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
   } else if (type instanceof ZodEnum) {
     return type.options
   } else if (type instanceof ZodNativeEnum) {
-    // eslint-disable-next-line ban/ban
     return util.objectValues(type.enum)
   } else if (type instanceof ZodDefault) {
     return getDiscriminator(type._def.innerType)
@@ -75,15 +74,15 @@ export type ZodDiscriminatedUnionOption<Discriminator extends string> = ZodObjec
   UnknownKeysParam
 >
 
-export interface ZodDiscriminatedUnionDef<
+export type ZodDiscriminatedUnionDef<
   Discriminator extends string = string,
   Options extends ZodDiscriminatedUnionOption<string>[] = ZodDiscriminatedUnionOption<string>[],
-> extends ZodTypeDef {
+> = {
   discriminator: Discriminator
   options: Options
   optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
   typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion
-}
+} & ZodTypeDef
 
 export class ZodDiscriminatedUnion<
   Discriminator extends string = string,
@@ -110,7 +109,7 @@ export class ZodDiscriminatedUnion<
 
   clone(): ZodDiscriminatedUnion<Discriminator, Options> {
     const options: ZodDiscriminatedUnionOption<Discriminator>[] = this.options.map(
-      (option) => option.clone() as ZodDiscriminatedUnionOption<Discriminator>,
+      (option) => option.clone() as ZodDiscriminatedUnionOption<Discriminator>
     )
     return new ZodDiscriminatedUnion({
       ...this._def,
@@ -186,7 +185,7 @@ export class ZodDiscriminatedUnion<
   >(
     discriminator: Discriminator,
     options: Types,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodDiscriminatedUnion<Discriminator, Types> {
     const optionsMap = ZodDiscriminatedUnion._getOptionsMap(discriminator, options)
     return new ZodDiscriminatedUnion<
@@ -214,7 +213,7 @@ export class ZodDiscriminatedUnion<
       const discriminatorValues = getDiscriminator(type.shape[discriminator])
       if (!discriminatorValues.length) {
         throw new Error(
-          `A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`,
+          `A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`
         )
       }
       for (const value of discriminatorValues) {

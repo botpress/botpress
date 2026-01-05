@@ -1,27 +1,27 @@
+import { ParserSelector, Refs, JsonSchemaObject, JsonSchema, Serializable, JSONSchemaExtended } from '../types'
+import { parseAllOf } from './parseAllOf'
 import { parseAnyOf } from './parseAnyOf'
+import { parseArray } from './parseArray'
 import { parseBoolean } from './parseBoolean'
+import { parseConst } from './parseConst'
 import { parseDefault } from './parseDefault'
+import { parseDiscriminator } from './parseDiscriminator'
+import { parseEnum } from './parseEnum'
+import { parseIfThenElse } from './parseIfThenElse'
 import { parseMultipleType } from './parseMultipleType'
 import { parseNot } from './parseNot'
 import { parseNull } from './parseNull'
-import { parseAllOf } from './parseAllOf'
-import { parseArray } from './parseArray'
-import { parseConst } from './parseConst'
-import { parseEnum } from './parseEnum'
-import { parseIfThenElse } from './parseIfThenElse'
+import { parseNullable } from './parseNullable'
 import { parseNumber } from './parseNumber'
 import { parseObject } from './parseObject'
-import { parseString } from './parseString'
 import { parseOneOf } from './parseOneOf'
-import { parseNullable } from './parseNullable'
 import { parseRef } from './parseRef'
-import { ParserSelector, Refs, JsonSchemaObject, JsonSchema, Serializable, JSONSchemaExtended } from '../types'
-import { parseDiscriminator } from './parseDiscriminator'
+import { parseString } from './parseString'
 
 export const parseSchema = (
   schema: JSONSchemaExtended,
   refs: Refs = { seen: new Map(), path: [] },
-  blockMeta?: boolean,
+  blockMeta?: boolean
 ): string => {
   if (typeof schema !== 'object') return schema ? 'z.any()' : 'z.never()'
 
@@ -126,17 +126,17 @@ export const its = {
     object: (x: JsonSchemaObject): x is JsonSchemaObject & { type: 'object' } => x.type === 'object',
     array: (x: JsonSchemaObject): x is JsonSchemaObject & { type: 'array' } => x.type === 'array',
     anyOf: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       anyOf: JsonSchema[]
     } => x.anyOf !== undefined,
     allOf: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       allOf: JsonSchema[]
     } => x.allOf !== undefined,
     enum: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       enum: Serializable | Serializable[]
     } => x.enum !== undefined,
@@ -145,34 +145,34 @@ export const its = {
     nullable: (x: JsonSchemaObject): x is JsonSchemaObject & { nullable: true } => x.nullable === true,
     multipleType: (x: JsonSchemaObject): x is JsonSchemaObject & { type: string[] } => Array.isArray(x.type),
     not: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       not: JsonSchema
     } => x.not !== undefined,
     const: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       const: Serializable
     } => x.const !== undefined,
     primitive: <T extends 'string' | 'number' | 'integer' | 'boolean' | 'null'>(
       x: JsonSchemaObject,
-      p: T,
+      p: T
     ): x is JsonSchemaObject & { type: T } => x.type === p,
     conditional: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       if: JsonSchema
       then: JsonSchema
       else: JsonSchema
     } => Boolean('if' in x && x.if && 'then' in x && 'else' in x && x.then && x.else),
     discriminator: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       discriminator: { propertyName: string }
       oneOf: JsonSchema[]
     } => x.oneOf !== undefined && x.discriminator?.propertyName !== undefined,
     oneOf: (
-      x: JsonSchemaObject,
+      x: JsonSchemaObject
     ): x is JsonSchemaObject & {
       oneOf: JsonSchema[]
     } => x.oneOf !== undefined,

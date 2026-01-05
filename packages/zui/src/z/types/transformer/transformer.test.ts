@@ -34,8 +34,8 @@ test('transform ctx.addIssue with parse', () => {
         },
       ],
       null,
-      2,
-    ),
+      2
+    )
   )
 })
 
@@ -126,7 +126,7 @@ test('sync coercion async error', async () => {
       .object({
         id: asyncNumberToString,
       })
-      .parse({ id: 5 }),
+      .parse({ id: 5 })
   ).toThrow()
   // expect(data).toEqual({ id: '5' });
 })

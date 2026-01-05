@@ -79,7 +79,7 @@ test('all errors', () => {
       (val) => {
         return val.a === val.b
       },
-      { message: 'Must be equal' },
+      { message: 'Must be equal' }
     )
 
   try {

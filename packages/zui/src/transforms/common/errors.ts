@@ -11,7 +11,7 @@ type Transform =
 export abstract class ZuiTransformError extends Error {
   public constructor(
     public readonly transform: Transform,
-    message?: string,
+    message?: string
   ) {
     super(message)
   }
@@ -41,7 +41,7 @@ export class UnsupportedZuiToJSONSchemaError extends ZuiToJSONSchemaError {
   public constructor(type: ZodFirstPartyTypeKind, { suggestedAlternative }: { suggestedAlternative?: string } = {}) {
     super(
       `Zod type ${type} cannot be transformed to JSON Schema.` +
-        (suggestedAlternative ? ` Suggested alternative: ${suggestedAlternative}` : ''),
+        (suggestedAlternative ? ` Suggested alternative: ${suggestedAlternative}` : '')
     )
   }
 }

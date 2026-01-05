@@ -1,5 +1,5 @@
-import { primitiveToTypescriptValue as toTs } from '../common/utils'
 import { ZodSetDef } from '../../z/types/set'
+import { primitiveToTypescriptValue as toTs } from '../common/utils'
 export const generateSetChecks = (def: ZodSetDef): string => {
   const checks: string[] = []
   if (def.minSize) {

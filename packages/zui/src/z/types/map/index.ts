@@ -16,12 +16,11 @@ import {
   SyncParseReturnType,
 } from '../index'
 
-export interface ZodMapDef<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny>
-  extends ZodTypeDef {
+export type ZodMapDef<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
   keyType: Key
   typeName: ZodFirstPartyTypeKind.ZodMap
-}
+} & ZodTypeDef
 
 export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
   Map<Key['_output'], Value['_output']>,
@@ -115,7 +114,7 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
   static create = <Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny>(
     keyType: Key,
     valueType: Value,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodMap<Key, Value> => {
     return new ZodMap({
       valueType,

@@ -1,6 +1,6 @@
 export namespace enumUtil {
   type UnionToIntersectionFn<T> = (T extends unknown ? (k: () => T) => void : never) extends (
-    k: infer Intersection,
+    k: infer Intersection
   ) => void
     ? Intersection
     : never

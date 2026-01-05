@@ -7,7 +7,7 @@ type IsEqualCustomizer = (
   indexOrKey: PropertyKey | undefined,
   parent: any,
   otherParent: any,
-  stack: any,
+  stack: any
 ) => boolean | undefined
 
 export const isEqual = (a: any, b: any): boolean => {

@@ -23,10 +23,10 @@ export type Values<T extends EnumValues> = {
   [k in T[number]]: k
 }
 
-export interface ZodEnumDef<T extends EnumValues = EnumValues> extends ZodTypeDef {
+export type ZodEnumDef<T extends EnumValues = EnumValues> = {
   values: T
   typeName: ZodFirstPartyTypeKind.ZodEnum
-}
+} & ZodTypeDef
 
 export type Writeable<T> = {
   -readonly [P in keyof T]: T[P]
@@ -44,7 +44,7 @@ export type typecast<A, T> = A extends T ? A : never
 
 export function createZodEnum<U extends string, T extends Readonly<[U, ...U[]]>>(
   values: T,
-  params?: RawCreateParams,
+  params?: RawCreateParams
 ): ZodEnum<Writeable<T>>
 export function createZodEnum<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
 export function createZodEnum(values: [string, ...string[]], params?: RawCreateParams) {
@@ -115,7 +115,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
-    newDef: RawCreateParams = this._def,
+    newDef: RawCreateParams = this._def
   ): ZodEnum<Writeable<ToExtract>> {
     return ZodEnum.create(values, {
       ...this._def,
@@ -125,7 +125,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
-    newDef: RawCreateParams = this._def,
+    newDef: RawCreateParams = this._def
   ): ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
     return ZodEnum.create(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
       ...this._def,

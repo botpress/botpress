@@ -13,9 +13,9 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodVoidDef extends ZodTypeDef {
+export type ZodVoidDef = {
   typeName: ZodFirstPartyTypeKind.ZodVoid
-}
+} & ZodTypeDef
 
 export class ZodVoid extends ZodType<void, ZodVoidDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

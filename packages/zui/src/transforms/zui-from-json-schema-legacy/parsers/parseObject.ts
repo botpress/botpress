@@ -1,8 +1,8 @@
 import { Discriminator, JsonSchemaObject, Refs } from '../types'
+import { parseAllOf } from './parseAllOf'
 import { parseAnyOf } from './parseAnyOf'
 import { parseOneOf } from './parseOneOf'
 import { its, parseSchema } from './parseSchema'
-import { parseAllOf } from './parseAllOf'
 
 export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } & Discriminator, refs: Refs): string {
   let properties: string | undefined = undefined
@@ -60,7 +60,7 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
             path: [...refs.path, 'patternProperties', key],
           }),
         ]
-      }, {}),
+      }, {})
     )
 
     patternProperties = ''
@@ -99,7 +99,7 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
           .map((key) => JSON.stringify(key))
           .join(', ')}].includes(key)\n`
       } else {
-        patternProperties += `let evaluated = false\n`
+        patternProperties += 'let evaluated = false\n'
       }
     }
 
@@ -166,10 +166,10 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
         anyOf: objectSchema.anyOf.map((x) =>
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
-            : x,
+            : x
         ),
       },
-      refs,
+      refs
     )})`
   }
 
@@ -180,10 +180,10 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
         oneOf: objectSchema.oneOf.map((x) =>
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
-            : x,
+            : x
         ),
       },
-      refs,
+      refs
     )})`
   }
 
@@ -194,10 +194,10 @@ export function parseObject(objectSchema: JsonSchemaObject & { type: 'object' } 
         allOf: objectSchema.allOf.map((x) =>
           typeof x === 'object' && !x.type && (x.properties || x.additionalProperties || x.patternProperties)
             ? { ...x, type: 'object' }
-            : x,
+            : x
         ),
       },
-      refs,
+      refs
     )})`
   }
 

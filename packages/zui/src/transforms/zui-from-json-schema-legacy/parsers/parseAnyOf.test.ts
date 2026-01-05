@@ -13,8 +13,8 @@ describe('parseAnyOf', () => {
             { type: 'number' },
           ],
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.union([z.string(), z.number()])')
   })
 

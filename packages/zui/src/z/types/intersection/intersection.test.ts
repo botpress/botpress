@@ -44,7 +44,7 @@ test('deep intersection of arrays', async () => {
     posts: z.array(
       z.object({
         post_id: z.number(),
-      }),
+      })
     ),
   })
   const Registry = z
@@ -52,7 +52,7 @@ test('deep intersection of arrays', async () => {
       posts: z.array(
         z.object({
           title: z.string(),
-        }),
+        })
       ),
     })
     .and(Author)
@@ -70,7 +70,7 @@ test('deep intersection of arrays', async () => {
 test('invalid intersection types', async () => {
   const numberIntersection = z.intersection(
     z.number(),
-    z.number().transform((x) => x + 1),
+    z.number().transform((x) => x + 1)
   )
 
   const syncResult = numberIntersection.safeParse(1234)
@@ -92,7 +92,7 @@ test('invalid array merge', async () => {
     z
       .string()
       .array()
-      .transform((val) => [...val, 'asdf']),
+      .transform((val) => [...val, 'asdf'])
   )
   const syncResult = stringArrInt.safeParse(['asdf', 'qwer'])
   expect(syncResult.success).toEqual(false)

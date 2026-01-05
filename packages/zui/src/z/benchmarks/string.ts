@@ -41,13 +41,13 @@ suite
   .add('invalid: null', () => {
     try {
       stringSchema.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .add('manual parser: long', () => {
     manual(long)
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${SUITE_NAME}: ${e.target}`)
+    console.info(`${SUITE_NAME}: ${e.target}`)
   })
 
 export default {

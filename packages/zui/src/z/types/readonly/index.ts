@@ -32,10 +32,10 @@ type MakeReadonly<T> =
             ? T
             : Readonly<T>
 
-export interface ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   typeName: ZodFirstPartyTypeKind.ZodReadonly
-}
+} & ZodTypeDef
 
 export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   MakeReadonly<T['_output']>,

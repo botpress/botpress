@@ -16,7 +16,7 @@ describe('parseNumber', () => {
           exclusiveMinimum: 'deez',
           maximum: 'nuts',
         },
-      }),
+      })
     ).toStrictEqual('z.number().int("ayy").multipleOf(2, "lmao").gt(0, "deez").lte(2, "nuts")')
   })
 })

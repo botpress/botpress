@@ -14,9 +14,9 @@ import {
   ZodNever,
 } from '../index'
 
-export interface ZodUndefinedDef extends ZodTypeDef {
+export type ZodUndefinedDef = {
   typeName: ZodFirstPartyTypeKind.ZodUndefined
-}
+} & ZodTypeDef
 
 export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

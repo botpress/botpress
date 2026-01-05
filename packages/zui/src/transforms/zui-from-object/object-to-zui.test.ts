@@ -14,7 +14,7 @@ function asSchema(s: JSONSchema7Definition | undefined): JSONSchema7 | undefined
 describe('object-to-zui', () => {
   test('validate object to json', async () => {
     const schema: JSONSchema7 = toJSONSchemaLegacy(
-      fromObject({ name: 'Bob', age: 20, birthDate: '1988-11-29', isAdmin: true }, { optional: true }),
+      fromObject({ name: 'Bob', age: 20, birthDate: '1988-11-29', isAdmin: true }, { optional: true })
     )
 
     if (schema.type !== 'object') {
@@ -94,8 +94,8 @@ describe('object-to-zui', () => {
           test: null,
           anotherValue: 'test',
         },
-        { optional: true },
-      ),
+        { optional: true }
+      )
     )
 
     if (schema.type !== 'object') {
@@ -119,8 +119,8 @@ describe('object-to-zui', () => {
             },
           },
         },
-        { optional: true, nullable: true },
-      ),
+        { optional: true, nullable: true }
+      )
     )
 
     const useSchema = asSchema(schema.properties?.user)
@@ -140,8 +140,8 @@ describe('object-to-zui', () => {
           tags: ['tag1', 'tag2'],
           scores: [1, 2, 3],
         },
-        { optional: true },
-      ),
+        { optional: true }
+      )
     )
 
     const tagsSchema = asSchema(schema.properties?.tags)
@@ -168,7 +168,7 @@ describe('object-to-zui', () => {
     const schema: JSONSchema7 = toJSONSchemaLegacy(
       fromObject({
         eventTime: '2023-03-15T14:00:00+01:00',
-      }),
+      })
     )
     const eventTimeSchema = asSchema(schema.properties?.eventTime)
 
@@ -181,7 +181,7 @@ describe('object-to-zui', () => {
 
   test('empty objects are considered passtrough, other are strict', () => {
     const schema: JSONSchema7 = toJSONSchemaLegacy(
-      fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }),
+      fromObject({ input: {}, test: { output: {} }, fixed: { value: true } })
     )
 
     const testSchema = asSchema(schema.properties?.test)
@@ -200,7 +200,7 @@ describe('object-to-zui', () => {
 
   test('when passtrough is set to true, they are all passtrough', () => {
     const schema: JSONSchema7 = toJSONSchemaLegacy(
-      fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }, { passtrough: true }),
+      fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }, { passtrough: true })
     )
 
     const testSchema = asSchema(schema.properties?.test)

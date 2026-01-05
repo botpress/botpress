@@ -10,8 +10,8 @@ describe('parseNullable', () => {
           nullable: true,
           default: null,
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.string().nullable().default(null)')
   })
 })

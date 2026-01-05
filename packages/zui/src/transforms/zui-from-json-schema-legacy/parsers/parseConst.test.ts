@@ -6,7 +6,7 @@ describe('parseConst', () => {
     expect(
       parseConst({
         const: false,
-      }),
+      })
     ).toStrictEqual('z.literal(false)')
   })
 })

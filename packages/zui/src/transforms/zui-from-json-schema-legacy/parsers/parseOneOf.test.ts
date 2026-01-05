@@ -13,8 +13,8 @@ describe('parseOneOf', () => {
             { type: 'number' },
           ],
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual(
       `z.any().superRefine((x, ctx) => {
     const schemas = [z.string(), z.number()];
@@ -33,7 +33,7 @@ describe('parseOneOf', () => {
         message: "Invalid input: Should pass single schema",
       });
     }
-  })`,
+  })`
     )
   })
 

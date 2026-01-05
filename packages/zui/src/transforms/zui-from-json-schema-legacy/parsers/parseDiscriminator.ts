@@ -1,6 +1,6 @@
 import { JSONSchemaExtended, JsonSchema, Refs } from '../types'
-import { parseSchema } from './parseSchema'
 import { parseOneOf } from './parseOneOf'
+import { parseSchema } from './parseSchema'
 
 export const parseDiscriminator = (schema: JSONSchemaExtended & { oneOf: JsonSchema[] }, refs: Refs) => {
   if (schema.oneOf.length <= 1 || !schema.discriminator?.propertyName) {
@@ -11,7 +11,7 @@ export const parseDiscriminator = (schema: JSONSchemaExtended & { oneOf: JsonSch
     parseSchema(schema, {
       ...refs,
       path: [...refs.path, 'oneOf', i],
-    }),
+    })
   )
 
   return `z.discriminatedUnion("${schema.discriminator?.propertyName}", [${schemas.join(', ')}])`
@@ -29,7 +29,7 @@ export const __original = (schema: JSONSchemaExtended & { oneOf: JsonSchema[] },
       parseSchema(schema, {
         ...refs,
         path: [...refs.path, 'oneOf', i],
-      }),
+      })
     )}];
     const errors = schemas.reduce(
       (errors: z.ZodError[], schema) =>

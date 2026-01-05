@@ -9,9 +9,9 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodUnknownDef extends ZodTypeDef {
+export type ZodUnknownDef = {
   typeName: ZodFirstPartyTypeKind.ZodUnknown
-}
+} & ZodTypeDef
 
 export class ZodUnknown extends ZodType<unknown, ZodUnknownDef> {
   // required

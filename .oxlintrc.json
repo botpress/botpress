@@ -65,7 +65,7 @@
     "eslint/no-sparse-arrays": "error",
     "eslint/no-unreachable": "error",
     "eslint/max-lines-per-function": "off",
-    "eslint/default-case": "error",
+    "eslint/default-case": "off",
     "eslint/default-case-last": "error",
     "eslint/max-depth": "error",
     "eslint/no-eval": "error",
@@ -163,7 +163,7 @@
     // ],
     // "typescript/explicit-member-accessibility": "warn",
     "unicorn/no-empty-file": "error",
-    "unicorn/no-lonely-if": "warn"
+    "unicorn/no-lonely-if": "off"
   },
   "overrides": [],
   "categories": {

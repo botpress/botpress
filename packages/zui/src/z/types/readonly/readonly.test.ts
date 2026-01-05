@@ -45,7 +45,7 @@ test('flat inference', () => {
   util.assertEqual<z.infer<(typeof schemas)[9]>, Readonly<unknown>>(true)
   util.assertEqual<z.infer<(typeof schemas)[10]>, void>(true)
   util.assertEqual<z.infer<(typeof schemas)[11]>, (args_0: string, args_1: number, ...args_2: unknown[]) => unknown>(
-    true,
+    true
   )
   util.assertEqual<z.infer<(typeof schemas)[12]>, readonly string[]>(true)
 
@@ -147,16 +147,16 @@ test('object freezing', () => {
       z
         .map(z.string(), z.date())
         .readonly()
-        .parse(new Map([['a', new Date()]])),
-    ),
+        .parse(new Map([['a', new Date()]]))
+    )
   ).toBe(true)
   expect(
     Object.isFrozen(
       z
         .set(z.promise(z.string()))
         .readonly()
-        .parse(new Set([Promise.resolve('a')])),
-    ),
+        .parse(new Set([Promise.resolve('a')]))
+    )
   ).toBe(true)
   expect(Object.isFrozen(z.record(z.string()).readonly().parse({ a: 'b' }))).toBe(true)
   expect(Object.isFrozen(z.record(z.string(), z.number()).readonly().parse({ a: 1 }))).toBe(true)

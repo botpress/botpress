@@ -1,3 +1,8 @@
+import { Schema as ZuiJSONSchema } from '../../../transforms/common/json-schema'
+import { toJSONSchema } from '../../../transforms/zui-to-json-schema'
+import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
+import { toTypescriptType, TypescriptGenerationOptions } from '../../../transforms/zui-to-typescript-type'
+import { zuiKey } from '../../../ui/constants'
 import type {
   BaseType,
   UIComponentDefinitions,
@@ -6,7 +11,7 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
-import { zuiKey } from '../../../ui/constants'
+import { CatchFn } from '../catch'
 import {
   AsyncParseReturnType,
   getParsedType,
@@ -41,11 +46,6 @@ import {
   ZodReadonly,
   ZodUnion,
 } from '../index'
-import { CatchFn } from '../catch'
-import { toTypescriptType, TypescriptGenerationOptions } from '../../../transforms/zui-to-typescript-type'
-import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
-import { toJSONSchema } from '../../../transforms/zui-to-json-schema'
-import { Schema as ZuiJSONSchema } from '../../../transforms/common/json-schema'
 
 /**
  * This type is not part of the original Zod library, it's been added in Zui to:
@@ -74,7 +74,7 @@ export type output<T extends __ZodType> = T['_output']
 export type { TypeOf as infer }
 export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
 export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
-export interface ZodTypeDef {
+export type ZodTypeDef = {
   typeName: ZodFirstPartyTypeKind
   errorMap?: ZodErrorMap
   description?: string
@@ -107,7 +107,7 @@ export class ParseInputLazyPath implements ParseInput {
 }
 const handleResult = <Input, Output>(
   ctx: ParseContext,
-  result: SyncParseReturnType<Output>,
+  result: SyncParseReturnType<Output>
 ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
   if (isValid(result)) {
     return { success: true, data: result.value }
@@ -295,15 +295,15 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   refine<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams),
+    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): ZodEffects<this, RefinedOutput, Input>
   refine(
     check: (arg: Output) => unknown | Promise<unknown>,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams),
+    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): ZodEffects<this, Output, Input>
   refine(
     check: (arg: Output) => unknown,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams),
+    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
   ): ZodEffects<this, Output, Input> {
     const getIssueProperties = (val: Output) => {
       if (typeof message === 'string' || typeof message === 'undefined') {
@@ -342,15 +342,15 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   refinement<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData),
+    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
   ): ZodEffects<this, RefinedOutput, Input>
   refinement(
     check: (arg: Output) => boolean,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData),
+    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
   ): ZodEffects<this, Output, Input>
   refinement(
     check: (arg: Output) => unknown,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData),
+    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
   ): ZodEffects<this, Output, Input> {
     return this._refinement((val, ctx) => {
       if (!check(val)) {
@@ -371,12 +371,12 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   superRefine<RefinedOutput extends Output>(
-    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput,
+    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
   ): ZodEffects<this, RefinedOutput, Input>
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): ZodEffects<this, Output, Input>
   superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): ZodEffects<this, Output, Input>
   superRefine(
-    refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>,
+    refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
   ): ZodEffects<this, Output, Input> {
     return this._refinement(refinement)
   }
@@ -451,7 +451,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   transform<NewOut>(
-    transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>,
+    transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
   ): ZodEffects<this, NewOut> {
     return new ZodEffects({
       ...processCreateParams(this._def),
@@ -582,7 +582,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   hidden<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -600,7 +600,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   disabled<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {

@@ -8,7 +8,7 @@ test('valid', () => {
         z.object({ type: z.literal('a'), a: z.string() }),
         z.object({ type: z.literal('b'), b: z.string() }),
       ])
-      .parse({ type: 'a', a: 'abc' }),
+      .parse({ type: 'a', a: 'abc' })
   ).toEqual({ type: 'a', a: 'abc' })
 })
 
@@ -159,7 +159,7 @@ test('async - valid', async () => {
           b: z.string(),
         }),
       ])
-      .parseAsync({ type: 'a', a: '1' }),
+      .parseAsync({ type: 'a', a: '1' })
   ).toEqual({ type: 'a', a: 1 })
 })
 

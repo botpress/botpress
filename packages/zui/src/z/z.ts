@@ -96,7 +96,7 @@ const instanceOfType = <T extends typeof Class>(
   cls: T,
   params: CustomParams = {
     message: `Input not instance of ${cls.name}`,
-  },
+  }
 ) => custom<InstanceType<T>>((data) => data instanceof cls, params)
 
 const stringType = ZodString.create

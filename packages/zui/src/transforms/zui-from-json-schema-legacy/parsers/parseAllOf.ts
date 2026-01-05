@@ -1,11 +1,11 @@
-import { parseSchema } from './parseSchema'
-import { half } from '../utils'
 import { JsonSchemaObject, JsonSchema, Refs } from '../types'
+import { half } from '../utils'
+import { parseSchema } from './parseSchema'
 
 const originalIndex = Symbol('Original index')
 
 const ensureOriginalIndex = (arr: JsonSchema[]) => {
-  let newArr = []
+  const newArr = []
 
   for (let i = 0; i < arr.length; i++) {
     const item = arr[i]
@@ -38,7 +38,7 @@ export function parseAllOf(schema: JsonSchemaObject & { allOf: JsonSchema[] }, r
       {
         allOf: right,
       },
-      refs,
+      refs
     )})`
   }
 }

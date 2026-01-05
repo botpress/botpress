@@ -1,8 +1,8 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodBigIntDef } from '../../../z/index'
-import { Refs } from '../Refs'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
+import { Refs } from '../Refs'
 
 export type JsonSchema7BigintType = {
   type: 'integer'

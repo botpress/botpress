@@ -1,5 +1,5 @@
-import { errorMap as defaultErrorMap } from './locales/en'
 import { TypeOf, ZodType, ZodParsedType, util, Primitive } from '../index'
+import { errorMap as defaultErrorMap } from './locales/en'
 
 type allKeys<T> = T extends any ? keyof T : never
 
@@ -38,52 +38,52 @@ export type ZodIssueBase = {
   message?: string
 }
 
-export interface ZodInvalidTypeIssue extends ZodIssueBase {
+export type ZodInvalidTypeIssue = {
   code: typeof ZodIssueCode.invalid_type
   expected: ZodParsedType
   received: ZodParsedType
-}
+} & ZodIssueBase
 
-export interface ZodInvalidLiteralIssue extends ZodIssueBase {
+export type ZodInvalidLiteralIssue = {
   code: typeof ZodIssueCode.invalid_literal
   expected: unknown
   received: unknown
-}
+} & ZodIssueBase
 
-export interface ZodUnrecognizedKeysIssue extends ZodIssueBase {
+export type ZodUnrecognizedKeysIssue = {
   code: typeof ZodIssueCode.unrecognized_keys
   keys: string[]
-}
+} & ZodIssueBase
 
-export interface ZodInvalidUnionIssue extends ZodIssueBase {
+export type ZodInvalidUnionIssue = {
   code: typeof ZodIssueCode.invalid_union
   unionErrors: ZodError[]
-}
+} & ZodIssueBase
 
-export interface ZodInvalidUnionDiscriminatorIssue extends ZodIssueBase {
+export type ZodInvalidUnionDiscriminatorIssue = {
   code: typeof ZodIssueCode.invalid_union_discriminator
   options: Primitive[]
-}
+} & ZodIssueBase
 
-export interface ZodInvalidEnumValueIssue extends ZodIssueBase {
+export type ZodInvalidEnumValueIssue = {
   received: string | number
   code: typeof ZodIssueCode.invalid_enum_value
   options: (string | number)[]
-}
+} & ZodIssueBase
 
-export interface ZodInvalidArgumentsIssue extends ZodIssueBase {
+export type ZodInvalidArgumentsIssue = {
   code: typeof ZodIssueCode.invalid_arguments
   argumentsError: ZodError
-}
+} & ZodIssueBase
 
-export interface ZodInvalidReturnTypeIssue extends ZodIssueBase {
+export type ZodInvalidReturnTypeIssue = {
   code: typeof ZodIssueCode.invalid_return_type
   returnTypeError: ZodError
-}
+} & ZodIssueBase
 
-export interface ZodInvalidDateIssue extends ZodIssueBase {
+export type ZodInvalidDateIssue = {
   code: typeof ZodIssueCode.invalid_date
-}
+} & ZodIssueBase
 
 export type StringValidation =
   | 'email'
@@ -100,48 +100,48 @@ export type StringValidation =
   | { startsWith: string }
   | { endsWith: string }
 
-export interface ZodInvalidStringIssue extends ZodIssueBase {
+export type ZodInvalidStringIssue = {
   code: typeof ZodIssueCode.invalid_string
   validation: StringValidation
-}
+} & ZodIssueBase
 
-export interface ZodTooSmallIssue extends ZodIssueBase {
+export type ZodTooSmallIssue = {
   code: typeof ZodIssueCode.too_small
   minimum: number | bigint
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-}
+} & ZodIssueBase
 
-export interface ZodTooBigIssue extends ZodIssueBase {
+export type ZodTooBigIssue = {
   code: typeof ZodIssueCode.too_big
   maximum: number | bigint
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-}
+} & ZodIssueBase
 
-export interface ZodInvalidIntersectionTypesIssue extends ZodIssueBase {
+export type ZodInvalidIntersectionTypesIssue = {
   code: typeof ZodIssueCode.invalid_intersection_types
-}
+} & ZodIssueBase
 
-export interface ZodNotMultipleOfIssue extends ZodIssueBase {
+export type ZodNotMultipleOfIssue = {
   code: typeof ZodIssueCode.not_multiple_of
   multipleOf: number | bigint
-}
+} & ZodIssueBase
 
-export interface ZodNotFiniteIssue extends ZodIssueBase {
+export type ZodNotFiniteIssue = {
   code: typeof ZodIssueCode.not_finite
-}
+} & ZodIssueBase
 
-export interface ZodUnresolvedReferenceIssue extends ZodIssueBase {
+export type ZodUnresolvedReferenceIssue = {
   code: typeof ZodIssueCode.unresolved_reference
-}
+} & ZodIssueBase
 
-export interface ZodCustomIssue extends ZodIssueBase {
+export type ZodCustomIssue = {
   code: typeof ZodIssueCode.custom
   params?: { [k: string]: any }
-}
+} & ZodIssueBase
 
 export type DenormalizedError = { [k: string]: DenormalizedError | string[] }
 
@@ -200,7 +200,6 @@ export class ZodError<T = any> extends Error {
 
     const actualProto = new.target.prototype
     if (Object.setPrototypeOf) {
-      // eslint-disable-next-line ban/ban
       Object.setPrototypeOf(this, actualProto)
     } else {
       ;(this as any).__proto__ = actualProto

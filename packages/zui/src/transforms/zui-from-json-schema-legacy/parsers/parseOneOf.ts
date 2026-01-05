@@ -14,7 +14,7 @@ export const parseOneOf = (schema: JsonSchemaObject & { oneOf: JsonSchema[] }, r
         parseSchema(schema, {
           ...refs,
           path: [...refs.path, 'oneOf', i],
-        }),
+        })
       )
       .join(', ')}];
     const errors = schemas.reduce(

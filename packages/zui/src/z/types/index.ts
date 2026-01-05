@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/exports */
 /**
  * DO NOT CHANGE IMPORT ORDER
  * Internal pattern to get rid of circular dependencies

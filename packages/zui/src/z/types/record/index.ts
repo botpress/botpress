@@ -18,12 +18,11 @@ import {
   ParseStatus,
 } from '../index'
 
-export interface ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodTypeAny = ZodTypeAny>
-  extends ZodTypeDef {
+export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
   keyType: Key
   typeName: ZodFirstPartyTypeKind.ZodRecord
-}
+} & ZodTypeDef
 
 export type KeySchema = ZodType<string | number | symbol, any, any>
 
@@ -112,7 +111,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
   static create<Keys extends KeySchema, Value extends ZodTypeAny>(
     keySchema: Keys,
     valueType: Value,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodRecord<Keys, Value>
   static create(first: any, second?: any, third?: any): ZodRecord<any, any> {
     if (second instanceof ZodType) {

@@ -20,12 +20,11 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-export interface ZodIntersectionDef<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny>
-  extends ZodTypeDef {
+export type ZodIntersectionDef<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny> = {
   left: T
   right: U
   typeName: ZodFirstPartyTypeKind.ZodIntersection
-}
+} & ZodTypeDef
 
 function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
   const aType = getParsedType(a)
@@ -102,7 +101,7 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (
       parsedLeft: SyncParseReturnType,
-      parsedRight: SyncParseReturnType,
+      parsedRight: SyncParseReturnType
     ): SyncParseReturnType<T & U> => {
       if (isAborted(parsedLeft) || isAborted(parsedRight)) {
         return INVALID
@@ -148,7 +147,7 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
-        }),
+        })
       )
     }
   }
@@ -156,11 +155,11 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
   static create = <T extends ZodTypeAny, U extends ZodTypeAny>(
     left: T,
     right: U,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodIntersection<T, U> => {
     return new ZodIntersection({
-      left: left,
-      right: right,
+      left,
+      right,
       typeName: ZodFirstPartyTypeKind.ZodIntersection,
       ...processCreateParams(params),
     })

@@ -19,8 +19,8 @@ describe('parseObject', () => {
             },
           },
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.object({ "myOptionalString": z.string().optional(), "myRequiredString": z.string() })')
   })
 
@@ -37,8 +37,8 @@ describe('parseObject', () => {
           },
           additionalProperties: false,
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.object({ "myString": z.string() }).strict()')
   })
 
@@ -55,8 +55,8 @@ describe('parseObject', () => {
           },
           additionalProperties: true,
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.object({ "myString": z.string() }).catchall(z.any())')
   })
 
@@ -73,8 +73,8 @@ describe('parseObject', () => {
           },
           additionalProperties: { type: 'number' },
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.object({ "myString": z.string() }).catchall(z.number())')
   })
 
@@ -85,8 +85,8 @@ describe('parseObject', () => {
           type: 'object',
           additionalProperties: false,
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.record(z.never())')
   })
 
@@ -97,8 +97,8 @@ describe('parseObject', () => {
           type: 'object',
           additionalProperties: true,
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.record(z.any())')
   })
 
@@ -110,8 +110,8 @@ describe('parseObject', () => {
           additionalProperties: { type: 'number' },
         },
 
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual('z.record(z.number())')
   })
 
@@ -127,8 +127,8 @@ describe('parseObject', () => {
             },
           },
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual(`z.object({ "s": z.string().default("") })`)
   })
 
@@ -162,10 +162,10 @@ describe('parseObject', () => {
             },
           ],
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual(
-      'z.object({ "a": z.string() }).and(z.union([z.object({ "b": z.string() }), z.object({ "c": z.string() })]))',
+      'z.object({ "a": z.string() }).and(z.union([z.object({ "b": z.string() }), z.object({ "c": z.string() })]))'
     )
 
     expect(
@@ -197,8 +197,8 @@ describe('parseObject', () => {
             },
           ],
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual(
       `z.object({ "a": z.string() }).and(z.any().superRefine((x, ctx) => {
     const schemas = [z.object({ "b": z.string() }), z.object({ "c": z.string() })];
@@ -217,7 +217,7 @@ describe('parseObject', () => {
         message: "Invalid input: Should pass single schema",
       });
     }
-  }))`,
+  }))`
     )
 
     expect(
@@ -249,10 +249,10 @@ describe('parseObject', () => {
             },
           ],
         },
-        { path: [], seen: new Map() },
-      ),
+        { path: [], seen: new Map() }
+      )
     ).toStrictEqual(
-      'z.object({ "a": z.string() }).and(z.intersection(z.object({ "b": z.string() }), z.object({ "c": z.string() })))',
+      'z.object({ "a": z.string() }).and(z.intersection(z.object({ "b": z.string() }), z.object({ "c": z.string() })))'
     )
   })
 

@@ -26,10 +26,10 @@ emptySuite
   .add('invalid: null', () => {
     try {
       empty.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${emptySuite.name}: ${e.target}`)
+    console.info(`${emptySuite.name}: ${e.target}`)
   })
 
 shortSuite
@@ -42,10 +42,10 @@ shortSuite
   .add('invalid: null', () => {
     try {
       short.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${shortSuite.name}: ${e.target}`)
+    console.info(`${shortSuite.name}: ${e.target}`)
   })
 
 longSuite
@@ -58,10 +58,10 @@ longSuite
   .add('invalid: null', () => {
     try {
       long.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${longSuite.name}: ${e.target}`)
+    console.info(`${longSuite.name}: ${e.target}`)
   })
 
 export default {

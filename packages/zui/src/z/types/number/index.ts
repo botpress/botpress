@@ -33,11 +33,11 @@ function floatSafeRemainder(val: number, step: number) {
   return (valInt % stepInt) / Math.pow(10, decCount)
 }
 
-export interface ZodNumberDef extends ZodTypeDef {
+export type ZodNumberDef = {
   checks: ZodNumberCheck[]
   typeName: ZodFirstPartyTypeKind.ZodNumber
   coerce: boolean
-}
+} & ZodTypeDef
 
 export class ZodNumber extends ZodType<number, ZodNumberDef> {
   _parse(input: ParseInput): ParseReturnType<number> {
@@ -220,7 +220,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   multipleOf(value: number, message?: errorUtil.ErrMessage) {
     return this._addCheck({
       kind: 'multipleOf',
-      value: value,
+      value,
       message: errorUtil.toString(message),
     })
   }

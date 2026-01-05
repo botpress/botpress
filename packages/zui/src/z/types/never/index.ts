@@ -12,9 +12,9 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodNeverDef extends ZodTypeDef {
+export type ZodNeverDef = {
   typeName: ZodFirstPartyTypeKind.ZodNever
-}
+} & ZodTypeDef
 
 export class ZodNever extends ZodType<never, ZodNeverDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

@@ -36,12 +36,11 @@ export type InputTypeOfTupleWithRest<
   Rest extends ZodTypeAny | null = null,
 > = Rest extends ZodTypeAny ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
 
-export interface ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodTypeAny | null = null>
-  extends ZodTypeDef {
+export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodTypeAny | null = null> = {
   items: T
   rest: Rest
   typeName: ZodFirstPartyTypeKind.ZodTuple
-}
+} & ZodTypeDef
 
 export type AnyZodTuple = ZodTuple<[ZodTypeAny, ...ZodTypeAny[]] | [], ZodTypeAny | null>
 export class ZodTuple<
@@ -141,7 +140,7 @@ export class ZodTuple<
 
   static create = <T extends [ZodTypeAny, ...ZodTypeAny[]] | []>(
     schemas: T,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodTuple<T, null> => {
     if (!Array.isArray(schemas)) {
       throw new Error('You must pass an array of schemas to z.tuple([ ... ])')

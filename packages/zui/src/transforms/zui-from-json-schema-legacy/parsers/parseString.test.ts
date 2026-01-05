@@ -5,7 +5,7 @@ describe('parseString', () => {
   // TODO: this is error prone since the test now depends on the build artefact
   const run = (output: string, data: unknown) =>
     eval(
-      `console.log(process.cwd()); const {z} = require("@bpinternal/zui"); ${output}.safeParse(${JSON.stringify(data)})`,
+      `console.info(process.cwd()); const {z} = require("@bpinternal/zui"); ${output}.safeParse(${JSON.stringify(data)})`
     )
 
   it('DateTime format', () => {
@@ -31,9 +31,9 @@ describe('parseString', () => {
           minLength: 'deez',
           maxLength: 'nuts',
         },
-      }),
+      })
     ).toStrictEqual(
-      'z.string().ip({ version: "v4", message: "ayy" }).regex(new RegExp("x"), "lmao").min(1, "deez").max(2, "nuts")',
+      'z.string().ip({ version: "v4", message: "ayy" }).regex(new RegExp("x"), "lmao").min(1, "deez").max(2, "nuts")'
     )
   })
 })

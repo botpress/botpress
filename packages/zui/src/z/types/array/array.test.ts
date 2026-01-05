@@ -39,7 +39,7 @@ test('parse empty array in nonempty', () => {
     z
       .array(z.string())
       .nonempty()
-      .parse([] as any),
+      .parse([] as any)
   ).toThrow()
 })
 

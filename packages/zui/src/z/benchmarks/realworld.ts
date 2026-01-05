@@ -17,7 +17,7 @@ const People = z.array(
       zip: z.string(),
       country: z.string(),
     }),
-  }),
+  })
 )
 
 let i = 0
@@ -55,7 +55,7 @@ shortSuite
     People.parse(people)
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${shortSuite.name}: ${e.target}`)
+    console.info(`${shortSuite.name}: ${e.target}`)
   })
 
 export default {

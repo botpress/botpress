@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash-es'
 import {
   ZodIssueCode,
   ParseInputLazyPath,
@@ -15,15 +16,14 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
-import { isEqual } from 'lodash-es'
 
-export interface ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
   typeName: ZodFirstPartyTypeKind.ZodArray
   exactLength: { value: number; message?: string } | null
   minLength: { value: number; message?: string } | null
   maxLength: { value: number; message?: string } | null
-}
+} & ZodTypeDef
 
 export type ArrayCardinality = 'many' | 'atleastone'
 export type arrayOutputType<
@@ -130,7 +130,7 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
       return Promise.all(
         [...ctx.data].map((item, i) => {
           return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i))
-        }),
+        })
       ).then((result) => {
         return ParseStatus.mergeArray(status, result)
       })

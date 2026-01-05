@@ -113,7 +113,7 @@ describe('Pathing', () => {
       z.object({
         name: z.string(),
         subcategories: z.array(categorySchema),
-      }),
+      })
     )
 
     const parsedSchema = zodToJsonSchema(categorySchema)
@@ -162,7 +162,7 @@ describe('Pathing', () => {
         inner: z.object({
           subcategories: z.record(categorySchema).nullable().optional(),
         }),
-      }),
+      })
     )
 
     const inObjectSchema = z.object({
@@ -366,7 +366,7 @@ describe('Pathing', () => {
       z.object({
         name: z.string(),
         subcategories: z.array(categorySchema),
-      }),
+      })
     )
 
     const parsedSchema = zodToJsonSchema(categorySchema, {
@@ -873,7 +873,7 @@ describe('Pathing', () => {
       z.object({
         id: z.string(),
         headUser: userSchema.optional(),
-      }),
+      })
     )
 
     const schema = z.object({ user: userSchema })
@@ -881,7 +881,7 @@ describe('Pathing', () => {
     expect(
       zodToJsonSchema(schema, {
         definitions: { userSchema },
-      }),
+      })
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
       type: 'object',
@@ -939,7 +939,7 @@ describe('Pathing', () => {
           NodeChild: nodeChildSchema,
           Node: nodeSchema,
         },
-      }),
+      })
     ).toEqual({
       $ref: '#/definitions/Tree',
       definitions: {

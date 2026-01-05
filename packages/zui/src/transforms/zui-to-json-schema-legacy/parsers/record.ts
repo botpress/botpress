@@ -18,7 +18,7 @@ export type JsonSchema7RecordType = {
 
 export function parseRecordDef(
   def: ZodRecordDef<ZodTypeAny, ZodTypeAny> | ZodMapDef,
-  refs: Refs,
+  refs: Refs
 ): JsonSchema7RecordType {
   if (refs.target === 'openApi3' && def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodEnum) {
     return {
@@ -33,7 +33,7 @@ export function parseRecordDef(
               currentPath: [...refs.currentPath, 'properties', key],
             }) ?? {},
         }),
-        {},
+        {}
       ),
       additionalProperties: false,
     } satisfies JsonSchema7ObjectType as any
@@ -55,7 +55,7 @@ export function parseRecordDef(
   if (def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodString && def.keyType._def.checks?.length) {
     const keyType: JsonSchema7RecordPropertyNamesType = Object.entries(parseStringDef(def.keyType._def, refs)).reduce(
       (acc, [key, value]) => (key === 'type' ? acc : { ...acc, [key]: value }),
-      {},
+      {}
     )
 
     return {

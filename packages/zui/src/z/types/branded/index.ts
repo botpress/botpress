@@ -2,10 +2,10 @@ import { ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef, ParseInput, Par
 
 type Key = string | number | symbol
 
-export interface ZodBrandedDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodBrandedDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
   typeName: ZodFirstPartyTypeKind.ZodBranded
-}
+} & ZodTypeDef
 
 export const BRAND: unique symbol = Symbol('zod_brand')
 export type BRAND<T extends Key = Key> = {

@@ -40,7 +40,7 @@ export type ParsePathComponent = string | number
 export type ParsePath = ParsePathComponent[]
 export const EMPTY_PATH: ParsePath = []
 
-export interface ParseContext {
+export type ParseContext = {
   readonly common: {
     readonly issues: ZodIssue[]
     readonly contextualErrorMap?: ZodErrorMap
@@ -61,7 +61,7 @@ export type ParseInput = {
 
 export function addIssueToContext(ctx: ParseContext, issueData: IssueData): void {
   const issue = makeIssue({
-    issueData: issueData,
+    issueData,
     data: ctx.data,
     path: ctx.path,
     errorMaps: [
@@ -100,7 +100,7 @@ export class ParseStatus {
 
   static async mergeObjectAsync(
     status: ParseStatus,
-    pairs: { key: ParseReturnType<any>; value: ParseReturnType<any> }[],
+    pairs: { key: ParseReturnType<any>; value: ParseReturnType<any> }[]
   ): Promise<SyncParseReturnType<any>> {
     const syncPairs: ObjectPair[] = []
     for (const pair of pairs) {
@@ -118,7 +118,7 @@ export class ParseStatus {
       key: SyncParseReturnType<any>
       value: SyncParseReturnType<any>
       alwaysSet?: boolean
-    }[],
+    }[]
   ): SyncParseReturnType {
     const finalObject: any = {}
     for (const pair of pairs) {
@@ -136,7 +136,7 @@ export class ParseStatus {
     return { status: status.value, value: finalObject }
   }
 }
-export interface ParseResult {
+export type ParseResult = {
   status: 'aborted' | 'dirty' | 'valid'
   data: any
 }

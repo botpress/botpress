@@ -1,10 +1,10 @@
 import z from '../../z'
-import * as json from '../common/json-schema'
 import * as err from '../common/errors'
-import { zodNumberToJsonNumber } from './type-processors/number'
-import { zodStringToJsonString } from './type-processors/string'
+import * as json from '../common/json-schema'
 import { zodArrayToJsonArray } from './type-processors/array'
+import { zodNumberToJsonNumber } from './type-processors/number'
 import { zodSetToJsonSet } from './type-processors/set'
+import { zodStringToJsonString } from './type-processors/string'
 import { zodTupleToJsonTuple } from './type-processors/tuple'
 
 /**

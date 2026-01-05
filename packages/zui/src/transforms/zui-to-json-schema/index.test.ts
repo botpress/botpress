@@ -82,7 +82,7 @@ describe('zuiToJSONSchemaNext', () => {
         age: z.number().optional(),
         data: z.union([z.string(), z.null(), z.undefined()]),
         email: z.string().optional().readonly(),
-      }),
+      })
     )
     expect(schema).toEqual({
       type: 'object',
@@ -138,7 +138,7 @@ describe('zuiToJSONSchemaNext', () => {
         tableIdOrName: z.string().describe(description1),
         notes: z.string().optional().describe(description2),
         assignee: z.string().optional().default('me').describe(description3),
-      }),
+      })
     )
     expect(schema).toEqual({
       type: 'object',
@@ -174,7 +174,7 @@ describe('zuiToJSONSchemaNext', () => {
       z.discriminatedUnion('type', [
         z.object({ type: z.literal('A'), a: z.string() }),
         z.object({ type: z.literal('B'), b: z.number() }),
-      ]),
+      ])
     )
     expect(schema).toEqual({
       anyOf: [
@@ -219,8 +219,8 @@ describe('zuiToJSONSchemaNext', () => {
     const schema = toJSONSchema(
       z.intersection(
         z.object({ a: z.string() }).strict(), //
-        z.object({ b: z.number() }).strict(),
-      ),
+        z.object({ b: z.number() }).strict()
+      )
     )
 
     expect(schema).toEqual({
@@ -306,10 +306,10 @@ describe('zuiToJSONSchemaNext', () => {
 
   test('should not support ZodEffects', () => {
     expect(() => toJSONSchema(z.string().refine((s) => s === s.toUpperCase()))).toThrowError(
-      errs.UnsupportedZuiToJSONSchemaError,
+      errs.UnsupportedZuiToJSONSchemaError
     )
     expect(() => toJSONSchema(z.string().transform((s) => s.toUpperCase()))).toThrowError(
-      errs.UnsupportedZuiToJSONSchemaError,
+      errs.UnsupportedZuiToJSONSchemaError
     )
   })
 

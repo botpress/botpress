@@ -25,12 +25,11 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodTypeAny = ZodTypeAny>
-  extends ZodTypeDef {
+export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodTypeAny = ZodTypeAny> = {
   args: Args
   returns: Returns
   typeName: ZodFirstPartyTypeKind.ZodFunction
-}
+} & ZodTypeDef
 
 export type OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodTypeAny> =
   Args['_input'] extends Array<any> ? (...args: Args['_input']) => Returns['_output'] : never
@@ -84,7 +83,7 @@ export class ZodFunction<
         data: args,
         path: ctx.path,
         errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), defaultErrorMap].filter(
-          (x) => !!x,
+          (x) => !!x
         ) as ZodErrorMap[],
         issueData: {
           code: ZodIssueCode.invalid_arguments,
@@ -98,7 +97,7 @@ export class ZodFunction<
         data: returns,
         path: ctx.path,
         errorMaps: [ctx.common.contextualErrorMap, ctx.schemaErrorMap, getErrorMap(), defaultErrorMap].filter(
-          (x) => !!x,
+          (x) => !!x
         ) as ZodErrorMap[],
         issueData: {
           code: ZodIssueCode.invalid_return_type,
@@ -113,7 +112,7 @@ export class ZodFunction<
     if (this._def.returns instanceof ZodPromise) {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
+
       const me = this
       return OK(async function (this: any, ...args: any[]) {
         const error = new ZodError([])
@@ -133,7 +132,7 @@ export class ZodFunction<
     } else {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
+
       const me = this
       return OK(function (this: any, ...args: any[]) {
         const parsedArgs = me._def.args.safeParse(args, params)
@@ -175,7 +174,7 @@ export class ZodFunction<
   }
 
   implement<F extends InnerTypeOfFunction<Args, Returns>>(
-    func: F,
+    func: F
   ): ReturnType<F> extends Returns['_output']
     ? (...args: Args['_input']) => ReturnType<F>
     : OuterTypeOfFunction<Args, Returns> {
@@ -196,7 +195,7 @@ export class ZodFunction<
   static create<T extends AnyZodTuple = ZodTuple<[], ZodUnknown>, U extends ZodTypeAny = ZodUnknown>(
     args: T,
     returns: U,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodFunction<T, U>
   static create(args?: AnyZodTuple, returns?: ZodTypeAny, params?: RawCreateParams) {
     return new ZodFunction({

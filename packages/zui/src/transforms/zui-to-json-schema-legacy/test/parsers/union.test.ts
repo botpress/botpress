@@ -19,7 +19,7 @@ describe('Unions', () => {
   it('Should be possible to get a simple type array with enum values from a union of literals', () => {
     const parsedSchema = parseUnionDef(
       z.union([z.literal('string'), z.literal(123), z.literal(true), z.literal(null)])._def,
-      getRefs(),
+      getRefs()
     )
     const jsonSchema: JSONSchema7Type = {
       type: ['string', 'number', 'boolean', 'null'],
@@ -32,7 +32,7 @@ describe('Unions', () => {
     const parsedSchema = parseUnionDef(
       z.union([z.object({ herp: z.string(), derp: z.boolean() }), z.array(z.number()), z.string().min(3), z.number()])
         ._def,
-      getRefs(),
+      getRefs()
     )
     const jsonSchema: JSONSchema7Type = {
       anyOf: [
@@ -189,7 +189,7 @@ describe('Unions', () => {
       getRefs({
         unionStrategy: 'oneOf',
         discriminator: true,
-      }),
+      })
     )
 
     expect(jsonSchema).toEqual({

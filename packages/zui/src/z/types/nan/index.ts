@@ -12,9 +12,9 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodNaNDef extends ZodTypeDef {
+export type ZodNaNDef = {
   typeName: ZodFirstPartyTypeKind.ZodNaN
-}
+} & ZodTypeDef
 
 export class ZodNaN extends ZodType<number, ZodNaNDef> {
   _parse(input: ParseInput): ParseReturnType<any> {

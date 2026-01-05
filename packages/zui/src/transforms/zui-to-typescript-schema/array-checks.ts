@@ -1,5 +1,5 @@
-import { primitiveToTypescriptValue as toTs } from '../common/utils'
 import { ZodArrayDef } from '../../z/types/array'
+import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateArrayChecks = (def: ZodArrayDef): string => {
   const checks: string[] = []

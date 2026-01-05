@@ -13,10 +13,10 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodBooleanDef extends ZodTypeDef {
+export type ZodBooleanDef = {
   typeName: ZodFirstPartyTypeKind.ZodBoolean
   coerce: boolean
-}
+} & ZodTypeDef
 
 export class ZodBoolean extends ZodType<boolean, ZodBooleanDef> {
   _parse(input: ParseInput): ParseReturnType<boolean> {

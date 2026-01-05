@@ -71,7 +71,7 @@ describe('Standalone optionals', () => {
       z.object({
         myProperty: z.object({ myInnerProperty: z.string().optional() }),
       })._def,
-      getRefs(),
+      getRefs()
     )
 
     const jsonSchema: JSONSchema7Type = {
@@ -104,7 +104,7 @@ describe('Standalone optionals', () => {
           myInnerProperty: z.string().optional().array(),
         }),
       })._def,
-      getRefs(),
+      getRefs()
     )
 
     const jsonSchema: JSONSchema7Type = {

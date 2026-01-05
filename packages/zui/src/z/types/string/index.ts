@@ -47,11 +47,11 @@ export type ZodStringCheck =
     }
   | { kind: 'ip'; version?: IpVersion; message?: string }
 
-export interface ZodStringDef extends ZodTypeDef {
+export type ZodStringDef = {
   checks: ZodStringCheck[]
   typeName: ZodFirstPartyTypeKind.ZodString
   coerce: boolean
-}
+} & ZodTypeDef
 export const cuidRegex = /^c[^\s-]{8,}$/i
 export const cuid2Regex = /^[a-z][a-z0-9]*$/
 export const ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/
@@ -62,7 +62,7 @@ export const uuidRegex = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0
 export const emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_+-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i
 
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`
+const _emojiRegex = '^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$'
 
 export const isEmojiRegex = (value: any) => value === _emojiRegex
 
@@ -98,7 +98,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           code: ZodIssueCode.invalid_type,
           expected: ZodParsedType.string,
           received: ctx.parsedType,
-        },
+        }
         //
       )
       return INVALID
@@ -361,7 +361,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           message?: string | undefined
           precision?: number | null
           offset?: boolean
-        },
+        }
   ) {
     if (typeof options === 'string') {
       return this._addCheck({
@@ -382,7 +382,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   regex(regex: RegExp, message?: errorUtil.ErrMessage) {
     return this._addCheck({
       kind: 'regex',
-      regex: regex,
+      regex,
       ...errorUtil.errToObj(message),
     })
   }
@@ -390,7 +390,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   includes(value: string, options?: { message?: string; position?: number }) {
     return this._addCheck({
       kind: 'includes',
-      value: value,
+      value,
       position: options?.position,
       ...errorUtil.errToObj(options?.message),
     })
@@ -399,7 +399,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   startsWith(value: string, message?: errorUtil.ErrMessage) {
     return this._addCheck({
       kind: 'startsWith',
-      value: value,
+      value,
       ...errorUtil.errToObj(message),
     })
   }
@@ -407,7 +407,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   endsWith(value: string, message?: errorUtil.ErrMessage) {
     return this._addCheck({
       kind: 'endsWith',
-      value: value,
+      value,
       ...errorUtil.errToObj(message),
     })
   }

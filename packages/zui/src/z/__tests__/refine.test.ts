@@ -37,7 +37,7 @@ test('refinement 2', () => {
       email: 'aaaa@gmail.com',
       password: 'aaaaaaaa',
       confirmPassword: 'bbbbbbbb',
-    }),
+    })
   ).toThrow()
 })
 
@@ -64,7 +64,7 @@ test('refinement Promise', async () => {
     })
     .refine(
       (data) => Promise.resolve().then(() => data.password === data.confirmPassword),
-      'Both password and confirmation must match',
+      'Both password and confirmation must match'
     )
 
   await validationSchema.parseAsync({

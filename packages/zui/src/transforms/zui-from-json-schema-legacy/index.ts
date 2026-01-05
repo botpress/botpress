@@ -1,3 +1,5 @@
+import { zuiKey } from '../../ui/constants'
+import { ZuiExtensionObject } from '../../ui/types'
 import {
   type ZodAnyDef,
   type ZodArrayDef,
@@ -19,13 +21,11 @@ import {
   ZodDefaultDef,
   z,
 } from '../../z/index'
-import { zuiKey } from '../../ui/constants'
+import * as errors from '../common/errors'
+import { evalZuiString } from '../common/eval-zui-string'
 import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'
 import { parseSchema } from './parsers/parseSchema'
-import { ZuiExtensionObject } from '../../ui/types'
 import { JSONSchemaExtended } from './types'
-import { evalZuiString } from '../common/eval-zui-string'
-import * as errors from '../common/errors'
 
 export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
   return parseSchema(schema, {
@@ -145,7 +145,7 @@ export type ZodDef<Type extends ZodTypeKind> = Type extends 'ZodObject'
 export const traverseZodDefinitions = (
   def: ZodDef<ZodFirstPartyTypeKind>,
   cb: <T extends ZodTypeKind>(type: T, def: ZodDef<T> & { [zuiKey]?: ZuiExtensionObject }, path: string[]) => void,
-  path: string[] = [],
+  path: string[] = []
 ) => {
   switch (def.typeName) {
     case ZodFirstPartyTypeKind.ZodObject:

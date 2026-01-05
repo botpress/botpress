@@ -10,12 +10,11 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodPipelineDef<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny>
-  extends ZodTypeDef {
+export type ZodPipelineDef<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> = {
   in: A
   out: B
   typeName: ZodFirstPartyTypeKind.ZodPipeline
-}
+} & ZodTypeDef
 
 export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> extends ZodType<
   B['_output'],

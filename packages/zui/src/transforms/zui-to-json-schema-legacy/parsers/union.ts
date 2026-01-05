@@ -43,7 +43,7 @@ type JsonSchema7OneOfType = {
 
 export function parseUnionDef(
   def: ZodUnionDef | ZodDiscriminatedUnionDef<any, any>,
-  refs: Refs,
+  refs: Refs
 ): JsonSchema7PrimitiveUnionType | JsonSchema7AnyOfType | JsonSchema7OneOfType | undefined {
   if (refs.target === 'openApi3') return asUnionOf(def, refs)
 
@@ -93,7 +93,7 @@ export function parseUnionDef(
           (acc, x) => {
             return acc.includes(x._def.value) ? acc : [...acc, x._def.value]
           },
-          [] as (string | number | bigint | boolean | null)[],
+          [] as (string | number | bigint | boolean | null)[]
         ),
       }
     }
@@ -102,7 +102,7 @@ export function parseUnionDef(
       type: 'string',
       enum: options.reduce(
         (acc: string[], x) => [...acc, ...x._def.values.filter((x: string) => !acc.includes(x))],
-        [],
+        []
       ),
     }
   }
@@ -112,17 +112,17 @@ export function parseUnionDef(
 
 const asUnionOf = (
   def: ZodUnionDef | ZodDiscriminatedUnionDef<any, any>,
-  refs: Refs,
+  refs: Refs
 ): JsonSchema7PrimitiveUnionType | JsonSchema7AnyOfType | JsonSchema7OneOfType | undefined => {
   const unionOf = ((def.options instanceof Map ? Array.from(def.options.values()) : def.options) as any[])
     .map((x, i) =>
       parseDef(x._def, {
         ...refs,
         currentPath: [...refs.currentPath, refs.unionStrategy, `${i}`],
-      }),
+      })
     )
     .filter(
-      (x): x is JsonSchema7Type => !!x && (!refs.strictUnions || (typeof x === 'object' && Object.keys(x).length > 0)),
+      (x): x is JsonSchema7Type => !!x && (!refs.strictUnions || (typeof x === 'object' && Object.keys(x).length > 0))
     )
 
   const discriminator =

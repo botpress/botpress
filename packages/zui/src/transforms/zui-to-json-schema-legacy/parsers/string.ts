@@ -80,7 +80,7 @@ export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7String
             'minLength',
             typeof res.minLength === 'number' ? Math.max(res.minLength, check.value) : check.value,
             check.message,
-            refs,
+            refs
           )
           break
         case 'max':
@@ -89,7 +89,7 @@ export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7String
             'maxLength',
             typeof res.maxLength === 'number' ? Math.min(res.maxLength, check.value) : check.value,
             check.message,
-            refs,
+            refs
           )
 
           break
@@ -138,14 +138,14 @@ export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7String
             'minLength',
             typeof res.minLength === 'number' ? Math.max(res.minLength, check.value) : check.value,
             check.message,
-            refs,
+            refs
           )
           setResponseValueAndErrors(
             res,
             'maxLength',
             typeof res.maxLength === 'number' ? Math.min(res.maxLength, check.value) : check.value,
             check.message,
-            refs,
+            refs
           )
           break
         case 'includes': {
@@ -186,7 +186,7 @@ const addFormat = (
   schema: JsonSchema7StringType,
   value: Required<JsonSchema7StringType>['format'],
   message: string | undefined,
-  refs: Refs,
+  refs: Refs
 ) => {
   if (schema.format || schema.anyOf?.some((x) => x.format)) {
     if (!schema.anyOf) {

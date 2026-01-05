@@ -1,19 +1,19 @@
 import { mapValues } from 'lodash-es'
 
+import { zuiKey } from '../../ui/constants'
 import z, { util } from '../../z'
+import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
   unknownToTypescriptValue,
   recordOfUnknownToTypescriptRecord,
 } from '../common/utils'
-import * as errors from '../common/errors'
-import { zuiKey } from '../../ui/constants'
-import { generateStringChecks } from './string-checks'
-import { generateNumberChecks } from './number-checks'
+import { generateArrayChecks } from './array-checks'
 import { generateBigIntChecks } from './bigint-checks'
 import { generateDateChecks } from './date-checks'
-import { generateArrayChecks } from './array-checks'
+import { generateNumberChecks } from './number-checks'
 import { generateSetChecks } from './set-checks'
+import { generateStringChecks } from './string-checks'
 
 /**
  *
@@ -22,8 +22,8 @@ import { generateSetChecks } from './set-checks'
  * @returns a typescript program that would construct the given schema if executed
  */
 export function toTypescriptSchema(schema: z.Schema): string {
-  let wrappedSchema: z.Schema = schema
-  let dts = sUnwrapZod(wrappedSchema)
+  const wrappedSchema: z.Schema = schema
+  const dts = sUnwrapZod(wrappedSchema)
   return dts
 }
 
@@ -77,7 +77,7 @@ function sUnwrapZod(schema: z.Schema): string {
       const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
       return [
         //
-        `z.object({`,
+        'z.object({',
         ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
         `})${catchallString}${_addZuiExtensions(def)}${_maybeDescribe(def)}`,
       ]
@@ -211,7 +211,7 @@ const _maybeSetMetadata = (def: z.ZodTypeDef) => {
     'coerce',
   ] as const
   const metadata = Object.entries(def[zuiKey] ?? {}).filter(
-    ([key]) => !reservedKeys.includes(key as (typeof reservedKeys)[number]),
+    ([key]) => !reservedKeys.includes(key as (typeof reservedKeys)[number])
   )
 
   return metadata.length > 0 ? `.metadata(${recordOfUnknownToTypescriptRecord(Object.fromEntries(metadata))})` : ''

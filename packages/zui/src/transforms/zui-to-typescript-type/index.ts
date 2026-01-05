@@ -1,4 +1,5 @@
 import z, { util } from '../../z'
+import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
   getMultilineComment,
@@ -6,7 +7,6 @@ import {
   toTypeArgumentName,
   primitiveToTypscriptLiteralType,
 } from '../common/utils'
-import * as errors from '../common/errors'
 
 const Primitives = [
   'string',
@@ -33,7 +33,7 @@ const stripSpaces = (typings: string) => typings.replace(/ +/g, ' ').trim()
 class KeyValue {
   constructor(
     public key: string,
-    public value: z.Schema,
+    public value: z.Schema
   ) {}
 }
 

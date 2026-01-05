@@ -63,7 +63,7 @@ export const arrayOfUnknownToTypescriptArray = (arr: Primitive[], asConst?: bool
  */
 export const recordOfUnknownToTypescriptRecord = (
   record: Record<string | number | symbol, unknown>,
-  asConst?: boolean,
+  asConst?: boolean
 ) => {
   const entries = Object.entries(record)
   const maybeAsConst = asConst ? ' as const' : ''

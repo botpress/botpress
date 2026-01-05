@@ -170,7 +170,7 @@ test('custom path in custom error map', () => {
 test('error metadata from value', () => {
   const dynamicRefine = z.string().refine(
     (val) => val === val.toUpperCase(),
-    (val) => ({ params: { val } }),
+    (val) => ({ params: { val } })
   )
 
   const result = dynamicRefine.safeParse('asdf')

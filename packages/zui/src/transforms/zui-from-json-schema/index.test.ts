@@ -201,7 +201,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
           },
         ],
       },
-      { def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' } },
+      { def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' } }
     )
     const zSchema = fromJSONSchema(jSchema)
     const expected = z.discriminatedUnion('type', [
@@ -297,7 +297,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
   test('should map OptionalSchema to ZodOptional', () => {
     const jSchema = buildSchema(
       { anyOf: [{ type: 'string' }, undefinedSchema()] },
-      { def: { typeName: 'ZodOptional' } },
+      { def: { typeName: 'ZodOptional' } }
     )
     const zSchema = fromJSONSchema(jSchema)
     const expected = z.string().optional()
@@ -547,7 +547,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
       const restoredShape = restored._def.shape()
       expect(restoredShape.name?._def.description).toBe('Required name')
       expect((restoredShape.nickname as z.ZodOptional<z.ZodString>)?._def.innerType._def.description).toBe(
-        'Optional nickname',
+        'Optional nickname'
       )
     })
 
@@ -823,7 +823,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
           .object({
             name: z.string().describe('Entity name'),
           })
-          .describe('Named entity'),
+          .describe('Named entity')
       )
       const restored = roundTrip(original)
 
@@ -933,7 +933,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
         z.object({
           value: z.number(),
           label: z.string(),
-        }),
+        })
       )
       const restored = roundTrip(original)
 
@@ -1055,7 +1055,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
             z.object({
               value: z.string(),
               children: z.array(z.any()).optional(),
-            }),
+            })
           )
           .optional(),
       })

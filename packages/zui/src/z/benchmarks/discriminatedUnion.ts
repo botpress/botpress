@@ -43,15 +43,15 @@ doubleSuite
   .add('invalid: null', () => {
     try {
       double.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .add('invalid: wrong shape', () => {
     try {
       double.parse(objC)
-    } catch (err) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${doubleSuite.name}: ${e.target}`)
+    console.info(`${doubleSuite.name}: ${e.target}`)
   })
 
 manySuite
@@ -64,15 +64,15 @@ manySuite
   .add('invalid: null', () => {
     try {
       many.parse(null)
-    } catch (err) {}
+    } catch {}
   })
   .add('invalid: wrong shape', () => {
     try {
       many.parse({ type: 'unknown' })
-    } catch (err) {}
+    } catch {}
   })
   .on('cycle', (e: Benchmark.Event) => {
-    console.log(`${manySuite.name}: ${e.target}`)
+    console.info(`${manySuite.name}: ${e.target}`)
   })
 
 export default {

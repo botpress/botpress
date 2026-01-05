@@ -16,10 +16,10 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodNativeEnumDef<T extends EnumLike = EnumLike> extends ZodTypeDef {
+export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
   values: T
   typeName: ZodFirstPartyTypeKind.ZodNativeEnum
-}
+} & ZodTypeDef
 
 export type EnumLike = { [k: string]: string | number; [nu: number]: string }
 
@@ -57,7 +57,7 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
 
   static create = <T extends EnumLike>(values: T, params?: RawCreateParams): ZodNativeEnum<T> => {
     return new ZodNativeEnum({
-      values: values,
+      values,
       typeName: ZodFirstPartyTypeKind.ZodNativeEnum,
       ...processCreateParams(params),
     })

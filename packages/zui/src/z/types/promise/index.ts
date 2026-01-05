@@ -14,10 +14,10 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
   typeName: ZodFirstPartyTypeKind.ZodPromise
-}
+} & ZodTypeDef
 
 export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   Promise<T['_output']>,
@@ -65,7 +65,7 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
           path: ctx.path,
           errorMap: ctx.common.contextualErrorMap,
         })
-      }),
+      })
     )
   }
 

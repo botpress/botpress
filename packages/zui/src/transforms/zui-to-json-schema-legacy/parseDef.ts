@@ -1,3 +1,4 @@
+import { zuiKey } from '../../ui/constants'
 import { ZodFirstPartyTypeKind, ZodTypeDef } from '../../z/index'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
@@ -21,7 +22,9 @@ import { JsonSchema7ObjectType, parseObjectDef } from './parsers/object'
 import { parseOptionalDef } from './parsers/optional'
 import { parsePipelineDef } from './parsers/pipeline'
 import { parsePromiseDef } from './parsers/promise'
+import { parseReadonlyDef } from './parsers/readonly'
 import { JsonSchema7RecordType, parseRecordDef } from './parsers/record'
+import { JsonSchema7RefType, parseRefDef } from './parsers/ref'
 import { JsonSchema7SetType, parseSetDef } from './parsers/set'
 import { JsonSchema7StringType, parseStringDef } from './parsers/string'
 import { JsonSchema7TupleType, parseTupleDef } from './parsers/tuple'
@@ -29,9 +32,6 @@ import { JsonSchema7UndefinedType, parseUndefinedDef } from './parsers/undefined
 import { JsonSchema7UnionType, parseUnionDef } from './parsers/union'
 import { JsonSchema7UnknownType, parseUnknownDef } from './parsers/unknown'
 import { Refs, Seen } from './Refs'
-import { parseReadonlyDef } from './parsers/readonly'
-import { zuiKey } from '../../ui/constants'
-import { JsonSchema7RefType, parseRefDef } from './parsers/ref'
 
 type JsonSchema7Meta = {
   default?: any
@@ -70,7 +70,7 @@ export type JsonSchema7Type = JsonSchema7TypeUnion & JsonSchema7Meta
 export function parseDef(
   def: ZodTypeDef,
   refs: Refs,
-  forceResolution = false, // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
+  forceResolution = false // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
 ): JsonSchema7Type | undefined {
   const seenItem = refs.seen.get(def)
 
@@ -99,7 +99,7 @@ export function parseDef(
 
 const get$ref = (
   item: Seen,
-  refs: Refs,
+  refs: Refs
 ):
   | {
       $ref: string

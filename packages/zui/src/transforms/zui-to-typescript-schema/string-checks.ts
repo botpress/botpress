@@ -1,6 +1,6 @@
-import { primitiveToTypescriptValue as toTs, unknownToTypescriptValue } from '../common/utils'
-import { ZodStringCheck, ZodStringDef } from '../../z/types/string'
 import { util } from '../../z'
+import { ZodStringCheck, ZodStringDef } from '../../z/types/string'
+import { primitiveToTypescriptValue as toTs, unknownToTypescriptValue } from '../common/utils'
 
 export const generateStringChecks = (def: ZodStringDef): string => {
   const checks = def.checks
@@ -43,11 +43,11 @@ const _generateStringCheck = (check: ZodStringCheck): string => {
       const tsRegex = String(check.regex)
       return `.regex(${tsRegex}, ${toTs(check.message)})`
     case 'trim':
-      return `.trim()`
+      return '.trim()'
     case 'toLowerCase':
-      return `.toLowerCase()`
+      return '.toLowerCase()'
     case 'toUpperCase':
-      return `.toUpperCase()`
+      return '.toUpperCase()'
     case 'datetime':
       const datetimePrecision = check.precision === null ? undefined : check.precision
       const dateTimeOptions = unknownToTypescriptValue({

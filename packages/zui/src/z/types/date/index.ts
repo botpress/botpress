@@ -20,11 +20,11 @@ import { CustomSet } from '../utils/custom-set'
 export type ZodDateCheck =
   | { kind: 'min'; value: number; message?: string }
   | { kind: 'max'; value: number; message?: string }
-export interface ZodDateDef extends ZodTypeDef {
+export type ZodDateDef = {
   checks: ZodDateCheck[]
   coerce: boolean
   typeName: ZodFirstPartyTypeKind.ZodDate
-}
+} & ZodTypeDef
 
 export class ZodDate extends ZodType<Date, ZodDateDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

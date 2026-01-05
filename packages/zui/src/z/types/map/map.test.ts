@@ -15,7 +15,7 @@ test('valid parse', () => {
     new Map([
       ['first', 'foo'],
       ['second', 'bar'],
-    ]),
+    ])
   )
   expect(result.success).toEqual(true)
   if (result.success) {
@@ -31,7 +31,7 @@ test('valid parse async', async () => {
     new Map([
       ['first', 'foo'],
       ['second', 'bar'],
-    ]),
+    ])
   )
   expect(result.success).toEqual(true)
   if (result.success) {
@@ -70,7 +70,7 @@ test('throws when the given map has multiple invalid entries', () => {
     new Map([
       [1, 'foo'],
       ['bar', 2],
-    ] as [any, any][]) as Map<any, any>,
+    ] as [any, any][]) as Map<any, any>
   )
 
   // const result = stringMap.safeParse(new Map([[42, Symbol()]]));
@@ -89,13 +89,13 @@ test('dirty', async () => {
     z.string().refine((val) => val === val.toUpperCase(), {
       message: 'Keys must be uppercase',
     }),
-    z.string(),
+    z.string()
   )
   const result = await map.spa(
     new Map([
       ['first', 'foo'],
       ['second', 'bar'],
-    ]),
+    ])
   )
   expect(result.success).toEqual(false)
   if (!result.success) {

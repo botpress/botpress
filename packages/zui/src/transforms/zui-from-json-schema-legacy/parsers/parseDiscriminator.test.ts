@@ -41,14 +41,14 @@ describe('parseDiscriminator', () => {
             propertyName: 'gender',
           },
         },
-        { module: 'none', path: [], seen: new Map() },
-      ),
+        { module: 'none', path: [], seen: new Map() }
+      )
     ).toStrictEqual(`z.discriminatedUnion("gender", [${male}, ${female}])`)
   })
 
   it('should extract a single schema', () => {
     expect(
-      parseDiscriminator({ oneOf: [{ type: 'string' }] }, { module: 'none', path: [], seen: new Map() }),
+      parseDiscriminator({ oneOf: [{ type: 'string' }] }, { module: 'none', path: [], seen: new Map() })
     ).toStrictEqual('z.string()')
   })
 

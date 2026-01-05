@@ -97,7 +97,7 @@ describe.concurrent('unknownToTypescriptValue', () => {
       // Assert
       const actual = evalAndExtract(tsValue)
       expect(actual).toEqual(input)
-    },
+    }
   )
 })
 
@@ -109,7 +109,7 @@ describe('getMultilineComment', () => {
     expect(getMultilineComment(`Hello */ world`)).toMatchInlineSnapshot(`"/** Hello *\\/ world */"`)
     expect(getMultilineComment(`🙌 works`)).toMatchInlineSnapshot(`"/** 🙌 works */"`)
     expect(
-      getMultilineComment('Hello ' + String.fromCharCode('*'.charCodeAt(0), '/'.charCodeAt(0)) + ' world'),
+      getMultilineComment('Hello ' + String.fromCharCode('*'.charCodeAt(0), '/'.charCodeAt(0)) + ' world')
     ).toMatchInlineSnapshot(`"/** Hello *\\/ world */"`)
   })
 
@@ -118,8 +118,8 @@ describe('getMultilineComment', () => {
       getMultilineComment(
         `
 Hello
-World`.trim(),
-      ),
+World`.trim()
+      )
     ).toMatchInlineSnapshot(`
       "/**
        * Hello
@@ -135,8 +135,8 @@ Hello
 what
 
 is
-*up`.trim(),
-      ),
+*up`.trim()
+      )
     ).toMatchInlineSnapshot(`
       "/**
        * Hello
@@ -152,8 +152,8 @@ is
       getMultilineComment(
         `
 Hello,
-World */`.trim(),
-      ),
+World */`.trim()
+      )
     ).toMatchInlineSnapshot(`
       "/**
        * Hello,
@@ -209,7 +209,7 @@ describe('Escape String', () => {
 \`\`\`
 Hey world
 \`\`\`
-`),
+`)
     ).toMatch(`"\\n\`\`\`\\nHey world\\n\`\`\`\\n"`)
   })
 })

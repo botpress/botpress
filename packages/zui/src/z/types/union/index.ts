@@ -23,10 +23,10 @@ import { CustomSet } from '../utils/custom-set'
 
 type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>
 export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
-export interface ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodTypeDef {
+export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
   options: T
   typeName: ZodFirstPartyTypeKind.ZodUnion
-}
+} & ZodTypeDef
 
 export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodType<
   T[number]['_output'],
@@ -49,7 +49,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     return unique(
       this._def.options.reduce<string[]>((acc, option) => {
         return [...acc, ...option.getReferences()]
-      }, []),
+      }, [])
     )
   }
 
@@ -110,7 +110,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
             }),
             ctx: childCtx,
           }
-        }),
+        })
       ).then(handleResults)
     } else {
       let dirty: undefined | { result: DIRTY<any>; ctx: ParseContext } = undefined
@@ -162,7 +162,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
 
   static create = <T extends Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>>(
     types: T,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodUnion<T> => {
     return new ZodUnion({
       options: types,

@@ -21,7 +21,7 @@ describe.concurrent('datetime tests', () => {
 
         // Assert
         expect(result).toEqual({ precision, offset })
-      },
+      }
     )
   })
 })

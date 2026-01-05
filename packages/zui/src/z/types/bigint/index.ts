@@ -22,11 +22,11 @@ export type ZodBigIntCheck =
   | { kind: 'max'; value: bigint; inclusive: boolean; message?: string }
   | { kind: 'multipleOf'; value: bigint; message?: string }
 
-export interface ZodBigIntDef extends ZodTypeDef {
+export type ZodBigIntDef = {
   checks: ZodBigIntCheck[]
   typeName: ZodFirstPartyTypeKind.ZodBigInt
   coerce: boolean
-}
+} & ZodTypeDef
 
 export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
   _parse(input: ParseInput): ParseReturnType<bigint> {

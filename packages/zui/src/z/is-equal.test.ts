@@ -50,26 +50,26 @@ describe('isEqual', () => {
 
     expectZui(
       //
-      z.date().min(today()).min(yesterday()),
+      z.date().min(today()).min(yesterday())
     ).toEqual(
       //
-      z.date().min(yesterday()).min(today()),
+      z.date().min(yesterday()).min(today())
     )
 
     expectZui(
       //
-      z.date().max(today()).max(tomorrow()),
+      z.date().max(today()).max(tomorrow())
     ).toEqual(
       //
-      z.date().max(tomorrow()).max(today()),
+      z.date().max(tomorrow()).max(today())
     )
 
     expectZui(
       //
-      z.date().min(yesterday()).max(tomorrow()),
+      z.date().min(yesterday()).max(tomorrow())
     ).toEqual(
       //
-      z.date().max(tomorrow()).min(yesterday()),
+      z.date().max(tomorrow()).min(yesterday())
     )
   })
   test('default', () => {
@@ -80,12 +80,12 @@ describe('isEqual', () => {
       z.discriminatedUnion('type', [
         z.object({ type: z.literal('a'), a: z.string() }),
         z.object({ type: z.literal('b'), b: z.string() }),
-      ]),
+      ])
     ).toEqual(
       z.discriminatedUnion('type', [
         z.object({ type: z.literal('b'), b: z.string() }),
         z.object({ type: z.literal('a'), a: z.string() }),
-      ]),
+      ])
     )
   })
   test('enum', () => {
@@ -95,10 +95,10 @@ describe('isEqual', () => {
   test('function', () => {
     expectZui(
       //
-      z.function().args(z.string()).returns(z.number()),
+      z.function().args(z.string()).returns(z.number())
     ).toEqual(
       //
-      z.function().args(z.string()).returns(z.number()),
+      z.function().args(z.string()).returns(z.number())
     )
   })
   test('intersection', () => {
@@ -107,16 +107,16 @@ describe('isEqual', () => {
       z.intersection(
         //
         z.object({ a: z.string() }),
-        z.object({ b: z.number() }),
-      ),
+        z.object({ b: z.number() })
+      )
     ).toEqual(
       //
       //
       z.intersection(
         //
         z.object({ b: z.number() }),
-        z.object({ a: z.string() }),
-      ),
+        z.object({ a: z.string() })
+      )
     )
   })
   test('lazy', () => {
@@ -128,10 +128,10 @@ describe('isEqual', () => {
   test('map', () => {
     expectZui(
       //
-      z.map(z.string(), z.object({ foo: z.boolean() })),
+      z.map(z.string(), z.object({ foo: z.boolean() }))
     ).toEqual(
       //
-      z.map(z.string(), z.object({ foo: z.boolean() })),
+      z.map(z.string(), z.object({ foo: z.boolean() }))
     )
   })
   test('nan', () => {
@@ -170,12 +170,12 @@ describe('isEqual', () => {
       z.object({
         a: z.string(),
         b: z.number(),
-      }),
+      })
     ).toEqual(
       z.object({
         b: z.number(),
         a: z.string(),
-      }),
+      })
     )
   })
   test('strict object', () => {
@@ -185,14 +185,14 @@ describe('isEqual', () => {
           a: z.string(),
           b: z.number(),
         })
-        .strict(),
+        .strict()
     ).toEqual(
       z
         .object({
           b: z.number(),
           a: z.string(),
         })
-        .catchall(z.never()),
+        .catchall(z.never())
     )
   })
   test('passthrough object', () => {
@@ -202,14 +202,14 @@ describe('isEqual', () => {
           a: z.string(),
           b: z.number(),
         })
-        .passthrough(),
+        .passthrough()
     ).toEqual(
       z
         .object({
           b: z.number(),
           a: z.string(),
         })
-        .catchall(z.any()),
+        .catchall(z.any())
     )
   })
   test('optional', () => {
@@ -218,19 +218,19 @@ describe('isEqual', () => {
   test('pipeline', () => {
     expectZui(
       //
-      z.pipeline(z.string(), z.number()),
+      z.pipeline(z.string(), z.number())
     ).toEqual(
       //
-      z.pipeline(z.string(), z.number()),
+      z.pipeline(z.string(), z.number())
     )
   })
   test('promise', () => {
     expectZui(
       //
-      z.promise(z.string()),
+      z.promise(z.string())
     ).toEqual(
       //
-      z.string().promise(),
+      z.string().promise()
     )
   })
   test('readonly', () => {
@@ -239,10 +239,10 @@ describe('isEqual', () => {
   test('record', () => {
     expectZui(
       //
-      z.record(z.string(), z.boolean()),
+      z.record(z.string(), z.boolean())
     ).toEqual(
       //
-      z.record(z.string(), z.boolean()),
+      z.record(z.string(), z.boolean())
     )
   })
   test('ref', () => {
@@ -251,10 +251,10 @@ describe('isEqual', () => {
   test('set', () => {
     expectZui(
       //
-      z.set(z.string()),
+      z.set(z.string())
     ).toEqual(
       //
-      z.set(z.string()),
+      z.set(z.string())
     )
   })
   test('string', () => {
@@ -267,18 +267,18 @@ describe('isEqual', () => {
   test('transformer', () => {
     expectZui(
       //
-      z.string().transform((s) => s.toUpperCase()),
+      z.string().transform((s) => s.toUpperCase())
     ).toEqual(
       //
-      z.string().transform((s) => s.toUpperCase()),
+      z.string().transform((s) => s.toUpperCase())
     )
 
     expectZui(
       //
-      z.string().refine((s: string) => s === s.toUpperCase(), 'string must be upper case'),
+      z.string().refine((s: string) => s === s.toUpperCase(), 'string must be upper case')
     ).toEqual(
       //
-      z.string().refine((s: string) => s === s.toUpperCase(), 'string is not upper case'),
+      z.string().refine((s: string) => s === s.toUpperCase(), 'string is not upper case')
     )
   })
   test('tuple', () => {
@@ -290,10 +290,10 @@ describe('isEqual', () => {
   test('union', () => {
     expectZui(
       //
-      z.union([z.string(), z.number()]),
+      z.union([z.string(), z.number()])
     ).toEqual(
       //
-      z.union([z.number(), z.string()]),
+      z.union([z.number(), z.string()])
     )
   })
   test('unknown', () => {
@@ -321,14 +321,14 @@ describe('isNotEqual', () => {
           a: z.string(),
           b: z.number(),
         })
-        .catchall(z.string()),
+        .catchall(z.string())
     ).not.toEqual(
       z
         .object({
           a: z.string(),
           b: z.number(),
         })
-        .catchall(z.number()),
+        .catchall(z.number())
     )
   })
 })

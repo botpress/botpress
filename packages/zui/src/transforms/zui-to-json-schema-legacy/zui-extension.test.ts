@@ -43,8 +43,8 @@ describe('zuiToJsonSchema', () => {
       toJSONSchemaLegacy(
         z.object({
           fruit: z.enum(['Apple', 'Banana', 'Orange']),
-        }),
-      ),
+        })
+      )
     ).toEqual({
       additionalProperties: false,
       properties: {
@@ -170,7 +170,7 @@ describe('zuiToJsonSchema', () => {
         z.object({
           id: z.number(),
           title: z.string().min(5),
-        }),
+        })
       )
       .min(1)
       .describe('Array of objects with validation')
@@ -305,7 +305,7 @@ describe('zuiToJsonSchema', () => {
       z.object({
         type: z.string().title('Type'),
         value: z.number().hidden(),
-      }),
+      })
     )
 
     const zSchema = toJSONSchemaLegacy(schema)

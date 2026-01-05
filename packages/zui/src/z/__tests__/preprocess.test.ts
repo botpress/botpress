@@ -36,8 +36,8 @@ test('preprocess ctx.addIssue with parse', () => {
         },
       ],
       null,
-      2,
-    ),
+      2
+    )
   )
 })
 
@@ -91,8 +91,8 @@ test('async preprocess ctx.addIssue with parse', async () => {
         },
       ],
       null,
-      2,
-    ),
+      2
+    )
   )
 })
 
@@ -180,7 +180,7 @@ test('preprocess validates with sibling errors', () => {
         },
       ],
       null,
-      2,
-    ),
+      2
+    )
   )
 })

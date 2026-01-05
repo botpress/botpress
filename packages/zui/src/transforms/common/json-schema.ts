@@ -1,7 +1,7 @@
 import { JSONSchema7 } from 'json-schema'
-import { util } from '../../z/types/utils'
-import z from '../../z'
 import { ZuiExtensionObject } from '../../ui/types'
+import z from '../../z'
+import { util } from '../../z/types/utils'
 
 /**
  * Definitions:

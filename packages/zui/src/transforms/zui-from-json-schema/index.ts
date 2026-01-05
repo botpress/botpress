@@ -1,10 +1,10 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import * as errors from '../common/errors'
-import * as guards from './guards'
 import z from '../../z'
-import { toZuiPrimitive } from './primitives'
-import { arrayJSONSchemaToZuiArray } from './iterables/array'
+import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
+import * as guards from './guards'
+import { arrayJSONSchemaToZuiArray } from './iterables/array'
+import { toZuiPrimitive } from './primitives'
 
 const DEFAULT_TYPE = z.any()
 
@@ -60,7 +60,6 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.then !== undefined) {
-    // eslint-disable-next-line no-thenable
     throw new errors.UnsupportedJSONSchemaToZuiError({ then: schema.then })
   }
 

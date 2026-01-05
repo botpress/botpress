@@ -33,14 +33,14 @@ import { CustomSet } from '../utils/custom-set'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodTypeAny
 
-export interface ZodObjectDef<
+export type ZodObjectDef<
   T extends ZodRawShape = ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> extends ZodTypeDef {
+> = {
   typeName: ZodFirstPartyTypeKind.ZodObject
   shape: () => T
   unknownKeys: UnknownKeys
-}
+} & ZodTypeDef
 
 export type mergeTypes<A, B> = {
   [k in keyof A | keyof B]: k extends keyof B ? B[k] : k extends keyof A ? A[k] : never
@@ -232,7 +232,7 @@ export class ZodObject<
         pairs.push({
           key: { status: 'valid', value: key },
           value: unknownKeys._parse(
-            new ParseInputLazyPath(ctx, value, ctx.path, key), //, ctx.child(key), value, getParsedType(value)
+            new ParseInputLazyPath(ctx, value, ctx.path, key) //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: key in ctx.data,
         })
@@ -274,10 +274,11 @@ export class ZodObject<
         ? {
             errorMap: (issue, ctx) => {
               const defaultError = this._def.errorMap?.(issue, ctx).message ?? ctx.defaultError
-              if (issue.code === 'unrecognized_keys')
+              if (issue.code === 'unrecognized_keys') {
                 return {
                   message: errorUtil.errToObj(message).message ?? defaultError,
                 }
+              }
               return {
                 message: defaultError,
               }
@@ -341,7 +342,7 @@ export class ZodObject<
   //     })
   //   };
   extend<Augmentation extends ZodRawShape>(
-    augmentation: Augmentation,
+    augmentation: Augmentation
   ): ZodObject<objectUtil.extendShape<T, Augmentation>, UnknownKeys> {
     return new ZodObject({
       ...this._def,
@@ -395,7 +396,7 @@ export class ZodObject<
    * upgrade if you are experiencing issues.
    */
   merge<Incoming extends AnyZodObject, Augmentation extends Incoming['shape']>(
-    merging: Incoming,
+    merging: Incoming
   ): ZodObject<objectUtil.extendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
     const merged: any = new ZodObject({
       unknownKeys: merging._def.unknownKeys,
@@ -444,7 +445,7 @@ export class ZodObject<
   // }
   setKey<Key extends string, Schema extends ZodTypeAny>(
     key: Key,
-    schema: Schema,
+    schema: Schema
   ): ZodObject<
     T & {
       [k in Key]: Schema
@@ -542,7 +543,7 @@ export class ZodObject<
       [k in keyof T]?: true
     },
   >(
-    mask: Mask,
+    mask: Mask
   ): ZodObject<
     objectUtil.noNever<{
       [k in keyof T]: k extends keyof Mask ? ZodOptional<T[k]> : T[k]
@@ -579,7 +580,7 @@ export class ZodObject<
       [k in keyof T]?: true
     },
   >(
-    mask: Mask,
+    mask: Mask
   ): ZodObject<
     objectUtil.noNever<{
       [k in keyof T]: k extends keyof Mask ? deoptional<T[k]> : T[k]

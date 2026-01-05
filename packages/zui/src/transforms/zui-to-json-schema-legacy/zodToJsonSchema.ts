@@ -5,7 +5,7 @@ import { getRefs } from './Refs'
 
 const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
   schema: ZodSchema<any>,
-  options?: Partial<Options<Target>> | string,
+  options?: Partial<Options<Target>> | string
 ): (Target extends 'jsonSchema7' ? JsonSchema7Type : object) & {
   $schema?: string
   definitions?: {
@@ -30,10 +30,10 @@ const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
                   ...refs,
                   currentPath: [...refs.basePath, refs.definitionPath, name],
                 },
-                true,
+                true
               ) ?? {},
           }),
-          {},
+          {}
         )
       : undefined
 
@@ -48,7 +48,7 @@ const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
             ...refs,
             currentPath: [...refs.basePath, refs.definitionPath, name],
           },
-      false,
+      false
     ) ?? {}
 
   const combined: ReturnType<typeof zodToJsonSchema<Target>> =

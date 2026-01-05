@@ -35,11 +35,11 @@ export type PreprocessEffect<T> = {
 }
 export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
 
-export interface ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> = {
   schema: T
   typeName: ZodFirstPartyTypeKind.ZodEffects
   effect: Effect<any>
-}
+} & ZodTypeDef
 
 export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, Input = input<T>> extends ZodType<
   Output,
@@ -177,7 +177,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
         const result = effect.transform(base.value, checkCtx)
         if (result instanceof Promise) {
           throw new Error(
-            `Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.`,
+            'Asynchronous transform encountered during synchronous parse operation. Use .parseAsync instead.'
           )
         }
 
@@ -200,7 +200,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
   static create = <I extends ZodType>(
     schema: I,
     effect: Effect<I['_output']>,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodEffects<I, I['_output']> => {
     return new ZodEffects({
       schema,
@@ -213,7 +213,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
   static createWithPreprocess = <I extends ZodTypeAny>(
     preprocess: (arg: unknown, ctx: RefinementCtx) => unknown,
     schema: I,
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodEffects<I, I['_output'], unknown> => {
     return new ZodEffects({
       schema,

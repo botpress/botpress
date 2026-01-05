@@ -20,6 +20,6 @@ test('safeparse unexpected error', () => {
       .refine((data) => {
         throw new Error(data)
       })
-      .safeParse('12'),
+      .safeParse('12')
   ).toThrow()
 })

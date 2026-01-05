@@ -13,11 +13,11 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
+export type ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   defaultValue: () => util.noUndefined<T['_input']>
   typeName: ZodFirstPartyTypeKind.ZodDefault
-}
+} & ZodTypeDef
 
 export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   util.noUndefined<T['_output']>,
@@ -62,7 +62,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(
     type: T,
     value: T['_input'] | (() => util.noUndefined<T['_input']>),
-    params?: RawCreateParams,
+    params?: RawCreateParams
   ): ZodDefault<T> => {
     return new ZodDefault({
       innerType: type,

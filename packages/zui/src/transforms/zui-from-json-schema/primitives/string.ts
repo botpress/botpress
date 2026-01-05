@@ -1,7 +1,7 @@
 import { JSONSchema7 } from 'json-schema'
-import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 import z from '../../../z'
 import * as datetime from '../../../z/types/string/datetime'
+import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 
 export const stringJSONSchemaToZuiString = ({
   format,

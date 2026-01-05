@@ -10,7 +10,7 @@ describe('Issue tests', () => {
         .array(
           z.object({
             topic: z.string().describe('The topic of the position'),
-          }),
+          })
         )
         .describe('An array of topics'),
     })

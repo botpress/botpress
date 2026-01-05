@@ -10,10 +10,10 @@ import {
   ZodIssueCode,
 } from '../index'
 
-export interface ZodRefDef extends ZodTypeDef {
+export type ZodRefDef = {
   typeName: ZodFirstPartyTypeKind.ZodRef
   uri: string
-}
+} & ZodTypeDef
 
 type ZodRefOutput = NonNullable<unknown>
 

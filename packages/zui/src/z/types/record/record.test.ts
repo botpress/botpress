@@ -98,7 +98,7 @@ test('key schema', () => {
       Tuna: 'asdf',
       Salmon: 'asdf',
       Trout: 'asdf',
-    }),
+    })
   ).toThrow()
 
   expect(() =>
@@ -107,7 +107,7 @@ test('key schema', () => {
       Salmon: 'asdf',
 
       Trout: 'asdf',
-    }),
+    })
   ).toThrow()
 })
 
@@ -127,7 +127,7 @@ test('is not vulnerable to prototype pollution', async () => {
   const rec = z.record(
     z.object({
       a: z.string(),
-    }),
+    })
   )
 
   const data = JSON.parse(`

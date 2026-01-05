@@ -18,7 +18,7 @@ const isJsonSchema7AllOfType = (type: JsonSchema7Type | JsonSchema7StringType): 
 
 export function parseIntersectionDef(
   def: ZodIntersectionDef,
-  refs: Refs,
+  refs: Refs
 ): JsonSchema7AllOfType | JsonSchema7Type | undefined {
   const allOf = [
     parseDef(def.left._def, {
@@ -47,7 +47,7 @@ export function parseIntersectionDef(
     } else {
       let nestedSchema: JsonSchema7Type = schema
       if ('additionalProperties' in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema
+        const { additionalProperties: _, ...rest } = schema
         nestedSchema = rest
       } else {
         // As soon as one of the schemas has additionalProperties set not to false, we allow unevaluatedProperties

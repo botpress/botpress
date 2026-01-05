@@ -1,8 +1,8 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodDateDef } from '../../../z/index'
-import { Refs } from '../Refs'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
+import { Refs } from '../Refs'
 import { JsonSchema7NumberType } from './number'
 
 export type JsonSchema7DateType = {
@@ -15,7 +15,7 @@ export type JsonSchema7DateType = {
 }
 
 export function parseDateDef(def: ZodDateDef, refs: Refs): JsonSchema7DateType {
-  if (refs.dateStrategy == 'integer') {
+  if (refs.dateStrategy === 'integer') {
     return integerDateParser(def, refs)
   } else {
     return {
@@ -54,7 +54,7 @@ const integerDateParser = (def: ZodDateDef, refs: Refs) => {
             'minimum',
             check.value, // This is in milliseconds
             check.message,
-            refs,
+            refs
           )
         }
         break
@@ -65,7 +65,7 @@ const integerDateParser = (def: ZodDateDef, refs: Refs) => {
             'maximum',
             check.value, // This is in milliseconds
             check.message,
-            refs,
+            refs
           )
         }
         break

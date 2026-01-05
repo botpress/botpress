@@ -7,7 +7,7 @@ export const parseIfThenElse = (
     then: JsonSchema
     else: JsonSchema
   },
-  refs: Refs,
+  refs: Refs
 ): string => {
   const $if = parseSchema(schema.if, { ...refs, path: [...refs.path, 'if'] })
   const $then = parseSchema(schema.then, {
