@@ -3,7 +3,6 @@ import { z } from '@botpress/sdk'
 export const trelloIdRegex = /^[0-9a-fA-F]{24}$/
 
 export const trelloIdSchema = z.string().regex(trelloIdRegex)
-
 export type TrelloID = z.infer<typeof trelloIdSchema>
 
 export const boardSchema = z.object({
