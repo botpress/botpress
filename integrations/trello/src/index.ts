@@ -1,39 +1,6 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as bp from '../.botpress'
-import {
-  getBoardsByDisplayName,
-  getCardsByDisplayName,
-  getListsByDisplayName,
-  createCard,
-  moveCardUp,
-  moveCardDown,
-  moveCardToList,
-  addCardComment,
-  updateCard,
-  getAllBoardMembers,
-  getAllBoards,
-  getBoardById,
-  getBoardMembersByDisplayName,
-  getCardById,
-  getCardsInList,
-  getListById,
-  getListsInBoard,
-  getMemberByIdOrUsername,
-  cardList,
-  cardRead,
-  cardCreate,
-  cardUpdate,
-  cardDelete,
-  listList,
-  listRead,
-  boardList,
-  boardRead,
-  cardMemberList,
-  cardMemberRead,
-  boardMemberList,
-  boardMemberRead,
-  getAllCardMembers,
-} from './actions'
+import { actions } from './actions'
 import { channels } from './channels/publisher-dispatcher'
 import { register, unregister } from './setup'
 import { handler } from './webhook-events'
@@ -41,44 +8,7 @@ import { handler } from './webhook-events'
 const integration = new bp.Integration({
   register,
   unregister,
-
-  actions: {
-    addCardComment,
-    createCard,
-    getAllBoardMembers,
-    getAllBoards,
-    getBoardById,
-    getBoardMembersByDisplayName,
-    getBoardsByDisplayName,
-    getCardById,
-    getCardsByDisplayName,
-    getCardsInList,
-    getListById,
-    getListsByDisplayName,
-    getListsInBoard,
-    getMemberByIdOrUsername,
-    moveCardDown,
-    moveCardToList,
-    moveCardUp,
-    updateCard,
-    getAllCardMembers,
-
-    // interfaces:
-    cardList,
-    cardRead,
-    cardCreate,
-    cardUpdate,
-    cardDelete,
-    listList,
-    listRead,
-    boardList,
-    boardRead,
-    cardMemberList,
-    cardMemberRead,
-    boardMemberList,
-    boardMemberRead,
-  },
-
+  actions,
   channels,
   handler,
 })
