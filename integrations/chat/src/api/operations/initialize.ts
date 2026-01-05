@@ -65,7 +65,7 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
       }
 
       const { participant } = await props.client.addParticipant({ id: conversation.id, userId: user.id })
-      participants = [participant]
+      participants = [...participants, participant]
     }
   } catch (error) {
     if (isApiError(error) && error.code === 403) {
