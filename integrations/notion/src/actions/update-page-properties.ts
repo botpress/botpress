@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { wrapAction } from '../action-wrapper'
-import { updatePagePropertiesSchema } from '../notion-api/schemas'
+import { updatePagePropertiesSchema } from '../../definitions/notion-schemas'
 
 export const updatePageProperties = wrapAction(
   { actionName: 'updatePageProperties', errorMessage: 'Failed to update page properties' },
@@ -17,7 +17,7 @@ export const updatePageProperties = wrapAction(
     const updatePagePropertiesResult = updatePagePropertiesSchema.safeParse(parsed)
     if (!updatePagePropertiesResult.success) {
       throw new RuntimeError(
-        'propertiesJson must be a valid Notion properties object. Check the Notion API documentation for the correct format.'
+        `propertiesJson must be a valid Notion properties object. Check the Notion API documentation for the correct format. ${updatePagePropertiesResult.error.message}`
       )
     }
 

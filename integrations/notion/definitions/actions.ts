@@ -36,9 +36,9 @@ export const actions = {
           .min(2)
           .title('Properties (JSON)')
           .describe(
-            'JSON object for the Notion properties payload (same format as Notion pages.update). Example: {"Name":{"title":[{"text":{"content":"Title"}}]},"Status":{"select":{"name":"In Progress"}}}'
+            'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
           )
-          .placeholder('{"Name":{"title":[{"text":{"content":"Title"}}]},"Status":{"select":{"name":"In Progress"}}}'),
+          .placeholder('{"In stock": { "checkbox": true }}'),
       }),
     },
     output: {
