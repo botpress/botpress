@@ -7,11 +7,14 @@ const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
     text: async (props) => {
       const { logger, conversation, payload, ctx, client, ack } = props
       const { id } = conversation.tags
-
+      
       if (ctx.configurationType === 'sandbox') {
         logger.forBot().error('Comment replies are not supported in sandbox mode')
         return
       }
+
+      if (!ctx.configuration.replyToComments)
+        return
 
       if (!id) {
         logger.forBot().error('Comment ID is required to reply to comments')
