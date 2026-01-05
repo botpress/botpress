@@ -1,5 +1,6 @@
 import * as notionhq from '@notionhq/client'
 import {
+  BlockObjectRequest,
   BlockObjectResponse,
   PartialDatabaseObjectResponse,
   PartialPageObjectResponse,
@@ -106,6 +107,14 @@ export class NotionClient {
   @handleErrors('Failed to delete block')
   public async deleteBlock({ blockId }: { blockId: string }): Promise<void> {
     void (await this._notion.blocks.delete({ block_id: blockId }))
+  }
+
+  @handleErrors('Failed to append block to page')
+  public async appendBlocksToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<void> {
+    void (await this._notion.blocks.children.append({
+      block_id: pageId,
+      children: blocks,
+    }))
   }
 
   @handleErrors('Failed to search by title')
