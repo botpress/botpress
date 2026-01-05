@@ -1,5 +1,4 @@
 import { posthogHelper } from '@botpress/common'
-import * as sdk from '@botpress/sdk'
 import { posthogConfig } from 'src'
 import { GoogleClient } from './google-api'
 import * as bp from '.botpress'
