@@ -33,38 +33,43 @@ import { updateCard } from './implementations/updateCard'
 import * as bp from '.botpress'
 
 export const actions = {
-  addCardComment,
-  createCard,
-  getAllBoardMembers,
-  getAllBoards,
+  // === Board Actions ===
   getBoardById,
-  getBoardMembersByDisplayName,
   getBoardsByDisplayName,
-  getCardById,
-  getCardsByDisplayName,
-  getCardsInList,
+  getAllBoards,
+  // === List Actions ===
   getListById,
   getListsByDisplayName,
   getListsInBoard,
-  getMemberByIdOrUsername,
+  // === Card Actions ===
+  getCardById,
+  getCardsByDisplayName,
+  getCardsInList,
+  createCard,
+  updateCard,
+  addCardComment,
+  moveCardUp,
   moveCardDown,
   moveCardToList,
-  moveCardUp,
-  updateCard,
+  // === Member Actions ===
+  getMemberByIdOrUsername,
+  getBoardMembersByDisplayName,
+  getAllBoardMembers,
   getAllCardMembers,
-
-  // interfaces:
+  // -----------------------
+  //    Interface Actions
+  // -----------------------
+  boardList,
+  boardRead,
+  boardMemberList,
+  boardMemberRead,
+  listList,
+  listRead,
   cardList,
   cardRead,
   cardCreate,
   cardUpdate,
   cardDelete,
-  listList,
-  listRead,
-  boardList,
-  boardRead,
   cardMemberList,
   cardMemberRead,
-  boardMemberList,
-  boardMemberRead,
 } as const satisfies bp.IntegrationProps['actions']
