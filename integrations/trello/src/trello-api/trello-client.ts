@@ -9,7 +9,6 @@ import {
   type Webhook,
 } from 'definitions/schemas'
 import { TrelloClient as TrelloJs, type Models as TrelloJsModels } from 'trello.js'
-import { handleErrorsDecorator as handleErrors } from './error-handling/error-handler-decorator'
 import { RequestMapping } from './mapping/request-mapping'
 import { ResponseMapping } from './mapping/response-mapping'
 import * as bp from '.botpress'
@@ -30,104 +29,100 @@ export class TrelloClient {
     this._trelloJs = new TrelloJs({ key: ctx.configuration.trelloApiKey, token: ctx.configuration.trelloApiToken })
   }
 
-  @handleErrors('Failed to retrieve board members')
-  public async getBoardMembers({ boardId }: { boardId: Board['id'] }): Promise<Member[]> {
-    const members: TrelloJsModels.Member[] = await this._trelloJs.boards.getBoardMembers({
-      id: boardId,
-    })
-
-    return members.map(ResponseMapping.mapMember)
+  public getBoardMembers({ boardId }: { boardId: Board['id'] }): Promise<Member[]> {
+    return this._trelloJs.boards
+      .getBoardMembers<TrelloJsModels.Member[]>({
+        id: boardId,
+      })
+      .catch(_useHandleCaughtError('Failed to retrieve board members'))
+      .then((members) => members.map(ResponseMapping.mapMember))
   }
 
-  @handleErrors('Failed to retrieve board by id')
-  public async getBoardById({ boardId }: { boardId: Board['id'] }): Promise<Board> {
-    const board = await this._trelloJs.boards.getBoard({
-      id: boardId,
-    })
-
-    return ResponseMapping.mapBoard(board)
+  public getBoardById({ boardId }: { boardId: Board['id'] }): Promise<Board> {
+    return this._trelloJs.boards
+      .getBoard({
+        id: boardId,
+      })
+      .catch(_useHandleCaughtError('Failed to retrieve board by id'))
+      .then((board) => ResponseMapping.mapBoard(board))
   }
 
-  @handleErrors('Failed to retrieve all boards')
-  public async getAllBoards(): Promise<Board[]> {
-    const boards = await this._trelloJs.members.getMemberBoards({
-      id: 'me',
-    })
-
-    return boards.map(ResponseMapping.mapBoard)
+  public getAllBoards(): Promise<Board[]> {
+    return this._trelloJs.members
+      .getMemberBoards({
+        id: 'me',
+      })
+      .catch(_useHandleCaughtError('Failed to retrieve all boards'))
+      .then((boards) => boards.map(ResponseMapping.mapBoard))
   }
 
-  @handleErrors('Failed to retrieve lists in board')
-  public async getListsInBoard({ boardId }: { boardId: Board['id'] }): Promise<List[]> {
-    const lists = await this._trelloJs.boards.getBoardLists({
-      id: boardId,
-    })
-
-    return lists.map(ResponseMapping.mapList)
+  public getListsInBoard({ boardId }: { boardId: Board['id'] }): Promise<List[]> {
+    return this._trelloJs.boards
+      .getBoardLists({
+        id: boardId,
+      })
+      .catch(_useHandleCaughtError('Failed to retrieve lists in board'))
+      .then((lists) => lists.map(ResponseMapping.mapList))
   }
 
-  @handleErrors('Failed to add comment to card')
-  public async addCardComment({ cardId, commentBody }: { cardId: Card['id']; commentBody: string }): Promise<TrelloID> {
-    const comment = await this._trelloJs.cards.addCardComment({
-      id: cardId,
-      text: commentBody,
-    })
-
-    return ResponseMapping.mapTrelloId(comment.id)
+  public addCardComment({ cardId, commentBody }: { cardId: Card['id']; commentBody: string }): Promise<TrelloID> {
+    return this._trelloJs.cards
+      .addCardComment({
+        id: cardId,
+        text: commentBody,
+      })
+      .catch(_useHandleCaughtError('Failed to add comment to card'))
+      .then((comment) => ResponseMapping.mapTrelloId(comment.id))
   }
 
-  @handleErrors('Failed to get card by id')
-  public async getCardById({ cardId }: { cardId: Card['id'] }): Promise<Card> {
-    const card = await this._trelloJs.cards.getCard({
-      id: cardId,
-    })
-
-    return ResponseMapping.mapCard(card)
+  public getCardById({ cardId }: { cardId: Card['id'] }): Promise<Card> {
+    return this._trelloJs.cards
+      .getCard({
+        id: cardId,
+      })
+      .catch(_useHandleCaughtError('Failed to get card by id'))
+      .then((card) => ResponseMapping.mapCard(card))
   }
 
-  @handleErrors('Failed to create card')
-  public async createCard({
-    card,
-  }: {
-    card: Pick<Card, 'name' | 'description' | 'listId'> & Partial<Card>
-  }): Promise<Card> {
-    const newCard = await this._trelloJs.cards.createCard(RequestMapping.mapCreateCard(card))
-
-    return ResponseMapping.mapCard(newCard)
+  public createCard({ card }: { card: Pick<Card, 'name' | 'description' | 'listId'> & Partial<Card> }): Promise<Card> {
+    return this._trelloJs.cards
+      .createCard(RequestMapping.mapCreateCard(card))
+      .catch(_useHandleCaughtError('Failed to create card'))
+      .then((newCard) => ResponseMapping.mapCard(newCard))
   }
 
-  @handleErrors('Failed to update card')
-  public async updateCard({ partialCard }: { partialCard: Pick<Card, 'id'> & Partial<Card> }): Promise<Card> {
-    const updatedCard = await this._trelloJs.cards.updateCard(RequestMapping.mapUpdateCard(partialCard))
-
-    return ResponseMapping.mapCard(updatedCard)
+  public updateCard({ partialCard }: { partialCard: Pick<Card, 'id'> & Partial<Card> }): Promise<Card> {
+    return this._trelloJs.cards
+      .updateCard(RequestMapping.mapUpdateCard(partialCard))
+      .catch(_useHandleCaughtError('Failed to update card'))
+      .then((updatedCard) => ResponseMapping.mapCard(updatedCard))
   }
 
-  @handleErrors('Failed to get list by id')
-  public async getListById({ listId }: { listId: List['id'] }): Promise<List> {
-    const list: TrelloJsModels.List = await this._trelloJs.lists.getList({
-      id: listId,
-    })
-
-    return ResponseMapping.mapList(list)
+  public getListById({ listId }: { listId: List['id'] }): Promise<List> {
+    return this._trelloJs.lists
+      .getList<TrelloJsModels.List>({
+        id: listId,
+      })
+      .catch(_useHandleCaughtError('Failed to get list by id'))
+      .then((list) => ResponseMapping.mapList(list))
   }
 
-  @handleErrors('Failed to get cards in list')
-  public async getCardsInList({ listId }: { listId: List['id'] }): Promise<Card[]> {
-    const cards = await this._trelloJs.lists.getListCards({
-      id: listId,
-    })
-
-    return cards.map(ResponseMapping.mapCard)
+  public getCardsInList({ listId }: { listId: List['id'] }): Promise<Card[]> {
+    return this._trelloJs.lists
+      .getListCards({
+        id: listId,
+      })
+      .catch(_useHandleCaughtError('Failed to get cards in list'))
+      .then((cards) => cards.map(ResponseMapping.mapCard))
   }
 
-  @handleErrors('Failed to get member by id or username')
-  public async getMemberByIdOrUsername({ memberId }: { memberId: Member['id'] | Member['username'] }): Promise<Member> {
-    const member = await this._trelloJs.members.getMember({
-      id: memberId,
-    })
-
-    return ResponseMapping.mapMember(member)
+  public getMemberByIdOrUsername({ memberId }: { memberId: Member['id'] | Member['username'] }): Promise<Member> {
+    return this._trelloJs.members
+      .getMember({
+        id: memberId,
+      })
+      .catch(_useHandleCaughtError('Failed to get member by id or username'))
+      .then((member) => ResponseMapping.mapMember(member))
   }
 
   public listWebhooks(): Promise<Webhook[]> {
@@ -148,8 +143,7 @@ export class TrelloClient {
       })
   }
 
-  @handleErrors('Failed to create webhook')
-  public async createWebhook({
+  public createWebhook({
     description,
     url,
     modelId,
@@ -158,28 +152,31 @@ export class TrelloClient {
     url: string
     modelId: string
   }): Promise<Webhook> {
-    const webhook = await this._trelloJs.webhooks.createWebhook({
-      description,
-      callbackURL: url,
-      idModel: modelId,
-    })
-
-    return ResponseMapping.mapWebhook(webhook)
+    return this._trelloJs.webhooks
+      .createWebhook({
+        description,
+        callbackURL: url,
+        idModel: modelId,
+      })
+      .catch(_useHandleCaughtError('Failed to create webhook'))
+      .then((webhook) => ResponseMapping.mapWebhook(webhook))
   }
 
-  @handleErrors('Failed to delete webhook')
-  public async deleteWebhook({ id }: { id: string }): Promise<void> {
-    await this._trelloJs.webhooks.deleteWebhook({
-      id,
-    })
+  public deleteWebhook({ id }: { id: string }): Promise<void> {
+    return this._trelloJs.webhooks
+      .deleteWebhook({
+        id,
+      })
+      .catch(_useHandleCaughtError('Failed to delete webhook'))
+      .then(() => {})
   }
 
-  @handleErrors('Failed to get card members')
-  public async getCardMembers({ cardId }: { cardId: Card['id'] }): Promise<Member[]> {
-    const members: TrelloJsModels.Member[] = await this._trelloJs.cards.getCardMembers({
-      id: cardId,
-    })
-
-    return members.map(ResponseMapping.mapMember)
+  public getCardMembers({ cardId }: { cardId: Card['id'] }): Promise<Member[]> {
+    return this._trelloJs.cards
+      .getCardMembers<TrelloJsModels.Member[]>({
+        id: cardId,
+      })
+      .catch(_useHandleCaughtError('Failed to get card members'))
+      .then((members) => members.map(ResponseMapping.mapMember))
   }
 }
