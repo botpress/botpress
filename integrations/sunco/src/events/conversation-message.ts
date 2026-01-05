@@ -17,7 +17,9 @@ export async function handleConversationMessage(
     channel: 'channel',
     tags: {
       id: payload.conversation?.id,
+      origin: payload.message.source?.type,
     },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
