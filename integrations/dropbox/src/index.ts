@@ -33,6 +33,7 @@ const integration = new bp.Integration({
       const file = await client.uploadFile({
         key: `dropbox:${path}`,
         content: fileBuffer,
+        publicContentImmediatelyAccessible: true,
       })
 
       return { fileUrl: file.file.url }
@@ -43,6 +44,7 @@ const integration = new bp.Integration({
       const file = await client.uploadFile({
         key: `dropbox:${path}.zip`,
         content: folderZipBuffer,
+        publicContentImmediatelyAccessible: true,
       })
 
       return { zipUrl: file.file.url }
@@ -83,6 +85,7 @@ const integration = new bp.Integration({
           key: fileKey,
           content: fileBuffer,
           index: shouldIndex,
+          publicContentImmediatelyAccessible: true,
         })
 
         return { botpressFileId: uploadedFile.id }
