@@ -151,7 +151,7 @@ export class TrelloClient {
     const result = webhookSchema.array().safeParse(mappedWebhooks)
 
     if (!result.success) {
-      throw new RuntimeError('Invalid webhook data received from Trello')
+      throw new RuntimeError('Unexpected webhook data format received from Trello')
     }
 
     return result.data
