@@ -2,22 +2,18 @@ import { z } from '@botpress/sdk'
 
 export type ModelId = z.infer<typeof ModelId>
 
-export const DefaultModel: ModelId = 'claude-sonnet-4-5-20250929'
+export const DefaultModel: ModelId = 'mistral-large-2512'
 
 export const ModelId = z
 	.enum([
-		'claude-haiku-4-5-20251001',
-		'claude-haiku-4-5-reasoning-20251001',
-		'claude-sonnet-4-5-20250929',
-		'claude-sonnet-4-5-reasoning-20250929',
-		'claude-sonnet-4-20250514',
-		'claude-sonnet-4-reasoning-20250514',
-		'claude-3-7-sonnet-20250219',
-		'claude-3-7-sonnet-reasoning-20250219',
-		'claude-3-5-haiku-20241022',
-		'claude-3-5-sonnet-20241022',
-		'claude-3-5-sonnet-20240620',
-		'claude-3-haiku-20240307',
+		'mistral-large-2512',
+		'mistral-medium-2508',
+		'mistral-small-2506',
+		'ministral-14b-2512',
+		'ministral-8b-2512',
+		'ministral-3b-2512',
+		'magistral-medium-2509',
+		'magistral-small-2509',
 	])
 	.describe('Model to use for content generation')
 	.placeholder(DefaultModel)
