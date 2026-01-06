@@ -55,7 +55,8 @@ For more details and examples, refer to the Botpress and Trello documentation.
 In order to enable events for the integration a board id must be provided in the configuration.
 
 To find your board id, open the webpage for your trello board and add ".json" to the end of the URL. For example,
-  - `trello.com/b/Ab12cD43/my-trello-board` **->** `trello.com/b/Ab12cD43/my-trello-board.json`
+
+- `trello.com/b/Ab12cD43/my-trello-board` **->** `trello.com/b/Ab12cD43/my-trello-board.json`
 
 The id of the board should be 24 characters long consisting of letters and numbers.
 
