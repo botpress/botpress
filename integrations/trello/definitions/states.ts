@@ -9,7 +9,7 @@ const _webhookIdStateSchema = trelloIdSchema
 export type WebhookIdState = z.infer<typeof _webhookIdStateSchema>
 
 export const states = {
-  webhookState: {
+  webhook: {
     type: 'integration',
     schema: z
       .object({ trelloWebhookId: _webhookIdStateSchema })
