@@ -44,7 +44,7 @@ describe('constructor', () => {
   test('valid client', () => {
     // Just check that no error is thrown
     const provider = new MockProvider(getTestClient())
-    expect(() => new Cognitive({ client: getTestClient(), provider })).not.toThrow()
+    expect(() => new Cognitive({ client: getTestClient(), provider, __use_legacy: true })).not.toThrow()
   })
 })
 
@@ -57,7 +57,7 @@ describe('client', () => {
     vi.clearAllMocks()
     bp = new TestClient()
     provider = new MockProvider(bp)
-    client = new Cognitive({ client: bp, provider })
+    client = new Cognitive({ client: bp, provider, __use_legacy: true })
   })
 
   describe('predict (request)', () => {
@@ -80,7 +80,7 @@ describe('client', () => {
 
   describe('predict (fallback)', () => {
     test('when model is unavailable, registers the downtime, saves it, and selects another model', async () => {
-      client = new Cognitive({ client: bp, provider })
+      client = new Cognitive({ client: bp, provider, __use_legacy: true })
 
       bp.callAction.mockRejectedValueOnce({
         isApiError: true,
@@ -159,5 +159,7 @@ describe('client', () => {
 test('isCognitiveClient', () => {
   const client = getTestClient()
   expect(Cognitive.isCognitiveClient(client)).toBe(false)
-  expect(Cognitive.isCognitiveClient(new Cognitive({ client, provider: new MockProvider(client) }))).toBe(true)
+  expect(
+    Cognitive.isCognitiveClient(new Cognitive({ client, provider: new MockProvider(client), __use_legacy: true }))
+  ).toBe(true)
 })

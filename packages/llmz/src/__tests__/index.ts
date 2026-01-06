@@ -153,6 +153,7 @@ export const getCachedCognitiveClient = () => {
         downtimes: [],
       }),
     },
+    __use_legacy: true,
   })
 
   return cognitive
