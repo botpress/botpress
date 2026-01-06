@@ -272,7 +272,7 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
 
   const client = props.client ?? new Client()
 
-  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client, __experimental_beta: true })
+  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({

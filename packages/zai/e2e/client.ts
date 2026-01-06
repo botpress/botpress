@@ -109,7 +109,6 @@ export const getCognitiveClient = () => {
       botId: process.env.CLOUD_BOT_ID,
       token: process.env.CLOUD_PAT,
     }),
-    __experimental_beta: true,
   })
   return cognitive
 }
@@ -122,7 +121,6 @@ export const getCachedCognitiveClient = () => {
       botId: process.env.CLOUD_BOT_ID,
       token: process.env.CLOUD_PAT,
     }),
-    __experimental_beta: true,
   })
   return cognitive
 }

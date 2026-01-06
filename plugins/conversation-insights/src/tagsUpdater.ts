@@ -63,7 +63,7 @@ const _generateContentWithRetries = async <T>(props: ParsePromptProps): Promise<
   let attemptCount = 0
   const maxRetries = 3
 
-  const cognitiveClient = new cognitive.Cognitive({ client: props.client, __experimental_beta: true })
+  const cognitiveClient = new cognitive.Cognitive({ client: props.client })
   let llmOutput = await cognitiveClient.generateContent(props.prompt)
   let parsed = gen.parseLLMOutput<T>({ schema: props.schema, ...llmOutput.output })
 
