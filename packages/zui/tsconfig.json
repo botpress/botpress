@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2017",
+    "strict": true,
+    "jsx": "preserve",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "ESNext", "dom.iterable"],
+    "allowJs": false,
+    "declaration": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noErrorTruncation": true
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*", "*.ts"],
+  "ts-node": {
+    "esm": true
+  }
+}
