@@ -1,4 +1,4 @@
-import type { DataSourceObjectResponse, GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './consts'
 
 /**

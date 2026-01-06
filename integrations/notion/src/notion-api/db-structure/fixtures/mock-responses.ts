@@ -1,4 +1,4 @@
-import { GetDatabaseResponse, GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
+import { GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from '../consts'
 
 export const MOCK_RESPONSE_1: GetDataSourceResponse = {
