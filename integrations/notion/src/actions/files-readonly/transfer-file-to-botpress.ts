@@ -16,6 +16,7 @@ export const filesReadonlyTransferFileToBotpress = wrapAction(
       key: fileKey,
       content: markdown,
       index: shouldIndex,
+      publicContentImmediatelyAccessible: true,
     })
 
     return { botpressFileId: uploadedFile.id }
