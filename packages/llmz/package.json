@@ -1,7 +1,7 @@
 {
   "name": "llmz",
   "type": "module",
-  "description": "LLMz – An LLM-native Typescript VM built on top of Zui",
+  "description": "LLMz - An LLM-native Typescript VM built on top of Zui",
   "version": "0.0.38",
   "types": "./dist/index.d.ts",
   "main": "./dist/index.cjs",
