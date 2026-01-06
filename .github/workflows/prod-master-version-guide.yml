@@ -1,0 +1,37 @@
+name: Production version matches master
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch: # optional manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Login to Botpress
+        run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+      - name: Check integration versions
+        run: |
+          integrations=$(ls -d integrations/*/ | xargs -n1 basename | sort -u)
+
+          should_fail=0
+
+          for integration in $integrations; do
+            echo "Checking $integration"
+            exists=$(./.github/scripts/integration-exists.sh $integration)
+
+            if [ $exists -ne 1 ]; then
+              echo "Integration $integration is not up to date. Please deploy the latest version of your integration."
+              should_fail=1
+            fi
+          done
+
+          if [ $should_fail -ne 0 ]; then
+            echo "Please run the deployment for the out-of-date integrations."
+            exit 1
+          fi
