@@ -176,5 +176,6 @@ const _saveNodeTree = async (client: bp.Client, nodeTree: GoogleDriveNodeTree): 
   await client.uploadFile({
     key: GOOGLE_DRIVE_TREE_FILE_KEY,
     content: nodeTree.toJSON(),
+    publicContentImmediatelyAccessible: true,
   })
 }
