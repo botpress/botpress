@@ -55,7 +55,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
   try {
-    await googleClient.watchIncomingMail()
+    await googleClient
+      .watchIncomingMail()
+      .catch((error) =>
+        logger.forBot().warn(`Failed to set up Gmail watch: ${error instanceof Error ? error.message : String(error)}`)
+      )
   } catch (error) {
     logger.forBot().error(`Failed to set up Gmail watch ${error}`)
   }
