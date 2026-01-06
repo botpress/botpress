@@ -267,7 +267,9 @@ export class NotionClient {
     return { markdown }
   }
 
-  private _formatSearchResults(results: (PartialPageObjectResponse | PartialDataSourceObjectResponse | DataSourceObjectResponse)[]) {
+  private _formatSearchResults(
+    results: (PartialPageObjectResponse | PartialDataSourceObjectResponse | DataSourceObjectResponse)[]
+  ) {
     return results
       .filter(
         (result): result is types.NotionTopLevelItem => 'parent' in result && !('archived' in result && result.archived)

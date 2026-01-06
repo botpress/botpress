@@ -1,7 +1,6 @@
 import { markdownToBlocks } from '@tryfabric/martian'
 import { wrapAction } from '../action-wrapper'
 
-
 export const appendBlocksToPage = wrapAction(
   { actionName: 'appendBlocksToPage', errorMessage: 'Failed to append blocks to page' },
   async ({ notionClient }, input) => {
