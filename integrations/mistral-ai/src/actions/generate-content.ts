@@ -1,7 +1,8 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { IntegrationLogger } from '@botpress/sdk'
+import { IntegrationLogger, z } from '@botpress/sdk'
 import { Mistral } from '@mistralai/mistralai'
+import { SDKError, HTTPValidationError, ResponseValidationError, HTTPClientError, } from '@mistralai/mistralai/models/errors'
 import { ModelId } from 'src/schemas'
 
 import type {
@@ -12,10 +13,25 @@ import type {
 	ToolChoice,
 	ToolChoiceEnum,
 	ContentChunk,
-	FinishReason,
-	UserMessage,
 	ToolCall,
+	FinishReason,
 } from '@mistralai/mistralai/models/components'
+
+const MistralAPIErrorSchema = z.object({
+	error: z.object({
+		message: z.string(),
+		type: z.string().optional(),
+		code: z.string().optional(),
+	}).optional(),
+	message: z.string().optional(), // Some errors might have message at root
+	detail: z.array(
+		z.object({
+			loc: z.array(z.union([z.string(), z.number()])),
+			msg: z.string(),
+			type: z.string(),
+		})
+	).optional(), // For 422 validation errors
+})
 
 export async function generateContent(
 	input: llm.GenerateContentInput,
@@ -29,7 +45,6 @@ export async function generateContent(
 	let modelId = (input.model?.id || params.defaultModel) as ModelId
 
 	const model = params.models[modelId]
-
 
 	if (!model) {
 		throw new InvalidPayloadError(
@@ -56,23 +71,18 @@ export async function generateContent(
 			'\n\nYour response must always be in valid JSON format and expressed as a JSON object.'
 	}
 
-	// TODO: Investigate if this is also necessary for Mistral
-	/*
-	if (input.messages.length === 0) {
-		// Anthropic requires at least one message, so we add one by default if none were provided.
-		input.messages.push({
-			type: 'text',
-			role: 'user',
-			content: 'Follow the instructions provided in the system prompt.',
-		})
-	}
-	*/
-
-
 	const messages: Messages[] = []
 
+	// Add system prompt
+	if (input.systemPrompt) {
+		messages.unshift({
+			role: 'system',
+			content: input.systemPrompt,
+		})
+	}
+
 	for (const message of input.messages) {
-		messages.push(await mapToMistralMessage(message))
+		messages.push(mapToMistralMessage(message))
 	}
 
 	const request: ChatCompletionRequest = {
@@ -89,32 +99,142 @@ export async function generateContent(
 		messages
 	}
 
+	if (input.debug) {
+		logger.forBot().info('Request being sent to Mistral: ' + JSON.stringify(request, null, 2))
+	}
 
 
 	let response: ChatCompletionResponse | undefined
 
-	if (!response) {
-		throw new Error("Placeholder")
+	try {
+		response = await mistral.chat.complete(request)
+	} catch (err: any) {
+		// Validation errors (422)
+		if (err instanceof HTTPValidationError) {
+			// err has: statusCode, body, detail[]
+			if (err.detail && err.detail.length > 0) {
+				const validationMessages = err.detail
+					.map(d => `${d.loc.join('.')}: ${d.msg}`)
+					.join('; ')
+
+				if (input.debug) {
+					logger.forBot().error(`Mistral validation errors: ${JSON.stringify(err.detail, null, 2)}`)
+				}
+
+				throw llm.createUpstreamProviderFailedError(
+					err,
+					`Mistral validation error (${err.statusCode}): ${validationMessages}`
+				)
+			}
+		}
+
+		// General SDK/API errors
+		if (err instanceof SDKError) {
+			let errorMessage = err.message
+
+			// parse body for more details
+			try {
+				const parsedBody = JSON.parse(err.body)
+				const parsedError = MistralAPIErrorSchema.safeParse(parsedBody)
+
+				if (parsedError.success && parsedError.data.error) {
+					errorMessage = parsedError.data.error.message
+
+					if (input.debug) {
+						logger.forBot().error(`Mistral API error: ${JSON.stringify(parsedError.data, null, 2)}`)
+					}
+
+					const errorType = parsedError.data.error.type ? ` (${parsedError.data.error.type})` : ''
+					throw llm.createUpstreamProviderFailedError(
+						err,
+						`Mistral error ${err.statusCode}${errorType}: ${errorMessage}`
+					)
+				}
+			} catch (parseErr) {
+				// use basic info
+				if (input.debug) {
+					logger.forBot().warn(`Could not parse Mistral error body: ${err.body}`)
+				}
+			}
+
+			throw llm.createUpstreamProviderFailedError(
+				err,
+				`Mistral error ${err.statusCode}: ${errorMessage}`
+			)
+		}
+
+		// Response validation errors
+		if (err instanceof ResponseValidationError) {
+			// Response from Mistral was invalid/unexpected format
+			if (input.debug) {
+				logger.forBot().error(`Mistral response validation error: ${err.message}`)
+			}
+
+			throw llm.createUpstreamProviderFailedError(
+				err,
+				`Mistral response validation error: ${err.message}`
+			)
+		}
+
+		// Network/client errors
+		if (err instanceof HTTPClientError) {
+			if (input.debug) {
+				logger.forBot().error(`Mistral client error (${err.name}): ${err.message}`)
+			}
+
+			throw llm.createUpstreamProviderFailedError(
+				err,
+				`Mistral client error (${err.name}): ${err.message}`
+			)
+		}
+
+		// unknown errors
+		if (input.debug) {
+			logger.forBot().error(`Unexpected error calling Mistral: ${JSON.stringify(err, null, 2)}`)
+		}
+
+		throw llm.createUpstreamProviderFailedError(
+			err,
+			`Mistral error: ${err.message || 'Unknown error occurred'}`
+		)
+	} finally {
+		if (input.debug && response) {
+			logger.forBot().info('Response received from Mistral: ' + JSON.stringify(response, null, 2))
+		}
 	}
 
-	// const { promptTokens: inputTokens, completionTokens: outputTokens } = response.usage
-	//
-	// return {
-	// 	id: response.id,
-	// 	provider: 'mistral-ai',
-	// 	model: response.model,
-	// 	choices: [
-	// 	],
-	// 	usage: {
-	// 		inputTokens,
-	// 		inputCost,
-	// 		outputTokens,
-	// 		outputCost,
-	// 	},
-	// 	botpress: {
-	// 		cost, // DEPRECATED
-	// 	},
-	// }
+
+	// fallback to zero, as it's done in the OpenAI integration
+	const inputTokens = response.usage?.promptTokens ?? 0
+	const outputTokens = response.usage?.completionTokens ?? 0
+
+	const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
+	const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
+	const cost = inputCost + outputCost
+
+	return {
+		id: response.id,
+		provider: 'mistral-ai',
+		model: response.model,
+		choices: response.choices.map((choice) => ({
+			role: "assistant",
+			// TODO: Investigate showing images, for now it's not supported by any other provider
+			type: 'text', // Mistral can return multimodal content, but we extract text only,
+			content: extractTextContent(choice.message.content),
+			index: choice.index,
+			stopReason: mapToStopReason(choice.finishReason),
+			toolCalls: mapFromMistralToolCalls(choice.message.toolCalls, logger),
+		})),
+		usage: {
+			inputTokens,
+			inputCost,
+			outputTokens,
+			outputCost,
+		},
+		botpress: {
+			cost, // DEPRECATED
+		},
+	}
 }
 
 function mapToMistralMessage(message: llm.Message): Messages {
@@ -264,4 +384,98 @@ function mapToMistralToolChoice(toolChoice: llm.GenerateContentInput["toolChoice
 		default:
 			return undefined
 	}
+}
+
+
+function calculateTokenCost(costPer1MTokens: number, tokenCount: number) {
+	return (costPer1MTokens / 1_000_000) * tokenCount
+}
+
+function mapToStopReason(
+	mistralFinishReason: FinishReason
+): llm.GenerateContentOutput['choices'][0]['stopReason'] {
+	switch (mistralFinishReason) {
+		case 'stop':
+			return 'stop'
+		case 'length':
+		case 'model_length':
+			return 'max_tokens'
+		case 'tool_calls':
+			return 'tool_calls'
+		case 'error':
+			return 'other'
+		default:
+			return 'other'
+	}
+}
+
+function mapFromMistralToolCalls(
+	mistralToolCalls: ToolCall[] | null | undefined,
+	logger: IntegrationLogger
+): llm.ToolCall[] | undefined {
+	if (!mistralToolCalls || mistralToolCalls.length === 0) {
+		return undefined
+	}
+	return mistralToolCalls.reduce((toolCalls, mistralToolCall) => {
+		if (!mistralToolCall.id) {
+			logger.forBot().warn('Mistral returned tool call without ID, skipping')
+			return toolCalls
+		}
+		const toolType = mistralToolCall.type || 'function' // Default to 'function' if not provided
+		if (toolType !== 'function') {
+			logger.forBot().warn(`Unsupported tool call type "${toolType}" from Mistral, skipping`)
+			return toolCalls
+		}
+
+		let toolCallArguments: llm.ToolCall['function']['arguments']
+		const rawArguments = mistralToolCall.function.arguments
+		// arguments can be either string or json
+		if (typeof rawArguments === 'string') {
+			try {
+				toolCallArguments = JSON.parse(rawArguments)
+			} catch (err) {
+				logger.forBot()
+					.warn(
+						`Mistral returned invalid JSON for tool call "${mistralToolCall.function.name}" arguments. ` +
+						`Using null instead. Error: ${err}`
+					)
+				toolCallArguments = null
+			}
+		} else if (typeof rawArguments === 'object' && rawArguments !== null) {
+			toolCallArguments = rawArguments
+		} else {
+			logger.forBot()
+				.warn(
+					`Mistral returned unexpected type for tool call "${mistralToolCall.function.name}" arguments: ${typeof rawArguments}. Using null instead.`
+				)
+			toolCallArguments = null
+		}
+		toolCalls.push({
+			id: mistralToolCall.id,
+			type: 'function',
+			function: {
+				name: mistralToolCall.function.name,
+				arguments: toolCallArguments,
+			},
+		})
+		return toolCalls
+	}, [] as llm.ToolCall[])
+}
+
+function extractTextContent(
+	content: string | ContentChunk[] | null | undefined
+): string | null {
+	if (!content) {
+		return null
+	}
+	if (typeof content === 'string') {
+		return content
+	}
+	// content is ContentChunk[] - extract only text chunks
+	return content
+		.filter((chunk): chunk is Extract<ContentChunk, { type: 'text' }> =>
+			chunk.type === 'text'
+		)
+		.map((chunk) => chunk.text)
+		.join('\n\n') || null
 }
