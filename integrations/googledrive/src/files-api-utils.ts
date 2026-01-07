@@ -45,7 +45,6 @@ export const downloadToBotpress = async ({
     const uploadResponse = await client.uploadFile({
       ...uploadParams,
       content: data,
-      publicContentImmediatelyAccessible: true,
     })
     botpressFileId = uploadResponse.file.id
   }

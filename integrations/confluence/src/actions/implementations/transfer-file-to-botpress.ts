@@ -18,7 +18,6 @@ export const filesReadonlyTransferFileToBotpress: bp.IntegrationProps['actions']
       content: pageContents,
       contentType: 'text/html',
       index: shouldIndex ?? true,
-      publicContentImmediatelyAccessible: true,
     })
 
     return { botpressFileId: uploadedFile.id }
