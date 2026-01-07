@@ -1,4 +1,5 @@
 import { RuntimeError } from '@botpress/client'
+import axios from 'axios'
 import {
   SunshineConversationsApi,
   type AppsApi,
@@ -63,6 +64,8 @@ export class SuncoClientError extends RuntimeError {
 
 class SuncoClient {
   private _appId: string
+  private _keyId: string
+  private _keySecret: string
   private _client: {
     apps: AppsApi
     users: UsersApi
@@ -77,6 +80,8 @@ class SuncoClient {
 
   public constructor(config: { appId: string; keyId: string; keySecret: string }) {
     this._appId = config.appId
+    this._keyId = config.keyId
+    this._keySecret = config.keySecret
     const apiClient = new SunshineConversationsApi.ApiClient()
     const auth = apiClient.authentications['basicAuth']
     auth.username = config.keyId
@@ -528,6 +533,46 @@ class SuncoClient {
         switchboardIntegrationId,
       })
     }
+  }
+
+  public async downloadAndUploadAttachment(sourceUrl: string, conversationId: string): Promise<string> {
+    // Download the file from the source URL
+    const response = await axios.get(sourceUrl, {
+      responseType: 'arraybuffer',
+    })
+
+    const contentType = response.headers['content-type'] || 'application/octet-stream'
+    const fileBuffer = Buffer.from(response.data)
+
+    // Extract filename from URL or use a default
+    const urlPath = new URL(sourceUrl).pathname
+    const filename = urlPath.split('/').pop() || 'file'
+
+    const formData = new FormData()
+    formData.append('source', new Blob([fileBuffer], { type: contentType }), filename)
+
+    // Upload via axios instead of the SDK because the sunshine-conversations-client SDK
+    // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
+    // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
+    // don't implement stream interfaces. Using axios with native FormData works correctly.
+    const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${this._appId}/attachments`, formData, {
+      params: {
+        access: 'public',
+        for: 'message',
+        conversationId,
+      },
+      auth: {
+        username: this._keyId,
+        password: this._keySecret,
+      },
+    })
+
+    const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
+    if (!mediaUrl) {
+      throw new RuntimeError('Failed to upload attachment to Zendesk: no mediaUrl returned')
+    }
+
+    return mediaUrl
   }
 }
 
