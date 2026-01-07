@@ -16,6 +16,7 @@ const plugin = new bp.Plugin({
       if (isBrowser) {
         throw new sdk.RuntimeError('HITL is not supported in the browser')
       }
+      console.info('Stopping HITL via action')
       return await actions.stopHitl(props)
     },
   },
