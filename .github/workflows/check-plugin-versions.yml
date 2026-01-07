@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  check-integration-versions:
+  check-plugins-versions:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
