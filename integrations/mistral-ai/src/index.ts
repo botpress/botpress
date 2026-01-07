@@ -7,9 +7,7 @@ import { generateContent } from './actions/generate-content'
 const mistral = new Mistral({ apiKey: bp.secrets.MISTRAL_API_KEY })
 
 const LanguageModels: Record<ModelId, llm.ModelDetails> = {
-	// Reference: https://docs.anthropic.com/en/docs/about-claude/models
-	// For more information, see: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#preserving-thinking-blocks
-	// NOTE: We intentionally didn't include the Opus model as it's the most expensive model in the market, it's not very popular, and no users have ever requested it so far.
+	// Reference: https://docs.mistral.ai/getting-started/models
 	'mistral-large-2512': {
 		name: 'Mistral Large 3',
 		description:
@@ -137,13 +135,12 @@ export default new bp.Integration({
 			metadata.setCost(output.botpress.cost)
 			return output
 		},
+		listLanguageModels: async ({ }) => {
+			return {
+				models: Object.entries(LanguageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
+			}
+		},
 	},
-	listLanguageModels: async ({ }) => {
-		return {
-			models: Object.entries(LanguageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
-		}
-	},
-},
 	channels: {},
 	handler: async () => { },
 })
