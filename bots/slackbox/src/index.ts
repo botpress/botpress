@@ -5,6 +5,8 @@ import * as bp from '.botpress'
 
 const DEFAULT_SLACK_CHANNEL = genenv.SLACKBOX_SLACK_CHANNEL
 
+let cachedSlackConversationId: string | undefined
+
 const bot = new bp.Bot({
   actions: {},
 })
@@ -17,36 +19,18 @@ bot.on.message('*', async (props) => {
   }
 
   try {
-    const { state: slackState } = await client.getOrSetState({
-      name: 'slackConversationId',
-      type: 'bot',
-      id: ctx.botId,
-      payload: {
-        conversationId: undefined as string | undefined,
-      },
-    })
-
-    let slackConversationId = slackState.payload.conversationId
-
-    if (!slackConversationId) {
+    if (!cachedSlackConversationId) {
+      logger.info('Fetching Slack conversation ID (first time)')
       const response = await client.callAction({
         type: 'slack:startChannelConversation',
         input: {
           channelName: DEFAULT_SLACK_CHANNEL,
         },
       })
-
-      slackConversationId = response.output.conversationId
-
-      await client.setState({
-        id: ctx.botId,
-        name: 'slackConversationId',
-        type: 'bot',
-        payload: {
-          conversationId: slackConversationId,
-        },
-      })
+      cachedSlackConversationId = response.output.conversationId
     }
+
+    const slackConversationId = cachedSlackConversationId
 
     const notificationMessage = _mapGmailToSlack(conversation, message)
 
