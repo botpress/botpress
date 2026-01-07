@@ -12,8 +12,6 @@ export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.Handl
     return
   }
 
-  logger.forBot().info(`Authorization code extracted successfully = ${authorizationCode}`)
-
   logger.forBot().info('Creating Google client from authorization code')
   let googleClient: GoogleClient
   try {

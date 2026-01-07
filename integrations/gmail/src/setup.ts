@@ -27,30 +27,32 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   if (ctx.configurationType !== 'customApp') {
     logger.forBot().info('Using refresh token from configuration')
     googleClient = await createFromRefreshToken()
-  } else if (ctx.configuration.oauthAuthorizationCode) {
-    const currentCode = ctx.configuration.oauthAuthorizationCode
-    const storedCode = await getStoredAuthorizationCode()
+  } else {
+    if (!ctx.configuration.oauthAuthorizationCode) {
+      logger.forBot().info('No authorization code provided, using existing refresh token from state')
+      googleClient = await createFromRefreshToken()
+    } else {
+      const currentCode = ctx.configuration.oauthAuthorizationCode
+      const storedCode = await getStoredAuthorizationCode()
 
-    if (storedCode !== currentCode) {
-      logger.forBot().info('Authorization code changed, attempting to use new code')
-      try {
-        googleClient = await GoogleClient.createFromAuthorizationCode({
-          client,
-          ctx,
-          authorizationCode: currentCode,
-        })
-        logger.forBot().info('Successfully updated Gmail integration with new authorization code')
-      } catch (err) {
-        logger.forBot().warn({ err }, 'Failed to create Google client from new authorization code; falling back')
+      if (storedCode !== currentCode) {
+        logger.forBot().info('Authorization code changed, attempting to use new code')
+        try {
+          googleClient = await GoogleClient.createFromAuthorizationCode({
+            client,
+            ctx,
+            authorizationCode: currentCode,
+          })
+          logger.forBot().info('Successfully updated Gmail integration with new authorization code')
+        } catch (err) {
+          logger.forBot().warn({ err }, 'Failed to create Google client from new authorization code; falling back')
+          googleClient = await createFromRefreshToken()
+        }
+      } else {
+        logger.forBot().info('Authorization code unchanged, using existing refresh token from state')
         googleClient = await createFromRefreshToken()
       }
-    } else {
-      logger.forBot().info('Authorization code unchanged, using existing refresh token from state')
-      googleClient = await createFromRefreshToken()
     }
-  } else {
-    logger.forBot().info('No authorization code provided, using existing refresh token from state')
-    googleClient = await createFromRefreshToken()
   }
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
