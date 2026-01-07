@@ -1,3 +1,13 @@
+export function getConversationId(conversation: { tags: { id?: string } }): string {
+  const conversationId = conversation.tags.id
+
+  if (!conversationId) {
+    throw new Error('Conversation does not have a sunco identifier')
+  }
+
+  return conversationId
+}
+
 export function isNetworkError(error: unknown): error is {
   status?: number
   body?: any
