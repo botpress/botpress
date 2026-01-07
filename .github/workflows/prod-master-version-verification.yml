@@ -51,8 +51,21 @@ jobs:
           done
 
           if [ $should_fail -eq 1 ]; then
-            echo "\n\nThe following integrations are out of date:\n$outdated_integrations"
-            echo "\nThe following integrations were skipped:\n$skipped_integrations"
-            echo "Please run the deployment for the out-of-date integrations."
+            message="\n\nThe following integrations are out of date:\n$outdated_integrations"
+            message="$message\nThe following integrations were skipped:\n$skipped_integrations"
+            message="$message\nPlease run the deployment for the out-of-date integrations."
+
+            echo "\n\nSending curl request to Slack webhook"
+            echo "Response:"
+            curl -X POST ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "key": "prod-master-version-verification",
+              "text": "'"$message"'"
+            }'
+            echo "\nCurl request sent"
+
+            echo "$message"
+
             exit 1
           fi
