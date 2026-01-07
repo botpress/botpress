@@ -83,7 +83,6 @@ const integration = new bp.Integration({
           key: fileKey,
           content: fileBuffer,
           index: shouldIndex,
-          publicContentImmediatelyAccessible: true,
         })
 
         return { botpressFileId: uploadedFile.id }
