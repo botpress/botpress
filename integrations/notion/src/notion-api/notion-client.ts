@@ -182,7 +182,6 @@ export class NotionClient {
   @handleErrors('Failed to get data source')
   public async getDataSource({ dataSourceId }: { dataSourceId: string }) {
     const ds = await this._notion.dataSources.retrieve({ data_source_id: dataSourceId })
-
     return 'parent' in ds ? ds : undefined
   }
 
