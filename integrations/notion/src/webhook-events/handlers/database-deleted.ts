@@ -22,22 +22,23 @@ export const handleDatabaseDeletedEvent: bp.IntegrationProps['handler'] = async 
   const payload: sdk.z.infer<typeof NOTIFICATION_PAYLOAD> = JSON.parse(props.req.body!)
 
   const notionClient = await NotionClient.create(props)
-  const deletedDatabase = await notionClient.getDatabase({ databaseId: payload.entity.id })
+  // Try to get as data source first (new API)
+  const deletedDataSource = await notionClient.getDataSource({ dataSourceId: payload.entity.id })
 
-  if (!deletedDatabase) {
-    console.debug(`Notion database ${payload.entity.id} not found. Ignoring database.deleted event.`)
+  if (!deletedDataSource) {
+    console.debug(`Notion data source ${payload.entity.id} not found. Ignoring database.deleted event.`)
     return
   }
 
-  const databaseName = filesReadonly.getDatabaseTitle(deletedDatabase)
-  const parentPath = await filesReadonly.retrieveParentPath(deletedDatabase.parent, notionClient)
-  const absolutePath = `/${parentPath}/${databaseName}`
+  const dataSourceName = filesReadonly.getDataSourceTitle(deletedDataSource)
+  const parentPath = await filesReadonly.retrieveParentPath(deletedDataSource.parent, notionClient)
+  const absolutePath = `/${parentPath}/${dataSourceName}`
 
   await props.client.createEvent({
     type: 'folderDeletedRecursive',
     payload: {
       folder: {
-        ...filesReadonly.mapDatabaseToFolder(deletedDatabase),
+        ...filesReadonly.mapDataSourceToFolder(deletedDataSource),
         absolutePath,
       },
     },
