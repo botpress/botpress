@@ -1,0 +1,71 @@
+name: Production version matches master
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch: # optional manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Login to Botpress
+        run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+      - name: Check integration versions
+        run: |
+          SKIP_INTEGRATIONS=("docusign" "zendesk-messaging-hitl")
+
+          integrations=$(ls -d integrations/*/ | xargs -n1 basename | sort -u)
+          should_fail=0
+          outdated_integrations=""
+          skipped_integrations=""
+
+          for integration in $integrations; do
+            # Check if integration should be skipped
+            skip=0
+            for skip_integration in "${SKIP_INTEGRATIONS[@]}"; do
+              if [ "$integration" = "$skip_integration" ]; then
+                echo "Skipping $integration"
+                skip=1
+                skipped_integrations="$skipped_integrations$integration\n"
+                break
+              fi
+            done
+
+            if [ $skip -eq 1 ]; then
+              continue
+            fi
+
+            echo "Checking $integration"
+            exists=$(.github/scripts/integration-exists.sh $integration)
+
+            if [ $exists -eq 0 ]; then
+              echo "Integration $integration is not up to date. Please deploy the latest version of your integration."
+              should_fail=1
+              outdated_integrations="$outdated_integrations$integration\n"
+            fi
+          done
+
+          if [ $should_fail -eq 1 ]; then
+            message="\n\nThe following integrations are out of date:\n$outdated_integrations"
+            message="$message\nThe following integrations were skipped:\n$skipped_integrations"
+            message="$message\nPlease run the deployment for the out-of-date integrations."
+
+            echo "\n\nSending curl request to Slack webhook"
+            echo "Response:"
+            curl -X POST ${{ secrets.SLACK_WORKFLOW_SEAGULL_WEBHOOK_URL }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "key": "prod-master-version-verification",
+              "text": "'"$message"'"
+            }'
+            echo "\nCurl request sent"
+
+            echo "$message"
+
+            exit 1
+          fi

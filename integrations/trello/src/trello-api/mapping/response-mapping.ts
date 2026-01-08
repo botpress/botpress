@@ -1,4 +1,4 @@
-import type { List, Member, Board, TrelloID, Card } from 'definitions/schemas'
+import type { List, Member, Board, TrelloID, Card, Webhook } from 'definitions/schemas'
 import { Models, type Models as TrelloJsModels } from 'trello.js'
 
 export namespace ResponseMapping {
@@ -31,5 +31,11 @@ export namespace ResponseMapping {
     dueDate: card.due ?? undefined,
     labelIds: card.idLabels as TrelloID[],
     memberIds: card.idMembers as Member['id'][],
+  })
+
+  export const mapWebhook = (webhook: TrelloJsModels.Webhook): Webhook => ({
+    id: mapTrelloId(webhook.id),
+    modelId: webhook.idModel ?? '',
+    callbackUrl: webhook.callbackURL ?? '',
   })
 }
