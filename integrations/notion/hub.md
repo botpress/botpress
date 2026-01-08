@@ -1,5 +1,17 @@
 The Notion Integration for Botpress Studio allows you to do the following things:
 
+## Migrating from version `2.x` to `3.x`
+
+Version `3.x` of the Notion integration brings alot of features to the table. Here is a summary of the changes coming to Notion:
+- Page interactions: Get Page, Get Page Content, Append Blocks to Page, Update Page Properties
+- Search by Title
+- Comment created Event
+
+Another change that the update brings is new manual configuration. It now asks for:
+- **Internal Integration Secret (required)**: Same as API Token but changed the name to match what is found in Notion's integration's page.
+- **Webhook Verification Secret**: This is used to verify webhook events. Can be found in the bot logs when configuring the webhooks.
+
+
 ## Migrating from version `0.x` or `1.x` to `2.x`
 
 Version `2.0` of the Notion integration adds OAuth support, which is now the default configuration option.
@@ -32,7 +44,7 @@ Give your integration access to all the pages and databases that you want to use
 
 You need a token to get your newly created Notion Integration _(not the same as Botpress Studio's Notion Integration)_ connected with Botpress Studio:
 
-- `Auth Token` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, go to the "Secrets" section and find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Auth Token` field for Notion integration under the "Integrations" tab for your bot.
+- `Internal Integration Secret` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, go to the "Secrets" section and find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Internal Integration Secret` field for Notion integration under the "Integrations" tab for your bot.
 
 With that you just need to enable your integration and you can start expanding your Bot's capabilities with Notion.
 
