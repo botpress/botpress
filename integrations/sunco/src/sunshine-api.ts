@@ -202,6 +202,7 @@ export type MessageAuthor = {
 export type TextMessageContent = {
   type: 'text'
   text: string
+  actions?: Action[]
 }
 
 export type ImageMessageContent = {
@@ -226,9 +227,42 @@ export type LocationMessageContent = {
   }
 }
 
+// ============================================================================
+// Action Types (for interactive messages like carousels)
+// ============================================================================
+
+export type ActionBase = {
+  type: string
+  text: string
+}
+
+export type LinkAction = {
+  type: 'link'
+  uri: string
+} & ActionBase
+
+export type PostbackAction = {
+  type: 'postback'
+  payload: string
+} & ActionBase
+
+export type ReplyAction = {
+  type: 'reply'
+  payload: string
+} & ActionBase
+
+export type Action = LinkAction | PostbackAction | ReplyAction
+
+export type CarouselItem = {
+  title: string
+  description?: string
+  mediaUrl?: string
+  actions: Action[]
+}
+
 export type CarouselMessageContent = {
   type: 'carousel'
-  items: unknown[]
+  items: CarouselItem[]
 }
 
 export type ListMessageContent = {

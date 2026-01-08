@@ -1,7 +1,6 @@
 import * as bpCommon from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { getSuncoClient } from './client'
-import { getMediaMetadata } from './util'
+import { getSuncoClient, SuncoClient } from './client'
 import * as bp from '.botpress'
 
 const wrapChannel = bpCommon.createChannelWrapper<bp.IntegrationProps>()({
@@ -45,8 +44,9 @@ export const channels = {
       image: wrapChannel(
         { channelName: 'hitl', messageType: 'image' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
+          const mediaUrl = await getMediaUrl(payload.imageUrl, suncoClient, suncoConversationId)
           const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-            { type: 'image', mediaUrl: payload.imageUrl },
+            { type: 'image', mediaUrl },
           ])
           await ack({
             tags: { id: suncoMessage.id },
@@ -57,9 +57,9 @@ export const channels = {
       audio: wrapChannel(
         { channelName: 'hitl', messageType: 'audio' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const metadata = await getMediaMetadata(payload.audioUrl)
+          const mediaUrl = await getMediaUrl(payload.audioUrl, suncoClient, suncoConversationId)
           const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-            { type: 'file', mediaUrl: payload.audioUrl, mediaType: metadata.mimeType },
+            { type: 'file', mediaUrl },
           ])
 
           await ack({
@@ -71,9 +71,9 @@ export const channels = {
       video: wrapChannel(
         { channelName: 'hitl', messageType: 'video' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const metadata = await getMediaMetadata(payload.videoUrl)
+          const mediaUrl = await getMediaUrl(payload.videoUrl, suncoClient, suncoConversationId)
           const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-            { type: 'file', mediaUrl: payload.videoUrl, mediaType: metadata.mimeType },
+            { type: 'file', mediaUrl },
           ])
           await ack({
             tags: { id: suncoMessage.id },
@@ -84,12 +84,11 @@ export const channels = {
       file: wrapChannel(
         { channelName: 'hitl', messageType: 'file' },
         async ({ ack, payload, suncoClient, suncoUserId, suncoConversationId }) => {
-          const metadata = await getMediaMetadata(payload.fileUrl)
+          const mediaUrl = await getMediaUrl(payload.fileUrl, suncoClient, suncoConversationId)
           const suncoMessage = await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
             {
               type: 'file',
-              mediaUrl: payload.fileUrl,
-              mediaType: metadata.mimeType,
+              mediaUrl,
             },
           ])
           await ack({
@@ -113,33 +112,37 @@ export const channels = {
                   { type: 'text', text: item.payload.markdown },
                 ])
                 break
-              case 'image':
+              case 'image': {
+                const imageMediaUrl = await getMediaUrl(item.payload.imageUrl, suncoClient, suncoConversationId)
                 await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-                  { type: 'image', mediaUrl: item.payload.imageUrl },
+                  { type: 'image', mediaUrl: imageMediaUrl },
                 ])
                 break
-              case 'video':
-                const videoMetadata = await getMediaMetadata(item.payload.videoUrl)
+              }
+              case 'video': {
+                const videoMediaUrl = await getMediaUrl(item.payload.videoUrl, suncoClient, suncoConversationId)
                 await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-                  { type: 'file', mediaUrl: item.payload.videoUrl, mediaType: videoMetadata.mimeType },
+                  { type: 'file', mediaUrl: videoMediaUrl },
                 ])
                 break
-              case 'audio':
-                const audioMetadata = await getMediaMetadata(item.payload.audioUrl)
+              }
+              case 'audio': {
+                const audioMediaUrl = await getMediaUrl(item.payload.audioUrl, suncoClient, suncoConversationId)
                 await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
-                  { type: 'file', mediaUrl: item.payload.audioUrl, mediaType: audioMetadata.mimeType },
+                  { type: 'file', mediaUrl: audioMediaUrl },
                 ])
                 break
-              case 'file':
-                const fileMetadata = await getMediaMetadata(item.payload.fileUrl)
+              }
+              case 'file': {
+                const fileMediaUrl = await getMediaUrl(item.payload.fileUrl, suncoClient, suncoConversationId)
                 await suncoClient.sendMessages(suncoConversationId, suncoUserId, [
                   {
                     type: 'file',
-                    mediaUrl: item.payload.fileUrl,
-                    mediaType: fileMetadata.mimeType,
+                    mediaUrl: fileMediaUrl,
                   },
                 ])
                 break
+              }
               case 'location':
                 const { title, address, latitude, longitude } = item.payload
                 const messageParts = []
@@ -167,3 +170,22 @@ export const channels = {
     },
   },
 } satisfies bp.IntegrationProps['channels']
+
+/**
+ * Gets the media URL for sending in messages.
+ * If the source URL is from Zendesk, uploads it to Zendesk's Attachments API.
+ * Otherwise, returns the original URL as-is.
+ * The reason for this is that Zendesk will fail the sendMessage request if the URL is from
+ * another Sunco Conversation.
+ */
+async function getMediaUrl(sourceUrl: string, suncoClient: SuncoClient, suncoConversationId: string): Promise<string> {
+  try {
+    const hostname = new URL(sourceUrl).hostname
+    if (hostname.endsWith('zendesk.com')) {
+      return suncoClient.downloadAndUploadAttachment(sourceUrl, suncoConversationId)
+    }
+  } catch {
+    // Invalid URL or error, return as-is
+  }
+  return sourceUrl
+}

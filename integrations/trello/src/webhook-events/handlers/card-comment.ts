@@ -1,4 +1,4 @@
-import { CommentCardEvent } from 'definitions/schemas'
+import { type CommentCardEvent } from 'definitions/events'
 import * as bp from '.botpress'
 
 type TrelloMessageData = {

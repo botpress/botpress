@@ -1,13 +1,12 @@
 import { default as sdk, z } from '@botpress/sdk'
-import { events } from 'definitions/events'
 import {
-  type allSupportedEvents,
+  events,
+  type AllSupportedEvents,
   commentCardEventSchema,
-  type genericWebhookEvent,
+  type GenericWebhookEvent,
   genericWebhookEventSchema,
   TRELLO_EVENTS,
-} from 'definitions/schemas'
-import { States } from 'definitions/states'
+} from 'definitions/events'
 import { CardCommentHandler } from './handlers/card-comment'
 import * as bp from '.botpress'
 
@@ -31,7 +30,7 @@ const _parseWebhookEvent = ({ req }: { req: sdk.Request }) => {
     throw new sdk.RuntimeError('Invalid webhook event body', error)
   }
 
-  return { ...data, action: { ...data.action, type: data.action.type as allSupportedEvents } }
+  return { ...data, action: { ...data.action, type: data.action.type as AllSupportedEvents } }
 }
 
 const _ensureWebhookIsAuthenticated = async ({
@@ -39,13 +38,13 @@ const _ensureWebhookIsAuthenticated = async ({
   ctx,
   client,
 }: {
-  parsedWebhookEvent: genericWebhookEvent
+  parsedWebhookEvent: GenericWebhookEvent
   ctx: bp.Context
   client: bp.Client
 }) => {
   const { state } = await client.getState({
     type: 'integration',
-    name: States.webhookState,
+    name: 'webhookState',
     id: ctx.integrationId,
   })
 
@@ -54,7 +53,7 @@ const _ensureWebhookIsAuthenticated = async ({
   }
 }
 
-const _handleWebhookEvent = async (props: { parsedWebhookEvent: genericWebhookEvent; client: bp.Client }) => {
+const _handleWebhookEvent = async (props: { parsedWebhookEvent: GenericWebhookEvent; client: bp.Client }) => {
   await Promise.allSettled([_handleCardComments(props), _publishEventToBotpress(props)])
 }
 
@@ -62,7 +61,7 @@ const _handleCardComments = async ({
   parsedWebhookEvent,
   client,
 }: {
-  parsedWebhookEvent: genericWebhookEvent
+  parsedWebhookEvent: GenericWebhookEvent
   client: bp.Client
 }) => {
   if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
@@ -77,7 +76,7 @@ const _publishEventToBotpress = async ({
   parsedWebhookEvent,
   client,
 }: {
-  parsedWebhookEvent: genericWebhookEvent
+  parsedWebhookEvent: GenericWebhookEvent
   client: bp.Client
 }) => {
   if (!parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, parsedWebhookEvent.action.type)) {
