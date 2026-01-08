@@ -253,8 +253,8 @@ export type InitializeIncomingMessage<TIntegration extends common.BaseIntegratio
     }
   >
 ) => Promise<{
-  user?: Awaited<Res<client.Client['getUser']>>['user']
-  conversation?: Awaited<Res<client.Client['getConversation']>>['conversation']
+  user: Awaited<Res<client.Client['getUser']>>['user']
+  conversation: Awaited<Res<client.Client['getConversation']>>['conversation']
   message?: MessageResponse<TIntegration>
 }>
 
