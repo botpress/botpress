@@ -4,8 +4,8 @@ import { moveCardVertically } from './shared/move-card-vertically'
 export const moveCardUp = wrapAction(
   { actionName: 'moveCardUp' },
   async ({ trelloClient }, { cardId, moveUpByNSpaces }) => {
-    const nbPositions = moveUpByNSpaces ?? 1
-    await moveCardVertically({ trelloClient, cardId, nbPositions })
+    const numOfPositions = moveUpByNSpaces ?? 1
+    await moveCardVertically({ trelloClient, cardId, numOfPositions })
 
     return { message: 'Card successfully moved up' }
   }
