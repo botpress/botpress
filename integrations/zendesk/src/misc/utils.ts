@@ -25,7 +25,7 @@ export const getUploadArticlePayload = ({ kbId, article }: { kbId: string; artic
       labels: label_names.join(' '),
       zendeskId: `${id}`,
     },
-  } satisfies bp.ClientRequests['uploadFile']
+  }
 }
 export const deleteKbArticles = async (kbId: string, client: bp.Client): Promise<void> => {
   const { files } = await client.listFiles({
