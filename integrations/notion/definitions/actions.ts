@@ -36,7 +36,7 @@ export const actions = {
           .min(2)
           .title('Properties (JSON)')
           .describe(
-            'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
+            'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint but without the "properties" key). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
           )
           .placeholder('{"In stock": { "checkbox": true }}'),
       }),
