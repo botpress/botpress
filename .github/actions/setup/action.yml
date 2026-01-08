@@ -31,8 +31,9 @@ runs:
         path: |
           .turbo
           node_modules/.cache/turbo
-        key: turbo-${{ runner.os }}-${{ github.sha }}
-        restore-keys: turbo-${{ runner.os }}-
+        key: turbo-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: |
+          turbo-${{ runner.os }}-
 
     - name: Build
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
