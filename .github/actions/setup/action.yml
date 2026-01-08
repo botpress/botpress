@@ -21,6 +21,13 @@ runs:
       run: |
         npm install -g node-gyp-build
 
+    - name: Cache Turbo
+      uses: actions/cache@v5
+      with:
+        path: .turbo
+        key: turbo-${{ runner.os }}-${{ github.sha }}
+        restore-keys: turbo-${{ runner.os }}-
+
     - name: Install dependencies
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: pnpm i --frozen-lockfile
