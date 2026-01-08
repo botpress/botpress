@@ -31,7 +31,7 @@ runs:
         path: |
           .turbo
           node_modules/.cache/turbo
-        key: turbo-${{ runner.os }}-${{ github.run_id }}
+        key: turbo-${{ runner.os }}-${{ github.workflow_ref }}
         restore-keys: |
           turbo-${{ runner.os }}-
 
