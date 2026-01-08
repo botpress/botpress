@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 const _setWebhookId = async ({ ctx, client }: bp.CommonHandlerProps, webhookId: WebhookIdState): Promise<void> => {
   await client.setState({
     type: 'integration',
-    name: 'webhookState',
+    name: 'webhook',
     id: ctx.integrationId,
     payload: {
       trelloWebhookId: webhookId,
