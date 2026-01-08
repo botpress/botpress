@@ -1,0 +1,7 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+clientId = to_string!(.secrets.CLIENT_ID)
+
+redirectUri = "https://webhook.botpress.cloud/oauth"
+
+"https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id={{ clientId }}&redirect_uri={{ redirectUri }}&state={{ webhookId }}&scope=openid%20profile%20email%20w_member_social"

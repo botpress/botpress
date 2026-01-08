@@ -1,7 +1,8 @@
 {
-  "name": "@bp-templates/hello-world",
+  "name": "@botpresshub/linkedin",
   "integrationName": "simonayotte/linkedin",
   "scripts": {
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit"
   },
   "private": true,

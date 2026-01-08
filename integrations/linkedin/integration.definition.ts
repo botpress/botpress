@@ -1,25 +1,17 @@
-import { z, IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
+import { configuration, configurations, identifier, states, secrets } from './definitions'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
   name: integrationName,
   version: '0.1.0',
+  title: 'LinkedIn',
+  description: 'Connect to LinkedIn to share posts and engage with your professional network.',
   readme: 'hub.md',
   icon: 'icon.svg',
-  actions: {
-    helloWorld: {
-      title: 'Hello World',
-      description: 'A simple hello world action',
-      input: {
-        schema: z.object({
-          name: z.string().optional(),
-        }),
-      },
-      output: {
-        schema: z.object({
-          message: z.string(),
-        }),
-      },
-    },
-  },
+  configuration,
+  configurations,
+  identifier,
+  states,
+  secrets,
 })
