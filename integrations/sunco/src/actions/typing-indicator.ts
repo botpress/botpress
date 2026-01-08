@@ -1,5 +1,5 @@
 import { createClient } from '../sunshine-api'
-import { getConversationId } from '../util'
+import { getSuncoConversationId } from '../util'
 import * as bp from '.botpress'
 
 type SendActivityProps = Pick<bp.AnyMessageProps, 'ctx' | 'client'> & {
@@ -10,7 +10,7 @@ type SendActivityProps = Pick<bp.AnyMessageProps, 'ctx' | 'client'> & {
 
 async function sendActivity({ client, ctx, conversationId, typingStatus, markAsRead }: SendActivityProps) {
   const { conversation } = await client.getConversation({ id: conversationId })
-  const suncoConversationId = getConversationId(conversation)
+  const suncoConversationId = getSuncoConversationId(conversation)
   const { appId, keyId, keySecret } = ctx.configuration
   const suncoClient = createClient(keyId, keySecret)
   if (markAsRead) {
