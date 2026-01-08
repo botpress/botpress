@@ -1,7 +1,8 @@
 import { RuntimeError } from '@botpress/client'
+import axios from 'axios'
 import { Action, CarouselItem, MessageContent, PostMessageRequest, createClient } from './sunshine-api'
-import { Carousel, Choice } from './types'
-import { getConversationId } from './util'
+import { Carousel, Choice, Conversation } from './types'
+import { getSuncoConversationId } from './util'
 import * as bp from '.botpress'
 
 export const channels = {
@@ -11,20 +12,24 @@ export const channels = {
         await sendMessage(props, { type: 'text', text: props.payload.text })
       },
       image: async (props) => {
-        await sendMessage(props, { type: 'image', mediaUrl: props.payload.imageUrl })
+        const mediaUrl = await getMediaUrl(props.payload.imageUrl, props.ctx, props.conversation)
+        await sendMessage(props, { type: 'image', mediaUrl })
       },
       markdown: async (props) => {
         await sendMessage(props, { type: 'text', text: props.payload.markdown })
       },
       audio: async (props) => {
-        await sendMessage(props, { type: 'file', mediaUrl: props.payload.audioUrl })
+        const mediaUrl = await getMediaUrl(props.payload.audioUrl, props.ctx, props.conversation)
+        await sendMessage(props, { type: 'file', mediaUrl })
       },
       video: async (props) => {
-        await sendMessage(props, { type: 'file', mediaUrl: props.payload.videoUrl })
+        const mediaUrl = await getMediaUrl(props.payload.videoUrl, props.ctx, props.conversation)
+        await sendMessage(props, { type: 'file', mediaUrl })
       },
       file: async (props) => {
         try {
-          await sendMessage(props, { type: 'file', mediaUrl: props.payload.fileUrl })
+          const mediaUrl = await getMediaUrl(props.payload.fileUrl, props.ctx, props.conversation)
+          await sendMessage(props, { type: 'file', mediaUrl })
         } catch (e) {
           const err = e as any
           // 400 errors can be sent if file has unsupported type
@@ -66,6 +71,76 @@ export const channels = {
 const POSTBACK_PREFIX = 'postback::'
 const SAY_PREFIX = 'say::'
 
+/**
+ * Gets the media URL for sending in messages.
+ * If the source URL is from Zendesk, uploads it to Zendesk's Attachments API.
+ * Otherwise, returns the original URL as-is.
+ * The reason for this is that Zendesk will fail the sendMessage request if the URL is from
+ * another Sunco Conversation.
+ */
+async function getMediaUrl(sourceUrl: string, ctx: bp.Context, conversation: Conversation): Promise<string> {
+  try {
+    const hostname = new URL(sourceUrl).hostname
+    if (hostname.endsWith('zendesk.com')) {
+      return downloadAndUploadAttachment(sourceUrl, ctx, getSuncoConversationId(conversation))
+    }
+  } catch {
+    // Invalid URL or error, return as-is
+  }
+  return sourceUrl
+}
+
+/**
+ * Downloads a file from a URL and uploads it to Zendesk's Attachments API.
+ * Returns the Zendesk media URL to use in messages.
+ */
+async function downloadAndUploadAttachment(
+  sourceUrl: string,
+  ctx: bp.Context,
+  conversationId: string
+): Promise<string> {
+  const { appId, keyId, keySecret } = ctx.configuration
+
+  // Download the file from the source URL
+  const response = await axios.get(sourceUrl, {
+    responseType: 'arraybuffer',
+  })
+
+  const contentType = response.headers['content-type'] || 'application/octet-stream'
+  const fileBuffer = Buffer.from(response.data)
+
+  // Extract filename from URL or use a default
+  const urlPath = new URL(sourceUrl).pathname
+  const filename = urlPath.split('/').pop() || 'file'
+
+  const formData = new FormData()
+  const blob = new Blob([fileBuffer], { type: contentType })
+  formData.append('source', blob, filename)
+
+  // Upload via axios instead of the SDK because the sunshine-conversations-client SDK
+  // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
+  // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
+  // don't implement stream interfaces. Using axios with native FormData works correctly.
+  const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${appId}/attachments`, formData, {
+    params: {
+      access: 'public',
+      for: 'message',
+      conversationId,
+    },
+    auth: {
+      username: keyId,
+      password: keySecret,
+    },
+  })
+
+  const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
+  if (!mediaUrl) {
+    throw new RuntimeError('Failed to upload attachment to Zendesk: no mediaUrl returned')
+  }
+
+  return mediaUrl
+}
+
 function renderChoiceMessage(payload: Choice): MessageContent {
   return {
     type: 'text',
@@ -84,7 +159,11 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     content: payload,
   }
 
-  const { messages } = await client.messages.postMessage(ctx.configuration.appId, getConversationId(conversation), data)
+  const { messages } = await client.messages.postMessage(
+    ctx.configuration.appId,
+    getSuncoConversationId(conversation),
+    data
+  )
 
   const message = messages?.[0]
 

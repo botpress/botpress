@@ -1,4 +1,4 @@
-export function getConversationId(conversation: { tags: { id?: string } }): string {
+export function getSuncoConversationId(conversation: { tags: { id?: string } }): string {
   const conversationId = conversation.tags.id
 
   if (!conversationId) {
