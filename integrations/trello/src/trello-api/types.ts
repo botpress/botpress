@@ -2,7 +2,7 @@ import type { Card } from 'definitions/schemas'
 import { Merge } from 'src/types'
 
 type CardPayloadOverrides = {
-  pos?: number | 'top' | 'bottom'
+  verticalPosition?: number | 'top' | 'bottom'
 }
 
 export type CreateCardPayload = Merge<
