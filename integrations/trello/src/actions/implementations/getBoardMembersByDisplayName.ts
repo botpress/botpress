@@ -1,12 +1,16 @@
 import { nameCompare } from 'src/string-utils'
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
+import * as bp from '.botpress'
 
-export const getBoardMembersByDisplayName = wrapAction(
-  { actionName: 'getBoardMembersByDisplayName' },
-  async ({ trelloClient }, { boardId, displayName }) => {
-    const members = await trelloClient.getBoardMembers({ boardId })
-    const matchingMembers = members.filter((m) => nameCompare(m.fullName, displayName))
+export const getBoardMembersByDisplayName: bp.Integration['actions']['getBoardMembersByDisplayName'] = async (
+  props
+) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    return { members: matchingMembers }
-  }
-)
+  const { boardId, displayName } = props.input
+  const members = await trelloClient.getBoardMembers({ boardId })
+  const matchingMembers = members.filter((m) => nameCompare(m.fullName, displayName))
+
+  return { members: matchingMembers }
+}

@@ -1,6 +1,11 @@
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
+import * as bp from '.botpress'
 
-export const getAllBoards = wrapAction({ actionName: 'getAllBoards' }, async ({ trelloClient }) => {
+export const getAllBoards: bp.Integration['actions']['getAllBoards'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
+
+  const {} = props.input
   const boards = await trelloClient.getAllBoards()
   return { boards }
-})
+}
