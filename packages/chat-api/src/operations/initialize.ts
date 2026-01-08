@@ -8,7 +8,6 @@ import type { OperationFunc } from './types'
 
 const initializeBodySchema = schema(
   z.object({
-    userId: userIdSchema.optional(),
     user: userInput.optional(),
     conversationId: conversationIdSchema.optional(),
     message: createMessageInput.optional(),
@@ -22,10 +21,12 @@ export const initializeIncomingMessageOperation: OperationFunc = () => ({
   method: 'get',
   path: '/initialize-incoming-message',
   requestBody: {
-    description: 'User, conversation and optional message data. User and conversation can be set via an id.',
+    description: 'User, conversation and optional message data.',
     schema: initializeBodySchema,
   },
-  parameters: authHeaders,
+  parameters: {
+    'x-user-key': { ...authHeaders['x-user-key'], required: false },
+  },
   section: 'message',
   response: {
     description: 'Returns nothing but a stream',
