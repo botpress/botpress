@@ -3,14 +3,15 @@ The Notion Integration for Botpress Studio allows you to do the following things
 ## Migrating from version `2.x` to `3.x`
 
 Version `3.x` of the Notion integration brings alot of features to the table. Here is a summary of the changes coming to Notion:
+
 - Page interactions: Get Page, Get Page Content, Append Blocks to Page, Update Page Properties
 - Search by Title
 - Comment created Event
 
 Another change that the update brings is new manual configuration. It now asks for:
+
 - **Internal Integration Secret (required)**: Same as API Token but changed the name to match what is found in Notion's integration's page.
 - **Webhook Verification Secret**: This is used to verify webhook events. Can be found in the bot logs when configuring the webhooks.
-
 
 ## Migrating from version `0.x` or `1.x` to `2.x`
 
