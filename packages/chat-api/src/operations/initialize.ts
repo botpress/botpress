@@ -1,31 +1,36 @@
 import { schema } from '@bpinternal/opapi'
+import { conversationIdSchema } from 'src/models/conversation'
+import { userIdSchema } from 'src/models/user'
 import { z } from 'zod'
 import { authHeaders } from './auth'
+import { createMessageInput } from './message'
 import type { OperationFunc } from './types'
+import { userInput } from './user'
 
-export const initializeConversationOperation: OperationFunc = () => ({
-  name: 'initializeConversation',
+const initializeBodySchema = schema(
+  z.object({
+    userId: userIdSchema.optional(),
+    user: userInput.optional(),
+    conversationId: conversationIdSchema.optional(),
+    message: createMessageInput.optional(),
+  })
+)
+
+export const initializeIncomingMessageOperation: OperationFunc = () => ({
+  name: 'initializeIncomingMessage',
   description:
-    'Creates a SSE stream to receive messages and events. The first event will be a payload containing the conversation details.',
+    'Creates a SSE stream to receive messages and events. The first event will be a payload containing the user, conversation and optional message details.',
   method: 'get',
-  path: '/initialize',
-  parameters: {
-    'x-user-key': { ...authHeaders['x-user-key'], required: true },
-    userId: {
-      in: 'query',
-      type: 'string',
-      description: 'User id (if not provided with a user key a new user will be created)',
-      required: false,
-    },
-    conversationId: {
-      in: 'query',
-      type: 'string',
-      description: 'Conversation id',
-    },
+  path: '/initialize-incoming-message',
+  requestBody: {
+    description: 'User, conversation and optional message data. User and conversation can be set via an id.',
+    schema: initializeBodySchema,
   },
-  section: 'conversation',
+  parameters: authHeaders,
+  section: 'message',
   response: {
     description: 'Returns nothing but a stream',
     schema: schema(z.object({})),
   },
+  tags: ['experimental'],
 })

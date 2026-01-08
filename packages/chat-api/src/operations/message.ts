@@ -30,6 +30,17 @@ export const getMessageOperation: OperationFunc = (api) => ({
   },
 })
 
+export const createMessageInput = z.object({
+  payload: schema(messagePayloadSchema, {
+    description: 'Payload is the content type of the message.',
+  }),
+  conversationId: schema(z.string(), {
+    description: 'ID of the [Conversation](#schema_conversation)',
+  }),
+  metadata: schema(z.record(z.any()).optional(), {
+    description: 'Metadata of the message',
+  }),
+})
 export const createMessageOperation: OperationFunc = (api) => ({
   name: 'createMessage',
   description: 'Creates a new [Message](#schema_message)',
@@ -38,17 +49,7 @@ export const createMessageOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'Message data',
-    schema: z.object({
-      payload: schema(messagePayloadSchema, {
-        description: 'Payload is the content type of the message.',
-      }),
-      conversationId: schema(z.string(), {
-        description: 'ID of the [Conversation](#schema_conversation)',
-      }),
-      metadata: schema(z.record(z.any()).optional(), {
-        description: 'Metadata of the message',
-      }),
-    }),
+    schema: createMessageInput,
   },
   section,
   response: {

@@ -6,7 +6,7 @@ import { OperationFunc } from './types'
 
 const section = 'user' as const
 
-const userInput = schema(
+export const userInput = schema(
   z.object({
     name: schema(z.string().optional(), {
       description: 'Name of the [User](#schema_user) (not a unique identifier)',
