@@ -9,6 +9,7 @@ import { getDb } from './get-db'
 import { getPage } from './get-page'
 import { getPageContent } from './get-page-content'
 import { searchByTitle } from './search-by-title'
+import { updatePageProperties } from './update-page-properties'
 import * as bp from '.botpress'
 
 export const actions = {
@@ -23,4 +24,5 @@ export const actions = {
   getPage,
   getPageContent,
   searchByTitle,
+  updatePageProperties,
 } as const satisfies bp.IntegrationProps['actions']

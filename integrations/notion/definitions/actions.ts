@@ -21,6 +21,32 @@ export const actions = {
       schema: sdk.z.object({}),
     },
   },
+  updatePageProperties: {
+    title: 'Update Page Properties',
+    description: 'Update one or more properties on a Notion page using raw Notion properties JSON',
+    input: {
+      schema: sdk.z.object({
+        pageId: sdk.z
+          .string()
+          .min(1)
+          .title('Page ID')
+          .describe('The ID of the page to update. Can be found in the page URL'),
+        propertiesJson: sdk.z
+          .string()
+          .min(2)
+          .title('Properties (JSON)')
+          .describe(
+            'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint but without the "properties" key). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
+          )
+          .placeholder('{"In stock": { "checkbox": true }}'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        pageId: sdk.z.string().title('Page ID').describe('The updated page ID'),
+      }),
+    },
+  },
   addCommentToPage: {
     title: 'Add Comment to Page',
     description: 'Add a comment to a page in Notion',
