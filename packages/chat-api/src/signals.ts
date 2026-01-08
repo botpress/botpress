@@ -44,11 +44,10 @@ export const signalSchemas = {
     type: z.literal('init'),
     data: z.object({
       conversation: conversationSchema,
-      messages: z.array(messageSchema),
-      participants: z.array(userSchema),
       user: userSchema.extend({
         userKey: z.string(),
       }),
+      message: messageSchema,
     }),
   }),
 }
