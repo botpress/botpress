@@ -1,43 +1,77 @@
-# Hello World
+# LinkedIn
 
-This integration is a template with a single action.
-
-> Describe the integration's purpose.
+Connect your Botpress chatbot to LinkedIn to share posts and engage with your professional network. This integration enables your bot to interact with LinkedIn's API using OAuth authentication.
 
 ## Configuration
 
-This integration does not need a configuration.
+The LinkedIn integration requires OAuth authentication to establish a secure connection between Botpress and LinkedIn. You can configure the integration using either automatic or manual configuration methods.
 
-> Explain how to configure your integration and list prerequisites `ex: accounts, etc.`.
-> You might also want to add configuration details for specific use cases.
+### Automatic configuration with OAuth
 
-## Usage
+To set up the LinkedIn integration using automatic configuration, click the authorization button and follow the on-screen instructions to connect your Botpress chatbot to LinkedIn.
 
-To use, call the action `helloWorld`. This action will greet the user.
+When using this configuration mode, a Botpress-managed LinkedIn application will be used to connect to your LinkedIn account. Actions taken by the bot will be attributed to the LinkedIn account that authorized the connection.
 
-> Explain how to use your integration.
-> You might also want to include an example if there is a specific use case.
+#### Configuring the integration in Botpress
+
+1. Authorize the LinkedIn integration by clicking the authorization button.
+2. Follow the on-screen instructions to connect your Botpress chatbot to LinkedIn.
+3. Once the connection is established, you can save the configuration and enable the integration.
+
+### Manual configuration with OAuth
+
+To set up the LinkedIn integration manually, you must create a LinkedIn application and configure OAuth credentials. You will also need to obtain an authorization code and configure the integration in Botpress.
+
+#### Creating a LinkedIn Application
+
+1. Go to the [LinkedIn Developer Portal](https://www.linkedin.com/developers/apps).
+2. Click the `Create app` button.
+3. Fill in the required information:
+   - App name
+   - LinkedIn Page (you must associate your app with a LinkedIn Page)
+   - App logo
+   - Legal agreement
+4. Click `Create app` to create your application.
+
+#### Configuring OAuth Settings
+
+1. In your LinkedIn application settings, navigate to the `Products` tab.
+2. Request access to the following products:
+   - `Share on LinkedIn` - Required for posting content
+   - `Sign In with LinkedIn using OpenID Connect` - Required for authentication
+3. Wait for approval (this may be instant or require review by LinkedIn).
+4. Navigate to the `Auth` tab.
+5. Under `OAuth 2.0 settings`, add the following redirect URL:
+   ```
+   https://webhook.botpress.cloud/oauth
+   ```
+6. Copy your **Client ID** and **Client Secret** for use in the next steps.
+
+#### Authorizing the OAuth Application
+
+1. Construct the authorization URL with your Client ID:
+   ```
+   https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=https://botpress.com&scope=openid%20profile%20email%20w_member_social
+   ```
+   > Replace `YOUR_CLIENT_ID` with your actual Client ID.
+
+2. Visit this URL in your browser while logged into the LinkedIn account you want to use with the integration.
+3. Follow the on-screen instructions to authorize the application.
+4. You will be redirected to `botpress.com`. **Do not close this page**.
+5. Copy the **authorization code** from the URL in your browser's address bar.
+   > The authorization code is the string that appears after `code=` in the URL.
+6. You may now safely close this page.
+
+#### Configuring the integration in Botpress
+
+1. Select the `Manual` configuration mode in the Botpress integration settings.
+2. Enter your LinkedIn **Client ID** and **Client Secret**.
+3. Enter the **authorization code** you obtained in the previous step.
+   > The authorization code is only valid for a short period of time. If the code has expired, you will need to repeat the authorization steps to obtain a new code.
+4. Save the configuration and enable the integration.
 
 ## Limitations
 
-The `helloWorld` action has a max name size limit of 2^28 - 16 characters (the max javascript string size).
+This is an early version of the LinkedIn integration with limited functionality. Standard LinkedIn API limitations apply, including rate limits and API restrictions imposed by LinkedIn. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
 
-> List the known bugs.
-> List known limits `ex: rate-limiting, payload sizes, etc.`
-> List unsupported use cases.
-
-## Changelog
-
-- 0.1.0: Implemented `helloWorld` action.
-
-> If some versions of your integration introduce changes worth mentionning (breaking changes, bug fixes), describe them here. This will help users to know what to expect when updating the integration.
-
-### Integration publication checklist
-
-- [ ] The register handler is implemented and validates the configuration.
-- [ ] Title and descriptions for all schemas are present in `integration.definition.ts`.
-- [ ] Events store `conversationId`, `userId` and `messageId` when available.
-- [ ] Implement events & actions that are related to `channels`, `entities`, `user`, `conversations` and `messages`.
-- [ ] Events related to messages are implemented as messages.
-- [ ] When an action is required by the bot developer, a `RuntimeError` is thrown with instructions to fix the problem.
-- [ ] Bot name and bot avatar URL fields are available in the integration configuration.
+More details are available in the [LinkedIn API documentation](https://learn.microsoft.com/en-us/linkedin/shared/api-guide/concepts/rate-limits).
