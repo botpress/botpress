@@ -1,6 +1,6 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
-import { messagePayloadSchema } from '../models/message'
+import { createMessageInput, messagePayloadSchema } from '../models/message'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
 
@@ -30,17 +30,6 @@ export const getMessageOperation: OperationFunc = (api) => ({
   },
 })
 
-export const createMessageInput = z.object({
-  payload: schema(messagePayloadSchema, {
-    description: 'Payload is the content type of the message.',
-  }),
-  conversationId: schema(z.string(), {
-    description: 'ID of the [Conversation](#schema_conversation)',
-  }),
-  metadata: schema(z.record(z.any()).optional(), {
-    description: 'Metadata of the message',
-  }),
-})
 export const createMessageOperation: OperationFunc = (api) => ({
   name: 'createMessage',
   description: 'Creates a new [Message](#schema_message)',
