@@ -22,14 +22,7 @@ export const configurations = {
         .secret()
         .title('Client Secret')
         .describe('Primary Client Secret from your LinkedIn Developer application'),
-      authorizationCode: z
-        .string()
-        .min(1)
-        .secret()
-        .title('Authorization Code')
-        .describe(
-          'Authorization code obtained by visiting: https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=https://webhook.botpress.cloud/oauth&scope=openid%20profile%20email%20w_member_social&state=manual - Copy the "code" parameter from the redirect URL'
-        ),
+      authorizationCode: z.string().min(1).secret().title('Authorization Code').describe('Authorization Code'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']

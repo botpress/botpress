@@ -51,13 +51,13 @@ To set up the LinkedIn integration manually, you must create a LinkedIn applicat
 
 1. Construct the authorization URL with your Client ID:
    ```
-   https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=https://botpress.com&scope=openid%20profile%20email%20w_member_social
+   https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=https://webhook.botpress.cloud/oauth&scope=openid%20profile%20email%20w_member_social&state=manual
    ```
    > Replace `YOUR_CLIENT_ID` with your actual Client ID.
 
 2. Visit this URL in your browser while logged into the LinkedIn account you want to use with the integration.
 3. Follow the on-screen instructions to authorize the application.
-4. You will be redirected to `botpress.com`. **Do not close this page**.
+4. You will be redirected to `webhook.botpress.cloud`. **Do not close this page**.
 5. Copy the **authorization code** from the URL in your browser's address bar.
    > The authorization code is the string that appears after `code=` in the URL.
 6. You may now safely close this page.
