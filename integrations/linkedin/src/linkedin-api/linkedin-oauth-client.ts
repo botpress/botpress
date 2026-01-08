@@ -4,6 +4,7 @@ import * as bp from '.botpress'
 const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
 const OAUTH_REDIRECT_URI = 'https://webhook.botpress.cloud/oauth'
+const BOTPRESS_LINKEDIN_CLIENT_ID = '7831bmd1a7lfnj'
 
 type OAuthCredentialsPayload = bp.states.oauthCredentials.OauthCredentials['payload']
 
@@ -319,7 +320,7 @@ export class LinkedInOAuthClient {
 
   private static _getBotpressClientCredentials(): ClientCredentials {
     return {
-      clientId: bp.secrets.CLIENT_ID,
+      clientId: BOTPRESS_LINKEDIN_CLIENT_ID,
       clientSecret: bp.secrets.CLIENT_SECRET,
     }
   }

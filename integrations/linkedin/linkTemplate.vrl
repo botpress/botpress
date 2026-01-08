@@ -1,6 +1,11 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
-clientId = to_string!(.secrets.CLIENT_ID)
+env = to_string!(.env)
+
+clientId = "7831bmd1a7lfnj"
+if env == "production" {
+  clientId = "7831bmd1a7lfnj"
+}
 
 redirectUri = "https://webhook.botpress.cloud/oauth"
 
