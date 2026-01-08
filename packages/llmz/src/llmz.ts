@@ -1,3 +1,4 @@
+import { Client } from '@botpress/client'
 import { Cognitive, Models, type BotpressClientLike } from '@botpress/cognitive'
 import { z } from '@bpinternal/zui'
 
@@ -220,8 +221,9 @@ export type ExecutionProps = {
   /**
    * An instance of a Botpress Client, or an instance of Cognitive Client (@botpress/cognitive).
    * This is used to generate content using the LLM and to access the Botpress API.
+   * If not provided, a default client will be created using environment variables.
    */
-  client: Cognitive | BotpressClientLike
+  client?: Cognitive | BotpressClientLike
 
   /**
    * When provided, the execution will immediately stop when the signal is aborted.
@@ -267,7 +269,10 @@ export const executeContext = async (props: ExecutionProps): Promise<ExecutionRe
 export const _executeContext = async (props: ExecutionProps): Promise<ExecutionResult> => {
   const controller = createJoinedAbortController([props.signal])
   const { onIterationStart, onIterationEnd, onTrace, onExit, onBeforeExecution, onAfterTool, onBeforeTool } = props
-  const cognitive = Cognitive.isCognitiveClient(props.client) ? props.client : new Cognitive({ client: props.client })
+
+  const client = props.client ?? new Client()
+
+  const cognitive = Cognitive.isCognitiveClient(client) ? client : new Cognitive({ client, __experimental_beta: true })
   const cleanups: (() => void)[] = []
 
   const ctx = new Context({
@@ -444,10 +449,7 @@ const executeIteration = async ({
     stopSequences: ctx.version.getStopTokens(),
   })
 
-  const out =
-    output.output.choices?.[0]?.type === 'text' && typeof output.output.choices?.[0].content === 'string'
-      ? output.output.choices[0].content
-      : null
+  const out = typeof output.output.choices?.[0]?.content === 'string' ? output.output.choices[0].content : null
 
   if (!out) {
     throw new CognitiveError('LLM did not return any text output')

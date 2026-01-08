@@ -9,7 +9,6 @@ export async function handleConversationMessage(
   const payload = event.payload
 
   if (payload.message.author.type === 'business') {
-    console.warn('Skipping message that is from a business')
     return
   }
 
@@ -17,7 +16,9 @@ export async function handleConversationMessage(
     channel: 'channel',
     tags: {
       id: payload.conversation?.id,
+      origin: payload.message.source?.type,
     },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({

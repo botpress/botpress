@@ -6,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '2.8.6',
+  version: '3.0.3',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -17,7 +17,18 @@ export default new sdk.IntegrationDefinition({
   user,
   actions,
   events,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your app',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your app',
+    },
+    CODE_CHALLENGE: {
+      description: 'The code challenge for PKCE',
+    },
+  },
   entities: {
     hitlTicket: {
       schema: sdk.z.object({
@@ -36,6 +47,18 @@ export default new sdk.IntegrationDefinition({
           .title('Chatbot Photo URL')
           .describe(
             'Photo URL of the chatbot that will be used in the Zendesk ticket. Must be a publicly-accessible PNG image. Defaults to Botpress logo.'
+          )
+          .optional(),
+        requesterName: sdk.z
+          .string()
+          .title('Requester Name')
+          .describe('The name of the requester the bot was talking to. This will be set in zendesk.')
+          .optional(),
+        requesterEmail: sdk.z
+          .string()
+          .title('Requester Email')
+          .describe(
+            '⚠️This needs a requester name to work. The email of the requester the bot was talking to. This will be set in zendesk.'
           )
           .optional(),
       }),

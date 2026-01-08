@@ -24,18 +24,14 @@ export const events = {
 } satisfies IntegrationDefinitionProps['events']
 
 export const configuration = {
+  identifier: {
+    linkTemplateScript: 'linkTemplate.vrl',
+  },
   schema: z.object({
-    organizationSubdomain: z
-      .string()
-      .min(1)
-      .title('Organization Subdomain')
-      .describe('Your zendesk organization subdomain. e.g. botpress7281'),
-    email: z.string().email().title('Email').describe('Your zendesk account email. e.g. john.doe@botpress.com'),
-    apiToken: z.string().min(1).title('API Token').describe('Zendesk API Token'),
     syncKnowledgeBaseWithBot: z
       .boolean()
       .optional()
-      .title('Sync Knowledge Base')
+      .title('Sync Knowledge Base With Bot')
       .describe('Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?'),
     knowledgeBaseId: z
       .string()
@@ -62,6 +58,13 @@ export const states = {
         .array(z.string())
         .title('Trigger IDs')
         .describe('Array of trigger IDs associated with the subscription'),
+    }),
+  },
+  credentials: {
+    type: 'integration',
+    schema: z.object({
+      accessToken: z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
+      subdomain: z.string().optional().title('Subdomain').describe('The bot subdomain'),
     }),
   },
 } satisfies IntegrationDefinitionProps['states']

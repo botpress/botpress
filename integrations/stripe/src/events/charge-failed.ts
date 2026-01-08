@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { getUserIdFromCustomer } from './utils'
 import * as bp from '.botpress'
 
 type Client = bp.Client
@@ -14,20 +15,13 @@ export const fireChargeFailed = async ({
   client: Client
   logger: IntegrationLogger
 }) => {
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id:
-        typeof stripeEvent.data.object.customer === 'string'
-          ? stripeEvent.data.object.customer
-          : stripeEvent.data.object.customer?.id || '',
-    },
-  })
+  const userId = await getUserIdFromCustomer(client, stripeEvent.data.object.customer)
 
   logger.forBot().debug('Triggering charge failed event')
 
   const payload = {
     origin: 'stripe',
-    userId: user.id,
+    userId,
     data: { type: stripeEvent.type, object: { ...stripeEvent.data.object } },
   } satisfies Events['chargeFailed']
 

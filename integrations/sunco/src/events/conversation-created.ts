@@ -21,7 +21,9 @@ export const executeConversationCreated = async (props: {
     channel: 'channel',
     tags: {
       id: conversationId,
+      origin: payload.source?.type,
     },
+    discriminateByTags: ['id'],
   })
 
   const { user } = await client.getOrCreateUser({
