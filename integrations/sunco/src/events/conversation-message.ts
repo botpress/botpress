@@ -9,7 +9,6 @@ export async function handleConversationMessage(
   const payload = event.payload
 
   if (payload.message.author.type === 'business') {
-    console.warn('Skipping message that is from a business')
     return
   }
 
