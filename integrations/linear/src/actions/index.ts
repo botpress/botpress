@@ -1,3 +1,4 @@
+import { createComment } from './create-comment'
 import { createIssue } from './create-issue'
 import { deleteIssue } from './delete-issue'
 import { findTarget } from './find-target'
@@ -25,4 +26,5 @@ export default {
   deleteIssue,
   sendRawGraphqlQuery,
   resolveComment,
+  createComment,
 } satisfies Partial<bp.IntegrationProps['actions']>

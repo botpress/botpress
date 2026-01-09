@@ -257,6 +257,27 @@ const resolveComment = {
   },
 } as const satisfies ActionDefinition
 
+const createComment = {
+  title: 'Create Comment',
+  description: 'Create a comment on an issue',
+  input: {
+    schema: z.object({
+      issueId: z
+        .string()
+        .title('Issue ID')
+        .describe(
+          'The ID of the issue on which to comment. You can either use the UUID of the issue or its identifier (ex: LIN-123).'
+        ),
+      body: z.string().title('Body').describe('The body of the comment'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean().title('Success').describe('Whether the operation was successful'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
 export const actions = {
   findTarget,
   listIssues,
@@ -270,4 +291,5 @@ export const actions = {
   deleteIssue,
   sendRawGraphqlQuery,
   resolveComment,
+  createComment,
 } as const satisfies IntegrationDefinitionProps['actions']
