@@ -1,7 +1,6 @@
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
-const STATE_NAME_FOR_NEW_ISSUES = 'Triage'
 const TEAM_NAME_FOR_NEW_ISSUES = 'ENG'
 
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
@@ -23,7 +22,6 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
         teamName: TEAM_NAME_FOR_NEW_ISSUES,
         description: githubIssue.issue.body,
         title: githubIssue.issue.name,
-        stateName: STATE_NAME_FOR_NEW_ISSUES,
       },
     })
     .catch(_handleError('trying to create a Linear issue from the GitHub issue'))
