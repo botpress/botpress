@@ -1,8 +1,8 @@
 import { schema } from '@bpinternal/opapi'
 import { z } from 'zod'
 import { conversationIdSchema } from '../models/conversation'
-import { createMessageInput } from '../models/message'
-import { userIdSchema, userInput } from '../models/user'
+import { messageInput } from '../models/message'
+import { userInput } from '../models/user'
 import { authHeaders } from './auth'
 import type { OperationFunc } from './types'
 
@@ -10,7 +10,7 @@ const initializeBodySchema = schema(
   z.object({
     user: userInput.optional(),
     conversationId: conversationIdSchema.optional(),
-    message: createMessageInput.optional(),
+    message: messageInput.optional(),
   })
 )
 
@@ -18,7 +18,7 @@ export const initializeIncomingMessageOperation: OperationFunc = () => ({
   name: 'initializeIncomingMessage',
   description:
     'Creates a SSE stream to receive messages and events. The first event will be a payload containing the user, conversation and optional message details.',
-  method: 'get',
+  method: 'post',
   path: '/initialize-incoming-message',
   requestBody: {
     description: 'User, conversation and optional message data.',

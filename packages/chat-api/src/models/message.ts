@@ -130,14 +130,17 @@ export const messageSchema = schema(
   }
 )
 
-export const createMessageInput = z.object({
+export const messageInput = z.object({
   payload: schema(messagePayloadSchema, {
     description: 'Payload is the content type of the message.',
   }),
-  conversationId: schema(z.string(), {
-    description: 'ID of the [Conversation](#schema_conversation)',
-  }),
   metadata: schema(z.record(z.any()).optional(), {
     description: 'Metadata of the message',
+  }),
+})
+
+export const createMessageInput = messageInput.extend({
+  conversationId: schema(z.string(), {
+    description: 'ID of the [Conversation](#schema_conversation)',
   }),
 })

@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { message, event } from './models'
 import { conversationSchema } from './models/conversation'
-import { messageSchema } from './models/message'
 import { userSchema } from './models/user'
 
 export const signalSchemas = {
@@ -47,7 +46,7 @@ export const signalSchemas = {
       user: userSchema.extend({
         userKey: z.string(),
       }),
-      message: messageSchema,
+      message: message.messageSchema.optional(),
     }),
   }),
 }

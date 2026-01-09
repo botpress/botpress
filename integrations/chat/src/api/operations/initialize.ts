@@ -1,19 +1,15 @@
-import { Message as ApiMessage, ClientOutputs, isApiError } from '@botpress/client'
-import * as errors from '../../gen/errors'
+import { InvalidPayloadError } from 'src/gen/errors'
 import * as signals from '../../gen/signals'
+import * as msgPayload from '../message-payload'
 import * as types from '../types'
-import * as model from './model'
 import { Client } from '.botpress'
 
-type User = Awaited<ReturnType<types.Operations['getUser']>>['body']['user']
-type Conversation = Awaited<ReturnType<types.Operations['getConversation']>>['body']['conversation']
-type Message = Awaited<ReturnType<types.Operations['listMessages']>>['body']['messages'][number]
-type Participant = Awaited<ReturnType<types.Operations['listParticipants']>>['body']['participants'][number]
-
 type InitialEvent = signals.Types['initialized']
+type User = Parameters<Client['initializeIncomingMessage']>[0]['user']
+type Conversation = Parameters<Client['initializeIncomingMessage']>[0]['conversation']
+type Message = NonNullable<Parameters<Client['initializeIncomingMessage']>[0]['message']>
 
-export const initialize: types.Operations['initializeConversation'] = async (props, req) => {
-  const conversationId = req.query.conversationId
+export const initialize: types.Operations['initializeIncomingMessage'] = async (props, req) => {
   let userKey = req.headers['x-user-key']
 
   let userId: string | undefined
@@ -22,30 +18,55 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
     userId = parsedKey.id
   }
 
-  const initializeResponse = await props.client.initializeIncomingMessage({ conversationId, userId })
-  const { conversation, user } = initializeResponse
+  if ((!userId && !req.body.user) || (userId && req.body.user)) {
+    throw new InvalidPayloadError('You have to set either the "x-user-key" header or the "user" body parameter.')
+  }
+
+  const userRequest: { user?: User; userId?: string } = {}
+  if (req.body.user) {
+    userRequest.user = { ...req.body.user, tags: {}, discriminateByTags: [] }
+  } else {
+    userRequest.userId = userId
+  }
+
+  const conversationRequest: { conversationId?: string; conversation?: Conversation } = {}
+  if (req.body.conversationId) {
+    //in that case, look for it using fid?
+    conversationRequest.conversationId = req.body.conversationId
+  } else {
+    conversationRequest.conversation = { channel: 'channel', tags: {}, discriminateByTags: [] }
+  }
+
+  let msg: { message: Message } | undefined
+  if (req.body.message) {
+    const payload = msgPayload.mapChatMessageToBotpress({
+      payload: req.body.message.payload,
+      metadata: req.body.message.metadata,
+    })
+    msg = { message: { ...payload, tags: {}, discriminateByTags: [] } }
+  }
+
+  const initializeResponse = await props.client.initializeIncomingMessage({
+    ...conversationRequest,
+    ...userRequest,
+    ...msg,
+  })
 
   if (!userKey) {
-    userKey = props.auth.generateKey({ id: user.id })
+    userKey = props.auth.generateKey({ id: initializeResponse.user.id })
   }
 
-  let messagesPromise: Promise<Message[]> = Promise.resolve([])
-  if (userId && conversationId) {
-    messagesPromise = listMessages(props.client, conversation.id, 10).then((res) =>
-      res.map((m) => model.mapMessage(m as types.Message))
-    )
-  }
-
-  let participantsPromise: Promise<Participant[]> = Promise.resolve([user])
-
-  if (!conversationId) {
-    participantsPromise = listParticipants(props.client, conversation.id, 10)
-  }
-  const [messages, participants] = await Promise.all([messagesPromise, participantsPromise])
+  const { conversation, user: userResponse, message: messageResponse } = initializeResponse
 
   const ev: InitialEvent = {
     type: 'init',
-    data: { conversation, user: { ...user, userKey }, messages, participants },
+    data: {
+      conversation,
+      user: { ...userResponse, userKey },
+      message: messageResponse?.message
+        ? { ...messageResponse.message, ...msgPayload.mapBotpressMessageToChat(messageResponse.message) }
+        : undefined,
+    },
   }
 
   const body = createSSEMessage('init', ev)
@@ -60,7 +81,7 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
       'Content-Type': 'text/event-stream',
       'Content-Length': `${contentLength}`,
       'Grip-Hold': 'stream',
-      'Grip-Channel': `${conversation.id},${user.id}`,
+      'Grip-Channel': `${conversation.id},${userResponse.id}`,
       'Grip-Keep-Alive': `${b64KeepAlive}; format=base64; timeout=30;`,
     },
   }
@@ -69,32 +90,4 @@ export const initialize: types.Operations['initializeConversation'] = async (pro
 function createSSEMessage(eventName: 'message' | 'init', event: any): string {
   const data = typeof event === 'string' ? event : JSON.stringify(event)
   return [`event: ${eventName}`, `data: ${data}`, '', ''].join('\n')
-}
-
-async function listMessages(client: Client, conversationId: string, pages: number = 5) {
-  const messages: ApiMessage[] = []
-  let nextToken: string | undefined = undefined
-
-  for (let i = 0; i < pages; i++) {
-    const result = await client.listMessages({ conversationId, nextToken })
-    messages.push(...result.messages)
-    nextToken = result.meta.nextToken
-    if (!nextToken) break
-  }
-
-  return messages
-}
-
-async function listParticipants(client: Client, conversationId: string, pages: number = 5) {
-  const participants: ClientOutputs['listParticipants']['participants'] = []
-  let nextToken: string | undefined = undefined
-
-  for (let i = 0; i < pages; i++) {
-    const result = await client.listParticipants({ id: conversationId, nextToken })
-    participants.push(...result.participants)
-    nextToken = result.meta.nextToken
-    if (!nextToken) break
-  }
-
-  return participants
 }

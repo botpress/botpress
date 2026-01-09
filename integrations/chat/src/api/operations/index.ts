@@ -10,5 +10,5 @@ export const operations = {
   ...conversation,
   ...message,
   ...event,
-  initializeConversation: initialize.initialize,
+  initializeIncomingMessage: initialize.initialize,
 } satisfies { [O in types.OperationName]: types.Operations[O] | types.AuthenticatedOperations[O] }
