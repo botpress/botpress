@@ -11,14 +11,21 @@ export const actions = {
           .min(1)
           .title('Database ID')
           .describe('The ID of the database to add the page to. Can be found in the URL of the database'),
-        pageProperties: sdk.z
-          .record(sdk.z.string(), sdk.z.object({}).passthrough())
-          .title('Page Properties')
-          .describe("The values of the page's properties. Must match the parent database's properties"),
+        title: sdk.z.string().title('Page Title').describe('The title of the page'),
+        propertiesJson : sdk.z
+        .string()
+        .min(2)
+        .title('Properties (JSON)')
+        .describe(
+          'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint but without the "properties" key). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
+        )
+        .placeholder('{"In stock": { "checkbox": true }}'),
       }),
     },
     output: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({
+        pageId: sdk.z.string().title('Page ID').describe('The ID of the page that was created'),
+      }),
     },
   },
   updatePageProperties: {

@@ -63,11 +63,12 @@ export class NotionClient {
   }: {
     databaseId: string
     properties: Record<types.NotionPagePropertyTypes, any>
-  }): Promise<void> {
-    void (await this._notion.pages.create({
+  }): Promise<{ pageId: string }> {
+    const response = await this._notion.pages.create({
       parent: { database_id: databaseId },
       properties,
-    }))
+    })
+    return { pageId: response.id }
   }
 
   @handleErrors('Failed to add comment to page')
