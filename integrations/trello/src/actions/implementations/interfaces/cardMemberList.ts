@@ -1,14 +1,16 @@
 import * as sdk from '@botpress/sdk'
-import { wrapAction } from '../../action-wrapper'
+import { getTools, printActionTriggeredMsg } from '../../helpers'
+import * as bp from '.botpress'
 
-export const cardMemberList = wrapAction(
-  { actionName: 'cardMemberList' },
-  async ({ trelloClient }, { nextToken: cardId }) => {
-    if (!cardId) {
-      throw new sdk.RuntimeError('Card ID is required: make sure the nextToken parameter contains the card ID')
-    }
+export const cardMemberList: bp.Integration['actions']['cardMemberList'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    const items = await trelloClient.getCardMembers({ cardId })
-    return { items, meta: {} }
+  const { nextToken: cardId } = props.input
+  if (!cardId) {
+    throw new sdk.RuntimeError('Card ID is required: make sure the nextToken parameter contains the card ID')
   }
-)
+
+  const items = await trelloClient.getCardMembers({ cardId })
+  return { items, meta: {} }
+}
