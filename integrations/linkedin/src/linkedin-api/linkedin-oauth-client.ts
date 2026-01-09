@@ -23,6 +23,43 @@ type ClientCredentials = {
   clientSecret: string
 }
 
+/**
+ * LinkedIn API error response structure.
+ * See: https://learn.microsoft.com/en-us/linkedin/shared/api-guide/best-practices/application-development
+ */
+type LinkedInErrorResponse = {
+  message: string
+  serviceErrorCode: number
+  status: number
+}
+
+/**
+ * Extracts LinkedIn-specific debugging headers from API responses.
+ * These headers are useful for troubleshooting issues with LinkedIn support.
+ */
+export function extractLinkedInHeaders(response: Response): Record<string, string> {
+  return {
+    'x-li-uuid': response.headers.get('x-li-uuid') ?? 'N/A',
+    'x-li-fabric': response.headers.get('x-li-fabric') ?? 'N/A',
+    'x-li-request-id': response.headers.get('x-li-request-id') ?? 'N/A',
+  }
+}
+
+export async function formatLinkedInError(response: Response, action: string): Promise<string> {
+  const headers = extractLinkedInHeaders(response)
+  const responseClone = response.clone()
+
+  let errorMessage: string
+  try {
+    const errorData = (await responseClone.json()) as LinkedInErrorResponse
+    errorMessage = `${errorData.message} (serviceErrorCode: ${errorData.serviceErrorCode})`
+  } catch {
+    errorMessage = await response.text()
+  }
+
+  return `${action}: ${errorMessage} (x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
+}
+
 export class LinkedInOAuthClient {
   private _credentials: OAuthCredentialsPayload
   private _client: bp.Client
@@ -158,8 +195,8 @@ export class LinkedInOAuthClient {
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new sdk.RuntimeError(`Failed to exchange authorization code: ${errorText}`)
+      const errorMsg = await formatLinkedInError(response, 'Failed to exchange authorization code')
+      throw new sdk.RuntimeError(errorMsg)
     }
 
     const tokenData = (await response.json()) as {
@@ -248,16 +285,20 @@ export class LinkedInOAuthClient {
     })
 
     if (!response.ok) {
+      const headers = extractLinkedInHeaders(response)
       const errorText = await response.text()
 
-      // Check for specific error cases
       if (errorText.includes('expired') || errorText.includes('revoked') || errorText.includes('invalid')) {
         throw new sdk.RuntimeError(
-          'LinkedIn refresh token has expired or been revoked. Please re-authorize the integration.'
+          'LinkedIn refresh token has expired or been revoked. Please re-authorize the integration. ' +
+            `(x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
         )
       }
 
-      throw new sdk.RuntimeError(`Failed to refresh LinkedIn access token: ${errorText}`)
+      throw new sdk.RuntimeError(
+        `Failed to refresh LinkedIn access token: ${errorText} ` +
+          `(x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
+      )
     }
 
     const tokenData = (await response.json()) as {
@@ -311,8 +352,8 @@ export class LinkedInOAuthClient {
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new sdk.RuntimeError(`Failed to fetch LinkedIn user info: ${errorText}`)
+      const errorMsg = await formatLinkedInError(response, 'Failed to fetch LinkedIn user info')
+      throw new sdk.RuntimeError(errorMsg)
     }
 
     return (await response.json()) as UserInfo

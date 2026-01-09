@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { LinkedInOAuthClient } from './linkedin-oauth-client'
+import { LinkedInOAuthClient, formatLinkedInError } from './linkedin-oauth-client'
 import * as bp from '.botpress'
 
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
@@ -40,8 +40,8 @@ export class LinkedInClient {
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new sdk.RuntimeError(`Failed to fetch LinkedIn profile: ${errorText}`)
+      const errorMsg = await formatLinkedInError(response, 'Failed to fetch LinkedIn profile')
+      throw new sdk.RuntimeError(errorMsg)
     }
 
     return (await response.json()) as UserInfo
