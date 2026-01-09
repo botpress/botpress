@@ -1,9 +1,14 @@
-import { wrapAction } from '../../action-wrapper'
+import { getTools, printActionTriggeredMsg } from '../../helpers'
+import * as bp from '.botpress'
 
-export const cardUpdate = wrapAction({ actionName: 'cardUpdate' }, async ({ trelloClient }, { item }) => {
+export const cardUpdate: bp.Integration['actions']['cardUpdate'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
+
+  const { item } = props.input
   const newCard = await trelloClient.updateCard({
     partialCard: item,
   })
 
   return { item: newCard, meta: {} }
-})
+}

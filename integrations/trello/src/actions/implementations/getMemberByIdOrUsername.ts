@@ -1,10 +1,12 @@
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
+import * as bp from '.botpress'
 
-export const getMemberByIdOrUsername = wrapAction(
-  { actionName: 'getMemberByIdOrUsername' },
-  async ({ trelloClient }, { memberIdOrUsername }) => {
-    const member = await trelloClient.getMemberByIdOrUsername({ memberId: memberIdOrUsername })
+export const getMemberByIdOrUsername: bp.Integration['actions']['getMemberByIdOrUsername'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    return { member }
-  }
-)
+  const { memberIdOrUsername } = props.input
+  const member = await trelloClient.getMemberByIdOrUsername({ memberId: memberIdOrUsername })
+
+  return { member }
+}

@@ -1,12 +1,14 @@
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
 import { moveCardVertically } from './shared/move-card-vertically'
+import * as bp from '.botpress'
 
-export const moveCardUp = wrapAction(
-  { actionName: 'moveCardUp' },
-  async ({ trelloClient }, { cardId, moveUpByNSpaces }) => {
-    const nbPositions = moveUpByNSpaces ?? 1
-    await moveCardVertically({ trelloClient, cardId, nbPositions })
+export const moveCardUp: bp.Integration['actions']['moveCardUp'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    return { message: 'Card successfully moved up' }
-  }
-)
+  const { cardId, moveUpByNSpaces } = props.input
+  const nbPositions = moveUpByNSpaces ?? 1
+  await moveCardVertically({ trelloClient, cardId, nbPositions })
+
+  return { message: 'Card successfully moved up' }
+}
