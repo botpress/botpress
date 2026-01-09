@@ -5,6 +5,7 @@ import { findTarget } from './find-target'
 import { getIssue } from './get-issue'
 import { getUser } from './get-user'
 import { listIssues } from './list-issues'
+import { listStates } from './list-states'
 import { listTeams } from './list-teams'
 import { listUsers } from './list-users'
 import { markAsDuplicate } from './mark-as-duplicate'
@@ -21,6 +22,7 @@ export default {
   listIssues,
   listTeams,
   listUsers,
+  listStates,
   markAsDuplicate,
   createIssue,
   deleteIssue,
