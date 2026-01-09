@@ -118,7 +118,7 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     },
   },
   'magistral-small-2509': {
-    name: 'Ministral 3 3B',
+    name: 'Magistral Small 1.2',
     description: 'Small multimodal reasoning model update of September 2025.',
     tags: [
       /* TODO: Add tags */
