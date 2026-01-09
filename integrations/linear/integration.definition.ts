@@ -6,7 +6,7 @@ import { actions, channels, events, configuration, configurations, user, states,
 
 export default new IntegrationDefinition({
   name: 'linear',
-  version: '1.2.0',
+  version: '1.3.0',
   title: 'Linear',
   description:
     'Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.',
