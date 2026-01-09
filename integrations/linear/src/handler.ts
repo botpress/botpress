@@ -1,4 +1,4 @@
-import { Request } from '@botpress/sdk'
+import { Request, RuntimeError } from '@botpress/sdk'
 import { LinearWebhooks } from '@linear/sdk'
 
 import { fireIssueCreated } from './events/issueCreated'
@@ -31,7 +31,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   if (!result.success) {
     const message = `Error while verifying webhook signature: ${result.message}`
     logger.forBot().error(message)
-    throw new Error(message)
+    throw new RuntimeError(message)
   }
 
   const linearBotId = await _getLinearBotId({ client, ctx })
