@@ -124,6 +124,11 @@ export class LinearApi {
     await Promise.all(promises)
   }
 
+  public async createComment(props: { body: string; issueId: string }): Promise<void> {
+    const { body, issueId } = props
+    await this._bpClient.callAction({ type: 'linear:createComment', input: { issueId, body } })
+  }
+
   public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {
     const queryInput: graphql.GRAPHQL_QUERIES['findTeamStates'][graphql.QUERY_INPUT] = {
       filter: { key: { eq: teamKey } },

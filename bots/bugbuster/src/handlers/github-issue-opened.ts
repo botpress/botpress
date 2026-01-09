@@ -8,7 +8,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
 
   props.logger.info('Received GitHub issue', githubIssue)
 
-  const { botpress } = boot.bootstrap(props)
+  const { botpress, linear } = boot.bootstrap(props)
 
   const _handleError =
     (context: string) =>
@@ -32,13 +32,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
     `GitHub Issue: [${githubIssue.issue.name}](${githubIssue.issue.url})`,
   ].join('\n')
 
-  await props.client
-    .callAction({
-      type: 'linear:createComment',
-      input: {
-        issueId: linearResponse.output.issue.id,
-        body: comment,
-      },
-    })
+  await linear
+    .createComment({ body: comment, issueId: linearResponse.output.issue.id })
     .catch(_handleError('trying to create a comment on the Linear issue created from GitHub'))
 }
