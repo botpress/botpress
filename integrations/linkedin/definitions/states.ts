@@ -19,4 +19,11 @@ export const states = {
       linkedInUserId: z.string(),
     }),
   },
+  processedNotifications: {
+    type: 'integration',
+    schema: z.object({
+      // Rolling list of recently processed notification IDs to prevent duplicate processing
+      notificationIds: z.array(z.string()),
+    }),
+  },
 } as const

@@ -1,14 +1,60 @@
 import { RuntimeError } from '@botpress/sdk'
+import * as crypto from 'crypto'
 import { LinkedInOAuthClient } from './linkedin-api'
+import { verifyLinkedInWebhook, dispatchWebhookEvent } from './webhook'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, logger } = props
+
   if (req.path.startsWith('/oauth')) {
-    return handleOAuthCallback({ req, client, ctx, logger })
+    return handleOAuthCallback(props)
   }
 
-  logger.forBot().warn(`Unhandled request path: ${req.path}`)
+  if (isWebhookChallenge(req)) {
+    return handleWebhookChallenge(props)
+  }
+
+  if (req.method === 'POST') {
+    const isValid = verifyLinkedInWebhook(props)
+    if (!isValid) {
+      logger.forBot().error('Webhook signature verification failed')
+      return { status: 200 }
+    }
+
+    return await dispatchWebhookEvent(props)
+  }
+
+  logger.forBot().warn(`Unhandled request: ${req.method} ${req.path}`)
   return { status: 404 }
+}
+
+const isWebhookChallenge = (req: bp.HandlerProps['req']): boolean => {
+  const params = new URLSearchParams(req.query)
+  return params.has('challengeCode') && req.method === 'GET'
+}
+
+const handleWebhookChallenge = ({ req, ctx, logger }: bp.HandlerProps) => {
+  const params = new URLSearchParams(req.query)
+  const challengeCode = params.get('challengeCode')
+
+  if (!challengeCode) {
+    return { status: 400, body: 'Missing challengeCode' }
+  }
+
+  logger.forBot().info('Responding to LinkedIn webhook challenge')
+
+  const clientSecret = ctx.configurationType === 'manual' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET
+  const challengeResponse = crypto.createHmac('sha256', clientSecret).update(challengeCode).digest('hex')
+
+  return {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      challengeCode,
+      challengeResponse,
+    }),
+  }
 }
 
 const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
