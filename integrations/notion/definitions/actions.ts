@@ -1,16 +1,17 @@
 import * as sdk from '@botpress/sdk'
 
 export const actions = {
-  addPageToDb: {
-    title: 'Create Page in Database',
-    description: 'Add a new page to a database in Notion',
+  createPage: {
+    title: 'Create Page',
+    description: 'Create a new page in Notion',
     input: {
       schema: sdk.z.object({
-        databaseId: sdk.z
+        parentType: sdk.z.enum(['data source', 'page']).title('Parent Type').describe('The type of the parent'),
+        parentId: sdk.z
           .string()
           .min(1)
-          .title('Database ID')
-          .describe('The ID of the database to add the page to. Can be found in the URL of the database'),
+          .title('Parent ID')
+          .describe('The ID of the parent to add the page to. Can be found in the URL of the parent'),
         title: sdk.z.string().title('Page Title').describe('The title of the page'),
         propertiesJson : sdk.z
         .string()

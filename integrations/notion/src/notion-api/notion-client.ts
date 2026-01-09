@@ -71,6 +71,30 @@ export class NotionClient {
     return { pageId: response.id }
   }
 
+  @handleErrors('Failed to create page')
+  public async createPage({ parentType, parentId, title, properties }: { parentType: string; parentId: string; title: string; properties: Record<types.NotionPagePropertyTypes, any> }): Promise<{ pageId: string }> {
+    
+    const pageProperties = { 
+      Name: { 
+        title: [
+          { 
+            type: 'text', 
+            text: { content: title } 
+          }
+        ] 
+      }, 
+      ...properties 
+    }
+    
+    const response = await this._notion.pages.create({
+      parent: parentType === 'database' 
+        ? { database_id: parentId } 
+        : { page_id: parentId }
+    })
+    
+    return { pageId: response.id }
+  }
+
   @handleErrors('Failed to add comment to page')
   public async addCommentToPage({ pageId, commentBody }: { pageId: string; commentBody: string }): Promise<void> {
     void (await this._notion.comments.create({

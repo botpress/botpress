@@ -2,9 +2,9 @@ import { updatePagePropertiesSchema } from 'definitions/notion-schemas'
 import { wrapAction } from '../action-wrapper'
 import { RuntimeError } from '@botpress/client'
 
-export const addPageToDb = wrapAction(
-  { actionName: 'addPageToDb', errorMessage: 'Failed to add page to database' },
-  async ({ notionClient }, { databaseId, propertiesJson }) => {
+export const createPage = wrapAction(
+  { actionName: 'createPage', errorMessage: 'Failed to create page' },
+  async ({ notionClient }, { parentType, parentId, title, propertiesJson }) => {
     let parsed: unknown
 
     try {
@@ -20,6 +20,6 @@ export const addPageToDb = wrapAction(
         `propertiesJson must be a valid Notion properties object. Check the Notion API documentation for the correct format. ${updatePagePropertiesResult.error.message}`
       )
     }
-    return await notionClient.addPageToDb({ databaseId, properties: updatePagePropertiesResult.data }) // TODO: fix type and bump major
+    return await notionClient.createPage({ parentType, parentId, title, properties: updatePagePropertiesResult.data }) // TODO: fix type and bump major
   }
 )
