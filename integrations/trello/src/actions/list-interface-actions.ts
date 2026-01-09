@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { printActionTriggeredMsg, getTools } from 'src/actions/helpers'
+import { printActionTriggeredMsg, getTools } from './helpers'
 import * as bp from '.botpress'
 
 export const listList: bp.Integration['actions']['listList'] = async (props) => {

@@ -1,5 +1,5 @@
-import { printActionTriggeredMsg, getTools } from 'src/actions/helpers'
-import { nameCompare } from 'src/string-utils'
+import { nameCompare } from '../string-utils'
+import { printActionTriggeredMsg, getTools } from './helpers'
 import { moveCardVertically } from './implementations/shared/move-card-vertically'
 import * as bp from '.botpress'
 

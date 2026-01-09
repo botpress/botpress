@@ -1,5 +1,5 @@
-import { printActionTriggeredMsg, getTools } from 'src/actions/helpers'
-import { nameCompare } from 'src/string-utils'
+import { nameCompare } from '../string-utils'
+import { printActionTriggeredMsg, getTools } from './helpers'
 import * as bp from '.botpress'
 
 export const getAllBoardMembers: bp.Integration['actions']['getAllBoardMembers'] = async (props) => {

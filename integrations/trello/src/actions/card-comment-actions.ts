@@ -1,4 +1,4 @@
-import { printActionTriggeredMsg, getTools } from 'src/actions/helpers'
+import { printActionTriggeredMsg, getTools } from './helpers'
 import * as bp from '.botpress'
 
 export const addCardComment: bp.Integration['actions']['addCardComment'] = async (props) => {
