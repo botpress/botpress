@@ -1,7 +1,7 @@
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
-const TEAM_NAME_FOR_NEW_ISSUES = 'ENG'
+const TEAM_NAME_FOR_NEW_ISSUES = 'Engineering'
 
 export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
   const githubIssue = props.event.payload
@@ -32,10 +32,13 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
     `GitHub Issue: [${githubIssue.issue.name}](${githubIssue.issue.url})`,
   ].join('\n')
 
-  await linear.client
-    .createComment({
-      issueId: linearResponse.output.issue.id,
-      body: comment,
+  await props.client
+    .callAction({
+      type: 'linear:createComment',
+      input: {
+        issueId: linearResponse.output.issue.id,
+        body: comment,
+      },
     })
     .catch(_handleError('trying to create a comment on the Linear issue created from GitHub'))
 }
