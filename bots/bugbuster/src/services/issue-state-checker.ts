@@ -24,7 +24,7 @@ export class IssueStateChecker {
       )
 
       for (const issue of issues) {
-        await this._linear.client.createComment({
+        await this._linear.createComment({
           issueId: issue.id,
           body: stateAttributes.warningComment,
         })

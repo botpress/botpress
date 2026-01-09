@@ -1,6 +1,4 @@
-import * as lin from '@linear/sdk'
 import * as utils from '..'
-import * as genenv from '../../../.genenv'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
 import { Client } from '.botpress'
@@ -14,19 +12,10 @@ export class LinearApi {
   private _states?: State[] = undefined
   private _viewerId?: string = undefined
 
-  private constructor(
-    private _client: lin.LinearClient,
-    private _bpClient: Client
-  ) {}
+  private constructor(private _bpClient: Client) {}
 
   public static create(bpClient: Client): LinearApi {
-    const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
-
-    return new LinearApi(client, bpClient)
-  }
-
-  public get client(): lin.LinearClient {
-    return this._client
+    return new LinearApi(bpClient)
   }
 
   public async getViewerId(): Promise<string> {
