@@ -1,6 +1,6 @@
 import { nameCompare } from '../string-utils'
 import { printActionTriggeredMsg, getTools } from './helpers'
-import { moveCardVertically } from './move-card-vertically'
+import { moveCardVertically } from './move-card-helpers'
 import * as bp from '.botpress'
 
 export const getCardsInList: bp.Integration['actions']['getCardsInList'] = async (props) => {
