@@ -1,10 +1,12 @@
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
+import * as bp from '.botpress'
 
-export const addCardComment = wrapAction(
-  { actionName: 'addCardComment' },
-  async ({ trelloClient }, { cardId, commentBody }) => {
-    const newCommentId = await trelloClient.addCardComment({ cardId, commentBody })
+export const addCardComment: bp.Integration['actions']['addCardComment'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    return { message: 'Comment successfully added to the card', newCommentId }
-  }
-)
+  const { cardId, commentBody } = props.input
+  const newCommentId = await trelloClient.addCardComment({ cardId, commentBody })
+
+  return { message: 'Comment successfully added to the card', newCommentId }
+}

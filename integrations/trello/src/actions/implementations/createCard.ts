@@ -1,12 +1,14 @@
-import { wrapAction } from '../action-wrapper'
+import { printActionTriggeredMsg, getTools } from '../helpers'
+import * as bp from '.botpress'
 
-export const createCard = wrapAction(
-  { actionName: 'createCard' },
-  async ({ trelloClient }, { listId, cardName, cardBody, members, labels, dueDate }) => {
-    const newCard = await trelloClient.createCard({
-      card: { name: cardName, description: cardBody ?? '', listId, memberIds: members, labelIds: labels, dueDate },
-    })
+export const createCard: bp.Integration['actions']['createCard'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
 
-    return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
-  }
-)
+  const { listId, cardName, cardBody, members, labels, dueDate } = props.input
+  const newCard = await trelloClient.createCard({
+    card: { name: cardName, description: cardBody ?? '', listId, memberIds: members, labelIds: labels, dueDate },
+  })
+
+  return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
+}
