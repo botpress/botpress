@@ -5,6 +5,7 @@ import { appendBlocksToPage } from './append-blocks-to-page'
 import { deleteBlock } from './delete-block'
 import { filesReadonlyListItemsInFolder } from './files-readonly/list-items-in-folder'
 import { filesReadonlyTransferFileToBotpress } from './files-readonly/transfer-file-to-botpress'
+import { getDataSource } from './get-data-source'
 import { getDb } from './get-db'
 import { getPage } from './get-page'
 import { getPageContent } from './get-page-content'
@@ -21,6 +22,7 @@ export const actions = {
   filesReadonlyListItemsInFolder,
   filesReadonlyTransferFileToBotpress,
   getDb,
+  getDataSource,
   getPage,
   getPageContent,
   searchByTitle,
