@@ -1,7 +1,7 @@
 import * as bp from '.botpress'
 
-const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreateConversation'] = async (args) => {
-  const { client, ctx, input } = args
+export const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreateConversation'] = async (args) => {
+  const { client, input } = args
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'issue',
@@ -14,5 +14,3 @@ const getOrCreateConversation: bp.IntegrationProps['actions']['getOrCreateConver
     conversationId: conversation.id,
   }
 }
-
-export default getOrCreateConversation
