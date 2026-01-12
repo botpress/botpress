@@ -92,6 +92,26 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
   return { message: 'Card updated successfully.' }
 }
 
+export const deleteCard: bp.Integration['actions']['deleteCard'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
+
+  const { cardId, hardDelete = false } = props.input
+
+  if (hardDelete) {
+    await trelloClient.deleteCard(cardId)
+  } else {
+    await trelloClient.updateCard({
+      partialCard: {
+        id: cardId,
+        isClosed: true,
+      },
+    })
+  }
+
+  return {}
+}
+
 export const moveCardToList: bp.Integration['actions']['moveCardToList'] = async (props) => {
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)

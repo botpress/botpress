@@ -162,6 +162,26 @@ export const updateCard = {
   },
 } as const satisfies ActionDefinition
 
+export const deleteCard = {
+  title: 'Delete card',
+  description: 'Deletes a card by its unique identifier',
+  input: {
+    schema: z.object({
+      cardId: cardSchema.shape.id.title('Card ID').describe('ID of the card to delete'),
+      hardDelete: z
+        .boolean()
+        .default(false)
+        .title('Hard Delete')
+        .describe(
+          'Whether to perform a hard delete or a soft delete (archive). Set to true for hard delete, false for soft delete.'
+        ),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDefinition
+
 export const addCardComment = {
   title: 'Add card comment',
   description: 'Add a new comment to a card',

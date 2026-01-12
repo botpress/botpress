@@ -9,6 +9,7 @@ import {
   moveCardToList,
   moveCardUp,
   moveCardDown,
+  deleteCard,
 } from './card-actions'
 import { addCardComment } from './card-comment-actions'
 import { cardList, cardRead, cardCreate, cardUpdate, cardDelete } from './card-interface-actions'
@@ -38,6 +39,7 @@ export const actions = {
   getCardsInList,
   createCard,
   updateCard,
+  deleteCard,
   addCardComment,
   moveCardUp,
   moveCardDown,
