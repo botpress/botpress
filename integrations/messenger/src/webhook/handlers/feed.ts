@@ -63,7 +63,13 @@ const _handleCommentEvent = async (value: CommentChangeValue, props: bp.HandlerP
 }
 
 const _handleCommentCreated = async (value: CommentChangeValue, props: bp.HandlerProps) => {
-  const { client, logger } = props
+  const { client, logger, ctx } = props
+
+  if (ctx.configurationType === 'sandbox' || !ctx.configuration.replyToComments) {
+    logger.forBot().debug('Comment replies are not enabled, ignoring comment')
+    return
+  }
+
   const { comment_id: commentId, post_id: postId, message, from, parent_id: parentId } = value
 
   if (!message) {
