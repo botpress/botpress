@@ -81,16 +81,6 @@ export class NotionClient {
     parentId: string
     title: string
   }): Promise<{ pageId: string }> {
-    const pageProperties = {
-      Name: {
-        title: [
-          {
-            type: 'text',
-            text: { content: title },
-          },
-        ],
-      },
-    }
 
     const response = await this._notion.pages.create({
       parent: parentType === 'database' ? { database_id: parentId } : { page_id: parentId },

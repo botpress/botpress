@@ -1,5 +1,3 @@
-import { RuntimeError } from '@botpress/client'
-import { updatePagePropertiesSchema } from 'definitions/notion-schemas'
 import { wrapAction } from '../action-wrapper'
 
 export const createPage = wrapAction(
