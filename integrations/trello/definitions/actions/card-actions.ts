@@ -62,6 +62,11 @@ export const createCard = {
           .optional()
           .title('Due Date')
           .describe('The due date of the card in ISO 8601 format (Optional).'),
+        verticalPosition: z
+          .union([z.literal('top'), z.literal('bottom'), z.number()])
+          .optional()
+          .title('Position')
+          .describe('Position of the card in the list, either "top", "bottom", or a float (Optional).'),
       })
       .describe('Input schema for creating a new card'),
   },
