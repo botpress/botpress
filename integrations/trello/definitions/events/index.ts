@@ -1,4 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { type IntegrationDefinitionProps } from '@botpress/sdk'
 import {
   TRELLO_EVENTS,
   addMemberToCardEventSchema,
@@ -18,7 +18,11 @@ import {
   voteOnCardEventSchema,
   addAttachmentToCardEventSchema,
   deleteAttachmentFromCardEventSchema,
-} from './schemas/webhookEvents'
+  CommentCardEvent,
+  AllSupportedEvents,
+  GenericWebhookEvent,
+  genericWebhookEventSchema,
+} from './webhookEvents'
 
 export const events = {
   [TRELLO_EVENTS.addMemberToCard]: {
@@ -108,4 +112,11 @@ export const events = {
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
 
-export { TRELLO_EVENTS }
+export {
+  TRELLO_EVENTS,
+  type AllSupportedEvents,
+  type CommentCardEvent,
+  commentCardEventSchema,
+  type GenericWebhookEvent,
+  genericWebhookEventSchema,
+}
