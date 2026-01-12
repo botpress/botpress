@@ -21,13 +21,17 @@ export const TRELLO_EVENTS = {
   deleteAttachmentFromCard: 'deleteAttachmentFromCard',
 } as const
 
+type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
+const _pickIdAndName = <T extends IdAndNameSchema>(schema: T) => schema.pick({ id: true, name: true })
+
 export const genericWebhookEventSchema = z.object({
   action: z.object({
-    id: trelloIdSchema.describe('Unique identifier of the action'),
+    id: trelloIdSchema.title('Action ID').describe('Unique identifier of the action'),
     idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
     type: z
       .string()
       .refine((e) => Reflect.ownKeys(TRELLO_EVENTS).includes(e))
+      .title('Action Type')
       .describe('Type of the action'),
     date: z.string().datetime().describe('Date of the action'),
     data: z.any(),
@@ -65,36 +69,26 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('addAttachmentToCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: boardSchema.shape.id.describe('Unique identifier of the board'),
-                name: boardSchema.shape.name.describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: cardSchema.shape.id.describe('Unique identifier of the card'),
-                name: cardSchema.shape.name.describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            list: z
-              .object({
-                id: listSchema.shape.id.describe('Unique identifier of the list'),
-                name: listSchema.shape.name.describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             attachment: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the attachment'),
-                name: z.string().describe('Name of the attachment'),
-                url: z.string().url().optional().describe('URL of the attachment'),
-                previewUrl: z.string().url().optional().describe('URL of the attachment preview'),
-                previewUrl2x: z.string().url().optional().describe('URL of the attachment preview in 2x'),
+                id: trelloIdSchema.title('Attachment ID').describe('Unique identifier of the attachment'),
+                name: z.string().title('Attachment Name').describe('Name of the attachment'),
+                url: z.string().url().optional().title('Attachment URL').describe('URL of the attachment'),
+                previewUrl: z
+                  .string()
+                  .url()
+                  .optional()
+                  .title('Attachment Preview URL')
+                  .describe('URL of the attachment preview'),
+                previewUrl2x: z
+                  .string()
+                  .url()
+                  .optional()
+                  .title('Attachment Preview URL 2x')
+                  .describe('URL of the attachment preview at up to 2x the resolution'),
               })
               .title('Attachment')
               .describe('Attachment that was added to the card'),
@@ -112,23 +106,9 @@ export const voteOnCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('voteOnCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .optional()
-              .title('Card')
-              .describe('Card that was updated'),
-            voted: z.boolean().title('Voted').describe('Whether the user voted on the card'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).optional().title('Card').describe('Card that was updated'),
+            voted: z.boolean().title('Has Voted').describe('Whether the user voted on the card'),
           }),
         })
         .describe('Action that is triggered when a user votes on a card')
@@ -143,42 +123,22 @@ export const updateCommentEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('updateComment').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             action: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the comment that was updated'),
-                text: z.string().describe('New text of the comment'),
+                id: trelloIdSchema.title('Comment ID').describe('Unique identifier of the comment that was updated'),
+                text: z.string().title('Comment Text').describe('New text of the comment'),
               })
               .title('Action')
               .describe('The action details for the updated comment'),
             old: z
               .object({
-                text: z.string().describe('Old text of the comment'),
+                text: z.string().title('Old Comment Text').describe('Old text of the comment'),
               })
-              .title('Old')
-              .describe('Old comment data'),
+              .title('Old Comment')
+              .describe('The previous data of the comment'),
           }),
         })
         .describe('Action that is triggered when a comment is updated')
@@ -193,40 +153,33 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.m
         .object({
           type: z.literal('updateCheckItemStateOnCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             checklist: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the checklist'),
-                name: z.string().describe('Name of the checklist'),
+                id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
+                name: z.string().title('Checklist Name').describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was updated'),
             checkItem: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the check item'),
-                name: z.string().describe('Name of the check item'),
-                state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
-                textData: z.object({
-                  emoji: z.object({}).describe('Emoji of the check item'),
-                }),
-                due: z.string().datetime().optional().describe('Due date of the check item'),
+                id: trelloIdSchema.title('Item ID').describe('Unique identifier of the checklist item'),
+                name: z.string().title('Item Name').describe('Name of the checklist item'),
+                state: z
+                  .union([z.literal('complete'), z.literal('incomplete')])
+                  .title('Item Status')
+                  .describe('The completion status of the checklist item'),
+                textData: z
+                  .object({
+                    emoji: z.object({}).title('Checklist Item Emoji').describe('Emoji of the checklist item'),
+                  })
+                  .title('Text data')
+                  .describe('Text data of the checklist item'),
+                due: z.string().datetime().optional().title('Due Date').describe('Due date of the checklist item'),
               })
-              .title('Check Item')
-              .describe('Check item that was updated'),
+              .title('Checklist Item')
+              .describe('Checklist item that was updated'),
           }),
         })
         .describe('Action that is triggered when an item is updated in a checklist')
@@ -241,47 +194,43 @@ export const updateCheckItemEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('updateCheckItem').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             checklist: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the checklist'),
-                name: z.string().describe('Name of the checklist'),
+                id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
+                name: z.string().title('Checklist Name').describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was updated'),
             checkItem: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the check item'),
-                name: z.string().describe('Name of the check item'),
-                state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
-                due: z.string().datetime().optional().describe('Due date of the check item'),
-              })
-              .title('Check Item')
-              .describe('Check item that was updated'),
-            old: z
-              .object({
-                name: z.string().describe('Old name of the check item'),
+                id: trelloIdSchema.title('Item ID').describe('Unique identifier of the checklist item'),
+                name: z.string().title('Item Name').describe('Name of the checklist item'),
                 state: z
                   .union([z.literal('complete'), z.literal('incomplete')])
-                  .describe('Old state of the check item'),
-                due: z.string().datetime().optional().describe('Old due date of the check item'),
+                  .title('Item Status')
+                  .describe('The completion status of the checklist item'),
+                due: z.string().datetime().optional().title('Due Date').describe('Due date of the checklist item'),
               })
-              .title('Old')
-              .describe('Old check item data'),
+              .title('Checklist Item')
+              .describe('Checklist item that was updated'),
+            old: z
+              .object({
+                name: z.string().title('Old Item Name').describe('Old name of the checklist item'),
+                state: z
+                  .union([z.literal('complete'), z.literal('incomplete')])
+                  .title('Old Item Status')
+                  .describe('The old completion status of the checklist item'),
+                due: z
+                  .string()
+                  .datetime()
+                  .optional()
+                  .title('Old Due Date')
+                  .describe('Old due date of the checklist item'),
+              })
+              .title('Old Checklist Item')
+              .describe('The previous data of the checklist item'),
           }),
         })
         .describe('Action that is triggered when an item is updated in a checklist')
@@ -296,74 +245,95 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('updateCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
             card: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-                idList: trelloIdSchema.optional().describe('Unique identifier of the list where the card is located'),
-                desc: z.string().optional().describe('Description of the card'),
-                idLabels: z.array(trelloIdSchema).optional().describe('Labels attached to the card'),
-                pos: z.number().optional().describe('Position of the card'),
-                start: z.union([z.string().datetime(), z.null()]).optional().describe('Start date of the card'),
-                due: z.union([z.string().datetime(), z.null()]).optional().describe('Due date of the card'),
+                id: trelloIdSchema.title('Card ID').describe('Unique identifier of the card'),
+                name: z.string().title('Card Name').describe('Name of the card'),
+                idList: trelloIdSchema
+                  .optional()
+                  .title('List ID')
+                  .describe('Unique identifier of the list where the card is located'),
+                desc: z.string().optional().title('Card Description').describe('Description of the card'),
+                idLabels: z.array(trelloIdSchema).optional().title('Label IDs').describe('Labels attached to the card'),
+                pos: z.number().optional().title('Card Position').describe('Position of the card'),
+                start: z
+                  .union([z.string().datetime(), z.null()])
+                  .optional()
+                  .title('Start Date')
+                  .describe('Start date of the card'),
+                due: z
+                  .union([z.string().datetime(), z.null()])
+                  .optional()
+                  .title('Due Date')
+                  .describe('Due date of the card'),
                 dueReminder: z
                   .union([z.literal(-1), z.null(), z.number().min(0)])
                   .optional()
+                  .title('Due Reminder')
                   .describe('Due reminder of the card'),
-                dueComplete: z.boolean().optional().describe('Whether the card is completed'),
-                closed: z.boolean().optional().describe('Whether the card is archived'),
+                dueComplete: z.boolean().optional().title('Due Complete').describe('Whether the card is completed'),
+                closed: z.boolean().optional().title('Is Closed').describe('Whether the card is archived'),
               })
               .title('Card')
               .describe('Card that was updated'),
             old: z
               .object({
-                name: z.string().describe('Previous name of the card'),
-                desc: z.string().or(z.null()).optional().describe('Previous description of the card'),
-                idList: trelloIdSchema.optional().describe('Previous list where the card was'),
-                idLabels: z.array(trelloIdSchema).optional().describe('Previous labels attached to the card'),
-                pos: z.number().optional().describe('Previous position of the card'),
+                name: z.string().title('Old Card Name').describe('Previous name of the card'),
+                desc: z
+                  .string()
+                  .or(z.null())
+                  .optional()
+                  .title('Old Card Description')
+                  .describe('Previous description of the card'),
+                idList: trelloIdSchema.optional().title('Old List ID').describe('Previous list where the card was'),
+                idLabels: z
+                  .array(trelloIdSchema)
+                  .optional()
+                  .title('Old Label IDs')
+                  .describe('Previous labels attached to the card'),
+                pos: z
+                  .number()
+                  .optional()
+                  .title('Old Position')
+                  .describe('Previous position of the card within the list'),
                 start: z
                   .union([z.string().datetime(), z.null()])
                   .optional()
+                  .title('Old Start Date')
                   .describe('Previous start date of the card'),
-                due: z.union([z.string().datetime(), z.null()]).optional().describe('Previous due date of the card'),
+                due: z
+                  .union([z.string().datetime(), z.null()])
+                  .optional()
+                  .title('Old Due Date')
+                  .describe('Previous due date of the card'),
                 dueReminder: z
                   .union([z.literal(-1), z.null(), z.number().min(0)])
                   .optional()
+                  .title('Old Due Reminder')
                   .describe('Previous due reminder of the card'),
-                dueComplete: z.boolean().optional().describe('Previous completion state of the card'),
-                closed: z.boolean().optional().describe('Previous archive state of the card'),
+                dueComplete: z
+                  .boolean()
+                  .optional()
+                  .title('Old Due Complete')
+                  .describe('Previous completion state of the card'),
+                closed: z.boolean().optional().title('Old Is Closed').describe('Previous archive state of the card'),
               })
               .title('Old')
               .describe('Previous state of the card'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             listBefore: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the previous list'),
-                name: z.string().describe('Name of the previous list'),
+                id: listSchema.shape.id.describe('Unique identifier of the previous list'),
+                name: listSchema.shape.name.describe('Name of the previous list'),
               })
               .optional()
               .title('List Before')
               .describe('Previous list where the card was located'),
             listAfter: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the new list'),
-                name: z.string().describe('Name of the new list'),
+                id: listSchema.shape.id.describe('Unique identifier of the new list'),
+                name: listSchema.shape.name.describe('Name of the new list'),
               })
               .optional()
               .title('List After')
@@ -382,25 +352,12 @@ export const removeMemberFromCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('removeMemberFromCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             member: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the member'),
-                name: z.string().describe('Full name of the member'),
+                id: trelloIdSchema.title('Member ID').describe('Unique identifier of the member'),
+                name: z.string().title('Member Name').describe('Full name of the member'),
               })
               .title('Member')
               .describe('Member that was removed from the card'),
@@ -418,26 +375,13 @@ export const removeLabelFromCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('removeLabelFromCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was modified'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was modified'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was modified'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
             label: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the label'),
-                name: z.string().describe('Name of the label'),
-                color: z.string().describe('Color of the label'),
+                id: trelloIdSchema.title('Label ID').describe('Unique identifier of the label'),
+                name: z.string().title('Label Name').describe('Name of the label'),
+                color: z.string().title('Label Color').describe('Color of the label'),
               })
               .title('Label')
               .describe('Label that was removed from the card'),
@@ -455,32 +399,12 @@ export const deleteCommentEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('deleteComment').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             action: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the comment that was deleted'),
+                id: trelloIdSchema.title('Comment ID').describe('Unique identifier of the comment that was deleted'),
               })
               .title('Action')
               .describe('The action details for the deleted comment'),
@@ -498,37 +422,30 @@ export const deleteCheckItemEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('deleteCheckItem').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             checklist: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the checklist'),
-                name: z.string().describe('Name of the checklist'),
+                id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
+                name: z.string().title('Checklist Name').describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was removed'),
             checkItem: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the check item'),
-                name: z.string().describe('Name of the check item'),
-                state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
-                textData: z.object({
-                  emoji: z.object({}).describe('Emoji of the check item'),
-                }),
-                due: z.string().datetime().optional().describe('Due date of the check item'),
+                id: trelloIdSchema.title('Item ID').describe('Unique identifier of the check item'),
+                name: z.string().title('Item Name').describe('Name of the check item'),
+                state: z
+                  .union([z.literal('complete'), z.literal('incomplete')])
+                  .title('Item Status')
+                  .describe('The completion status of the checklist item'),
+                textData: z
+                  .object({
+                    emoji: z.object({}).title('Checklist Item Emoji').describe('Emoji of the checklist item'),
+                  })
+                  .title('Text data')
+                  .describe('Text data of the checklist item'),
+                due: z.string().datetime().optional().title('Due Date').describe('Due date of the check item'),
               })
               .title('Check Item')
               .describe('Check item that was removed from the checklist'),
@@ -546,28 +463,9 @@ export const deleteCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('deleteCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was deleted'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-              })
-              .title('Card')
-              .describe('Card that was deleted'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was deleted'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was deleted'),
+            card: cardSchema.pick({ id: true }).title('Card').describe('Card that was deleted'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was deleted'),
           }),
         })
         .describe('Action that is triggered when a card is deleted')
@@ -582,33 +480,13 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
         .object({
           type: z.literal('deleteAttachmentFromCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             attachment: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the attachment'),
-                name: z.string().describe('Name of the attachment'),
+                id: trelloIdSchema.title('Attachment ID').describe('Unique identifier of the attachment'),
+                name: z.string().title('Attachment Name').describe('Name of the attachment'),
               })
               .title('Attachment')
               .describe('Attachment that was deleted from the card'),
@@ -624,45 +502,38 @@ export const createCheckItemEventSchema = genericWebhookEventSchema.merge(
     action: genericWebhookEventSchema.shape.action.merge(
       z
         .object({
-          type: z.literal('createCheckItem').describe('Type of the action'),
+          type: z.literal('createCheckItem').title('Action Type').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             checklist: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the checklist'),
-                name: z.string().describe('Name of the checklist'),
+                id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
+                name: z.string().title('Checklist Name').describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist where the item was added'),
             checkItem: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the check item'),
-                name: z.string().describe('Name of the check item'),
-                state: z.union([z.literal('complete'), z.literal('incomplete')]).describe('State of the check item'),
-                textData: z.object({
-                  emoji: z.object({}).describe('Emoji of the check item'),
-                }),
-                due: z.string().datetime().optional().describe('Due date of the check item'),
+                id: trelloIdSchema.title('Item ID').describe('Unique identifier of the checklist item'),
+                name: z.string().title('Item Name').describe('Name of the check item'),
+                state: z
+                  .union([z.literal('complete'), z.literal('incomplete')])
+                  .title('Item Status')
+                  .describe('The completion status of the checklist item'),
+                textData: z
+                  .object({
+                    emoji: z.object({}).title('Checklist Item Emoji').describe('Emoji of the checklist item'),
+                  })
+                  .title('Text data')
+                  .describe('Text data of the checklist item'),
+                due: z.string().datetime().optional().title('Due Date').describe('Due date of the checklist item'),
               })
-              .title('Check Item')
-              .describe('Check item that was added to the checklist'),
+              .title('Checklist Item')
+              .describe('The item that was added to the checklist'),
           }),
         })
-        .describe('Action that is triggered when a new item si added to a checklist')
+        .describe('Action that is triggered when a new item is added to a checklist')
     ),
   })
 )
@@ -674,29 +545,9 @@ export const createCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('createCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was created'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was created'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was created'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was created'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was created'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was created'),
           }),
         })
         .describe('Action that is triggered when a card is created')
@@ -709,32 +560,12 @@ export const commentCardEventSchema = genericWebhookEventSchema.merge(
     action: genericWebhookEventSchema.shape.action.merge(
       z
         .object({
-          type: z.literal('commentCard').describe('Type of the action'),
-          id: trelloIdSchema.describe('Unique identifier of the comment'),
+          type: z.literal('commentCard').title('Action Type').describe('Type of the action'),
+          id: trelloIdSchema.title('Comment ID').describe('Unique identifier of the comment'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            list: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the list'),
-                name: z.string().describe('Name of the list'),
-              })
-              .optional()
-              .title('List')
-              .describe('List where the card was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
+            list: _pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
             text: z.string().title('Text').describe('Text of the comment'),
           }),
         })
@@ -750,30 +581,11 @@ export const addMemberToCardEventSchema = genericWebhookEventSchema.merge(
     action: genericWebhookEventSchema.shape.action.merge(
       z
         .object({
-          type: z.literal('addMemberToCard').describe('Type of the action'),
+          type: z.literal('addMemberToCard').title('Action Type').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
-            member: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the member'),
-                name: z.string().describe('Full name of the member'),
-              })
-              .title('Member')
-              .describe('Member that was added to the card'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that the member was added to'),
+            member: memberSchema.title('Member').describe('Member that was added to the card'),
           }),
         })
         .describe('Action that is triggered when a member is added to a card')
@@ -786,28 +598,15 @@ export const addLabelToCardEventSchema = genericWebhookEventSchema.merge(
     action: genericWebhookEventSchema.shape.action.merge(
       z
         .object({
-          type: z.literal('addLabelToCard').describe('Type of the action'),
+          type: z.literal('addLabelToCard').title('Action Type').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was modified'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was modified'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was modified'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
             label: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the label'),
-                name: z.string().describe('Name of the label'),
-                color: z.string().describe('Color of the label'),
+                id: trelloIdSchema.title('Label ID').describe('Unique identifier of the label'),
+                name: z.string().title('Label Name').describe('Name of the label'),
+                color: z.string().title('Label Color').describe('Color of the label'),
               })
               .title('Label')
               .describe('Label that was added to the card'),
@@ -825,25 +624,12 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.merge(
         .object({
           type: z.literal('addChecklistToCard').describe('Type of the action'),
           data: z.object({
-            board: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the board'),
-                name: z.string().describe('Name of the board'),
-              })
-              .optional()
-              .title('Board')
-              .describe('Board where the card was updated'),
-            card: z
-              .object({
-                id: trelloIdSchema.describe('Unique identifier of the card'),
-                name: z.string().describe('Name of the card'),
-              })
-              .title('Card')
-              .describe('Card that was updated'),
+            board: _pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+            card: _pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
             checklist: z
               .object({
-                id: trelloIdSchema.describe('Unique identifier of the checklist'),
-                name: z.string().describe('Name of the checklist'),
+                id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
+                name: z.string().title('Checklist Name').describe('Name of the checklist'),
               })
               .title('Checklist')
               .describe('Checklist that was added to the card'),
