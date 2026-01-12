@@ -68,12 +68,15 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
     memberIdsToAdd,
     memberIdsToRemove,
     name,
+    verticalPosition,
+    listId,
   } = props.input
 
   const card = await trelloClient.getCardById({ cardId })
   await trelloClient.updateCard({
     partialCard: {
       id: cardId,
+      listId,
       name,
       description: bodyText,
       isClosed: closedState === 'archived',
@@ -83,6 +86,7 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
       memberIds: card.memberIds
         .concat(memberIdsToAdd ?? [])
         .filter((memberId) => !memberIdsToRemove?.includes(memberId)),
+      verticalPosition,
     },
   })
 

@@ -144,6 +144,14 @@ export const updateCard = {
           .describe(
             'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
           ),
+        listId: listSchema.shape.id
+          .title('List ID')
+          .describe('Unique identifier of the list in which the card will be moved to'),
+        verticalPosition: z
+          .union([z.literal('top'), z.literal('bottom'), z.number()])
+          .optional()
+          .title('Position')
+          .describe('Position of the card in the list, either "top", "bottom", or a float (Optional).'),
       })
       .describe('Input schema for creating a new card'),
   },
@@ -213,7 +221,7 @@ export const moveCardToList = {
     schema: hasCardId.extend({
       newListId: listSchema.shape.id
         .title('New List ID')
-        .describe('Unique identifier of the list in which the card will be moved'),
+        .describe('Unique identifier of the list in which the card will be moved to'),
     }),
   },
   output: {
