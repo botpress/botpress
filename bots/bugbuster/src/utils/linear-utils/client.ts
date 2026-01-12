@@ -113,9 +113,38 @@ export class LinearApi {
     await Promise.all(promises)
   }
 
-  public async createComment(props: { body: string; issueId: string }): Promise<void> {
-    const { body, issueId } = props
-    await this._bpClient.callAction({ type: 'linear:createComment', input: { issueId, body } })
+  public async createComment(props: {
+    body: string
+    issue: {
+      createdAt: string
+      id: string
+      identifier: string
+      number: number
+      priority: number
+      title: string
+      updatedAt: string
+      url: string
+      creatorId?: string
+      description?: string
+      estimate?: number
+    }
+    botId: string
+  }): Promise<void> {
+    const { body, issue, botId } = props
+    const conversation = await this._bpClient.callAction({
+      type: 'linear:getOrCreateConversation',
+      input: {
+        conversation: issue,
+      },
+    })
+
+    await this._bpClient.createMessage({
+      type: 'text',
+      conversationId: conversation.output.conversationId,
+      payload: { text: body },
+      tags: {},
+      userId: botId,
+    })
   }
 
   public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {

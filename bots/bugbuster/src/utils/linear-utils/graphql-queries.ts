@@ -50,6 +50,14 @@ export type Issue = {
       parentId: string | null
     }[]
   }
+  createdAt: string
+  updatedAt: string
+  number: number
+  url: string
+  creator: {
+    id: string
+  } | null
+  description: string | null
 }
 
 export type TeamStates = {
@@ -113,6 +121,14 @@ export const GRAPHQL_QUERIES = {
                 createdAt
               }
             }
+            createdAt
+            updatedAt
+            number
+            url
+            creator {
+              id
+            }
+            description
           }
         }
       }`,
