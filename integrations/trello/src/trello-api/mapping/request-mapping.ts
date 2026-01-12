@@ -25,6 +25,7 @@ export namespace RequestMapping {
       idLabels: card.labelIds,
       idMembers: card.memberIds,
       pos: card.verticalPosition,
+      dueComplete: card.isCompleted,
     })
 }
 

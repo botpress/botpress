@@ -67,6 +67,7 @@ export const createCard = {
           .optional()
           .title('Position')
           .describe('Position of the card in the list, either "top", "bottom", or a float (Optional).'),
+        isCompleted: z.boolean().title('Is Completed').describe('Whether the card is marked as completed (Optional).'),
       })
       .describe('Input schema for creating a new card'),
   },

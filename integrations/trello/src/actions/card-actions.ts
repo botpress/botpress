@@ -36,7 +36,7 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)
 
-  const { listId, cardName, cardBody, memberIds, labelIds, dueDate, verticalPosition } = props.input
+  const { listId, cardName, cardBody, memberIds, labelIds, dueDate, verticalPosition, isCompleted } = props.input
   const newCard = await trelloClient.createCard({
     card: {
       name: cardName,
@@ -46,6 +46,7 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
       labelIds,
       dueDate,
       verticalPosition,
+      isCompleted,
     },
   })
 
