@@ -67,3 +67,7 @@ The id of the board should be 24 characters long consisting of letters and numbe
 - Some Trello paid features may not be available.
 
 [Trello - API Introduction]: https://developer.atlassian.com/cloud/trello/guides/rest-api/api-introduction/
+
+## Migration from 1.x.x to 2.x.x
+
+- Replace "Move Card Up" action with "Move Card Down" actions (and vice versa) as the directions were reversed to match the visual displacement of the cards on Trello.
