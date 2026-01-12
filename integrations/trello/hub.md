@@ -84,3 +84,15 @@ The id of the board should be 24 characters long consisting of letters and numbe
 - Replace "Board Member Read" action with "Get Member By ID Or Username"
 - Replace "Card Member List" action with "Get All Card Members"
 - Replace "Card Member Read" action with "Get Member By ID Or Username"
+- Redefine the following properties in any "Create Card" actions
+  - Member IDs (formerly "Members")
+  - Label IDs (formerly "Labels")
+- Redefine the following properties in any "Update Card" actions
+  - "Card Name" (formerly "Name")
+  - "Card Body" (formerly "Body Text")
+  - "Closed Status" (formerly "Closed State")
+  - "Completion Status" (formerly "Complete State")
+  - "Member IDs To Add" (formerly "Members To Add")
+  - "Member IDs To Remove" (formerly "Members To Remove")
+  - "Label IDs To Add" (formerly "Labels To Add")
+  - "Label IDs To Remove" (formerly "Labels To Remove")
