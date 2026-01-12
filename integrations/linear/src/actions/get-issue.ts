@@ -25,14 +25,6 @@ export const getIssue: bp.IntegrationProps['actions']['getIssue'] = async (args)
   } = args
   const linearClient = await getLinearClient(args, ctx.integrationId)
   const issue = await linearClient.issue(issueId)
-  const {
-    conversation: { id: conversationId },
-  } = await args.client.getOrCreateConversation({
-    channel: 'issue',
-    tags: { id: issue.id },
-  })
-  return {
-    ...getIssueFields(issue),
-    conversationId,
-  }
+
+  return getIssueFields(issue)
 }
