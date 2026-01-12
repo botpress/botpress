@@ -101,16 +101,14 @@ export const updateCard = {
           .title('Closed Status')
           .describe(
             'Whether the card should be archived (Optional). Enter "Open", "Archived" (without quotes), or leave empty to keep the previous status.'
-          )
-          .optional(),
+          ),
         completionStatus: z
           .enum(['Complete', 'Incomplete'])
           .optional()
           .title('Completion Status')
           .describe(
             'Whether the card should be marked as complete (Optional). Enter "Complete", "Incomplete" (without quotes), or leave empty to keep the previous status.'
-          )
-          .optional(),
+          ),
         memberIdsToAdd: z
           .array(trelloIdSchema)
           .optional()
