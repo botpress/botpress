@@ -146,6 +146,7 @@ export const updateCard = {
             'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
           ),
         listId: listSchema.shape.id
+          .optional()
           .title('List ID')
           .describe('Unique identifier of the list in which the card will be moved to'),
         verticalPosition: z
