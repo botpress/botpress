@@ -72,7 +72,7 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to create page')
-  public async createPage({ parentType, parentId, title, properties }: { parentType: string; parentId: string; title: string; properties: Record<types.NotionPagePropertyTypes, any> }): Promise<{ pageId: string }> {
+  public async createPage({ parentType, parentId, title }: { parentType: string; parentId: string; title: string }): Promise<{ pageId: string }> {
     
     const pageProperties = { 
       Name: { 
@@ -83,13 +83,14 @@ export class NotionClient {
           }
         ] 
       }, 
-      ...properties 
     }
     
     const response = await this._notion.pages.create({
       parent: parentType === 'database' 
         ? { database_id: parentId } 
-        : { page_id: parentId }
+        : { page_id: parentId },
+      properties:
+       { Name: { title: [{ type: 'text', text: { content: title } }] } }
     })
     
     return { pageId: response.id }
