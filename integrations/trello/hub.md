@@ -80,3 +80,7 @@ The id of the board should be 24 characters long consisting of letters and numbe
 - Replace "Card Delete" action with "Delete Card"
 - Replace "Card List" action with "Get Cards In List"
 - Replace "Card Read" action with "Get Card By ID"
+- Replace "Board Member List" action with "Get All Board Members"
+- Replace "Board Member Read" action with "Get Member By ID Or Username"
+- Replace "Card Member List" action with "Get All Card Members"
+- Replace "Card Member Read" action with "Get Member By ID Or Username"
