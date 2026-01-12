@@ -12,7 +12,7 @@ export const actions = {
           .min(1)
           .title('Parent ID')
           .describe('The ID of the parent to add the page to. Can be found in the URL of the parent'),
-        title: sdk.z.string().title('Page Title').describe('The title of the page')
+        title: sdk.z.string().title('Page Title').describe('The title of the page'),
       }),
     },
     output: {
@@ -38,7 +38,9 @@ export const actions = {
           .describe(
             'Stringified JSON object for the Notion properties payload (same format as Notion pages.update API endpoint but without the "properties" key). Check the Notion API documentation for the correct format. https://developers.notion.com/reference/patch-page'
           )
-          .placeholder('{"In stock": { "checkbox": true }}').optional().default('{}'),
+          .placeholder('{"In stock": { "checkbox": true }}')
+          .optional()
+          .default('{}'),
       }),
     },
     output: {
