@@ -53,5 +53,7 @@ const _evaluateNewPosition = (cardsInList: Card[], cardIdToMove: string, numOfPo
     throw new sdk.RuntimeError('Card must have a sibling card on each side to determine new position')
   }
 
+  // This is supposed to be a float value. For reference, check the "pos" property in the "Update a Card" request
+  // parameters: https://developer.atlassian.com/cloud/trello/rest/api-group-cards/#api-cards-id-put-request
   return (sibling.verticalPosition + otherSibling.verticalPosition) / 2
 }
