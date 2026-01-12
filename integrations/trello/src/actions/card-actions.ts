@@ -96,8 +96,8 @@ export const moveCardDown: bp.Integration['actions']['moveCardDown'] = async (pr
   const { trelloClient } = getTools(props)
 
   const { cardId, moveDownByNSpaces } = props.input
-  const nbPositions = -(moveDownByNSpaces ?? 1)
-  await moveCardVertically({ trelloClient, cardId, nbPositions })
+  const numOfPositions = -(moveDownByNSpaces ?? 1)
+  await moveCardVertically({ trelloClient, cardId, numOfPositions })
 
   return { message: 'Card successfully moved down' }
 }
@@ -107,8 +107,8 @@ export const moveCardUp: bp.Integration['actions']['moveCardUp'] = async (props)
   const { trelloClient } = getTools(props)
 
   const { cardId, moveUpByNSpaces } = props.input
-  const nbPositions = moveUpByNSpaces ?? 1
-  await moveCardVertically({ trelloClient, cardId, nbPositions })
+  const numOfPositions = moveUpByNSpaces ?? 1
+  await moveCardVertically({ trelloClient, cardId, numOfPositions })
 
   return { message: 'Card successfully moved up' }
 }
