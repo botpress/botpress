@@ -1,59 +1,59 @@
 import * as sdk from '@botpress/sdk'
 import { Card } from 'definitions/schemas'
-import { TrelloClient } from '../trello-api/trello-client'
+import { TrelloClient, CardPosition } from '../trello-api'
 
 export const moveCardVertically = async ({
   trelloClient,
   cardId,
-  nbPositions,
+  numOfPositions,
 }: {
   trelloClient: TrelloClient
   cardId: string
-  nbPositions: number
+  numOfPositions: number
 }): Promise<void> => {
-  if (nbPositions === 0) {
+  if (numOfPositions === 0) {
     return
   }
 
   const card = await trelloClient.getCardById({ cardId })
   const cardsInList = await trelloClient.getCardsInList({ listId: card.listId })
-  const cardIndex = cardsInList.findIndex((c) => c.id === cardId)
+  cardsInList.sort((a, b) => a.verticalPosition - b.verticalPosition)
 
-  const updatedCard = _moveCard(cardsInList, card, cardIndex, nbPositions)
+  const newPosition = _evaluateNewPosition(cardsInList, cardId, numOfPositions)
 
   await trelloClient.updateCard({
-    partialCard: updatedCard,
+    partialCard: {
+      id: cardId,
+      verticalPosition: newPosition,
+    },
   })
 }
 
-const _moveCard = (cardsInList: Card[], card: Card, cardIndex: number, nbPositions: number): Card => {
-  const newIndex = _calculateNewIndex(cardIndex, nbPositions, cardsInList.length)
-  const cardAtNewPosition = _getCardAtNewPosition(cardsInList, newIndex)
-
-  return {
-    ...card,
-    verticalPosition: cardAtNewPosition.verticalPosition + Math.sign(nbPositions),
-  }
-}
-
-const _calculateNewIndex = (cardIndex: number, nbPositions: number, listLength: number): number => {
-  const newIndex = cardIndex + nbPositions
-
-  if (newIndex < 0 || newIndex >= listLength) {
-    throw new sdk.RuntimeError(
-      `Impossible to move the card by ${nbPositions} positions, as it would put the card out of bounds`
-    )
+const _evaluateNewPosition = (cardsInList: Card[], cardIdToMove: string, numOfPositions: number): CardPosition => {
+  const cardIndex = cardsInList.findIndex((c) => c.id === cardIdToMove)
+  if (cardIndex === -1) {
+    throw new sdk.RuntimeError(`Card with id ${cardIdToMove} not found in the target list of cards`)
   }
 
-  return newIndex
-}
+  const newIndex = cardIndex + numOfPositions
 
-const _getCardAtNewPosition = (cardsInList: Card[], newIndex: number): Card => {
-  const cardAtNewPosition = cardsInList[newIndex]
-
-  if (!cardAtNewPosition) {
-    throw new sdk.RuntimeError('Card to swap with must exist')
+  if (newIndex <= 0) {
+    return 'top'
   }
 
-  return cardAtNewPosition
+  if (newIndex >= cardsInList.length - 1) {
+    return 'bottom'
+  }
+
+  const sibling = cardsInList[newIndex]
+  const otherSibling = cardsInList[newIndex + Math.sign(numOfPositions)]
+
+  if (!sibling || !otherSibling) {
+    // Sanity check, should never actually be called
+    throw new sdk.RuntimeError('Card must have a sibling card on each side to determine new position')
+  }
+
+  // This is supposed to be a float value. For reference, check the "pos" property in the "Update a Card" request
+  // parameters: https://developer.atlassian.com/cloud/trello/rest/api-group-cards/#api-cards-id-put-request
+  return (sibling.verticalPosition + otherSibling.verticalPosition) / 2
 }
