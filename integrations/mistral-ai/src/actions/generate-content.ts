@@ -2,14 +2,6 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { IntegrationLogger, z } from '@botpress/sdk'
 import { Mistral } from '@mistralai/mistralai'
-import {
-  SDKError,
-  HTTPValidationError,
-  ResponseValidationError,
-  HTTPClientError,
-} from '@mistralai/mistralai/models/errors'
-import { ModelId } from 'src/schemas'
-
 import type {
   Messages,
   ChatCompletionRequest,
@@ -21,6 +13,13 @@ import type {
   ToolCall,
   FinishReason,
 } from '@mistralai/mistralai/models/components'
+import {
+  SDKError,
+  HTTPValidationError,
+  ResponseValidationError,
+  HTTPClientError,
+} from '@mistralai/mistralai/models/errors'
+import { ModelId } from 'src/schemas'
 
 const MistralAPIErrorSchema = z.object({
   error: z
@@ -51,7 +50,7 @@ export async function generateContent(
     defaultModel: ModelId
   }
 ): Promise<llm.GenerateContentOutput> {
-  let modelId = (input.model?.id || params.defaultModel) as ModelId
+  const modelId = (input.model?.id || params.defaultModel) as ModelId
 
   const model = params.models[modelId]
 
@@ -113,81 +112,81 @@ export async function generateContent(
 
   try {
     response = await mistral.chat.complete(request)
-  } catch (err: any) {
+  } catch (thrown: unknown) {
     // Validation errors (422)
-    if (err instanceof HTTPValidationError) {
+    if (thrown instanceof HTTPValidationError) {
       // err has: statusCode, body, detail[]
-      if (err.detail && err.detail.length > 0) {
-        const validationMessages = err.detail.map((d) => `${d.loc.join('.')}: ${d.msg}`).join('; ')
+      if (thrown.detail && thrown.detail.length > 0) {
+        const validationMessages = thrown.detail.map((d) => `${d.loc.join('.')}: ${d.msg}`).join('; ')
 
         if (input.debug) {
-          logger.forBot().error(`Mistral validation errors: ${JSON.stringify(err.detail, null, 2)}`)
+          logger.forBot().error(`Mistral validation errors: ${JSON.stringify(thrown.detail, null, 2)}`)
         }
 
         throw llm.createUpstreamProviderFailedError(
-          err,
-          `Mistral validation error (${err.statusCode}): ${validationMessages}`
+          thrown,
+          `Mistral validation error (${thrown.statusCode}): ${validationMessages}`
         )
       }
     }
 
     // General SDK/API errors
-    if (err instanceof SDKError) {
-      let errorMessage = err.message
+    if (thrown instanceof SDKError) {
+      let errorMessage = thrown.message
 
       // parse body for more details
       try {
-        const parsedBody = JSON.parse(err.body)
+        const parsedBody = JSON.parse(thrown.body)
         const parsedError = MistralAPIErrorSchema.safeParse(parsedBody)
 
         if (parsedError.success && parsedError.data.error) {
           errorMessage = parsedError.data.error.message
 
-          if (input.debug) {
-            logger.forBot().error(`Mistral API error: ${JSON.stringify(parsedError.data, null, 2)}`)
-          }
+          input.debug && logger.forBot().error(`Mistral API error: ${JSON.stringify(parsedError.data, null, 2)}`)
 
           const errorType = parsedError.data.error.type ? ` (${parsedError.data.error.type})` : ''
           throw llm.createUpstreamProviderFailedError(
-            err,
-            `Mistral error ${err.statusCode}${errorType}: ${errorMessage}`
+            thrown,
+            `Mistral error ${thrown.statusCode}${errorType}: ${errorMessage}`
           )
         }
       } catch (parseErr) {
+        const parseErrorMessage = parseErr instanceof Error ? parseErr.message : String(parseErr)
         // use basic info
         if (input.debug) {
-          logger.forBot().warn(`Could not parse Mistral error body: ${err.body}`)
+          logger.forBot().warn(`Could not parse Mistral error body: ${thrown.body}, parse error: ${parseErrorMessage}`)
         }
       }
 
-      throw llm.createUpstreamProviderFailedError(err, `Mistral error ${err.statusCode}: ${errorMessage}`)
+      throw llm.createUpstreamProviderFailedError(thrown, `Mistral error ${thrown.statusCode}: ${errorMessage}`)
     }
 
     // Response validation errors
-    if (err instanceof ResponseValidationError) {
+    if (thrown instanceof ResponseValidationError) {
       // Response from Mistral was invalid/unexpected format
       if (input.debug) {
-        logger.forBot().error(`Mistral response validation error: ${err.message}`)
+        logger.forBot().error(`Mistral response validation error: ${thrown.message}`)
       }
 
-      throw llm.createUpstreamProviderFailedError(err, `Mistral response validation error: ${err.message}`)
+      throw llm.createUpstreamProviderFailedError(thrown, `Mistral response validation error: ${thrown.message}`)
     }
 
     // Network/client errors
-    if (err instanceof HTTPClientError) {
+    if (thrown instanceof HTTPClientError) {
       if (input.debug) {
-        logger.forBot().error(`Mistral client error (${err.name}): ${err.message}`)
+        logger.forBot().error(`Mistral client error (${thrown.name}): ${thrown.message}`)
       }
 
-      throw llm.createUpstreamProviderFailedError(err, `Mistral client error (${err.name}): ${err.message}`)
+      throw llm.createUpstreamProviderFailedError(thrown, `Mistral client error (${thrown.name}): ${thrown.message}`)
     }
 
     // unknown errors
     if (input.debug) {
-      logger.forBot().error(`Unexpected error calling Mistral: ${JSON.stringify(err, null, 2)}`)
+      logger.forBot().error(`Unexpected error calling Mistral: ${JSON.stringify(thrown, null, 2)}`)
     }
 
-    throw llm.createUpstreamProviderFailedError(err, `Mistral error: ${err.message || 'Unknown error occurred'}`)
+    const error = thrown instanceof Error ? thrown : Error(String(thrown))
+    throw llm.createUpstreamProviderFailedError(error, `Mistral error: ${error.message}`)
   } finally {
     if (input.debug && response) {
       logger.forBot().info('Response received from Mistral: ' + JSON.stringify(response, null, 2))

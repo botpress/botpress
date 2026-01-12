@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'mistral-ai',
   title: 'Mistral AI',
   description: 'Access a curated list of Mistral AI models to set as your chosen LLM.',
-  version: '1.0.0',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
