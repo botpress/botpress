@@ -57,8 +57,10 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
   const { trelloClient } = getTools(props)
 
   const {
-    bodyText,
     cardId,
+    listId,
+    cardName,
+    cardBody,
     closedStatus,
     completionStatus,
     dueDate,
@@ -66,9 +68,7 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
     labelIdsToRemove,
     memberIdsToAdd,
     memberIdsToRemove,
-    name,
     verticalPosition,
-    listId,
   } = props.input
 
   const card = await trelloClient.getCardById({ cardId })
@@ -76,8 +76,8 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
     partialCard: {
       id: cardId,
       listId,
-      name,
-      description: bodyText,
+      name: cardName,
+      description: cardBody,
       isClosed: closedStatus === 'Archived',
       isCompleted: completionStatus === 'Complete',
       dueDate,

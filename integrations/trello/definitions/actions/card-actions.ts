@@ -87,11 +87,11 @@ export const updateCard = {
   input: {
     schema: hasCardId
       .extend({
-        name: cardSchema.shape.name
+        cardName: cardSchema.shape.name
           .optional()
           .title('Card Name')
           .describe('The name of the card (Optional) (e.g. "My Test Card"). Leave empty to keep the current name.'),
-        bodyText: cardSchema.shape.description
+        cardBody: cardSchema.shape.description
           .optional()
           .title('Card Body')
           .describe('The new body text of the card (Optional). Leave empty to keep the current body.'),
