@@ -13,6 +13,12 @@ export const actions = {
           .title('Parent ID')
           .describe('The ID of the parent to add the page to. Can be found in the URL of the parent'),
         title: sdk.z.string().title('Page Title').describe('The title of the page'),
+        dataSourceTitleName: sdk.z
+          .string()
+          .title('Data Source Title Name')
+          .describe('The name of the title property in the data source. If not provided, the default is "Name".')
+          .optional()
+          .default('Name'),
       }),
     },
     output: {
