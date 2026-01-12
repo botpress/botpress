@@ -1,8 +1,8 @@
 import { llm } from '@botpress/common'
-import { DefaultModel, ModelId } from './schemas'
-import * as bp from '.botpress'
 import { Mistral } from '@mistralai/mistralai'
 import { generateContent } from './actions/generate-content'
+import { DefaultModel, ModelId } from './schemas'
+import * as bp from '.botpress'
 
 const mistral = new Mistral({ apiKey: bp.secrets.MISTRAL_API_KEY })
 
