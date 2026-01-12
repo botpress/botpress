@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import { wrapAction } from '../action-wrapper'
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints'
+import { wrapAction } from '../action-wrapper'
 
 export const getDataSource = wrapAction(
   { actionName: 'getDataSource', errorMessage: 'Failed to fetch data source' },
@@ -16,7 +16,7 @@ export const getDataSource = wrapAction(
 
     const pages = pagesResult.results.map((page) => {
       let title = ''
-      
+
       if (page.object === 'page' && 'properties' in page) {
         const titleProp = Object.values(page.properties).find(
           (prop): prop is { type: 'title'; title: RichTextItemResponse[]; id: string } =>
