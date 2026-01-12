@@ -16,14 +16,6 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
     }
   }
 
-  const getStoredAuthorizationCode = async (): Promise<string | undefined> => {
-    const res = await client
-      .getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
-      .catch(() => ({ state: undefined }))
-
-    return (res.state?.payload as { authorizationCode?: string } | undefined)?.authorizationCode
-  }
-
   if (ctx.configurationType !== 'customApp') {
     logger.forBot().info('Using refresh token from configuration')
     googleClient = await createFromRefreshToken()
@@ -32,24 +24,16 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       logger.forBot().info('No authorization code provided, using existing refresh token from state')
       googleClient = await createFromRefreshToken()
     } else {
-      const currentCode = ctx.configuration.oauthAuthorizationCode
-      const storedCode = await getStoredAuthorizationCode()
-
-      if (storedCode !== currentCode) {
-        logger.forBot().info('Authorization code changed, attempting to use new code')
-        try {
-          googleClient = await GoogleClient.createFromAuthorizationCode({
-            client,
-            ctx,
-            authorizationCode: currentCode,
-          })
-          logger.forBot().info('Successfully updated Gmail integration with new authorization code')
-        } catch (err) {
-          logger.forBot().warn({ err }, 'Failed to create Google client from new authorization code; falling back')
-          googleClient = await createFromRefreshToken()
-        }
-      } else {
-        logger.forBot().info('Authorization code unchanged, using existing refresh token from state')
+      logger.forBot().info('Using authorization code from context')
+      try {
+        googleClient = await GoogleClient.createFromAuthorizationCode({
+          client,
+          ctx,
+          authorizationCode: ctx.configuration.oauthAuthorizationCode,
+        })
+        logger.forBot().info('Successfully created Google client from authorization code')
+      } catch (err) {
+        logger.forBot().warn({ err }, 'Failed to create Google client from authorization code; falling back')
         googleClient = await createFromRefreshToken()
       }
     }
