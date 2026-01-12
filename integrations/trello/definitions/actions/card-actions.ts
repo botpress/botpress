@@ -62,7 +62,13 @@ export const createCard = {
           .optional()
           .title('Due Date')
           .describe('The due date of the card in ISO 8601 format (Optional).'),
-        isCompleted: z.boolean().title('Is Completed').describe('Whether the card is marked as completed (Optional).'),
+        completionStatus: z
+          .enum(['Complete', 'Incomplete'])
+          .default('Incomplete')
+          .title('Completion Status')
+          .describe(
+            'Whether the card should be marked as complete (Optional). Enter "Complete" or "Incomplete" (without quotes).'
+          ),
       })
       .describe('Input schema for creating a new card'),
   },
