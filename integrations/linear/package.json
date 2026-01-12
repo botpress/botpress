@@ -21,10 +21,14 @@
     "@botpress/sdk": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
     "@botpresshub/listable": "workspace:*",
+    "@botpresshub/proactive-conversation": "workspace:*",
+    "@botpresshub/proactive-user": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable",
-    "deletable": "../../interfaces/deletable"
+    "deletable": "../../interfaces/deletable",
+    "proactive-user": "../../interfaces/proactive-user",
+    "proactive-conversation": "../../interfaces/proactive-conversation"
   }
 }

@@ -1380,6 +1380,12 @@ importers:
       '@botpresshub/listable':
         specifier: workspace:*
         version: link:../../interfaces/listable
+      '@botpresshub/proactive-conversation':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-conversation
+      '@botpresshub/proactive-user':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-user
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1

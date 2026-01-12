@@ -103,6 +103,7 @@ export const issueSchema = z.object({
   identifier: z.string().title('Identifier').describe("Issue's human readable identifier (e.g. XXX-123)"),
   estimate: z.number().optional().title('Points Estimate').describe('The estimate of the issue in points'),
   url: z.string().title('Issue URL').describe('The URL of the issue on Linear'),
+  creatorId: z.string().optional().title('Creator ID').describe('The ID of the user who created the issue'),
 })
 
 export const issueEventSchema = z.object({
