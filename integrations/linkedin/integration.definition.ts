@@ -1,5 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { configuration, configurations, identifier, states, secrets } from './definitions'
+import { configuration, configurations, identifier, states, secrets, actions } from './definitions'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
@@ -14,4 +14,5 @@ export default new IntegrationDefinition({
   identifier,
   states,
   secrets,
+  actions,
 })
