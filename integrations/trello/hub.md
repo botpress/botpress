@@ -73,6 +73,8 @@ The id of the board should be 24 characters long consisting of letters and numbe
 - Replace "Move Card Up" action with "Move Card Down" actions (and vice versa) as the directions were reversed to match the visual displacement of the cards on Trello.
 - Replace "Board List" action with "Get All Boards"
 - Replace "Board Read" action with "Get Board By ID"
+- Replace "List List" action with "Get Lists In Board"
+- Replace "List Read" action with "Get List By ID"
 - Replace "Card Create" action with "Create New Card"
 - Replace "Card Update" action with "Update Card"
 - Replace "Card Delete" action with "Delete Card"
