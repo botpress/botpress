@@ -59,8 +59,8 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
   const {
     bodyText,
     cardId,
-    closedState,
-    completeState,
+    closedStatus,
+    completionStatus,
     dueDate,
     labelIdsToAdd,
     labelIdsToRemove,
@@ -78,8 +78,8 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
       listId,
       name,
       description: bodyText,
-      isClosed: closedState === 'archived',
-      isCompleted: completeState === 'complete',
+      isClosed: closedStatus === 'Archived',
+      isCompleted: completionStatus === 'Complete',
       dueDate,
       labelIds: card.labelIds.concat(labelIdsToAdd ?? []).filter((labelId) => !labelIdsToRemove?.includes(labelId)),
       memberIds: card.memberIds

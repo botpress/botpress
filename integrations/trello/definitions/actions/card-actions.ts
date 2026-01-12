@@ -89,20 +89,20 @@ export const updateCard = {
           .optional()
           .title('Card Body')
           .describe('The new body text of the card (Optional). Leave empty to keep the current body.'),
-        closedState: z
-          .enum(['open', 'archived'])
+        closedStatus: z
+          .enum(['Open', 'Archived'])
           .optional()
           .title('Closed Status')
           .describe(
-            'Whether the card should be archived (Optional). Enter "open", "archived" (without quotes), or leave empty to keep the previous status.'
+            'Whether the card should be archived (Optional). Enter "Open", "Archived" (without quotes), or leave empty to keep the previous status.'
           )
           .optional(),
-        completeState: z
-          .enum(['complete', 'incomplete'])
+        completionStatus: z
+          .enum(['Complete', 'Incomplete'])
           .optional()
           .title('Completion Status')
           .describe(
-            'Whether the card should be marked as complete (Optional). Enter "complete", "incomplete" (without quotes), or leave empty to keep the previous status.'
+            'Whether the card should be marked as complete (Optional). Enter "Complete", "Incomplete" (without quotes), or leave empty to keep the previous status.'
           )
           .optional(),
         memberIdsToAdd: z
