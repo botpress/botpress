@@ -47,7 +47,7 @@ export const createCard = {
       .object({
         listId: listSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
         cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
-        cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
+        cardBody: cardSchema.shape.description.optional().title('Card Body').describe('The body text of the new card'),
         memberIds: z
           .array(trelloIdSchema)
           .optional()
@@ -83,16 +83,16 @@ export const updateCard = {
       .extend({
         name: cardSchema.shape.name
           .optional()
-          .title('Name')
+          .title('Card Name')
           .describe('The name of the card (Optional) (e.g. "My Test Card"). Leave empty to keep the current name.'),
         bodyText: cardSchema.shape.description
           .optional()
-          .title('Body Text')
-          .describe('Body text of the new card (Optional). Leave empty to keep the current body.'),
+          .title('Card Body')
+          .describe('The new body text of the card (Optional). Leave empty to keep the current body.'),
         closedState: z
           .enum(['open', 'archived'])
           .optional()
-          .title('Closed State')
+          .title('Closed Status')
           .describe(
             'Whether the card should be archived (Optional). Enter "open", "archived" (without quotes), or leave empty to keep the previous status.'
           )
@@ -100,7 +100,7 @@ export const updateCard = {
         completeState: z
           .enum(['complete', 'incomplete'])
           .optional()
-          .title('State Completion')
+          .title('Completion Status')
           .describe(
             'Whether the card should be marked as complete (Optional). Enter "complete", "incomplete" (without quotes), or leave empty to keep the previous status.'
           )
@@ -145,8 +145,10 @@ export const updateCard = {
         verticalPosition: z
           .union([z.literal('top'), z.literal('bottom'), z.number()])
           .optional()
-          .title('Position')
-          .describe('Position of the card in the list, either "top", "bottom", or a float (Optional).'),
+          .title('Vertical Position')
+          .describe(
+            'The new position of the card in the list, either "top", "bottom", or a float (Optional). Leave empty to keep the current position.'
+          ),
       })
       .describe('Input schema for creating a new card'),
   },
