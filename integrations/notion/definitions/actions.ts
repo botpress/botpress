@@ -125,6 +125,19 @@ export const actions = {
           .record(sdk.z.string(), sdk.z.object({}).passthrough())
           .title('Data Source Properties')
           .describe('Schema of properties for the data source as they appear in Notion'),
+        pages: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().title('Page ID').describe('The ID of the page'),
+              title: sdk.z.string().title('Page Title').describe('The title of the page'),
+              pageProperties: sdk.z
+                .record(sdk.z.string(), sdk.z.object({}).passthrough())
+                .title('Page Properties')
+                .describe('Schema of properties for the page as they appear in Notion'),
+            })
+          )
+          .title('Pages')
+          .describe('List of pages in the data source'),
       }),
     },
   },
