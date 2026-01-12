@@ -1,7 +1,7 @@
 import { addCommentToDiscussion } from './add-comment-to-discussion'
 import { addCommentToPage } from './add-comment-to-page'
-import { addPageToDb } from './add-page-to-db'
 import { appendBlocksToPage } from './append-blocks-to-page'
+import { createPage } from './create-page'
 import { deleteBlock } from './delete-block'
 import { filesReadonlyListItemsInFolder } from './files-readonly/list-items-in-folder'
 import { filesReadonlyTransferFileToBotpress } from './files-readonly/transfer-file-to-botpress'
@@ -16,7 +16,7 @@ import * as bp from '.botpress'
 export const actions = {
   addCommentToDiscussion,
   addCommentToPage,
-  addPageToDb,
+  createPage,
   appendBlocksToPage,
   deleteBlock,
   filesReadonlyListItemsInFolder,

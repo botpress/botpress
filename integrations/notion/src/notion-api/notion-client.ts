@@ -7,6 +7,7 @@ import {
   PartialPageObjectResponse,
   RichTextItemResponse,
   UpdatePageParameters,
+  CreatePageParameters,
 } from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
@@ -63,11 +64,43 @@ export class NotionClient {
   }: {
     databaseId: string
     properties: Record<types.NotionPagePropertyTypes, any>
-  }): Promise<void> {
-    void (await this._notion.pages.create({
+  }): Promise<{ pageId: string }> {
+    const response = await this._notion.pages.create({
       parent: { database_id: databaseId },
       properties,
-    }))
+    })
+    return { pageId: response.id }
+  }
+
+  @handleErrors('Failed to create page')
+  public async createPage({
+    parentType,
+    parentId,
+    title,
+    dataSourceTitleName,
+  }: {
+    parentType: string
+    parentId: string
+    title: string
+    dataSourceTitleName: string
+  }): Promise<{ pageId: string }> {
+    let parent: CreatePageParameters['parent']
+    let properties: CreatePageParameters['properties']
+
+    if (parentType === 'data source') {
+      const dataSource = await this._notion.dataSources.retrieve({ data_source_id: parentId })
+      if (!dataSource.properties[dataSourceTitleName]) {
+        throw new Error(`Title property "${dataSourceTitleName}" not found in data source properties`)
+      }
+      parent = { data_source_id: parentId, type: 'data_source_id' }
+      properties = { [dataSourceTitleName]: { title: [{ text: { content: title } }] } }
+    } else {
+      parent = { page_id: parentId, type: 'page_id' }
+      properties = { title: { title: [{ text: { content: title } }] } }
+    }
+
+    const response = await this._notion.pages.create({ parent, properties })
+    return { pageId: response.id }
   }
 
   @handleErrors('Failed to add comment to page')

@@ -7,6 +7,10 @@ export const updatePageProperties = wrapAction(
   async ({ notionClient }, { pageId, propertiesJson }) => {
     let parsed: unknown
 
+    if (!propertiesJson) {
+      throw new RuntimeError('propertiesJson is required')
+    }
+
     try {
       parsed = JSON.parse(propertiesJson)
     } catch (thrown) {
