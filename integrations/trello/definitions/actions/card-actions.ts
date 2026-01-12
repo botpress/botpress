@@ -48,15 +48,15 @@ export const createCard = {
         listId: listSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
         cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
         cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
-        members: z
+        memberIds: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members')
+          .title('Member IDs')
           .describe('Members to add to the card (Optional). This should be a list of member IDs.'),
-        labels: z
+        labelIds: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels')
+          .title('Label IDs')
           .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
         dueDate: cardSchema.shape.dueDate
           .optional()
@@ -104,31 +104,31 @@ export const updateCard = {
             'Whether the card should be marked as complete (Optional). Enter "complete", "incomplete" (without quotes), or leave empty to keep the previous status.'
           )
           .optional(),
-        membersToAdd: z
+        memberIdsToAdd: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members to Add')
+          .title('Member IDs to Add')
           .describe(
             'Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
           ),
-        membersToRemove: z
+        memberIdsToRemove: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members to Remove')
+          .title('Member IDs to Remove')
           .describe(
             'Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
           ),
-        labelsToAdd: z
+        labelIdsToAdd: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels to Add')
+          .title('Label IDs to Add')
           .describe(
             'Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
-        labelsToRemove: z
+        labelIdsToRemove: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels to Remove')
+          .title('Label IDs to Remove')
           .describe(
             'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),

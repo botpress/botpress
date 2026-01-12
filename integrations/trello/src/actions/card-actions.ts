@@ -36,9 +36,16 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)
 
-  const { listId, cardName, cardBody, members, labels, dueDate } = props.input
+  const { listId, cardName, cardBody, memberIds, labelIds, dueDate } = props.input
   const newCard = await trelloClient.createCard({
-    card: { name: cardName, description: cardBody ?? '', listId, memberIds: members, labelIds: labels, dueDate },
+    card: {
+      name: cardName,
+      description: cardBody ?? '',
+      listId,
+      memberIds,
+      labelIds,
+      dueDate,
+    },
   })
 
   return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
@@ -54,10 +61,10 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
     closedState,
     completeState,
     dueDate,
-    labelsToAdd,
-    labelsToRemove,
-    membersToAdd,
-    membersToRemove,
+    labelIdsToAdd,
+    labelIdsToRemove,
+    memberIdsToAdd,
+    memberIdsToRemove,
     name,
   } = props.input
 
@@ -70,8 +77,10 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
       isClosed: closedState === 'archived',
       isCompleted: completeState === 'complete',
       dueDate,
-      labelIds: card.labelIds.concat(labelsToAdd ?? []).filter((labelId) => !labelsToRemove?.includes(labelId)),
-      memberIds: card.memberIds.concat(membersToAdd ?? []).filter((memberId) => !membersToRemove?.includes(memberId)),
+      labelIds: card.labelIds.concat(labelIdsToAdd ?? []).filter((labelId) => !labelIdsToRemove?.includes(labelId)),
+      memberIds: card.memberIds
+        .concat(memberIdsToAdd ?? [])
+        .filter((memberId) => !memberIdsToRemove?.includes(memberId)),
     },
   })
 
