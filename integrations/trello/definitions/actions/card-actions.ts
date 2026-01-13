@@ -95,10 +95,10 @@ export const updateCard = {
           .optional()
           .title('Card Body')
           .describe('The new body text of the card (Optional). Leave empty to keep the current body.'),
-        closedStatus: z
+        lifecycleStatus: z
           .enum(['Open', 'Archived'])
           .optional()
-          .title('Closed Status')
+          .title('Lifecycle Status')
           .describe(
             'Whether the card should be archived (Optional). Enter "Open", "Archived" (without quotes), or leave empty to keep the previous status.'
           ),
