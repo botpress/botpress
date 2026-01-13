@@ -249,13 +249,13 @@ export class NotionClient {
   @handleErrors('Failed to get data source')
   public async getDataSource({ dataSourceId }: { dataSourceId: string }) {
     const ds = await this._notion.dataSources.retrieve({ data_source_id: dataSourceId })
-    return 'parent' in ds ? ds : undefined
+    return 'parent' in ds && 'created_time' in ds ? ds : undefined
   }
 
   @handleErrors('Failed to retrieve page')
   public async getPage({ pageId }: { pageId: string }) {
     const page = await this._notion.pages.retrieve({ page_id: pageId })
-    return 'parent' in page ? page : undefined
+    return 'parent' in page && 'created_time' in page ? page : undefined
   }
 
   @handleErrors('Failed to get page content')
@@ -305,7 +305,7 @@ export class NotionClient {
   public async getDatabase({ databaseId }: { databaseId: string }) {
     const db = await this._notion.databases.retrieve({ database_id: databaseId })
 
-    return 'parent' in db
+    return 'parent' in db && 'created_time' in db
       ? {
           object: db.object,
           dataSources: db.data_sources,
