@@ -1386,13 +1386,16 @@ importers:
 
   integrations/linkedin:
     dependencies:
-      '@botpress/client':
-        specifier: 1.28.0
-        version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 5.1.1
+        specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
       '@types/node':
         specifier: ^22.16.4
         version: 22.16.4

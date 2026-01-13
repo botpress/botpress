@@ -1,11 +1,6 @@
 import * as sdk from '@botpress/sdk'
+import { linkedInErrorResponseSchema, linkedInTokenResponseSchema, userInfoSchema, type UserInfo } from './schemas'
 import * as bp from '.botpress'
-import {
-  linkedInErrorResponseSchema,
-  linkedInTokenResponseSchema,
-  userInfoSchema,
-  type UserInfo,
-} from './schemas'
 
 const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
