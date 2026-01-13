@@ -8,7 +8,7 @@ import { listStates } from './list-states'
 import { listTeams } from './list-teams'
 import { listUsers } from './list-users'
 import { markAsDuplicate } from './mark-as-duplicate'
-import { getOrCreateConversation } from './proactive-conversation'
+import { getOrCreateIssueConversation } from './proactive-conversation'
 import { resolveComment } from './resolve-comment'
 import { sendRawGraphqlQuery } from './send-raw-graphql-query'
 import { updateIssue } from './update-issue'
@@ -28,5 +28,5 @@ export default {
   deleteIssue,
   sendRawGraphqlQuery,
   resolveComment,
-  getOrCreateConversation,
+  getOrCreateIssueConversation,
 } satisfies Partial<bp.IntegrationProps['actions']>

@@ -58,6 +58,7 @@ export default new IntegrationDefinition({
   }))
   .extend(proactiveConversation, ({ entities }) => ({
     entities: {
-      conversation: entities.issue,
+      conversation: entities.issueConversation,
     },
+    actions: { getOrCreateConversation: { name: 'getOrCreateIssueConversation' } },
   }))

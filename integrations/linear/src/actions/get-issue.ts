@@ -16,7 +16,6 @@ export const getIssueFields = (issue: Issue): z.infer<typeof issueSchema> => ({
   url: issue.url,
   createdAt: issue.createdAt.toISOString(),
   updatedAt: issue.updatedAt.toISOString(),
-  creatorId: issue.creatorId,
 })
 
 export const getIssue: bp.IntegrationProps['actions']['getIssue'] = async (args) => {
