@@ -19,7 +19,7 @@ export class LinkedInBaseApi {
     this.accessToken = accessToken
   }
 
-  protected async request(path: string, options: RequestOptions = {}): Promise<Response> {
+  private async _fetch(path: string, options: RequestOptions = {}): Promise<Response> {
     const { method = 'GET', body, headers = {} } = options
 
     const url = `${this.baseUrl}${path}`
@@ -39,7 +39,13 @@ export class LinkedInBaseApi {
     return response
   }
 
-  protected async requestWithErrorHandling(
+  /**
+   * Makes an HTTP request with automatic exponential retry logic for rate limits and custom error handling.
+   *
+   * @param successStatuses - Additional HTTP status codes to treat as successful (beyond the default 200-299 range).
+   *                          Useful when APIs use non-2xx codes like 201 (Created) or 204 (No Content) to indicate success.
+   */
+  protected async fetchWithErrorHandling(
     path: string,
     options: RequestOptions,
     errorContext: string,
@@ -48,7 +54,7 @@ export class LinkedInBaseApi {
     const maxRetries = 3
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const response = await this.request(path, options)
+      const response = await this._fetch(path, options)
 
       if (response.status === 429) {
         if (attempt === maxRetries) {

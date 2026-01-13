@@ -69,9 +69,3 @@ To set up the LinkedIn integration manually, you must create a LinkedIn applicat
 3. Enter the **authorization code** you obtained in the previous step.
    > The authorization code is only valid for a short period of time. If the code has expired, you will need to repeat the authorization steps to obtain a new code.
 4. Save the configuration and enable the integration.
-
-## Limitations
-
-This is an early version of the LinkedIn integration with limited functionality. Standard LinkedIn API limitations apply, including rate limits and API restrictions imposed by LinkedIn. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
-
-More details are available in the [LinkedIn API documentation](https://learn.microsoft.com/en-us/linkedin/shared/api-guide/concepts/rate-limits).

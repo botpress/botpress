@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/linkedin",
-  "integrationName": "simonayotte/linkedin",
+  "integrationName": "linkedin",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit"

@@ -50,7 +50,7 @@ export class PostsApi extends LinkedInBaseApi {
       }
     }
 
-    const response = await this.requestWithErrorHandling(
+    const response = await this.fetchWithErrorHandling(
       '/posts',
       {
         method: 'POST',
@@ -83,7 +83,7 @@ export class PostsApi extends LinkedInBaseApi {
   public async deletePost(postUrn: string): Promise<void> {
     const encodedUrn = encodeURIComponent(postUrn)
 
-    await this.requestWithErrorHandling(
+    await this.fetchWithErrorHandling(
       `/posts/${encodedUrn}`,
       { method: 'DELETE' },
       'Failed to delete LinkedIn post',
@@ -131,7 +131,7 @@ export class PostsApi extends LinkedInBaseApi {
   }
 
   private async _initializeImageUpload(authorUrn: string): Promise<{ uploadUrl: string; imageUrn: string }> {
-    const response = await this.requestWithErrorHandling(
+    const response = await this.fetchWithErrorHandling(
       '/images?action=initializeUpload',
       {
         method: 'POST',

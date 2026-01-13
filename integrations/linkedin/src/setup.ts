@@ -36,7 +36,4 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   }
 }
 
-export const unregister: bp.IntegrationProps['unregister'] = async ({ logger }) => {
-  logger.forBot().debug('Unregistering LinkedIn integration')
-  // No cleanup needed for Phase 1
-}
+export const unregister: bp.IntegrationProps['unregister'] = async ({}) => {}

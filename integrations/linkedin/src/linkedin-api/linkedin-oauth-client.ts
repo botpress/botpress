@@ -37,10 +37,6 @@ type LinkedInErrorResponse = {
   status: number
 }
 
-/**
- * Extracts LinkedIn-specific debugging headers from API responses.
- * These headers are useful for troubleshooting issues with LinkedIn support.
- */
 export function extractLinkedInHeaders(response: Response): Record<string, string> {
   return {
     'x-li-uuid': response.headers.get('x-li-uuid') ?? 'N/A',
@@ -134,10 +130,6 @@ export class LinkedInOAuthClient {
     })
   }
 
-  /**
-   * Load existing OAuth client from stored state.
-   * Resolves client credentials from ctx.configuration (manual) or Botpress secrets (automatic).
-   */
   public static async createFromState({
     client,
     ctx,
