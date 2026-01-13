@@ -35,7 +35,7 @@ export const handleGithubIssueOpened: bp.EventHandlers['github:issueOpened'] = a
   await linear
     .createComment({
       body: comment,
-      issue: { ...linearResponse.output.issue },
+      issueId: linearResponse.output.issue.id,
       botId: props.ctx.botId,
     })
     .catch(_handleError('trying to create a comment on the Linear issue created from GitHub'))

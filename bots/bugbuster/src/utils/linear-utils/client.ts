@@ -113,28 +113,12 @@ export class LinearApi {
     await Promise.all(promises)
   }
 
-  public async createComment(props: {
-    body: string
-    issue: {
-      createdAt: string
-      id: string
-      identifier: string
-      number: number
-      priority: number
-      title: string
-      updatedAt: string
-      url: string
-      creatorId?: string
-      description?: string
-      estimate?: number
-    }
-    botId: string
-  }): Promise<void> {
-    const { body, issue, botId } = props
+  public async createComment(props: { body: string; issueId: string; botId: string }): Promise<void> {
+    const { body, issueId, botId } = props
     const conversation = await this._bpClient.callAction({
-      type: 'linear:getOrCreateConversation',
+      type: 'linear:getOrCreateIssueConversation',
       input: {
-        conversation: issue,
+        conversation: { id: issueId },
       },
     })
 

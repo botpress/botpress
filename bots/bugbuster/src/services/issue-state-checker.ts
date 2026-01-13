@@ -26,12 +26,7 @@ export class IssueStateChecker {
 
       for (const issue of issues) {
         await this._linear.createComment({
-          issue: {
-            ...issue,
-            creatorId: issue.creator?.id,
-            description: issue.description ?? undefined,
-            estimate: issue.estimate ?? undefined,
-          },
+          issueId: issue.id,
           botId: this._botId,
           body: stateAttributes.warningComment,
         })

@@ -74,12 +74,7 @@ export class IssueProcessor {
     this._logger.warn(warningMessage)
 
     await this._linear.createComment({
-      issue: {
-        ...issue,
-        creatorId: issue.creator?.id,
-        description: issue.description ?? undefined,
-        estimate: issue.estimate ?? undefined,
-      },
+      issueId: issue.id,
       botId: this._botId,
       body: [
         `BugBuster Bot found the following problems with ${issue.identifier}:`,
