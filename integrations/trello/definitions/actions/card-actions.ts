@@ -147,8 +147,12 @@ export const updateCard = {
           .optional()
           .title('List ID')
           .describe('Unique identifier of the list in which the card will be moved to'),
+        /** Note: The validation for "verticalPosition" must be done in the action
+         *   implementation, since studio does not support union types in inputs yet
+         *   and the JSON schema generation does not support zod runtime validation
+         *   like "refine" (at the time of writing, 2026-01-13). */
         verticalPosition: z
-          .union([z.literal('top'), z.literal('bottom'), z.number()])
+          .string()
           .optional()
           .title('Vertical Position')
           .describe(

@@ -1,4 +1,6 @@
+import { z, RuntimeError } from '@botpress/sdk'
 import { nameCompare } from '../string-utils'
+import { CardPosition } from '../trello-api'
 import { printActionTriggeredMsg, getTools } from './helpers'
 import { moveCardVertically } from './move-card-helpers'
 import * as bp from '.botpress'
@@ -52,6 +54,18 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
   return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
 }
 
+const _verticalPositionSchema = z.union([z.literal('top'), z.literal('bottom'), z.number()]).optional()
+const _validateVerticalPosition = (verticalPosition: string | undefined): CardPosition | undefined => {
+  const result = _verticalPositionSchema.safeParse(verticalPosition?.toLowerCase().trim())
+  if (!result.success) {
+    throw new RuntimeError(
+      `Invalid verticalPosition value. It must be either "top", "bottom", or a float. -> ${result.error.message}`
+    )
+  }
+
+  return result.data
+}
+
 export const updateCard: bp.Integration['actions']['updateCard'] = async (props) => {
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)
@@ -85,7 +99,7 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
       memberIds: card.memberIds
         .concat(memberIdsToAdd ?? [])
         .filter((memberId) => !memberIdsToRemove?.includes(memberId)),
-      verticalPosition,
+      verticalPosition: _validateVerticalPosition(verticalPosition),
     },
   })
 
