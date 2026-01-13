@@ -1,5 +1,4 @@
 import { getAllBoards, getBoardsByDisplayName, getBoardById } from './board-actions'
-import { boardList, boardRead } from './board-interface-actions'
 import {
   getCardsInList,
   getCardsByDisplayName,
@@ -9,18 +8,16 @@ import {
   moveCardToList,
   moveCardUp,
   moveCardDown,
+  deleteCard,
 } from './card-actions'
 import { addCardComment } from './card-comment-actions'
-import { cardList, cardRead, cardCreate, cardUpdate, cardDelete } from './card-interface-actions'
 import { getListsInBoard, getListsByDisplayName, getListById } from './list-actions'
-import { listList, listRead } from './list-interface-actions'
 import {
   getAllBoardMembers,
   getAllCardMembers,
   getMemberByIdOrUsername,
   getBoardMembersByDisplayName,
 } from './member-actions'
-import { boardMemberList, boardMemberRead, cardMemberList, cardMemberRead } from './member-interface-actions'
 import * as bp from '.botpress'
 
 export const actions = {
@@ -38,6 +35,7 @@ export const actions = {
   getCardsInList,
   createCard,
   updateCard,
+  deleteCard,
   addCardComment,
   moveCardUp,
   moveCardDown,
@@ -47,21 +45,4 @@ export const actions = {
   getBoardMembersByDisplayName,
   getAllBoardMembers,
   getAllCardMembers,
-  // === Interface Board Actions ===
-  boardList,
-  boardRead,
-  // === Interface List Actions ===
-  listList,
-  listRead,
-  // === Interface Card Actions ===
-  cardList,
-  cardRead,
-  cardCreate,
-  cardUpdate,
-  cardDelete,
-  // === Interface Member Actions ===
-  boardMemberList,
-  boardMemberRead,
-  cardMemberList,
-  cardMemberRead,
 } as const satisfies bp.IntegrationProps['actions']

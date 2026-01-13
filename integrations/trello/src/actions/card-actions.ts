@@ -1,4 +1,6 @@
+import { z, RuntimeError } from '@botpress/sdk'
 import { nameCompare } from '../string-utils'
+import { CardPosition } from '../trello-api'
 import { printActionTriggeredMsg, getTools } from './helpers'
 import { moveCardVertically } from './move-card-helpers'
 import * as bp from '.botpress'
@@ -36,12 +38,32 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)
 
-  const { listId, cardName, cardBody, members, labels, dueDate } = props.input
+  const { listId, cardName, cardBody, memberIds, labelIds, dueDate, completionStatus } = props.input
   const newCard = await trelloClient.createCard({
-    card: { name: cardName, description: cardBody ?? '', listId, memberIds: members, labelIds: labels, dueDate },
+    card: {
+      name: cardName,
+      description: cardBody ?? '',
+      listId,
+      memberIds,
+      labelIds,
+      dueDate,
+      isCompleted: completionStatus === 'Complete',
+    },
   })
 
   return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
+}
+
+const _verticalPositionSchema = z.union([z.literal('top'), z.literal('bottom'), z.coerce.number()]).optional()
+const _validateVerticalPosition = (verticalPosition: string | undefined): CardPosition | undefined => {
+  const result = _verticalPositionSchema.safeParse(verticalPosition?.toLowerCase().trim())
+  if (!result.success) {
+    throw new RuntimeError(
+      `Invalid verticalPosition value. It must be either "top", "bottom", or a float. -> ${result.error.message}`
+    )
+  }
+
+  return result.data
 }
 
 export const updateCard: bp.Integration['actions']['updateCard'] = async (props) => {
@@ -49,33 +71,59 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
   const { trelloClient } = getTools(props)
 
   const {
-    bodyText,
     cardId,
-    closedState,
-    completeState,
+    listId,
+    cardName,
+    cardBody,
+    lifecycleStatus,
+    completionStatus,
     dueDate,
-    labelsToAdd,
-    labelsToRemove,
-    membersToAdd,
-    membersToRemove,
-    name,
+    labelIdsToAdd,
+    labelIdsToRemove,
+    memberIdsToAdd,
+    memberIdsToRemove,
+    verticalPosition,
   } = props.input
 
   const card = await trelloClient.getCardById({ cardId })
   await trelloClient.updateCard({
     partialCard: {
       id: cardId,
-      name,
-      description: bodyText,
-      isClosed: closedState === 'archived',
-      isCompleted: completeState === 'complete',
+      listId,
+      name: cardName,
+      description: cardBody,
+      isClosed: lifecycleStatus ? lifecycleStatus === 'Archived' : undefined,
+      isCompleted: completionStatus ? completionStatus === 'Complete' : undefined,
       dueDate,
-      labelIds: card.labelIds.concat(labelsToAdd ?? []).filter((labelId) => !labelsToRemove?.includes(labelId)),
-      memberIds: card.memberIds.concat(membersToAdd ?? []).filter((memberId) => !membersToRemove?.includes(memberId)),
+      labelIds: card.labelIds.concat(labelIdsToAdd ?? []).filter((labelId) => !labelIdsToRemove?.includes(labelId)),
+      memberIds: card.memberIds
+        .concat(memberIdsToAdd ?? [])
+        .filter((memberId) => !memberIdsToRemove?.includes(memberId)),
+      verticalPosition: _validateVerticalPosition(verticalPosition),
     },
   })
 
   return { message: 'Card updated successfully.' }
+}
+
+export const deleteCard: bp.Integration['actions']['deleteCard'] = async (props) => {
+  printActionTriggeredMsg(props)
+  const { trelloClient } = getTools(props)
+
+  const { cardId, hardDelete = false } = props.input
+
+  if (hardDelete) {
+    await trelloClient.deleteCard(cardId)
+  } else {
+    await trelloClient.updateCard({
+      partialCard: {
+        id: cardId,
+        isClosed: true,
+      },
+    })
+  }
+
+  return {}
 }
 
 export const moveCardToList: bp.Integration['actions']['moveCardToList'] = async (props) => {
