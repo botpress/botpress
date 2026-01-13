@@ -104,8 +104,8 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to add comment to page')
-  public async addCommentToPage({ pageId, commentBody }: { pageId: string; commentBody: string }): Promise<void> {
-    void (await this._notion.comments.create({
+  public async addCommentToPage({ pageId, commentBody }: { pageId: string; commentBody: string }): Promise<{ commentId: string }> {
+    const response = await this._notion.comments.create({
       parent: { page_id: pageId },
       rich_text: [
         {
@@ -115,7 +115,8 @@ export class NotionClient {
           },
         },
       ],
-    }))
+    })
+    return { commentId: response.id }
   }
 
   @handleErrors('Failed to add comment to discussion')
@@ -125,8 +126,8 @@ export class NotionClient {
   }: {
     discussionId: string
     commentBody: string
-  }): Promise<void> {
-    void (await this._notion.comments.create({
+  }): Promise<{ commentId: string }> {
+    const response = await this._notion.comments.create({
       discussion_id: discussionId,
       rich_text: [
         {
@@ -136,7 +137,8 @@ export class NotionClient {
           },
         },
       ],
-    }))
+    })
+    return { commentId: response.id }
   }
 
   @handleErrors('Failed to update page properties')
@@ -154,16 +156,21 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to delete block')
-  public async deleteBlock({ blockId }: { blockId: string }): Promise<void> {
-    void (await this._notion.blocks.delete({ block_id: blockId }))
+  public async deleteBlock({ blockId }: { blockId: string }): Promise<{ blockId: string }> {
+    const response = await this._notion.blocks.delete({ block_id: blockId })
+    return { blockId: response.id }
   }
 
   @handleErrors('Failed to append block to page')
-  public async appendBlocksToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<void> {
-    void (await this._notion.blocks.children.append({
+  public async appendBlocksToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<{ pageId: string; blockIds: string[] }> {
+    const response = await this._notion.blocks.children.append({
       block_id: pageId,
       children: blocks,
-    }))
+    })
+    return { 
+      pageId,
+      blockIds: response.results.map((block) => block.id)
+    }
   }
 
   @handleErrors('Failed to search by title')
