@@ -64,7 +64,7 @@ const _handleCardComments = async ({
   parsedWebhookEvent: GenericWebhookEvent
   client: bp.Client
 }) => {
-  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
+  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TRELLO_EVENTS.CARD_COMMENT_ADDED) {
     return
   }
 

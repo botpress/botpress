@@ -3,28 +3,28 @@ import { boardSchema, memberSchema, trelloIdSchema } from '../schemas'
 
 export const TRELLO_EVENTS = {
   // ---- Card Events ----
-  createCard: 'createCard',
-  updateCard: 'updateCard',
-  deleteCard: 'deleteCard',
-  voteOnCard: 'voteOnCard',
+  CARD_CREATED: 'createCard',
+  CARD_UPDATED: 'updateCard',
+  CARD_DELETED: 'deleteCard',
+  VOTE_ON_CARD: 'voteOnCard',
   // ---- Card Comment Events ----
-  commentCard: 'commentCard',
-  updateComment: 'updateComment',
-  deleteComment: 'deleteComment',
+  CARD_COMMENT_ADDED: 'commentCard',
+  CARD_COMMENT_UPDATED: 'updateComment',
+  CARD_COMMENT_DELETED: 'deleteComment',
   // ---- Card Label Events ----
-  addLabelToCard: 'addLabelToCard',
-  removeLabelFromCard: 'removeLabelFromCard',
+  LABEL_ADDED_TO_CARD: 'addLabelToCard',
+  LABEL_REMOVED_FROM_CARD: 'removeLabelFromCard',
   // ---- Card Attachment Events ----
-  addAttachmentToCard: 'addAttachmentToCard',
-  deleteAttachmentFromCard: 'deleteAttachmentFromCard',
+  ATTACHMENT_ADDED_TO_CARD: 'addAttachmentToCard',
+  ATTACHMENT_REMOVED_FROM_CARD: 'deleteAttachmentFromCard',
   // ---- Checklist Events ----
-  createCheckItem: 'createCheckItem',
-  updateCheckItem: 'updateCheckItem',
-  deleteCheckItem: 'deleteCheckItem',
-  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
+  CHECKLIST_ITEM_CREATED: 'createCheckItem',
+  CHECKLIST_ITEM_UPDATED: 'updateCheckItem',
+  CHECKLIST_ITEM_DELETED: 'deleteCheckItem',
+  CHECKLIST_ITEM_STATUS_UPDATED: 'updateCheckItemStateOnCard',
   // ---- Member Events ----
-  addMemberToCard: 'addMemberToCard',
-  removeMemberFromCard: 'removeMemberFromCard',
+  MEMBER_ADDED_TO_CARD: 'addMemberToCard',
+  MEMBER_REMOVED_FROM_CARD: 'removeMemberFromCard',
 } as const
 
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
@@ -36,7 +36,7 @@ export const genericWebhookEventSchema = z.object({
     idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
     type: z
       .string()
-      .refine((e) => Reflect.ownKeys(TRELLO_EVENTS).includes(e))
+      .refine((e) => (Object.values(TRELLO_EVENTS) as string[]).includes(e))
       .title('Action Type')
       .describe('Type of the action'),
     date: z.string().datetime().describe('Date of the action'),
@@ -63,7 +63,7 @@ export const genericWebhookEventSchema = z.object({
   }),
 })
 
-export type AllSupportedEvents = keyof typeof TRELLO_EVENTS
+export type AllSupportedEvents = (typeof TRELLO_EVENTS)[keyof typeof TRELLO_EVENTS]
 export type GenericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
   action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: AllSupportedEvents }
 }
