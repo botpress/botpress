@@ -5,7 +5,7 @@ import {
   commentCardEventSchema,
   type GenericWebhookEvent,
   genericWebhookEventSchema,
-  TRELLO_EVENTS,
+  TrelloEventType,
 } from 'definitions/events'
 import { CardCommentHandler } from './handlers/card-comment'
 import * as bp from '.botpress'
@@ -64,7 +64,7 @@ const _handleCardComments = async ({
   parsedWebhookEvent: GenericWebhookEvent
   client: bp.Client
 }) => {
-  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TRELLO_EVENTS.CARD_COMMENT_ADDED) {
+  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TrelloEventType.CARD_COMMENT_ADDED) {
     return
   }
 
@@ -79,7 +79,7 @@ const _publishEventToBotpress = async ({
   parsedWebhookEvent: GenericWebhookEvent
   client: bp.Client
 }) => {
-  if (!parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, parsedWebhookEvent.action.type)) {
+  if (!parsedWebhookEvent || !Reflect.has(TrelloEventType, parsedWebhookEvent.action.type)) {
     return
   }
 

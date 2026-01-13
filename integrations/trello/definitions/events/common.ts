@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, memberSchema, trelloIdSchema } from '../schemas'
 
-export enum TRELLO_EVENTS {
+export enum TrelloEventType {
   // ---- Card Events ----
   CARD_CREATED = 'createCard',
   CARD_UPDATED = 'updateCard',
@@ -34,7 +34,7 @@ export const genericWebhookEventSchema = z.object({
   action: z.object({
     id: trelloIdSchema.title('Action ID').describe('Unique identifier of the action'),
     idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
-    type: z.nativeEnum(TRELLO_EVENTS).title('Action Type').describe('Type of the action'),
+    type: z.nativeEnum(TrelloEventType).title('Action Type').describe('Type of the action'),
     date: z.string().datetime().describe('Date of the action'),
     data: z.any(),
     memberCreator: z
@@ -59,7 +59,7 @@ export const genericWebhookEventSchema = z.object({
   }),
 })
 
-export type AllSupportedEvents = (typeof TRELLO_EVENTS)[keyof typeof TRELLO_EVENTS]
+export type AllSupportedEvents = (typeof TrelloEventType)[keyof typeof TrelloEventType]
 export type GenericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
   action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: AllSupportedEvents }
 }
