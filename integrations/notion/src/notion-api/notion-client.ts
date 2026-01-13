@@ -104,7 +104,13 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to add comment to page')
-  public async addCommentToPage({ pageId, commentBody }: { pageId: string; commentBody: string }): Promise<{ commentId: string }> {
+  public async addCommentToPage({
+    pageId,
+    commentBody,
+  }: {
+    pageId: string
+    commentBody: string
+  }): Promise<{ commentId: string }> {
     const response = await this._notion.comments.create({
       parent: { page_id: pageId },
       rich_text: [
@@ -162,14 +168,20 @@ export class NotionClient {
   }
 
   @handleErrors('Failed to append block to page')
-  public async appendBlocksToPage({ pageId, blocks }: { pageId: string; blocks: BlockObjectRequest[] }): Promise<{ pageId: string; blockIds: string[] }> {
+  public async appendBlocksToPage({
+    pageId,
+    blocks,
+  }: {
+    pageId: string
+    blocks: BlockObjectRequest[]
+  }): Promise<{ pageId: string; blockIds: string[] }> {
     const response = await this._notion.blocks.children.append({
       block_id: pageId,
       children: blocks,
     })
-    return { 
+    return {
       pageId,
-      blockIds: response.results.map((block) => block.id)
+      blockIds: response.results.map((block) => block.id),
     }
   }
 
