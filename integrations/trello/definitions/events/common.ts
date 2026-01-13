@@ -2,23 +2,29 @@ import { z } from '@botpress/sdk'
 import { boardSchema, memberSchema, trelloIdSchema } from '../schemas'
 
 export const TRELLO_EVENTS = {
-  addMemberToCard: 'addMemberToCard',
-  commentCard: 'commentCard',
+  // ---- Card Events ----
   createCard: 'createCard',
-  deleteCard: 'deleteCard',
-  removeMemberFromCard: 'removeMemberFromCard',
   updateCard: 'updateCard',
-  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
-  addLabelToCard: 'addLabelToCard',
-  createCheckItem: 'createCheckItem',
-  deleteCheckItem: 'deleteCheckItem',
-  deleteComment: 'deleteComment',
-  removeLabelFromCard: 'removeLabelFromCard',
-  updateCheckItem: 'updateCheckItem',
-  updateComment: 'updateComment',
+  deleteCard: 'deleteCard',
   voteOnCard: 'voteOnCard',
+  // ---- Card Comment Events ----
+  commentCard: 'commentCard',
+  updateComment: 'updateComment',
+  deleteComment: 'deleteComment',
+  // ---- Card Label Events ----
+  addLabelToCard: 'addLabelToCard',
+  removeLabelFromCard: 'removeLabelFromCard',
+  // ---- Card Attachment Events ----
   addAttachmentToCard: 'addAttachmentToCard',
   deleteAttachmentFromCard: 'deleteAttachmentFromCard',
+  // ---- Checklist Events ----
+  createCheckItem: 'createCheckItem',
+  updateCheckItem: 'updateCheckItem',
+  deleteCheckItem: 'deleteCheckItem',
+  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
+  // ---- Member Events ----
+  addMemberToCard: 'addMemberToCard',
+  removeMemberFromCard: 'removeMemberFromCard',
 } as const
 
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
