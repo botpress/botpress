@@ -101,10 +101,15 @@ export const actions = {
     output: {
       schema: sdk.z.object({
         object: sdk.z.string().optional().title('Database Object').describe('The type of object returned'),
-        dataSources: sdk.z.array(sdk.z.object({
-          id: sdk.z.string().title('Data Source ID').describe('The ID of the data source'),
-          name: sdk.z.string().title('Data Source Name').describe('The name of the data source'),
-        })).title('Data Sources').describe('List of data sources in the database'),
+        dataSources: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().title('Data Source ID').describe('The ID of the data source'),
+              name: sdk.z.string().title('Data Source Name').describe('The name of the data source'),
+            })
+          )
+          .title('Data Sources')
+          .describe('List of data sources in the database'),
       }),
     },
   },
