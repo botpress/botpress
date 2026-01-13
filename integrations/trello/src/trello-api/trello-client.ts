@@ -107,6 +107,17 @@ export class TrelloClient {
     return ResponseMapping.mapCard(updatedCard)
   }
 
+  /** Hard deletes a Trello card.
+   *
+   *  @remark For soft deletion use "updateCard" with "isClosed" as true */
+  public async deleteCard(cardId: Card['id']): Promise<void> {
+    await this._trelloJs.cards
+      .deleteCard({
+        id: cardId,
+      })
+      .catch(_useHandleCaughtError('Failed to delete card'))
+  }
+
   public async getListById({ listId }: { listId: List['id'] }): Promise<List> {
     const list = await this._trelloJs.lists
       .getList<TrelloJsModels.List>({
