@@ -305,7 +305,12 @@ export class NotionClient {
   public async getDatabase({ databaseId }: { databaseId: string }) {
     const db = await this._notion.databases.retrieve({ database_id: databaseId })
 
-    return 'parent' in db ? db : undefined
+    return 'parent' in db
+      ? {
+          object: db.object,
+          dataSources: db.data_sources,
+        }
+      : undefined
   }
 
   @handleErrors('Failed to enumerate data source children')

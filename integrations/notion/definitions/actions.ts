@@ -104,15 +104,16 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        object: sdk.z.string().title('Database Object').describe('A stringified representation of the database'),
-        properties: sdk.z
-          .record(sdk.z.string(), sdk.z.object({}).passthrough())
-          .title('Database Properties')
-          .describe('Schema of properties for the database as they appear in Notion'),
-        structure: sdk.z
-          .string()
-          .title('Database Structure')
-          .describe('A stringified representation of the database structure'),
+        object: sdk.z.string().optional().title('Database Object').describe('The type of object returned'),
+        dataSources: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().title('Data Source ID').describe('The ID of the data source'),
+              name: sdk.z.string().title('Data Source Name').describe('The name of the data source'),
+            })
+          )
+          .title('Data Sources')
+          .describe('List of data sources in the database'),
       }),
     },
   },
