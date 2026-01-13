@@ -67,7 +67,9 @@ export const actions = {
       }),
     },
     output: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({
+        commentId: sdk.z.string().title('Comment ID').describe('The ID of the comment that was created'),
+      }),
     },
   },
   deleteBlock: {
@@ -83,7 +85,9 @@ export const actions = {
       }),
     },
     output: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({
+        blockId: sdk.z.string().title('Block ID').describe('The ID of the block that was deleted'),
+      }),
     },
   },
   getDb: {
@@ -197,7 +201,9 @@ export const actions = {
       }),
     },
     output: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({
+        commentId: sdk.z.string().title('Comment ID').describe('The ID of the comment that was created'),
+      }),
     },
   },
   appendBlocksToPage: {
@@ -214,7 +220,10 @@ export const actions = {
       }),
     },
     output: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({
+        pageId: sdk.z.string().title('Page ID').describe('The ID of the page where blocks were appended'),
+        blockIds: sdk.z.array(sdk.z.string()).title('Block IDs').describe('The IDs of the blocks that were created'),
+      }),
     },
   },
   searchByTitle: {
