@@ -13,6 +13,7 @@ export const states = {
         .object({
           token: z.string().secret(),
           issuedAt: z.string().datetime(),
+          expiresAt: z.string().datetime().optional(),
         })
         .optional(),
       grantedScopes: z.array(z.string()),

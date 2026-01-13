@@ -23,10 +23,14 @@ type ClientCredentials = {
   clientSecret: string
 }
 
-/**
- * LinkedIn API error response structure.
- * See: https://learn.microsoft.com/en-us/linkedin/shared/api-guide/best-practices/application-development
- */
+type LinkedInTokenResponse = {
+  access_token: string
+  expires_in: number
+  refresh_token?: string
+  refresh_token_expires_in?: number
+  scope?: string
+}
+
 type LinkedInErrorResponse = {
   message: string
   serviceErrorCode: number
@@ -87,6 +91,10 @@ export class LinkedInOAuthClient {
     this._clientSecret = clientSecret
   }
 
+  /**
+   * Creates OAuth client using Botpress's official LinkedIn app credentials.
+   * Used for automatic OAuth configuration flow.
+   */
   public static async createFromAuthorizationCode({
     authorizationCode,
     client,
@@ -199,13 +207,7 @@ export class LinkedInOAuthClient {
       throw new sdk.RuntimeError(errorMsg)
     }
 
-    const tokenData = (await response.json()) as {
-      access_token: string
-      expires_in: number
-      refresh_token?: string
-      refresh_token_expires_in?: number
-      scope?: string
-    }
+    const tokenData = (await response.json()) as LinkedInTokenResponse
 
     if (!tokenData.access_token) {
       throw new sdk.RuntimeError('No access token received from LinkedIn')
@@ -214,18 +216,21 @@ export class LinkedInOAuthClient {
     const userInfo = await LinkedInOAuthClient._fetchUserInfo(tokenData.access_token)
 
     const now = new Date()
-    const expiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
+    const accessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
 
     const credentials: OAuthCredentialsPayload = {
       accessToken: {
         token: tokenData.access_token,
         issuedAt: now.toISOString(),
-        expiresAt: expiresAt.toISOString(),
+        expiresAt: accessTokenExpiresAt.toISOString(),
       },
       refreshToken: tokenData.refresh_token
         ? {
             token: tokenData.refresh_token,
             issuedAt: now.toISOString(),
+            expiresAt: tokenData.refresh_token_expires_in
+              ? new Date(now.getTime() + tokenData.refresh_token_expires_in * 1000).toISOString()
+              : undefined,
           }
         : undefined,
       grantedScopes: tokenData.scope ? tokenData.scope.split(' ') : [],
@@ -245,20 +250,31 @@ export class LinkedInOAuthClient {
   }
 
   private async _refreshTokenIfNeeded(): Promise<void> {
-    const expiresAt = new Date(this._credentials.accessToken.expiresAt)
+    const accessTokenExpiresAt = new Date(this._credentials.accessToken.expiresAt)
     const now = new Date()
     const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
 
-    if (expiresAt > fiveMinutesFromNow) {
+    if (accessTokenExpiresAt > fiveMinutesFromNow) {
       return
     }
 
     if (!this._credentials.refreshToken) {
       throw new sdk.RuntimeError(
         'LinkedIn access token has expired and no refresh token is available. ' +
-          'Please re-authorize the integration. ' +
-          '(Note: Refresh tokens are only available for Marketing Developer Platform partners.)'
+          'Please re-authorize the integration through the OAuth flow.'
       )
+    }
+
+    if (this._credentials.refreshToken.expiresAt) {
+      const refreshTokenExpiresAt = new Date(this._credentials.refreshToken.expiresAt)
+      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+      if (refreshTokenExpiresAt <= sevenDaysFromNow) {
+        throw new sdk.RuntimeError(
+          'LinkedIn refresh token has expired or will expire soon. ' +
+            'Please re-authorize the integration through the OAuth flow to obtain a new refresh token.'
+        )
+      }
     }
 
     await this._refreshAccessToken()
@@ -288,9 +304,12 @@ export class LinkedInOAuthClient {
       const headers = extractLinkedInHeaders(response)
       const errorText = await response.text()
 
+      // LinkedIn returns 400 with specific error messages when refresh token is expired/revoked/invalid
+      // This requires the user to go through the full OAuth flow again to get a new refresh token
       if (errorText.includes('expired') || errorText.includes('revoked') || errorText.includes('invalid')) {
         throw new sdk.RuntimeError(
-          'LinkedIn refresh token has expired or been revoked. Please re-authorize the integration. ' +
+          'LinkedIn refresh token has expired, been revoked, or is invalid. ' +
+            'Please re-authorize the integration through the OAuth flow to obtain a new refresh token. ' +
             `(x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
         )
       }
@@ -301,32 +320,29 @@ export class LinkedInOAuthClient {
       )
     }
 
-    const tokenData = (await response.json()) as {
-      access_token: string
-      expires_in: number
-      refresh_token?: string
-      refresh_token_expires_in?: number
-      scope?: string
-    }
+    const tokenData = (await response.json()) as LinkedInTokenResponse
 
     if (!tokenData.access_token) {
       throw new sdk.RuntimeError('No access token received from LinkedIn during refresh')
     }
 
     const now = new Date()
-    const newExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
+    const newAccessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
 
     this._credentials = {
       ...this._credentials,
       accessToken: {
         token: tokenData.access_token,
         issuedAt: now.toISOString(),
-        expiresAt: newExpiresAt.toISOString(),
+        expiresAt: newAccessTokenExpiresAt.toISOString(),
       },
       refreshToken: tokenData.refresh_token
         ? {
             token: tokenData.refresh_token,
             issuedAt: this._credentials.refreshToken?.issuedAt ?? now.toISOString(),
+            expiresAt: tokenData.refresh_token_expires_in
+              ? new Date(now.getTime() + tokenData.refresh_token_expires_in * 1000).toISOString()
+              : this._credentials.refreshToken?.expiresAt,
           }
         : this._credentials.refreshToken,
       grantedScopes: tokenData.scope ? tokenData.scope.split(' ') : this._credentials.grantedScopes,
