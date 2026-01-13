@@ -1,15 +1,13 @@
+import { RuntimeError } from '@botpress/sdk'
 import { wrapAction } from '../action-wrapper'
 
 export const getDb = wrapAction(
   { actionName: 'getDb', errorMessage: 'Failed to fetch database' },
   async ({ notionClient }, { databaseId }) => {
-    const result = await notionClient.getDbWithStructure({ databaseId })
-
-    // Ensure we have properties field for the output type
-    if (!('properties' in result)) {
-      throw new Error('Data source does not have properties')
+    const database = await notionClient.getDatabase({ databaseId })
+    if (!database) {
+      throw new RuntimeError(`Database with ID ${databaseId} not found`)
     }
-
-    return result
+    return database
   }
 )
