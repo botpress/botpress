@@ -7,26 +7,32 @@ import * as bp from '.botpress'
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, logger } = props
 
-  if (req.path.startsWith('/oauth')) {
-    return handleOAuthCallback(props)
-  }
-
-  if (isWebhookChallenge(req)) {
-    return handleWebhookChallenge(props)
-  }
-
-  if (req.method === 'POST') {
-    const isValid = verifyLinkedInWebhook(props)
-    if (!isValid) {
-      logger.forBot().error('Webhook signature verification failed')
-      return { status: 200 }
+  try {
+    if (req.path.startsWith('/oauth')) {
+      return await handleOAuthCallback(props)
     }
 
-    return await dispatchWebhookEvent(props)
-  }
+    if (isWebhookChallenge(req)) {
+      return handleWebhookChallenge(props)
+    }
 
-  logger.forBot().warn(`Unhandled request: ${req.method} ${req.path}`)
-  return { status: 404 }
+    if (req.method === 'POST') {
+      const isValid = verifyLinkedInWebhook(props)
+      if (!isValid) {
+        logger.forBot().error('Webhook signature verification failed')
+        return { status: 403 }
+      }
+
+      return await dispatchWebhookEvent(props)
+    }
+
+    logger.forBot().warn(`Unhandled request: ${req.method} ${req.path}`)
+    return { status: 404 }
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown.message : String(thrown)
+    logger.forBot().error(`LinkedIn handler failed with error: ${error}`)
+    throw thrown
+  }
 }
 
 const isWebhookChallenge = (req: bp.HandlerProps['req']): boolean => {
@@ -79,6 +85,7 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
     authorizationCode,
     client,
     ctx,
+    logger,
   })
 
   const linkedInUserId = oauthClient.getUserId()
@@ -90,4 +97,6 @@ const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps
   await client.configureIntegration({
     identifier: linkedInUserId,
   })
+
+  return { status: 200 }
 }

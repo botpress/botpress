@@ -17,6 +17,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
         clientSecret,
         client,
         ctx,
+        logger,
       })
 
       const linkedInUserId = oauthClient.getUserId()

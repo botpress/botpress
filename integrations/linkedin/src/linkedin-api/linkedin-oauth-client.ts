@@ -1,5 +1,11 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
+import {
+  linkedInErrorResponseSchema,
+  linkedInTokenResponseSchema,
+  userInfoSchema,
+  type UserInfo,
+} from './schemas'
 
 const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
@@ -8,33 +14,9 @@ const BOTPRESS_LINKEDIN_CLIENT_ID = '7831bmd1a7lfnj'
 
 type OAuthCredentialsPayload = bp.states.oauthCredentials.OauthCredentials['payload']
 
-type UserInfo = {
-  sub: string
-  name?: string
-  given_name?: string
-  family_name?: string
-  picture?: string
-  email?: string
-  email_verified?: boolean
-}
-
 type ClientCredentials = {
   clientId: string
   clientSecret: string
-}
-
-type LinkedInTokenResponse = {
-  access_token: string
-  expires_in: number
-  refresh_token?: string
-  refresh_token_expires_in?: number
-  scope?: string
-}
-
-type LinkedInErrorResponse = {
-  message: string
-  serviceErrorCode: number
-  status: number
 }
 
 export function extractLinkedInHeaders(response: Response): Record<string, string> {
@@ -51,8 +33,13 @@ export async function formatLinkedInError(response: Response, action: string): P
 
   let errorMessage: string
   try {
-    const errorData = (await responseClone.json()) as LinkedInErrorResponse
-    errorMessage = `${errorData.message} (serviceErrorCode: ${errorData.serviceErrorCode})`
+    const parseResult = linkedInErrorResponseSchema.safeParse(await responseClone.json())
+    if (parseResult.success) {
+      const errorData = parseResult.data
+      errorMessage = `${errorData.message ?? 'Unknown error'} (serviceErrorCode: ${errorData.serviceErrorCode ?? 'N/A'})`
+    } else {
+      errorMessage = await response.text()
+    }
   } catch {
     errorMessage = await response.text()
   }
@@ -66,6 +53,7 @@ export class LinkedInOAuthClient {
   private _ctx: bp.Context
   private _clientId: string
   private _clientSecret: string
+  private _logger: bp.Logger
 
   private constructor({
     credentials,
@@ -73,18 +61,21 @@ export class LinkedInOAuthClient {
     ctx,
     clientId,
     clientSecret,
+    logger,
   }: {
     credentials: OAuthCredentialsPayload
     client: bp.Client
     ctx: bp.Context
     clientId: string
     clientSecret: string
+    logger: bp.Logger
   }) {
     this._credentials = credentials
     this._client = client
     this._ctx = ctx
     this._clientId = clientId
     this._clientSecret = clientSecret
+    this._logger = logger
   }
 
   /**
@@ -95,10 +86,12 @@ export class LinkedInOAuthClient {
     authorizationCode,
     client,
     ctx,
+    logger,
   }: {
     authorizationCode: string
     client: bp.Client
     ctx: bp.Context
+    logger: bp.Logger
   }): Promise<LinkedInOAuthClient> {
     const clientCredentials = LinkedInOAuthClient._getBotpressClientCredentials()
     return LinkedInOAuthClient._exchangeCodeForTokens({
@@ -106,6 +99,7 @@ export class LinkedInOAuthClient {
       clientCredentials,
       client,
       ctx,
+      logger,
     })
   }
 
@@ -115,27 +109,32 @@ export class LinkedInOAuthClient {
     clientSecret,
     client,
     ctx,
+    logger,
   }: {
     authorizationCode: string
     clientId: string
     clientSecret: string
     client: bp.Client
     ctx: bp.Context
+    logger: bp.Logger
   }): Promise<LinkedInOAuthClient> {
     return LinkedInOAuthClient._exchangeCodeForTokens({
       authorizationCode,
       clientCredentials: { clientId, clientSecret },
       client,
       ctx,
+      logger,
     })
   }
 
   public static async createFromState({
     client,
     ctx,
+    logger,
   }: {
     client: bp.Client
     ctx: bp.Context
+    logger: bp.Logger
   }): Promise<LinkedInOAuthClient> {
     const { state } = await client.getState({
       type: 'integration',
@@ -151,6 +150,7 @@ export class LinkedInOAuthClient {
       ctx,
       clientId: clientCredentials.clientId,
       clientSecret: clientCredentials.clientSecret,
+      logger,
     })
   }
 
@@ -172,12 +172,16 @@ export class LinkedInOAuthClient {
     clientCredentials,
     client,
     ctx,
+    logger,
   }: {
     authorizationCode: string
     clientCredentials: ClientCredentials
     client: bp.Client
     ctx: bp.Context
+    logger: bp.Logger
   }): Promise<LinkedInOAuthClient> {
+    logger.forBot().debug('Exchanging authorization code for LinkedIn tokens')
+
     const params = new URLSearchParams({
       grant_type: 'authorization_code',
       code: authorizationCode,
@@ -196,16 +200,17 @@ export class LinkedInOAuthClient {
 
     if (!response.ok) {
       const errorMsg = await formatLinkedInError(response, 'Failed to exchange authorization code')
+      logger.forBot().error('Failed to exchange authorization code for LinkedIn tokens', {
+        status: response.status,
+      })
       throw new sdk.RuntimeError(errorMsg)
     }
 
-    const tokenData = (await response.json()) as LinkedInTokenResponse
+    const tokenData = linkedInTokenResponseSchema.parse(await response.json())
+    logger.forBot().debug('Successfully obtained LinkedIn tokens')
 
-    if (!tokenData.access_token) {
-      throw new sdk.RuntimeError('No access token received from LinkedIn')
-    }
-
-    const userInfo = await LinkedInOAuthClient._fetchUserInfo(tokenData.access_token)
+    logger.forBot().debug('Fetching LinkedIn user info')
+    const userInfo = await LinkedInOAuthClient._fetchUserInfo(tokenData.access_token, logger)
 
     const now = new Date()
     const accessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
@@ -235,8 +240,11 @@ export class LinkedInOAuthClient {
       ctx,
       clientId: clientCredentials.clientId,
       clientSecret: clientCredentials.clientSecret,
+      logger,
     })
     await oauthClient._saveCredentials()
+
+    logger.forBot().debug('LinkedIn OAuth credentials saved successfully')
 
     return oauthClient
   }
@@ -250,7 +258,10 @@ export class LinkedInOAuthClient {
       return
     }
 
+    this._logger.forBot().debug('LinkedIn access token expired or expiring soon, refreshing')
+
     if (!this._credentials.refreshToken) {
+      this._logger.forBot().error('LinkedIn access token expired but no refresh token available')
       throw new sdk.RuntimeError(
         'LinkedIn access token has expired and no refresh token is available. ' +
           'Please re-authorize the integration through the OAuth flow.'
@@ -262,6 +273,7 @@ export class LinkedInOAuthClient {
       const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
       if (refreshTokenExpiresAt <= sevenDaysFromNow) {
+        this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
         throw new sdk.RuntimeError(
           'LinkedIn refresh token has expired or will expire soon. ' +
             'Please re-authorize the integration through the OAuth flow to obtain a new refresh token.'
@@ -276,6 +288,8 @@ export class LinkedInOAuthClient {
     if (!this._credentials.refreshToken) {
       throw new sdk.RuntimeError('No refresh token available')
     }
+
+    this._logger.forBot().debug('Refreshing LinkedIn access token')
 
     const params = new URLSearchParams({
       grant_type: 'refresh_token',
@@ -299,6 +313,10 @@ export class LinkedInOAuthClient {
       // LinkedIn returns 400 with specific error messages when refresh token is expired/revoked/invalid
       // This requires the user to go through the full OAuth flow again to get a new refresh token
       if (errorText.includes('expired') || errorText.includes('revoked') || errorText.includes('invalid')) {
+        this._logger.forBot().error('LinkedIn refresh token is expired, revoked, or invalid', {
+          status: response.status,
+          ...headers,
+        })
         throw new sdk.RuntimeError(
           'LinkedIn refresh token has expired, been revoked, or is invalid. ' +
             'Please re-authorize the integration through the OAuth flow to obtain a new refresh token. ' +
@@ -306,17 +324,17 @@ export class LinkedInOAuthClient {
         )
       }
 
+      this._logger.forBot().error('Failed to refresh LinkedIn access token', {
+        status: response.status,
+        ...headers,
+      })
       throw new sdk.RuntimeError(
         `Failed to refresh LinkedIn access token: ${errorText} ` +
           `(x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
       )
     }
 
-    const tokenData = (await response.json()) as LinkedInTokenResponse
-
-    if (!tokenData.access_token) {
-      throw new sdk.RuntimeError('No access token received from LinkedIn during refresh')
-    }
+    const tokenData = linkedInTokenResponseSchema.parse(await response.json())
 
     const now = new Date()
     const newAccessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
@@ -341,6 +359,7 @@ export class LinkedInOAuthClient {
     }
 
     await this._saveCredentials()
+    this._logger.forBot().debug('LinkedIn access token refreshed successfully')
   }
 
   private async _saveCredentials(): Promise<void> {
@@ -352,7 +371,7 @@ export class LinkedInOAuthClient {
     })
   }
 
-  private static async _fetchUserInfo(accessToken: string): Promise<UserInfo> {
+  private static async _fetchUserInfo(accessToken: string, logger: bp.Logger): Promise<UserInfo> {
     const response = await fetch(LINKEDIN_USERINFO_URL, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -361,10 +380,12 @@ export class LinkedInOAuthClient {
 
     if (!response.ok) {
       const errorMsg = await formatLinkedInError(response, 'Failed to fetch LinkedIn user info')
+      logger.forBot().error('Failed to fetch LinkedIn user info', { status: response.status })
       throw new sdk.RuntimeError(errorMsg)
     }
 
-    return (await response.json()) as UserInfo
+    logger.forBot().debug('Successfully fetched LinkedIn user info')
+    return userInfoSchema.parse(await response.json())
   }
 
   private static _getBotpressClientCredentials(): ClientCredentials {

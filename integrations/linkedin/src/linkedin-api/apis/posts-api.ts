@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { LinkedInBaseApi } from '../base-api'
 import { extractLinkedInHeaders } from '../linkedin-oauth-client'
+import { InitializeUploadResponse } from '../schemas'
 
 const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024 // 8MB
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
@@ -18,13 +19,6 @@ export type CreatePostParams = {
 export type CreatePostResult = {
   postUrn: string
   postUrl: string
-}
-
-type InitializeUploadResponse = {
-  value: {
-    uploadUrl: string
-    image: string
-  }
 }
 
 export class PostsApi extends LinkedInBaseApi {
@@ -92,16 +86,23 @@ export class PostsApi extends LinkedInBaseApi {
   }
 
   private async _uploadImageFromUrl(imageUrl: string, authorUrn: string): Promise<string> {
+    const startTime = Date.now()
+    this.logger.forBot().debug('Starting image upload for LinkedIn post')
+
     const imageBuffer = await this._downloadAndValidateImage(imageUrl)
+    this.logger.forBot().debug('Image downloaded and validated', { size: imageBuffer.byteLength })
+
     const { uploadUrl, imageUrn } = await this._initializeImageUpload(authorUrn)
     await this._uploadImageBinary(uploadUrl, imageBuffer)
+
+    this.logger.forBot().debug('Image upload completed', { imageUrn, duration: Date.now() - startTime })
     return imageUrn
   }
 
   private async _downloadAndValidateImage(imageUrl: string): Promise<ArrayBuffer> {
     const imageResponse = await fetch(imageUrl)
     if (!imageResponse.ok) {
-      throw new sdk.RuntimeError(`Failed to download image from URL: ${imageUrl} (status: ${imageResponse.status})`)
+      throw new sdk.RuntimeError(`Failed to download image from provided URL (status: ${imageResponse.status})`)
     }
 
     const contentType = imageResponse.headers.get('content-type')?.toLowerCase() || ''
@@ -164,6 +165,10 @@ export class PostsApi extends LinkedInBaseApi {
 
     if (!uploadResponse.ok) {
       const headers = extractLinkedInHeaders(uploadResponse)
+      this.logger.forBot().error('Failed to upload image binary to LinkedIn', {
+        status: uploadResponse.status,
+        ...headers,
+      })
       throw new sdk.RuntimeError(
         `Failed to upload image to LinkedIn (status: ${uploadResponse.status}, x-li-uuid: ${headers['x-li-uuid']})`
       )

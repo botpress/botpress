@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { formatLinkedInError } from './linkedin-oauth-client'
+import * as bp from '.botpress'
 
 const LINKEDIN_REST_BASE_URL = 'https://api.linkedin.com/rest'
 const LINKEDIN_API_VERSION = '202511'
@@ -14,9 +15,11 @@ export class LinkedInBaseApi {
   protected readonly accessToken: string
   protected readonly baseUrl = LINKEDIN_REST_BASE_URL
   protected readonly apiVersion = LINKEDIN_API_VERSION
+  protected readonly logger: bp.Logger
 
-  public constructor(accessToken: string) {
+  public constructor(accessToken: string, logger: bp.Logger) {
     this.accessToken = accessToken
+    this.logger = logger
   }
 
   private async _fetch(path: string, options: RequestOptions = {}): Promise<Response> {
@@ -52,15 +55,25 @@ export class LinkedInBaseApi {
     { successStatuses }: { successStatuses?: number[] } = {}
   ): Promise<Response> {
     const maxRetries = 3
+    const method = options.method ?? 'GET'
+    const startTime = Date.now()
+
+    this.logger.forBot().debug(`LinkedIn API request: ${method} ${path}`)
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const response = await this._fetch(path, options)
 
       if (response.status === 429) {
         if (attempt === maxRetries) {
+          this.logger.forBot().error(`LinkedIn API rate limit exceeded after ${maxRetries} retries`, { path, method })
           throw new sdk.RuntimeError(`${errorContext}: Rate limit exceeded after ${maxRetries} retries`)
         }
         const delayMs = this._getRetryDelayMs(attempt)
+        this.logger.forBot().warn(`LinkedIn API rate limited, retrying in ${Math.round(delayMs)}ms`, {
+          path,
+          attempt: attempt + 1,
+          maxRetries,
+        })
         await this._sleep(delayMs)
         continue
       }
@@ -68,8 +81,17 @@ export class LinkedInBaseApi {
       const isSuccess = response.ok || successStatuses?.includes(response.status)
       if (!isSuccess) {
         const errorMsg = await formatLinkedInError(response, errorContext)
+        this.logger.forBot().error(`LinkedIn API request failed: ${method} ${path}`, {
+          status: response.status,
+          duration: Date.now() - startTime,
+        })
         throw new sdk.RuntimeError(errorMsg)
       }
+
+      this.logger.forBot().debug(`LinkedIn API request completed: ${method} ${path}`, {
+        status: response.status,
+        duration: Date.now() - startTime,
+      })
 
       return response
     }
