@@ -1,31 +1,31 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, memberSchema, trelloIdSchema } from '../schemas'
 
-export const TRELLO_EVENTS = {
+export enum TRELLO_EVENTS {
   // ---- Card Events ----
-  CARD_CREATED: 'createCard',
-  CARD_UPDATED: 'updateCard',
-  CARD_DELETED: 'deleteCard',
-  VOTE_ON_CARD: 'voteOnCard',
+  CARD_CREATED = 'createCard',
+  CARD_UPDATED = 'updateCard',
+  CARD_DELETED = 'deleteCard',
+  VOTE_ON_CARD = 'voteOnCard',
   // ---- Card Comment Events ----
-  CARD_COMMENT_ADDED: 'commentCard',
-  CARD_COMMENT_UPDATED: 'updateComment',
-  CARD_COMMENT_DELETED: 'deleteComment',
+  CARD_COMMENT_ADDED = 'commentCard',
+  CARD_COMMENT_UPDATED = 'updateComment',
+  CARD_COMMENT_DELETED = 'deleteComment',
   // ---- Card Label Events ----
-  LABEL_ADDED_TO_CARD: 'addLabelToCard',
-  LABEL_REMOVED_FROM_CARD: 'removeLabelFromCard',
+  LABEL_ADDED_TO_CARD = 'addLabelToCard',
+  LABEL_REMOVED_FROM_CARD = 'removeLabelFromCard',
   // ---- Card Attachment Events ----
-  ATTACHMENT_ADDED_TO_CARD: 'addAttachmentToCard',
-  ATTACHMENT_REMOVED_FROM_CARD: 'deleteAttachmentFromCard',
+  ATTACHMENT_ADDED_TO_CARD = 'addAttachmentToCard',
+  ATTACHMENT_REMOVED_FROM_CARD = 'deleteAttachmentFromCard',
   // ---- Checklist Events ----
-  CHECKLIST_ITEM_CREATED: 'createCheckItem',
-  CHECKLIST_ITEM_UPDATED: 'updateCheckItem',
-  CHECKLIST_ITEM_DELETED: 'deleteCheckItem',
-  CHECKLIST_ITEM_STATUS_UPDATED: 'updateCheckItemStateOnCard',
+  CHECKLIST_ITEM_CREATED = 'createCheckItem',
+  CHECKLIST_ITEM_UPDATED = 'updateCheckItem',
+  CHECKLIST_ITEM_DELETED = 'deleteCheckItem',
+  CHECKLIST_ITEM_STATUS_UPDATED = 'updateCheckItemStateOnCard',
   // ---- Member Events ----
-  MEMBER_ADDED_TO_CARD: 'addMemberToCard',
-  MEMBER_REMOVED_FROM_CARD: 'removeMemberFromCard',
-} as const
+  MEMBER_ADDED_TO_CARD = 'addMemberToCard',
+  MEMBER_REMOVED_FROM_CARD = 'removeMemberFromCard',
+}
 
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
 export const pickIdAndName = <T extends IdAndNameSchema>(schema: T) => schema.pick({ id: true, name: true })
@@ -34,11 +34,7 @@ export const genericWebhookEventSchema = z.object({
   action: z.object({
     id: trelloIdSchema.title('Action ID').describe('Unique identifier of the action'),
     idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
-    type: z
-      .string()
-      .refine((e) => (Object.values(TRELLO_EVENTS) as string[]).includes(e))
-      .title('Action Type')
-      .describe('Type of the action'),
+    type: z.nativeEnum(TRELLO_EVENTS).title('Action Type').describe('Type of the action'),
     date: z.string().datetime().describe('Date of the action'),
     data: z.any(),
     memberCreator: z
