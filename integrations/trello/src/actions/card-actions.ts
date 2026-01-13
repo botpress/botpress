@@ -54,7 +54,7 @@ export const createCard: bp.Integration['actions']['createCard'] = async (props)
   return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
 }
 
-const _verticalPositionSchema = z.union([z.literal('top'), z.literal('bottom'), z.number()]).optional()
+const _verticalPositionSchema = z.union([z.literal('top'), z.literal('bottom'), z.coerce.number()]).optional()
 const _validateVerticalPosition = (verticalPosition: string | undefined): CardPosition | undefined => {
   const result = _verticalPositionSchema.safeParse(verticalPosition?.toLowerCase().trim())
   if (!result.success) {
