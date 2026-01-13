@@ -289,10 +289,10 @@ export class NotionClient {
     return 'parent' in db ? db : undefined
   }
 
-  @handleErrors('Failed to enumerate database children')
-  public async enumerateDatabaseChildren({ databaseId, nextToken }: { databaseId: string; nextToken?: string }) {
+  @handleErrors('Failed to enumerate data source children')
+  public async enumerateDataSourceChildren({ dataSourceId, nextToken }: { dataSourceId: string; nextToken?: string }) {
     const { next_cursor, results } = await this._notion.dataSources.query({
-      data_source_id: databaseId,
+      data_source_id: dataSourceId,
       in_trash: false,
       start_cursor: nextToken,
     })

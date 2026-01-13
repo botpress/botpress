@@ -112,6 +112,41 @@ export const actions = {
       }),
     },
   },
+  getDataSource: {
+    title: 'Get Data Source',
+    description: 'Get a data source from Notion',
+    input: {
+      schema: sdk.z.object({
+        dataSourceId: sdk.z
+          .string()
+          .min(1)
+          .title('Data Source ID')
+          .describe('The ID of the data source to fetch. Can be found in the URL of the data source'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        object: sdk.z.string().title('Data Source Object').describe('A stringified representation of the data source'),
+        properties: sdk.z
+          .record(sdk.z.string(), sdk.z.object({}).passthrough())
+          .title('Data Source Properties')
+          .describe('Schema of properties for the data source as they appear in Notion'),
+        pages: sdk.z
+          .array(
+            sdk.z.object({
+              id: sdk.z.string().title('Page ID').describe('The ID of the page'),
+              title: sdk.z.string().title('Page Title').describe('The title of the page'),
+              pageProperties: sdk.z
+                .record(sdk.z.string(), sdk.z.object({}).passthrough())
+                .title('Page Properties')
+                .describe('Schema of properties for the page as they appear in Notion'),
+            })
+          )
+          .title('Pages')
+          .describe('List of pages in the data source'),
+      }),
+    },
+  },
   getPage: {
     title: 'Get Page',
     description: 'Get a page from Notion',
