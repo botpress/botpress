@@ -90,4 +90,9 @@ export const entities = {
     description: 'A linear issue',
     schema: issueSchema,
   },
+  issueConversation: {
+    title: 'Issue Conversation',
+    description: 'A conversation representing a linear issue',
+    schema: z.object({ id: z.string().title('Issue ID').describe('The issue ID on Linear') }),
+  },
 } as const satisfies IntegrationDefinitionProps['entities']

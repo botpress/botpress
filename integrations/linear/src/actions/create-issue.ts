@@ -50,6 +50,7 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
   await client.getOrCreateConversation({
     channel: 'issue',
     tags: issueTags,
+    discriminateByTags: ['id'],
   })
 
   return {
