@@ -40,7 +40,7 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const lastHistoryId = payload.lastHistoryId ?? _fakeHistoryId(historyId)
 
   if (!payload.lastHistoryId) {
-    await client.setState({
+    await client.getOrSetState({
       type: 'integration',
       name: 'configuration',
       id: ctx.integrationId,
@@ -72,7 +72,7 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
     await _processMessage(props, messageId, googleClient, emailAddress)
   }
 
-  await client.setState({
+  await client.getOrSetState({
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
@@ -162,7 +162,7 @@ const _processMessage = async (
     payload: { text: content },
   })
 
-  await client.setState({
+  await client.getOrSetState({
     type: 'conversation',
     name: 'thread',
     id: conversation.id,

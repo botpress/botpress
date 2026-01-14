@@ -5,6 +5,38 @@ import * as bp from '.botpress'
 
 const DEFAULT_SLACK_CHANNEL = genenv.SLACKBOX_SLACK_CHANNEL
 
+let cachedSlackConversationId: string | undefined
+
+const getSlackConversationId = async (client: bp.Client, logger: bp.MessageHandlerProps['logger']): Promise<string> => {
+  if (cachedSlackConversationId) {
+    return cachedSlackConversationId
+  }
+
+  logger.info('Fetching Slack conversation ID (first time)')
+  const maxRetries = 3
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await client.callAction({
+        type: 'slack:startChannelConversation',
+        input: {
+          channelName: DEFAULT_SLACK_CHANNEL,
+        },
+      })
+      cachedSlackConversationId = response.output.conversationId
+      return cachedSlackConversationId
+    } catch (err) {
+      logger.warn(`Attempt ${attempt}/${maxRetries} failed: ${err}`)
+      if (attempt === maxRetries) {
+        throw err
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    }
+  }
+
+  throw new Error('Failed to get Slack conversation ID after retries')
+}
+
 const bot = new bp.Bot({
   actions: {},
 })
@@ -17,37 +49,7 @@ bot.on.message('*', async (props) => {
   }
 
   try {
-    const { state: slackState } = await client.getOrSetState({
-      name: 'slackConversationId',
-      type: 'bot',
-      id: ctx.botId,
-      payload: {
-        conversationId: undefined as string | undefined,
-      },
-    })
-
-    let slackConversationId = slackState.payload.conversationId
-
-    if (!slackConversationId) {
-      const response = await client.callAction({
-        type: 'slack:startChannelConversation',
-        input: {
-          channelName: DEFAULT_SLACK_CHANNEL,
-        },
-      })
-
-      slackConversationId = response.output.conversationId
-
-      await client.setState({
-        id: ctx.botId,
-        name: 'slackConversationId',
-        type: 'bot',
-        payload: {
-          conversationId: slackConversationId,
-        },
-      })
-    }
-
+    const slackConversationId = await getSlackConversationId(client, logger)
     const notificationMessage = _mapGmailToSlack(conversation, message)
 
     await client.createMessage({
