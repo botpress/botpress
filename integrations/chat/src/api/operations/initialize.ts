@@ -2,6 +2,7 @@ import { InvalidPayloadError } from 'src/gen/errors'
 import * as signals from '../../gen/signals'
 import * as msgPayload from '../message-payload'
 import * as types from '../types'
+import * as fid from './fid'
 import { Client } from '.botpress'
 
 type InitialEvent = signals.Types['initialized']
@@ -22,34 +23,47 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     throw new InvalidPayloadError('You have to set either the "x-user-key" header or the "user" body parameter.')
   }
 
+  const fidHandler = fid.handlers.initializeIncomingMessage(props, {
+    ...req,
+    auth: { userId: userId ?? '' },
+  })
+  const request = await fidHandler.mapRequest()
+
   const userRequest: { user?: User; userId?: string } = {}
-  if (req.body.user) {
-    userRequest.user = { ...req.body.user, tags: {}, discriminateByTags: [] }
-  } else {
+  if (userId) {
     userRequest.userId = userId
+  } else {
+    userRequest.user = { ...request.body.user, tags: {}, discriminateByTags: [] }
   }
 
   const conversationRequest: { conversationId?: string; conversation?: Conversation } = {}
-  if (req.body.conversationId) {
-    //in that case, look for it using fid?
-    conversationRequest.conversationId = req.body.conversationId
+  if (request.body.conversationId) {
+    conversationRequest.conversationId = request.body.conversationId
   } else {
-    conversationRequest.conversation = { channel: 'channel', tags: {}, discriminateByTags: [] }
+    conversationRequest.conversation = {
+      channel: 'channel',
+      tags: { owner: userId, fid: request.body.conversation.id },
+      discriminateByTags: [],
+    }
   }
 
   let msg: { message: Message } | undefined
-  if (req.body.message) {
+  if (request.body.message) {
     const payload = msgPayload.mapChatMessageToBotpress({
-      payload: req.body.message.payload,
-      metadata: req.body.message.metadata,
+      payload: request.body.message.payload,
+      metadata: request.body.message.metadata,
     })
     msg = { message: { ...payload, tags: {}, discriminateByTags: [] } }
   }
-
-  const initializeResponse = await props.client.initializeIncomingMessage({
+  const preparedBody = {
     ...conversationRequest,
     ...userRequest,
     ...msg,
+  }
+
+  const initializeResponse = await props.client.initializeIncomingMessage({
+    ...preparedBody,
+    user: { ...request.body.user, tags: {}, discriminateByTags: [] },
   })
 
   if (!userKey) {

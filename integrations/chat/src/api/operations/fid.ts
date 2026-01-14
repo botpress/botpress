@@ -460,10 +460,23 @@ export const handlers = {
         },
       }),
   }),
-  initializeConversation: (props: types.OperationProps, req: types.AuthenticatedInputs['initializeConversation']) => ({
+  initializeIncomingMessage: (
+    props: types.OperationProps,
+    req: types.AuthenticatedInputs['initializeIncomingMessage']
+  ) => ({
     mapRequest: async () => {
-      const authUserId = await props.userIdStore.byFid.get(req.auth.userId)
-      return merge(req, { auth: { userId: authUserId } })
+      let [authUserId, conversationId]: (string | undefined)[] = [undefined, undefined]
+      if (req.body.conversationId) conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
+      if (req.auth.userId !== '') {
+        authUserId = await props.userIdStore.byFid.get(req.auth.userId)
+      }
+
+      type InitializeIncomingReqBody = types.OperationInputs['initializeIncomingMessage']['body']
+      return merge(req, {
+        auth: { userId: authUserId },
+        ...req.body,
+        body: { conversationId } as types.DeepPartial<InitializeIncomingReqBody>,
+      })
     },
     mapResponse: async (res) => res,
   }),
