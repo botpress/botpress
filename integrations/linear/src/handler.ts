@@ -1,5 +1,5 @@
 import { Request, RuntimeError } from '@botpress/sdk'
-import { LinearWebhooks } from '@linear/sdk'
+import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
@@ -108,7 +108,7 @@ const _safeCheckWebhookSignature = ({
     return { success: false, message: 'missing signature header or request body' }
   }
 
-  const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
+  const webhookHandler = new LinearWebhookClient(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
   try {
