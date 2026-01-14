@@ -39,7 +39,7 @@ export class Cognitive {
   protected _preferences: ModelPreferences | null = null
   protected _provider: ModelProvider
   protected _downtimes: ModelPreferences['downtimes'] = []
-  protected _useBeta: boolean = false
+  protected _useLegacy: boolean = false
   protected _debug = false
 
   private _events = createNanoEvents<Events>()
@@ -49,7 +49,7 @@ export class Cognitive {
     this._provider = props.provider ?? new RemoteModelProvider(props.client)
     this._timeoutMs = props.timeout ?? this._timeoutMs
     this._maxRetries = props.maxRetries ?? this._maxRetries
-    this._useBeta = props.__experimental_beta ?? false
+    this._useLegacy = !!props.__use_legacy
   }
 
   public get client(): ExtendedClient {
@@ -63,7 +63,7 @@ export class Cognitive {
       timeout: this._timeoutMs,
       maxRetries: this._maxRetries,
       __debug: this._debug,
-      __experimental_beta: this._useBeta,
+      __use_legacy: this._useLegacy,
     })
 
     copy._models = [...this._models]
@@ -156,7 +156,7 @@ export class Cognitive {
   }
 
   public async getModelDetails(model: string): Promise<Model> {
-    if (this._useBeta) {
+    if (!this._useLegacy) {
       const resolvedModel = getCognitiveV2Model(model)
       if (resolvedModel) {
         return { ...resolvedModel, ref: resolvedModel.id as ModelRef, integration: 'cognitive-v2' }
@@ -174,7 +174,7 @@ export class Cognitive {
   }
 
   public async generateContent(input: InputProps): Promise<Response> {
-    if (!this._useBeta || !getCognitiveV2Model(input.model!)) {
+    if (this._useLegacy || !getCognitiveV2Model(input.model!)) {
       return this._generateContent(input)
     }
 

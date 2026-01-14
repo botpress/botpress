@@ -47,8 +47,8 @@ export type CognitiveProps = {
   timeout?: number
   /** Max retry attempts */
   maxRetries?: number
-  /** Whether to use the beta client. Restricted to authorized users. */
-  __experimental_beta?: boolean
+  /** Whether to use the legacy client. Defaults to false */
+  __use_legacy?: boolean
   __debug?: boolean
 }
 
