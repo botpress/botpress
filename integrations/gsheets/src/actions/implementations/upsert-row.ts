@@ -20,9 +20,9 @@ export const upsertRow = wrapAction(
     const keyColumnIndex = columnLetterToIndex(keyColumn)
     let matchingRowIndex: number | null = null
 
-    for (let i = 0; i < existingValues.length; i++) {
-      const row = existingValues[i] ?? []
-      const cellValue = row[keyColumnIndex] ?? ''
+    for (const [i, row] of existingValues.entries()) {
+      const rowValues = row ?? []
+      const cellValue = rowValues[keyColumnIndex] ?? ''
 
       if (cellValue === keyValue) {
         matchingRowIndex = i + 1
@@ -65,7 +65,7 @@ export const upsertRow = wrapAction(
 
     const updatedRange = appendResult.updates.updatedRange
     const rowMatch = updatedRange.match(/:?[A-Z]+(\d+)$/)
-    const insertedRowIndex = rowMatch ? parseInt(rowMatch[1], 10) : existingValues.length + 1
+    const insertedRowIndex = rowMatch?.[1] ? parseInt(rowMatch[1], 10) : existingValues.length + 1
 
     return {
       action: 'inserted' as const,

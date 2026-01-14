@@ -94,7 +94,9 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
       channel.teams.some((team) => result.identifier.includes(team))
     )
 
-    await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    if (relevantIssues.length > 0) {
+      await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    }
   }
 
   await workflow.setCompleted()

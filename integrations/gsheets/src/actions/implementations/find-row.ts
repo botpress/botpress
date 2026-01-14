@@ -23,16 +23,16 @@ export const findRow = wrapAction(
 
     const searchColumnIndex = columnLetterToIndex(searchColumn)
 
-    for (let i = 0; i < values.length; i++) {
-      const row = values[i] ?? []
-      const cellValue = row[searchColumnIndex] ?? ''
+    for (const [i, row] of values.entries()) {
+      const rowValues = row ?? []
+      const cellValue = rowValues[searchColumnIndex] ?? ''
 
       if (cellValue === searchValue) {
         return {
           found: true,
           row: {
             rowIndex: i + 1,
-            values: row.map(String),
+            values: rowValues.map(String),
           },
         }
       }
