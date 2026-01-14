@@ -1,11 +1,11 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, memberSchema, trelloIdSchema } from '../schemas'
-import { genericWebhookEventSchema, pickIdAndName } from './common'
+import { genericWebhookEventSchema, pickIdAndName, TrelloEventType } from './common'
 
 // Action that is triggered when a member is added to a card
 export const addMemberToCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('addMemberToCard').title('Action Type').describe('Type of the action'),
+    type: z.literal(TrelloEventType.MEMBER_ADDED_TO_CARD).title('Action Type').describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that the member was added to'),
@@ -17,7 +17,7 @@ export const addMemberToCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a member is removed from a card
 export const removeMemberFromCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('removeMemberFromCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.MEMBER_REMOVED_FROM_CARD).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),

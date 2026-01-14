@@ -1,11 +1,11 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, trelloIdSchema } from '../schemas'
-import { genericWebhookEventSchema, pickIdAndName } from './common'
+import { genericWebhookEventSchema, pickIdAndName, TrelloEventType } from './common'
 
 // Action that is triggered when a checklist is added to a card
 export const addChecklistToCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('addChecklistToCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CHECKLIST_ADDED_TO_CARD).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
@@ -23,7 +23,7 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a new item is added to a checklist
 export const createCheckItemEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('createCheckItem').title('Action Type').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CHECKLIST_ITEM_CREATED).title('Action Type').describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
@@ -59,7 +59,7 @@ export const createCheckItemEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when an item is updated in a checklist
 export const updateCheckItemEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('updateCheckItem').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CHECKLIST_ITEM_UPDATED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
@@ -100,7 +100,7 @@ export const updateCheckItemEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a checklist item's state is changed from "incomplete" to "complete" or vice versa
 export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('updateCheckItemStateOnCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
@@ -136,7 +136,7 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.e
 // Action that is triggered when an item is removed from a checklist
 export const deleteCheckItemEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('deleteCheckItem').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CHECKLIST_ITEM_DELETED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),

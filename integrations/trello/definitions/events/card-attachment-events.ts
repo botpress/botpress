@@ -1,11 +1,11 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from '../schemas'
-import { genericWebhookEventSchema, pickIdAndName } from './common'
+import { genericWebhookEventSchema, pickIdAndName, TrelloEventType } from './common'
 
 // Action that is triggered when an attachment is added to a card
 export const addAttachmentToCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('addAttachmentToCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.ATTACHMENT_ADDED_TO_CARD).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
@@ -37,7 +37,7 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when an attachment is deleted from a card
 export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('deleteAttachmentFromCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),

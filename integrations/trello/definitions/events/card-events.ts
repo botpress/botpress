@@ -1,11 +1,11 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from '../schemas'
-import { genericWebhookEventSchema, pickIdAndName } from './common'
+import { genericWebhookEventSchema, pickIdAndName, TrelloEventType } from './common'
 
 // Action that is triggered when a card is created
 export const createCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('createCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CARD_CREATED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was created'),
       card: pickIdAndName(cardSchema).title('Card').describe('Card that was created'),
@@ -17,7 +17,7 @@ export const createCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a card is updated
 export const updateCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('updateCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CARD_UPDATED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: z
@@ -111,7 +111,7 @@ export const updateCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a card is deleted
 export const deleteCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('deleteCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.CARD_DELETED).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was deleted'),
       card: cardSchema.pick({ id: true }).title('Card').describe('Card that was deleted'),
@@ -123,7 +123,7 @@ export const deleteCardEventSchema = genericWebhookEventSchema.extend({
 // Action that is triggered when a user votes on a card
 export const voteOnCardEventSchema = genericWebhookEventSchema.extend({
   action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('voteOnCard').describe('Type of the action'),
+    type: z.literal(TrelloEventType.VOTE_ON_CARD).describe('Type of the action'),
     data: z.object({
       board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
       card: pickIdAndName(cardSchema).optional().title('Card').describe('Card that was updated'),
