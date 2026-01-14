@@ -1,5 +1,4 @@
-import { addCommentToDiscussion } from './add-comment-to-discussion'
-import { addCommentToPage } from './add-comment-to-page'
+import { addComment } from './add-comment'
 import { appendBlocksToPage } from './append-blocks-to-page'
 import { createPage } from './create-page'
 import { deleteBlock } from './delete-block'
@@ -14,8 +13,7 @@ import { updatePageProperties } from './update-page-properties'
 import * as bp from '.botpress'
 
 export const actions = {
-  addCommentToDiscussion,
-  addCommentToPage,
+  addComment,
   createPage,
   appendBlocksToPage,
   deleteBlock,
