@@ -18,6 +18,7 @@ export enum TrelloEventType {
   ATTACHMENT_ADDED_TO_CARD = 'addAttachmentToCard',
   ATTACHMENT_REMOVED_FROM_CARD = 'deleteAttachmentFromCard',
   // ---- Checklist Events ----
+  CHECKLIST_ADDED_TO_CARD = 'addChecklistToCard',
   CHECKLIST_ITEM_CREATED = 'createCheckItem',
   CHECKLIST_ITEM_UPDATED = 'updateCheckItem',
   CHECKLIST_ITEM_DELETED = 'deleteCheckItem',

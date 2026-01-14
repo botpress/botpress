@@ -14,6 +14,7 @@ import {
 } from './card-events'
 import { addLabelToCardEventSchema, removeLabelFromCardEventSchema } from './card-label-events'
 import {
+  addChecklistToCardEventSchema,
   createCheckItemEventSchema,
   deleteCheckItemEventSchema,
   updateCheckItemEventSchema,
@@ -93,6 +94,11 @@ export const events = {
   // ================================
   //         Checklist Events
   // ================================
+  [TrelloEventType.CHECKLIST_ADDED_TO_CARD]: {
+    title: 'Checklist Added To Card',
+    description: 'Triggered when a checklist is added to a card',
+    schema: addChecklistToCardEventSchema.shape.action.shape.data,
+  },
   [TrelloEventType.CHECKLIST_ITEM_CREATED]: {
     title: 'Check item created',
     description: 'Triggered when a check item is added to a checklist of a card',
