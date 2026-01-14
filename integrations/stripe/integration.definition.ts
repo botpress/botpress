@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
@@ -43,8 +42,17 @@ export default new IntegrationDefinition({
     'Manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates.',
   configuration: {
     schema: z.object({
-      apiKey: z.string().min(1).describe('API Key'),
-      apiVersion: z.string().optional().default('2023-10-16').describe('API Version (optional) (default: 2023-10-16)'),
+      apiKey: z
+        .string()
+        .min(1)
+        .describe('The secret key or a restricted key from your Stripe account')
+        .title('API Key'),
+      apiVersion: z
+        .string()
+        .optional()
+        .default('2023-10-16')
+        .describe('API Version (optional) (default: 2023-10-16)')
+        .title('API Version'),
     }),
   },
   events: {
