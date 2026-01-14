@@ -53,22 +53,28 @@ export const actions = {
       }),
     },
   },
-  addCommentToPage: {
-    title: 'Add Comment to Page',
-    description: 'Add a comment to a page in Notion',
+  addComment: {
+    title: 'Add Comment',
+    description: 'Add a comment to a page, block, or discussion in Notion',
     input: {
       schema: sdk.z.object({
-        pageId: sdk.z
+        parentType: sdk.z.enum(['page', 'block', 'discussion']).title('Parent Type').describe('The type of the parent'),
+        parentId: sdk.z
           .string()
           .min(1)
-          .title('Page ID')
-          .describe('The ID of the page to add the comment to. Can be found in the URL of the page'),
+          .title('Parent ID')
+          .describe('The ID of the parent to add the comment to. Can be found in the URL of the parent'),
         commentBody: sdk.z.string().min(1).title('Comment Body').describe('Must be plain text'),
       }),
     },
     output: {
       schema: sdk.z.object({
         commentId: sdk.z.string().title('Comment ID').describe('The ID of the comment that was created'),
+        discussionId: sdk.z
+          .string()
+          .optional()
+          .title('Discussion ID')
+          .describe('The ID of the discussion that was created'),
       }),
     },
   },
@@ -184,25 +190,6 @@ export const actions = {
           .optional()
           .title('Page Properties')
           .describe('Schema of properties for the page as they appear in Notion'),
-      }),
-    },
-  },
-  addCommentToDiscussion: {
-    title: 'Add Comment to Discussion',
-    description: 'Add a comment to a discussion in Notion',
-    input: {
-      schema: sdk.z.object({
-        discussionId: sdk.z
-          .string()
-          .min(1)
-          .title('Discussion ID')
-          .describe('The ID of the discussion to add the comment to. Can be found in the URL of the discussion'),
-        commentBody: sdk.z.string().min(1).title('Comment Body').describe('Must be plain text'),
-      }),
-    },
-    output: {
-      schema: sdk.z.object({
-        commentId: sdk.z.string().title('Comment ID').describe('The ID of the comment that was created'),
       }),
     },
   },

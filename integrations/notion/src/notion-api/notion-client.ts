@@ -8,6 +8,7 @@ import {
   RichTextItemResponse,
   UpdatePageParameters,
   CreatePageParameters,
+  CreateCommentParameters,
 } from '@notionhq/client/build/src/api-endpoints'
 import { getDbStructure } from './db-structure'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
@@ -103,48 +104,35 @@ export class NotionClient {
     return { pageId: response.id }
   }
 
-  @handleErrors('Failed to add comment to page')
-  public async addCommentToPage({
-    pageId,
+  @handleErrors('Failed to add comment')
+  public async addComment({
+    parentType,
+    parentId,
     commentBody,
   }: {
-    pageId: string
+    parentType: string
+    parentId: string
     commentBody: string
-  }): Promise<{ commentId: string }> {
-    const response = await this._notion.comments.create({
-      parent: { page_id: pageId },
-      rich_text: [
-        {
-          type: 'text',
-          text: {
-            content: commentBody,
-          },
-        },
-      ],
-    })
-    return { commentId: response.id }
-  }
+  }): Promise<{ commentId: string; discussionId?: string }> {
+    let body: CreateCommentParameters
+    if (parentType === 'page') {
+      body = {
+        parent: { page_id: parentId, type: 'page_id' },
+        rich_text: [{ type: 'text', text: { content: commentBody } }],
+      }
+    } else if (parentType === 'block') {
+      body = {
+        parent: { block_id: parentId, type: 'block_id' },
+        rich_text: [{ type: 'text', text: { content: commentBody } }],
+      }
+    } else if (parentType === 'discussion') {
+      body = { discussion_id: parentId, rich_text: [{ type: 'text', text: { content: commentBody } }] }
+    } else {
+      throw new Error(`Invalid parent type: ${parentType}`)
+    }
+    const response = await this._notion.comments.create(body)
 
-  @handleErrors('Failed to add comment to discussion')
-  public async addCommentToDiscussion({
-    discussionId,
-    commentBody,
-  }: {
-    discussionId: string
-    commentBody: string
-  }): Promise<{ commentId: string }> {
-    const response = await this._notion.comments.create({
-      discussion_id: discussionId,
-      rich_text: [
-        {
-          type: 'text',
-          text: {
-            content: commentBody,
-          },
-        },
-      ],
-    })
-    return { commentId: response.id }
+    return { commentId: response.id, discussionId: 'discussion_id' in response ? response.discussion_id : undefined }
   }
 
   @handleErrors('Failed to update page properties')
