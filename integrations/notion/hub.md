@@ -2,11 +2,13 @@ The Notion Integration for Botpress Studio allows you to do the following things
 
 ## Migrating from version `2.x` to `3.x`
 
-Version `3.x` of the Notion integration brings alot of features to the table. Here is a summary of the changes coming to Notion:
+Version `3.x` of the Notion integration brings a lot of features to the table. Here is a summary of the changes coming to Notion:
 
+- Upgraded to Notion API version **2025-09-03**
 - Page interactions: Get Page, Get Page Content, Append Blocks to Page, Update Page Properties
 - Search by Title
 - Comment created Event
+- Consolidate comment actions into one action - `Add Comment`
 
 Another change that the update brings is new manual configuration. It now asks for:
 
@@ -29,6 +31,8 @@ This is the simplest way to set up the integration. To set up the Notion integra
 
 When using this configuration mode, a Botpress-managed Notion application will be used to connect to your Notion account. Actions taken by the bot will be attributed to this application, not your personal Notion account.
 
+**Note:** Ensure that you have chosen the correct workspace which can be found on the top right during OAuth.
+
 ### Manual configuration with a custom Notion integration
 
 #### Step 1 - Create Integration
@@ -41,33 +45,47 @@ Give your integration access to all the pages and databases that you want to use
 
 #### Step 3 - Configure your Bot
 
-Give your integration access to all the pages and databases that you want to use with Botpress. [Share a database with your integration - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration#step-2-share-a-database-with-your-integration)
-
 You need a token to get your newly created Notion Integration _(not the same as Botpress Studio's Notion Integration)_ connected with Botpress Studio:
 
-- `Internal Integration Secret` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, go to the "Secrets" section and find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Internal Integration Secret` field for Notion integration under the "Integrations" tab for your bot.
+- `Internal Integration Secret` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, under the "Configuration" tab, find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Internal Integration Secret` field for Notion integration under the "Integrations" tab for your bot.
 
 With that you just need to enable your integration and you can start expanding your Bot's capabilities with Notion.
 
+#### Step 4 - Setup Webhooks (optional)
+
+After saving Step 3 configuration, copy the Botpress integration webhook URL. In your Notion integration's Webhooks tab, paste it in `Webhook URL` and click `verify`. Copy the secret from your Bot logs and paste it back in the verification field. Then add this secret to the `Webhook Verification Secret` field in your Botpress Notion integration configuration to validate webhook events.
+
 ## Usage
 
-The following actions require you to know the Ids of the Notion entities your bot will work with. All notion entities (pages, databases, etc) have and id that can be found in the URL when you visit those in your Notion account in a Browser,or by getting the link by clicking on the "Copy Link" item in the (...) menu. See [Get a Database Id - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration#step-3-save-the-database-id) for more information
+The following actions require you to know the Ids of the Notion entities your bot will work with. All notion entities (pages, data sources, databases, etc) have and id that can be found in the URL when you visit those in your Notion account in a Browser,or by getting the link by clicking on the "Copy Link" item in the (...) menu.
 
-### Add Comment to a Discussion
+### Add Comment
 
-This action allows you to add a comment to an existing discussion. Use this for replying to a comment.
+This action allows you to add a comment to a page, block or existing discussion.
 
-### Add Comment to a Page
+### Get a Data Source
 
-You can add page level comments with this action.
+This action allows you to get details of a data source as well as it's structure (properties) and contents (page id's).
 
-### Get a Database
+### Create Page
 
-This allows you to get the details of a Database. This is ideally used with the `Add Page to a Database` action. In addition to the response from the Notion API ([Retreive a Database - Notion Developers](https://developers.notion.com/reference/retrieve-a-database)), this action also returns a optimized `structure` property (technically a type decleration) that can be used as an input for an AI task to instruct it to generate a payload for adding or updating a page in a Notion Database based on a user input.
+This action gives you the ability to create a page in either an existing page or an existing data source.
 
-### Add Page to a Database
+### Get Page Content
 
-This action should ideally be used in tandem with `Get a Database` that returns the structure of the Database that you can use to instruct an [AI task](https://botpress.com/docs/cloud/generative-ai/ai-task-card/) to generate a payload. See [Working with Databases - Notion Developers](https://developers.notion.com/docs/working-with-databases) for more info.
+This action returns the content of a page as a list of blocks. This makes it easier for the user to add comments to specific blocks.
+
+### Append Blocks to Page
+
+This action provides the ability to append blocks to a specific page using markdown!
+
+### Update Page Properties
+
+This action allows the user to update pages/tasks properties.
+
+### Search By Title
+
+This action allows the user to search within their workspace for specific pages/data sources
 
 ### Delete a block
 
