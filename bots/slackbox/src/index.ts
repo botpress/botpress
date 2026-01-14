@@ -50,6 +50,17 @@ bot.on.message('*', async (props) => {
 
   try {
     const slackConversationId = await getSlackConversationId(client, logger)
+
+    logger.info('Conversation: ', JSON.stringify(conversation, null, 2))
+
+    if (conversation.tags['gmail:label']) {
+      const label = conversation.tags['gmail:label'] as string
+
+      if (label !== 'Integration') {
+        return
+      }
+    }
+
     const notificationMessage = _mapGmailToSlack(conversation, message)
 
     await client.createMessage({
