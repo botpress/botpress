@@ -1,28 +1,26 @@
 import { type IntegrationDefinitionProps } from '@botpress/sdk'
+import { addAttachmentToCardEventSchema, deleteAttachmentFromCardEventSchema } from './card-attachment-events'
 import {
-  TRELLO_EVENTS,
-  addMemberToCardEventSchema,
+  type CommentCardEvent,
   commentCardEventSchema,
+  deleteCommentEventSchema,
+  updateCommentEventSchema,
+} from './card-comment-events'
+import {
   createCardEventSchema,
   deleteCardEventSchema,
-  removeMemberFromCardEventSchema,
   updateCardEventSchema,
-  updateCheckItemStateOnCardEventSchema,
-  addLabelToCardEventSchema,
+  voteOnCardEventSchema,
+} from './card-events'
+import { addLabelToCardEventSchema, removeLabelFromCardEventSchema } from './card-label-events'
+import {
   createCheckItemEventSchema,
   deleteCheckItemEventSchema,
-  deleteCommentEventSchema,
-  removeLabelFromCardEventSchema,
   updateCheckItemEventSchema,
-  updateCommentEventSchema,
-  voteOnCardEventSchema,
-  addAttachmentToCardEventSchema,
-  deleteAttachmentFromCardEventSchema,
-  CommentCardEvent,
-  AllSupportedEvents,
-  GenericWebhookEvent,
-  genericWebhookEventSchema,
-} from './webhookEvents'
+  updateCheckItemStateOnCardEventSchema,
+} from './checklist-events'
+import { AllSupportedEvents, GenericWebhookEvent, genericWebhookEventSchema, TRELLO_EVENTS } from './common'
+import { addMemberToCardEventSchema, removeMemberFromCardEventSchema } from './member-events'
 
 export const events = {
   [TRELLO_EVENTS.addMemberToCard]: {
