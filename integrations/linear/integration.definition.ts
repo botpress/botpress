@@ -1,5 +1,6 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
 import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
@@ -53,4 +54,10 @@ export default new IntegrationDefinition({
     events: {
       deleted: { name: 'issueDeleted' },
     },
+  }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.issueConversation,
+    },
+    actions: { getOrCreateConversation: { name: 'getOrCreateIssueConversation' } },
   }))
