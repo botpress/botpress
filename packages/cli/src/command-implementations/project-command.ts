@@ -309,7 +309,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       if (integration.enabled) {
         this.logger.log(`${alias} ${integration.version}:`, { prefix: { symbol: '→', indent: 2 } })
       } else {
-        this.logger.log(`${alias} ${chalk.italic('(disabled)')}:`, {
+        this.logger.log(`${alias} ${integration.version} ${chalk.italic('(disabled)')}:`, {
           prefix: { symbol: '→', indent: 2 },
         })
       }
