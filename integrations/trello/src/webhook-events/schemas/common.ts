@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
 import { trelloIdSchema } from 'definitions/schemas'
 
-export const baseEventActionSchema = z.object({
+export const trelloEventActionSchema = z.object({
   /** Action ID (aka Event ID) */
   id: trelloIdSchema,
   /** Event Triggered Date */

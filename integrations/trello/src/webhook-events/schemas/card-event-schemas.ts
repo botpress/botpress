@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { pickIdAndName, TrelloEventType } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { baseEventActionSchema } from './common'
+import { trelloEventActionSchema } from './common'
 
 const _basicListSchema = pickIdAndName(listSchema)
 const _basicCardSchema = pickIdAndName(cardSchema)
@@ -11,7 +11,7 @@ const _basicCardSchema = pickIdAndName(cardSchema)
  *  @remark When the value is "-1", it means no due date reminder is set. */
 const _dueReminderSchema = z.number().int('Due reminder is not an integer').min(-1)
 
-export const cardCreatedEventSchema = baseEventActionSchema.extend({
+export const cardCreatedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_CREATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -36,7 +36,7 @@ const _baseCardUpdateDataSchema = _basicCardSchema
   .passthrough()
   .partial()
 
-export const cardUpdatedEventSchema = baseEventActionSchema.extend({
+export const cardUpdatedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -51,7 +51,7 @@ export const cardUpdatedEventSchema = baseEventActionSchema.extend({
   }),
 })
 
-export const cardDeletedEventSchema = baseEventActionSchema.extend({
+export const cardDeletedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -60,7 +60,7 @@ export const cardDeletedEventSchema = baseEventActionSchema.extend({
   }),
 })
 
-export const cardVotesUpdatedEventSchema = baseEventActionSchema.extend({
+export const cardVotesUpdatedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.VOTE_ON_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),

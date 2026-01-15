@@ -4,9 +4,9 @@ import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
 import { pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { baseEventActionSchema } from './common'
+import { trelloEventActionSchema } from './common'
 
-export const commentAddedEventSchema = baseEventActionSchema.extend({
+export const commentAddedEventSchema = trelloEventActionSchema.extend({
   /** @remark This is only the comment ID for the comment added event */
   id: trelloIdSchema.brand('EventID').brand('CommentID'),
   type: z.literal(TrelloEventType.CARD_COMMENT_ADDED),
@@ -19,7 +19,7 @@ export const commentAddedEventSchema = baseEventActionSchema.extend({
 })
 export type CommentAddedEvent = z.infer<typeof commentAddedEventSchema>
 
-export const commentUpdatedEventSchema = baseEventActionSchema.extend({
+export const commentUpdatedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -35,7 +35,7 @@ export const commentUpdatedEventSchema = baseEventActionSchema.extend({
 })
 export type CommentUpdatedEvent = z.infer<typeof commentUpdatedEventSchema>
 
-export const commentDeletedEventSchema = baseEventActionSchema.extend({
+export const commentDeletedEventSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
