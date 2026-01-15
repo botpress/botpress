@@ -7,10 +7,10 @@ import {
   updateCommentEventSchema,
 } from './card-comment-events'
 import {
-  createCardEventSchema,
-  deleteCardEventSchema,
-  updateCardEventSchema,
-  voteOnCardEventSchema,
+  cardCreatedEventSchema,
+  cardDeletedEventSchema,
+  cardUpdatedEventSchema,
+  cardVotesUpdatedEventSchema,
 } from './card-events'
 import { addLabelToCardEventSchema, removeLabelFromCardEventSchema } from './card-label-events'
 import {
@@ -30,22 +30,22 @@ export const events = {
   [TrelloEventType.CARD_CREATED]: {
     title: 'Card created',
     description: 'Triggered when a card is created',
-    schema: createCardEventSchema.shape.action.shape.data,
+    schema: cardCreatedEventSchema,
   },
   [TrelloEventType.CARD_UPDATED]: {
     title: 'Card updated',
     description: 'Triggered when a card is updated',
-    schema: updateCardEventSchema.shape.action.shape.data,
+    schema: cardUpdatedEventSchema,
   },
   [TrelloEventType.CARD_DELETED]: {
     title: 'Card deleted',
     description: 'Triggered when a card is deleted',
-    schema: deleteCardEventSchema.shape.action.shape.data,
+    schema: cardDeletedEventSchema,
   },
   [TrelloEventType.VOTE_ON_CARD]: {
     title: 'Vote on card',
     description: 'Triggered when a vote is added to a card',
-    schema: voteOnCardEventSchema.shape.action.shape.data,
+    schema: cardVotesUpdatedEventSchema,
   },
   // ===============================
   //       Card Comment Events
