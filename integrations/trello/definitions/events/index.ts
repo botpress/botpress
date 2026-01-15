@@ -1,5 +1,5 @@
 import { type IntegrationDefinitionProps } from '@botpress/sdk'
-import { addAttachmentToCardEventSchema, deleteAttachmentFromCardEventSchema } from './card-attachment-events'
+import { attachmentAddedToCardEventSchema, attachmentDeletedFromCardEventSchema } from './card-attachment-events'
 import {
   cardCommentCreatedEventSchema,
   cardCommentDeletedEventSchema,
@@ -11,13 +11,13 @@ import {
   cardUpdatedEventSchema,
   cardVotesUpdatedEventSchema,
 } from './card-events'
-import { addLabelToCardEventSchema, removeLabelFromCardEventSchema } from './card-label-events'
+import { labelAddedToCardEventSchema, labelRemovedFromCardEventSchema } from './card-label-events'
 import {
-  addChecklistToCardEventSchema,
-  createCheckItemEventSchema,
-  deleteCheckItemEventSchema,
-  updateCheckItemEventSchema,
-  updateCheckItemStateOnCardEventSchema,
+  checklistAddedToCardEventSchema,
+  checklistItemCreatedEventSchema,
+  checklistItemDeletedEventSchema,
+  checklistItemUpdatedEventSchema,
+  checklistItemStatusUpdatedEventSchema,
 } from './checklist-events'
 import {
   AllSupportedEvents,
@@ -76,12 +76,12 @@ export const events = {
   [TrelloEventType.LABEL_ADDED_TO_CARD]: {
     title: 'Label added to card',
     description: 'Triggered when a label is added to a card',
-    schema: addLabelToCardEventSchema,
+    schema: labelAddedToCardEventSchema,
   },
   [TrelloEventType.LABEL_REMOVED_FROM_CARD]: {
     title: 'Label removed from card',
     description: 'Triggered when a label is removed from a card',
-    schema: removeLabelFromCardEventSchema,
+    schema: labelRemovedFromCardEventSchema,
   },
   // ================================
   //      Card Attachment Events
@@ -89,12 +89,12 @@ export const events = {
   [TrelloEventType.ATTACHMENT_ADDED_TO_CARD]: {
     title: 'Attachment added to card',
     description: 'Triggered when an attachment is added to a card',
-    schema: addAttachmentToCardEventSchema,
+    schema: attachmentAddedToCardEventSchema,
   },
   [TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD]: {
     title: 'Attachment deleted from card',
     description: 'Triggered when an attachment is deleted from a card',
-    schema: deleteAttachmentFromCardEventSchema,
+    schema: attachmentDeletedFromCardEventSchema,
   },
   // ================================
   //         Checklist Events
@@ -102,27 +102,27 @@ export const events = {
   [TrelloEventType.CHECKLIST_ADDED_TO_CARD]: {
     title: 'Checklist Added To Card',
     description: 'Triggered when a checklist is added to a card',
-    schema: addChecklistToCardEventSchema,
+    schema: checklistAddedToCardEventSchema,
   },
   [TrelloEventType.CHECKLIST_ITEM_CREATED]: {
     title: 'Check item created',
     description: 'Triggered when a check item is added to a checklist of a card',
-    schema: createCheckItemEventSchema,
+    schema: checklistItemCreatedEventSchema,
   },
   [TrelloEventType.CHECKLIST_ITEM_UPDATED]: {
     title: 'Check item updated',
     description: 'Triggered when a check item is modified in a checklist of a card',
-    schema: updateCheckItemEventSchema,
+    schema: checklistItemUpdatedEventSchema,
   },
   [TrelloEventType.CHECKLIST_ITEM_DELETED]: {
     title: 'Check item deleted',
     description: 'Triggered when a check item is removed from a checklist of a card',
-    schema: deleteCheckItemEventSchema,
+    schema: checklistItemDeletedEventSchema,
   },
   [TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED]: {
     title: 'Check item state updated on card',
     description: 'Triggered when the state of a check item is updated in a checklist of a card',
-    schema: updateCheckItemStateOnCardEventSchema,
+    schema: checklistItemStatusUpdatedEventSchema,
   },
   // ===============================
   //          Member Events

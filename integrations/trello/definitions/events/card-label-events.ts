@@ -3,7 +3,7 @@ import { boardSchema, cardSchema, trelloIdSchema } from '../schemas'
 import { botpressEventDataSchema, pickIdAndName } from './common'
 
 // Action that is triggered when a label is added to a card
-export const addLabelToCardEventSchema = botpressEventDataSchema.extend({
+export const labelAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was modified'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
   label: z
@@ -17,7 +17,7 @@ export const addLabelToCardEventSchema = botpressEventDataSchema.extend({
 })
 
 // Action that is triggered when a label is removed from a card
-export const removeLabelFromCardEventSchema = botpressEventDataSchema.extend({
+export const labelRemovedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was modified'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
   label: z

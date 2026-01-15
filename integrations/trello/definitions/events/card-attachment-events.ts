@@ -3,7 +3,7 @@ import { boardSchema, cardSchema, listSchema, trelloIdSchema } from '../schemas'
 import { botpressEventDataSchema, pickIdAndName } from './common'
 
 // Action that is triggered when an attachment is added to a card
-export const addAttachmentToCardEventSchema = botpressEventDataSchema.extend({
+export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
@@ -25,7 +25,7 @@ export const addAttachmentToCardEventSchema = botpressEventDataSchema.extend({
 })
 
 // Action that is triggered when an attachment is deleted from a card
-export const deleteAttachmentFromCardEventSchema = botpressEventDataSchema.extend({
+export const attachmentDeletedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),

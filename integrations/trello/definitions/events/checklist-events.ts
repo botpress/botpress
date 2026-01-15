@@ -3,7 +3,7 @@ import { boardSchema, cardSchema, trelloIdSchema } from '../schemas'
 import { botpressEventDataSchema, pickIdAndName, TrelloEventType } from './common'
 
 // Action that is triggered when a checklist is added to a card
-export const addChecklistToCardEventSchema = botpressEventDataSchema.extend({
+export const checklistAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: z
@@ -16,7 +16,7 @@ export const addChecklistToCardEventSchema = botpressEventDataSchema.extend({
 })
 
 // Action that is triggered when a new item is added to a checklist
-export const createCheckItemEventSchema = botpressEventDataSchema.extend({
+export const checklistItemCreatedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: z
@@ -47,7 +47,7 @@ export const createCheckItemEventSchema = botpressEventDataSchema.extend({
 })
 
 // Action that is triggered when an item is updated in a checklist
-export const updateCheckItemEventSchema = botpressEventDataSchema.extend({
+export const checklistItemUpdatedEventSchema = botpressEventDataSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ITEM_UPDATED).describe('Type of the action'),
   data: z.object({
     board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
@@ -85,8 +85,8 @@ export const updateCheckItemEventSchema = botpressEventDataSchema.extend({
   }),
 })
 
-// Action that is triggered when a checklist item's state is changed from "incomplete" to "complete" or vice versa
-export const updateCheckItemStateOnCardEventSchema = botpressEventDataSchema.extend({
+// Action that is triggered when a checklist item's status is changed from "incomplete" to "complete" or vice versa
+export const checklistItemStatusUpdatedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: z
@@ -117,7 +117,7 @@ export const updateCheckItemStateOnCardEventSchema = botpressEventDataSchema.ext
 })
 
 // Action that is triggered when an item is removed from a checklist
-export const deleteCheckItemEventSchema = botpressEventDataSchema.extend({
+export const checklistItemDeletedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: z
