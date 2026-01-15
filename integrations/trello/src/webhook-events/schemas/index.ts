@@ -11,6 +11,13 @@ import {
   cardUpdatedEventActionSchema,
   cardVotesUpdatedEventActionSchema,
 } from './card-event-schemas'
+import {
+  checklistAddedToCardEventActionSchema,
+  checklistItemCreatedEventActionSchema,
+  checklistItemDeletedEventActionSchema,
+  checklistItemStatusUpdatedEventActionSchema,
+  checklistItemUpdatedEventActionSchema,
+} from './checklist-event-schemas'
 import { memberAddedToCardEventActionSchema, memberRemovedFromCardEventActionSchema } from './member-event-schemas'
 
 export const webhookEventSchema = z.object({
@@ -24,6 +31,12 @@ export const webhookEventSchema = z.object({
     commentAddedEventActionSchema,
     commentUpdatedEventActionSchema,
     commentDeletedEventActionSchema,
+    // ---- Checklist Events ----
+    checklistAddedToCardEventActionSchema,
+    checklistItemCreatedEventActionSchema,
+    checklistItemUpdatedEventActionSchema,
+    checklistItemDeletedEventActionSchema,
+    checklistItemStatusUpdatedEventActionSchema,
     // ---- Member Events ----
     memberAddedToCardEventActionSchema,
     memberRemovedFromCardEventActionSchema,
