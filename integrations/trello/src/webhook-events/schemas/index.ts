@@ -12,7 +12,7 @@ import {
   cardVotesUpdatedEventActionSchema,
 } from './card-event-schemas'
 
-export const genericWebhookEventSchema = z.object({
+export const webhookEventSchema = z.object({
   action: z.union([
     // ---- Card Events ----
     cardCreatedEventActionSchema,
@@ -31,3 +31,4 @@ export const genericWebhookEventSchema = z.object({
     consecutiveFailures: z.number().min(0),
   }),
 })
+export type WebhookEvent = z.infer<typeof webhookEventSchema>

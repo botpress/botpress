@@ -56,6 +56,7 @@ export const botpressEventDataSchema = z.object({
     .describe('The actor (e.g. member or app) who triggered the event'),
   dateCreated: z.string().datetime().title('Date Created').describe('The datetime when the event was triggered'),
 })
+export type CommonEventData = z.infer<typeof botpressEventDataSchema>
 
 export const genericWebhookEventSchema = z.object({
   action: z.object({

@@ -15,6 +15,7 @@ export const cardCreatedEventActionSchema = trelloEventActionSchema.extend({
     card: _basicCardSchema,
   }),
 })
+export type CardCreatedEventAction = z.infer<typeof cardCreatedEventActionSchema>
 
 const _baseCardUpdateDataSchema = _basicCardSchema
   .extend({
@@ -46,6 +47,7 @@ export const cardUpdatedEventActionSchema = trelloEventActionSchema.extend({
     listAfter: _basicListSchema.optional(),
   }),
 })
+export type CardUpdatedEventAction = z.infer<typeof cardUpdatedEventActionSchema>
 
 export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_DELETED),
@@ -55,6 +57,7 @@ export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
     card: _basicCardSchema.pick({ id: true }),
   }),
 })
+export type CardDeletedEventAction = z.infer<typeof cardDeletedEventActionSchema>
 
 export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.VOTE_ON_CARD),
@@ -64,3 +67,4 @@ export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend(
     voted: z.boolean(),
   }),
 })
+export type CardVotesUpdatedEventAction = z.infer<typeof cardVotesUpdatedEventActionSchema>
