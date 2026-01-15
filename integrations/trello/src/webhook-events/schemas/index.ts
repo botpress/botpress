@@ -15,6 +15,7 @@ import {
   cardUpdatedEventActionSchema,
   cardVotesUpdatedEventActionSchema,
 } from './card-event-schemas'
+import { cardLabelAddedEventActionSchema, cardLabelRemovedEventActionSchema } from './card-label-event-schemas'
 import {
   checklistAddedToCardEventActionSchema,
   checklistItemCreatedEventActionSchema,
@@ -35,6 +36,9 @@ export const webhookEventSchema = z.object({
     commentAddedEventActionSchema,
     commentUpdatedEventActionSchema,
     commentDeletedEventActionSchema,
+    // ---- Card Label Events ----
+    cardLabelAddedEventActionSchema,
+    cardLabelRemovedEventActionSchema,
     // ---- Card Attachment Events ----
     cardAttachmentAddedEventActionSchema,
     cardAttachmentRemovedEventActionSchema,
