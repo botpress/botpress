@@ -9,7 +9,6 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@botpress/sdk-addons": "workspace:*",
     "@linear/sdk": "^65.2.0",
     "axios": "^1.4.0",
     "query-string": "^6.14.1",
@@ -21,8 +20,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
     "@botpresshub/listable": "workspace:*",
-    "@botpresshub/proactive-conversation": "workspace:*",
-    "@sentry/cli": "^2.39.1"
+    "@botpresshub/proactive-conversation": "workspace:*"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable",
