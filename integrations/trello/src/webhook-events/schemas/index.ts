@@ -11,6 +11,7 @@ import {
   cardUpdatedEventActionSchema,
   cardVotesUpdatedEventActionSchema,
 } from './card-event-schemas'
+import { memberAddedToCardEventActionSchema, memberRemovedFromCardEventActionSchema } from './member-event-schemas'
 
 export const webhookEventSchema = z.object({
   action: z.union([
@@ -23,6 +24,9 @@ export const webhookEventSchema = z.object({
     commentAddedEventActionSchema,
     commentUpdatedEventActionSchema,
     commentDeletedEventActionSchema,
+    // ---- Member Events ----
+    memberAddedToCardEventActionSchema,
+    memberRemovedFromCardEventActionSchema,
   ]),
   webhook: z.object({
     id: trelloIdSchema,

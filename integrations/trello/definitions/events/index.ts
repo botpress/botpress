@@ -130,12 +130,12 @@ export const events = {
   [TrelloEventType.MEMBER_ADDED_TO_CARD]: {
     title: 'Member added to card',
     description: 'Triggered when a member is added to a card',
-    schema: memberAddedToCardEventSchema.shape.action.shape.data,
+    schema: memberAddedToCardEventSchema,
   },
   [TrelloEventType.MEMBER_REMOVED_FROM_CARD]: {
     title: 'Member removed from card',
     description: 'Triggered when a member is removed from a card',
-    schema: memberRemovedFromCardEventSchema.shape.action.shape.data,
+    schema: memberRemovedFromCardEventSchema,
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
 

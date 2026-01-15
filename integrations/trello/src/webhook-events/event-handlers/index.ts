@@ -2,6 +2,7 @@ import { TrelloEventType } from 'definitions/events'
 import { WebhookEvent } from '../schemas'
 import * as commentHandlers from './card-comment-event-handlers'
 import * as cardHandlers from './card-event-handlers'
+import * as memberHandlers from './member-event-handlers'
 import * as bp from '.botpress'
 
 export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: WebhookEvent) => {
@@ -21,6 +22,10 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
       return commentHandlers.handleCommentUpdatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CARD_COMMENT_DELETED:
       return commentHandlers.handleCommentDeletedEvent(props, webhookEventType, webhookEvent.action)
+    case TrelloEventType.MEMBER_ADDED_TO_CARD:
+      return memberHandlers.handleMemberAddedToCardEvent(props, webhookEventType, webhookEvent.action)
+    case TrelloEventType.MEMBER_REMOVED_FROM_CARD:
+      return memberHandlers.handleMemberRemovedFromCardEvent(props, webhookEventType, webhookEvent.action)
     default:
       return null
   }
