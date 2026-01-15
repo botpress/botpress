@@ -4,7 +4,7 @@ import * as genenv from '../.genenv'
 import * as bp from '.botpress'
 
 const DEFAULT_SLACK_CHANNEL = genenv.SLACKBOX_SLACK_CHANNEL
-const FALLBACK_SLACK_CHANNEL = genenv.FALLBACK_SLACK_CHANNEL || DEFAULT_SLACK_CHANNEL
+const FALLBACK_SLACK_CHANNEL = genenv.SLACKBOX_FALLBACK_SLACK_CHANNEL || DEFAULT_SLACK_CHANNEL
 
 const cachedSlackConversationIds: Record<string, string> = {}
 
