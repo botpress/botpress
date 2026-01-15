@@ -1,28 +1,28 @@
 import { z } from '@botpress/sdk'
 import { trelloIdSchema } from 'definitions/schemas'
 import {
-  commentAddedEventSchema,
-  commentDeletedEventSchema,
-  commentUpdatedEventSchema,
+  commentAddedEventActionSchema,
+  commentDeletedEventActionSchema,
+  commentUpdatedEventActionSchema,
 } from './card-comment-event-schemas'
 import {
-  cardCreatedEventSchema,
-  cardDeletedEventSchema,
-  cardUpdatedEventSchema,
-  cardVotesUpdatedEventSchema,
+  cardCreatedEventActionSchema,
+  cardDeletedEventActionSchema,
+  cardUpdatedEventActionSchema,
+  cardVotesUpdatedEventActionSchema,
 } from './card-event-schemas'
 
 export const genericWebhookEventSchema = z.object({
   action: z.union([
     // ---- Card Events ----
-    cardCreatedEventSchema,
-    cardUpdatedEventSchema,
-    cardDeletedEventSchema,
-    cardVotesUpdatedEventSchema,
+    cardCreatedEventActionSchema,
+    cardUpdatedEventActionSchema,
+    cardDeletedEventActionSchema,
+    cardVotesUpdatedEventActionSchema,
     // ---- Card Comment Events ----
-    commentAddedEventSchema,
-    commentUpdatedEventSchema,
-    commentDeletedEventSchema,
+    commentAddedEventActionSchema,
+    commentUpdatedEventActionSchema,
+    commentDeletedEventActionSchema,
   ]),
   webhook: z.object({
     id: trelloIdSchema,

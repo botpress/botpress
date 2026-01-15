@@ -6,7 +6,7 @@ import { pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
 import { trelloEventActionSchema } from './common'
 
-export const commentAddedEventSchema = trelloEventActionSchema.extend({
+export const commentAddedEventActionSchema = trelloEventActionSchema.extend({
   /** @remark This is only the comment ID for the comment added event */
   id: trelloIdSchema.brand('EventID').brand('CommentID'),
   type: z.literal(TrelloEventType.CARD_COMMENT_ADDED),
@@ -17,9 +17,9 @@ export const commentAddedEventSchema = trelloEventActionSchema.extend({
     text: z.string().brand('CommentText'),
   }),
 })
-export type CommentAddedEvent = z.infer<typeof commentAddedEventSchema>
+export type CommentAddedEventAction = z.infer<typeof commentAddedEventActionSchema>
 
-export const commentUpdatedEventSchema = trelloEventActionSchema.extend({
+export const commentUpdatedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -33,9 +33,9 @@ export const commentUpdatedEventSchema = trelloEventActionSchema.extend({
     }),
   }),
 })
-export type CommentUpdatedEvent = z.infer<typeof commentUpdatedEventSchema>
+export type CommentUpdatedEventAction = z.infer<typeof commentUpdatedEventActionSchema>
 
-export const commentDeletedEventSchema = trelloEventActionSchema.extend({
+export const commentDeletedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -45,4 +45,4 @@ export const commentDeletedEventSchema = trelloEventActionSchema.extend({
     }),
   }),
 })
-export type CommentDeletedEvent = z.infer<typeof commentDeletedEventSchema>
+export type CommentDeletedEventAction = z.infer<typeof commentDeletedEventActionSchema>

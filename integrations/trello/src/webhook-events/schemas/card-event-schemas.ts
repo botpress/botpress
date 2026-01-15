@@ -7,7 +7,7 @@ import { trelloEventActionSchema } from './common'
 const _basicListSchema = pickIdAndName(listSchema)
 const _basicCardSchema = pickIdAndName(cardSchema)
 
-export const cardCreatedEventSchema = trelloEventActionSchema.extend({
+export const cardCreatedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_CREATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -32,7 +32,7 @@ const _baseCardUpdateDataSchema = _basicCardSchema
   .passthrough()
   .partial()
 
-export const cardUpdatedEventSchema = trelloEventActionSchema.extend({
+export const cardUpdatedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -47,7 +47,7 @@ export const cardUpdatedEventSchema = trelloEventActionSchema.extend({
   }),
 })
 
-export const cardDeletedEventSchema = trelloEventActionSchema.extend({
+export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.CARD_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -56,7 +56,7 @@ export const cardDeletedEventSchema = trelloEventActionSchema.extend({
   }),
 })
 
-export const cardVotesUpdatedEventSchema = trelloEventActionSchema.extend({
+export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend({
   type: z.literal(TrelloEventType.VOTE_ON_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
