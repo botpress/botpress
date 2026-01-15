@@ -26,7 +26,7 @@ import {
   genericWebhookEventSchema,
   TrelloEventType,
 } from './common'
-import { addMemberToCardEventSchema, removeMemberFromCardEventSchema } from './member-events'
+import { memberAddedToCardEventSchema, memberRemovedFromCardEventSchema } from './member-events'
 
 export const events = {
   // ===============================
@@ -130,12 +130,12 @@ export const events = {
   [TrelloEventType.MEMBER_ADDED_TO_CARD]: {
     title: 'Member added to card',
     description: 'Triggered when a member is added to a card',
-    schema: addMemberToCardEventSchema.shape.action.shape.data,
+    schema: memberAddedToCardEventSchema.shape.action.shape.data,
   },
   [TrelloEventType.MEMBER_REMOVED_FROM_CARD]: {
     title: 'Member removed from card',
     description: 'Triggered when a member is removed from a card',
-    schema: removeMemberFromCardEventSchema.shape.action.shape.data,
+    schema: memberRemovedFromCardEventSchema.shape.action.shape.data,
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
 
