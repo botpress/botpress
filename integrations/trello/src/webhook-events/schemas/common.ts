@@ -9,7 +9,24 @@ export const baseEventActionSchema = z.object({
   date: z.coerce.date(),
   type: z.nativeEnum(TrelloEventType),
   data: z.any(),
-  /** Member who initiated the action */
+  /** The Trello app that triggered the event. (e.g. Via http request using an API key & token)
+   *
+   *  @remark This field is `null` when the event was not triggered by an app. */
+  appCreator: z
+    .object({
+      /** Some internal Trello identifier for the app that triggered the event.
+       *
+       *  @remark At the time of writing (2026-01-15), this field cannot be linked back to any
+       *   specific API key or token, as Trello does not expose an endpoint for that purpose.
+       *   Also, through testing each of the endpoints, I have not been find it within other
+       *   endpoint responses. */
+      id: trelloIdSchema,
+    })
+    .nullable(),
+  /** Member who initiated the action
+   *
+   *  @remark This still appears to be present even if
+   *   the action was initiated via an API key & token. */
   memberCreator: z.object({
     id: trelloIdSchema,
     fullName: z.string(),
