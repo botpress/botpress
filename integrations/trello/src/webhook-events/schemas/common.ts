@@ -36,3 +36,4 @@ export const trelloEventActionSchema = z.object({
     avatarUrl: z.string(),
   }),
 })
+export type TrelloEventAction = z.infer<typeof trelloEventActionSchema>
