@@ -2,12 +2,12 @@ import { default as sdk, z } from '@botpress/sdk'
 import {
   events,
   type AllSupportedEvents,
-  commentCardEventSchema,
   type GenericWebhookEvent,
   genericWebhookEventSchema,
   TrelloEventType,
 } from 'definitions/events'
 import { CardCommentHandler } from './handlers/card-comment'
+import { commentAddedEventActionSchema } from './schemas/card-comment-event-schemas'
 import * as bp from '.botpress'
 
 export const handler = async ({ req, client, ctx }: bp.HandlerProps) => {
@@ -68,7 +68,7 @@ const _handleCardComments = async ({
     return
   }
 
-  const cardCreationEvent = commentCardEventSchema.parse(parsedWebhookEvent)
+  const cardCreationEvent = commentAddedEventActionSchema.parse(parsedWebhookEvent.action)
   await CardCommentHandler.handleEvent(client, cardCreationEvent)
 }
 

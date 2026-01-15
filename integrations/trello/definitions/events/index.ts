@@ -1,10 +1,9 @@
 import { type IntegrationDefinitionProps } from '@botpress/sdk'
 import { addAttachmentToCardEventSchema, deleteAttachmentFromCardEventSchema } from './card-attachment-events'
 import {
-  type CommentCardEvent,
-  commentCardEventSchema,
-  deleteCommentEventSchema,
-  updateCommentEventSchema,
+  cardCommentCreatedEventSchema,
+  cardCommentDeletedEventSchema,
+  cardCommentUpdatedEventSchema,
 } from './card-comment-events'
 import {
   cardCreatedEventSchema,
@@ -20,7 +19,13 @@ import {
   updateCheckItemEventSchema,
   updateCheckItemStateOnCardEventSchema,
 } from './checklist-events'
-import { AllSupportedEvents, GenericWebhookEvent, genericWebhookEventSchema, TrelloEventType } from './common'
+import {
+  AllSupportedEvents,
+  CommonEventData,
+  GenericWebhookEvent,
+  genericWebhookEventSchema,
+  TrelloEventType,
+} from './common'
 import { addMemberToCardEventSchema, removeMemberFromCardEventSchema } from './member-events'
 
 export const events = {
@@ -53,17 +58,17 @@ export const events = {
   [TrelloEventType.CARD_COMMENT_ADDED]: {
     title: 'Comment added to card',
     description: 'Triggered when a comment is added to a card',
-    schema: commentCardEventSchema.shape.action.shape.data,
+    schema: cardCommentCreatedEventSchema,
   },
   [TrelloEventType.CARD_COMMENT_UPDATED]: {
     title: 'Comment updated',
     description: 'Triggered when a comment is updated',
-    schema: updateCommentEventSchema.shape.action.shape.data,
+    schema: cardCommentUpdatedEventSchema,
   },
   [TrelloEventType.CARD_COMMENT_DELETED]: {
     title: 'Comment deleted',
     description: 'Triggered when a comment is deleted',
-    schema: deleteCommentEventSchema.shape.action.shape.data,
+    schema: cardCommentDeletedEventSchema,
   },
   // ===============================
   //        Card Label Events
@@ -136,9 +141,8 @@ export const events = {
 
 export {
   TrelloEventType,
+  type CommonEventData,
   type AllSupportedEvents,
-  type CommentCardEvent,
-  commentCardEventSchema,
   type GenericWebhookEvent,
   genericWebhookEventSchema,
 }

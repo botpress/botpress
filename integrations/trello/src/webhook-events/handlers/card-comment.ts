@@ -1,4 +1,4 @@
-import { type CommentCardEvent } from 'definitions/events'
+import { CommentAddedEventAction } from '../schemas/card-comment-event-schemas'
 import * as bp from '.botpress'
 
 type TrelloMessageData = {
@@ -16,7 +16,7 @@ type TrelloMessageData = {
 export namespace CardCommentHandler {
   export const handleEvent = async (
     client: bp.HandlerProps['client'],
-    cardCommentEvent: CommentCardEvent
+    cardCommentEvent: CommentAddedEventAction
   ): Promise<void> => {
     const messageData = _extractMessageDataFromEvent(cardCommentEvent)
     const conversation = await _getOrCreateConversation(client, messageData)
@@ -29,17 +29,17 @@ export namespace CardCommentHandler {
     await _createMessage(client, user, conversation, messageData)
   }
 
-  const _extractMessageDataFromEvent = (cardCommentEvent: CommentCardEvent): TrelloMessageData =>
+  const _extractMessageDataFromEvent = (cardCommentEvent: CommentAddedEventAction): TrelloMessageData =>
     ({
-      cardId: cardCommentEvent.action.data.card.id,
-      cardName: cardCommentEvent.action.data.card.name,
-      listId: cardCommentEvent.action.data.list?.id ?? '',
-      listName: cardCommentEvent.action.data.list?.name ?? '',
-      messageId: cardCommentEvent.action.id,
-      messageText: cardCommentEvent.action.data.text,
-      messageAuthorId: cardCommentEvent.action.memberCreator.id,
-      messageAuthorName: cardCommentEvent.action.memberCreator.fullName,
-      messageAuthorAvatar: cardCommentEvent.action.memberCreator.avatarUrl + '/50.png',
+      cardId: cardCommentEvent.data.card.id,
+      cardName: cardCommentEvent.data.card.name,
+      listId: cardCommentEvent.data.list?.id ?? '',
+      listName: cardCommentEvent.data.list?.name ?? '',
+      messageId: cardCommentEvent.id,
+      messageText: cardCommentEvent.data.text,
+      messageAuthorId: cardCommentEvent.memberCreator.id,
+      messageAuthorName: cardCommentEvent.memberCreator.fullName,
+      messageAuthorAvatar: cardCommentEvent.memberCreator.avatarUrl + '/50.png',
     }) as const satisfies TrelloMessageData
 
   const _getOrCreateConversation = async (client: bp.HandlerProps['client'], messageData: TrelloMessageData) => {
