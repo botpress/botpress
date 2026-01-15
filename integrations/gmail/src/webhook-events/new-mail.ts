@@ -6,7 +6,7 @@ import { decodeBase64URL } from '../utils/string-utils'
 import * as bp from '.botpress'
 
 export const handleIncomingEmail = async (props: bp.HandlerProps) => {
-  const { req, client, ctx } = props
+  const { req, client, ctx, logger } = props
   const bodyContent = JSON.parse(req.body || '{}')
 
   const data = bodyContent.message?.data
@@ -26,9 +26,6 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
     return
   }
 
-  // Only proceed if the incoming historyId is greater that the latest processed historyId
-  const googleClient = await GoogleClient.create({ client, ctx })
-
   const {
     state: { payload },
   } = await client.getState({
@@ -39,18 +36,21 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
 
   const lastHistoryId = payload.lastHistoryId ?? _fakeHistoryId(historyId)
 
-  if (!payload.lastHistoryId) {
-    await client.getOrSetState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-      payload: {
-        ...payload,
-        lastHistoryId,
-      },
-    })
+  if (Number(historyId) <= Number(lastHistoryId)) {
+    logger.info(`HistoryId ${historyId} already processed (last: ${lastHistoryId}), skipping`)
+    return
   }
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      ...payload,
+      lastHistoryId: historyId,
+    },
+  })
 
+  const googleClient = await GoogleClient.create({ client, ctx })
   const history = await googleClient.getMyHistory(lastHistoryId)
 
   const messageIds = history.history?.reduce((acc, h) => {
@@ -71,16 +71,6 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   for (const messageId of messageIds) {
     await _processMessage(props, messageId, googleClient, emailAddress)
   }
-
-  await client.getOrSetState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-    payload: {
-      ...payload,
-      lastHistoryId: historyId,
-    },
-  })
 }
 
 const _processMessage = async (
@@ -89,7 +79,18 @@ const _processMessage = async (
   googleClient: GoogleClient,
   emailAddress: string
 ) => {
-  const gmailMessage = await googleClient.messages.get(messageId)
+  let gmailMessage
+  try {
+    gmailMessage = await googleClient.messages.get(messageId)
+  } catch (error: unknown) {
+    const err = error as { code?: number; response?: { status?: number } }
+    if (err?.code === 404 || err?.response?.status === 404) {
+      console.info(`Message ${messageId} not found, skipping (likely deleted)`)
+      return
+    }
+    throw error
+  }
+
   const message = parseMessage(gmailMessage)
   const threadId = message.threadId
 
@@ -154,13 +155,22 @@ const _processMessage = async (
     }
   }
 
-  await client.getOrCreateMessage({
-    tags: { id: messageId },
-    type: 'text',
-    userId: user.id,
-    conversationId: conversation.id,
-    payload: { text: content },
-  })
+  try {
+    await client.getOrCreateMessage({
+      tags: { id: messageId },
+      type: 'text',
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: content },
+    })
+  } catch (error: unknown) {
+    const err = error as { message?: string }
+    if (err?.message?.includes('already exists for a different conversation')) {
+      console.info(`Message ${messageId} already exists, skipping`)
+      return
+    }
+    throw error
+  }
 
   await client.getOrSetState({
     type: 'conversation',
