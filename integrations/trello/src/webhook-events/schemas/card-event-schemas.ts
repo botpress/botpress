@@ -29,7 +29,7 @@ const _baseCardUpdateDataSchema = _basicCardSchema
     pos: z.number(),
     start: z.string().datetime().nullable(),
     due: z.string().datetime().nullable(),
-    dueReminder: _dueReminderSchema,
+    dueReminder: _dueReminderSchema.nullable(),
     dueComplete: z.boolean(),
     closed: z.boolean(),
   })
