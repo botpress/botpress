@@ -31,6 +31,32 @@ export enum TrelloEventType {
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
 export const pickIdAndName = <T extends IdAndNameSchema>(schema: T) => schema.pick({ id: true, name: true })
 
+export const botpressEventDataSchema = z.object({
+  eventId: trelloIdSchema.title('Event ID').describe('Unique identifier of the event'),
+  actor: z
+    .union([
+      z.object({
+        id: trelloIdSchema.title('Actor ID').describe('Unique identifier of the actor who triggered the event'),
+        type: z
+          .literal('member')
+          .title('Actor Type')
+          .describe('The type of the actor (e.g. member or app) who triggered the event'),
+        name: z.string().title('Actor Name').describe('The name of the actor (e.g. member) who triggered the event'),
+      }),
+      z.object({
+        id: trelloIdSchema.title('Actor ID').describe('Unique identifier of the actor who triggered the event'),
+        type: z
+          .literal('app')
+          .title('Actor Type')
+          .describe('The type of the actor (e.g. member or app) who triggered the event'),
+      }),
+    ])
+
+    .title('Actor')
+    .describe('The actor (e.g. member or app) who triggered the event'),
+  dateCreated: z.string().datetime().title('Date Created').describe('The datetime when the event was triggered'),
+})
+
 export const genericWebhookEventSchema = z.object({
   action: z.object({
     id: trelloIdSchema.title('Action ID').describe('Unique identifier of the action'),
