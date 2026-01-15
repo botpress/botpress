@@ -1,6 +1,10 @@
 import { z } from '@botpress/sdk'
 import { trelloIdSchema } from 'definitions/schemas'
 import {
+  cardAttachmentAddedEventActionSchema,
+  cardAttachmentRemovedEventActionSchema,
+} from './card-attachment-event-schemas'
+import {
   commentAddedEventActionSchema,
   commentDeletedEventActionSchema,
   commentUpdatedEventActionSchema,
@@ -31,6 +35,9 @@ export const webhookEventSchema = z.object({
     commentAddedEventActionSchema,
     commentUpdatedEventActionSchema,
     commentDeletedEventActionSchema,
+    // ---- Card Attachment Events ----
+    cardAttachmentAddedEventActionSchema,
+    cardAttachmentRemovedEventActionSchema,
     // ---- Checklist Events ----
     checklistAddedToCardEventActionSchema,
     checklistItemCreatedEventActionSchema,

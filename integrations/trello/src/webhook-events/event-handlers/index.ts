@@ -22,6 +22,10 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
       return commentHandlers.handleCommentUpdatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CARD_COMMENT_DELETED:
       return commentHandlers.handleCommentDeletedEvent(props, webhookEventType, webhookEvent.action)
+    case TrelloEventType.ATTACHMENT_ADDED_TO_CARD:
+      return null
+    case TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD:
+      return null
     case TrelloEventType.CHECKLIST_ADDED_TO_CARD:
       return null
     case TrelloEventType.CHECKLIST_ITEM_CREATED:
