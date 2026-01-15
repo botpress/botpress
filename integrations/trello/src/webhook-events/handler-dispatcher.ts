@@ -6,18 +6,20 @@ import {
   genericWebhookEventSchema,
   TrelloEventType,
 } from 'definitions/events'
+import { dispatchIntegrationEvent } from './event-handlers'
 import { CardCommentHandler } from './handlers/card-comment'
+import { webhookEventSchema } from './schemas'
 import { commentAddedEventActionSchema } from './schemas/card-comment-event-schemas'
 import * as bp from '.botpress'
 
-export const handler = async ({ req, client, ctx }: bp.HandlerProps) => {
-  if (!_isBodyPresent({ req })) {
+export const handler = async (props: bp.HandlerProps) => {
+  if (!_isBodyPresent({ req: props.req })) {
     return
   }
 
-  const parsedWebhookEvent = _parseWebhookEvent({ req })
-  await _ensureWebhookIsAuthenticated({ parsedWebhookEvent, ctx, client })
-  await _handleWebhookEvent({ parsedWebhookEvent, client })
+  const parsedWebhookEvent = _parseWebhookEvent({ req: props.req })
+  await _ensureWebhookIsAuthenticated({ parsedWebhookEvent, ctx: props.ctx, client: props.client })
+  await _handleWebhookEvent(props, parsedWebhookEvent)
 }
 
 const _isBodyPresent = ({ req }: { req: sdk.Request }) => !!req.body?.length
@@ -53,33 +55,27 @@ const _ensureWebhookIsAuthenticated = async ({
   }
 }
 
-const _handleWebhookEvent = async (props: { parsedWebhookEvent: GenericWebhookEvent; client: bp.Client }) => {
-  await Promise.allSettled([_handleCardComments(props), _publishEventToBotpress(props)])
+const _handleWebhookEvent = async (props: bp.HandlerProps, event: GenericWebhookEvent) => {
+  await Promise.allSettled([_handleCardComments(props, event), _publishEventToBotpress(props, event)])
 }
 
-const _handleCardComments = async ({
-  parsedWebhookEvent,
-  client,
-}: {
-  parsedWebhookEvent: GenericWebhookEvent
-  client: bp.Client
-}) => {
-  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TrelloEventType.CARD_COMMENT_ADDED) {
+const _handleCardComments = async ({ client }: bp.HandlerProps, event: GenericWebhookEvent) => {
+  if (!event || event.action.type !== TrelloEventType.CARD_COMMENT_ADDED) {
     return
   }
 
-  const cardCreationEvent = commentAddedEventActionSchema.parse(parsedWebhookEvent.action)
+  const cardCreationEvent = commentAddedEventActionSchema.parse(event.action)
   await CardCommentHandler.handleEvent(client, cardCreationEvent)
 }
 
-const _publishEventToBotpress = async ({
-  parsedWebhookEvent,
-  client,
-}: {
-  parsedWebhookEvent: GenericWebhookEvent
-  client: bp.Client
-}) => {
-  if (!parsedWebhookEvent || !Reflect.has(TrelloEventType, parsedWebhookEvent.action.type)) {
+const _publishEventToBotpress = async (props: bp.HandlerProps, event: GenericWebhookEvent) => {
+  const result = webhookEventSchema.safeParse(event)
+  if (result.success) {
+    await dispatchIntegrationEvent(props, result.data)
+  }
+  const { client } = props
+
+  if (!event || !Reflect.has(TrelloEventType, event.action.type)) {
     return
   }
 
@@ -87,12 +83,12 @@ const _publishEventToBotpress = async ({
     z.object({
       action: genericWebhookEventSchema.shape.action.merge(
         z.object({
-          data: events[parsedWebhookEvent.action.type].schema,
+          data: events[event.action.type].schema,
         })
       ),
     })
   )
-  const validatedData = eventSchema.passthrough().parse(parsedWebhookEvent).action.data
+  const validatedData = eventSchema.passthrough().parse(event).action.data
 
-  await client.createEvent({ type: parsedWebhookEvent.action.type, payload: validatedData })
+  await client.createEvent({ type: event.action.type, payload: validatedData })
 }
