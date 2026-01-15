@@ -1,5 +1,6 @@
 import { EventEmitter } from './event-emitter'
 import { listenEventSource, EventSourceEmitter, MessageEvent, ErrorEvent } from './eventsource'
+import { Client } from './gen/client'
 import { zod as signals, Types } from './gen/signals'
 import { WatchDog } from './watchdog'
 
@@ -39,9 +40,12 @@ type Events = Signals & {
 
 export type SignalListenerStatus = SignalListenerState['status']
 
-export type InitializeProps = { url: string; userKey: string; debug: boolean }
-export type ListenProps = InitializeProps & {
+export type BaseProps = { url: string; debug: boolean }
+
+export type InitializeProps = BaseProps & Parameters<Client['initializeIncomingMessage']>[0]
+export type ListenProps = BaseProps & {
   conversationId: string
+  userKey: string
 }
 
 export type SignalListenerProps = { url: URL; headers: Record<string, string>; debug?: boolean }
@@ -102,7 +106,10 @@ export class SignalListener extends EventEmitter<Events> {
 
   public static initialize = async (props: InitializeProps): Promise<SignalListener> => {
     const url = new URL(`${props.url}/initialize`)
-    const headers = { 'x-user-key': props.userKey }
+    let headers = {}
+    if (props['x-user-key']) {
+      headers = { ...headers, 'x-user-key': props['x-user-key'] }
+    }
 
     const inst = new SignalListener({
       url,

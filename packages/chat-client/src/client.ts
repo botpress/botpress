@@ -22,7 +22,7 @@ type IClient = Merge<
   },
   {
     listenConversation: (args: types.ClientRequests['listenConversation']) => Promise<SignalListener>
-    initializeConversation: (args: types.ClientRequests['initializeConversation']) => Promise<SignalListener>
+    initializeConversation: (args: types.ClientRequests['initializeIncomingMessage']) => Promise<SignalListener>
   }
 >
 
@@ -33,7 +33,7 @@ type IAuthenticatedClient = Merge<
   {
     listenConversation: (args: types.AuthenticatedClientRequests['listenConversation']) => Promise<SignalListener>
     initializeConversation: (
-      args: types.AuthenticatedClientRequests['initializeConversation']
+      args: types.AuthenticatedClientRequests['initializeIncomingMessage']
     ) => Promise<SignalListener>
   }
 >
@@ -134,10 +134,10 @@ export class Client implements IClient {
     })
     return signalListener
   }
-  public readonly initializeConversation: IClient['initializeConversation'] = async ({ 'x-user-key': userKey }) => {
+  public readonly initializeConversation: IClient['initializeConversation'] = async (props) => {
     const signalListener = await SignalListener.initialize({
       url: this._apiUrl,
-      userKey,
+      ...props,
       debug: this.props.debug ?? false,
     })
     return signalListener
