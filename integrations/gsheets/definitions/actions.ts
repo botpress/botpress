@@ -438,21 +438,251 @@ const createNamedRangeInSheet = {
   },
 } as const satisfies ActionDef
 
+const _rowSchema = z
+  .object({
+    rowIndex: z.number().title('Row Index').describe('The 1-based index of the row in the sheet.'),
+    values: z.array(z.string().title('Cell Value')).title('Values').describe('The cell values in the row.'),
+  })
+  .title('Row')
+  .describe('A row with its index and values.')
+
+const findRows = {
+  title: 'Find Rows',
+  description:
+    'Search for rows where a specific column matches a value. Returns all matching rows with their indexes. Handles empty sheets and no matches gracefully by returning an empty array.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      searchColumn: z.string().title('Search Column').describe('The column letter to search in (e.g. "A", "B", "AA").'),
+      searchValue: z.string().title('Search Value').describe('The value to search for in the specified column.'),
+      dataRange: z
+        .string()
+        .title('Data Range')
+        .optional()
+        .describe(
+          'Optional A1 notation range to limit the search (e.g. "A1:F100"). If not provided, searches the entire sheet.'
+        ),
+    }),
+  },
+  output: {
+    schema: z.object({
+      rows: z.array(_rowSchema).title('Matching Rows').describe('The rows that match the search criteria.'),
+      totalMatches: z.number().title('Total Matches').describe('The total number of matching rows found.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const findRow = {
+  title: 'Find Row (First Match)',
+  description:
+    'Search for the first row where a specific column matches a value. Returns the row data and its index, or null if no match is found.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      searchColumn: z.string().title('Search Column').describe('The column letter to search in (e.g. "A", "B", "AA").'),
+      searchValue: z.string().title('Search Value').describe('The value to search for in the specified column.'),
+      dataRange: z
+        .string()
+        .title('Data Range')
+        .optional()
+        .describe(
+          'Optional A1 notation range to limit the search (e.g. "A1:F100"). If not provided, searches the entire sheet.'
+        ),
+    }),
+  },
+  output: {
+    schema: z.object({
+      found: z.boolean().title('Found').describe('Whether a matching row was found.'),
+      row: _rowSchema.nullable().describe('The first matching row, or null if not found.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const getRow = {
+  title: 'Get Row',
+  description: 'Fetch a specific row by its 1-based index. Provides direct row access without A1 notation math.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      rowIndex: z
+        .number()
+        .title('Row Index')
+        .describe('The 1-based row index to retrieve (e.g. 1 for the first row, 2 for the second row).'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .optional()
+        .default('A')
+        .describe('The starting column letter (e.g. "A"). Defaults to "A".'),
+      endColumn: z
+        .string()
+        .title('End Column')
+        .optional()
+        .describe('The ending column letter (e.g. "Z"). If not provided, returns all columns with data.'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      found: z.boolean().title('Found').describe('Whether the row exists and has data.'),
+      row: _rowSchema.nullable().describe('The row data, or null if the row is empty or does not exist.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const updateRow = {
+  title: 'Update Row',
+  description:
+    'Update a specific row by its 1-based index with a partial or complete set of values. Only the provided values are updated.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      rowIndex: z.number().title('Row Index').describe('The 1-based row index to update.'),
+      values: z
+        .array(z.string().title('Cell Value'))
+        .title('Values')
+        .describe('The values to write to the row, starting from the start column.'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .optional()
+        .default('A')
+        .describe('The starting column letter for the update (e.g. "A"). Defaults to "A".'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      updatedRange: z.string().title('Updated Range').describe('The range (in A1 notation) that was updated.'),
+      updatedCells: z.number().title('Updated Cells').describe('The number of cells updated.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const insertRowAtIndex = {
+  title: 'Insert Row at Index',
+  description: 'Insert a new row at a specific 1-based index. Existing rows at and below the index are shifted down.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      rowIndex: z.number().title('Row Index').describe('The 1-based index where the new row should be inserted.'),
+      values: z
+        .array(z.string().title('Cell Value'))
+        .title('Values')
+        .optional()
+        .describe('Optional values to populate the new row.'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .optional()
+        .default('A')
+        .describe('The starting column letter for the values (e.g. "A"). Defaults to "A".'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      insertedRowIndex: z.number().title('Inserted Row Index').describe('The 1-based index of the newly inserted row.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const deleteRows = {
+  title: 'Delete Rows',
+  description:
+    'Delete one or more rows by their 1-based indexes. Rows are deleted in reverse order to preserve indexes during deletion.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      rowIndexes: z
+        .array(z.number().title('Row Index'))
+        .title('Row Indexes')
+        .describe('The 1-based row indexes to delete.'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      deletedCount: z.number().title('Deleted Count').describe('The number of rows deleted.'),
+    }),
+  },
+} as const satisfies ActionDef
+
+const upsertRow = {
+  title: 'Upsert Row',
+  description:
+    'Update a row if it exists (based on a key column match), or append a new row if no match is found. Useful for maintaining unique records.',
+  input: {
+    schema: z.object({
+      sheetName: z
+        .string()
+        .title('Sheet Name')
+        .optional()
+        .describe('The name of the sheet (e.g. "Sheet1"). If not provided, the first visible sheet is used.'),
+      keyColumn: z
+        .string()
+        .title('Key Column')
+        .describe('The column letter to use for matching (e.g. "A" for ID column).'),
+      keyValue: z.string().title('Key Value').describe('The value to match in the key column.'),
+      values: z.array(z.string().title('Cell Value')).title('Values').describe('The values to write to the row.'),
+      startColumn: z
+        .string()
+        .title('Start Column')
+        .optional()
+        .default('A')
+        .describe('The starting column letter for the values (e.g. "A"). Defaults to "A".'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      action: z.enum(['updated', 'inserted']).title('Action').describe('Whether the row was updated or inserted.'),
+      rowIndex: z.number().title('Row Index').describe('The 1-based index of the affected row.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
   clearValues,
   createNamedRangeInSheet,
+  deleteRows,
   deleteSheet,
+  findRow,
+  findRows,
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
   getNamedRanges,
   getProtectedRanges,
+  getRow,
   getValues,
+  insertRowAtIndex,
   moveSheetHorizontally,
   protectNamedRange,
   renameSheet,
   setSheetVisibility,
   unprotectRange,
+  updateRow,
+  upsertRow,
   setValues,
 } as const satisfies ActionDefinitions
