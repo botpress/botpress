@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, trelloIdSchema } from '../schemas'
-import { botpressEventDataSchema, genericWebhookEventSchema, pickIdAndName } from './common'
+import { botpressEventDataSchema, pickIdAndName } from './common'
 
 // Action that is triggered when a label is added to a card
 export const addLabelToCardEventSchema = botpressEventDataSchema.extend({
@@ -28,16 +28,4 @@ export const removeLabelFromCardEventSchema = botpressEventDataSchema.extend({
     })
     .title('Label')
     .describe('Label that was removed from the card'),
-})
-
-// Action that is triggered when a user votes on a card
-export const voteOnCardEventSchema = genericWebhookEventSchema.extend({
-  action: genericWebhookEventSchema.shape.action.extend({
-    type: z.literal('voteOnCard').describe('Type of the action'),
-    data: z.object({
-      board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
-      card: pickIdAndName(cardSchema).optional().title('Card').describe('Card that was updated'),
-      voted: z.boolean().title('Has Voted').describe('Whether the user voted on the card'),
-    }),
-  }),
 })
