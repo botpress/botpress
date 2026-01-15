@@ -1,4 +1,6 @@
-import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+
+const { z } = sdk
 
 export const states = {
   oauthCredentials: {
@@ -27,4 +29,4 @@ export const states = {
       notificationIds: z.array(z.string()),
     }),
   },
-} as const
+} as const satisfies sdk.IntegrationDefinitionProps['states']

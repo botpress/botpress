@@ -1,4 +1,6 @@
-import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+
+const { z } = sdk
 
 export const actions = {
   createPost: {
@@ -71,4 +73,4 @@ export const actions = {
       }),
     },
   },
-} as const
+} as const satisfies sdk.IntegrationDefinitionProps['actions']
