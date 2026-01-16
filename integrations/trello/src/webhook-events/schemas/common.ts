@@ -23,7 +23,9 @@ export const trelloEventActionSchema = z.object({
       id: trelloIdSchema,
     })
     .nullable(),
-  /** Member who initiated the action
+  /** Member who initiated the action, or the member
+   *  who created the app that initiated the action
+   *  (if "appCreator" is not null).
    *
    *  @remark This still appears to be present even if
    *   the action was initiated via an API key & token. */
