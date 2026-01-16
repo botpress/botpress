@@ -10,7 +10,7 @@ import * as bp from '.botpress'
 
 export const handleCommentAddedEvent = async (
   props: bp.HandlerProps,
-  eventType: TrelloEventType.CARD_COMMENT_ADDED,
+  eventType: TrelloEventType.CARD_COMMENT_CREATED,
   actionData: CommentAddedEventAction
 ) => {
   const result = await Promise.allSettled([

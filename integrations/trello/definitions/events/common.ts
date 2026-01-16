@@ -6,9 +6,9 @@ export enum TrelloEventType {
   CARD_CREATED = 'createCard',
   CARD_UPDATED = 'updateCard',
   CARD_DELETED = 'deleteCard',
-  VOTE_ON_CARD = 'voteOnCard',
+  CARD_VOTES_UPDATED = 'voteOnCard',
   // ---- Card Comment Events ----
-  CARD_COMMENT_ADDED = 'commentCard',
+  CARD_COMMENT_CREATED = 'commentCard',
   CARD_COMMENT_UPDATED = 'updateComment',
   CARD_COMMENT_DELETED = 'deleteComment',
   // ---- Card Label Events ----

@@ -17,9 +17,9 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
       return cardHandlers.handleCardUpdatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CARD_DELETED:
       return cardHandlers.handleCardDeletedEvent(props, webhookEventType, webhookEvent.action)
-    case TrelloEventType.VOTE_ON_CARD:
+    case TrelloEventType.CARD_VOTES_UPDATED:
       return cardHandlers.handleCardVotesUpdatedEvent(props, webhookEventType, webhookEvent.action)
-    case TrelloEventType.CARD_COMMENT_ADDED:
+    case TrelloEventType.CARD_COMMENT_CREATED:
       return commentHandlers.handleCommentAddedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CARD_COMMENT_UPDATED:
       return commentHandlers.handleCommentUpdatedEvent(props, webhookEventType, webhookEvent.action)

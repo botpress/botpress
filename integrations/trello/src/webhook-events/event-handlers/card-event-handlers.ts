@@ -63,7 +63,7 @@ export const handleCardDeletedEvent = async (
 
 export const handleCardVotesUpdatedEvent = async (
   props: bp.HandlerProps,
-  eventType: TrelloEventType.VOTE_ON_CARD,
+  eventType: TrelloEventType.CARD_VOTES_UPDATED,
   actionData: CardVotesUpdatedEventAction
 ) => {
   return await props.client.createEvent({

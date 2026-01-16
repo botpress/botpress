@@ -41,7 +41,7 @@ export const events = {
     description: 'Triggered when a card is deleted',
     schema: cardDeletedEventSchema,
   },
-  [TrelloEventType.VOTE_ON_CARD]: {
+  [TrelloEventType.CARD_VOTES_UPDATED]: {
     title: 'Vote on card',
     description: 'Triggered when a vote is added to a card',
     schema: cardVotesUpdatedEventSchema,
@@ -49,7 +49,7 @@ export const events = {
   // ===============================
   //       Card Comment Events
   // ===============================
-  [TrelloEventType.CARD_COMMENT_ADDED]: {
+  [TrelloEventType.CARD_COMMENT_CREATED]: {
     title: 'Comment added to card',
     description: 'Triggered when a comment is added to a card',
     schema: cardCommentCreatedEventSchema,

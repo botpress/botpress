@@ -9,7 +9,7 @@ import { trelloEventActionSchema } from './common'
 export const commentAddedEventActionSchema = trelloEventActionSchema.extend({
   /** @remark This is only the comment ID for the comment added event */
   id: trelloIdSchema.brand('EventID').brand('CommentID'),
-  type: z.literal(TrelloEventType.CARD_COMMENT_ADDED),
+  type: z.literal(TrelloEventType.CARD_COMMENT_CREATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
     list: pickIdAndName(listSchema),

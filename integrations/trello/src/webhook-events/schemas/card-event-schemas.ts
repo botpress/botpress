@@ -59,7 +59,7 @@ export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
 export type CardDeletedEventAction = z.infer<typeof cardDeletedEventActionSchema>
 
 export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend({
-  type: z.literal(TrelloEventType.VOTE_ON_CARD),
+  type: z.literal(TrelloEventType.CARD_VOTES_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: _basicCardSchema,
