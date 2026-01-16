@@ -4,14 +4,14 @@ import { botpressEventDataSchema, pickIdAndName } from './common'
 
 // Action that is triggered when an attachment is added to a card
 export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
+  list: pickIdAndName(listSchema).title('List').describe('List where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
-  list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
   attachment: z
     .object({
       id: trelloIdSchema.title('Attachment ID').describe('Unique identifier of the attachment'),
       name: z.string().title('Attachment Name').describe('Name of the attachment'),
-      url: z.string().url().optional().title('Attachment URL').describe('URL of the attachment'),
+      url: z.string().url().title('Attachment URL').describe('URL of the attachment'),
       previewUrl: z.string().url().optional().title('Attachment Preview URL').describe('URL of the attachment preview'),
       previewUrl2x: z
         .string()
@@ -26,9 +26,8 @@ export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
 
 // Action that is triggered when an attachment is deleted from a card
 export const attachmentDeletedFromCardEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
-  list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
   attachment: z
     .object({
       id: trelloIdSchema.title('Attachment ID').describe('Unique identifier of the attachment'),
