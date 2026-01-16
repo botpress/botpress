@@ -23,7 +23,7 @@ export type CreatePostResult = {
 
 export class PostsApi extends LinkedInBaseApi {
   public async createPost(params: CreatePostParams): Promise<CreatePostResult> {
-    const { authorUrn, text, visibility = 'PUBLIC', imageUrl, articleUrl, articleTitle, articleDescription } = params
+    const { authorUrn, text, visibility, imageUrl, articleUrl, articleTitle, articleDescription } = params
 
     let content: Record<string, unknown> | undefined = undefined
 
