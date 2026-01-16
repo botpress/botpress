@@ -1,5 +1,6 @@
 import { TrelloEventType } from 'definitions/events'
 import { WebhookEvent } from '../schemas'
+import * as attachmentHandlers from './card-attachment-event-handlers'
 import * as commentHandlers from './card-comment-event-handlers'
 import * as cardHandlers from './card-event-handlers'
 import * as memberHandlers from './member-event-handlers'
@@ -27,9 +28,9 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
     case TrelloEventType.LABEL_REMOVED_FROM_CARD:
       return null
     case TrelloEventType.ATTACHMENT_ADDED_TO_CARD:
-      return null
+      return attachmentHandlers.handleAttachmentAddedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD:
-      return null
+      return attachmentHandlers.handleAttachmentRemovedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ADDED_TO_CARD:
       return null
     case TrelloEventType.CHECKLIST_ITEM_CREATED:
