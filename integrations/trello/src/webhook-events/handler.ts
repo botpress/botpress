@@ -1,6 +1,6 @@
 import { TrelloEventType } from 'definitions/events'
 import { Result } from '../types'
-import { tryParseRequestBody } from '../utils'
+import { safeParseRequestBody } from '../utils'
 import { dispatchIntegrationEvent } from './event-handlers'
 import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSchema } from './schemas'
 import * as bp from '.botpress'
@@ -24,7 +24,7 @@ export const handler = async (props: bp.HandlerProps): Promise<void> => {
 const _isSupportedEventType = (type: string) => Object.values<string>(TrelloEventType).includes(type)
 
 const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayload> => {
-  const result = tryParseRequestBody(props.req.body)
+  const result = safeParseRequestBody(props.req.body)
   if (!result.success) return result
 
   const payloadResult = webhookEventPayloadSchema.safeParse(result.data)

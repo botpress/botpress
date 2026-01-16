@@ -14,7 +14,7 @@ export const safeParseJson = (json: string): Result<object> => {
   }
 }
 
-export const tryParseRequestBody = (body: string | undefined): Result<object> => {
+export const safeParseRequestBody = (body: string | undefined): Result<object> => {
   if (!body?.trim()) {
     return {
       success: false,
