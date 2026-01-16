@@ -19,13 +19,7 @@ import {
   checklistItemUpdatedEventSchema,
   checklistItemStatusUpdatedEventSchema,
 } from './checklist-events'
-import {
-  AllSupportedEvents,
-  CommonEventData,
-  GenericWebhookEvent,
-  genericWebhookEventSchema,
-  TrelloEventType,
-} from './common'
+import { CommonEventData, TrelloEventType } from './common'
 import { memberAddedToCardEventSchema, memberRemovedFromCardEventSchema } from './member-events'
 
 export const events = {
@@ -139,10 +133,4 @@ export const events = {
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
 
-export {
-  TrelloEventType,
-  type CommonEventData,
-  type AllSupportedEvents,
-  type GenericWebhookEvent,
-  genericWebhookEventSchema,
-}
+export { TrelloEventType, type CommonEventData }
