@@ -24,10 +24,8 @@ export const cardCommentUpdatedEventSchema = botpressEventDataSchema.extend({
 export const cardCommentDeletedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
-  comment: z
-    .object({
-      id: trelloIdSchema.title('Comment ID').describe('Unique identifier of the comment that was deleted'),
-    })
+  comment: _cardCommentSchema
+    .pick({ id: true })
     .title('Deleted Comment')
     .describe('Comment that was deleted from the card'),
 })
