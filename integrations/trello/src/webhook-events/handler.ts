@@ -1,6 +1,6 @@
 import { TrelloEventType } from 'definitions/events'
-import { Result } from 'src/types'
-import { tryParseRequestBody } from 'src/utils'
+import { Result } from '../types'
+import { tryParseRequestBody } from '../utils'
 import { dispatchIntegrationEvent } from './event-handlers'
 import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSchema } from './schemas'
 import * as bp from '.botpress'
