@@ -3,6 +3,8 @@ import { deleteIssue } from './delete-issue'
 import { findTarget } from './find-target'
 import { getIssue } from './get-issue'
 import { getUser } from './get-user'
+import { issueDelete } from './issue-delete'
+import { issueList } from './issue-list'
 import { listIssues } from './list-issues'
 import { listStates } from './list-states'
 import { listTeams } from './list-teams'
@@ -29,4 +31,6 @@ export default {
   sendRawGraphqlQuery,
   resolveComment,
   getOrCreateIssueConversation,
+  issueDelete,
+  issueList,
 } satisfies Partial<bp.IntegrationProps['actions']>
