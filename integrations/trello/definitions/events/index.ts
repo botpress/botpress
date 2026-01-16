@@ -1,5 +1,5 @@
 import { type IntegrationDefinitionProps } from '@botpress/sdk'
-import { attachmentAddedToCardEventSchema, attachmentDeletedFromCardEventSchema } from './card-attachment-events'
+import { attachmentAddedToCardEventSchema, attachmentRemovedFromCardEventSchema } from './card-attachment-events'
 import {
   cardCommentCreatedEventSchema,
   cardCommentDeletedEventSchema,
@@ -88,7 +88,7 @@ export const events = {
   [TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD]: {
     title: 'Card Attachment Removed',
     description: 'Triggered when an attachment is removed from a card',
-    schema: attachmentDeletedFromCardEventSchema,
+    schema: attachmentRemovedFromCardEventSchema,
   },
   // ================================
   //         Checklist Events

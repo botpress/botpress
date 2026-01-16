@@ -25,7 +25,7 @@ export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
 })
 
 // Action that is triggered when an attachment is deleted from a card
-export const attachmentDeletedFromCardEventSchema = botpressEventDataSchema.extend({
+export const attachmentRemovedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   attachment: z
