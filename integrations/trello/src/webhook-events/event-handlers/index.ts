@@ -4,6 +4,7 @@ import * as attachmentHandlers from './card-attachment-event-handlers'
 import * as commentHandlers from './card-comment-event-handlers'
 import * as cardHandlers from './card-event-handlers'
 import * as labelHandlers from './card-label-event-handlers'
+import * as checklistHandlers from './checklist-event-handlers'
 import * as memberHandlers from './member-event-handlers'
 import * as bp from '.botpress'
 
@@ -33,15 +34,15 @@ export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEv
     case TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD:
       return attachmentHandlers.handleAttachmentRemovedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ADDED_TO_CARD:
-      return null
+      return checklistHandlers.handleChecklistAddedToCardEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ITEM_CREATED:
-      return null
+      return checklistHandlers.handleChecklistItemCreatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ITEM_UPDATED:
-      return null
+      return checklistHandlers.handleChecklistItemUpdatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ITEM_DELETED:
-      return null
+      return checklistHandlers.handleChecklistItemDeletedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED:
-      return null
+      return checklistHandlers.handleChecklistItemStatusUpdatedEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.MEMBER_ADDED_TO_CARD:
       return memberHandlers.handleMemberAddedToCardEvent(props, webhookEventType, webhookEvent.action)
     case TrelloEventType.MEMBER_REMOVED_FROM_CARD:
