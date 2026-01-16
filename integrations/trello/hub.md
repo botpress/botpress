@@ -96,3 +96,4 @@ The id of the board should be 24 characters long consisting of letters and numbe
   - "Member IDs To Remove" (formerly "Members To Remove")
   - "Label IDs To Add" (formerly "Labels To Add")
   - "Label IDs To Remove" (formerly "Labels To Remove")
+- TODO: Add notes for the breaking changes for the events
