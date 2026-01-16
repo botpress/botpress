@@ -1,5 +1,5 @@
 import { TrelloEventType } from 'definitions/events'
-import { WebhookEvent } from '../schemas'
+import { WebhookEventPayload } from '../schemas'
 import * as attachmentHandlers from './card-attachment-event-handlers'
 import * as commentHandlers from './card-comment-event-handlers'
 import * as cardHandlers from './card-event-handlers'
@@ -8,7 +8,7 @@ import * as checklistHandlers from './checklist-event-handlers'
 import * as memberHandlers from './member-event-handlers'
 import * as bp from '.botpress'
 
-export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: WebhookEvent) => {
+export const dispatchIntegrationEvent = async (props: bp.HandlerProps, webhookEvent: WebhookEventPayload) => {
   const webhookEventType = webhookEvent.action.type
   switch (webhookEventType) {
     case TrelloEventType.CARD_CREATED:

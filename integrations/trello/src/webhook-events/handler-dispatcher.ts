@@ -8,7 +8,7 @@ import {
 } from 'definitions/events'
 import { dispatchIntegrationEvent } from './event-handlers'
 import { CardCommentHandler } from './handlers/card-comment'
-import { webhookEventSchema } from './schemas'
+import { webhookEventPayloadSchema } from './schemas'
 import { commentAddedEventActionSchema } from './schemas/card-comment-event-schemas'
 import * as bp from '.botpress'
 
@@ -69,7 +69,7 @@ const _handleCardComments = async ({ client }: bp.HandlerProps, event: GenericWe
 }
 
 const _publishEventToBotpress = async (props: bp.HandlerProps, event: GenericWebhookEvent) => {
-  const result = webhookEventSchema.safeParse(event)
+  const result = webhookEventPayloadSchema.safeParse(event)
   if (result.success) {
     await dispatchIntegrationEvent(props, result.data)
   }

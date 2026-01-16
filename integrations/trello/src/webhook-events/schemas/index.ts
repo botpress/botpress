@@ -25,7 +25,7 @@ import {
 } from './checklist-event-schemas'
 import { memberAddedToCardEventActionSchema, memberRemovedFromCardEventActionSchema } from './member-event-schemas'
 
-export const webhookEventSchema = z.object({
+export const webhookEventPayloadSchema = z.object({
   action: z.union([
     // ---- Card Events ----
     cardCreatedEventActionSchema,
@@ -59,4 +59,4 @@ export const webhookEventSchema = z.object({
     consecutiveFailures: z.number().min(0),
   }),
 })
-export type WebhookEvent = z.infer<typeof webhookEventSchema>
+export type WebhookEventPayload = z.infer<typeof webhookEventPayloadSchema>
