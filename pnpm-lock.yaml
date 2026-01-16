@@ -1352,9 +1352,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@botpress/sdk-addons':
-        specifier: workspace:*
-        version: link:../../packages/sdk-addons
       '@linear/sdk':
         specifier: ^65.2.0
         version: 65.2.0
@@ -1380,9 +1377,9 @@ importers:
       '@botpresshub/listable':
         specifier: workspace:*
         version: link:../../interfaces/listable
-      '@sentry/cli':
-        specifier: ^2.39.1
-        version: 2.39.1
+      '@botpresshub/proactive-conversation':
+        specifier: workspace:*
+        version: link:../../interfaces/proactive-conversation
 
   integrations/loops:
     dependencies:
