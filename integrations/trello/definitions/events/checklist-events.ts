@@ -41,7 +41,7 @@ const _baseChecklistItemUpdateDataSchema = _basicChecklistItemSchema.extend({
 
 // Action that is triggered when an item is updated in a checklist
 export const checklistItemUpdatedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was updated'),
   checklistItem: _baseChecklistItemUpdateDataSchema.title('Checklist Item').describe('Checklist item that was updated'),
@@ -54,7 +54,7 @@ export const checklistItemUpdatedEventSchema = botpressEventDataSchema.extend({
 
 // Action that is triggered when a checklist item's status is changed from "incomplete" to "complete" or vice versa
 export const checklistItemStatusUpdatedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was updated'),
   checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('Checklist item that was updated'),
@@ -62,7 +62,7 @@ export const checklistItemStatusUpdatedEventSchema = botpressEventDataSchema.ext
 
 // Action that is triggered when an item is removed from a checklist
 export const checklistItemDeletedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was removed'),
   checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('Checklist item that was removed'),

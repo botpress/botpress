@@ -8,23 +8,21 @@ const _cardCommentSchema = z.object({
 })
 
 export const cardCommentCreatedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
-  list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
+  list: pickIdAndName(listSchema).title('List').describe('List where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   comment: _cardCommentSchema.title('New Comment').describe('Comment that was added to the card'),
 })
 
 export const cardCommentUpdatedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
-  list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   comment: _cardCommentSchema.title('Updated Comment').describe('Comment that was updated'),
   old: _cardCommentSchema.omit({ id: true }).title('Old Comment').describe('The previous data of the comment'),
 })
 
 export const cardCommentDeletedEventSchema = botpressEventDataSchema.extend({
-  board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
-  list: pickIdAndName(listSchema).optional().title('List').describe('List where the card was updated'),
+  board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   comment: z
     .object({
