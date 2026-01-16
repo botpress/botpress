@@ -1,4 +1,6 @@
 // @ts-ignore
+import { AxiosError } from 'axios'
+// @ts-ignore
 import parseMessage from 'gmail-api-parse-message'
 import { parse as parseHtml } from 'node-html-parser'
 import { GoogleClient } from '../google-api'
@@ -12,7 +14,7 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const data = bodyContent.message?.data
 
   if (!data) {
-    console.warn('Handler received an invalid body (no data)')
+    logger.warn('Handler received an invalid body (no data)')
     return
   }
 
@@ -22,7 +24,7 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const historyId = `${historyIdNumber}`
 
   if (!historyId) {
-    console.warn('Handler received an invalid body (no historyId)')
+    logger.warn('Handler received an invalid body (no historyId)')
     return
   }
 
@@ -64,12 +66,12 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   }, [] as string[])
 
   if (!messageIds?.length) {
-    console.info('Handler received an empty message id')
+    logger.info('Handler received an empty message id')
     return
   }
 
   for (const messageId of messageIds) {
-    await _processMessage(props, messageId, googleClient, emailAddress)
+    await _processMessage(props, messageId, googleClient, emailAddress, logger)
   }
 }
 
@@ -77,15 +79,15 @@ const _processMessage = async (
   { client }: bp.HandlerProps,
   messageId: string,
   googleClient: GoogleClient,
-  emailAddress: string
+  emailAddress: string,
+  logger: bp.HandlerProps['logger']
 ) => {
   let gmailMessage
   try {
     gmailMessage = await googleClient.messages.get(messageId)
   } catch (error: unknown) {
-    const err = error as { code?: number; response?: { status?: number } }
-    if (err?.code === 404 || err?.response?.status === 404) {
-      console.info(`Message ${messageId} not found, skipping (likely deleted)`)
+    if (error instanceof AxiosError && (error?.code === '404' || error?.response?.status === 404)) {
+      logger.info(`Message ${messageId} not found, skipping (likely deleted)`)
       return
     }
     throw error
@@ -95,7 +97,7 @@ const _processMessage = async (
   const threadId = message.threadId
 
   if (!threadId) {
-    console.info('Handler received an empty chat id')
+    logger.info('Handler received an empty chat id')
     throw new Error('Handler received an empty chat id')
   }
 
@@ -151,7 +153,7 @@ const _processMessage = async (
       // Extract the text content:
       content = messageRoot.structuredText
     } catch (thrown) {
-      console.error('Error while parsing html content', thrown)
+      logger.error('Error while parsing html content', thrown)
     }
   }
 
@@ -164,9 +166,9 @@ const _processMessage = async (
       payload: { text: content },
     })
   } catch (error: unknown) {
-    const err = error as { message?: string }
+    const err = error instanceof Error ? error : new Error(String(error))
     if (err?.message?.includes('already exists for a different conversation')) {
-      console.info(`Message ${messageId} already exists, skipping`)
+      logger.info(`Message ${messageId} already exists, skipping`)
       return
     }
     throw error
