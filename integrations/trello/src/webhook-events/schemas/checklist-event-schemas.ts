@@ -1,13 +1,9 @@
 import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
+import { checklistSchema } from 'definitions/events/checklist-events'
 import { dueReminderSchema, pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, trelloIdSchema } from 'definitions/schemas'
 import { trelloEventActionSchema } from './common'
-
-const _checklistSchema = z.object({
-  id: trelloIdSchema,
-  name: z.string(),
-})
 
 const _checklistItemCompletionStateSchema = z.union([z.literal('complete'), z.literal('incomplete')])
 
@@ -25,7 +21,7 @@ export const checklistAddedToCardEventActionSchema = trelloEventActionSchema.ext
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
-    checklist: _checklistSchema,
+    checklist: checklistSchema,
   }),
 })
 export type ChecklistAddedToCardEventAction = z.infer<typeof checklistAddedToCardEventActionSchema>
@@ -35,7 +31,7 @@ export const checklistItemCreatedEventActionSchema = trelloEventActionSchema.ext
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
-    checklist: _checklistSchema,
+    checklist: checklistSchema,
     checkItem: _basicChecklistItemSchema,
   }),
 })
@@ -46,7 +42,7 @@ export const checklistItemUpdatedEventActionSchema = trelloEventActionSchema.ext
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
-    checklist: _checklistSchema,
+    checklist: checklistSchema,
     checkItem: _basicChecklistItemSchema.extend({
       dueReminder: dueReminderSchema.optional(),
       // Technically optional, if I include the "updateCheckItemDue" event type. Otherwise, it isn't included in "CHECKLIST_ITEM_UPDATED" event
@@ -66,7 +62,7 @@ export const checklistItemDeletedEventActionSchema = trelloEventActionSchema.ext
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
-    checklist: _checklistSchema,
+    checklist: checklistSchema,
     checkItem: _basicChecklistItemSchema,
   }),
 })
@@ -77,7 +73,7 @@ export const checklistItemStatusUpdatedEventActionSchema = trelloEventActionSche
   data: z.object({
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
-    checklist: _checklistSchema,
+    checklist: checklistSchema,
     checkItem: _basicChecklistItemSchema,
   }),
 })
