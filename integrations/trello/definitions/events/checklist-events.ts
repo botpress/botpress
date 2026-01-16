@@ -31,11 +31,11 @@ export const checklistItemCreatedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was added'),
-  checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('The item that was added to the checklist'),
+  checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('The checklist item that was added'),
 })
 
 const _baseChecklistItemUpdateDataSchema = _basicChecklistItemSchema.extend({
-  dueReminder: dueReminderSchema.optional(),
+  dueDateReminder: dueReminderSchema.optional(),
   dueDate: z.string().datetime().nullable().optional().title('Due Date').describe('Due date of the checklist item'),
 })
 
@@ -57,7 +57,7 @@ export const checklistItemStatusUpdatedEventSchema = botpressEventDataSchema.ext
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was updated'),
-  checkItem: _basicChecklistItemSchema.title('Checklist Item').describe('Checklist item that was updated'),
+  checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('Checklist item that was updated'),
 })
 
 // Action that is triggered when an item is removed from a checklist
@@ -65,5 +65,5 @@ export const checklistItemDeletedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).optional().title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),
   checklist: checklistSchema.title('Checklist').describe('Checklist where the item was removed'),
-  checkItem: _basicChecklistItemSchema.title('Check Item').describe('Check item that was removed from the checklist'),
+  checklistItem: _basicChecklistItemSchema.title('Checklist Item').describe('Checklist item that was removed'),
 })
