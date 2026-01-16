@@ -21,4 +21,6 @@ export type ActionProps = bp.AnyActionProps
 export type MessageHandlerProps = bp.AnyMessageProps
 export type AckFunction = bp.AnyAckFunction
 
-export type TwilioChannel = 'sms/mms' | 'rcs' | 'whatsapp' | 'messenger'
+// Channel message payload types
+export type Choice = bp.channels.channel.choice.Choice
+export type Card = bp.channels.channel.card.Card
