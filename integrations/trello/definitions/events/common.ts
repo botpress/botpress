@@ -31,6 +31,16 @@ export enum TrelloEventType {
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
 export const pickIdAndName = <T extends IdAndNameSchema>(schema: T) => schema.pick({ id: true, name: true })
 
+/** The number of minutes before the due date when a reminder will be sent.
+ *
+ *  @remark When the value is "-1", it means no due date reminder is set. */
+export const dueReminderSchema = z
+  .number()
+  .int('Due date reminder is not an integer')
+  .min(-1)
+  .title('Due Date Reminder')
+  .describe('The number of minutes before the due date when a reminder will be sent')
+
 export const botpressEventDataSchema = z.object({
   eventId: trelloIdSchema.title('Event ID').describe('Unique identifier of the event'),
   actor: z

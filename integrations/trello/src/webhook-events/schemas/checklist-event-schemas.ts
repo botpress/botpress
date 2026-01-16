@@ -1,7 +1,6 @@
 import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
-import { dueReminderSchema } from 'definitions/events/card-events'
-import { pickIdAndName } from 'definitions/events/common'
+import { dueReminderSchema, pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, trelloIdSchema } from 'definitions/schemas'
 import { trelloEventActionSchema } from './common'
 

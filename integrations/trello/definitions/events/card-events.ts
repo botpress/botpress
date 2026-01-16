@@ -1,16 +1,6 @@
 import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from '../schemas'
-import { botpressEventDataSchema, pickIdAndName } from './common'
-
-/** The number of minutes before the due date when a reminder will be sent.
- *
- *  @remark When the value is "-1", it means no due date reminder is set. */
-export const dueReminderSchema = z
-  .number()
-  .int('Due date reminder is not an integer')
-  .min(-1)
-  .title('Due Date Reminder')
-  .describe('The number of minutes before the due date when a reminder will be sent')
+import { botpressEventDataSchema, dueReminderSchema, pickIdAndName } from './common'
 
 export const cardCreatedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was created'),
