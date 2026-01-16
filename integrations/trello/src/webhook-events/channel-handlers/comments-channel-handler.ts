@@ -1,0 +1,77 @@
+import { CommentAddedEventAction } from '../schemas/card-comment-event-schemas'
+import * as bp from '.botpress'
+
+type Conversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
+type User = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
+
+export const processInboundCommentChannelMessage = async (
+  client: bp.HandlerProps['client'],
+  commentAddedEvent: CommentAddedEventAction
+): Promise<void> => {
+  const conversation = await _getOrCreateConversation(client, commentAddedEvent.data)
+  const user = await _getOrCreateUser(client, commentAddedEvent.memberCreator)
+
+  const comment = _extractCommentData(commentAddedEvent)
+  if (_checkIfMessageWasSentByOurselvesAndShouldBeIgnored(conversation, comment)) {
+    return
+  }
+
+  await _createMessage(client, conversation, user, comment)
+}
+
+const _extractCommentData = (event: CommentAddedEventAction) =>
+  ({
+    id: event.id,
+    text: event.data.text,
+  }) as const
+type CardComment = ReturnType<typeof _extractCommentData>
+
+const _getOrCreateConversation = async (
+  client: bp.HandlerProps['client'],
+  eventData: CommentAddedEventAction['data']
+) => {
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'cardComments',
+    tags: {
+      listId: eventData.list.id,
+      listName: eventData.list.name,
+      cardId: eventData.card.id,
+      cardName: eventData.card.name,
+    },
+  })
+
+  return conversation
+}
+
+const _getOrCreateUser = async (
+  client: bp.HandlerProps['client'],
+  memberCreator: CommentAddedEventAction['memberCreator']
+) => {
+  const { user } = await client.getOrCreateUser({
+    tags: {
+      userId: memberCreator.id,
+    },
+    name: memberCreator.fullName,
+    pictureUrl: `${memberCreator.avatarUrl}/50.png`,
+  })
+
+  return user
+}
+
+const _checkIfMessageWasSentByOurselvesAndShouldBeIgnored = (conversation: Conversation, comment: CardComment) =>
+  conversation.tags.lastCommentId === comment.id
+
+const _createMessage = async (
+  client: bp.HandlerProps['client'],
+  conversation: Conversation,
+  user: User,
+  comment: CardComment
+) => {
+  await client.createMessage({
+    conversationId: conversation.id,
+    userId: user.id,
+    type: 'text',
+    payload: { text: comment.text },
+    tags: { commentId: comment.id },
+  })
+}

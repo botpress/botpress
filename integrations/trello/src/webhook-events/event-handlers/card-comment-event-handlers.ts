@@ -1,4 +1,5 @@
 import { TrelloEventType } from 'definitions/events'
+import { processInboundCommentChannelMessage } from '../channel-handlers/comments-channel-handler'
 import {
   CommentAddedEventAction,
   CommentDeletedEventAction,
@@ -12,19 +13,24 @@ export const handleCommentAddedEvent = async (
   eventType: TrelloEventType.CARD_COMMENT_ADDED,
   actionData: CommentAddedEventAction
 ) => {
-  return await props.client.createEvent({
-    type: eventType,
-    payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      list: extractIdAndName(actionData.data.list),
-      card: extractIdAndName(actionData.data.card),
-      comment: {
-        id: actionData.id,
-        text: actionData.data.text,
+  const result = await Promise.allSettled([
+    processInboundCommentChannelMessage(props.client, actionData),
+    props.client.createEvent({
+      type: eventType,
+      payload: {
+        ...extractCommonEventData(actionData),
+        board: extractIdAndName(actionData.data.board),
+        list: extractIdAndName(actionData.data.list),
+        card: extractIdAndName(actionData.data.card),
+        comment: {
+          id: actionData.id,
+          text: actionData.data.text,
+        },
       },
-    },
-  })
+    }),
+  ])
+
+  return result[1].status === 'fulfilled' ? result[1].value : null
 }
 
 export const handleCommentUpdatedEvent = async (
