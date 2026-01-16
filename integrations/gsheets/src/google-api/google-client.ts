@@ -305,4 +305,81 @@ export class GoogleClient {
 
     return `spreadsheet "${title}"` + (sheetsTitles.length ? ` with sheets "${sheetsTitles.join('", "')}"` : '')
   }
+
+  @handleErrors('Failed to get sheet ID by name')
+  public async getSheetIdByName(sheetName?: string): Promise<{ sheetId: number; sheetTitle: string }> {
+    const meta = await this.getSpreadsheetMetadata({ fields: 'sheets.properties' })
+    const sheets = meta.sheets ?? []
+
+    if (!sheetName) {
+      const firstVisibleSheet = sheets.find((s) => !s.properties?.hidden)
+      if (!firstVisibleSheet?.properties) {
+        throw new Error('No visible sheets found in spreadsheet')
+      }
+      return {
+        sheetId: firstVisibleSheet.properties.sheetId ?? 0,
+        sheetTitle: firstVisibleSheet.properties.title ?? '',
+      }
+    }
+
+    const sheet = sheets.find((s) => s.properties?.title === sheetName)
+    if (!sheet?.properties) {
+      throw new Error(`Sheet "${sheetName}" not found`)
+    }
+    return {
+      sheetId: sheet.properties.sheetId ?? 0,
+      sheetTitle: sheet.properties.title ?? '',
+    }
+  }
+
+  @handleErrors('Failed to insert rows')
+  public async insertRows({
+    sheetId,
+    startIndex,
+    numberOfRows = 1,
+  }: {
+    sheetId: number
+    startIndex: number
+    numberOfRows?: number
+  }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            insertDimension: {
+              range: {
+                sheetId,
+                dimension: 'ROWS',
+                startIndex,
+                endIndex: startIndex + numberOfRows,
+              },
+              inheritFromBefore: startIndex > 0,
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to delete rows')
+  public async deleteRowsFromSheet({ sheetId, rowIndexes }: { sheetId: number; rowIndexes: number[] }) {
+    const sortedIndexes = [...rowIndexes].sort((a, b) => b - a)
+
+    const requests = sortedIndexes.map((rowIndex) => ({
+      deleteDimension: {
+        range: {
+          sheetId,
+          dimension: 'ROWS' as const,
+          startIndex: rowIndex - 1,
+          endIndex: rowIndex,
+        },
+      },
+    }))
+
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: { requests },
+    })
+  }
 }
