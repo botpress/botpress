@@ -1,7 +1,8 @@
 import { z } from '@botpress/sdk'
 import { tallyFieldSchema } from './tally-fields'
 
-export const formFieldsSchema = z.object({
+export const formSchema = z.object({
+  formId: z.string().min(1),
   fields: z.array(tallyFieldSchema).default([]),
 })
 

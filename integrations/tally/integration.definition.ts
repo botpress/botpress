@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { formFieldsSchema } from 'schemas/tally-events'
+import schemas from './schemas'
 
 export default new IntegrationDefinition({
   name: 'tally',
@@ -10,7 +10,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z.object({
       apiKey: z.string().min(1).title('API Key').describe('Tally API Key'),
-      formId: z.string().min(1).title('Form ID').describe('Tally form ID'),
+      formIds: z.array(z.string().min(1).title('Form ID').describe('Tally form ID')).min(1),
       signingSecret: z.string().min(1).optional().title('Signing Secret').describe('Webhook signing secret (optional)'),
     }),
   },
@@ -18,7 +18,10 @@ export default new IntegrationDefinition({
     tallyIntegrationInfo: {
       type: 'integration',
       schema: z.object({
-        tallyWebhookId: z.string().title('Tally Webhook ID').describe('The unique identifier for the tally webhook.'),
+        tallyWebhookIds: z
+          .record(z.string().min(1), z.string().min(1))
+          .title('Tally webhooks')
+          .describe('Mapping of Tally form IDs to their registered webhook IDs'),
       }),
     },
   },
@@ -26,8 +29,19 @@ export default new IntegrationDefinition({
     formSubmitted: {
       title: 'Form Submitted',
       description: 'This event happens when the form is submitted',
-      schema: formFieldsSchema,
+      schema: schemas.formSchema,
     },
   },
-  actions: {},
+  actions: {
+    listSubmissions: {
+      title: 'List Submissions',
+      description: 'List all the submissions for a specified form',
+      input: {
+        schema: schemas.listSubmissionsInputSchema,
+      },
+      output: {
+        schema: schemas.listSubmissionsOuputSchema,
+      },
+    },
+  },
 })

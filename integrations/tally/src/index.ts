@@ -5,28 +5,46 @@ import { webhookSchema } from 'schemas/tally-events'
 export default new bp.Integration({
   register: async ({ ctx, webhookUrl, logger, client }) => {
     const tallyApi = new TallyApi(ctx.configuration.apiKey)
+    const formIds = ctx.configuration.formIds
+
+    const { state } = await client.getOrSetState({
+      type: 'integration',
+      name: 'tallyIntegrationInfo',
+      id: ctx.integrationId,
+      payload: {
+        tallyWebhookIds: {},
+      },
+    })
+    const tallyWebhookIds: Record<string, string> = state.payload.tallyWebhookIds
 
     try {
-      const created = await tallyApi.createWebhook({
-        formId: ctx.configuration.formId,
-        url: webhookUrl,
-        eventTypes: ['FORM_RESPONSE'],
-        signingSecret: ctx.configuration.signingSecret,
-      })
+      for (const formId of formIds) {
+        if (tallyWebhookIds[formId]) {
+          logger.info('Webhook already registered for form', { formId })
+          continue
+        }
+
+        const created = await tallyApi.createWebhook({
+          formId: formId,
+          url: webhookUrl,
+          eventTypes: ['FORM_RESPONSE'],
+          signingSecret: ctx.configuration.signingSecret,
+        })
+
+        tallyWebhookIds[formId] = created.id
+        logger.info('Tally webhook registered', {
+          formId,
+          webhookId: created.id,
+        })
+      }
 
       await client.setState({
         type: 'integration',
         id: ctx.integrationId,
         name: 'tallyIntegrationInfo',
         payload: {
-          tallyWebhookId: created.id,
+          tallyWebhookIds: tallyWebhookIds,
         },
-      })
-
-      logger.info('Tally webhook registered', {
-        id: created.id,
-        isEnabled: created.isEnabled,
-        createdAt: created.createdAt,
       })
     } catch (error) {
       logger.forBot().error('Failed to create Tally webhook', error)
@@ -35,29 +53,45 @@ export default new bp.Integration({
   },
 
   unregister: async ({ ctx, client, logger }) => {
-    const { state } = await client.getState({
+    const { state } = await client.getOrSetState({
       type: 'integration',
       name: 'tallyIntegrationInfo',
       id: ctx.integrationId,
+      payload: {
+        tallyWebhookIds: {},
+      },
     })
-    const tallyWebhookId = state.payload.tallyWebhookId
+    const tallyWebhookIds: Record<string, string> = state.payload.tallyWebhookIds
 
-    if (!tallyWebhookId) {
-      logger.warn('Tally WebhookId not found')
+    if (!tallyWebhookIds) {
+      logger.warn('No Tally webhooks found in state')
       return
     }
+    const tallyApi = new TallyApi(ctx.configuration.apiKey)
 
-    try {
-      const tallyApi = new TallyApi(ctx.configuration.apiKey)
-      await tallyApi.deleteWebhook(tallyWebhookId)
-      logger.info('Tally webhook deleted', { tallyWebhookId })
-    } catch (error) {
-      logger.warn('Failed to delete Tally webhook', { tallyWebhookId, error })
+    for (const [formId, tallyWebhookId] of Object.entries(tallyWebhookIds)) {
+      try {
+        await tallyApi.deleteWebhook(tallyWebhookId)
+        logger.info('Tally webhook deleted', { formId, tallyWebhookId })
+      } catch (error) {
+        logger.warn('Failed to delete Tally webhook', { formId, tallyWebhookId, error })
+      }
     }
   },
-  actions: {},
+  actions: {
+    listSubmissions: async ({ ctx, input, logger }) => {
+      const tallyApi = new TallyApi(ctx.configuration.apiKey)
+
+      try {
+        return await tallyApi.listSubmissions(input)
+      } catch (error) {
+        logger.warn('Error when listing submissions', { error })
+        throw error
+      }
+    },
+  },
   channels: {},
-  handler: async ({ req, client, logger }) => {
+  handler: async ({ req, ctx, client, logger }) => {
     if (!req.body) {
       logger.warn('Event handler received an empty body')
       return
@@ -70,15 +104,22 @@ export default new bp.Integration({
       return { status: 400, body: 'invalid payload' }
     }
 
+    const incomingFormId = parsed.data.data.formId
+    const formIds = ctx.configuration.formIds
+
+    if (!formIds.includes(incomingFormId)) {
+      logger.info('Ignoring webhook for unconfigured form', { incomingFormId })
+      return { status: 200, body: 'ignored' }
+    }
+
     const fields = parsed.data.data.fields ?? []
-
-    logger.info(JSON.stringify(fields, null, 2))
-
     await client.createEvent({
       type: 'formSubmitted',
-      payload: { fields: fields },
+      payload: {
+        formId: incomingFormId,
+        fields: fields,
+      },
     })
-
     return { status: 200, body: 'ok' }
   },
 })
