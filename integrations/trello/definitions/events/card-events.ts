@@ -5,7 +5,12 @@ import { botpressEventDataSchema, pickIdAndName } from './common'
 /** The number of minutes before the due date when a reminder will be sent.
  *
  *  @remark When the value is "-1", it means no due date reminder is set. */
-export const dueReminderSchema = z.number().int('Due reminder is not an integer').min(-1)
+export const dueReminderSchema = z
+  .number()
+  .int('Due date reminder is not an integer')
+  .min(-1)
+  .title('Due Date Reminder')
+  .describe('The number of minutes before the due date when a reminder will be sent')
 
 export const cardCreatedEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was created'),
@@ -23,9 +28,7 @@ const _baseCardUpdateDataSchema = z
     verticalPosition: z.number().title('Card Position').describe('Position of the card within the list'),
     startDate: z.string().datetime().nullable().title('Start Date').describe('Start date of the card'),
     dueDate: z.string().datetime().nullable().title('Due Date').describe('Due date of the card'),
-    dueDateReminder: dueReminderSchema
-      .title('Due Reminder')
-      .describe('The number of minutes before the due date when a reminder will be sent'),
+    dueDateReminder: dueReminderSchema,
     isCompleted: z.boolean().title('Is Completed').describe('Whether the card is completed'),
     isArchived: z.boolean().title('Is Archived').describe('Whether the card is archived'),
   })
