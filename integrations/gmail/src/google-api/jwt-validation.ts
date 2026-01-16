@@ -86,7 +86,7 @@ export class JWTVerifier {
   private async _fetchAndCacheCertificates(): Promise<GoogleCerts> {
     const { certs } = await this._oauth2Client.getFederatedSignonCertsAsync()
 
-    await this._client.setState({
+    await this._client.getOrSetState({
       name: CERT_CACHE_STATE_NAME,
       type: 'integration',
       expiry: MS_IN_12_HOURS,
