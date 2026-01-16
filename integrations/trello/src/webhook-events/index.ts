@@ -1,1 +1,1 @@
-export { handler } from './handler-dispatcher'
+export { handler } from './handler'
