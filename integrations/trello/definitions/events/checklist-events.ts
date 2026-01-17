@@ -8,8 +8,8 @@ export const checklistSchema = z.object({
 })
 
 const _basicChecklistItemSchema = z.object({
-  id: trelloIdSchema.title('Checklist ID').describe('Unique identifier of the checklist'),
-  name: z.string().title('Checklist Name').describe('Name of the checklist'),
+  id: trelloIdSchema.title('Checklist Item ID').describe('Unique identifier of the checklist item'),
+  name: z.string().title('Checklist Item Name').describe('Name of the checklist item'),
   isCompleted: z.boolean().title('Is Completed').describe('Indicates if the checklist item is marked as completed'),
   textData: z
     .object({

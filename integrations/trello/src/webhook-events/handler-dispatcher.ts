@@ -14,7 +14,7 @@ export const handler = async (props: bp.HandlerProps): Promise<void> => {
   }
 
   if (!(await _verifyWebhookSignature(props, payloadResult.data))) {
-    props.logger.forBot().error("The provided webhook payload failed it's signature validation")
+    props.logger.forBot().error('The provided webhook payload failed its signature validation')
     return
   }
 
@@ -58,5 +58,5 @@ const _verifyWebhookSignature = async ({ client, ctx }: bp.HandlerProps, eventPa
     id: ctx.integrationId,
   })
 
-  return eventPayload.webhook.id !== state.payload.trelloWebhookId
+  return eventPayload.webhook.id === state.payload.trelloWebhookId
 }

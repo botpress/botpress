@@ -18,8 +18,8 @@ export const trelloEventActionSchema = z.object({
        *
        *  @remark At the time of writing (2026-01-15), this field cannot be linked back to any
        *   specific API key or token, as Trello does not expose an endpoint for that purpose.
-       *   Also, through testing each of the endpoints, I have not been find it within other
-       *   endpoint responses. */
+       *   Also, through testing each of the endpoints, I have not been able to find it within
+       *   other endpoint responses. */
       id: trelloIdSchema,
     })
     .nullable(),
