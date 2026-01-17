@@ -1,9 +1,10 @@
 import { TrelloEventType } from 'definitions/events'
 import { CardLabelAddedWebhook, CardLabelRemovedWebhook } from '../schemas/card-label-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
+import { WebhookEventHandler } from './types'
 import * as bp from '.botpress'
 
-const _handleLabelChangedEvent = async (
+const _handleLabelChangedEvent = (async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_ADDED_TO_CARD | TrelloEventType.LABEL_REMOVED_FROM_CARD,
   webhookEvent: CardLabelAddedWebhook | CardLabelRemovedWebhook
@@ -17,20 +18,20 @@ const _handleLabelChangedEvent = async (
       label: webhookEvent.data.label,
     },
   })
-}
+}) as WebhookEventHandler
 
-export const handleLabelAddedToCardEvent = async (
+export const handleLabelAddedToCardEvent = (async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_ADDED_TO_CARD,
   webhookEvent: CardLabelAddedWebhook
 ) => {
   return await _handleLabelChangedEvent(props, eventType, webhookEvent)
-}
+}) as WebhookEventHandler
 
-export const handleLabelRemovedFromCardEvent = async (
+export const handleLabelRemovedFromCardEvent = (async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_REMOVED_FROM_CARD,
   webhookEvent: CardLabelRemovedWebhook
 ) => {
   return await _handleLabelChangedEvent(props, eventType, webhookEvent)
-}
+}) as WebhookEventHandler
