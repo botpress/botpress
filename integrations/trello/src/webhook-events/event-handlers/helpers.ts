@@ -1,5 +1,5 @@
 import { CommonEventData } from 'definitions/events'
-import { TrelloEventAction } from '../schemas/common'
+import { TrelloWebhook } from '../schemas/common'
 
 export const extractIdAndName = (obj: { id: string; name: string }) => {
   return {
@@ -12,25 +12,25 @@ export const extractIdAndNameIfExists = (obj: { id: string; name: string } | und
   return obj ? extractIdAndName(obj) : undefined
 }
 
-const _extractActorData = (actionData: TrelloEventAction): CommonEventData['actor'] => {
-  if (actionData.appCreator !== null) {
+const _extractActorData = (webhookEvent: TrelloWebhook): CommonEventData['actor'] => {
+  if (webhookEvent.appCreator !== null) {
     return {
-      id: actionData.appCreator.id,
+      id: webhookEvent.appCreator.id,
       type: 'app' as const,
     }
   } else {
     return {
-      id: actionData.memberCreator.id,
+      id: webhookEvent.memberCreator.id,
       type: 'member' as const,
-      name: actionData.memberCreator.fullName,
+      name: webhookEvent.memberCreator.fullName,
     }
   }
 }
 
-export const extractCommonEventData = (actionData: TrelloEventAction): CommonEventData => {
+export const extractCommonEventData = (webhookEvent: TrelloWebhook): CommonEventData => {
   return {
-    eventId: actionData.id,
-    actor: _extractActorData(actionData),
-    dateCreated: actionData.date.toISOString(),
+    eventId: webhookEvent.id,
+    actor: _extractActorData(webhookEvent),
+    dateCreated: webhookEvent.date.toISOString(),
   }
 }

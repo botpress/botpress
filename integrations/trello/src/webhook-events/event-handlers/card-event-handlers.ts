@@ -1,9 +1,9 @@
 import { TrelloEventType } from 'definitions/events'
 import {
-  CardCreatedEventAction,
-  CardDeletedEventAction,
-  CardUpdatedEventAction,
-  CardVotesUpdatedEventAction,
+  CardCreatedWebhook,
+  CardDeletedWebhook,
+  CardUpdatedWebhook,
+  CardVotesUpdatedWebhook,
 } from '../schemas/card-event-schemas'
 import { extractCommonEventData, extractIdAndName, extractIdAndNameIfExists } from './helpers'
 import * as bp from '.botpress'
@@ -11,15 +11,15 @@ import * as bp from '.botpress'
 export const handleCardCreatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_CREATED,
-  actionData: CardCreatedEventAction
+  webhookEvent: CardCreatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      list: extractIdAndName(actionData.data.list),
-      card: extractIdAndName(actionData.data.card),
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      list: extractIdAndName(webhookEvent.data.list),
+      card: extractIdAndName(webhookEvent.data.card),
     },
   })
 }
@@ -27,18 +27,18 @@ export const handleCardCreatedEvent = async (
 export const handleCardUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_UPDATED,
-  actionData: CardUpdatedEventAction
+  webhookEvent: CardUpdatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: actionData.data.card,
-      old: actionData.data.old,
-      list: extractIdAndNameIfExists(actionData.data.list),
-      listBefore: extractIdAndNameIfExists(actionData.data.listBefore),
-      listAfter: extractIdAndNameIfExists(actionData.data.listAfter),
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: webhookEvent.data.card,
+      old: webhookEvent.data.old,
+      list: extractIdAndNameIfExists(webhookEvent.data.list),
+      listBefore: extractIdAndNameIfExists(webhookEvent.data.listBefore),
+      listAfter: extractIdAndNameIfExists(webhookEvent.data.listAfter),
     },
   })
 }
@@ -46,16 +46,16 @@ export const handleCardUpdatedEvent = async (
 export const handleCardDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_DELETED,
-  actionData: CardDeletedEventAction
+  webhookEvent: CardDeletedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      list: extractIdAndName(actionData.data.list),
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      list: extractIdAndName(webhookEvent.data.list),
       card: {
-        id: actionData.data.card.id,
+        id: webhookEvent.data.card.id,
       },
     },
   })
@@ -64,15 +64,15 @@ export const handleCardDeletedEvent = async (
 export const handleCardVotesUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_VOTES_UPDATED,
-  actionData: CardVotesUpdatedEventAction
+  webhookEvent: CardVotesUpdatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
-      voted: actionData.data.voted,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
+      voted: webhookEvent.data.voted,
     },
   })
 }

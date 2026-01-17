@@ -1,24 +1,21 @@
 import { TrelloEventType } from 'definitions/events'
-import {
-  CardAttachmentAddedEventAction,
-  CardAttachmentRemovedEventAction,
-} from '../schemas/card-attachment-event-schemas'
+import { CardAttachmentAddedWebhook, CardAttachmentRemovedWebhook } from '../schemas/card-attachment-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 
 export const handleAttachmentAddedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.ATTACHMENT_ADDED_TO_CARD,
-  actionData: CardAttachmentAddedEventAction
+  webhookEvent: CardAttachmentAddedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      list: extractIdAndName(actionData.data.list),
-      card: extractIdAndName(actionData.data.card),
-      attachment: actionData.data.attachment,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      list: extractIdAndName(webhookEvent.data.list),
+      card: extractIdAndName(webhookEvent.data.card),
+      attachment: webhookEvent.data.attachment,
     },
   })
 }
@@ -26,15 +23,15 @@ export const handleAttachmentAddedEvent = async (
 export const handleAttachmentRemovedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD,
-  actionData: CardAttachmentRemovedEventAction
+  webhookEvent: CardAttachmentRemovedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
-      attachment: actionData.data.attachment,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
+      attachment: webhookEvent.data.attachment,
     },
   })
 }

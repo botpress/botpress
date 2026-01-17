@@ -4,9 +4,9 @@ import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
 import { pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
-export const commentAddedEventActionSchema = trelloEventActionSchema.extend({
+export const commentAddedWebhookSchema = trelloWebhookSchema.extend({
   /** @remark This is only the comment ID for the comment added event */
   id: trelloIdSchema.brand('EventID').brand('CommentID'),
   type: z.literal(TrelloEventType.CARD_COMMENT_CREATED),
@@ -17,9 +17,9 @@ export const commentAddedEventActionSchema = trelloEventActionSchema.extend({
     text: z.string().brand('CommentText'),
   }),
 })
-export type CommentAddedEventAction = z.infer<typeof commentAddedEventActionSchema>
+export type CommentAddedWebhook = z.infer<typeof commentAddedWebhookSchema>
 
-export const commentUpdatedEventActionSchema = trelloEventActionSchema.extend({
+export const commentUpdatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -33,9 +33,9 @@ export const commentUpdatedEventActionSchema = trelloEventActionSchema.extend({
     }),
   }),
 })
-export type CommentUpdatedEventAction = z.infer<typeof commentUpdatedEventActionSchema>
+export type CommentUpdatedWebhook = z.infer<typeof commentUpdatedWebhookSchema>
 
-export const commentDeletedEventActionSchema = trelloEventActionSchema.extend({
+export const commentDeletedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_COMMENT_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -45,4 +45,4 @@ export const commentDeletedEventActionSchema = trelloEventActionSchema.extend({
     }),
   }),
 })
-export type CommentDeletedEventAction = z.infer<typeof commentDeletedEventActionSchema>
+export type CommentDeletedWebhook = z.infer<typeof commentDeletedWebhookSchema>

@@ -1,32 +1,29 @@
 import { z } from '@botpress/sdk'
 import { trelloIdSchema } from 'definitions/schemas'
+import { cardAttachmentAddedWebhookSchema, cardAttachmentRemovedWebhookSchema } from './card-attachment-event-schemas'
 import {
-  cardAttachmentAddedEventActionSchema,
-  cardAttachmentRemovedEventActionSchema,
-} from './card-attachment-event-schemas'
-import {
-  commentAddedEventActionSchema,
-  commentDeletedEventActionSchema,
-  commentUpdatedEventActionSchema,
+  commentAddedWebhookSchema,
+  commentDeletedWebhookSchema,
+  commentUpdatedWebhookSchema,
 } from './card-comment-event-schemas'
 import {
-  cardCreatedEventActionSchema,
-  cardDeletedEventActionSchema,
-  cardUpdatedEventActionSchema,
-  cardVotesUpdatedEventActionSchema,
+  cardCreatedWebhookSchema,
+  cardDeletedWebhookSchema,
+  cardUpdatedWebhookSchema,
+  cardVotesUpdatedWebhookSchema,
 } from './card-event-schemas'
-import { cardLabelAddedEventActionSchema, cardLabelRemovedEventActionSchema } from './card-label-event-schemas'
+import { cardLabelAddedWebhookSchema, cardLabelRemovedWebhookSchema } from './card-label-event-schemas'
 import {
-  checklistAddedToCardEventActionSchema,
-  checklistItemCreatedEventActionSchema,
-  checklistItemDeletedEventActionSchema,
-  checklistItemStatusUpdatedEventActionSchema,
-  checklistItemUpdatedEventActionSchema,
+  checklistAddedToCardWebhookSchema,
+  checklistItemCreatedWebhookSchema,
+  checklistItemDeletedWebhookSchema,
+  checklistItemStatusUpdatedWebhookSchema,
+  checklistItemUpdatedWebhookSchema,
 } from './checklist-event-schemas'
-import { trelloEventActionSchema } from './common'
-import { memberAddedToCardEventActionSchema, memberRemovedFromCardEventActionSchema } from './member-event-schemas'
+import { trelloWebhookSchema } from './common'
+import { memberAddedToCardWebhookSchema, memberRemovedFromCardWebhookSchema } from './member-event-schemas'
 
-const _webhookSchema = z.object({
+const _webhookDetailsSchema = z.object({
   id: trelloIdSchema,
   idModel: trelloIdSchema,
   active: z.boolean(),
@@ -36,36 +33,36 @@ const _webhookSchema = z.object({
 export const webhookEventPayloadSchema = z.object({
   action: z.union([
     // ---- Card Events ----
-    cardCreatedEventActionSchema,
-    cardUpdatedEventActionSchema,
-    cardDeletedEventActionSchema,
-    cardVotesUpdatedEventActionSchema,
+    cardCreatedWebhookSchema,
+    cardUpdatedWebhookSchema,
+    cardDeletedWebhookSchema,
+    cardVotesUpdatedWebhookSchema,
     // ---- Card Comment Events ----
-    commentAddedEventActionSchema,
-    commentUpdatedEventActionSchema,
-    commentDeletedEventActionSchema,
+    commentAddedWebhookSchema,
+    commentUpdatedWebhookSchema,
+    commentDeletedWebhookSchema,
     // ---- Card Label Events ----
-    cardLabelAddedEventActionSchema,
-    cardLabelRemovedEventActionSchema,
+    cardLabelAddedWebhookSchema,
+    cardLabelRemovedWebhookSchema,
     // ---- Card Attachment Events ----
-    cardAttachmentAddedEventActionSchema,
-    cardAttachmentRemovedEventActionSchema,
+    cardAttachmentAddedWebhookSchema,
+    cardAttachmentRemovedWebhookSchema,
     // ---- Checklist Events ----
-    checklistAddedToCardEventActionSchema,
-    checklistItemCreatedEventActionSchema,
-    checklistItemUpdatedEventActionSchema,
-    checklistItemDeletedEventActionSchema,
-    checklistItemStatusUpdatedEventActionSchema,
+    checklistAddedToCardWebhookSchema,
+    checklistItemCreatedWebhookSchema,
+    checklistItemUpdatedWebhookSchema,
+    checklistItemDeletedWebhookSchema,
+    checklistItemStatusUpdatedWebhookSchema,
     // ---- Member Events ----
-    memberAddedToCardEventActionSchema,
-    memberRemovedFromCardEventActionSchema,
+    memberAddedToCardWebhookSchema,
+    memberRemovedFromCardWebhookSchema,
   ]),
-  webhook: _webhookSchema,
+  webhook: _webhookDetailsSchema,
 })
 export type WebhookEventPayload = z.infer<typeof webhookEventPayloadSchema>
 
 /** Fallback schema for unsupported event types */
 export const fallbackEventPayloadSchema = z.object({
-  action: trelloEventActionSchema.extend({ type: z.string() }),
-  webhook: _webhookSchema,
+  action: trelloWebhookSchema.extend({ type: z.string() }),
+  webhook: _webhookDetailsSchema,
 })

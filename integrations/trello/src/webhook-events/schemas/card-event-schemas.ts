@@ -1,12 +1,12 @@
 import { z } from '@botpress/sdk'
 import { dueReminderSchema, pickIdAndName, TrelloEventType } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
 const _basicListSchema = pickIdAndName(listSchema)
 const _basicCardSchema = pickIdAndName(cardSchema)
 
-export const cardCreatedEventActionSchema = trelloEventActionSchema.extend({
+export const cardCreatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_CREATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -14,7 +14,7 @@ export const cardCreatedEventActionSchema = trelloEventActionSchema.extend({
     card: _basicCardSchema,
   }),
 })
-export type CardCreatedEventAction = z.infer<typeof cardCreatedEventActionSchema>
+export type CardCreatedWebhook = z.infer<typeof cardCreatedWebhookSchema>
 
 const _baseCardUpdateDataSchema = _basicCardSchema
   .extend({
@@ -32,7 +32,7 @@ const _baseCardUpdateDataSchema = _basicCardSchema
   .passthrough()
   .partial()
 
-export const cardUpdatedEventActionSchema = trelloEventActionSchema.extend({
+export const cardUpdatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -46,9 +46,9 @@ export const cardUpdatedEventActionSchema = trelloEventActionSchema.extend({
     listAfter: _basicListSchema.optional(),
   }),
 })
-export type CardUpdatedEventAction = z.infer<typeof cardUpdatedEventActionSchema>
+export type CardUpdatedWebhook = z.infer<typeof cardUpdatedWebhookSchema>
 
-export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
+export const cardDeletedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -56,9 +56,9 @@ export const cardDeletedEventActionSchema = trelloEventActionSchema.extend({
     card: _basicCardSchema.pick({ id: true }),
   }),
 })
-export type CardDeletedEventAction = z.infer<typeof cardDeletedEventActionSchema>
+export type CardDeletedWebhook = z.infer<typeof cardDeletedWebhookSchema>
 
-export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend({
+export const cardVotesUpdatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CARD_VOTES_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -66,4 +66,4 @@ export const cardVotesUpdatedEventActionSchema = trelloEventActionSchema.extend(
     voted: z.boolean(),
   }),
 })
-export type CardVotesUpdatedEventAction = z.infer<typeof cardVotesUpdatedEventActionSchema>
+export type CardVotesUpdatedWebhook = z.infer<typeof cardVotesUpdatedWebhookSchema>

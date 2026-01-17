@@ -3,9 +3,9 @@ import { TrelloEventType } from 'definitions/events'
 import { labelSchema } from 'definitions/events/card-label-events'
 import { pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
-export const cardLabelAddedEventActionSchema = trelloEventActionSchema.extend({
+export const cardLabelAddedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.LABEL_ADDED_TO_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -13,9 +13,9 @@ export const cardLabelAddedEventActionSchema = trelloEventActionSchema.extend({
     label: labelSchema,
   }),
 })
-export type CardLabelAddedEventAction = z.infer<typeof cardLabelAddedEventActionSchema>
+export type CardLabelAddedWebhook = z.infer<typeof cardLabelAddedWebhookSchema>
 
-export const cardLabelRemovedEventActionSchema = trelloEventActionSchema.extend({
+export const cardLabelRemovedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.LABEL_REMOVED_FROM_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -23,4 +23,4 @@ export const cardLabelRemovedEventActionSchema = trelloEventActionSchema.extend(
     label: labelSchema,
   }),
 })
-export type CardLabelRemovedEventAction = z.infer<typeof cardLabelRemovedEventActionSchema>
+export type CardLabelRemovedWebhook = z.infer<typeof cardLabelRemovedWebhookSchema>

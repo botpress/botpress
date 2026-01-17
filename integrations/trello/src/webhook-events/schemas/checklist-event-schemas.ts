@@ -3,7 +3,7 @@ import { TrelloEventType } from 'definitions/events'
 import { checklistSchema } from 'definitions/events/checklist-events'
 import { dueReminderSchema, pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, trelloIdSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
 const _checklistItemCompletionStateSchema = z.union([z.literal('complete'), z.literal('incomplete')])
 
@@ -16,7 +16,7 @@ const _basicChecklistItemSchema = z.object({
   }),
 })
 
-export const checklistAddedToCardEventActionSchema = trelloEventActionSchema.extend({
+export const checklistAddedToCardWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ADDED_TO_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -24,9 +24,9 @@ export const checklistAddedToCardEventActionSchema = trelloEventActionSchema.ext
     checklist: checklistSchema,
   }),
 })
-export type ChecklistAddedToCardEventAction = z.infer<typeof checklistAddedToCardEventActionSchema>
+export type ChecklistAddedToCardWebhook = z.infer<typeof checklistAddedToCardWebhookSchema>
 
-export const checklistItemCreatedEventActionSchema = trelloEventActionSchema.extend({
+export const checklistItemCreatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ITEM_CREATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -35,9 +35,9 @@ export const checklistItemCreatedEventActionSchema = trelloEventActionSchema.ext
     checkItem: _basicChecklistItemSchema,
   }),
 })
-export type ChecklistItemCreatedEventAction = z.infer<typeof checklistItemCreatedEventActionSchema>
+export type ChecklistItemCreatedWebhook = z.infer<typeof checklistItemCreatedWebhookSchema>
 
-export const checklistItemUpdatedEventActionSchema = trelloEventActionSchema.extend({
+export const checklistItemUpdatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ITEM_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -55,9 +55,9 @@ export const checklistItemUpdatedEventActionSchema = trelloEventActionSchema.ext
     }),
   }),
 })
-export type ChecklistItemUpdatedEventAction = z.infer<typeof checklistItemUpdatedEventActionSchema>
+export type ChecklistItemUpdatedWebhook = z.infer<typeof checklistItemUpdatedWebhookSchema>
 
-export const checklistItemDeletedEventActionSchema = trelloEventActionSchema.extend({
+export const checklistItemDeletedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ITEM_DELETED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -66,9 +66,9 @@ export const checklistItemDeletedEventActionSchema = trelloEventActionSchema.ext
     checkItem: _basicChecklistItemSchema,
   }),
 })
-export type ChecklistItemDeletedEventAction = z.infer<typeof checklistItemDeletedEventActionSchema>
+export type ChecklistItemDeletedWebhook = z.infer<typeof checklistItemDeletedWebhookSchema>
 
-export const checklistItemStatusUpdatedEventActionSchema = trelloEventActionSchema.extend({
+export const checklistItemStatusUpdatedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -77,4 +77,4 @@ export const checklistItemStatusUpdatedEventActionSchema = trelloEventActionSche
     checkItem: _basicChecklistItemSchema,
   }),
 })
-export type ChecklistItemStatusUpdatedEventAction = z.infer<typeof checklistItemStatusUpdatedEventActionSchema>
+export type ChecklistItemStatusUpdatedWebhook = z.infer<typeof checklistItemStatusUpdatedWebhookSchema>

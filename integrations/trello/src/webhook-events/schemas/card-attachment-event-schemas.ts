@@ -2,9 +2,9 @@ import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
 import { pickIdAndName } from 'definitions/events/common'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
-export const cardAttachmentAddedEventActionSchema = trelloEventActionSchema.extend({
+export const cardAttachmentAddedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.ATTACHMENT_ADDED_TO_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -19,9 +19,9 @@ export const cardAttachmentAddedEventActionSchema = trelloEventActionSchema.exte
     }),
   }),
 })
-export type CardAttachmentAddedEventAction = z.infer<typeof cardAttachmentAddedEventActionSchema>
+export type CardAttachmentAddedWebhook = z.infer<typeof cardAttachmentAddedWebhookSchema>
 
-export const cardAttachmentRemovedEventActionSchema = trelloEventActionSchema.extend({
+export const cardAttachmentRemovedWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -32,4 +32,4 @@ export const cardAttachmentRemovedEventActionSchema = trelloEventActionSchema.ex
     }),
   }),
 })
-export type CardAttachmentRemovedEventAction = z.infer<typeof cardAttachmentRemovedEventActionSchema>
+export type CardAttachmentRemovedWebhook = z.infer<typeof cardAttachmentRemovedWebhookSchema>

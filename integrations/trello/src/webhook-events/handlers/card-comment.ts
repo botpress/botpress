@@ -1,4 +1,4 @@
-import { CommentAddedEventAction } from '../schemas/card-comment-event-schemas'
+import { CommentAddedWebhook } from '../schemas/card-comment-event-schemas'
 import * as bp from '.botpress'
 
 type Conversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
@@ -6,12 +6,12 @@ type User = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
 export const processInboundCommentChannelMessage = async (
   client: bp.HandlerProps['client'],
-  commentAddedEvent: CommentAddedEventAction
+  webhookEvent: CommentAddedWebhook
 ): Promise<void> => {
-  const conversation = await _getOrCreateConversation(client, commentAddedEvent.data)
-  const user = await _getOrCreateUser(client, commentAddedEvent.memberCreator)
+  const conversation = await _getOrCreateConversation(client, webhookEvent.data)
+  const user = await _getOrCreateUser(client, webhookEvent.memberCreator)
 
-  const comment = _extractCommentData(commentAddedEvent)
+  const comment = _extractCommentData(webhookEvent)
   if (_checkIfMessageWasSentByOurselvesAndShouldBeIgnored(conversation, comment)) {
     return
   }
@@ -19,17 +19,14 @@ export const processInboundCommentChannelMessage = async (
   await _createMessage(client, conversation, user, comment)
 }
 
-const _extractCommentData = (event: CommentAddedEventAction) =>
+const _extractCommentData = (event: CommentAddedWebhook) =>
   ({
     id: event.id,
     text: event.data.text,
   }) as const
 type CardComment = ReturnType<typeof _extractCommentData>
 
-const _getOrCreateConversation = async (
-  client: bp.HandlerProps['client'],
-  eventData: CommentAddedEventAction['data']
-) => {
+const _getOrCreateConversation = async (client: bp.HandlerProps['client'], eventData: CommentAddedWebhook['data']) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'cardComments',
     tags: {
@@ -45,7 +42,7 @@ const _getOrCreateConversation = async (
 
 const _getOrCreateUser = async (
   client: bp.HandlerProps['client'],
-  memberCreator: CommentAddedEventAction['memberCreator']
+  memberCreator: CommentAddedWebhook['memberCreator']
 ) => {
   const { user } = await client.getOrCreateUser({
     tags: {

@@ -1,9 +1,9 @@
 import { TrelloEventType } from 'definitions/events'
 import { processInboundCommentChannelMessage } from '../handlers/card-comment'
 import {
-  CommentAddedEventAction,
-  CommentDeletedEventAction,
-  CommentUpdatedEventAction,
+  CommentAddedWebhook,
+  CommentDeletedWebhook,
+  CommentUpdatedWebhook,
 } from '../schemas/card-comment-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
@@ -11,20 +11,20 @@ import * as bp from '.botpress'
 export const handleCommentAddedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_CREATED,
-  actionData: CommentAddedEventAction
+  webhookEvent: CommentAddedWebhook
 ) => {
   const result = await Promise.allSettled([
-    processInboundCommentChannelMessage(props.client, actionData),
+    processInboundCommentChannelMessage(props.client, webhookEvent),
     props.client.createEvent({
       type: eventType,
       payload: {
-        ...extractCommonEventData(actionData),
-        board: extractIdAndName(actionData.data.board),
-        list: extractIdAndName(actionData.data.list),
-        card: extractIdAndName(actionData.data.card),
+        ...extractCommonEventData(webhookEvent),
+        board: extractIdAndName(webhookEvent.data.board),
+        list: extractIdAndName(webhookEvent.data.list),
+        card: extractIdAndName(webhookEvent.data.card),
         comment: {
-          id: actionData.id,
-          text: actionData.data.text,
+          id: webhookEvent.id,
+          text: webhookEvent.data.text,
         },
       },
     }),
@@ -36,20 +36,20 @@ export const handleCommentAddedEvent = async (
 export const handleCommentUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_UPDATED,
-  actionData: CommentUpdatedEventAction
+  webhookEvent: CommentUpdatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
       comment: {
-        id: actionData.data.action.id,
-        text: actionData.data.action.text,
+        id: webhookEvent.data.action.id,
+        text: webhookEvent.data.action.text,
       },
       old: {
-        text: actionData.data.old.text,
+        text: webhookEvent.data.old.text,
       },
     },
   })
@@ -58,16 +58,16 @@ export const handleCommentUpdatedEvent = async (
 export const handleCommentDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_DELETED,
-  actionData: CommentDeletedEventAction
+  webhookEvent: CommentDeletedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
       comment: {
-        id: actionData.data.action.id,
+        id: webhookEvent.data.action.id,
       },
     },
   })

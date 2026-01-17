@@ -1,41 +1,41 @@
 import { TrelloEventType } from 'definitions/events'
 import {
-  ChecklistAddedToCardEventAction,
-  ChecklistItemCreatedEventAction,
-  ChecklistItemDeletedEventAction,
-  ChecklistItemStatusUpdatedEventAction,
-  ChecklistItemUpdatedEventAction,
+  ChecklistAddedToCardWebhook,
+  ChecklistItemCreatedWebhook,
+  ChecklistItemDeletedWebhook,
+  ChecklistItemStatusUpdatedWebhook,
+  ChecklistItemUpdatedWebhook,
 } from '../schemas/checklist-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 
 const _extractCommonChecklistItemPayload = (
-  actionData: ChecklistItemCreatedEventAction | ChecklistItemDeletedEventAction | ChecklistItemStatusUpdatedEventAction
+  webhookEvent: ChecklistItemCreatedWebhook | ChecklistItemDeletedWebhook | ChecklistItemStatusUpdatedWebhook
 ) => ({
-  ...extractCommonEventData(actionData),
-  board: extractIdAndName(actionData.data.board),
-  card: extractIdAndName(actionData.data.card),
-  checklist: actionData.data.checklist,
+  ...extractCommonEventData(webhookEvent),
+  board: extractIdAndName(webhookEvent.data.board),
+  card: extractIdAndName(webhookEvent.data.card),
+  checklist: webhookEvent.data.checklist,
   checklistItem: {
-    id: actionData.data.checkItem.id,
-    name: actionData.data.checkItem.name,
-    isCompleted: actionData.data.checkItem.state === 'complete',
-    textData: actionData.data.checkItem.textData,
+    id: webhookEvent.data.checkItem.id,
+    name: webhookEvent.data.checkItem.name,
+    isCompleted: webhookEvent.data.checkItem.state === 'complete',
+    textData: webhookEvent.data.checkItem.textData,
   },
 })
 
 export const handleChecklistAddedToCardEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ADDED_TO_CARD,
-  actionData: ChecklistAddedToCardEventAction
+  webhookEvent: ChecklistAddedToCardWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
-      checklist: actionData.data.checklist,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
+      checklist: webhookEvent.data.checklist,
     },
   })
 }
@@ -43,15 +43,15 @@ export const handleChecklistAddedToCardEvent = async (
 export const handleChecklistItemCreatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_CREATED,
-  actionData: ChecklistItemCreatedEventAction
+  webhookEvent: ChecklistItemCreatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
-    payload: _extractCommonChecklistItemPayload(actionData),
+    payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
 
-const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedEventAction['data']['old']) => {
+const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedWebhook['data']['old']) => {
   const { name, state, textData, dueReminder, due } = oldData
   return {
     name,
@@ -65,24 +65,24 @@ const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedEventAction['data
 export const handleChecklistItemUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_UPDATED,
-  actionData: ChecklistItemUpdatedEventAction
+  webhookEvent: ChecklistItemUpdatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
-      checklist: actionData.data.checklist,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
+      checklist: webhookEvent.data.checklist,
       checklistItem: {
-        id: actionData.data.checkItem.id,
-        name: actionData.data.checkItem.name,
-        isCompleted: actionData.data.checkItem.state === 'complete',
-        textData: actionData.data.checkItem.textData,
-        dueDate: actionData.data.checkItem.due,
-        dueDateReminder: actionData.data.checkItem.dueReminder,
+        id: webhookEvent.data.checkItem.id,
+        name: webhookEvent.data.checkItem.name,
+        isCompleted: webhookEvent.data.checkItem.state === 'complete',
+        textData: webhookEvent.data.checkItem.textData,
+        dueDate: webhookEvent.data.checkItem.due,
+        dueDateReminder: webhookEvent.data.checkItem.dueReminder,
       },
-      old: _mapOldChecklistItemData(actionData.data.old),
+      old: _mapOldChecklistItemData(webhookEvent.data.old),
     },
   })
 }
@@ -90,21 +90,21 @@ export const handleChecklistItemUpdatedEvent = async (
 export const handleChecklistItemDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_DELETED,
-  actionData: ChecklistItemDeletedEventAction
+  webhookEvent: ChecklistItemDeletedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
-    payload: _extractCommonChecklistItemPayload(actionData),
+    payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
 
 export const handleChecklistItemStatusUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED,
-  actionData: ChecklistItemStatusUpdatedEventAction
+  webhookEvent: ChecklistItemStatusUpdatedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
-    payload: _extractCommonChecklistItemPayload(actionData),
+    payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }

@@ -3,9 +3,9 @@ import { TrelloEventType } from 'definitions/events'
 import { pickIdAndName } from 'definitions/events/common'
 import { eventMemberSchema } from 'definitions/events/member-events'
 import { boardSchema, cardSchema } from 'definitions/schemas'
-import { trelloEventActionSchema } from './common'
+import { trelloWebhookSchema } from './common'
 
-export const memberAddedToCardEventActionSchema = trelloEventActionSchema.extend({
+export const memberAddedToCardWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.MEMBER_ADDED_TO_CARD),
   data: z.object({
     board: pickIdAndName(boardSchema),
@@ -13,9 +13,9 @@ export const memberAddedToCardEventActionSchema = trelloEventActionSchema.extend
     member: eventMemberSchema,
   }),
 })
-export type MemberAddedToCardEventAction = z.infer<typeof memberAddedToCardEventActionSchema>
+export type MemberAddedToCardWebhook = z.infer<typeof memberAddedToCardWebhookSchema>
 
-export const memberRemovedFromCardEventActionSchema = trelloEventActionSchema.extend({
+export const memberRemovedFromCardWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.MEMBER_REMOVED_FROM_CARD),
   deactivated: z.boolean(),
   data: z.object({
@@ -24,4 +24,4 @@ export const memberRemovedFromCardEventActionSchema = trelloEventActionSchema.ex
     member: eventMemberSchema,
   }),
 })
-export type MemberRemovedFromCardEventAction = z.infer<typeof memberRemovedFromCardEventActionSchema>
+export type MemberRemovedFromCardWebhook = z.infer<typeof memberRemovedFromCardWebhookSchema>

@@ -1,20 +1,20 @@
 import { TrelloEventType } from 'definitions/events'
-import { CardLabelAddedEventAction, CardLabelRemovedEventAction } from '../schemas/card-label-event-schemas'
+import { CardLabelAddedWebhook, CardLabelRemovedWebhook } from '../schemas/card-label-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 
 const _handleLabelChangedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_ADDED_TO_CARD | TrelloEventType.LABEL_REMOVED_FROM_CARD,
-  actionData: CardLabelAddedEventAction | CardLabelRemovedEventAction
+  webhookEvent: CardLabelAddedWebhook | CardLabelRemovedWebhook
 ) => {
   return await props.client.createEvent({
     type: eventType,
     payload: {
-      ...extractCommonEventData(actionData),
-      board: extractIdAndName(actionData.data.board),
-      card: extractIdAndName(actionData.data.card),
-      label: actionData.data.label,
+      ...extractCommonEventData(webhookEvent),
+      board: extractIdAndName(webhookEvent.data.board),
+      card: extractIdAndName(webhookEvent.data.card),
+      label: webhookEvent.data.label,
     },
   })
 }
@@ -22,15 +22,15 @@ const _handleLabelChangedEvent = async (
 export const handleLabelAddedToCardEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_ADDED_TO_CARD,
-  actionData: CardLabelAddedEventAction
+  webhookEvent: CardLabelAddedWebhook
 ) => {
-  return await _handleLabelChangedEvent(props, eventType, actionData)
+  return await _handleLabelChangedEvent(props, eventType, webhookEvent)
 }
 
 export const handleLabelRemovedFromCardEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.LABEL_REMOVED_FROM_CARD,
-  actionData: CardLabelRemovedEventAction
+  webhookEvent: CardLabelRemovedWebhook
 ) => {
-  return await _handleLabelChangedEvent(props, eventType, actionData)
+  return await _handleLabelChangedEvent(props, eventType, webhookEvent)
 }

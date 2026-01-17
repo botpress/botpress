@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 import { TrelloEventType } from 'definitions/events'
 import { trelloIdSchema } from 'definitions/schemas'
 
-export const trelloEventActionSchema = z.object({
+export const trelloWebhookSchema = z.object({
   /** Action ID (aka Event ID) */
   id: trelloIdSchema,
   /** Event Triggered Date */
@@ -38,4 +38,4 @@ export const trelloEventActionSchema = z.object({
     avatarUrl: z.string(),
   }),
 })
-export type TrelloEventAction = z.infer<typeof trelloEventActionSchema>
+export type TrelloWebhook = z.infer<typeof trelloWebhookSchema>
