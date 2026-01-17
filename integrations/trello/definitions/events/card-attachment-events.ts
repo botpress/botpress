@@ -2,7 +2,6 @@ import { z } from '@botpress/sdk'
 import { boardSchema, cardSchema, listSchema, trelloIdSchema } from '../schemas'
 import { botpressEventDataSchema, pickIdAndName } from './common'
 
-// Action that is triggered when an attachment is added to a card
 export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   list: pickIdAndName(listSchema).title('List').describe('List where the card was updated'),
@@ -24,7 +23,6 @@ export const attachmentAddedToCardEventSchema = botpressEventDataSchema.extend({
     .describe('Attachment that was added to the card'),
 })
 
-// Action that is triggered when an attachment is deleted from a card
 export const attachmentRemovedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),

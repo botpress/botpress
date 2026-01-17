@@ -7,14 +7,12 @@ export const eventMemberSchema = z.object({
   name: z.string().title('Member Name').describe('Full name of the member'),
 })
 
-// Action that is triggered when a member is added to a card
 export const memberAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that the member was added to'),
   member: eventMemberSchema.title('Member').describe('Member that was added to the card'),
 })
 
-// Action that is triggered when a member is removed from a card
 export const memberRemovedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was updated'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was updated'),

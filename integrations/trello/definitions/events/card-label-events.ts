@@ -8,14 +8,12 @@ export const labelSchema = z.object({
   color: z.string().title('Label Color').describe('Color of the label'),
 })
 
-// Action that is triggered when a label is added to a card
 export const labelAddedToCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was modified'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
   label: labelSchema.title('Label').describe('Label that was added to the card'),
 })
 
-// Action that is triggered when a label is removed from a card
 export const labelRemovedFromCardEventSchema = botpressEventDataSchema.extend({
   board: pickIdAndName(boardSchema).title('Board').describe('Board where the card was modified'),
   card: pickIdAndName(cardSchema).title('Card').describe('Card that was modified'),
