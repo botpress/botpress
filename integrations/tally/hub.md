@@ -8,28 +8,26 @@ Connect your Botpress chatbot with **Tally**, a powerful online form builder, an
 
 Before enabling the Botpress Tally integration, make sure you have:
 
-- A **Botpress Cloud** account
 - A **Tally API key**
 - The **Form ID** of the Tally form you want to connect to your bot
 
-### Enable the Integration
+### Where to find prerequisites
 
-To enable the Tally integration in Botpress:
+#### Tally API Key
 
-1. Open your **Botpress Admin Panel**
-2. Go to the **Integrations** section
-3. Find **Tally** and click **Enable** or **Configure**
-4. Enter your **Tally API key**
-5. Enter the **Form ID**
-6. Save the configuration
+1. Go to settings
+2. Click the tab **API keys**
+3. Click the button **Create API key**
+4. Choose a name for your key
+5. Save this key for usage
 
-Botpress will automatically register a webhook on Tally for the selected form.
+#### Form ID
+
+The form id can be found in the url of your form or in the tab **share** inside the share link.
+It is the ID after the url of the sharelink.
+
+`https://tally.so/r/[This value here]`
 
 ## Usage
 
 Once the integration is enabled, your bot can react to events sent by Tally.
-
-### Supported Events
-
-- **Form Submitted**
-  Triggered when the configured Tally form is submitted.
