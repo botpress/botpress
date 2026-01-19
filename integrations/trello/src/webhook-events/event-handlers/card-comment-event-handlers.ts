@@ -6,10 +6,9 @@ import {
   CommentUpdatedWebhook,
 } from '../schemas/card-comment-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
-import { WebhookEventHandler } from './types'
 import * as bp from '.botpress'
 
-export const handleCommentAddedEvent = (async (
+export const handleCommentAddedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_CREATED,
   webhookEvent: CommentAddedWebhook
@@ -32,9 +31,9 @@ export const handleCommentAddedEvent = (async (
   ])
 
   return result[1].status === 'fulfilled' ? result[1].value : null
-}) as WebhookEventHandler
+}
 
-export const handleCommentUpdatedEvent = (async (
+export const handleCommentUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_UPDATED,
   webhookEvent: CommentUpdatedWebhook
@@ -54,9 +53,9 @@ export const handleCommentUpdatedEvent = (async (
       },
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleCommentDeletedEvent = (async (
+export const handleCommentDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_COMMENT_DELETED,
   webhookEvent: CommentDeletedWebhook
@@ -72,4 +71,4 @@ export const handleCommentDeletedEvent = (async (
       },
     },
   })
-}) as WebhookEventHandler
+}

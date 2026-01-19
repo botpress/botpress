@@ -7,7 +7,6 @@ import {
   ChecklistItemUpdatedWebhook,
 } from '../schemas/checklist-event-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
-import { WebhookEventHandler } from './types'
 import * as bp from '.botpress'
 
 const _extractCommonChecklistItemPayload = (
@@ -25,7 +24,7 @@ const _extractCommonChecklistItemPayload = (
   },
 })
 
-export const handleChecklistAddedToCardEvent = (async (
+export const handleChecklistAddedToCardEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ADDED_TO_CARD,
   webhookEvent: ChecklistAddedToCardWebhook
@@ -39,9 +38,9 @@ export const handleChecklistAddedToCardEvent = (async (
       checklist: webhookEvent.data.checklist,
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleChecklistItemCreatedEvent = (async (
+export const handleChecklistItemCreatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_CREATED,
   webhookEvent: ChecklistItemCreatedWebhook
@@ -50,7 +49,7 @@ export const handleChecklistItemCreatedEvent = (async (
     type: eventType,
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
-}) as WebhookEventHandler
+}
 
 const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedWebhook['data']['old']) => {
   const { name, state, textData, dueReminder, due } = oldData
@@ -63,7 +62,7 @@ const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedWebhook['data']['
   }
 }
 
-export const handleChecklistItemUpdatedEvent = (async (
+export const handleChecklistItemUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_UPDATED,
   webhookEvent: ChecklistItemUpdatedWebhook
@@ -86,9 +85,9 @@ export const handleChecklistItemUpdatedEvent = (async (
       old: _mapOldChecklistItemData(webhookEvent.data.old),
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleChecklistItemDeletedEvent = (async (
+export const handleChecklistItemDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_DELETED,
   webhookEvent: ChecklistItemDeletedWebhook
@@ -97,9 +96,9 @@ export const handleChecklistItemDeletedEvent = (async (
     type: eventType,
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
-}) as WebhookEventHandler
+}
 
-export const handleChecklistItemStatusUpdatedEvent = (async (
+export const handleChecklistItemStatusUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED,
   webhookEvent: ChecklistItemStatusUpdatedWebhook
@@ -108,4 +107,4 @@ export const handleChecklistItemStatusUpdatedEvent = (async (
     type: eventType,
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
-}) as WebhookEventHandler
+}

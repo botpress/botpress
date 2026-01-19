@@ -6,10 +6,9 @@ import {
   CardVotesUpdatedWebhook,
 } from '../schemas/card-event-schemas'
 import { extractCommonEventData, extractIdAndName, extractIdAndNameIfExists } from './helpers'
-import { WebhookEventHandler } from './types'
 import * as bp from '.botpress'
 
-export const handleCardCreatedEvent = (async (
+export const handleCardCreatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_CREATED,
   webhookEvent: CardCreatedWebhook
@@ -23,9 +22,9 @@ export const handleCardCreatedEvent = (async (
       card: extractIdAndName(webhookEvent.data.card),
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleCardUpdatedEvent = (async (
+export const handleCardUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_UPDATED,
   webhookEvent: CardUpdatedWebhook
@@ -42,9 +41,9 @@ export const handleCardUpdatedEvent = (async (
       listAfter: extractIdAndNameIfExists(webhookEvent.data.listAfter),
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleCardDeletedEvent = (async (
+export const handleCardDeletedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_DELETED,
   webhookEvent: CardDeletedWebhook
@@ -60,9 +59,9 @@ export const handleCardDeletedEvent = (async (
       },
     },
   })
-}) as WebhookEventHandler
+}
 
-export const handleCardVotesUpdatedEvent = (async (
+export const handleCardVotesUpdatedEvent = async (
   props: bp.HandlerProps,
   eventType: TrelloEventType.CARD_VOTES_UPDATED,
   webhookEvent: CardVotesUpdatedWebhook
@@ -76,4 +75,4 @@ export const handleCardVotesUpdatedEvent = (async (
       voted: webhookEvent.data.voted,
     },
   })
-}) as WebhookEventHandler
+}
