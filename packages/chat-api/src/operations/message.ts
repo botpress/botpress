@@ -1,6 +1,6 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
-import { createMessageInput, messagePayloadSchema } from '../models/message'
+import { createMessageInput } from '../models/message'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
 
