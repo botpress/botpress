@@ -32,7 +32,7 @@ export const handleMemberRemovedFromCardEvent = async (
       card: extractIdAndName(webhookEvent.data.card),
       member: {
         ...extractIdAndName(webhookEvent.data.member),
-        deactivated: webhookEvent.deactivated,
+        deactivated: webhookEvent.data.deactivated,
       },
     },
   })
