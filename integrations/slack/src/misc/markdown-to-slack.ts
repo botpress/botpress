@@ -15,7 +15,12 @@ const slackHandlers: MarkdownHandlers = {
   break: () => '\n',
   blockquote: (node, visit) => {
     const content = visit(node).trim()
-    return content.split('\n').map((line) => `>${line}`).join('\n') + '\n'
+    return (
+      content
+        .split('\n')
+        .map((line) => `>${line}`)
+        .join('\n') + '\n'
+    )
   },
   inlineCode: (node) => `\`${node.value}\``,
   code: (node) => `\`\`\`\n${node.value}\n\`\`\`\n`,
