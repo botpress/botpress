@@ -1,4 +1,4 @@
-import { RuntimeError, isApiError } from '@botpress/client'
+import { isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { transformMarkdownForTwilio } from './markdown-to-twilio'
@@ -14,6 +14,30 @@ type MessageHandlerProps = Parameters<MessageHandler>[0]
 type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack' | 'logger'> & {
   mediaUrl?: string
   text?: string
+}
+
+function renderLocation({
+  title,
+  address,
+  latitude,
+  longitude,
+}: {
+  latitude: number
+  longitude: number
+  title?: string
+  address?: string
+}): string {
+  const messageParts: string[] = []
+
+  if (title) {
+    messageParts.push(title, '')
+  }
+  if (address) {
+    messageParts.push(address, '')
+  }
+  messageParts.push(`https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`)
+
+  return messageParts.join('\n')
 }
 
 async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: SendMessageProps) {
@@ -50,11 +74,7 @@ export const channels = {
       audio: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.audioUrl })),
       video: async (props) => void (await sendMessage({ ...props, mediaUrl: props.payload.videoUrl })),
       file: async (props) => void (await sendMessage({ ...props, text: props.payload.fileUrl })),
-      location: async (props) =>
-        void (await sendMessage({
-          ...props,
-          text: `https://www.google.com/maps/search/?api=1&query=${props.payload.latitude},${props.payload.longitude}`,
-        })),
+      location: async (props) => void (await sendMessage({ ...props, text: renderLocation(props.payload) })),
       carousel: async (props) => {
         const {
           payload: { items },
@@ -74,8 +94,34 @@ export const channels = {
       choice: async (props) => {
         await sendMessage({ ...props, text: renderChoiceMessage(props.payload) })
       },
-      bloc: () => {
-        throw new RuntimeError('Not implemented')
+      bloc: async (props) => {
+        for (const item of props.payload.items) {
+          switch (item.type) {
+            case 'text':
+              await sendMessage({ ...props, text: item.payload.text })
+              break
+            case 'markdown':
+              await sendMessage({ ...props, text: item.payload.markdown })
+              break
+            case 'image':
+              await sendMessage({ ...props, mediaUrl: item.payload.imageUrl })
+              break
+            case 'video':
+              await sendMessage({ ...props, mediaUrl: item.payload.videoUrl })
+              break
+            case 'audio':
+              await sendMessage({ ...props, mediaUrl: item.payload.audioUrl })
+              break
+            case 'file':
+              await sendMessage({ ...props, text: item.payload.fileUrl })
+              break
+            case 'location':
+              await sendMessage({ ...props, text: renderLocation(item.payload) })
+              break
+            default:
+              break
+          }
+        }
       },
     },
   },
