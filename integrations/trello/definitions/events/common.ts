@@ -1,63 +1,69 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, memberSchema, trelloIdSchema } from '../schemas'
+import { trelloIdSchema } from '../schemas'
 
-export const TRELLO_EVENTS = {
-  addMemberToCard: 'addMemberToCard',
-  commentCard: 'commentCard',
-  createCard: 'createCard',
-  deleteCard: 'deleteCard',
-  removeMemberFromCard: 'removeMemberFromCard',
-  updateCard: 'updateCard',
-  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
-  addLabelToCard: 'addLabelToCard',
-  createCheckItem: 'createCheckItem',
-  deleteCheckItem: 'deleteCheckItem',
-  deleteComment: 'deleteComment',
-  removeLabelFromCard: 'removeLabelFromCard',
-  updateCheckItem: 'updateCheckItem',
-  updateComment: 'updateComment',
-  voteOnCard: 'voteOnCard',
-  addAttachmentToCard: 'addAttachmentToCard',
-  deleteAttachmentFromCard: 'deleteAttachmentFromCard',
-} as const
+export enum TrelloEventType {
+  // ---- Card Events ----
+  CARD_CREATED = 'createCard',
+  CARD_UPDATED = 'updateCard',
+  CARD_DELETED = 'deleteCard',
+  CARD_VOTES_UPDATED = 'voteOnCard',
+  // ---- Card Comment Events ----
+  CARD_COMMENT_CREATED = 'commentCard',
+  CARD_COMMENT_UPDATED = 'updateComment',
+  CARD_COMMENT_DELETED = 'deleteComment',
+  // ---- Card Label Events ----
+  LABEL_ADDED_TO_CARD = 'addLabelToCard',
+  LABEL_REMOVED_FROM_CARD = 'removeLabelFromCard',
+  // ---- Card Attachment Events ----
+  ATTACHMENT_ADDED_TO_CARD = 'addAttachmentToCard',
+  ATTACHMENT_REMOVED_FROM_CARD = 'deleteAttachmentFromCard',
+  // ---- Checklist Events ----
+  CHECKLIST_ADDED_TO_CARD = 'addChecklistToCard',
+  CHECKLIST_ITEM_CREATED = 'createCheckItem',
+  CHECKLIST_ITEM_UPDATED = 'updateCheckItem',
+  CHECKLIST_ITEM_DELETED = 'deleteCheckItem',
+  CHECKLIST_ITEM_STATUS_UPDATED = 'updateCheckItemStateOnCard',
+  // ---- Member Events ----
+  MEMBER_ADDED_TO_CARD = 'addMemberToCard',
+  MEMBER_REMOVED_FROM_CARD = 'removeMemberFromCard',
+}
 
 type IdAndNameSchema = z.ZodObject<{ id: z.ZodString; name: z.ZodString }>
 export const pickIdAndName = <T extends IdAndNameSchema>(schema: T) => schema.pick({ id: true, name: true })
 
-export const genericWebhookEventSchema = z.object({
-  action: z.object({
-    id: trelloIdSchema.title('Action ID').describe('Unique identifier of the action'),
-    idMemberCreator: memberSchema.shape.id.describe('Unique identifier of the member who initiated the action'),
-    type: z
-      .string()
-      .refine((e) => Reflect.ownKeys(TRELLO_EVENTS).includes(e))
-      .title('Action Type')
-      .describe('Type of the action'),
-    date: z.string().datetime().describe('Date of the action'),
-    data: z.any(),
-    memberCreator: z
-      .object({
-        id: memberSchema.shape.id.describe('Unique identifier of the member'),
-        fullName: memberSchema.shape.fullName.describe('Full name of the member'),
-        username: memberSchema.shape.username.describe('Username of the member'),
-        initials: z.string().describe('Initials of the member'),
-        avatarHash: z.string().describe('Avatar hash of the member'),
-        avatarUrl: z.string().describe('Avatar URL of the member'),
-      })
-      .describe('Member who initiated the action'),
-  }),
-  model: z.object({
-    id: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
-  }),
-  webhook: z.object({
-    id: trelloIdSchema.describe('Unique identifier of the webhook'),
-    idModel: boardSchema.shape.id.describe('Unique identifier of the model that is being watched'),
-    active: z.boolean().describe('Whether the webhook is active'),
-    consecutiveFailures: z.number().min(0).describe('Number of consecutive failures'),
-  }),
-})
+/** The number of minutes before the due date when a reminder will be sent.
+ *
+ *  @remark When the value is "-1", it means no due date reminder is set. */
+export const dueReminderSchema = z
+  .number()
+  .int('Due date reminder is not an integer')
+  .min(-1)
+  .title('Due Date Reminder')
+  .describe('The number of minutes before the due date when a reminder will be sent')
 
-export type AllSupportedEvents = keyof typeof TRELLO_EVENTS
-export type GenericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
-  action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: AllSupportedEvents }
-}
+export const botpressEventDataSchema = z.object({
+  eventId: trelloIdSchema.title('Event ID').describe('Unique identifier of the event'),
+  actor: z
+    .union([
+      z.object({
+        id: trelloIdSchema.title('Actor ID').describe('Unique identifier of the actor who triggered the event'),
+        type: z
+          .literal('member')
+          .title('Actor Type')
+          .describe('The type of the actor (e.g. member or app) who triggered the event'),
+        name: z.string().title('Actor Name').describe('The name of the actor (e.g. member) who triggered the event'),
+      }),
+      z.object({
+        id: trelloIdSchema.title('Actor ID').describe('Unique identifier of the actor who triggered the event'),
+        type: z
+          .literal('app')
+          .title('Actor Type')
+          .describe('The type of the actor (e.g. member or app) who triggered the event'),
+      }),
+    ])
+
+    .title('Actor')
+    .describe('The actor (e.g. member or app) who triggered the event'),
+  dateCreated: z.string().datetime().title('Date Created').describe('The datetime when the event was triggered'),
+})
+export type CommonEventData = z.infer<typeof botpressEventDataSchema>

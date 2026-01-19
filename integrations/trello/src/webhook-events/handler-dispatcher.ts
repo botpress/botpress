@@ -1,98 +1,67 @@
-import { default as sdk, z } from '@botpress/sdk'
-import {
-  events,
-  type AllSupportedEvents,
-  commentCardEventSchema,
-  type GenericWebhookEvent,
-  genericWebhookEventSchema,
-  TRELLO_EVENTS,
-} from 'definitions/events'
-import { CardCommentHandler } from './handlers/card-comment'
+import { TrelloEventType } from 'definitions/events'
+import { Result } from '../types'
+import { safeParseRequestBody } from '../utils'
+import { dispatchIntegrationEvent } from './event-handlers'
+import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSchema } from './schemas'
 import * as bp from '.botpress'
 
-export const handler = async ({ req, client, ctx }: bp.HandlerProps) => {
-  if (!_isBodyPresent({ req })) {
+export const handler = async (props: bp.HandlerProps): Promise<void> => {
+  const payloadResult = _parseWebhookPayload(props)
+  if (!payloadResult.success) {
+    const { error } = payloadResult
+    props.logger.forBot().error(error.message, error)
     return
   }
 
-  const parsedWebhookEvent = _parseWebhookEvent({ req })
-  await _ensureWebhookIsAuthenticated({ parsedWebhookEvent, ctx, client })
-  await _handleWebhookEvent({ parsedWebhookEvent, client })
-}
-
-const _isBodyPresent = ({ req }: { req: sdk.Request }) => !!req.body?.length
-
-const _parseWebhookEvent = ({ req }: { req: sdk.Request }) => {
-  const body = JSON.parse(req.body as string)
-  const { success, error, data } = genericWebhookEventSchema.passthrough().safeParse(body)
-
-  if (!success) {
-    throw new sdk.RuntimeError('Invalid webhook event body', error)
+  if (!(await _verifyWebhookSignature(props, payloadResult.data))) {
+    props.logger.forBot().error('The provided webhook payload failed its signature validation')
+    return
   }
 
-  return { ...data, action: { ...data.action, type: data.action.type as AllSupportedEvents } }
+  await dispatchIntegrationEvent(props, payloadResult.data)
 }
 
-const _ensureWebhookIsAuthenticated = async ({
-  parsedWebhookEvent,
-  ctx,
-  client,
-}: {
-  parsedWebhookEvent: GenericWebhookEvent
-  ctx: bp.Context
-  client: bp.Client
-}) => {
+const _isSupportedEventType = (type: string) => Object.values<string>(TrelloEventType).includes(type)
+
+const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayload> => {
+  const result = safeParseRequestBody(props.req.body)
+  if (!result.success) return result
+
+  const payloadResult = webhookEventPayloadSchema.safeParse(result.data)
+  if (payloadResult.success) return payloadResult
+
+  // Checks for payloads that don't match supported events, or if a supported
+  // event has a data structure that doesn't match the configured event schema
+  const fallbackPayloadResult = fallbackEventPayloadSchema.safeParse(result.data)
+  if (!fallbackPayloadResult.success) {
+    return {
+      success: false,
+      error: new Error(`The webhook payload has an unexpected format -> ${fallbackPayloadResult.error.message}`),
+    }
+  }
+
+  const eventType = fallbackPayloadResult.data.action.type
+  if (_isSupportedEventType(eventType)) {
+    return {
+      success: false,
+      error: new Error(
+        `The event data for the supported event type '${eventType}' has an unexpected format -> ${payloadResult.error.message}`
+      ),
+    }
+  }
+
+  return {
+    success: false,
+    error: new Error(`Unsupported Trello event type: '${eventType}'`),
+  }
+}
+
+const _verifyWebhookSignature = async ({ client, ctx }: bp.HandlerProps, eventPayload: WebhookEventPayload) => {
   const { state } = await client.getState({
     type: 'integration',
     name: 'webhook',
     id: ctx.integrationId,
   })
 
-  if (parsedWebhookEvent?.webhook.id !== state.payload.trelloWebhookId) {
-    throw new sdk.RuntimeError('Webhook request is not properly authenticated')
-  }
-}
-
-const _handleWebhookEvent = async (props: { parsedWebhookEvent: GenericWebhookEvent; client: bp.Client }) => {
-  await Promise.allSettled([_handleCardComments(props), _publishEventToBotpress(props)])
-}
-
-const _handleCardComments = async ({
-  parsedWebhookEvent,
-  client,
-}: {
-  parsedWebhookEvent: GenericWebhookEvent
-  client: bp.Client
-}) => {
-  if (!parsedWebhookEvent || parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
-    return
-  }
-
-  const cardCreationEvent = commentCardEventSchema.parse(parsedWebhookEvent)
-  await CardCommentHandler.handleEvent(client, cardCreationEvent)
-}
-
-const _publishEventToBotpress = async ({
-  parsedWebhookEvent,
-  client,
-}: {
-  parsedWebhookEvent: GenericWebhookEvent
-  client: bp.Client
-}) => {
-  if (!parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, parsedWebhookEvent.action.type)) {
-    return
-  }
-
-  const eventSchema = genericWebhookEventSchema.merge(
-    z.object({
-      action: genericWebhookEventSchema.shape.action.merge(
-        z.object({
-          data: events[parsedWebhookEvent.action.type].schema,
-        })
-      ),
-    })
-  )
-  const validatedData = eventSchema.passthrough().parse(parsedWebhookEvent).action.data
-
-  await client.createEvent({ type: parsedWebhookEvent.action.type, payload: validatedData })
+  return eventPayload.webhook.id === state.payload.trelloWebhookId
 }
