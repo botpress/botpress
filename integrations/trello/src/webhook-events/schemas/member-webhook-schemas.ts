@@ -17,8 +17,8 @@ export type MemberAddedToCardWebhook = z.infer<typeof memberAddedToCardWebhookSc
 
 export const memberRemovedFromCardWebhookSchema = trelloWebhookSchema.extend({
   type: z.literal(TrelloEventType.MEMBER_REMOVED_FROM_CARD),
-  deactivated: z.boolean(),
   data: z.object({
+    deactivated: z.boolean(),
     board: pickIdAndName(boardSchema),
     card: pickIdAndName(cardSchema),
     member: eventMemberSchema,
