@@ -1,6 +1,6 @@
-import 'dotenv/config'
-import fs from 'node:fs'
+import fs from 'fs'
 import { defineConfig } from 'vitest/config'
+import config from '../../vitest.config'
 
 function textLoader() {
   return {
@@ -33,21 +33,16 @@ function mdLoader() {
 }
 
 export default defineConfig({
+  ...config,
   plugins: [textLoader(), mdLoader()],
   resolve: {
     extensions: ['.js', '.ts', '.json', '.txt', '.md'],
   },
-  assetsInclude: '**/*.md',
   test: {
-    retry: 2, // because LLMs can fail
-    testTimeout: 60_000, // because LLMs can be slow
-    teardownTimeout: 10_000,
-    snapshotSerializers: ['./vitest.stack-trace-serializer.ts'],
-    snapshotEnvironment: './vitest.snapshot.ts',
-    maxConcurrency: 1,
-    isolate: false,
-    allowOnly: true,
-    pool: 'forks',
+    ...config.test,
+    testTimeout: 10_000,
     setupFiles: './vitest.setup.ts',
+    snapshotSerializers: ['./vitest.e2e.stack-trace-serializer.ts'],
+    snapshotEnvironment: './vitest.e2e.snapshot.ts',
   },
 })
