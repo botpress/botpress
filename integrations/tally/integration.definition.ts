@@ -1,16 +1,17 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import schemas from './schemas'
+import schemas from './definitions/schemas'
 
 export default new IntegrationDefinition({
   name: 'tally',
   title: 'Tally',
+  description: 'Integrate with Tally forms to capture form submissions and automate workflows.',
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
       apiKey: z.string().min(1).title('API Key').describe('Tally API Key'),
-      formIds: z.array(z.string().min(1).title('Form ID').describe('Tally form ID')).min(1),
+      formIds: z.array(z.string().min(1)).min(1).title('Form IDs').describe('Tally form IDs'),
       signingSecret: z.string().min(1).optional().title('Signing Secret').describe('Webhook signing secret (optional)'),
     }),
   },

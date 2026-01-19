@@ -1,5 +1,5 @@
-import { listSubmissionsInputSchema, listSubmissionsOuputSchema } from './tally-submissions'
 import { formSchema } from './tally-events'
+import { listSubmissionsInputSchema, listSubmissionsOuputSchema } from './tally-submissions'
 
 export default {
   listSubmissionsInputSchema,

@@ -1,5 +1,5 @@
-import { string, z } from '@botpress/sdk'
-import { listSubmissionsInputSchema, listSubmissionsOuputSchema } from 'schemas/tally-submissions'
+import { z } from '@botpress/sdk'
+import { listSubmissionsInputSchema, listSubmissionsOuputSchema } from 'definitions/schemas/tally-submissions'
 
 export type CreateWebhookReq = {
   formId: string
@@ -24,13 +24,13 @@ export type listSubmissionsRes = z.infer<typeof listSubmissionsOuputSchema>
 const TALLY_BASE_URL = 'https://api.tally.so'
 
 export class TallyApi {
-  constructor(private apiKey: string) {}
+  public constructor(private _apiKey: string) {}
 
-  async createWebhook(body: CreateWebhookReq): Promise<CreateWebhookRes> {
+  public async createWebhook(body: CreateWebhookReq): Promise<CreateWebhookRes> {
     const res = await fetch(`${TALLY_BASE_URL}/webhooks`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this._apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -44,10 +44,10 @@ export class TallyApi {
     return createWebhookResSchema.parse(json)
   }
 
-  async deleteWebhook(tallyWebhookId: string): Promise<void> {
+  public async deleteWebhook(tallyWebhookId: string): Promise<void> {
     const res = await fetch(`${TALLY_BASE_URL}/webhooks/${tallyWebhookId}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${this.apiKey}` },
+      headers: { Authorization: `Bearer ${this._apiKey}` },
     })
 
     if (!res.ok) {
@@ -55,7 +55,7 @@ export class TallyApi {
     }
   }
 
-  async listSubmissions(input: z.infer<typeof listSubmissionsInputSchema>): Promise<listSubmissionsRes> {
+  public async listSubmissions(input: z.infer<typeof listSubmissionsInputSchema>): Promise<listSubmissionsRes> {
     const { formId, ...params } = input
     const qs = new URLSearchParams()
 
@@ -68,7 +68,7 @@ export class TallyApi {
     const res = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this._apiKey}`,
       },
     })
 

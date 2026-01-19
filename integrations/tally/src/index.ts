@@ -1,6 +1,6 @@
-import * as bp from '.botpress'
+import { webhookSchema } from 'definitions/schemas/tally-events'
 import { TallyApi } from './client'
-import { webhookSchema } from 'schemas/tally-events'
+import * as bp from '.botpress'
 
 export default new bp.Integration({
   register: async ({ ctx, webhookUrl, logger, client }) => {
@@ -25,7 +25,7 @@ export default new bp.Integration({
         }
 
         const created = await tallyApi.createWebhook({
-          formId: formId,
+          formId,
           url: webhookUrl,
           eventTypes: ['FORM_RESPONSE'],
           signingSecret: ctx.configuration.signingSecret,
@@ -43,7 +43,7 @@ export default new bp.Integration({
         id: ctx.integrationId,
         name: 'tallyIntegrationInfo',
         payload: {
-          tallyWebhookIds: tallyWebhookIds,
+          tallyWebhookIds,
         },
       })
     } catch (error) {
@@ -117,7 +117,7 @@ export default new bp.Integration({
       type: 'formSubmitted',
       payload: {
         formId: incomingFormId,
-        fields: fields,
+        fields,
       },
     })
     return { status: 200, body: 'ok' }
