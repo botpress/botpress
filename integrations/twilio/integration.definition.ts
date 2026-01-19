@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 import { channels, configuration, entities, user } from './definitions'
 
 export const INTEGRATION_NAME = 'twilio'
-export const INTEGRATION_VERSION = '1.1.0'
+export const INTEGRATION_VERSION = '1.2.0'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
