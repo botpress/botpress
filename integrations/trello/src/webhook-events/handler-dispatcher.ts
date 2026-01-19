@@ -36,7 +36,7 @@ const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayloa
   if (!fallbackPayloadResult.success) {
     return {
       success: false,
-      error: new Error(`The webhook payload has an unexpected format -> ${payloadResult.error.message}`),
+      error: new Error(`The webhook payload has an unexpected format -> ${fallbackPayloadResult.error.message}`),
     }
   }
 
