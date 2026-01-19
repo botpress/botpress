@@ -1741,6 +1741,19 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/tally:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/teams:
     dependencies:
       '@azure/identity':
