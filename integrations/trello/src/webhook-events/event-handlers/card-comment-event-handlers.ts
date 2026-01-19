@@ -1,5 +1,5 @@
 import { TrelloEventType } from 'definitions/events'
-import { processInboundCommentChannelMessage } from '../handlers/card-comment'
+import { processInboundCommentChannelMessage } from '../channel-handlers/comment-channel-handler'
 import {
   CommentAddedWebhook,
   CommentDeletedWebhook,
