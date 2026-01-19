@@ -1,5 +1,5 @@
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { events, states, actions, channels, user, configuration, entities } from './definitions'
 
@@ -21,6 +21,6 @@ export default new sdk.IntegrationDefinition({
   events,
   entities,
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
   },
 })
