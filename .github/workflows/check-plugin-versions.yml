@@ -1,0 +1,44 @@
+name: Check Plugins Versions
+
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check-plugins-versions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Login to Botpress
+        run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v46
+        with:
+          files: 'plugins/**/*.{ts,md,svg}'
+          separator: '\n'
+      - name: Check plugin versions
+        run: |
+          modified_plugins=$(echo -e "${{ steps.changed-files.outputs.all_changed_files }}" | awk -F'/' '{print $2}' | sort -u)
+
+          should_fail=0
+
+          for plugin in $modified_plugins; do
+            echo "Checking $plugin"
+            exists=$(./.github/scripts/plugin-exists.sh $plugin)
+
+            if [ $exists -ne 0 ]; then
+              echo "Plugin $plugin is already deployed publicly with the same version. Please update the version of your plugin."
+              should_fail=1
+            fi
+          done
+
+          if [ $should_fail -ne 0 ]; then
+            echo "Please update the version of your plugin before pushing your changes."
+            exit 1
+          fi
