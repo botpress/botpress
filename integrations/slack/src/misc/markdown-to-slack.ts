@@ -13,10 +13,12 @@ const slackHandlers: MarkdownHandlers = {
   delete: (node, visit) => `~${visit(node)}~`,
   strong: (node, visit) => `*${visit(node)}*`,
   break: () => '\n',
-  blockquote: (node, visit) => `> ${visit(node)} >`,
+  blockquote: (node, visit) => {
+    const content = visit(node).trim()
+    return content.split('\n').map((line) => `>${line}`).join('\n') + '\n'
+  },
   inlineCode: (node) => `\`${node.value}\``,
   code: (node) => `\`\`\`\n${node.value}\n\`\`\`\n`,
-  heading: (node, visit) => `# ${visit(node)}\n`,
   list: (node, visit) => {
     return `${node.listLevel !== 1 ? '\n' : ''}${visit(node)}`
   },
@@ -34,10 +36,8 @@ const slackHandlers: MarkdownHandlers = {
     return `${prefix}${visit(node)}${shouldBreak ? '\n' : ''}`
   },
   link: (node, visit) => {
-    const url = node.url
     const text = visit(node)
-    // Use link text if available, otherwise just the URL
-    return text && text !== url ? `<${url}|${text}>` : `<${url}>`
+    return text ? `<${node.url}|${text}>` : `<${node.url}>`
   },
   paragraph: (node, visit) => `${visit(node)}\n`,
 }

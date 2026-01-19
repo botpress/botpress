@@ -12,7 +12,7 @@ const defaultMessages = {
   text: async ({ client, payload, ctx, conversation, ack, logger }) => {
     const parsed = textSchema.parse(payload)
     parsed.text = replaceMentions(parsed.text, parsed.mentions)
-    parsed.text = parsed.text ? transformMarkdownForSlack(parsed.text) : undefined
+    parsed.text = transformMarkdownForSlack(parsed.text)
     logger.forBot().debug('Sending text message to Slack chat:', payload)
     await _sendSlackMessage(
       { ack, ctx, client, logger },
