@@ -20,6 +20,9 @@ export type MessageDefinition = sdk.MessageDefinition
 export type ActionProps = bp.AnyActionProps
 export type MessageHandlerProps = bp.AnyMessageProps
 export type AckFunction = bp.AnyAckFunction
+export type CreateMessageInput = Parameters<Client['createMessage']>[0]
+export type CreateMessageInputType = CreateMessageInput['type']
+export type CreateMessageInputPayload = CreateMessageInput['payload']
 
 // Channel message payload types
 export type Choice = bp.channels.channel.choice.Choice

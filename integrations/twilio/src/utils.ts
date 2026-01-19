@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import * as crypto from 'crypto'
 import { TwilioChannel } from './twilio'
-import { Card, Choice, Conversation } from './types'
+import { Card, Choice, Conversation, CreateMessageInputPayload, CreateMessageInputType } from './types'
 import * as bp from '.botpress'
 
 /**
@@ -142,7 +142,7 @@ export async function downloadTwilioMedia(mediaUrl: string, client: bp.Client, c
  * Gets media expiry time based on configuration
  */
 export function getMediaExpiry(ctx: bp.Context): string | undefined {
-  const expiryDelayHours = (ctx.configuration as any).downloadedMediaExpiry || 0
+  const expiryDelayHours = ctx.configuration?.downloadedMediaExpiry || 0
   if (expiryDelayHours === 0) {
     return undefined
   }
@@ -157,7 +157,7 @@ export function getMessageTypeAndPayload(
   mediaUrl: string,
   contentType: string | null | undefined,
   fileName?: string
-): { messageType: 'image' | 'audio' | 'video' | 'file'; payload: any } {
+): { messageType: CreateMessageInputType; payload: CreateMessageInputPayload } {
   const mimeType = contentType?.toLowerCase() || ''
 
   if (mimeType.startsWith('image/')) {
