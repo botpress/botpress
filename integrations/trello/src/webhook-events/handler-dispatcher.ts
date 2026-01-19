@@ -33,7 +33,12 @@ const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayloa
   // Checks for payloads that don't match supported events, or if a supported
   // event has a data structure that doesn't match the configured event schema
   const fallbackPayloadResult = fallbackEventPayloadSchema.safeParse(result.data)
-  if (!fallbackPayloadResult.success) return fallbackPayloadResult
+  if (!fallbackPayloadResult.success) {
+    return {
+      success: false,
+      error: new Error(`The webhook payload has an unexpected format -> ${payloadResult.error.message}`),
+    }
+  }
 
   const eventType = fallbackPayloadResult.data.action.type
   if (_isSupportedEventType(eventType)) {
