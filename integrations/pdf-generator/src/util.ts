@@ -46,6 +46,7 @@ export async function uploadPdf(client: any, buffer: Buffer, filename: string) {
     content: buffer,
     contentType: 'application/pdf',
     index: false,
+    publicContentImmediatelyAccessible: true,
   })
 
   return {
