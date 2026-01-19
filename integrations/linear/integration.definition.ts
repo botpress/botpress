@@ -1,12 +1,17 @@
+import { posthogHelper } from '@botpress/common'
 import { IntegrationDefinition } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
 import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
+
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
+export const INTEGRATION_NAME = 'linear'
+export const INTEGRATION_VERSION = '1.3.0'
+
 export default new IntegrationDefinition({
-  name: 'linear',
-  version: '1.2.0',
+  name: INTEGRATION_NAME,
+  version: INTEGRATION_VERSION,
   title: 'Linear',
   description:
     'Manage your projects autonomously. Have your bot participate in discussions, manage issues and teams, and track progress.',
@@ -33,10 +38,7 @@ export default new IntegrationDefinition({
     WEBHOOK_SIGNING_SECRET: {
       description: 'The signing secret of your Linear webhook.',
     },
-    ...sentryHelpers.COMMON_SECRET_NAMES,
-  },
-  __advanced: {
-    useLegacyZuiTransformer: true,
+    ...posthogHelper.COMMON_SECRET_NAMES,
   },
 })
   .extend(listable, ({ entities }) => ({
@@ -53,4 +55,10 @@ export default new IntegrationDefinition({
     events: {
       deleted: { name: 'issueDeleted' },
     },
+  }))
+  .extend(proactiveConversation, ({ entities }) => ({
+    entities: {
+      conversation: entities.issueConversation,
+    },
+    actions: { getOrCreateConversation: { name: 'getOrCreateIssueConversation' } },
   }))
