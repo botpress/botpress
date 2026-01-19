@@ -5,7 +5,7 @@ import {
   ChecklistItemDeletedWebhook,
   ChecklistItemStatusUpdatedWebhook,
   ChecklistItemUpdatedWebhook,
-} from '../schemas/checklist-event-schemas'
+} from '../schemas/checklist-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 

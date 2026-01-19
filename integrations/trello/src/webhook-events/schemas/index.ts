@@ -1,27 +1,27 @@
 import { z } from '@botpress/sdk'
 import { trelloIdSchema } from 'definitions/schemas'
-import { cardAttachmentAddedWebhookSchema, cardAttachmentRemovedWebhookSchema } from './card-attachment-event-schemas'
+import { cardAttachmentAddedWebhookSchema, cardAttachmentRemovedWebhookSchema } from './card-attachment-webhook-schemas'
 import {
   commentAddedWebhookSchema,
   commentDeletedWebhookSchema,
   commentUpdatedWebhookSchema,
-} from './card-comment-event-schemas'
+} from './card-comment-webhook-schemas'
+import { cardLabelAddedWebhookSchema, cardLabelRemovedWebhookSchema } from './card-label-webhook-schemas'
 import {
   cardCreatedWebhookSchema,
   cardDeletedWebhookSchema,
   cardUpdatedWebhookSchema,
   cardVotesUpdatedWebhookSchema,
-} from './card-event-schemas'
-import { cardLabelAddedWebhookSchema, cardLabelRemovedWebhookSchema } from './card-label-event-schemas'
+} from './card-webhook-schemas'
 import {
   checklistAddedToCardWebhookSchema,
   checklistItemCreatedWebhookSchema,
   checklistItemDeletedWebhookSchema,
   checklistItemStatusUpdatedWebhookSchema,
   checklistItemUpdatedWebhookSchema,
-} from './checklist-event-schemas'
+} from './checklist-webhook-schemas'
 import { trelloWebhookSchema } from './common'
-import { memberAddedToCardWebhookSchema, memberRemovedFromCardWebhookSchema } from './member-event-schemas'
+import { memberAddedToCardWebhookSchema, memberRemovedFromCardWebhookSchema } from './member-webhook-schemas'
 
 const _webhookDetailsSchema = z.object({
   id: trelloIdSchema,

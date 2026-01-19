@@ -1,5 +1,5 @@
 import { TrelloEventType } from 'definitions/events'
-import { CardLabelAddedWebhook, CardLabelRemovedWebhook } from '../schemas/card-label-event-schemas'
+import { CardLabelAddedWebhook, CardLabelRemovedWebhook } from '../schemas/card-label-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 

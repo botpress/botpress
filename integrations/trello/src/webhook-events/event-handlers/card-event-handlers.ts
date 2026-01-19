@@ -4,7 +4,7 @@ import {
   CardDeletedWebhook,
   CardUpdatedWebhook,
   CardVotesUpdatedWebhook,
-} from '../schemas/card-event-schemas'
+} from '../schemas/card-webhook-schemas'
 import { extractCommonEventData, extractIdAndName, extractIdAndNameIfExists } from './helpers'
 import * as bp from '.botpress'
 

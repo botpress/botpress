@@ -1,4 +1,4 @@
-import { CommentAddedWebhook } from '../schemas/card-comment-event-schemas'
+import { CommentAddedWebhook } from '../schemas/card-comment-webhook-schemas'
 import * as bp from '.botpress'
 
 type Conversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']

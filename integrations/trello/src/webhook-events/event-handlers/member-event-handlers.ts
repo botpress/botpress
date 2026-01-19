@@ -1,5 +1,5 @@
 import { TrelloEventType } from 'definitions/events'
-import { MemberAddedToCardWebhook, MemberRemovedFromCardWebhook } from '../schemas/member-event-schemas'
+import { MemberAddedToCardWebhook, MemberRemovedFromCardWebhook } from '../schemas/member-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 

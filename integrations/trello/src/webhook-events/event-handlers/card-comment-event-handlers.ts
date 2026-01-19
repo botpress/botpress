@@ -4,7 +4,7 @@ import {
   CommentAddedWebhook,
   CommentDeletedWebhook,
   CommentUpdatedWebhook,
-} from '../schemas/card-comment-event-schemas'
+} from '../schemas/card-comment-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
 import * as bp from '.botpress'
 
