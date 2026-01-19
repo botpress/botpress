@@ -1,3 +1,4 @@
+import { commonTypes } from 'src/common'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
 
@@ -42,6 +43,10 @@ export type MessageTags<TIntegration extends common.BaseIntegration> = keyof uti
   utils.ValueOf<{
     [TChannelName in keyof TIntegration['channels']]: TIntegration['channels'][TChannelName]['message']['tags']
   }>
+>
+
+export type UserTags<TIntegration extends common.BaseIntegration> = commonTypes.ToTags<
+  keyof TIntegration['user']['tags']
 >
 
 export type TagsOfMessage<
