@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
