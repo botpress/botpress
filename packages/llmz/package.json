@@ -20,7 +20,7 @@
     "build": "tsup && pnpm tsc --emitDeclarationOnly",
     "check:type": "tsc --noEmit",
     "watch": "tsup --watch",
-    "test": "vitest run --config vitest.config.ts",
+    "test:e2e": "vitest run --config vitest.config.ts",
     "test:update": "vitest -u run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "build:markdown": "node --loader ts-node/esm ./scripts/compile-markdown.mts"
