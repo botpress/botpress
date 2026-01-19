@@ -48,9 +48,5 @@ const slackHandlers: MarkdownHandlers = {
 }
 
 export function transformMarkdownForSlack(text: string): string {
-  try {
-    return transformMarkdown(text, slackHandlers)
-  } catch (error) {
-    return text
-  }
+  return transformMarkdown(text, slackHandlers)
 }
