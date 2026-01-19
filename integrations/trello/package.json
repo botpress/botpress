@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/trello",
-  "integrationName": "trello",
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
