@@ -7,9 +7,10 @@ export const callApi: bp.IntegrationProps['actions']['callApi'] = async ({
   ctx,
   client,
   input,
+  logger,
 }): Promise<bp.actions.callApi.output.Output> => {
   const { method, path, headers, params, requestBody } = input
-  const zendeskClient = await getZendeskClient(client, ctx)
+  const zendeskClient = await getZendeskClient(client, ctx, logger)
 
   try {
     const requestConfig: AxiosRequestConfig = {

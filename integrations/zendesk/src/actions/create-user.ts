@@ -7,7 +7,7 @@ export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
   input,
   logger,
 }) => {
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
 
   const { name, email, pictureUrl } = input
 

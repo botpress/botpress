@@ -34,7 +34,9 @@ type ZendeskConfig = {
 
 class ZendeskApi {
   private _client: AxiosInstance
-  public constructor(config: ZendeskConfig) {
+  private _logger: bp.Logger
+  public constructor(config: ZendeskConfig, logger: bp.Logger) {
+    this._logger = logger
     this._client = axios.create({
       baseURL: _makeBaseUrl(config.subdomain),
       headers: {
@@ -55,14 +57,14 @@ class ZendeskApi {
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
     const { data } = await this._client
       .get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return data.users
   }
 
   public async getTicket(ticketId: string) {
     const { data } = await this._client
       .get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return data.ticket
   }
 
@@ -83,7 +85,7 @@ class ZendeskApi {
           ...extraFields,
         },
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
 
     return data.ticket
   }
@@ -100,7 +102,7 @@ class ZendeskApi {
           subscriptions: ['conditional_ticket_events'],
         },
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
 
     return data.webhook?.id
   }
@@ -119,17 +121,21 @@ class ZendeskApi {
           title: `bpc_${name}`,
         },
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
 
     return `${data.trigger.id}`
   }
 
   public async deleteTrigger(triggerId: string): Promise<void> {
-    await this._client.delete(`/api/v2/triggers/${triggerId}.json`).catch(summarizeAxiosError)
+    await this._client
+      .delete(`/api/v2/triggers/${triggerId}.json`)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
   }
 
   public async unsubscribeWebhook(subscriptionId: string): Promise<void> {
-    await this._client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(summarizeAxiosError)
+    await this._client
+      .delete(`/api/v2/webhooks/${subscriptionId}`)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
   }
 
   public async createPlaintextComment(ticketId: string, authorId: string, content: string) {
@@ -138,8 +144,7 @@ class ZendeskApi {
         body: content,
         author_id: authorId,
       },
-    }).catch(summarizeAxiosError)
-
+    }).catch((thrown) => summarizeAxiosError(thrown, this._logger))
     const zendeskCommentId = this._extractCommentId(response)
     return { zendeskCommentId }
   }
@@ -170,14 +175,14 @@ class ZendeskApi {
       }>(`/api/v2/tickets/${ticketId}.json`, {
         ticket: updateFields,
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return response.data
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
     const { data } = await this._client
       .get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
@@ -186,7 +191,7 @@ class ZendeskApi {
       .post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
         user: fields,
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return data.user
   }
 
@@ -195,14 +200,14 @@ class ZendeskApi {
       .put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
         user: fields,
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return data.user
   }
 
   public async getUser(userId: number | string): Promise<ZendeskUser> {
     const { data } = await this._client
       .get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
     return data.user
   }
 
@@ -220,21 +225,27 @@ class ZendeskApi {
           subscriptions,
         },
       })
-      .catch(summarizeAxiosError)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
   }
 
   public async deleteWebhook(webhookId: string): Promise<void> {
-    await this._client.delete(`/api/v2/webhooks/${webhookId}`).catch(summarizeAxiosError)
+    await this._client
+      .delete(`/api/v2/webhooks/${webhookId}`)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
   }
 
   public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
-    const { data } = await this._client.get('/api/v2/webhooks', { params }).catch(summarizeAxiosError)
+    const { data } = await this._client
+      .get('/api/v2/webhooks', { params })
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
 
     return data.webhooks
   }
 
   public async makeRequest(requestConfig: AxiosRequestConfig) {
-    const { data, headers, status } = await this._client.request(requestConfig).catch(summarizeAxiosError)
+    const { data, headers, status } = await this._client
+      .request(requestConfig)
+      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
 
     return {
       data,
@@ -246,7 +257,7 @@ class ZendeskApi {
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
 
-export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Promise<ZendeskApi> => {
+export const getZendeskClient = async (client: bp.Client, ctx: bp.Context, logger: bp.Logger): Promise<ZendeskApi> => {
   const { accessToken, subdomain } = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .then((result) => result.state.payload)
@@ -257,5 +268,5 @@ export const getZendeskClient = async (client: bp.Client, ctx: bp.Context): Prom
     throw new sdk.RuntimeError('Failed to get the subdomain')
   }
 
-  return new ZendeskApi({ type: 'OAuth', accessToken, subdomain })
+  return new ZendeskApi({ type: 'OAuth', accessToken, subdomain }, logger)
 }

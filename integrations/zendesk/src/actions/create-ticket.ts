@@ -6,8 +6,9 @@ export const createTicket: bp.IntegrationProps['actions']['createTicket'] = asyn
   client: bpClient,
   ctx,
   input,
+  logger,
 }) => {
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
   const ticket = await zendeskClient.createTicket(input.subject, input.comment, {
     name: input.requesterName,
     email: input.requesterEmail,

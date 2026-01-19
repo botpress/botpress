@@ -12,7 +12,7 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
 
   try {
     const fetchArticles = async (url: string) => {
-      const zendeskClient = await getZendeskClient(bpClient, ctx)
+      const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
       const response: { data: { articles: ZendeskArticle[]; next_page?: string } } = await zendeskClient.makeRequest({
         method: 'get',
         url,

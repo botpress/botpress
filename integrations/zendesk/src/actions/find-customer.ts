@@ -6,8 +6,9 @@ export const findCustomer: bp.IntegrationProps['actions']['findCustomer'] = asyn
   client: bpClient,
   ctx,
   input,
+  logger,
 }) => {
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
   const customers = await zendeskClient.findCustomers(input.query)
   return { customers: customers.map(transformUser) }
 }
