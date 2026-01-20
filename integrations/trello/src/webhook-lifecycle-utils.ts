@@ -1,6 +1,6 @@
 import { Webhook } from 'definitions/schemas'
 import { WebhookIdState } from 'definitions/states'
-import { integrationName } from '../package.json'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { TrelloClient } from './trello-api/trello-client'
 import * as bp from '.botpress'
 
@@ -27,7 +27,7 @@ const _registerWebhook = async (
   logger.forBot().info('Registering Trello webhook...')
 
   const newWebhook = await trelloClient.createWebhook({
-    description: integrationName + ctx.integrationId,
+    description: INTEGRATION_NAME + ctx.integrationId,
     url: webhookUrl,
     modelId,
   })
