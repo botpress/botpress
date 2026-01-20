@@ -1878,21 +1878,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpresshub/creatable':
-        specifier: workspace:*
-        version: link:../../interfaces/creatable
-      '@botpresshub/deletable':
-        specifier: workspace:*
-        version: link:../../interfaces/deletable
-      '@botpresshub/listable':
-        specifier: workspace:*
-        version: link:../../interfaces/listable
-      '@botpresshub/readable':
-        specifier: workspace:*
-        version: link:../../interfaces/readable
-      '@botpresshub/updatable':
-        specifier: workspace:*
-        version: link:../../interfaces/updatable
 
   integrations/twilio:
     dependencies:
