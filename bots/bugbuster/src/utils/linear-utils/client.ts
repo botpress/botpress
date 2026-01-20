@@ -104,7 +104,7 @@ export class LinearApi {
     const comments = issue.comments.nodes
     const me = await this.getViewerId()
 
-    const promises: Promise<any>[] = []
+    const promises: ReturnType<typeof this._bpClient.callAction<'linear:resolveComment'>>[] = []
     for (const comment of comments) {
       if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
         promises.push(this._bpClient.callAction({ type: 'linear:resolveComment', input: { id: comment.id } }))
