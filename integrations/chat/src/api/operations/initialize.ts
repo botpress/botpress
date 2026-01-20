@@ -67,7 +67,6 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const initializeResponse = await props.client.initializeIncomingMessage({
     ...preparedBody,
-    user: { ...request.body.user, tags: {}, discriminateByTags: [] },
   })
 
   if (!userKey) {
