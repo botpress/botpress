@@ -465,7 +465,8 @@ export const handlers = {
     req: types.AuthenticatedInputs['initializeIncomingMessage']
   ) => ({
     mapRequest: async () => {
-      let [authUserId, conversationId]: (string | undefined)[] = [undefined, undefined]
+      let authUserId = undefined
+      let conversationId = undefined
       if (req.body.conversationId) conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
       if (req.auth.userId !== '') {
         authUserId = await props.userIdStore.byFid.get(req.auth.userId)
@@ -474,10 +475,22 @@ export const handlers = {
       type InitializeIncomingReqBody = types.OperationInputs['initializeIncomingMessage']['body']
       return merge(req, {
         auth: { userId: authUserId },
-        ...req.body,
-        body: { conversationId } as types.DeepPartial<InitializeIncomingReqBody>,
+        body: { ...req.body, conversationId } as types.DeepPartial<InitializeIncomingReqBody>,
       })
     },
-    mapResponse: async (res) => res,
+    mapResponse: async (res) => {
+      const userIdPromise = props.userIdStore.byId.get(res.body.user.id)
+      const conversationIdPromise = props.convIdStore.byId.get(res.body.conversation.id)
+
+      const [userId, conversationId] = await Promise.all([userIdPromise, conversationIdPromise])
+
+      return merge(res, {
+        body: {
+          user: { ...res.body.user, id: userId },
+          conversation: { ...res.body.conversation, id: conversationId },
+          message: res.body.message,
+        },
+      })
+    },
   }),
 } satisfies FidHandlers

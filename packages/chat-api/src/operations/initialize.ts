@@ -14,7 +14,7 @@ const initializeBodySchema = schema(
   })
 )
 
-export const initializeIncomingMessageOperation: OperationFunc = () => ({
+export const initializeIncomingMessageOperation: OperationFunc = (api) => ({
   name: 'initializeIncomingMessage',
   description:
     'Creates a SSE stream to receive messages and events. The first event will be a payload containing the user, conversation and optional message details.',
@@ -30,7 +30,13 @@ export const initializeIncomingMessageOperation: OperationFunc = () => ({
   section: 'message',
   response: {
     description: 'Returns nothing but a stream',
-    schema: schema(z.object({})),
+    schema: schema(
+      z.object({
+        user: api.getModelRef('User'),
+        conversation: api.getModelRef('Conversation'),
+        message: api.getModelRef('Message').optional(),
+      })
+    ),
   },
   tags: ['experimental'],
 })

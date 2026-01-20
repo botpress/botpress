@@ -3,9 +3,9 @@ import * as signals from '../../gen/signals'
 import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
+import * as model from './model'
 import { Client } from '.botpress'
 
-type InitialEvent = signals.Types['initialized']
 type User = Parameters<Client['initializeIncomingMessage']>[0]['user']
 type Conversation = Parameters<Client['initializeIncomingMessage']>[0]['conversation']
 type Message = NonNullable<Parameters<Client['initializeIncomingMessage']>[0]['message']>
@@ -33,7 +33,11 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   if (userId) {
     userRequest.userId = userId
   } else {
-    userRequest.user = { ...request.body.user, tags: {}, discriminateByTags: [] }
+    userRequest.user = {
+      ...request.body.user,
+      tags: { fid: request.auth.userId, profile: request.body.user?.profile },
+      discriminateByTags: [],
+    }
   }
 
   const conversationRequest: { conversationId?: string; conversation?: Conversation } = {}
@@ -70,38 +74,12 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     userKey = props.auth.generateKey({ id: initializeResponse.user.id })
   }
 
-  const { conversation, user: userResponse, message: messageResponse } = initializeResponse
-
-  const ev: InitialEvent = {
-    type: 'init',
-    data: {
-      conversation,
-      user: { ...userResponse, userKey },
-      message: messageResponse?.message
-        ? { ...messageResponse.message, ...msgPayload.mapBotpressMessageToChat(messageResponse.message) }
-        : undefined,
+  const res = await fidHandler.mapResponse({
+    body: {
+      ...initializeResponse,
+      message: initializeResponse.message ? model.mapMessage(initializeResponse.message.message) : undefined,
     },
-  }
+  })
 
-  const body = createSSEMessage('init', ev)
-  const contentLength = Buffer.byteLength(body, 'utf-8')
-
-  const keepAliveMessage = createSSEMessage('message', 'ping')
-  const b64KeepAlive = Buffer.from(keepAliveMessage, 'utf-8').toString('base64')
-
-  return {
-    body,
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Content-Length': `${contentLength}`,
-      'Grip-Hold': 'stream',
-      'Grip-Channel': `${conversation.id},${userResponse.id}`,
-      'Grip-Keep-Alive': `${b64KeepAlive}; format=base64; timeout=30;`,
-    },
-  }
-}
-
-function createSSEMessage(eventName: 'message' | 'init', event: any): string {
-  const data = typeof event === 'string' ? event : JSON.stringify(event)
-  return [`event: ${eventName}`, `data: ${data}`, '', ''].join('\n')
+  return res
 }
