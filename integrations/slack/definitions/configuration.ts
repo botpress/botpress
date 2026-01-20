@@ -18,11 +18,11 @@ const SHARED_CONFIGURATION = {
     .default('channel')
     .title('Reply Location')
     .describe('Where the bot sends replies: Channel only, Thread only (creates if needed), or both'),
-  replyLocationOnlyOnBotMention: sdk.z
+  replyOnlyOnBotMention: sdk.z
     .boolean()
     .default(false)
-    .title('Require Bot Mention for Thread Replies')
-    .describe('When enabled with Thread or Channel and Thread modes, threading only activates when the bot is mentioned'),
+    .title('Require Bot Mention for Replies')
+    .describe('This ensures that the bot only replies to messages where it is explicitly mentioned'),
 } as const
 
 export const configuration = {

@@ -53,20 +53,15 @@ export const handleEvent = async (props: HandleEventProps) => {
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
   const isSentInChannel = !slackEvent.thread_ts
   const replyLocation = ctx.configuration.replyLocation ?? 'channel'
-  const requiresBotMention =
-    (ctx.configuration as { replyLocationOnlyOnBotMention?: boolean }).replyLocationOnlyOnBotMention ?? false
+  const replyOnlyOnBotMention = ctx.configuration.replyOnlyOnBotMention
 
-  // When requiresBotMention is enabled, threading only activates if the bot is mentioned
-  const threadingActive = !requiresBotMention || mentionsBot
+  if (replyOnlyOnBotMention && !mentionsBot) {
+    logger.forBot().debug('Message was not sent because the bot was not mentioned')
+    return
+  }
 
-  // Determine which conversations to store the message in based on replyLocation
-  // For channel messages: if threading requires mention and bot wasn't mentioned, fall back to channel-only behavior
-  const effectiveReplyLocation = isSentInChannel && !threadingActive ? 'channel' : replyLocation
-
-  const shouldStoreInChannel =
-    isSentInChannel && (effectiveReplyLocation === 'channel' || effectiveReplyLocation === 'channelAndThread')
-  const shouldStoreInThread =
-    !isSentInChannel || effectiveReplyLocation === 'thread' || effectiveReplyLocation === 'channelAndThread'
+  const shouldStoreInChannel = isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldStoreInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
 
   if (shouldStoreInChannel) {
     const { botpressConversation } = await getBotpressConversationFromSlackThread(
