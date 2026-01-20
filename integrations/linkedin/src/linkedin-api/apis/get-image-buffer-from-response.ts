@@ -1,5 +1,6 @@
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
-const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024 // 8MB
+const BYTES_PER_MB = 1024 * 1024
+const MAX_IMAGE_SIZE_BYTES = 8 * BYTES_PER_MB // 8MB
 
 export const getImageBufferFromResponse = async (
   response: Response
@@ -27,7 +28,7 @@ export const getImageBufferFromResponse = async (
     if (size > MAX_IMAGE_SIZE_BYTES) {
       return {
         success: false,
-        message: `Image size (${Math.round(size / 1024 / 1024)}MB) exceeds LinkedIn's 8MB limit.`,
+        message: `Image size (${Math.round(size / BYTES_PER_MB)}MB) exceeds LinkedIn's 8MB limit.`,
       }
     }
   }
@@ -37,7 +38,7 @@ export const getImageBufferFromResponse = async (
   if (imageBuffer.byteLength > MAX_IMAGE_SIZE_BYTES) {
     return {
       success: false,
-      message: `Image size (${Math.round(imageBuffer.byteLength / 1024 / 1024)}MB) exceeds LinkedIn's 8MB limit.`,
+      message: `Image size (${Math.round(imageBuffer.byteLength / BYTES_PER_MB)}MB) exceeds LinkedIn's 8MB limit.`,
     }
   }
 
