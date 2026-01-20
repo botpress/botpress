@@ -18,18 +18,6 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@botpresshub/creatable": "workspace:*",
-    "@botpresshub/deletable": "workspace:*",
-    "@botpresshub/listable": "workspace:*",
-    "@botpresshub/readable": "workspace:*",
-    "@botpresshub/updatable": "workspace:*",
     "@sentry/cli": "^2.39.1"
-  },
-  "bpDependencies": {
-    "creatable": "../../interfaces/creatable",
-    "deletable": "../../interfaces/deletable",
-    "listable": "../../interfaces/listable",
-    "readable": "../../interfaces/readable",
-    "updatable": "../../interfaces/updatable"
   }
 }
