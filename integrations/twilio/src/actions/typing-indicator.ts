@@ -34,7 +34,7 @@ async function sendTypingIndicator({
   // The Twilio SDK doesn't expose the v2 Indicators API natively yet (Its in beta),
   // so we use client.request() to call the REST endpoint directly
   await twilioClient.request({
-    method: 'POST',
+    method: 'post',
     uri: 'https://messaging.twilio.com/v2/Indicators/Typing.json',
     data: {
       messageId: twilioMessageSid,
