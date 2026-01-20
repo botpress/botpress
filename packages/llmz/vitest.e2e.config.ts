@@ -42,8 +42,7 @@ export default defineConfig({
     retry: 2, // because LLMs can fail
     testTimeout: 60_000, // because LLMs can be slow
     teardownTimeout: 10_000,
-    snapshotSerializers: ['./vitest.e2e.stack-trace-serializer.ts'],
-    snapshotEnvironment: './vitest.e2e.snapshot.ts',
+    snapshotSerializers: ['./vitest.stack-trace-serializer.ts'],
     maxConcurrency: 1,
     isolate: false,
     allowOnly: true,
