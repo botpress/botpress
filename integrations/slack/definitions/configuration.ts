@@ -13,22 +13,16 @@ const SHARED_CONFIGURATION = {
     .default(false)
     .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
-  createReplyThread: sdk.z
-    .object({
-      enabled: sdk.z
-        .boolean()
-        .default(false)
-        .title('Reply Threading Enabled')
-        .describe('When enabled, the bot will forward incoming messages to threads'),
-      onlyOnBotMention: sdk.z
-        .boolean()
-        .default(false)
-        .title('Require Bot Mention for Reply Threading')
-        .describe('When enabled, the bot will only forward messages to threads when mentioned'),
-    })
-    .optional()
-    .title('Proactive Threads')
-    .describe('Create reply threads for each incoming message'),
+  replyLocation: sdk.z
+    .enum(['channel', 'thread', 'channelAndThread'])
+    .default('channel')
+    .title('Reply Location')
+    .describe('Where the bot sends replies: Channel only, Thread only (creates if needed), or both'),
+  replyLocationOnlyOnBotMention: sdk.z
+    .boolean()
+    .default(false)
+    .title('Require Bot Mention for Thread Replies')
+    .describe('When enabled with Thread or Channel and Thread modes, threading only activates when the bot is mentioned'),
 } as const
 
 export const configuration = {
