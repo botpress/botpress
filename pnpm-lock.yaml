@@ -118,9 +118,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@linear/sdk':
-        specifier: ^50.0.0
-        version: 50.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -4960,10 +4957,6 @@ packages:
   '@line/bot-sdk@9.5.0':
     resolution: {integrity: sha512-PPtul1vzoyZ5HkNqh643YD0TCFqOHI6ld4x69c/prwAxornBxPaeXoHbHcFeK8gaD2W4/666mPQe5K3CmUMepw==}
     engines: {node: '>=18'}
-
-  '@linear/sdk@50.0.0':
-    resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
-    engines: {node: '>=12.x', yarn: 1.x}
 
   '@linear/sdk@55.2.1':
     resolution: {integrity: sha512-0+xjyphwdMMeGIV5O1Q7/AhS/tyTv+J0azE/WPbVXJHCDkBdgoHERvBgNXM0nRjcVt2RKUl8V0o+Fly2CJRlOA==}
@@ -14046,14 +14039,6 @@ snapshots:
       axios: 1.13.1
     transitivePeerDependencies:
       - debug
-
-  '@linear/sdk@50.0.0':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
-      graphql: 15.8.0
-      isomorphic-unfetch: 3.1.0
-    transitivePeerDependencies:
-      - encoding
 
   '@linear/sdk@55.2.1':
     dependencies:
