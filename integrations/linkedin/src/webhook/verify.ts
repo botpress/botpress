@@ -1,7 +1,6 @@
 import * as crypto from 'crypto'
 import * as bp from '.botpress'
 
-// LinkedIn signature format: "hmacsha256={signature}"
 const SIGNATURE_PREFIX = 'hmacsha256='
 
 export const verifyLinkedInWebhook = ({ req, ctx, logger }: bp.HandlerProps): boolean => {
@@ -17,6 +16,7 @@ export const verifyLinkedInWebhook = ({ req, ctx, logger }: bp.HandlerProps): bo
     return false
   }
 
+  // LinkedIn signature format: "hmacsha256={signature}"
   if (!signatureHeader.startsWith(SIGNATURE_PREFIX)) {
     logger.forBot().warn(`Invalid signature format - missing ${SIGNATURE_PREFIX} prefix`)
     return false
