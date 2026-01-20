@@ -88,8 +88,6 @@ export const handleEvent = async (props: HandleEventProps) => {
   }
 
   if (shouldStoreInThread) {
-    // For messages already in a thread, use the existing thread_ts
-    // For channel messages with thread/channelAndThread mode, create a new thread on this message
     const threadTs = slackEvent.thread_ts ?? slackEvent.ts
 
     const { conversation: threadConversation } = await client.getOrCreateConversation({
