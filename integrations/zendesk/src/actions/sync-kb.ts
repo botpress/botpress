@@ -3,8 +3,9 @@ import { uploadArticlesToKb } from 'src/misc/upload-articles-to-kb'
 import { deleteKbArticles } from 'src/misc/utils'
 import * as bp from '.botpress'
 
-export const syncKb: bp.IntegrationProps['actions']['syncKb'] = async ({ ctx, input, client, logger }) => {
+export const syncKb: bp.IntegrationProps['actions']['syncKb'] = async (props) => {
   try {
+    const { client, ctx, input, logger } = props
     const kbId = input.knowledgeBaseId
 
     await deleteKbArticles(kbId, client)

@@ -3,7 +3,8 @@
   "private": true,
   "main": "./src/index.ts",
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
