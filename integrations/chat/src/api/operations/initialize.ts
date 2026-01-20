@@ -50,7 +50,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     }
   }
 
-  let msg: { message: Message } | undefined
+  let msg: { message?: Message } = {}
   if (request.body.message) {
     const payload = msgPayload.mapChatMessageToBotpress({
       payload: request.body.message.payload,
