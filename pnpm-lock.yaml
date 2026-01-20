@@ -1738,6 +1738,19 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/tally:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/teams:
     dependencies:
       '@azure/identity':
@@ -2485,7 +2498,7 @@ importers:
         specifier: 1.29.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2609,7 +2622,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2625,7 +2638,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2638,7 +2651,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2654,7 +2667,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2670,7 +2683,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.1.2
+        specifier: 5.2.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8

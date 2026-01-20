@@ -7,7 +7,8 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'",
-    "refreshTokens": "ts-node -T ./refreshTokens.ts"
+    "refreshTokens": "ts-node -T ./refreshTokens.ts",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

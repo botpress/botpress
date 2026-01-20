@@ -41,6 +41,9 @@ export class IssueProcessor {
 
   public async listRelevantIssues(endCursor?: string): Promise<{ issues: lin.Issue[]; pagination?: lin.Pagination }> {
     const watchedTeams = await this._teamsManager.listWatchedTeams()
+    if (watchedTeams.length === 0) {
+      throw new Error('You have no watched teams.')
+    }
 
     return await this._linear.listIssues(
       {
