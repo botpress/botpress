@@ -2,6 +2,7 @@ import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 
 import { EventMessage, PostHog } from 'posthog-node'
+import { PostHogRateLimiter } from './rate-limiter'
 
 export const COMMON_SECRET_NAMES = {
   POSTHOG_KEY: {
@@ -13,6 +14,9 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
+  /** An integer percentage between 1 and 100 which determines
+   *  what percentage of events are allowed through. */
+  rateLimitPercentage?: number
 }
 
 type WrapFunctionProps = {
@@ -22,11 +26,19 @@ type WrapFunctionProps = {
   functionArea: string
 }
 
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName, integrationVersion } = config
-  const client = new PostHog(key, {
+const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
+  const rateLimiter = PostHogRateLimiter.create(rateLimitPercentage)
+  return new PostHog(key, {
     host: 'https://us.i.posthog.com',
+    before_send: (event) => {
+      return rateLimiter.shouldAllow() ? event : null
+    },
   })
+}
+
+export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
+  const { key, integrationName, integrationVersion, rateLimitPercentage } = config
+  const client = createPostHogClient(key, rateLimitPercentage)
   try {
     const signedProps: EventMessage = {
       ...props,
