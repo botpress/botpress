@@ -57,14 +57,14 @@ class ZendeskApi {
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
     const { data } = await this._client
       .get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return data.users
   }
 
   public async getTicket(ticketId: string) {
     const { data } = await this._client
       .get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return data.ticket
   }
 
@@ -85,7 +85,7 @@ class ZendeskApi {
           ...extraFields,
         },
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
 
     return data.ticket
   }
@@ -102,7 +102,7 @@ class ZendeskApi {
           subscriptions: ['conditional_ticket_events'],
         },
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
 
     return data.webhook?.id
   }
@@ -121,21 +121,17 @@ class ZendeskApi {
           title: `bpc_${name}`,
         },
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
 
     return `${data.trigger.id}`
   }
 
   public async deleteTrigger(triggerId: string): Promise<void> {
-    await this._client
-      .delete(`/api/v2/triggers/${triggerId}.json`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    await this._client.delete(`/api/v2/triggers/${triggerId}.json`).catch(this._summarizeAxiosError)
   }
 
   public async unsubscribeWebhook(subscriptionId: string): Promise<void> {
-    await this._client
-      .delete(`/api/v2/webhooks/${subscriptionId}`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    await this._client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(this._summarizeAxiosError)
   }
 
   public async createPlaintextComment(ticketId: string, authorId: string, content: string) {
@@ -144,7 +140,7 @@ class ZendeskApi {
         body: content,
         author_id: authorId,
       },
-    }).catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    }).catch(this._summarizeAxiosError)
     const zendeskCommentId = this._extractCommentId(response)
     return { zendeskCommentId }
   }
@@ -175,14 +171,14 @@ class ZendeskApi {
       }>(`/api/v2/tickets/${ticketId}.json`, {
         ticket: updateFields,
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return response.data
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
     const { data } = await this._client
       .get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
@@ -191,7 +187,7 @@ class ZendeskApi {
       .post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
         user: fields,
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return data.user
   }
 
@@ -200,14 +196,14 @@ class ZendeskApi {
       .put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
         user: fields,
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return data.user
   }
 
   public async getUser(userId: number | string): Promise<ZendeskUser> {
     const { data } = await this._client
       .get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
     return data.user
   }
 
@@ -225,27 +221,21 @@ class ZendeskApi {
           subscriptions,
         },
       })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+      .catch(this._summarizeAxiosError)
   }
 
   public async deleteWebhook(webhookId: string): Promise<void> {
-    await this._client
-      .delete(`/api/v2/webhooks/${webhookId}`)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    await this._client.delete(`/api/v2/webhooks/${webhookId}`).catch(this._summarizeAxiosError)
   }
 
   public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
-    const { data } = await this._client
-      .get('/api/v2/webhooks', { params })
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    const { data } = await this._client.get('/api/v2/webhooks', { params }).catch(this._summarizeAxiosError)
 
     return data.webhooks
   }
 
   public async makeRequest(requestConfig: AxiosRequestConfig) {
-    const { data, headers, status } = await this._client
-      .request(requestConfig)
-      .catch((thrown) => summarizeAxiosError(thrown, this._logger))
+    const { data, headers, status } = await this._client.request(requestConfig).catch(this._summarizeAxiosError)
 
     return {
       data,
@@ -253,6 +243,8 @@ class ZendeskApi {
       status,
     }
   }
+
+  private _summarizeAxiosError = (thrown: unknown) => summarizeAxiosError(thrown, this._logger)
 }
 
 export type ZendeskClient = InstanceType<typeof ZendeskApi>
