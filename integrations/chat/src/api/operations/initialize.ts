@@ -1,5 +1,4 @@
 import { InvalidPayloadError } from 'src/gen/errors'
-import * as signals from '../../gen/signals'
 import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
