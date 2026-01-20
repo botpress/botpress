@@ -52,18 +52,18 @@ export const handleEvent = async (props: HandleEventProps) => {
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
   const isSentInChannel = !slackEvent.thread_ts
-  const replyLocation = ctx.configuration.replyLocation ?? 'channel'
-  const replyOnlyOnBotMention = ctx.configuration.replyOnlyOnBotMention
+  const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
+  const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
 
   if (replyOnlyOnBotMention && !mentionsBot) {
     logger.forBot().debug('Message was not sent because the bot was not mentioned')
     return
   }
 
-  const shouldStoreInChannel = isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
-  const shouldStoreInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
+  const shouldRespondInChannel = isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
 
-  if (shouldStoreInChannel) {
+  if (shouldRespondInChannel) {
     const { botpressConversation } = await getBotpressConversationFromSlackThread(
       { slackChannelId: slackEvent.channel, slackThreadId: undefined },
       client
@@ -87,12 +87,12 @@ export const handleEvent = async (props: HandleEventProps) => {
     })
   }
 
-  if (shouldStoreInThread) {
+  if (shouldRespondInThread) {
     const threadTs = slackEvent.thread_ts ?? slackEvent.ts
 
     const { conversation: threadConversation } = await client.getOrCreateConversation({
       channel: 'thread',
-      tags: { id: slackEvent.channel, thread: threadTs, isBotReplyThread: isSentInChannel ? 'true' : undefined },
+      tags: { id: slackEvent.channel, thread: threadTs, isBotReplyThread: 'true' },
       discriminateByTags: ['id', 'thread'],
     })
 
@@ -104,7 +104,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         userId: slackEvent.user,
         channelId: slackEvent.channel,
         mentionsBot: mentionsBot ? 'true' : undefined,
-        forkedToThread: isSentInChannel ? 'true' : 'false',
+        forkedToThread: 'true',
       },
       discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
       slackEvent,
