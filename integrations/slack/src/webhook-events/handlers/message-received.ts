@@ -60,7 +60,8 @@ export const handleEvent = async (props: HandleEventProps) => {
     return
   }
 
-  const shouldRespondInChannel = isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldRespondInChannel =
+    isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
   const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
 
   if (shouldRespondInChannel) {

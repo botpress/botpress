@@ -5,6 +5,7 @@ The Slack integration enables seamless communication between your AI-powered cha
 Version 4.0 of the Slack integration refines the bot's reply behaviour by introducing the possibility to reply in either `channel`, `thread` or `channel and thread`. This replaces the previous `createReplyThread` configuration option by adding the ability to **only** reply in threads.
 
 Features that have been added are:
+
 - Improved reply behaviour
 - Added rich text! Users are now able to input markdown text and it display in rich text in slack
 

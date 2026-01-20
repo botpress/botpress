@@ -14,17 +14,17 @@ const SHARED_CONFIGURATION = {
     .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
   replyBehaviour: sdk.z
-  .object({
-    location: sdk.z
-      .enum(['channel', 'thread', 'channelAndThread'])
-      .default('channel')
-      .title('Reply Location')
-      .describe('Where the bot sends replies: Channel only, Thread only (creates if needed), or both'),
-    onlyOnBotMention: sdk.z
-      .boolean()
-      .default(false)
-      .title('Require Bot Mention for Replies')
-      .describe('This ensures that the bot only replies to messages where it is explicitly mentioned'),
+    .object({
+      location: sdk.z
+        .enum(['channel', 'thread', 'channelAndThread'])
+        .default('channel')
+        .title('Reply Location')
+        .describe('Where the bot sends replies: Channel only, Thread only (creates if needed), or both'),
+      onlyOnBotMention: sdk.z
+        .boolean()
+        .default(false)
+        .title('Require Bot Mention for Replies')
+        .describe('This ensures that the bot only replies to messages where it is explicitly mentioned'),
     })
     .title('Reply Behaviour')
     .describe('How the bot should reply to messages'),
