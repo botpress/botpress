@@ -1,6 +1,6 @@
+import { isApiError } from '@botpress/client'
 import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator, posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { isApiError } from '@botpress/client'
 import { Common as GoogleApisCommon } from 'googleapis'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import * as bp from '.botpress'

@@ -5,7 +5,8 @@ import * as lin from '../utils/linear-utils'
 export class IssueStateChecker {
   public constructor(
     private _linear: lin.LinearApi,
-    private _logger: sdk.BotLogger
+    private _logger: sdk.BotLogger,
+    private _botId: string
   ) {}
 
   public async processIssues(props: { stateAttributes: types.StateAttributes; teams: string[] }) {
@@ -24,8 +25,9 @@ export class IssueStateChecker {
       )
 
       for (const issue of issues) {
-        await this._linear.client.createComment({
+        await this._linear.createComment({
           issueId: issue.id,
+          botId: this._botId,
           body: stateAttributes.warningComment,
         })
         this._logger.warn(stateAttributes.buildWarningReason(issue.identifier))
