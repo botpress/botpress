@@ -2,7 +2,7 @@ import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 
 import { EventMessage, PostHog } from 'posthog-node'
-import { PostHogRateLimiter } from './rate-limiter'
+import { useBooleanGenerator } from './boolean-generator'
 
 export const COMMON_SECRET_NAMES = {
   POSTHOG_KEY: {
@@ -27,11 +27,11 @@ type WrapFunctionProps = {
 }
 
 const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
-  const rateLimiter = PostHogRateLimiter.create(rateLimitPercentage)
+  const shouldAllow = useBooleanGenerator(rateLimitPercentage)
   return new PostHog(key, {
     host: 'https://us.i.posthog.com',
     before_send: (event) => {
-      return rateLimiter.shouldAllow() ? event : null
+      return shouldAllow() ? event : null
     },
   })
 }

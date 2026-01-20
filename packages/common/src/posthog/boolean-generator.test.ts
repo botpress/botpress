@@ -1,9 +1,9 @@
 import { describe, expect, test, beforeEach } from 'vitest'
-import { PostHogRateLimiter } from './rate-limiter'
+import { useBooleanGenerator } from './boolean-generator'
 
-describe('PostHogRateLimiter', () => {
+describe('Boolean Generator', () => {
   test.each([0, -10, 101, 50.5, NaN])('Should throw error for invalid percentage: %p', (percentage) => {
-    expect(() => PostHogRateLimiter.create(percentage)).toThrow('Probability must be an integer between 1 and 100')
+    expect(() => useBooleanGenerator(percentage)).toThrow('Probability must be an integer between 1 and 100')
   })
 
   test.each([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99].map((p) => ({ percentage: p })))(
@@ -13,10 +13,10 @@ describe('PostHogRateLimiter', () => {
       /** In percentage */
       const TOLERANCE = 1
 
-      let rateLimiter = PostHogRateLimiter.create(percentage)
+      let shouldAllow = useBooleanGenerator(percentage)
       let trueCount = 0
       for (let i = 0; i < CYCLES; i++) {
-        if (rateLimiter.shouldAllow()) {
+        if (shouldAllow()) {
           trueCount++
         }
       }
@@ -30,10 +30,10 @@ describe('PostHogRateLimiter', () => {
   test('100% probability, should be true all the time', () => {
     const CYCLES = 10000
 
-    let rateLimiter = PostHogRateLimiter.create(100)
+    let shouldAllow = useBooleanGenerator(100)
     let trueCount = 0
     for (let i = 0; i < CYCLES; i++) {
-      if (rateLimiter.shouldAllow()) {
+      if (shouldAllow()) {
         trueCount++
       }
     }
