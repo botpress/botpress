@@ -3,6 +3,10 @@ export const useBooleanGenerator = (truthyPercentage: number): (() => boolean) =
     throw new Error('Percentage must be an integer between 1 and 100')
   }
 
+  if (truthyPercentage === 100) {
+    return () => true
+  }
+
   const probability = truthyPercentage / 100
   return () => Math.random() <= probability
 }
