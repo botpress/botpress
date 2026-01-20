@@ -94,12 +94,8 @@ const _buildTicketBody = async (
   return description + (messageHistory.length ? `\n\n---\n\n${messageHistory}` : '')
 }
 
-export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({
-  ctx,
-  input,
-  client: bpClient,
-  logger,
-}) => {
+export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async (props) => {
+  const { client: bpClient, ctx, input, logger } = props
   const { conversation } = await bpClient.getConversation({
     id: input.conversationId,
   })
