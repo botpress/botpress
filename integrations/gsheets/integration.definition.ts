@@ -13,7 +13,7 @@ import {
 } from './definitions'
 
 export const INTEGRATION_NAME = 'gsheets'
-export const INTEGRATION_VERSION = '2.1.0'
+export const INTEGRATION_VERSION = '2.1.1'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
