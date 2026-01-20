@@ -2,9 +2,7 @@ import * as sdk from '@botpress/sdk'
 import { LinkedInBaseApi } from '../base-api'
 import { extractLinkedInHeaders } from '../linkedin-oauth-client'
 import { InitializeUploadResponse } from '../schemas'
-
-const MAX_IMAGE_SIZE_BYTES = 8 * 1024 * 1024 // 8MB
-const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+import { getImageBufferFromResponse } from './get-image-buffer-from-response'
 
 export type CreatePostParams = {
   authorUrn: string
@@ -100,35 +98,12 @@ export class PostsApi extends LinkedInBaseApi {
   }
 
   private async _downloadAndValidateImage(imageUrl: string): Promise<ArrayBuffer> {
-    const imageResponse = await fetch(imageUrl)
-    if (!imageResponse.ok) {
-      throw new sdk.RuntimeError(`Failed to download image from provided URL (status: ${imageResponse.status})`)
+    const result = await getImageBufferFromResponse(await fetch(imageUrl))
+
+    if (result.success) {
+      return result.buffer
     }
-
-    const contentType = imageResponse.headers.get('content-type')?.toLowerCase() || ''
-    const contentLength = imageResponse.headers.get('content-length')
-
-    const isValidType = SUPPORTED_IMAGE_TYPES.some((type) => contentType.includes(type))
-    if (!isValidType) {
-      throw new sdk.RuntimeError(`Unsupported image format: ${contentType}. LinkedIn supports: JPG, PNG, GIF.`)
-    }
-
-    if (contentLength) {
-      const size = parseInt(contentLength, 10)
-      if (size > MAX_IMAGE_SIZE_BYTES) {
-        throw new sdk.RuntimeError(`Image size (${Math.round(size / 1024 / 1024)}MB) exceeds LinkedIn's 8MB limit.`)
-      }
-    }
-
-    const imageBuffer = await imageResponse.arrayBuffer()
-
-    if (imageBuffer.byteLength > MAX_IMAGE_SIZE_BYTES) {
-      throw new sdk.RuntimeError(
-        `Image size (${Math.round(imageBuffer.byteLength / 1024 / 1024)}MB) exceeds LinkedIn's 8MB limit.`
-      )
-    }
-
-    return imageBuffer
+    throw new sdk.RuntimeError(result.message)
   }
 
   private async _initializeImageUpload(authorUrn: string): Promise<{ uploadUrl: string; imageUrn: string }> {
