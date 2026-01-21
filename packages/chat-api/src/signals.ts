@@ -1,7 +1,5 @@
 import { z } from 'zod'
 import { message, event } from './models'
-import { conversationSchema } from './models/conversation'
-import { userSchema } from './models/user'
 
 export const signalSchemas = {
   messageCreated: z.object({
@@ -37,16 +35,6 @@ export const signalSchemas = {
       id: z.string(),
       conversationId: z.string(),
       userId: z.string(),
-    }),
-  }),
-  initialized: z.object({
-    type: z.literal('init'),
-    data: z.object({
-      conversation: conversationSchema,
-      user: userSchema.extend({
-        userKey: z.string(),
-      }),
-      message: message.messageSchema.optional(),
     }),
   }),
 }
