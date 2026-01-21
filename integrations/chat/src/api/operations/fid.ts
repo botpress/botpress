@@ -467,7 +467,9 @@ export const handlers = {
     mapRequest: async () => {
       let authUserId = undefined
       let conversationId = undefined
-      if (req.body.conversationId) conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
+      if (req.body.conversationId) {
+        conversationId = await props.convIdStore.byFid.get(req.body.conversationId)
+      }
       if (req.auth.userId !== '') {
         authUserId = await props.userIdStore.byFid.get(req.auth.userId)
       }
@@ -475,7 +477,12 @@ export const handlers = {
       type InitializeIncomingReqBody = types.OperationInputs['initializeIncomingMessage']['body']
       return merge(req, {
         auth: { userId: authUserId },
-        body: { ...req.body, conversationId } as types.DeepPartial<InitializeIncomingReqBody>,
+        body: {
+          ...req.body,
+          conversationId: conversationId as any,
+          message: req.body.message,
+          user: {},
+        },
       })
     },
     mapResponse: async (res) => {

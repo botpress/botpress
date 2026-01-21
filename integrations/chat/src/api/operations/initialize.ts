@@ -34,7 +34,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   } else {
     userRequest.user = {
       ...request.body.user,
-      tags: { fid: request.auth.userId, profile: request.body.user?.profile },
+      tags: {},
       discriminateByTags: [],
     }
   }
@@ -45,7 +45,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   } else {
     conversationRequest.conversation = {
       channel: 'channel',
-      tags: { owner: userId, fid: request.body.conversation.id },
+      tags: {},
       discriminateByTags: [],
     }
   }
@@ -64,8 +64,15 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     ...msg,
   }
 
-  const initializeResponse = await props.client.initializeIncomingMessage({
-    ...preparedBody,
+  const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
+
+  const updateConversationResponse = await props.client.updateConversation({
+    id: initializeResponse.conversation.id,
+    tags: { owner: userId, fid: request.body.conversationId ?? initializeResponse.conversation.id },
+  })
+  const updateUserResponse = await props.client.updateUser({
+    id: initializeResponse.user.id,
+    tags: { fid: userId ?? initializeResponse.user.id, profile: request.body.user?.profile },
   })
 
   if (!userKey) {
@@ -75,7 +82,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   const res = await fidHandler.mapResponse({
     body: {
       ...initializeResponse,
-      message: initializeResponse.message ? model.mapMessage(initializeResponse.message.message) : undefined,
+      message: initializeResponse.message ? model.mapMessage(initializeResponse.message) : undefined,
     },
   })
 
