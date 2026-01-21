@@ -103,7 +103,17 @@ export const actions = {
         channelName: sdk.z
           .string()
           .title('Channel Name')
-          .describe('The name of the channel you want the conversation to be created at'),
+          .describe(
+            'The name of the channel you want the conversation to be created at. If not provided, a channel ID must be provided.'
+          )
+          .optional(),
+        channelId: sdk.z
+          .string()
+          .title('Channel ID')
+          .describe(
+            'The ID of the channel you want the conversation to be created at. If not provided, a channel name must be provided.'
+          )
+          .optional(),
       }),
     },
     output: {
