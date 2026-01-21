@@ -2,7 +2,7 @@ import { schema } from '@bpinternal/opapi'
 import { z } from 'zod'
 import { conversationIdSchema } from '../models/conversation'
 import { messageInput } from '../models/message'
-import { userInput } from '../models/user'
+import { userInput, userSchema } from '../models/user'
 import { authHeaders } from './auth'
 import type { OperationFunc } from './types'
 
@@ -32,7 +32,7 @@ export const initializeIncomingMessageOperation: OperationFunc = (api) => ({
     description: 'Returns nothing but a stream',
     schema: schema(
       z.object({
-        user: api.getModelRef('User'),
+        user: userSchema.extend({ key: z.string() }),
         conversation: api.getModelRef('Conversation'),
         message: api.getModelRef('Message').optional(),
       })
