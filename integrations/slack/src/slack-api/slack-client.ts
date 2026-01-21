@@ -323,9 +323,23 @@ export class SlackClient {
   }
 
   @requireAllScopes(['channels:read', 'chat:write'])
-  @handleErrors('Failed to retrieve user profile')
-  public async getChannelInfo({ channelName }: { channelName: string }) {
+  @handleErrors('Failed to retrieve channel info')
+  public async getChannelInfo({ channelId, channelName }: { channelId?: string; channelName?: string }) {
     const allChannels: SlackWebApi.ConversationsListResponse['channels'] = []
+
+    if (channelId) {
+      const { channel } = this._surfaceSlackErrors(
+        await this._slackWebClient.conversations.info({
+          channel: channelId,
+        })
+      )
+      return channel
+    }
+
+    if (!channelName) {
+      throw new sdk.RuntimeError('Either channelId or channelName must be provided')
+    }
+
     for await (const page of this._slackWebClient.paginate('conversations.list', {
       types: 'public_channel,private_channel',
       exclude_archived: true,
@@ -342,6 +356,34 @@ export class SlackClient {
     }
 
     return undefined
+  }
+
+  @requireAllScopes(['channels:read', 'chat:write'])
+  @handleErrors('Failed to retrieve channel info (paginated)')
+  public async getChannelInfoPaginated({ channelName, nextToken }: { channelName: string; nextToken: string }) {
+    const { channels, response_metadata } = this._surfaceSlackErrors(
+      await this._slackWebClient.conversations.list({
+        types: 'public_channel,private_channel',
+        exclude_archived: true,
+        limit: 200,
+        cursor: nextToken,
+      })
+    )
+
+    if (channels) {
+      const foundChannel = channels.find((channel) => channel.name === channelName)
+      if (foundChannel) {
+        return {
+          channel: foundChannel,
+          nextCursor: response_metadata?.next_cursor,
+        }
+      }
+    }
+
+    return {
+      channel: undefined,
+      nextCursor: response_metadata?.next_cursor,
+    }
   }
 
   private _surfaceSlackErrors<TResponse extends SlackWebApi.WebAPICallResult>(response: TResponse): TResponse {

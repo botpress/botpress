@@ -170,4 +170,42 @@ export const actions = {
       }),
     },
   },
+
+  getChannelInfoPaginated: {
+    title: 'Get Channel Info Paginated',
+    description: 'Get information about a channel by name using pagination',
+    input: {
+      schema: sdk.z.object({
+        channelName: sdk.z
+          .string()
+          .title('Channel Name')
+          .describe('The name of the channel to retrieve information about'),
+        nextToken: sdk.z
+          .string()
+          .title('Next Token')
+          .describe('The pagination cursor token from the previous request. Use empty string for the first request.'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        found: sdk.z.boolean().title('Found').describe('Whether the channel was found'),
+        id: sdk.z.string().optional().title('Channel ID').describe('The ID of the channel'),
+        name: sdk.z.string().optional().title('Channel Name').describe('The name of the channel'),
+        isPrivate: sdk.z.boolean().optional().title('Is Private').describe('Whether the channel is private'),
+        isArchived: sdk.z.boolean().optional().title('Is Archived').describe('Whether the channel is archived'),
+        topic: sdk.z.string().optional().title('Topic').describe('The topic of the channel'),
+        purpose: sdk.z.string().optional().title('Purpose').describe('The purpose of the channel'),
+        numMembers: sdk.z
+          .number()
+          .optional()
+          .title('Number of Members')
+          .describe('The number of members in the channel'),
+        nextCursor: sdk.z
+          .string()
+          .optional()
+          .title('Next Cursor')
+          .describe('The cursor token for the next page of results. Use this for subsequent requests.'),
+      }),
+    },
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']

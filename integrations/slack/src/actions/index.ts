@@ -1,6 +1,8 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
+import { getChannelInfoPaginated } from './get-channel-info-paginated'
 import { getUserProfile } from './get-user-profile'
+import { getOrCreateConversation } from './proactive-conversation'
 import { retrieveMessage } from './retrieve-message'
 import { startChannelConversation } from './start-channel-conversation'
 import { startDmConversation } from './start-dm'
@@ -20,4 +22,6 @@ export default {
   startTypingIndicator,
   stopTypingIndicator,
   getUserProfile,
+  getChannelInfoPaginated,
+  getOrCreateConversation,
 } satisfies bp.IntegrationProps['actions']
