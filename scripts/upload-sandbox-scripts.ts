@@ -18,6 +18,23 @@ function readIntegrationDefinition(integrationPath: string): any {
   return JSON.parse(readCmdResult.stdout.toString())
 }
 
+function getProfileArgs(): any {
+  const activeProfileCmdResult = spawnSync('pnpm', ['exec', 'bp', 'profiles', 'active', '--json'])
+  if (activeProfileCmdResult.status === 0) {
+    try {
+      return JSON.parse(activeProfileCmdResult.stdout.toString())
+    } catch {
+      /** Do nothing/use fallback return */
+    }
+  }
+
+  return {
+    apiUrl: undefined,
+    workspaceId: undefined,
+    token: undefined,
+  }
+}
+
 function parseArgs(): Args {
   return process.argv.slice(2).reduce<Record<string, string | undefined>>((acc, arg) => {
     const [key, value] = arg.split('=')
@@ -98,9 +115,10 @@ async function uploadScripts({
 }
 
 const args = parseArgs()
-const apiUrl = args.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
-const token = args.token || process.env.BP_TOKEN
-const workspaceId = args.workspaceId || process.env.BP_WORKSPACE_ID
+const profileArgs = getProfileArgs()
+const apiUrl = args.apiUrl || profileArgs.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
+const token = args.token || profileArgs.token || process.env.BP_TOKEN
+const workspaceId = args.workspaceId || profileArgs.workspaceId || process.env.BP_WORKSPACE_ID
 const userEmail = args.userEmail
 const integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
 const integrationPath = args.integrationPath
