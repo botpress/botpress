@@ -56,7 +56,7 @@ export const handleEvent = async (props: HandleEventProps) => {
   const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
 
   if (replyOnlyOnBotMention && !mentionsBot) {
-    logger.forBot().debug('Message was not sent because the bot was not mentioned')
+    logger.forBot().warn('Message was not sent because the bot was not mentioned')
     return
   }
 
@@ -105,7 +105,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         userId: slackEvent.user,
         channelId: slackEvent.channel,
         mentionsBot: mentionsBot ? 'true' : undefined,
-        forkedToThread: 'true',
+        forkedToThread: isSentInChannel ? 'true' : 'false',
       },
       discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
       slackEvent,

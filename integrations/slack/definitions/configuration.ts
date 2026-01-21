@@ -24,7 +24,7 @@ const SHARED_CONFIGURATION = {
         .boolean()
         .default(false)
         .title('Require Bot Mention for Replies')
-        .describe('This ensures that the bot only replies to messages where it is explicitly mentioned'),
+        .describe('This ensures that the bot only replies to messages when it is explicitly mentioned'),
     })
     .title('Reply Behaviour')
     .describe('How the bot should reply to messages'),
