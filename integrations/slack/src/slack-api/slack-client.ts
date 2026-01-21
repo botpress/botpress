@@ -337,7 +337,8 @@ export class SlackClient {
     }
 
     if (!channelName) {
-      throw new sdk.RuntimeError('Either channelId or channelName must be provided')
+      this._logger.forBot().error('Either channelId or channelName must be provided')
+      return
     }
 
     for await (const page of this._slackWebClient.paginate('conversations.list', {
