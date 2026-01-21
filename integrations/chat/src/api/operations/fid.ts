@@ -474,7 +474,6 @@ export const handlers = {
         authUserId = await props.userIdStore.byFid.get(req.auth.userId)
       }
 
-      type InitializeIncomingReqBody = types.OperationInputs['initializeIncomingMessage']['body']
       return merge(req, {
         auth: { userId: authUserId },
         body: {
