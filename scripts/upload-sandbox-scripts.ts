@@ -123,7 +123,12 @@ const userEmail = args.userEmail
 const integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
 const integrationPath = args.integrationPath
 if (!userEmail || !token || !workspaceId) {
-  console.error('Missing required arguments: userEmail, token, workspaceId')
+  const missingArgs: string[] = [
+    !userEmail ? 'userEmail' : null,
+    !token ? 'token' : null,
+    !workspaceId ? 'workspaceId' : null,
+  ].filter((value) => value !== null)
+  console.error(`Missing required arguments: ${missingArgs.join(', ')}`)
   console.error(
     'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --token=<token> --workspaceId=<workspaceId> [--apiUrl=<apiUrl>] [--integrationId=<id>] [--integrationPath=<path>]\n' +
       'integrationId, apiUrl, token, and workspaceId can also be set in the environment variables BP_INTEGRATION_ID, BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID'
