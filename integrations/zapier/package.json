@@ -6,7 +6,7 @@
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "test": "jest"
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",

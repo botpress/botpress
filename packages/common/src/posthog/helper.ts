@@ -2,6 +2,7 @@ import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 
 import { EventMessage, PostHog } from 'posthog-node'
+import { useBooleanGenerator } from './boolean-generator'
 
 export const COMMON_SECRET_NAMES = {
   POSTHOG_KEY: {
@@ -13,6 +14,9 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
+  /** An integer percentage between 1 and 100 which determines
+   *  what percentage of events are allowed through. */
+  rateLimitPercentage?: number
 }
 
 type WrapFunctionProps = {
@@ -22,11 +26,19 @@ type WrapFunctionProps = {
   functionArea: string
 }
 
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName, integrationVersion } = config
-  const client = new PostHog(key, {
+const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
+  const shouldAllow = useBooleanGenerator(rateLimitPercentage)
+  return new PostHog(key, {
     host: 'https://us.i.posthog.com',
+    before_send: (event) => {
+      return shouldAllow() ? event : null
+    },
   })
+}
+
+export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
+  const { key, integrationName, integrationVersion, rateLimitPercentage } = config
+  const client = createPostHogClient(key, rateLimitPercentage)
   try {
     const signedProps: EventMessage = {
       ...props,
@@ -103,6 +115,20 @@ function wrapFunction(props: WrapFunctionProps) {
   const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
+      await sendPosthogEvent(
+        {
+          distinctId: `${config.integrationName}_${config.integrationVersion}`,
+          event: `${config.integrationName}_${functionName}`, // e.g. "gmail_registered"
+          properties: {
+            from: functionName,
+            area: functionArea,
+            integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
+          },
+        },
+        config
+      )
+
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)

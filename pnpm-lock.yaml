@@ -118,9 +118,6 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      '@linear/sdk':
-        specifier: ^50.0.0
-        version: 50.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1741,6 +1738,19 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/tally:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/teams:
     dependencies:
       '@azure/identity':
@@ -2488,7 +2498,7 @@ importers:
         specifier: 1.29.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2612,7 +2622,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2628,7 +2638,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2641,7 +2651,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2657,7 +2667,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2673,7 +2683,7 @@ importers:
         specifier: 1.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.2.0
+        specifier: 5.3.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -4947,10 +4957,6 @@ packages:
   '@line/bot-sdk@9.5.0':
     resolution: {integrity: sha512-PPtul1vzoyZ5HkNqh643YD0TCFqOHI6ld4x69c/prwAxornBxPaeXoHbHcFeK8gaD2W4/666mPQe5K3CmUMepw==}
     engines: {node: '>=18'}
-
-  '@linear/sdk@50.0.0':
-    resolution: {integrity: sha512-cqOTIkayqCDTBITCieuZ3acMiJmWZB0bR9FhfrfMs2B5PotntDgcfNCBW+21LcMwcBrq0A84kwK2AQzdu+Atsg==}
-    engines: {node: '>=12.x', yarn: 1.x}
 
   '@linear/sdk@55.2.1':
     resolution: {integrity: sha512-0+xjyphwdMMeGIV5O1Q7/AhS/tyTv+J0azE/WPbVXJHCDkBdgoHERvBgNXM0nRjcVt2RKUl8V0o+Fly2CJRlOA==}
@@ -14033,14 +14039,6 @@ snapshots:
       axios: 1.13.1
     transitivePeerDependencies:
       - debug
-
-  '@linear/sdk@50.0.0':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@15.8.0)
-      graphql: 15.8.0
-      isomorphic-unfetch: 3.1.0
-    transitivePeerDependencies:
-      - encoding
 
   '@linear/sdk@55.2.1':
     dependencies:

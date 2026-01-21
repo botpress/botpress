@@ -5,7 +5,7 @@ export type Mention = {
 }
 
 export const replaceMentions = (text: string | undefined, mentions: Mention[] | undefined): string | undefined => {
-  if (!text || !mentions) {
+  if (!mentions || !text) {
     return text
   }
 
