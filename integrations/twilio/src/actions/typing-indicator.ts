@@ -47,9 +47,15 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   client,
   ctx,
   input,
+  logger,
 }) => {
-  const { conversationId, messageId } = input
-  await sendTypingIndicator({ client, ctx, conversationId, messageId })
+  try {
+    const { conversationId, messageId } = input
+    await sendTypingIndicator({ client, ctx, conversationId, messageId })
+  } catch (error) {
+    const thrown = error instanceof Error ? error : new Error(String(error))
+    logger.forBot().warn(`Failed to send typing indicator: ${thrown.message ?? '[Unknown error]'}`)
+  }
   return {}
 }
 
