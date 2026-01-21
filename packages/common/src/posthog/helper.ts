@@ -115,6 +115,20 @@ function wrapFunction(props: WrapFunctionProps) {
   const { config, fn, functionArea, functionName } = props
   return async (...args: any[]) => {
     try {
+      await sendPosthogEvent(
+        {
+          distinctId: `${config.integrationName}_${config.integrationVersion}`,
+          event: `${config.integrationName}_${functionName}`, // e.g. "gmail_registered"
+          properties: {
+            from: functionName,
+            area: functionArea,
+            integrationName: config.integrationName,
+            integrationVersion: config.integrationVersion,
+          },
+        },
+        config
+      )
+
       return await fn(...args)
     } catch (thrown) {
       const errMsg = thrown instanceof Error ? thrown.message : String(thrown)
