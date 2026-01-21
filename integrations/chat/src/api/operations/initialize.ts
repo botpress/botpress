@@ -3,11 +3,6 @@ import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
-import { Client } from '.botpress'
-
-type User = Parameters<Client['initializeIncomingMessage']>[0]['user']
-type Conversation = Parameters<Client['initializeIncomingMessage']>[0]['conversation']
-type Message = NonNullable<Parameters<Client['initializeIncomingMessage']>[0]['message']>
 
 export const initialize: types.Operations['initializeIncomingMessage'] = async (props, req) => {
   let userKey = req.headers['x-user-key']
@@ -28,40 +23,42 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   })
   const request = await fidHandler.mapRequest()
 
-  const userRequest: { user?: User; userId?: string } = {}
-  if (userId) {
-    userRequest.userId = userId
-  } else {
-    userRequest.user = {
+  type InitializeIncomingMessageParams = Parameters<typeof props.client.initializeIncomingMessage>[0]
+
+  type PreparedBody = {
+    user?: InitializeIncomingMessageParams['user']
+    userId?: string
+    conversation?: InitializeIncomingMessageParams['conversation']
+    conversationId?: string
+    message?: InitializeIncomingMessageParams['message']
+  }
+
+  const preparedBody: PreparedBody = {}
+
+  if (userId) preparedBody.userId = userId
+  else
+    preparedBody.user = {
       ...request.body.user,
       tags: {},
       discriminateByTags: [],
     }
-  }
 
-  const conversationRequest: { conversationId?: string; conversation?: Conversation } = {}
   if (request.body.conversationId) {
-    conversationRequest.conversationId = request.body.conversationId
+    preparedBody.conversationId = request.body.conversationId
   } else {
-    conversationRequest.conversation = {
+    preparedBody.conversation = {
       channel: 'channel',
       tags: {},
       discriminateByTags: [],
     }
   }
 
-  let msg: { message?: Message } = {}
   if (request.body.message) {
     const payload = msgPayload.mapChatMessageToBotpress({
       payload: request.body.message.payload,
       metadata: request.body.message.metadata,
     })
-    msg = { message: { ...payload, tags: {}, discriminateByTags: [] } }
-  }
-  const preparedBody = {
-    ...conversationRequest,
-    ...userRequest,
-    ...msg,
+    preparedBody.message = { ...payload, tags: {}, discriminateByTags: [] }
   }
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
