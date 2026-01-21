@@ -3,9 +3,7 @@ import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
 export const startChannelConversation = wrapActionAndInjectSlackClient(
   { actionName: 'startChannelConversation', errorMessage: 'Failed to start Channel conversation' },
-  async ({ client, logger, slackClient }, input) => {
-    const { channelName, channelId } = input as { channelName?: string; channelId?: string }
-
+  async ({ client, logger, slackClient }, { channelName, channelId }) => {
     if (!channelName && !channelId) {
       const errorMessage = 'Either channelName or channelId must be provided'
       logger.forBot().error(errorMessage)
@@ -17,7 +15,7 @@ export const startChannelConversation = wrapActionAndInjectSlackClient(
     if (channelId) {
       channelIdToUse = channelId
     } else {
-      const slackChannelInfo = await slackClient.getChannelInfo({ channelName: channelName! })
+      const slackChannelInfo = await slackClient.getChannelInfo({ channelName })
       if (slackChannelInfo === undefined || !slackChannelInfo.id) {
         const errorMessage = `The channel "${channelName}" does not exist or your bot does not have access to it`
         logger.forBot().error(errorMessage)
