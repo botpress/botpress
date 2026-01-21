@@ -66,14 +66,16 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
 
-  const updateConversationResponse = await props.client.updateConversation({
-    id: initializeResponse.conversation.id,
-    tags: { owner: userId, fid: request.body.conversationId ?? initializeResponse.conversation.id },
-  })
-  const updateUserResponse = await props.client.updateUser({
+  const updateUserPromise = props.client.updateUser({
     id: initializeResponse.user.id,
     tags: { fid: userId ?? initializeResponse.user.id, profile: request.body.user?.profile },
   })
+  const updateConversationPromise = await props.client.updateConversation({
+    id: initializeResponse.conversation.id,
+    tags: { owner: userId, fid: request.body.conversationId ?? initializeResponse.conversation.id },
+  })
+
+  await Promise.all([updateUserPromise, updateConversationPromise])
 
   if (!userKey) {
     userKey = props.auth.generateKey({ id: initializeResponse.user.id })
