@@ -1,69 +1,51 @@
-import { posthogHelper } from '@botpress/common'
-import * as sdk from '@botpress/sdk'
-import { posthogConfig } from 'src'
 import { GoogleClient } from './google-api'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, logger }) => {
-  const startTime = Date.now()
+  let googleClient: GoogleClient
 
-  let googleClient: GoogleClient | void
+  const createFromRefreshToken = async () => {
+    try {
+      return await GoogleClient.create({ client, ctx })
+    } catch (err) {
+      logger.forBot().error({ err }, 'Failed to create Google client from refresh token')
+      throw err
+    }
+  }
 
-  logger.forBot().info('Using refresh token from configuration')
-  googleClient = await GoogleClient.create({ client, ctx }).catch((error) => _logForBotAndThrow(logger, error))
-
-  if (!googleClient && ctx.configurationType === 'customApp') {
-    googleClient = await GoogleClient.createFromAuthorizationCode({
-      client,
-      ctx,
-      authorizationCode: ctx.configuration.oauthAuthorizationCode,
-    }).catch((error) => _logForBotAndThrow(logger, error))
+  if (ctx.configurationType !== 'customApp') {
+    logger.forBot().info('Using refresh token from configuration')
+    googleClient = await createFromRefreshToken()
+  } else {
+    if (!ctx.configuration.oauthAuthorizationCode) {
+      logger.forBot().info('No authorization code provided, using existing refresh token from state')
+      googleClient = await createFromRefreshToken()
+    } else {
+      logger.forBot().info('Using authorization code from context')
+      try {
+        googleClient = await GoogleClient.createFromAuthorizationCode({
+          client,
+          ctx,
+          authorizationCode: ctx.configuration.oauthAuthorizationCode,
+        })
+        logger.forBot().info('Successfully created Google client from authorization code')
+      } catch (err) {
+        logger.forBot().warn({ err }, 'Failed to create Google client from authorization code; falling back')
+        googleClient = await createFromRefreshToken()
+      }
+    }
   }
 
   logger.forBot().info('Setting up Gmail watch for incoming emails...')
-
-  if (!googleClient) {
-    throw new sdk.RuntimeError('Failed to create Google client')
+  try {
+    await googleClient
+      .watchIncomingMail()
+      .catch((error) =>
+        logger.forBot().warn(`Failed to set up Gmail watch: ${error instanceof Error ? error.message : String(error)}`)
+      )
+  } catch (error) {
+    logger.forBot().error(`Failed to set up Gmail watch ${error}`)
   }
-
-  await googleClient.watchIncomingMail().catch(() => logger.forBot().warn('Failed to set up Gmail watch'))
-
-  const configurationTimeMs = Date.now() - startTime
-
-  await posthogHelper
-    .sendPosthogEvent(
-      {
-        distinctId: ctx.integrationId,
-        event: 'integration_registered',
-        properties: {
-          botId: ctx.botId,
-          configurationType: ctx.configurationType,
-          configurationTimeMs,
-        },
-      },
-      posthogConfig
-    )
-    .catch(() => {
-      // Silently fail if PostHog is unavailable
-    })
 }
 
-const _logForBotAndThrow = (logger: bp.Logger, error: unknown) => {
-  logger.forBot().error(`${error}`)
-  throw new sdk.RuntimeError(`${error}`)
-}
-
-export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx }) => {
-  await posthogHelper
-    .sendPosthogEvent(
-      {
-        distinctId: ctx.integrationId,
-        event: 'integration_unregistered',
-        properties: {
-          botId: ctx.botId,
-        },
-      },
-      posthogConfig
-    )
-    .catch(() => {})
-}
+export const unregister: bp.IntegrationProps['unregister'] = async () => {}

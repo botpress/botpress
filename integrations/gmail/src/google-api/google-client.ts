@@ -32,12 +32,24 @@ export class GoogleClient {
   }) {
     const token = refreshToken ?? (await GoogleClient._getRefreshTokenFromStates({ client, ctx }))
 
+    if (!token) {
+      throw new sdk.RuntimeError('No refresh token found. Please complete the OAuth flow to obtain a refresh token.')
+    }
+
     const oauth2Client = GoogleClient._getOAuthClient({ ctx })
-    oauth2Client.setCredentials({ refresh_token: token })
 
-    const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
+    try {
+      oauth2Client.setCredentials({ refresh_token: token })
+    } catch (error) {
+      throw new sdk.RuntimeError(`Failed to set OAuth credentials: ${error}`)
+    }
+
+    const gmailClient = google.gmail({
+      version: 'v1',
+      auth: oauth2Client,
+      timeout: 30000,
+    })
     const topicName = IntegrationConfig.getPubSubTopicName({ ctx })
-
     return new GoogleClient(gmailClient, topicName)
   }
 
@@ -52,13 +64,13 @@ export class GoogleClient {
   }) {
     const refreshToken = await GoogleClient._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
 
-    await GoogleClient._saveRefreshTokenIntoStates({ client, ctx, refreshToken })
+    await GoogleClient._saveRefreshTokenIntoStates({ client, ctx, refreshToken, authorizationCode })
 
     return GoogleClient.create({ client, ctx, refreshToken })
   }
 
   public async watchIncomingMail() {
-    await this._gmail.users.watch({
+    return this._gmail.users.watch({
       userId: 'me',
       requestBody: { topicName: this._topicName },
     })
@@ -83,30 +95,60 @@ export class GoogleClient {
   }
 
   private static async _getRefreshTokenFromStates({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-    })
+    try {
+      const { state } = await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken: '',
+          lastHistoryId: undefined,
+        },
+      })
 
-    return state.payload.refreshToken
+      const refreshToken = state.payload.refreshToken || undefined
+
+      return refreshToken
+    } catch (error) {
+      throw new sdk.RuntimeError(`Failed to get refresh token from states: ${error}`)
+    }
   }
 
   private static async _saveRefreshTokenIntoStates({
     client,
     ctx,
     refreshToken,
+    authorizationCode,
   }: {
     client: bp.Client
     ctx: bp.Context
     refreshToken: string
+    authorizationCode?: string
   }) {
-    await client.setState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-      payload: { refreshToken },
-    })
+    // Use patchState to preserve existing fields like lastHistoryId
+    try {
+      await client.patchState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken,
+          ...(authorizationCode && { authorizationCode }),
+        },
+      })
+    } catch {
+      // If state doesn't exist, create it with getOrSetState
+      await client.getOrSetState({
+        type: 'integration',
+        name: 'configuration',
+        id: ctx.integrationId,
+        payload: {
+          refreshToken,
+          lastHistoryId: undefined,
+          ...(authorizationCode && { authorizationCode }),
+        },
+      })
+    }
   }
 
   private static async _exchangeAuthorizationCodeForRefreshToken({

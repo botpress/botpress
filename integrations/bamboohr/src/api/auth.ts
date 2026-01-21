@@ -1,5 +1,6 @@
 import { bambooHrOauthTokenResponse } from 'definitions'
 import * as types from '../types'
+import { stripSubdomain } from './utils'
 import * as bp from '.botpress'
 
 const OAUTH_EXPIRATION_MARGIN = 5 * 60 * 1000 // 5 minutes
@@ -79,7 +80,7 @@ export const getCurrentBambooHrAuthorization = async ({
       type: 'apiKey',
       authorization: `Basic ${Buffer.from(ctx.configuration.apiKey + ':x').toString('base64')}`,
       expiresAt: Infinity,
-      domain: ctx.configuration.subdomain,
+      domain: stripSubdomain(ctx.configuration.subdomain),
     }
   }
 

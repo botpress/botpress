@@ -1,4 +1,6 @@
 // @ts-ignore
+import { AxiosError } from 'axios'
+// @ts-ignore
 import parseMessage from 'gmail-api-parse-message'
 import { parse as parseHtml } from 'node-html-parser'
 import { GoogleClient } from '../google-api'
@@ -6,13 +8,13 @@ import { decodeBase64URL } from '../utils/string-utils'
 import * as bp from '.botpress'
 
 export const handleIncomingEmail = async (props: bp.HandlerProps) => {
-  const { req, client, ctx } = props
+  const { req, client, ctx, logger } = props
   const bodyContent = JSON.parse(req.body || '{}')
 
   const data = bodyContent.message?.data
 
   if (!data) {
-    console.warn('Handler received an invalid body (no data)')
+    logger.warn('Handler received an invalid body (no data)')
     return
   }
 
@@ -22,12 +24,9 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   const historyId = `${historyIdNumber}`
 
   if (!historyId) {
-    console.warn('Handler received an invalid body (no historyId)')
+    logger.warn('Handler received an invalid body (no historyId)')
     return
   }
-
-  // Only proceed if the incoming historyId is greater that the latest processed historyId
-  const googleClient = await GoogleClient.create({ client, ctx })
 
   const {
     state: { payload },
@@ -39,18 +38,21 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
 
   const lastHistoryId = payload.lastHistoryId ?? _fakeHistoryId(historyId)
 
-  if (!payload.lastHistoryId) {
-    await client.setState({
-      type: 'integration',
-      name: 'configuration',
-      id: ctx.integrationId,
-      payload: {
-        ...payload,
-        lastHistoryId,
-      },
-    })
+  if (Number(historyId) <= Number(lastHistoryId)) {
+    logger.info(`HistoryId ${historyId} already processed (last: ${lastHistoryId}), skipping`)
+    return
   }
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      ...payload,
+      lastHistoryId: historyId,
+    },
+  })
 
+  const googleClient = await GoogleClient.create({ client, ctx })
   const history = await googleClient.getMyHistory(lastHistoryId)
 
   const messageIds = history.history?.reduce((acc, h) => {
@@ -64,37 +66,38 @@ export const handleIncomingEmail = async (props: bp.HandlerProps) => {
   }, [] as string[])
 
   if (!messageIds?.length) {
-    console.info('Handler received an empty message id')
+    logger.info('Handler received an empty message id')
     return
   }
 
   for (const messageId of messageIds) {
-    await _processMessage(props, messageId, googleClient, emailAddress)
+    await _processMessage(props, messageId, googleClient, emailAddress, logger)
   }
-
-  await client.setState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-    payload: {
-      ...payload,
-      lastHistoryId: historyId,
-    },
-  })
 }
 
 const _processMessage = async (
   { client }: bp.HandlerProps,
   messageId: string,
   googleClient: GoogleClient,
-  emailAddress: string
+  emailAddress: string,
+  logger: bp.HandlerProps['logger']
 ) => {
-  const gmailMessage = await googleClient.messages.get(messageId)
+  let gmailMessage
+  try {
+    gmailMessage = await googleClient.messages.get(messageId)
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && (error?.code === '404' || error?.response?.status === 404)) {
+      logger.info(`Message ${messageId} not found, skipping (likely deleted)`)
+      return
+    }
+    throw error
+  }
+
   const message = parseMessage(gmailMessage)
   const threadId = message.threadId
 
   if (!threadId) {
-    console.info('Handler received an empty chat id')
+    logger.info('Handler received an empty chat id')
     throw new Error('Handler received an empty chat id')
   }
 
@@ -150,19 +153,28 @@ const _processMessage = async (
       // Extract the text content:
       content = messageRoot.structuredText
     } catch (thrown) {
-      console.error('Error while parsing html content', thrown)
+      logger.error('Error while parsing html content', thrown)
     }
   }
 
-  await client.getOrCreateMessage({
-    tags: { id: messageId },
-    type: 'text',
-    userId: user.id,
-    conversationId: conversation.id,
-    payload: { text: content },
-  })
+  try {
+    await client.getOrCreateMessage({
+      tags: { id: messageId },
+      type: 'text',
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: content },
+    })
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error))
+    if (err?.message?.includes('already exists for a different conversation')) {
+      logger.info(`Message ${messageId} already exists, skipping`)
+      return
+    }
+    throw error
+  }
 
-  await client.setState({
+  await client.getOrSetState({
     type: 'conversation',
     name: 'thread',
     id: conversation.id,

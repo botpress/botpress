@@ -1,5 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { handleOauthRequest } from './api/auth'
+import { stripSubdomain } from './api/utils'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -47,12 +48,14 @@ const _oauthRedirectHandler: WizardHandler = async ({ inputValue, responses, ctx
     })
   }
 
+  const subdomain = stripSubdomain(inputValue)
+
   await client.setState({
     type: 'integration',
     name: 'oauth',
     id: ctx.integrationId,
     payload: {
-      domain: inputValue,
+      domain: subdomain,
       accessToken: '',
       refreshToken: '',
       expiresAt: 0,

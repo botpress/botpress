@@ -5,7 +5,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
@@ -13,6 +14,7 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "axios": "^1.7.9",
     "sunshine-conversations-client": "^9.12.0"
   },
   "devDependencies": {
