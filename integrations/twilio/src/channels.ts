@@ -62,7 +62,7 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text, logger }: S
       )
     }
   }
-  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body })
+  const { sid } = await twilioClient.messages.create({ to, from, mediaUrl: mediaUrl ? [mediaUrl] : undefined, body })
   await ack({ tags: { id: sid } })
 }
 
