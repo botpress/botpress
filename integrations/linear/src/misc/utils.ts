@@ -84,6 +84,7 @@ export const getUserAndConversation = async (props: {
     tags: {
       id: props.linearIssueId,
     },
+    discriminateByTags: ['id'],
   })
 
   const linearClient = await getLinearClient(props, props.integrationId)

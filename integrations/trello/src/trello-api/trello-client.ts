@@ -11,6 +11,7 @@ import {
 import { TrelloClient as TrelloJs, type Models as TrelloJsModels } from 'trello.js'
 import { RequestMapping } from './mapping/request-mapping'
 import { ResponseMapping } from './mapping/response-mapping'
+import { UpdateCardPayload, CreateCardPayload } from './types'
 import * as bp from '.botpress'
 
 const _useHandleCaughtError = (message: string) => {
@@ -90,11 +91,7 @@ export class TrelloClient {
     return ResponseMapping.mapCard(card)
   }
 
-  public async createCard({
-    card,
-  }: {
-    card: Pick<Card, 'name' | 'description' | 'listId'> & Partial<Card>
-  }): Promise<Card> {
+  public async createCard({ card }: { card: CreateCardPayload }): Promise<Card> {
     const newCard = await this._trelloJs.cards
       .createCard(RequestMapping.mapCreateCard(card))
       .catch(_useHandleCaughtError('Failed to create card'))
@@ -102,12 +99,23 @@ export class TrelloClient {
     return ResponseMapping.mapCard(newCard)
   }
 
-  public async updateCard({ partialCard }: { partialCard: Pick<Card, 'id'> & Partial<Card> }): Promise<Card> {
+  public async updateCard({ partialCard }: { partialCard: UpdateCardPayload }): Promise<Card> {
     const updatedCard = await this._trelloJs.cards
       .updateCard(RequestMapping.mapUpdateCard(partialCard))
       .catch(_useHandleCaughtError('Failed to update card'))
 
     return ResponseMapping.mapCard(updatedCard)
+  }
+
+  /** Hard deletes a Trello card.
+   *
+   *  @remark For soft deletion use "updateCard" with "isClosed" as true */
+  public async deleteCard(cardId: Card['id']): Promise<void> {
+    await this._trelloJs.cards
+      .deleteCard({
+        id: cardId,
+      })
+      .catch(_useHandleCaughtError('Failed to delete card'))
   }
 
   public async getListById({ listId }: { listId: List['id'] }): Promise<List> {

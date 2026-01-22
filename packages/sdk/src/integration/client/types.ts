@@ -2,7 +2,14 @@ import * as client from '@botpress/client'
 import type { commonTypes } from '../../common'
 import * as utils from '../../utils/type-utils'
 import * as common from '../common'
-import { EnumerateMessages, ConversationTags, GetChannelByName, GetMessageByName, MessageTags } from './sub-types'
+import {
+  EnumerateMessages,
+  ConversationTags,
+  GetChannelByName,
+  GetMessageByName,
+  MessageTags,
+  UserTags,
+} from './sub-types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
@@ -177,7 +184,7 @@ type UserResponse<TIntegration extends common.BaseIntegration> = {
   user: utils.Merge<
     Awaited<Res<client.Client['getUser']>>['user'],
     {
-      tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+      tags: UserTags<TIntegration>
     }
   >
 }
@@ -186,7 +193,7 @@ export type CreateUser<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['createUser']>,
     {
-      tags: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+      tags: UserTags<TIntegration>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
@@ -199,7 +206,7 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listUsers']>,
     {
-      tags?: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+      tags?: UserTags<TIntegration>
     }
   >
 ) => Res<client.Client['listUsers']>
@@ -220,12 +227,36 @@ export type UpdateUser<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['updateUser']>,
     {
-      tags?: commonTypes.ToTags<keyof TIntegration['user']['tags']>
+      tags?: UserTags<TIntegration>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
 
 export type DeleteUser<_TIntegration extends common.BaseIntegration> = client.Client['deleteUser']
+
+export type InitializeIncomingMessage<TIntegration extends common.BaseIntegration> = (
+  x: utils.Merge<
+    Arg<client.Client['initializeIncomingMessage']>,
+    {
+      user?: utils.Merge<
+        NonNullable<Arg<client.Client['initializeIncomingMessage']>['user']>,
+        { tags: UserTags<TIntegration> }
+      >
+      conversation?: utils.Merge<
+        NonNullable<Arg<client.Client['initializeIncomingMessage']>['conversation']>,
+        { tags: commonTypes.ToTags<ConversationTags<TIntegration>> }
+      >
+      message?: utils.Merge<
+        NonNullable<Arg<client.Client['initializeIncomingMessage']>['message']>,
+        { tags: commonTypes.ToTags<MessageTags<TIntegration>> }
+      >
+    }
+  >
+) => Promise<{
+  user: Awaited<Res<client.Client['getUser']>>['user']
+  conversation: Awaited<Res<client.Client['getConversation']>>['conversation']
+  message?: MessageResponse<TIntegration>
+}>
 
 type StateResponse<TIntegration extends common.BaseIntegration, TState extends keyof TIntegration['states']> = {
   state: utils.Merge<
