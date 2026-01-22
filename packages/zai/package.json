@@ -45,7 +45,7 @@
     "@botpress/vai": "workspace:*",
     "@size-limit/file": "^11.1.6",
     "@types/lodash-es": "^4.17.12",
-    "diff": "^8.0.1",
+    "diff": "^8.0.3",
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "glob": "^9.3.4",
