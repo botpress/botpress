@@ -2,7 +2,6 @@ import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
 const { z } = sdk
-
 const TOKEN_URL = 'https://oauth-bridge.zendesk.com/sc/oauth/token'
 const TOKEN_INFO_URL = 'https://oauth-bridge.zendesk.com/sc/v2/tokenInfo'
 
@@ -24,9 +23,7 @@ const getTokenInfoSchema = z
   .object({
     app: z.object({
       id: z.string(),
-      metadata: z.object({
-        subdomain: z.string().optional(),
-      }),
+      subdomain: z.string().optional(),
     }),
   })
   .passthrough()
@@ -65,13 +62,9 @@ export const getCredentials = async ({
 }> => {
   const token = await _getToken({ authorizationCode, clientCredentials: _getBotpressClientCredentials(), logger })
 
-  const tokenInfo = await _getTokenInfo({ token, logger })
+  const tokenInfo = await getTokenInfo({ token, logger })
 
-  // TODO decode token and store expiry
-  // const now = new Date()
-  // const accessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
-
-  return { token, expiryTimestamp: 123456, appId: tokenInfo.app.id, subdomain: tokenInfo.app.metadata.subdomain }
+  return { token, expiryTimestamp: 123456, appId: tokenInfo.app.id, subdomain: tokenInfo.app.subdomain }
 }
 
 const _getToken = async ({
@@ -122,7 +115,7 @@ const _getToken = async ({
   return token.access_token
 }
 
-const _getTokenInfo = async ({ token, logger }: { token: string; logger: bp.Logger }) => {
+export const getTokenInfo = async ({ token, logger }: { token: string; logger: bp.Logger }) => {
   logger.forBot().debug('Fetching SunCo token info')
 
   const response = await fetch(TOKEN_INFO_URL, {
@@ -136,8 +129,6 @@ const _getTokenInfo = async ({ token, logger }: { token: string; logger: bp.Logg
   })
 
   if (!response.ok) {
-    console.log('error: ', response.json())
-
     // const errorMsg = await formatError(response, 'Failed to fetch token info')
     logger.forBot().error('Failed to fetch token info', {
       status: response.status,
