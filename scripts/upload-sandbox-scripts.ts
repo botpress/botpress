@@ -18,20 +18,24 @@ function readIntegrationDefinition(integrationPath: string): any {
   return JSON.parse(readCmdResult.stdout.toString())
 }
 
+const _fallbackProfileArgs = () => ({
+  apiUrl: undefined,
+  workspaceId: undefined,
+  token: undefined,
+})
 function getProfileArgs(): any {
   const activeProfileCmdResult = spawnSync('pnpm', ['exec', 'bp', 'profiles', 'active', '--json'])
-  if (activeProfileCmdResult.status === 0) {
-    try {
-      return JSON.parse(activeProfileCmdResult.stdout.toString())
-    } catch {
-      /** Do nothing/use fallback return */
-    }
+  if (activeProfileCmdResult.status !== 0) {
+    console.debug(
+      `Failed to get active profile: ${activeProfileCmdResult.error?.message || activeProfileCmdResult.stderr.toString() || 'Unknown error'}`
+    )
+    return _fallbackProfileArgs()
   }
 
-  return {
-    apiUrl: undefined,
-    workspaceId: undefined,
-    token: undefined,
+  try {
+    return JSON.parse(activeProfileCmdResult.stdout.toString())
+  } catch {
+    return _fallbackProfileArgs()
   }
 }
 
