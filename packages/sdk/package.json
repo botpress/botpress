@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "description": "Botpress SDK",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -13,7 +13,8 @@
     "build:type": "tsc -p ./tsconfig.package.json --emitDeclarationOnly --declaration",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
-    "build": "pnpm build:type && pnpm build:node && pnpm build:browser"
+    "build": "pnpm build:type && pnpm build:node && pnpm build:browser",
+    "test": "vitest --run"
   },
   "keywords": [],
   "author": "",

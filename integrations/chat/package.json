@@ -4,7 +4,8 @@
     "check:type": "tsc --noEmit",
     "check:blint": "bp lint",
     "generate": "ts-node -T ./openapi.ts ./src/gen",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
