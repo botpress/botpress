@@ -9,7 +9,7 @@ export type ClientInputs = common.types.Inputs<IClient>
 export type ClientOutputs = common.types.Outputs<IClient>
 
 export type ClientProps = common.types.CommonClientProps & {
-  workspaceId?: string
+  workspaceId: string
   token: string
 }
 
