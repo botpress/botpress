@@ -36,12 +36,13 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   const preparedBody: PreparedBody = {}
 
   if (userId) preparedBody.userId = userId
-  else
+  else {
     preparedBody.user = {
       ...request.body.user,
       tags: {},
       discriminateByTags: [],
     }
+  }
 
   if (request.body.conversationId) {
     preparedBody.conversationId = request.body.conversationId
