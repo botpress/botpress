@@ -1,122 +1,136 @@
 import { type IntegrationDefinitionProps } from '@botpress/sdk'
+import { attachmentAddedToCardEventSchema, attachmentRemovedFromCardEventSchema } from './card-attachment-events'
 import {
-  TRELLO_EVENTS,
-  addMemberToCardEventSchema,
-  commentCardEventSchema,
-  createCardEventSchema,
-  deleteCardEventSchema,
-  removeMemberFromCardEventSchema,
-  updateCardEventSchema,
-  updateCheckItemStateOnCardEventSchema,
-  addLabelToCardEventSchema,
-  createCheckItemEventSchema,
-  deleteCheckItemEventSchema,
-  deleteCommentEventSchema,
-  removeLabelFromCardEventSchema,
-  updateCheckItemEventSchema,
-  updateCommentEventSchema,
-  voteOnCardEventSchema,
-  addAttachmentToCardEventSchema,
-  deleteAttachmentFromCardEventSchema,
-  CommentCardEvent,
-  AllSupportedEvents,
-  GenericWebhookEvent,
-  genericWebhookEventSchema,
-} from './webhookEvents'
+  cardCommentCreatedEventSchema,
+  cardCommentDeletedEventSchema,
+  cardCommentUpdatedEventSchema,
+} from './card-comment-events'
+import {
+  cardCreatedEventSchema,
+  cardDeletedEventSchema,
+  cardUpdatedEventSchema,
+  cardVotesUpdatedEventSchema,
+} from './card-events'
+import { labelAddedToCardEventSchema, labelRemovedFromCardEventSchema } from './card-label-events'
+import {
+  checklistAddedToCardEventSchema,
+  checklistItemCreatedEventSchema,
+  checklistItemDeletedEventSchema,
+  checklistItemUpdatedEventSchema,
+  checklistItemStatusUpdatedEventSchema,
+} from './checklist-events'
+import { CommonEventData, TrelloEventType } from './common'
+import { memberAddedToCardEventSchema, memberRemovedFromCardEventSchema } from './member-events'
 
 export const events = {
-  [TRELLO_EVENTS.addMemberToCard]: {
-    title: 'Member added to card',
-    description: 'Triggered when a member is added to a card',
-    schema: addMemberToCardEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.commentCard]: {
-    title: 'Comment added to card',
-    description: 'Triggered when a comment is added to a card',
-    schema: commentCardEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.createCard]: {
-    title: 'Card created',
+  // ===============================
+  //           Card Events
+  // ===============================
+  [TrelloEventType.CARD_CREATED]: {
+    title: 'Card Created',
     description: 'Triggered when a card is created',
-    schema: createCardEventSchema.shape.action.shape.data,
+    schema: cardCreatedEventSchema,
   },
-  [TRELLO_EVENTS.deleteCard]: {
-    title: 'Card deleted',
-    description: 'Triggered when a card is deleted',
-    schema: deleteCardEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.removeMemberFromCard]: {
-    title: 'Member removed from card',
-    description: 'Triggered when a member is removed from a card',
-    schema: removeMemberFromCardEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.updateCard]: {
-    title: 'Card updated',
+  [TrelloEventType.CARD_UPDATED]: {
+    title: 'Card Updated',
     description: 'Triggered when a card is updated',
-    schema: updateCardEventSchema.shape.action.shape.data,
+    schema: cardUpdatedEventSchema,
   },
-  [TRELLO_EVENTS.updateCheckItemStateOnCard]: {
-    title: 'Check item state updated on card',
-    description: 'Triggered when the state of a check item is updated in a checklist of a card',
-    schema: updateCheckItemStateOnCardEventSchema.shape.action.shape.data,
+  [TrelloEventType.CARD_DELETED]: {
+    title: 'Card Deleted',
+    description: 'Triggered when a card is deleted',
+    schema: cardDeletedEventSchema,
   },
-  [TRELLO_EVENTS.addLabelToCard]: {
-    title: 'Label added to card',
+  [TrelloEventType.CARD_VOTES_UPDATED]: {
+    title: 'Card Votes Updated',
+    description: 'Triggered when a vote is added to or removed from a card',
+    schema: cardVotesUpdatedEventSchema,
+  },
+  // ===============================
+  //       Card Comment Events
+  // ===============================
+  [TrelloEventType.CARD_COMMENT_CREATED]: {
+    title: 'Comment Created',
+    description: 'Triggered when a comment is added to a card',
+    schema: cardCommentCreatedEventSchema,
+  },
+  [TrelloEventType.CARD_COMMENT_UPDATED]: {
+    title: 'Comment Updated',
+    description: 'Triggered when a comment is updated on a card',
+    schema: cardCommentUpdatedEventSchema,
+  },
+  [TrelloEventType.CARD_COMMENT_DELETED]: {
+    title: 'Comment Deleted',
+    description: 'Triggered when a comment is deleted from a card',
+    schema: cardCommentDeletedEventSchema,
+  },
+  // ===============================
+  //        Card Label Events
+  // ===============================
+  [TrelloEventType.LABEL_ADDED_TO_CARD]: {
+    title: 'Card Label Added',
     description: 'Triggered when a label is added to a card',
-    schema: addLabelToCardEventSchema.shape.action.shape.data,
+    schema: labelAddedToCardEventSchema,
   },
-  [TRELLO_EVENTS.createCheckItem]: {
-    title: 'Check item created',
-    description: 'Triggered when a check item is added to a checklist of a card',
-    schema: createCheckItemEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.deleteCheckItem]: {
-    title: 'Check item deleted',
-    description: 'Triggered when a check item is removed from a checklist of a card',
-    schema: deleteCheckItemEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.deleteComment]: {
-    title: 'Comment deleted',
-    description: 'Triggered when a comment is deleted',
-    schema: deleteCommentEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.removeLabelFromCard]: {
-    title: 'Label removed from card',
+  [TrelloEventType.LABEL_REMOVED_FROM_CARD]: {
+    title: 'Card Label Removed',
     description: 'Triggered when a label is removed from a card',
-    schema: removeLabelFromCardEventSchema.shape.action.shape.data,
+    schema: labelRemovedFromCardEventSchema,
   },
-  [TRELLO_EVENTS.updateCheckItem]: {
-    title: 'Check item updated',
-    description: 'Triggered when a check item is modified in a checklist of a card',
-    schema: updateCheckItemEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.updateComment]: {
-    title: 'Comment updated',
-    description: 'Triggered when a comment is updated',
-    schema: updateCommentEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.voteOnCard]: {
-    title: 'Vote on card',
-    description: 'Triggered when a vote is added to a card',
-    schema: voteOnCardEventSchema.shape.action.shape.data,
-  },
-  [TRELLO_EVENTS.addAttachmentToCard]: {
-    title: 'Attachment added to card',
+  // ================================
+  //      Card Attachment Events
+  // ================================
+  [TrelloEventType.ATTACHMENT_ADDED_TO_CARD]: {
+    title: 'Card Attachment Added',
     description: 'Triggered when an attachment is added to a card',
-    schema: addAttachmentToCardEventSchema.shape.action.shape.data,
+    schema: attachmentAddedToCardEventSchema,
   },
-  [TRELLO_EVENTS.deleteAttachmentFromCard]: {
-    title: 'Attachment deleted from card',
-    description: 'Triggered when an attachment is deleted from a card',
-    schema: deleteAttachmentFromCardEventSchema.shape.action.shape.data,
+  [TrelloEventType.ATTACHMENT_REMOVED_FROM_CARD]: {
+    title: 'Card Attachment Removed',
+    description: 'Triggered when an attachment is removed from a card',
+    schema: attachmentRemovedFromCardEventSchema,
+  },
+  // ================================
+  //         Checklist Events
+  // ================================
+  [TrelloEventType.CHECKLIST_ADDED_TO_CARD]: {
+    title: 'Checklist Added To Card',
+    description: 'Triggered when a checklist is added to a card',
+    schema: checklistAddedToCardEventSchema,
+  },
+  [TrelloEventType.CHECKLIST_ITEM_CREATED]: {
+    title: 'Checklist Item Created',
+    description: 'Triggered when a checklist item is added to a card',
+    schema: checklistItemCreatedEventSchema,
+  },
+  [TrelloEventType.CHECKLIST_ITEM_UPDATED]: {
+    title: 'Checklist Item Updated',
+    description: 'Triggered when a checklist item is modified on a card',
+    schema: checklistItemUpdatedEventSchema,
+  },
+  [TrelloEventType.CHECKLIST_ITEM_DELETED]: {
+    title: 'Checklist Item Deleted',
+    description: 'Triggered when a checklist item is removed from a card',
+    schema: checklistItemDeletedEventSchema,
+  },
+  [TrelloEventType.CHECKLIST_ITEM_STATUS_UPDATED]: {
+    title: 'Checklist Item Completion Updated',
+    description: 'Triggered when the completion status of a checklist item is updated',
+    schema: checklistItemStatusUpdatedEventSchema,
+  },
+  // ===============================
+  //          Member Events
+  // ===============================
+  [TrelloEventType.MEMBER_ADDED_TO_CARD]: {
+    title: 'Member Added To Card',
+    description: 'Triggered when a member is added to a card',
+    schema: memberAddedToCardEventSchema,
+  },
+  [TrelloEventType.MEMBER_REMOVED_FROM_CARD]: {
+    title: 'Member Removed From Card',
+    description: 'Triggered when a member is removed from a card',
+    schema: memberRemovedFromCardEventSchema,
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
 
-export {
-  TRELLO_EVENTS,
-  type AllSupportedEvents,
-  type CommentCardEvent,
-  commentCardEventSchema,
-  type GenericWebhookEvent,
-  genericWebhookEventSchema,
-}
+export { TrelloEventType, type CommonEventData }
