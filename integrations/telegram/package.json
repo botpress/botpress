@@ -12,7 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "markdown-it": "^14.1.0",
     "nanoid": "^5.1.5",
     "sanitize-html": "^2.17.0",

@@ -15,7 +15,7 @@
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.4.0",
     "axios-retry": "^4.5.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "preact": "^10.26.6",
     "preact-render-to-string": "^6.5.13"
   },
