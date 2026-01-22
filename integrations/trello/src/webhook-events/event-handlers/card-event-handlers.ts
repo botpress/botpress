@@ -6,6 +6,7 @@ import {
   CardVotesUpdatedWebhook,
 } from '../schemas/card-webhook-schemas'
 import { extractCommonEventData, extractIdAndName, extractIdAndNameIfExists } from './helpers'
+import { Expect, IsWebhookHandler } from './types'
 import * as bp from '.botpress'
 
 export const handleCardCreatedEvent = async (
@@ -23,6 +24,7 @@ export const handleCardCreatedEvent = async (
     },
   })
 }
+declare const _handleCardCreatedEventTest: Expect<IsWebhookHandler<typeof handleCardCreatedEvent>>
 
 export const handleCardUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -42,6 +44,7 @@ export const handleCardUpdatedEvent = async (
     },
   })
 }
+declare const _handleCardUpdatedEventTest: Expect<IsWebhookHandler<typeof handleCardUpdatedEvent>>
 
 export const handleCardDeletedEvent = async (
   props: bp.HandlerProps,
@@ -60,6 +63,7 @@ export const handleCardDeletedEvent = async (
     },
   })
 }
+declare const _handleCardDeletedEventTest: Expect<IsWebhookHandler<typeof handleCardDeletedEvent>>
 
 export const handleCardVotesUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -76,3 +80,4 @@ export const handleCardVotesUpdatedEvent = async (
     },
   })
 }
+declare const _handleCardVotesUpdatedEventTest: Expect<IsWebhookHandler<typeof handleCardVotesUpdatedEvent>>
