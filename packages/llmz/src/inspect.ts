@@ -1,5 +1,5 @@
 import bytes from 'bytes'
-import { chain, isEmpty, uniq, isEqual, uniqWith, filter, mapKeys, countBy, orderBy, isNil } from 'lodash-es'
+import { isEmpty, uniq, isEqual, uniqWith, filter, mapKeys, countBy, orderBy, isNil, fromPairs, toPairs, take, map } from 'lodash-es'
 
 import { escapeString, getTokenizer } from './utils.js'
 
@@ -368,14 +368,16 @@ function previewLongText(text: string, length: number = LONG_TEXT_LENGTH) {
   const uniqueWords = uniq(words).length
   const wordFrequency = countBy(words)
 
-  const mostCommonWords = chain(wordFrequency)
-    .toPairs()
-    .orderBy(1, 'desc')
-    .filter(([, count]) => count > 1)
-    .take(20)
-    .map(([word, count]) => `"${word}" ${count} times`)
-    .value()
-    .join('\n' + ' '.repeat(22))
+  const mostCommonWords = map(
+    take(
+      filter(
+        orderBy(toPairs(wordFrequency), ([, count]) => count, 'desc'),
+        ([, count]) => count > 1
+      ),
+      20
+    ),
+    ([word, count]) => `"${word}" ${count} times`
+  ).join('\n' + ' '.repeat(22))
 
   // Extract URLs and Emails
   const urls = text.match(urlPattern) || []
