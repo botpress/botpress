@@ -138,10 +138,11 @@ export const updateCard = {
             'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
         dueDate: cardSchema.shape.dueDate
+          .nullable()
           .optional()
           .title('Due Date')
           .describe(
-            'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
+            'The due date of the card in ISO 8601 format (Optional). Set to null to remove the due date or leave empty to keep the current due date.'
           ),
         listId: listSchema.shape.id
           .optional()
