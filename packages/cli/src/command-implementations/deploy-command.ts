@@ -6,6 +6,7 @@ import semver from 'semver'
 import * as apiUtils from '../api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import { getStrings, interpolate } from '../locales'
 import * as tables from '../tables'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
@@ -46,19 +47,21 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private get _visibility(): 'public' | 'private' | 'unlisted' {
+    const t = getStrings()
     if (this.argv.public && this.argv.visibility === 'private') {
-      this.logger.warn('The --public flag is deprecated. Please use "--visibility public" instead.')
+      this.logger.warn(t.messages.publicFlagDeprecated)
       return 'public'
     }
 
     if (this.argv.public && this.argv.visibility !== 'private') {
-      this.logger.warn('The --public flag and --visibility option are both present. Ignoring the --public flag...')
+      this.logger.warn(t.messages.publicAndVisibilityBoth)
     }
 
     return this.argv.visibility
   }
 
   private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
+    const t = getStrings()
     const res = await this._manageWorkspaceHandle(api, integrationDef)
     if (!res) return
     const { integration: updatedIntegrationDef, workspaceId } = res
@@ -70,37 +73,37 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const { name, version } = integrationDef
 
     if (integrationDef.icon && !integrationDef.icon.toLowerCase().endsWith('.svg')) {
-      throw new errors.BotpressCLIError('Icon must be an SVG file')
+      throw new errors.BotpressCLIError(t.messages.iconMustBeSvg)
     }
 
     if (integrationDef.readme && !integrationDef.readme.toLowerCase().endsWith('.md')) {
-      throw new errors.BotpressCLIError('Readme must be a Markdown file')
+      throw new errors.BotpressCLIError(t.messages.readmeMustBeMd)
     }
 
     const integration = await api.findPublicOrPrivateIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
       throw new errors.BotpressCLIError(
-        `Public integration ${name} v${version} is already deployed in another workspace.`
+        interpolate(t.messages.integrationAlreadyDeployedOther, { name, version })
       )
     }
 
     if (integration && integration.visibility !== 'private' && !api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError(
-        `Integration ${name} v${version} is already deployed publicly and cannot be updated. Please bump the version.`
+        interpolate(t.messages.integrationAlreadyPublic, { name, version })
       )
     }
 
     let message: string
     if (integration) {
-      this.logger.warn('Integration already exists. If you decide to deploy, it will override the existing one.')
-      message = `Are you sure you want to override integration ${name} v${version}?`
+      this.logger.warn(t.messages.integrationExists)
+      message = interpolate(t.messages.deployConfirmIntegrationOverride, { name, version })
     } else {
-      message = `Are you sure you want to deploy integration ${name} v${version}?`
+      message = interpolate(t.messages.deployConfirmIntegration, { name, version })
     }
 
     const confirm = await this.prompt.confirm(message)
     if (!confirm) {
-      this.logger.log('Aborted')
+      this.logger.log(t.messages.aborted)
       return
     }
 
@@ -113,8 +116,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       sdkVersion: integrationDef.metadata?.sdkVersion,
     }
 
-    const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
-    const successMessage = 'Integration deployed'
+    const startedMessage = interpolate(t.messages.deployingIntegration, { name: chalk.bold(name), version })
+    const successMessage = t.messages.integrationDeployed
     if (integration) {
       const updateBody = apiUtils.prepareUpdateIntegrationBody(
         {
@@ -132,7 +135,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.log('Dry-run mode is active. Simulating integration update...')
+        this.logger.log(interpolate(t.messages.dryRunActive, { action: 'integration update' }))
 
         await api.client.validateIntegrationUpdate(updateBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
@@ -165,7 +168,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.log('Dry-run mode is active. Simulating integration creation...')
+        this.logger.log(interpolate(t.messages.dryRunActive, { action: 'integration creation' }))
 
         await api.client.validateIntegrationCreation(createBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
@@ -181,18 +184,17 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployInterface(api: apiUtils.ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
+    const t = getStrings()
     if (this._visibility === 'unlisted') {
-      throw new errors.BotpressCLIError(
-        'Unlisted visibility is not supported for interfaces. Please use "public" or "private".'
-      )
+      throw new errors.BotpressCLIError(t.messages.unlistedNotSupported)
     }
 
     if (interfaceDeclaration.icon && !interfaceDeclaration.icon.toLowerCase().endsWith('.svg')) {
-      throw new errors.BotpressCLIError('Icon must be an SVG file')
+      throw new errors.BotpressCLIError(t.messages.iconMustBeSvg)
     }
 
     if (interfaceDeclaration.readme && !interfaceDeclaration.readme.toLowerCase().endsWith('.md')) {
-      throw new errors.BotpressCLIError('Readme must be a Markdown file')
+      throw new errors.BotpressCLIError(t.messages.readmeMustBeMd)
     }
 
     const { name, version } = interfaceDeclaration
@@ -200,15 +202,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     let message: string
     if (intrface) {
-      this.logger.warn('Interface already exists. If you decide to deploy, it will override the existing one.')
-      message = `Are you sure you want to override interface ${name} v${version}?`
+      this.logger.warn(t.messages.interfaceExists)
+      message = interpolate(t.messages.deployConfirmInterfaceOverride, { name, version })
     } else {
-      message = `Are you sure you want to deploy interface ${name} v${version}?`
+      message = interpolate(t.messages.deployConfirmInterface, { name, version })
     }
 
     const confirm = await this.prompt.confirm(message)
     if (!confirm) {
-      this.logger.log('Aborted')
+      this.logger.log(t.messages.aborted)
       return
     }
 
@@ -216,9 +218,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const readme = await this.readProjectFile(interfaceDeclaration.readme, 'base64')
 
     if (this._visibility !== 'public') {
-      this.logger.warn(
-        'You are currently publishing a private interface, which cannot be used by integrations and plugins. To fix this, change the visibility to "public"'
-      )
+      this.logger.warn(t.messages.privateInterfaceWarning)
     }
 
     const createBody = {
@@ -229,8 +229,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       sdkVersion: interfaceDeclaration.metadata?.sdkVersion,
     }
 
-    const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
-    const successMessage = 'Interface deployed'
+    const startedMessage = interpolate(t.messages.deployingInterface, { name: chalk.bold(name), version })
+    const successMessage = t.messages.interfaceDeployed
     if (intrface) {
       const updateBody = apiUtils.prepareUpdateInterfaceBody(
         {
@@ -244,7 +244,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.warn('Dry-run mode is not supported for interface updates. Skipping deployment...')
+        this.logger.warn(interpolate(t.messages.dryRunNotSupported, { action: 'interface updates' }))
       } else {
         await api.client.updateInterface(updateBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not update interface "${name}"`)
@@ -257,7 +257,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.warn('Dry-run mode is not supported for interface creation. Skipping deployment...')
+        this.logger.warn(interpolate(t.messages.dryRunNotSupported, { action: 'interface creation' }))
       } else {
         await api.client.createInterface(createBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
@@ -269,32 +269,33 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
+    const t = getStrings()
     const codeCJS = await fs.promises.readFile(this.projectPaths.abs.outFileCJS, 'utf-8')
     const codeESM = await fs.promises.readFile(this.projectPaths.abs.outFileESM, 'utf-8')
 
     const { name, version } = pluginDef
 
     if (pluginDef.icon && !pluginDef.icon.toLowerCase().endsWith('.svg')) {
-      throw new errors.BotpressCLIError('Icon must be an SVG file')
+      throw new errors.BotpressCLIError(t.messages.iconMustBeSvg)
     }
 
     if (pluginDef.readme && !pluginDef.readme.toLowerCase().endsWith('.md')) {
-      throw new errors.BotpressCLIError('Readme must be a Markdown file')
+      throw new errors.BotpressCLIError(t.messages.readmeMustBeMd)
     }
 
     const plugin = await api.findPublicOrPrivatePlugin({ type: 'name', name, version })
 
     let message: string
     if (plugin) {
-      this.logger.warn('Plugin already exists. If you decide to deploy, it will override the existing one.')
-      message = `Are you sure you want to override plugin ${name} v${version}?`
+      this.logger.warn(t.messages.pluginExists)
+      message = interpolate(t.messages.deployConfirmPluginOverride, { name, version })
     } else {
-      message = `Are you sure you want to deploy plugin ${name} v${version}?`
+      message = interpolate(t.messages.deployConfirmPlugin, { name, version })
     }
 
     const confirm = await this.prompt.confirm(message)
     if (!confirm) {
-      this.logger.log('Aborted')
+      this.logger.log(t.messages.aborted)
       return
     }
 
@@ -316,8 +317,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       sdkVersion: pluginDef.metadata?.sdkVersion,
     }
 
-    const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
-    const successMessage = 'Plugin deployed'
+    const startedMessage = interpolate(t.messages.deployingPlugin, { name: chalk.bold(name), version })
+    const successMessage = t.messages.pluginDeployed
     if (plugin) {
       const updateBody = apiUtils.prepareUpdatePluginBody(
         {
@@ -331,7 +332,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.warn('Dry-run mode is not supported for plugin updates. Skipping deployment...')
+        this.logger.warn(interpolate(t.messages.dryRunNotSupported, { action: 'plugin updates' }))
       } else {
         await api.client.updatePlugin(updateBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not update plugin "${name}"`)
@@ -344,7 +345,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
 
       if (this.argv.dryRun) {
-        this.logger.warn('Dry-run mode is not supported for plugin creation. Skipping deployment...')
+        this.logger.warn(interpolate(t.messages.dryRunNotSupported, { action: 'plugin creation' }))
       } else {
         await api.client.createPlugin(createBody).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, `Could not create plugin "${name}"`)
@@ -379,6 +380,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     integrationDef: sdk.IntegrationDefinition,
     opts: { allowDeprecated?: boolean } = {}
   ) {
+    const t = getStrings()
     const deprecatedFields: string[] = []
     const { user, channels } = integrationDef
     if (user?.creation?.enabled) {
@@ -395,9 +397,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const errorMessage = `The following fields of the integration's definition are deprecated: ${deprecatedFields.join(
-      ', '
-    )}`
+    const errorMessage = interpolate(t.messages.deprecatedFieldsWarning, { fields: deprecatedFields.join(', ') })
 
     if (opts.allowDeprecated) {
       this.logger.warn(errorMessage)
@@ -412,8 +412,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     argvBotId: string | undefined,
     argvCreateNew: boolean | undefined
   ) {
+    const t = getStrings()
     if (this.argv.dryRun) {
-      this.logger.warn('Dry-run mode is not supported for bot deployments. Skipping deployment...')
+      this.logger.warn(interpolate(t.messages.dryRunNotSupported, { action: 'bot deployments' }))
       return
     }
 
@@ -422,11 +423,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     let bot: client.Bot
     if (argvBotId && argvCreateNew) {
-      throw new errors.BotpressCLIError('Cannot specify both --botId and --createNew')
+      throw new errors.BotpressCLIError(t.messages.cannotSpecifyBothBotIdAndCreateNew)
     } else if (argvCreateNew) {
-      const confirm = await this.prompt.confirm('Are you sure you want to create a new bot ?')
+      const confirm = await this.prompt.confirm(t.messages.deployConfirmBotCreate)
       if (!confirm) {
-        this.logger.log('Aborted')
+        this.logger.log(t.messages.aborted)
         return
       }
 
@@ -434,15 +435,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     } else {
       bot = await this._getExistingBot(api, argvBotId)
 
-      const confirm = await this.prompt.confirm(`Are you sure you want to deploy the bot "${bot.name}"?`)
+      const confirm = await this.prompt.confirm(interpolate(t.messages.deployConfirmBot, { name: bot.name }))
       if (!confirm) {
-        this.logger.log('Aborted')
+        this.logger.log(t.messages.aborted)
         return
       }
     }
 
     const line = this.logger.line()
-    line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
+    line.started(interpolate(t.messages.deployingBot, { name: chalk.bold(bot.name) }))
 
     const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
@@ -455,12 +456,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     )
 
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
+      throw errors.BotpressCLIError.wrap(thrown, interpolate(t.messages.couldNotUpdateBot, { name: bot.name }))
     })
 
     this.validateIntegrationRegistration(updatedBot, (failedIntegrations) =>
       this.logger.warn(
-        `Some integrations failed to register:\n${Object.entries(failedIntegrations)
+        `${t.messages.integrationsFailedToRegister}\n${Object.entries(failedIntegrations)
           .map(([key, int]) => `• ${key}: ${int.statusReason}`)
           .join('\n')}`
       )
@@ -469,26 +470,28 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const tablesPublisher = new tables.TablesPublisher({ api, logger: this.logger, prompt: this.prompt })
     await tablesPublisher.deployTables({ botId: updatedBot.id, botDefinition })
 
-    line.success('Bot deployed')
+    line.success(t.messages.botDeployed)
     await this.displayIntegrationUrls({ api, bot: updatedBot })
   }
 
   private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {
+    const t = getStrings()
     const line = this.logger.line()
     const { bot: createdBot } = await api.client.createBot({}).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Could not create bot')
+      throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotCreateBot)
     })
-    line.success(`Bot created with ID "${createdBot.id}" and name "${createdBot.name}"`)
+    line.success(interpolate(t.messages.botCreatedWithId, { id: createdBot.id, name: createdBot.name }))
     await this.projectCache.set('botId', createdBot.id)
     return createdBot
   }
 
   private async _getExistingBot(api: apiUtils.ApiClient, botId: string | undefined): Promise<client.Bot> {
+    const t = getStrings()
     const promptedBotId = await this.projectCache.sync('botId', botId, async (defaultId) => {
       const userBots = await api
         .listAllPages(api.client.listBots, (r) => r.bots)
         .catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, 'Could not fetch existing bots')
+          throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotListBots)
         })
 
       if (!userBots.length) {
@@ -497,7 +500,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const initial = userBots.find((bot) => bot.id === defaultId)
 
-      const prompted = await this.prompt.select('Which bot do you want to deploy?', {
+      const prompted = await this.prompt.select(t.messages.selectBotDeploy, {
         initial: initial && { title: initial.name, value: initial.id },
         choices: userBots.map((bot) => ({ title: bot.name, value: bot.id })),
       })
@@ -510,7 +513,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
 
     const { bot: fetchedBot } = await api.client.getBot({ id: promptedBotId }).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Could not get bot info')
+      throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotGetBot)
     })
 
     return fetchedBot
@@ -526,6 +529,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       }
     | undefined
   > {
+    const t = getStrings()
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
@@ -533,14 +537,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Could not fetch workspace')
+      throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotFetchWorkspace)
     })
 
     if (localHandle && remoteHandle) {
       let workspaceId: string | undefined = undefined
       if (localHandle !== remoteHandle) {
         const remoteWorkspace = await api.findWorkspaceByHandle(localHandle).catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
+          throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotListWorkspaces)
         })
         if (!remoteWorkspace) {
           throw new errors.BotpressCLIError(
@@ -550,12 +554,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         this.logger.warn(
           `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
         )
-        const confirmUseAlternateWorkspace = await this.prompt.confirm(
-          'Do you want to deploy integration on this workspace instead?'
-        )
+        const confirmUseAlternateWorkspace = await this.prompt.confirm(t.messages.deployOnAnotherWorkspace)
         if (!confirmUseAlternateWorkspace) {
           throw new errors.BotpressCLIError(
-            `Cannot deploy integration with handle "${localHandle}" on workspace "${workspaceName}"`
+            interpolate(t.messages.cannotDeployWithHandle, { handle: localHandle, workspace: workspaceName })
           )
         }
 
@@ -564,14 +566,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return { integration, workspaceId }
     }
 
-    const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
+    const workspaceHandleIsMandatoryMsg = t.messages.workspaceHandleRequired
 
     if (!localHandle && remoteHandle) {
       const confirmAddHandle = await this.prompt.confirm(
-        `Your current workspace handle is "${remoteHandle}". Do you want to use the name "${remoteHandle}/${localName}"?`
+        interpolate(t.messages.workspaceHandleConfirm, { handle: remoteHandle, name: localName })
       )
       if (!confirmAddHandle) {
-        this.logger.log('Aborted')
+        this.logger.log(t.messages.aborted)
         return
       }
       const newName = `${remoteHandle}/${localName}`
@@ -584,7 +586,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
 
       if (!available) {
-        throw new errors.BotpressCLIError(`Handle "${localHandle}" is not yours and is not available`)
+        throw new errors.BotpressCLIError(interpolate(t.messages.workspaceHandleNotYours, { handle: localHandle }))
       }
 
       const confirmClaimHandle = await this.prompt.confirm(
@@ -598,21 +600,21 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${localHandle}"`)
       })
 
-      this.logger.success(`Handle "${localHandle}" is now yours!`)
+      this.logger.success(interpolate(t.messages.workspaceHandleClaimed, { handle: localHandle }))
       return { integration }
     }
 
-    this.logger.warn("It seems you don't have a workspace handle yet.")
+    this.logger.warn(t.messages.noWorkspaceHandle)
     let claimedHandle: string | undefined = undefined
     do {
-      const prompted = await this.prompt.text('Please enter a workspace handle')
+      const prompted = await this.prompt.text(t.messages.workspaceHandleEnter)
       if (!prompted) {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
       }
 
       const { available, suggestions } = await api.client.checkHandleAvailability({ handle: prompted })
       if (!available) {
-        this.logger.warn(`Handle "${prompted}" is not available. Suggestions: ${suggestions.join(', ')}`)
+        this.logger.warn(interpolate(t.messages.workspaceHandleNotAvailable, { handle: prompted, suggestions: suggestions.join(', ') }))
         continue
       }
 
@@ -622,7 +624,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
     } while (!claimedHandle)
 
-    this.logger.success(`Handle "${claimedHandle}" is yours!`)
+    this.logger.success(interpolate(t.messages.workspaceHandleClaimed, { handle: claimedHandle }))
     const newName = `${claimedHandle}/${localName}`
     return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
   }

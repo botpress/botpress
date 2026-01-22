@@ -2,6 +2,7 @@ import * as chat from '@botpress/chat'
 import chalk from 'chalk'
 import * as readline from 'readline'
 import * as uuid from 'uuid'
+import { getStrings } from '../locales'
 import * as utils from '../utils'
 
 type MessageSource = 'myself' | 'bot' | 'other'
@@ -159,8 +160,9 @@ export class Chat {
   }
 
   private _printHeader = () => {
-    process.stdout.write(chalk.bold('Botpress Chat\n'))
-    process.stdout.write(chalk.gray('Type "exit" or press ESC key to quit\n'))
+    const t = getStrings()
+    process.stdout.write(chalk.bold(t.chat.title + '\n'))
+    process.stdout.write(chalk.gray(t.chat.exitHint + '\n'))
   }
 
   private _switchAlternateScreenBuffer = () => {
@@ -213,7 +215,7 @@ export class Chat {
         ].join('\n')
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
-        return '<unknown>'
+        return getStrings().chat.unknown
     }
   }
 

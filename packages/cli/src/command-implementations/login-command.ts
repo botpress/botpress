@@ -4,11 +4,13 @@ import * as paging from '../api/paging'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
+import { getStrings, interpolate } from '../locales'
 import { GlobalCommand } from './global-command'
 
 export type LoginCommandDefinition = typeof commandDefinitions.login
 export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
   public async run(): Promise<void> {
+    const t = getStrings()
     let profileName = consts.defaultProfileName
     if (this.argv.profile) {
       let profileExists: boolean = false
@@ -18,17 +20,17 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
       }
       if (profileExists) {
         const overwrite = await this.prompt.confirm(
-          `This command will overwrite the existing profile '${this.argv.profile}'. Do you want to continue?`
+          interpolate(t.messages.profileOverwrite, { profile: this.argv.profile })
         )
         if (!overwrite) throw new errors.AbortedOperationError()
       } else {
-        this.logger.log(`This command will create new profile '${this.argv.profile}'`, { prefix: 'ℹ︎' })
+        this.logger.log(interpolate(t.messages.profileCreate, { profile: this.argv.profile }), { prefix: 'ℹ︎' })
       }
       profileName = this.argv.profile
     }
 
     const promptedToken = await this.globalCache.sync('token', this.argv.token, async (previousToken) => {
-      const prompted = await this.prompt.text('Enter your Personal Access Token', {
+      const prompted = await this.prompt.text(t.messages.enterToken, {
         initial: previousToken,
       })
 
@@ -39,14 +41,14 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
       return prompted
     })
     if (this.argv.apiUrl !== consts.defaultBotpressApiUrl) {
-      this.logger.log(`Using custom api url ${this.argv.apiUrl} to try fetching workspaces`, { prefix: '🔗' })
+      this.logger.log(interpolate(t.messages.customApiUrl, { url: this.argv.apiUrl }), { prefix: '🔗' })
     }
     const promptedWorkspaceId = await this.globalCache.sync('workspaceId', this.argv.workspaceId, async (defaultId) => {
       const tmpClient = new client.Client({ apiUrl: this.argv.apiUrl, token: promptedToken }) // no workspaceId yet
       const userWorkspaces = await paging
         .listAllPages(tmpClient.listWorkspaces, (r) => r.workspaces)
         .catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
+          throw errors.BotpressCLIError.wrap(thrown, t.messages.couldNotListWorkspaces)
         })
 
       if (userWorkspaces.length === 0) {
@@ -55,7 +57,7 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
 
       const initial = userWorkspaces.find((ws) => ws.id === defaultId)
 
-      const prompted = await this.prompt.select('Which workspace do you want to login to?', {
+      const prompted = await this.prompt.select(t.messages.selectWorkspace, {
         initial: initial && { title: initial.name, value: initial.id },
         choices: userWorkspaces.map((ws) => ({ title: ws.name, value: ws.id })),
       })
@@ -75,7 +77,7 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
     )
 
     await api.testLogin().catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Login failed. Please check your credentials')
+      throw errors.BotpressCLIError.wrap(thrown, t.messages.loginFailed)
     })
 
     await this.writeProfileToFS(profileName, {
@@ -84,6 +86,6 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
       workspaceId: promptedWorkspaceId,
     })
 
-    this.logger.success('Logged In')
+    this.logger.success(t.messages.loggedIn)
   }
 }

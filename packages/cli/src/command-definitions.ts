@@ -1,74 +1,84 @@
 import type { DefinitionTree } from './command-tree'
 import * as config from './config'
+import { getStrings } from './locales'
 
-export default {
-  login: { description: 'Login to Botpress Cloud', schema: config.schemas.login },
-  logout: { description: 'Logout of Botpress Cloud', schema: config.schemas.logout },
-  bots: {
-    description: 'Bot related commands',
-    subcommands: {
-      create: { description: 'Create new bot', schema: config.schemas.createBot, alias: 'new' },
-      get: { description: 'Get bot', schema: config.schemas.getBot },
-      delete: { description: 'Delete bot', schema: config.schemas.deleteBot, alias: 'rm' },
-      list: { description: 'List bots', schema: config.schemas.listBots, alias: 'ls' },
-    },
-  },
-  integrations: {
-    description: 'Integration related commands',
-    subcommands: {
-      get: { description: 'Get integration', schema: config.schemas.getIntegration },
-      delete: { description: 'Delete integration', schema: config.schemas.deleteIntegration, alias: 'rm' },
-      list: { description: 'List integrations', schema: config.schemas.listIntegrations, alias: 'ls' },
-    },
-  },
-  interfaces: {
-    description: 'Interface related commands',
-    subcommands: {
-      get: { description: 'Get interface', schema: config.schemas.getInterface },
-      delete: { description: 'Delete interface', schema: config.schemas.deleteInterface, alias: 'rm' },
-      list: { description: 'List interfaces', schema: config.schemas.listInterfaces, alias: 'ls' },
-    },
-  },
-  plugins: {
-    description: 'Plugin related commands',
-    subcommands: {
-      get: { description: 'Get plugin', schema: config.schemas.getPlugin },
-      delete: { description: 'Delete plugin', schema: config.schemas.deletePlugin, alias: 'rm' },
-      list: { description: 'List plugins', schema: config.schemas.listPlugins, alias: 'ls' },
-    },
-  },
-  init: { description: 'Initialize a new project', schema: config.schemas.init },
-  generate: { description: 'Generate typings for intellisense', schema: config.schemas.generate, alias: 'gen' },
-  bundle: { description: 'Bundle a botpress project', schema: config.schemas.bundle },
-  build: { description: 'Generate typings and bundle a botpress project', schema: config.schemas.build },
-  read: { description: 'Read and parse an integration definition', schema: config.schemas.read },
-  serve: { description: 'Serve your project locally', schema: config.schemas.serve },
-  deploy: { description: 'Deploy your project to the cloud', schema: config.schemas.deploy },
-  add: {
-    description: 'Install a package; could be an integration or an interface',
-    schema: config.schemas.add,
-    alias: ['i', 'install'],
-  },
-  remove: {
-    description: "Remove a package from your project's dependencies",
-    schema: config.schemas.remove,
-    alias: 'rm',
-  },
-  dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
-  lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
-  chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },
-  profiles: {
-    description: 'Commands for using CLI profiles',
-    subcommands: {
-      list: { description: 'List all available profiles', schema: config.schemas.listProfiles, alias: 'ls' },
-      active: {
-        description: 'Get the profile properties you are currently using',
-        schema: config.schemas.activeProfile,
-      },
-      use: {
-        description: 'Set the current profile',
-        schema: config.schemas.useProfile,
+// Функция для получения локализованных определений команд
+export function getCommandDefinitions(): DefinitionTree {
+  const t = getStrings()
+
+  return {
+    login: { description: t.commands.login, schema: config.schemas.login },
+    logout: { description: t.commands.logout, schema: config.schemas.logout },
+    bots: {
+      description: t.commands.bots.description,
+      subcommands: {
+        create: { description: t.commands.bots.create, schema: config.schemas.createBot, alias: 'new' },
+        get: { description: t.commands.bots.get, schema: config.schemas.getBot },
+        delete: { description: t.commands.bots.delete, schema: config.schemas.deleteBot, alias: 'rm' },
+        list: { description: t.commands.bots.list, schema: config.schemas.listBots, alias: 'ls' },
       },
     },
-  },
-} satisfies DefinitionTree
+    integrations: {
+      description: t.commands.integrations.description,
+      subcommands: {
+        get: { description: t.commands.integrations.get, schema: config.schemas.getIntegration },
+        delete: { description: t.commands.integrations.delete, schema: config.schemas.deleteIntegration, alias: 'rm' },
+        list: { description: t.commands.integrations.list, schema: config.schemas.listIntegrations, alias: 'ls' },
+      },
+    },
+    interfaces: {
+      description: t.commands.interfaces.description,
+      subcommands: {
+        get: { description: t.commands.interfaces.get, schema: config.schemas.getInterface },
+        delete: { description: t.commands.interfaces.delete, schema: config.schemas.deleteInterface, alias: 'rm' },
+        list: { description: t.commands.interfaces.list, schema: config.schemas.listInterfaces, alias: 'ls' },
+      },
+    },
+    plugins: {
+      description: t.commands.plugins.description,
+      subcommands: {
+        get: { description: t.commands.plugins.get, schema: config.schemas.getPlugin },
+        delete: { description: t.commands.plugins.delete, schema: config.schemas.deletePlugin, alias: 'rm' },
+        list: { description: t.commands.plugins.list, schema: config.schemas.listPlugins, alias: 'ls' },
+      },
+    },
+    init: { description: t.commands.init, schema: config.schemas.init },
+    generate: { description: t.commands.generate, schema: config.schemas.generate, alias: 'gen' },
+    bundle: { description: t.commands.bundle, schema: config.schemas.bundle },
+    build: { description: t.commands.build, schema: config.schemas.build },
+    read: { description: t.commands.read, schema: config.schemas.read },
+    serve: { description: t.commands.serve, schema: config.schemas.serve },
+    deploy: { description: t.commands.deploy, schema: config.schemas.deploy },
+    add: {
+      description: t.commands.add,
+      schema: config.schemas.add,
+      alias: ['i', 'install'],
+    },
+    remove: {
+      description: t.commands.remove,
+      schema: config.schemas.remove,
+      alias: 'rm',
+    },
+    dev: { description: t.commands.dev, schema: config.schemas.dev },
+    lint: { description: t.commands.lint, schema: config.schemas.lint },
+    chat: { description: t.commands.chat, schema: config.schemas.chat },
+    profiles: {
+      description: t.commands.profiles.description,
+      subcommands: {
+        list: { description: t.commands.profiles.list, schema: config.schemas.listProfiles, alias: 'ls' },
+        active: {
+          description: t.commands.profiles.active,
+          schema: config.schemas.activeProfile,
+        },
+        use: {
+          description: t.commands.profiles.use,
+          schema: config.schemas.useProfile,
+        },
+      },
+    },
+  }
+}
+
+// Для обратной совместимости экспортируем объект по умолчанию
+// Важно: этот объект инициализируется при первом импорте модуля
+export default getCommandDefinitions()
