@@ -1,5 +1,20 @@
 import bytes from 'bytes'
-import { flow, isEmpty, uniq, isEqual, uniqWith, filter, mapKeys, countBy, orderBy, isNil, fromPairs, toPairs, take, map } from 'lodash-es'
+import {
+  flow,
+  isEmpty,
+  uniq,
+  isEqual,
+  uniqWith,
+  filter,
+  mapKeys,
+  countBy,
+  orderBy,
+  isNil,
+  fromPairs,
+  toPairs,
+  take,
+  map,
+} from 'lodash-es'
 
 import { escapeString, getTokenizer } from './utils.js'
 
