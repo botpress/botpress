@@ -85,8 +85,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     if (integration && integration.visibility !== 'private' && !api.isBotpressWorkspace) {
-      throw new errors.BotpressCLIError(
-        `Integration ${name} v${version} is already deployed publicly and cannot be updated. Please bump the version.`
+      this.logger.warn(
+        `Integration ${name} v${version} is already deployed publicly and cannot be updated. You should publish a new version instead.`
       )
     }
 
