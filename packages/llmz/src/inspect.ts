@@ -371,9 +371,9 @@ function previewLongText(text: string, length: number = LONG_TEXT_LENGTH) {
   const mostCommonWords = flow(
     toPairs,
     (p) => orderBy(p, ([, count]) => count, 'desc'),
-    (p) => p.filter(([, count]) => count > 1),
-    (p) => p.slice(0, 20),
-    (p) => p.map(([word, count]) => `"${word}" ${count} times`)
+    (p) => filter(p, ([, count]) => count > 1),
+    (p) => take(p, 20),
+    (p) => map(p, ([word, count]) => `"${word}" ${count} times`)
   )(wordFrequency).join('\n' + ' '.repeat(22))
 
   // Extract URLs and Emails
