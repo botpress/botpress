@@ -5,9 +5,6 @@ const { z } = sdk
 const TOKEN_URL = 'https://oauth-bridge.zendesk.com/sc/oauth/token'
 const TOKEN_INFO_URL = 'https://oauth-bridge.zendesk.com/sc/v2/tokenInfo'
 
-const MARKETPLACE_BOT_NAME = 'Botpress'
-const MARKETPLACE_ORG_ID = '7259'
-
 type ClientCredentials = {
   clientId: string
   clientSecret: string
@@ -89,8 +86,8 @@ const _getToken = async ({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Zendesk-Marketplace-Name': MARKETPLACE_BOT_NAME,
-      'X-Zendesk-Marketplace-Organization-Id': MARKETPLACE_ORG_ID,
+      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
+      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
     },
     body: JSON.stringify(params),
   })
@@ -123,8 +120,8 @@ export const getTokenInfo = async ({ token, logger }: { token: string; logger: b
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      'X-Zendesk-Marketplace-Name': MARKETPLACE_BOT_NAME,
-      'X-Zendesk-Marketplace-Organization-Id': MARKETPLACE_ORG_ID,
+      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
+      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
     },
   })
 

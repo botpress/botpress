@@ -73,6 +73,12 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'Botpress SunCo OAuth Client Secret',
     },
+    MARKETPLACE_BOT_NAME: {
+      description: 'The name of the marketplace bot',
+    },
+    MARKETPLACE_ORG_ID: {
+      description: 'The ID or the marketplace organization',
+    },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
   user: {
