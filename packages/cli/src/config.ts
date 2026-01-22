@@ -1,4 +1,5 @@
 import * as consts from './consts'
+import { t } from './locales'
 import { ProjectTemplates } from './project-templates'
 import type { CommandOption, CommandSchema } from './typings'
 
@@ -6,52 +7,52 @@ import type { CommandOption, CommandSchema } from './typings'
 
 const port = {
   type: 'number',
-  description: 'The port to use',
+  description: t.options.port,
 } satisfies CommandOption
 
 const workDir = {
   type: 'string',
-  description: 'The path to the project',
+  description: t.options.workDir,
   default: consts.defaultWorkDir,
 } satisfies CommandOption
 
 const noBuild = {
   type: 'boolean',
-  description: 'Skip the build step',
+  description: t.options.noBuild,
   default: false,
 } satisfies CommandOption
 
 const dryRun = {
   type: 'boolean',
-  description: 'Ask the API not to perform the actual operation',
+  description: t.options.dryRun,
   default: false,
 } as const satisfies CommandOption
 
 const apiUrl = {
   type: 'string',
-  description: 'The URL of the Botpress server',
+  description: t.options.apiUrl,
 } satisfies CommandOption
 
 const token = {
   type: 'string',
-  description: 'You Personal Access Token ',
+  description: t.options.token,
 } satisfies CommandOption
 
 const workspaceId = {
   type: 'string',
-  description: 'The Workspace Id to deploy to',
+  description: t.options.workspaceId,
 } satisfies CommandOption
 
 const secrets = {
   type: 'string',
-  description: 'Values for the integration secrets',
+  description: t.options.secrets,
   array: true,
   default: [],
 } satisfies CommandOption
 
 const botRef = {
   type: 'string',
-  description: 'The bot ID. Bot Name is not supported.',
+  description: t.options.botRef,
   demandOption: true,
   positional: true,
   idx: 0,
@@ -59,8 +60,7 @@ const botRef = {
 
 const packageRef = {
   type: 'string',
-  description:
-    'The package ID or name with optional version. The package can be either an integration or an interface. Ex: teams, teams@0.2.0, llm@5.1.0',
+  description: t.options.packageRef,
   positional: true,
   idx: 0,
 } satisfies CommandOption
@@ -68,28 +68,28 @@ const packageRef = {
 const integrationRef = {
   ...packageRef,
   demandOption: true,
-  description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
+  description: t.options.integrationRef,
 } satisfies CommandOption
 
 const interfaceRef = {
   ...packageRef,
   demandOption: true,
-  description: 'The interface ID or name and version. Ex: llm@5.1.0',
+  description: t.options.interfaceRef,
 } satisfies CommandOption
 
 const pluginRef = {
   ...packageRef,
   demandOption: true,
-  description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
+  description: t.options.pluginRef,
 } satisfies CommandOption
 
-const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
+const sourceMap = { type: 'boolean', description: t.options.sourceMap, default: false } satisfies CommandOption
 
-const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
+const minify = { type: 'boolean', description: t.options.minify, default: true } satisfies CommandOption
 
 const dev = {
   type: 'boolean',
-  description: 'List only dev bots / dev integrations',
+  description: t.options.dev,
   default: false,
 } satisfies CommandOption
 
@@ -98,29 +98,29 @@ const dev = {
 const globalSchema = {
   verbose: {
     type: 'boolean',
-    description: 'Enable verbose logging',
+    description: t.options.verbose,
     alias: 'v',
     default: false,
   },
   confirm: {
     type: 'boolean',
-    description: 'Confirm all prompts',
+    description: t.options.confirm,
     alias: 'y',
     default: false,
   },
   json: {
     type: 'boolean',
-    description: 'Prevent logging anything else than raw json in stdout. Useful for piping output to other tools',
+    description: t.options.json,
     default: false,
   },
   botpressHome: {
     type: 'string',
-    description: 'The path to the Botpress home directory',
+    description: t.options.botpressHome,
     default: consts.defaultBotpressHome,
   },
   profile: {
     type: 'string',
-    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    description: t.options.profile,
     alias: 'p',
   },
 } satisfies CommandSchema
@@ -172,28 +172,27 @@ const deploySchema = {
   ...projectSchema,
   ...credentialsSchema,
   ...secretsSchema,
-  botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
+  botId: { type: 'string', description: t.options.botId },
   noBuild,
   dryRun,
-  createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
+  createNewBot: { type: 'boolean', description: t.options.createNewBot },
   sourceMap,
   minify,
   visibility: {
     type: 'string',
     choices: ['public', 'private', 'unlisted'] as const,
-    description:
-      'The visibility of the project. By default, projects are always private. Unlisted visibility is only supported for integrations and plugins.',
+    description: t.options.visibility,
     default: 'private',
   },
   public: {
     type: 'boolean',
-    description: 'DEPRECATED: Please use "--visibility public" instead.',
+    description: t.options.publicDeprecated,
     default: false,
     deprecated: true,
   } satisfies CommandOption,
   allowDeprecated: {
     type: 'boolean',
-    description: 'Allow deprecated features in the project',
+    description: t.options.allowDeprecated,
     default: false,
   },
 } as const satisfies CommandSchema
@@ -207,12 +206,12 @@ const devSchema = {
   port,
   tunnelUrl: {
     type: 'string',
-    description: 'The tunnel HTTP URL to use',
+    description: t.options.tunnelUrl,
     default: consts.defaultTunnelUrl,
   },
   tunnelId: {
     type: 'string',
-    description: 'The tunnel ID to use. The ID will be generated if not specified',
+    description: t.options.tunnelId,
   },
 } satisfies CommandSchema
 
@@ -222,17 +221,17 @@ const addSchema = {
   packageRef,
   installPath: {
     type: 'string',
-    description: 'The path where to install the package',
+    description: t.options.installPath,
     default: consts.defaultInstallPath,
   },
   useDev: {
     type: 'boolean',
-    description: 'If a dev version of the package is found, use it',
+    description: t.options.useDev,
     default: false,
   },
   alias: {
     type: 'string',
-    description: 'The alias to install the package with',
+    description: t.options.alias,
   },
 } satisfies CommandSchema
 
@@ -240,7 +239,7 @@ const removeSchema = {
   ...globalSchema,
   ...credentialsSchema,
   workDir,
-  alias: { idx: 0, positional: true, type: 'string', description: 'The alias of the package to uninstall' },
+  alias: { idx: 0, positional: true, type: 'string', description: t.options.aliasRemove },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -257,10 +256,10 @@ const logoutSchema = {
 const createBotSchema = {
   ...globalSchema,
   ...credentialsSchema,
-  name: { type: 'string', description: 'The name of the bot to create' },
+  name: { type: 'string', description: t.options.name },
   ifNotExists: {
     type: 'boolean',
-    description: 'Do not create if a bot with the same name already exists',
+    description: t.options.ifNotExists,
     default: false,
   },
 } satisfies CommandSchema
@@ -292,11 +291,11 @@ const getIntegrationSchema = {
 const listIntegrationsSchema = {
   ...globalSchema,
   ...credentialsSchema,
-  name: { type: 'string', description: 'The name filter when listing integrations' },
-  versionNumber: { type: 'string', description: 'The version filter when listing integrations' },
-  owned: { type: 'boolean', description: 'List only owned integrations' },
-  public: { type: 'boolean', description: 'List only public integrations' },
-  limit: { type: 'number', description: 'Limit the number of integrations returned' },
+  name: { type: 'string', description: t.options.nameFilter },
+  versionNumber: { type: 'string', description: t.options.versionFilter },
+  owned: { type: 'boolean', description: t.options.owned },
+  public: { type: 'boolean', description: t.options.public },
+  limit: { type: 'number', description: t.options.limit },
   dev,
 } satisfies CommandSchema
 
@@ -332,8 +331,8 @@ const getPluginSchema = {
 const listPluginsSchema = {
   ...globalSchema,
   ...credentialsSchema,
-  name: { type: 'string', description: 'The name filter when listing plugins' },
-  versionNumber: { type: 'string', description: 'The version filter when listing plugins' },
+  name: { type: 'string', description: t.options.nameFilter },
+  versionNumber: { type: 'string', description: t.options.versionFilter },
 } satisfies CommandSchema
 
 const deletePluginSchema = {
@@ -349,9 +348,9 @@ const initSchema = {
   template: {
     type: 'string',
     choices: ProjectTemplates.getAllChoices(),
-    description: 'The template to use',
+    description: t.options.template,
   },
-  name: { type: 'string', description: 'The name of the project' },
+  name: { type: 'string', description: t.options.name },
 } satisfies CommandSchema
 
 const lintSchema = {
@@ -363,13 +362,13 @@ const chatSchema = {
   ...credentialsSchema,
   chatApiUrl: {
     type: 'string',
-    description: 'The URL of the chat server',
+    description: t.options.chatApiUrl,
   },
   botId: {
     type: 'string',
     positional: true,
     idx: 0,
-    description: 'The bot ID to chat with',
+    description: t.options.botIdChat,
   },
 } satisfies CommandSchema
 
@@ -385,7 +384,7 @@ const useProfileSchema = {
   ...globalSchema,
   profileToUse: {
     type: 'string',
-    description: 'The CLI profile defined in the $BP_BOTPRESS_HOME/profiles.json',
+    description: t.options.profileToUse,
     positional: true,
     idx: 0,
   },
