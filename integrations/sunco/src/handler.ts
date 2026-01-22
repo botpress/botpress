@@ -1,8 +1,17 @@
+import { RuntimeError } from '@botpress/sdk'
+import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
 import { isSuncoWebhookPayload } from './messaging-events'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, client, logger } = props
+
+  if (req.path.startsWith('/oauth')) {
+    await _handleOAuthCallback(props)
+    return
+  }
+
   if (!req.body) {
     console.warn('Handler received an empty body')
     return
@@ -24,4 +33,40 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, log
       console.warn(`Received an event of type ${event.type}, which is not supported`)
     }
   }
+}
+
+const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
+  logger.forBot().debug('Handling OAuth callback')
+
+  const searchParams = new URLSearchParams(req.query)
+  const authorizationCode = searchParams.get('code')
+
+  //TODO verify that these are the correct error params
+  const error = searchParams.get('error')
+  const errorDescription = searchParams.get('error_description')
+
+  if (error) {
+    logger.forBot().error(`SunCo OAuth error: ${error} - ${errorDescription}`)
+    throw new RuntimeError(`SunCo OAuth error: ${error} - ${errorDescription}`)
+  }
+
+  if (!authorizationCode) {
+    logger.forBot().error('Authorization code not present in OAuth callback')
+    throw new RuntimeError('Authorization code not present in OAuth callback')
+  }
+
+  const credentials = await getCredentials({
+    authorizationCode,
+    logger,
+  })
+
+  logger.forBot().info('Successfully authenticated SunCo user')
+
+  await client.configureIntegration({
+    identifier: credentials.appId,
+  })
+
+  await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+
+  return { status: 200 }
 }

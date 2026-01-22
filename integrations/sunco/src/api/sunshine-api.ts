@@ -1,11 +1,11 @@
 // @ts-expect-error No types for sunshine-conversations-client
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
-export function createClient(keyId: string, keySecret: string) {
+export function createClient(token: string) {
   const apiClient = new SunshineConversationsApi.ApiClient()
-  const auth = apiClient.authentications['basicAuth']
-  auth.username = keyId
-  auth.password = keySecret
+  const auth = apiClient.authentications['bearerAuth']
+  auth.accessToken = token
+  auth.type = 'bearer'
 
   return {
     activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
