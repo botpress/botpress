@@ -5,6 +5,7 @@ import * as pathlib from 'path'
 import { ApiClient } from 'src/api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import { t } from '../locales'
 import { Logger } from '../logger'
 import { ProjectTemplates } from '../project-templates'
 import * as utils from '../utils'
@@ -47,7 +48,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     }
 
     type _assertion = utils.types.AssertNever<typeof projectType>
-    throw new errors.BotpressCLIError(`Unknown project type: ${projectType}`)
+    throw new errors.BotpressCLIError(t.init.unknownProjectType(projectType))
   }
 
   private async _promptWorkspaceHandle() {
@@ -71,8 +72,8 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
       return this.argv.type
     }
 
-    const promptedType = await this.prompt.select('What type of project do you wish to initialize?', {
-      choices: projectTypes.map((t) => ({ title: t, value: t })),
+    const promptedType = await this.prompt.select(t.init.projectTypeQuestion, {
+      choices: projectTypes.map((pt) => ({ title: pt, value: pt })),
     })
 
     if (!promptedType) {
@@ -96,22 +97,22 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
         pluginName: fullName,
       },
     })
-    this.logger.success(`Plugin project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
+    this.logger.success(t.init.pluginInitialized(chalk.bold(pathlib.join(workDir, shortName))))
   }
 
   private async _getOrPromptForTemplate(type: ProjectType): Promise<ProjectTemplates.Template> {
     const availableTemplates = ProjectTemplates.templates[type]
 
     if (this.argv.template) {
-      const template = availableTemplates.find((t) => t.identifier === this.argv.template)
+      const template = availableTemplates.find((tpl) => tpl.identifier === this.argv.template)
       if (!template) {
-        throw new errors.BotpressCLIError(`No ${type} template found for identifier "${this.argv.template}"`)
+        throw new errors.BotpressCLIError(t.init.noTemplateFound(type, this.argv.template))
       }
       return template
     }
 
     if (availableTemplates.length === 1) {
-      this.logger.log(`Using default template: ${chalk.bold(availableTemplates[0].fullName)}`)
+      this.logger.log(t.init.usingDefaultTemplate(chalk.bold(availableTemplates[0].fullName)))
       return availableTemplates[0]
     }
 
@@ -121,7 +122,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   private async _promptForTemplate(
     availableTemplates: ProjectTemplates.TemplateArray
   ): Promise<ProjectTemplates.Template> {
-    const templateIndex = await this.prompt.select<number>('Which template do you want to use?', {
+    const templateIndex = await this.prompt.select<number>(t.init.templateQuestion, {
       choices: availableTemplates.map((template, index) => ({
         title: template.fullName,
         value: index,
@@ -130,7 +131,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     })
 
     if (templateIndex === undefined || templateIndex < 0 || templateIndex >= availableTemplates.length) {
-      this.logger.log(`Using default template: ${chalk.bold(availableTemplates[0].fullName)}`)
+      this.logger.log(t.init.usingDefaultTemplate(chalk.bold(availableTemplates[0].fullName)))
       return availableTemplates[0]
     }
 
@@ -151,7 +152,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     const name = await this._getName('bot', template.defaultProjectName)
 
     await this._copy({ srcDir: template.absolutePath, destDir: workDir, name, pkgJson: {} })
-    this.logger.success(`Bot project initialized in ${chalk.bold(pathlib.join(workDir, name))}`)
+    this.logger.success(t.init.botInitialized(chalk.bold(pathlib.join(workDir, name))))
   }
 
   private _initIntegration = async (args: { workDir: string; workspaceHandle: string }) => {
@@ -168,7 +169,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
         integrationName: fullName,
       },
     })
-    this.logger.success(`Integration project initialized in ${chalk.bold(pathlib.join(workDir, shortName))}`)
+    this.logger.success(t.init.integrationInitialized(chalk.bold(pathlib.join(workDir, shortName))))
     return
   }
 
@@ -176,7 +177,7 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     if (this.argv.name) {
       return this.argv.name
     }
-    const promptMessage = `What is the name of your ${projectType}?`
+    const promptMessage = t.init.projectNameQuestion(projectType)
     const promptedName = await this.prompt.text(promptMessage, { initial: defaultName })
     if (!promptedName) {
       throw new errors.ParamRequiredError('Project Name')
@@ -199,21 +200,19 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
     await fs.promises.cp(srcDir, destination, { recursive: true })
 
     const json = await utils.pkgJson.readPackageJson(destination).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Failed to read package.json file')
+      throw errors.BotpressCLIError.wrap(thrown, t.init.failedToReadPackageJson)
     })
 
     const pkgJsonName = utils.casing.to.snakeCase(name)
     const updatedJson = { name: pkgJsonName, ...json, ...pkgJson }
     await utils.pkgJson.writePackageJson(destination, updatedJson).catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, 'Failed to write package.json file')
+      throw errors.BotpressCLIError.wrap(thrown, t.init.failedToWritePackageJson)
     })
   }
 
   private _checkIfDestinationCanBeUsed = async (destination: string) => {
     if (fs.existsSync(destination)) {
-      const override = await this.prompt.confirm(
-        `Directory ${chalk.bold(destination)} already exists. Do you want to overwrite it?`
-      )
+      const override = await this.prompt.confirm(t.init.directoryExists(chalk.bold(destination)))
       if (!override) {
         return false
       }
@@ -267,7 +266,7 @@ class WorkspaceResolver {
       .client.list.workspaces({})
       .collect({})
       .catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, 'Unable to list your workspaces')
+        throw errors.BotpressCLIError.wrap(thrown, t.init.unableToListWorkspaces)
       })
     const currentWorkspace = workspaces.find((ws) => ws.id === this._getClient().workspaceId)
 
@@ -288,7 +287,7 @@ class WorkspaceResolver {
       return this._workspaceHandle
     }
 
-    const handle = await this._prompt.text('Enter your workspace handle')
+    const handle = await this._prompt.text(t.init.enterWorkspaceHandle)
 
     if (!handle) {
       throw new errors.ParamRequiredError('Workspace handle')
@@ -308,7 +307,7 @@ class WorkspaceResolver {
       value: this._currentWorkspace!.id,
     }
 
-    const workspaceId = await this._prompt.select('Which workspace do you want to use?', {
+    const workspaceId = await this._prompt.select(t.init.whichWorkspaceToUse, {
       initial: initialChoice,
       choices: workspaceChoices,
     })
@@ -321,7 +320,7 @@ class WorkspaceResolver {
   }
 
   private async _assignHandleToWorkspace(workspace: client.Workspace): Promise<string> {
-    this._logger.warn("It seems you don't have a workspace handle yet.")
+    this._logger.warn(t.deploy.noWorkspaceHandle)
 
     let claimedHandle: string | undefined
 
@@ -335,15 +334,15 @@ class WorkspaceResolver {
       }
     } while (!claimedHandle)
 
-    this._logger.success(`Handle "${claimedHandle}" is yours!`)
+    this._logger.success(t.deploy.handleIsYours(claimedHandle))
     return claimedHandle
   }
 
   private async _promptForDesiredHandle(): Promise<string> {
-    const desiredHandle = await this._prompt.text('Please enter a workspace handle')
+    const desiredHandle = await this._prompt.text(t.deploy.enterWorkspaceHandle)
 
     if (!desiredHandle) {
-      throw new errors.BotpressCLIError('Workspace handle is required')
+      throw new errors.BotpressCLIError(t.init.workspaceHandleRequired)
     }
 
     return desiredHandle
@@ -353,7 +352,7 @@ class WorkspaceResolver {
     const { available, suggestions } = await this._getClient().client.checkHandleAvailability({ handle })
 
     if (!available) {
-      this._logger.warn(`Handle "${handle}" is not available. Suggestions: ${suggestions.join(', ')}`)
+      this._logger.warn(t.deploy.handleNotAvailableSuggestions(handle, suggestions.join(', ')))
       return false
     }
 
@@ -364,13 +363,13 @@ class WorkspaceResolver {
     try {
       await this._getClient().switchWorkspace(workspaceId).updateWorkspace({ handle })
     } catch (thrown) {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${handle}"`)
+      throw errors.BotpressCLIError.wrap(thrown, t.deploy.couldNotClaimHandle(handle))
     }
   }
 
   private _getClient(): ApiClient {
     if (!this._client) {
-      throw new errors.BotpressCLIError('Could not authenticate')
+      throw new errors.BotpressCLIError(t.init.couldNotAuthenticate)
     }
     return this._client
   }

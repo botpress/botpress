@@ -2,6 +2,7 @@ import * as client from '@botpress/client'
 import axios, { AxiosError } from 'axios'
 import { VError } from 'verror'
 import * as consts from './consts'
+import { t } from './locales'
 
 type KnownApiError = Exclude<client.ApiError, client.UnknownError>
 const isUnknownApiError = (e: unknown): e is client.UnknownError => client.isApiError(e) && e.type === 'Unknown'
@@ -20,10 +21,10 @@ export class BotpressCLIError extends VError {
     if (isUnknownApiError(thrown)) {
       const cause = thrown.error?.cause
       if (cause && typeof cause === 'object' && 'code' in cause && cause.code === 'ECONNREFUSED') {
-        return new HTTPError(500, 'The connection was refused by the server')
+        return new HTTPError(500, t.errors.connectionRefused)
       }
 
-      const unknownMessage = 'An unknown API error occurred'
+      const unknownMessage = t.errors.unknownApiError
       const actualTrimmedMessage = thrown.message.trim()
       if (!actualTrimmedMessage) {
         return new HTTPError(500, unknownMessage)
@@ -58,15 +59,13 @@ export class BotpressCLIError extends VError {
 
 export class ExclusiveBotFeatureError extends BotpressCLIError {
   public constructor() {
-    const message = 'This feature is only available for bots. This project is an integration or interface.'
-    super(message)
+    super(t.errors.exclusiveBotFeature)
   }
 }
 
 export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
   public constructor() {
-    const message = 'This feature is only available for integration. This project is a bot or interface.'
-    super(message)
+    super(t.errors.exclusiveIntegrationFeature)
   }
 }
 
@@ -105,62 +104,54 @@ export class HTTPError extends BotpressCLIError {
 
 export class NoBundleFoundError extends BotpressCLIError {
   public constructor() {
-    const message = 'No bundle found. Please run `bp bundle` first.'
-    super(message)
+    super(t.errors.noBundleFound)
   }
 }
 
 export class NoBotsFoundError extends BotpressCLIError {
   public constructor() {
-    const message = `No Bot found in your Workspace. Please create one first at ${consts.defaultBotpressAppUrl}.`
-    super(message)
+    super(t.errors.noBotsFound(consts.defaultBotpressAppUrl))
   }
 }
 
 export class NoWorkspacesFoundError extends BotpressCLIError {
   public constructor() {
-    const message = 'No Workspace found. Please create one first.'
-    super(message)
+    super(t.errors.noWorkspacesFound)
   }
 }
 
 export class NotLoggedInError extends BotpressCLIError {
   public constructor() {
-    const message = 'Not logged in. Please run `bp login` first.'
-    super(message)
+    super(t.errors.notLoggedIn)
   }
 }
 
 export class ParamRequiredError extends BotpressCLIError {
   public constructor(param: string) {
-    const message = `${param} is required.`
-    super(message)
+    super(t.errors.paramRequired(param))
   }
 }
 
 export class InvalidPackageReferenceError extends BotpressCLIError {
   public constructor(ref: string) {
-    const message = `Invalid package reference "${ref}".`
-    super(message)
+    super(t.errors.invalidPackageRef(ref))
   }
 }
 
 export class UnsupportedProjectType extends BotpressCLIError {
   public constructor() {
-    const message = 'Unsupported project type.'
-    super(message)
+    super(t.errors.unsupportedProjectType)
   }
 }
 
 export class ProjectDefinitionNotFoundError extends BotpressCLIError {
   public constructor(workdir: string) {
-    const message = `No project definition found at "${workdir}".`
-    super(message)
+    super(t.errors.projectNotFound(workdir))
   }
 }
 
 export class AbortedOperationError extends BotpressCLIError {
   public constructor() {
-    super('Aborted')
+    super(t.errors.aborted)
   }
 }

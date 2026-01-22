@@ -1,3 +1,5 @@
+import { t } from '../../locales'
+
 export default ({
   pageTitle,
   helpText,
@@ -5,6 +7,7 @@ export default ({
   formFieldName,
   options,
   extraHiddenParams,
+  submitLabel,
 }: {
   pageTitle: string
   helpText: string
@@ -12,6 +15,7 @@ export default ({
   formFieldName: string
   options: { label: string; value: string }[]
   extraHiddenParams: Record<string, string>
+  submitLabel?: string
 }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
@@ -41,7 +45,7 @@ export default ({
             </div>
           </div>
           <button type="submit" className="btn btn-primary w-100 d-block">
-            Submit
+            {submitLabel ?? t.submit}
           </button>
         </form>
       </div>

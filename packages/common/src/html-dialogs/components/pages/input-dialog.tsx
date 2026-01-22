@@ -1,3 +1,4 @@
+import { t } from '../../locales'
 import MarkdownDiv from '../markdown-div'
 
 export default ({
@@ -7,6 +8,7 @@ export default ({
   formFieldName,
   inputConfig,
   extraHiddenParams,
+  submitLabel,
 }: {
   pageTitle: string
   helpText: string
@@ -17,6 +19,7 @@ export default ({
     type: 'text' | 'number' | 'email' | 'password' | 'url'
   }
   extraHiddenParams: Record<string, string>
+  submitLabel?: string
 }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
@@ -34,7 +37,7 @@ export default ({
             <input type={inputConfig.type} className="form-control" id={formFieldName} name={formFieldName} required />
           </div>
           <button type="submit" className="btn btn-primary w-100 d-block">
-            Submit
+            {submitLabel ?? t.submit}
           </button>
         </form>
       </div>
