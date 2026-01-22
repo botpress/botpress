@@ -104,22 +104,6 @@ export class SignalListener extends EventEmitter<Events> {
     this._disconnectSync(source, watchdog)
   }
 
-  public static initialize = async (props: InitializeProps): Promise<SignalListener> => {
-    const url = new URL(`${props.url}/initialize`)
-    let headers = {}
-    if (props['x-user-key']) {
-      headers = { ...headers, 'x-user-key': props['x-user-key'] }
-    }
-
-    const inst = new SignalListener({
-      url,
-      headers,
-      debug: props.debug,
-    })
-    await inst.connect()
-    return inst
-  }
-
   private _connect = async (): Promise<EventSourceEmitter> => {
     const source = await listenEventSource(this._props.url.toString(), {
       headers: this._props.headers,
