@@ -1,7 +1,7 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { wechatMessageChannels } from './definitions/channels'
 export default new IntegrationDefinition({
-  name: 'plus/WeChat',
+  name: 'wechat',
   version: '1.0.2',
   title: 'WeChat',
   description: 'Engage with your WeChat audience in real-time.',

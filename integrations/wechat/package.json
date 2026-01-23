@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/wechat",
-  "integrationName": "plus/WeChat",
+  "description": "WeChat integration for Botpress",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
