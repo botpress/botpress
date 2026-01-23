@@ -6,13 +6,12 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "1.27.1",
-    "@botpress/sdk": "4.21.0",
-    "prettier": "^3.6.2"
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@botpress/cli": "4.27.4",
-    "@botpress/sdk": "4.21.0",
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@types/node": "^22.16.4",
     "typescript": "^5.6.3"
   }
