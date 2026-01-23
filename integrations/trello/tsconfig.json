@@ -2,14 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
-    "strict": true,
-    "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "outDir": "dist"
   },
   "include": [".botpress/**/*", "definitions/**/*", "src/**/*", "*.ts"]
 }
