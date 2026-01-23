@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { TrelloEventType } from 'definitions/events'
 import { Result } from '../types'
 import { safeParseRequestBody } from '../utils'
@@ -6,6 +7,12 @@ import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSch
 import * as bp from '.botpress'
 
 export const handler = async (props: bp.HandlerProps): Promise<void> => {
+  const signatureOutcome = _verifyWebhookSignature(props)
+  if (signatureOutcome === 'invalid') {
+    props.logger.forBot().error('The provided webhook payload failed its signature validation')
+    return
+  }
+
   const payloadResult = _parseWebhookPayload(props)
   if (!payloadResult.success) {
     const { error } = payloadResult
@@ -13,8 +20,8 @@ export const handler = async (props: bp.HandlerProps): Promise<void> => {
     return
   }
 
-  if (!(await _verifyWebhookSignature(props, payloadResult.data))) {
-    props.logger.forBot().error('The provided webhook payload failed its signature validation')
+  if (signatureOutcome === 'cannot_verify' && !(await _verifyWebhookId(props, payloadResult.data))) {
+    props.logger.forBot().error('The provided webhook payload does not match the expected webhook ID')
     return
   }
 
@@ -56,7 +63,31 @@ const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayloa
   }
 }
 
-const _verifyWebhookSignature = async ({ client, ctx }: bp.HandlerProps, eventPayload: WebhookEventPayload) => {
+/** This only exists because for some reason `process.env.BP_WEBHOOK_URL` is not set */
+const _getWebhookUrl = (props: bp.HandlerProps) =>
+  `${process.env.BP_API_URL}/${props.ctx.webhookId}`.replace(/\w+(?=\.botpress)/, 'webhook')
+
+const _base64Digest = (secret: string, content: string) => {
+  return crypto.createHmac('sha1', secret).update(content).digest('base64')
+}
+
+const _verifyWebhookSignature = (props: bp.HandlerProps) => {
+  const { req, ctx } = props
+  const { trelloApiSecret } = ctx.configuration
+  const callbackURL = _getWebhookUrl(props)
+
+  if (!trelloApiSecret) {
+    return 'cannot_verify'
+  }
+
+  const content = (req.body ?? '') + callbackURL
+  const doubleHash = _base64Digest(trelloApiSecret, content)
+  const headerHash = req.headers['x-trello-webhook']
+  return doubleHash === headerHash ? 'valid' : 'invalid'
+}
+
+/** A fallback method for verifying we have the correct webhook data */
+const _verifyWebhookId = async ({ client, ctx }: bp.HandlerProps, eventPayload: WebhookEventPayload) => {
   const { state } = await client.getState({
     type: 'integration',
     name: 'webhook',

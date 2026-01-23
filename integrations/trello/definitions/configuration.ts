@@ -21,5 +21,11 @@ export const configuration = {
       .optional()
       .title('Trello Board ID')
       .describe('Unique identifier of the board to watch for events on Trello'),
+    trelloApiSecret: z
+      .string()
+      .secret()
+      .optional()
+      .title('Trello API Secret')
+      .describe('Can be obtained by creating an application on Trello'),
   }),
 } as const satisfies NonNullable<IntegrationDefinitionProps['configuration']>
