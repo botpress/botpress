@@ -7,6 +7,7 @@ import {
   ChecklistItemUpdatedWebhook,
 } from '../schemas/checklist-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
+import { Expect, IsWebhookHandler } from './types'
 import * as bp from '.botpress'
 
 const _extractCommonChecklistItemPayload = (
@@ -39,6 +40,7 @@ export const handleChecklistAddedToCardEvent = async (
     },
   })
 }
+type _HandleChecklistAddedToCardEventTest = Expect<IsWebhookHandler<typeof handleChecklistAddedToCardEvent>>
 
 export const handleChecklistItemCreatedEvent = async (
   props: bp.HandlerProps,
@@ -50,6 +52,7 @@ export const handleChecklistItemCreatedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
+type _HandleChecklistItemCreatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemCreatedEvent>>
 
 const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedWebhook['data']['old']) => {
   const { name, state, textData, dueReminder, due } = oldData
@@ -86,6 +89,7 @@ export const handleChecklistItemUpdatedEvent = async (
     },
   })
 }
+type _HandleChecklistItemUpdatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemUpdatedEvent>>
 
 export const handleChecklistItemDeletedEvent = async (
   props: bp.HandlerProps,
@@ -97,6 +101,7 @@ export const handleChecklistItemDeletedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
+type _HandleChecklistItemDeletedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemDeletedEvent>>
 
 export const handleChecklistItemStatusUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -108,3 +113,4 @@ export const handleChecklistItemStatusUpdatedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
+type _HandleChecklistItemStatusUpdatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemStatusUpdatedEvent>>
