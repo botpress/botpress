@@ -29,6 +29,12 @@ export default new IntegrationDefinition({
           .describe('The subdomain of the authenticated app if there is one'),
       }),
     },
+    webhook: {
+      type: 'integration',
+      schema: z.object({
+        secret: z.string().title('Secret').describe('The webhook secret'),
+      }),
+    },
   },
   configuration: {
     identifier: {
