@@ -1,8 +1,8 @@
 // For outgoing messages to WeChat
 
 import { RuntimeError } from '@botpress/client'
-import * as bp from '.botpress'
 import { getAccessToken, WECHAT_API_BASE } from './wechat-api'
+import * as bp from '.botpress'
 
 export type MessageHandlerProps<T extends keyof bp.MessageProps['channel']> = bp.MessageProps['channel'][T]
 
