@@ -22,7 +22,7 @@ function computeWeChatSignature(...args: string[]): string {
 //  <MsgId>6272960105994287618</MsgId>
 // </xml>
 
-interface WeChatMessage {
+type WeChatMessage = {
   ToUserName: string
   FromUserName: string
   CreateTime: string
@@ -83,7 +83,7 @@ function parseWeChatMessageXml(webData: string): WeChatMessage | null {
 }
 
 // ============== Main Handler ==============
-export interface WeChatVerification {
+export type WeChatVerification = {
   wechatToken: string
   method: string
   signature?: string
@@ -93,7 +93,7 @@ export interface WeChatVerification {
   body?: string
 }
 
-export interface ResponseToWeChat {
+export type ResponseToWeChat = {
   status: number
   contentType: string
   body: string
