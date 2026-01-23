@@ -74,20 +74,14 @@ const _getToken = async ({
 
   if (!response.ok) {
     console.log('error: ', response.json())
-    // const errorMsg = await formatError(response, 'Failed to exchange authorization code')
     logger.forBot().error('Failed to exchange authorization code for SunCo token', {
       status: response.status,
     })
     throw new sdk.RuntimeError('failed to get token')
-    // throw new sdk.RuntimeError(errorMsg)
   }
 
   const token = getTokenSchema.parse(await response.json())
   logger.forBot().debug('Successfully obtained SunCo token')
-
-  // TODO decode token and store expiry
-  // const now = new Date()
-  // const accessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
 
   return token.access_token
 }
@@ -106,12 +100,10 @@ export const getTokenInfo = async ({ token, logger }: { token: string; logger: b
   })
 
   if (!response.ok) {
-    // const errorMsg = await formatError(response, 'Failed to fetch token info')
     logger.forBot().error('Failed to fetch token info', {
       status: response.status,
     })
     throw new sdk.RuntimeError('failed to get token')
-    // throw new sdk.RuntimeError(errorMsg)
   }
 
   const tokenInfo = getTokenInfoSchema.parse(await response.json())
