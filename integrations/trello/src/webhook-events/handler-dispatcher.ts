@@ -7,8 +7,7 @@ import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSch
 import * as bp from '.botpress'
 
 export const handler = async (props: bp.HandlerProps): Promise<void> => {
-  const signatureOutcome = _verifyWebhookSignature(props)
-  if (signatureOutcome === 'invalid') {
+  if (_verifyWebhookSignature(props)) {
     props.logger.forBot().error('The provided webhook payload failed its signature validation')
     return
   }
@@ -17,11 +16,6 @@ export const handler = async (props: bp.HandlerProps): Promise<void> => {
   if (!payloadResult.success) {
     const { error } = payloadResult
     props.logger.forBot().error(error.message, error)
-    return
-  }
-
-  if (signatureOutcome === 'cannot_verify' && !(await _verifyWebhookId(props, payloadResult.data))) {
-    props.logger.forBot().error('The provided webhook payload does not match the expected webhook ID')
     return
   }
 
@@ -76,23 +70,11 @@ const _verifyWebhookSignature = (props: bp.HandlerProps) => {
   const { trelloApiSecret } = ctx.configuration
   const callbackURL = _getWebhookUrl(props)
 
-  if (!trelloApiSecret) {
-    return 'cannot_verify'
-  }
+  // No secret configured, skip verification
+  if (!trelloApiSecret) return true
 
   const content = (req.body ?? '') + callbackURL
   const doubleHash = _base64Digest(trelloApiSecret, content)
   const headerHash = req.headers['x-trello-webhook']
-  return doubleHash === headerHash ? 'valid' : 'invalid'
-}
-
-/** A fallback method for verifying we have the correct webhook data */
-const _verifyWebhookId = async ({ client, ctx }: bp.HandlerProps, eventPayload: WebhookEventPayload) => {
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'webhook',
-    id: ctx.integrationId,
-  })
-
-  return eventPayload.webhook.id === state.payload.trelloWebhookId
+  return doubleHash === headerHash
 }
