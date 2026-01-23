@@ -4,8 +4,8 @@ export type Mention = {
   user: { id: string; name: string }
 }
 
-export const replaceMentions = (text: string | undefined, mentions: Mention[] | undefined): string | undefined => {
-  if (!mentions || !text) {
+export const replaceMentions = (text: string, mentions: Mention[] | undefined): string => {
+  if (!mentions) {
     return text
   }
 
