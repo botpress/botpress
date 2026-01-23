@@ -2483,8 +2483,8 @@ importers:
         specifier: 1.30.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.3.1
-        version: 5.3.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)
+        specifier: 5.3.2
+        version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
         version: 0.1.0
@@ -3971,20 +3971,6 @@ packages:
 
   '@botpress/api@1.67.0':
     resolution: {integrity: sha512-pxg17xYvjX1siTkoZMVO5qgm8mtnoz88ep5D8yyw8IrTOmMTx/UO4LjYMsiIudDfIKYjZAPfDmPXFhCjhrbQJQ==}
-
-  '@botpress/client@1.30.0':
-    resolution: {integrity: sha512-2Sfj7dbBqkLS/Rn8oHOD0+ERkYXqDLpnuqZ3KVZSK2Fs6cl7ptlxagQqPZQNrl63OMj3XBY0wifq8dspYEmf5w==}
-    engines: {node: '>=18.0.0'}
-
-  '@botpress/sdk@5.3.1':
-    resolution: {integrity: sha512-q6vJ1HO/qN/C7hYB5XZv71MCE8TrvTTSf99xOWjbpm79BbqbTvENvmKFZkFde/rw8iw2PHyiqnhgPZNCJvnUJg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@bpinternal/zui': ^1.3.2
-      esbuild: ^0.16.12
-    peerDependenciesMeta:
-      esbuild:
-        optional: true
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13148,26 +13134,6 @@ snapshots:
       - openapi-types
       - supports-color
 
-  '@botpress/client@1.30.0':
-    dependencies:
-      axios: 1.13.1
-      axios-retry: 4.5.0(axios@1.13.1)
-      browser-or-node: 2.1.1
-      qs: 6.13.0
-    transitivePeerDependencies:
-      - debug
-
-  '@botpress/sdk@5.3.1(@bpinternal/zui@packages+zui)(esbuild@0.25.10)':
-    dependencies:
-      '@botpress/client': 1.30.0
-      '@bpinternal/zui': link:packages/zui
-      browser-or-node: 2.1.1
-      semver: 7.7.2
-    optionalDependencies:
-      esbuild: 0.25.10
-    transitivePeerDependencies:
-      - debug
-
   '@bpinternal/const@0.1.0': {}
 
   '@bpinternal/depsynky@0.3.0':
@@ -16211,11 +16177,6 @@ snapshots:
   axios-retry@3.9.1:
     dependencies:
       '@babel/runtime': 7.24.7
-      is-retry-allowed: 2.2.0
-
-  axios-retry@4.5.0(axios@1.13.1):
-    dependencies:
-      axios: 1.13.1
       is-retry-allowed: 2.2.0
 
   axios-retry@4.5.0(axios@1.4.0):
