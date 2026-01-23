@@ -19,7 +19,7 @@ export const getImageBufferFromResponse = async (
   if (!isValidType) {
     return {
       success: false,
-      message: `Unsupported image format: ${contentType}. LinkedIn supports: JPG, PNG, GIF.`,
+      message: `Unsupported image format: ${contentType}. LinkedIn supports: JPEG, PNG, GIF.`,
     }
   }
 
