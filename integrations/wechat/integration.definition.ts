@@ -9,11 +9,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      wechatToken: z
-        .string()
-        .min(1)
-        .describe('Token used for WeChat signature verification')
-        .title('WeChat Token'),
+      wechatToken: z.string().min(1).describe('Token used for WeChat signature verification').title('WeChat Token'),
       appId: z.string().min(1).describe('WeChat Official Account App ID').title('App ID'),
       appSecret: z.string().min(1).describe('WeChat Official Account App Secret').title('App Secret'),
     }),
