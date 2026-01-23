@@ -85,6 +85,12 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
     verticalPosition,
   } = props.input
 
+  // When sending null for the due date, the Trello API ignores it. However, an empty string removes the due date.
+  // A blank string from a Botpress bot should be treated as undefined (no change), while null is converted to an
+  // empty string to should remove the due date.
+  let formattedDueDate = dueDate?.trim() !== '' ? dueDate : undefined
+  formattedDueDate = formattedDueDate !== null ? formattedDueDate : ''
+
   const card = await trelloClient.getCardById({ cardId })
   await trelloClient.updateCard({
     partialCard: {
@@ -94,7 +100,7 @@ export const updateCard: bp.Integration['actions']['updateCard'] = async (props)
       description: cardBody,
       isClosed: lifecycleStatus ? lifecycleStatus === 'Archived' : undefined,
       isCompleted: completionStatus ? completionStatus === 'Complete' : undefined,
-      dueDate,
+      dueDate: formattedDueDate,
       labelIds: card.labelIds.concat(labelIdsToAdd ?? []).filter((labelId) => !labelIdsToRemove?.includes(labelId)),
       memberIds: card.memberIds
         .concat(memberIdsToAdd ?? [])
