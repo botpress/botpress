@@ -100,10 +100,10 @@ export class PostsApi extends LinkedInBaseApi {
   private async _downloadAndValidateImage(imageUrl: string): Promise<ArrayBuffer> {
     const result = await getImageBufferFromResponse(await fetch(imageUrl))
 
-    if (result.success) {
-      return result.buffer
+    if (!result.success) {
+      throw new sdk.RuntimeError(result.message)
     }
-    throw new sdk.RuntimeError(result.message)
+    return result.buffer
   }
 
   private async _initializeImageUpload(authorUrn: string): Promise<{ uploadUrl: string; imageUrn: string }> {
