@@ -1,4 +1,4 @@
-import { createWebhook } from 'src/api/create-webhook'
+import { createWebhook } from 'src/api/webhooks'
 import { getStoredCredentials } from 'src/get-stored-credentials'
 import { getNetworkErrorDetails } from 'src/util'
 import { createClient } from './api/sunshine-api'
@@ -20,7 +20,7 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, logger, c
     name: 'webhook',
     type: 'integration',
     id: ctx.integrationId,
-    payload: { secret: webhook.webhookSecret },
+    payload: webhook,
   })
   logger.forBot().info('Successfully registered webhook')
 }

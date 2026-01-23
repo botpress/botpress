@@ -32,6 +32,7 @@ export default new IntegrationDefinition({
     webhook: {
       type: 'integration',
       schema: z.object({
+        id: z.string().title('ID').describe('The webhook ID'),
         secret: z.string().title('Secret').describe('The webhook secret'),
       }),
     },
