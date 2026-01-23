@@ -19,7 +19,7 @@ export const handleMemberAddedToCardEvent = async (
     },
   })
 }
-declare const _handleMemberAddedToCardEventTest: Expect<IsWebhookHandler<typeof handleMemberAddedToCardEvent>>
+type _HandleMemberAddedToCardEventTest = Expect<IsWebhookHandler<typeof handleMemberAddedToCardEvent>>
 
 export const handleMemberRemovedFromCardEvent = async (
   props: bp.HandlerProps,
@@ -39,4 +39,4 @@ export const handleMemberRemovedFromCardEvent = async (
     },
   })
 }
-declare const _handleMemberRemovedFromCardEventTest: Expect<IsWebhookHandler<typeof handleMemberRemovedFromCardEvent>>
+type _HandleMemberRemovedFromCardEventTest = Expect<IsWebhookHandler<typeof handleMemberRemovedFromCardEvent>>

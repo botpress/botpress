@@ -20,7 +20,7 @@ export const handleAttachmentAddedEvent = async (
     },
   })
 }
-declare const _handleAttachmentAddedEventTest: Expect<IsWebhookHandler<typeof handleAttachmentAddedEvent>>
+type _HandleAttachmentAddedEventTest = Expect<IsWebhookHandler<typeof handleAttachmentAddedEvent>>
 
 export const handleAttachmentRemovedEvent = async (
   props: bp.HandlerProps,
@@ -37,4 +37,4 @@ export const handleAttachmentRemovedEvent = async (
     },
   })
 }
-declare const _handleAttachmentRemovedEventTest: Expect<IsWebhookHandler<typeof handleAttachmentRemovedEvent>>
+type _HandleAttachmentRemovedEventTest = Expect<IsWebhookHandler<typeof handleAttachmentRemovedEvent>>

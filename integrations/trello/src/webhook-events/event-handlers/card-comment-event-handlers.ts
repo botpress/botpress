@@ -33,7 +33,7 @@ export const handleCommentAddedEvent = async (
 
   return result[1].status === 'fulfilled' ? result[1].value : null
 }
-declare const _handleCommentAddedEventTest: Expect<IsWebhookHandler<typeof handleCommentAddedEvent>>
+type _HandleCommentAddedEventTest = Expect<IsWebhookHandler<typeof handleCommentAddedEvent>>
 
 export const handleCommentUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -56,7 +56,7 @@ export const handleCommentUpdatedEvent = async (
     },
   })
 }
-declare const _handleCommentUpdatedEventTest: Expect<IsWebhookHandler<typeof handleCommentUpdatedEvent>>
+type _HandleCommentUpdatedEventTest = Expect<IsWebhookHandler<typeof handleCommentUpdatedEvent>>
 
 export const handleCommentDeletedEvent = async (
   props: bp.HandlerProps,
@@ -75,4 +75,4 @@ export const handleCommentDeletedEvent = async (
     },
   })
 }
-declare const _handleCommentDeletedEventTest: Expect<IsWebhookHandler<typeof handleCommentDeletedEvent>>
+type _HandleCommentDeletedEventTest = Expect<IsWebhookHandler<typeof handleCommentDeletedEvent>>

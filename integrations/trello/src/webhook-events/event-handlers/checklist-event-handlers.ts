@@ -40,7 +40,7 @@ export const handleChecklistAddedToCardEvent = async (
     },
   })
 }
-declare const _handleChecklistAddedToCardEventTest: Expect<IsWebhookHandler<typeof handleChecklistAddedToCardEvent>>
+type _HandleChecklistAddedToCardEventTest = Expect<IsWebhookHandler<typeof handleChecklistAddedToCardEvent>>
 
 export const handleChecklistItemCreatedEvent = async (
   props: bp.HandlerProps,
@@ -52,7 +52,7 @@ export const handleChecklistItemCreatedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
-declare const _handleChecklistItemCreatedEventTest: Expect<IsWebhookHandler<typeof handleChecklistItemCreatedEvent>>
+type _HandleChecklistItemCreatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemCreatedEvent>>
 
 const _mapOldChecklistItemData = (oldData: ChecklistItemUpdatedWebhook['data']['old']) => {
   const { name, state, textData, dueReminder, due } = oldData
@@ -89,7 +89,7 @@ export const handleChecklistItemUpdatedEvent = async (
     },
   })
 }
-declare const _handleChecklistItemUpdatedEventTest: Expect<IsWebhookHandler<typeof handleChecklistItemUpdatedEvent>>
+type _HandleChecklistItemUpdatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemUpdatedEvent>>
 
 export const handleChecklistItemDeletedEvent = async (
   props: bp.HandlerProps,
@@ -101,7 +101,7 @@ export const handleChecklistItemDeletedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
-declare const _handleChecklistItemDeletedEventTest: Expect<IsWebhookHandler<typeof handleChecklistItemDeletedEvent>>
+type _HandleChecklistItemDeletedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemDeletedEvent>>
 
 export const handleChecklistItemStatusUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -113,6 +113,4 @@ export const handleChecklistItemStatusUpdatedEvent = async (
     payload: _extractCommonChecklistItemPayload(webhookEvent),
   })
 }
-declare const _handleChecklistItemStatusUpdatedEventTest: Expect<
-  IsWebhookHandler<typeof handleChecklistItemStatusUpdatedEvent>
->
+type _HandleChecklistItemStatusUpdatedEventTest = Expect<IsWebhookHandler<typeof handleChecklistItemStatusUpdatedEvent>>

@@ -27,7 +27,7 @@ export const handleLabelAddedToCardEvent = async (
 ) => {
   return await _handleLabelChangedEvent(props, eventType, webhookEvent)
 }
-declare const _handleLabelAddedToCardEventTest: Expect<IsWebhookHandler<typeof handleLabelAddedToCardEvent>>
+type _HandleLabelAddedToCardEventTest = Expect<IsWebhookHandler<typeof handleLabelAddedToCardEvent>>
 
 export const handleLabelRemovedFromCardEvent = async (
   props: bp.HandlerProps,
@@ -36,4 +36,4 @@ export const handleLabelRemovedFromCardEvent = async (
 ) => {
   return await _handleLabelChangedEvent(props, eventType, webhookEvent)
 }
-declare const _handleLabelRemovedFromCardEventTest: Expect<IsWebhookHandler<typeof handleLabelRemovedFromCardEvent>>
+type _HandleLabelRemovedFromCardEventTest = Expect<IsWebhookHandler<typeof handleLabelRemovedFromCardEvent>>
