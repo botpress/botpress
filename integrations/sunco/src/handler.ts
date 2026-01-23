@@ -67,6 +67,4 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
   })
 
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
-
-  return { status: 200 }
 }
