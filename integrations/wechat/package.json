@@ -2,6 +2,7 @@
   "name": "@botpresshub/wechat",
   "description": "WeChat integration for Botpress",
   "scripts": {
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit"
   },
   "private": true,
