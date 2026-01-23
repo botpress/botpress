@@ -136,11 +136,17 @@ export const moveCardToList: bp.Integration['actions']['moveCardToList'] = async
   printActionTriggeredMsg(props)
   const { trelloClient } = getTools(props)
 
-  const { cardId, newListId } = props.input
+  const { cardId, newListId, newVerticalPosition } = props.input
   const card = await trelloClient.getCardById({ cardId })
   const newList = await trelloClient.getListById({ listId: newListId })
 
-  await trelloClient.updateCard({ partialCard: { id: card.id, listId: newList.id } })
+  await trelloClient.updateCard({
+    partialCard: {
+      id: card.id,
+      listId: newList.id,
+      verticalPosition: _validateVerticalPosition(newVerticalPosition),
+    },
+  })
 
   return { message: 'Card successfully moved to the new list' }
 }
