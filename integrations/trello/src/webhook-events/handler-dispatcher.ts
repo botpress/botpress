@@ -58,8 +58,8 @@ const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayloa
 }
 
 /** This only exists because for some reason `process.env.BP_WEBHOOK_URL` is not set */
-const _getWebhookUrl = (props: bp.HandlerProps) =>
-  `${process.env.BP_API_URL}/${props.ctx.webhookId}`.replace(/\w+(?=\.botpress)/, 'webhook')
+const _getWebhookUrl = (ctx: bp.Context) =>
+  `${process.env.BP_API_URL}/${ctx.webhookId}`.replace(/\w+(?=\.botpress)/, 'webhook')
 
 const _base64Digest = (secret: string, content: string) => {
   return crypto.createHmac('sha1', secret).update(content).digest('base64')
@@ -68,7 +68,7 @@ const _base64Digest = (secret: string, content: string) => {
 const _verifyWebhookSignature = (props: bp.HandlerProps) => {
   const { req, ctx } = props
   const { trelloApiSecret } = ctx.configuration
-  const callbackURL = _getWebhookUrl(props)
+  const callbackURL = _getWebhookUrl(ctx)
 
   // No secret configured, skip verification
   if (!trelloApiSecret) return true
