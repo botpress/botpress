@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/empty-integration",
+  "name": "@botpresshub/wechat",
   "integrationName": "plus/WeChat",
   "scripts": {
     "check:type": "tsc --noEmit"
