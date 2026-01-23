@@ -11,12 +11,11 @@ export default new IntegrationDefinition({
     schema: z.object({
       wechatToken: z
         .string()
-        .trim()
         .min(1)
         .describe('Token used for WeChat signature verification')
         .title('WeChat Token'),
-      appId: z.string().trim().min(1).describe('WeChat Official Account App ID').title('App ID'),
-      appSecret: z.string().trim().min(1).describe('WeChat Official Account App Secret').title('App Secret'),
+      appId: z.string().min(1).describe('WeChat Official Account App ID').title('App ID'),
+      appSecret: z.string().min(1).describe('WeChat Official Account App Secret').title('App Secret'),
     }),
   },
   channels: {
