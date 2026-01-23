@@ -25,26 +25,6 @@ const getTokenInfoSchema = z
   })
   .passthrough()
 
-// export async function formatError(response: Response, action: string): Promise<string> {
-//   const headers = extractLinkedInHeaders(response)
-//   const responseClone = response.clone()
-
-//   let errorMessage: string
-//   try {
-//     const parseResult = linkedInErrorResponseSchema.safeParse(await responseClone.json())
-//     if (parseResult.success) {
-//       const errorData = parseResult.data
-//       errorMessage = `${errorData.message ?? 'Unknown error'} (serviceErrorCode: ${errorData.serviceErrorCode ?? 'N/A'})`
-//     } else {
-//       errorMessage = await response.text()
-//     }
-//   } catch {
-//     errorMessage = await response.text()
-//   }
-
-//   return `${action}: ${errorMessage} (x-li-uuid: ${headers['x-li-uuid']}, x-li-request-id: ${headers['x-li-request-id']})`
-// }
-
 export const getCredentials = async ({
   authorizationCode,
   logger,
