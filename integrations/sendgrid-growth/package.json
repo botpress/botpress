@@ -1,0 +1,24 @@
+{
+  "name": "sendgrid",
+  "integrationName": "simplygreatbots/sendgrid",
+  "scripts": {
+    "type:check": "tsc --noEmit",
+    "version": "bp --version",
+    "login": "bp login",
+    "dev": "bp dev",
+    "gen": "bp gen",
+    "deploy": "bp deploy"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "0.17.0",
+    "@botpress/sdk": "0.8.10",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@botpress/cli": "^0.8.14",
+    "@types/node": "^18.19.33",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5"
+  }
+}
