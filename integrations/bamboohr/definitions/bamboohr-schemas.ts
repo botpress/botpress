@@ -171,7 +171,7 @@ export const bambooHrEmployeeBasicInfoResponse = bambooHrEmployeeWebhookFields.e
   displayName: z.string().title('Display Name').describe("Employee's display name."),
 })
 
-export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).catchall(z.string())
+export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).passthrough()
 
 export const bambooHrEmployeeDirectoryResponse = z.object({
   fields: z
