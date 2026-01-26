@@ -1,5 +1,14 @@
 The Slack integration enables seamless communication between your AI-powered chatbot and Slack, the popular collaboration platform. Connect your chatbot to Slack and streamline team communication, automate tasks, and enhance productivity. With this integration, your chatbot can send and receive messages, share updates, handle inquiries, and perform actions directly within Slack channels. Leverage Slack's extensive features such as chat, file sharing, notifications, and app integrations to create a powerful conversational AI experience. Enhance team collaboration and streamline workflows with the Slack Integration for Botpress.
 
+## Migrating from version `3.x` to `4.x`
+
+Version 4.0 of the Slack integration refines the bot's reply behaviour by introducing the possibility to reply in either `channel`, `thread` or `channel and thread`. This replaces the previous `createReplyThread` configuration option by adding the ability to **only** reply in threads.
+
+Features that have been added are:
+
+- Improved reply behaviour
+- Added rich text! Users are now able to input markdown text and it display in rich text in slack
+
 ## Migrating from version `2.x` to `3.x`
 
 Version 3.0 of the Slack integration changes the way the mention system works with Botpress.
@@ -133,13 +142,7 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 
 ## Replying in threads instead of the main channel
 
-To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Reply Threading Option" to only create threads when the bot is mentioned by name.
-
-Note that enabling reply threading alone doesn't stop your bot from posting in the main channel. To restrict responses exclusively to threads, modify your workflow in the Botpress Studio to terminate when receiving messages from the main channel:
-
-1. Insert an empty Standard Node at the very beginning of your Main workflow and connect it to your existing flow.
-2. Add an Expression card with the condition `event.channel === 'channel'`.
-3. Create an End card and connect the Expression card to it.
+To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Replies" to only create threads when the bot is mentioned by name.
 
 ## Limitations
 
