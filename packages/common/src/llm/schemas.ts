@@ -130,7 +130,7 @@ export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema
       .default(1)
       // @ts-ignore
       .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
-      .title('Top-p Sampling Parameter')
+      .title('Top-P')
       .describe(
         'Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.'
       ), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
