@@ -66,13 +66,13 @@ const _base64Digest = (secret: string, content: string) => {
 }
 
 const _verifyWebhookSignature = (props: bp.HandlerProps) => {
-  const { trelloApiSecret } = props.ctx.configuration
+  const { req, ctx } = props
+  const { trelloApiSecret } = ctx.configuration
   if (!trelloApiSecret) {
     // No secret configured, skip verification
     return true
   }
 
-  const { req, ctx } = props
   const callbackURL = _getWebhookUrl(ctx)
 
   const content = (req.body ?? '') + callbackURL
