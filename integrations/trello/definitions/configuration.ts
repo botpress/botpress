@@ -8,7 +8,7 @@ export const configuration = {
     trelloApiKey: z
       .string()
       .title('Trello API Key')
-      .describe('Can be obtained by creating an application on Trello')
+      .describe("Can be found in the app's settings within the Trello apps admin page")
       .secret(),
     trelloApiToken: z
       .string()
@@ -21,5 +21,13 @@ export const configuration = {
       .optional()
       .title('Trello Board ID')
       .describe('Unique identifier of the board to watch for events on Trello'),
+    trelloApiSecret: z
+      .string()
+      .secret()
+      .optional()
+      .title('Trello API Secret')
+      .describe(
+        "Can be found in the app's settings within the Trello apps admin page. (Only used if the Trello Board ID is provided)"
+      ),
   }),
 } as const satisfies NonNullable<IntegrationDefinitionProps['configuration']>

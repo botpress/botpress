@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { TrelloEventType } from 'definitions/events'
 import { Result } from '../types'
 import { safeParseRequestBody } from '../utils'
@@ -6,15 +7,15 @@ import { fallbackEventPayloadSchema, WebhookEventPayload, webhookEventPayloadSch
 import * as bp from '.botpress'
 
 export const handler = async (props: bp.HandlerProps): Promise<void> => {
+  if (_verifyWebhookSignature(props)) {
+    props.logger.forBot().error('The provided webhook payload failed its signature validation')
+    return
+  }
+
   const payloadResult = _parseWebhookPayload(props)
   if (!payloadResult.success) {
     const { error } = payloadResult
     props.logger.forBot().error(error.message, error)
-    return
-  }
-
-  if (!(await _verifyWebhookSignature(props, payloadResult.data))) {
-    props.logger.forBot().error('The provided webhook payload failed its signature validation')
     return
   }
 
@@ -56,12 +57,26 @@ const _parseWebhookPayload = (props: bp.HandlerProps): Result<WebhookEventPayloa
   }
 }
 
-const _verifyWebhookSignature = async ({ client, ctx }: bp.HandlerProps, eventPayload: WebhookEventPayload) => {
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'webhook',
-    id: ctx.integrationId,
-  })
+/** This only exists because for some reason `process.env.BP_WEBHOOK_URL` is not set */
+const _getWebhookUrl = (ctx: bp.Context) =>
+  `${process.env.BP_API_URL}/${ctx.webhookId}`.replace(/\w+(?=\.botpress)/, 'webhook')
 
-  return eventPayload.webhook.id === state.payload.trelloWebhookId
+const _base64Digest = (secret: string, content: string) => {
+  return crypto.createHmac('sha1', secret).update(content).digest('base64')
+}
+
+const _verifyWebhookSignature = (props: bp.HandlerProps) => {
+  const { req, ctx } = props
+  const { trelloApiSecret } = ctx.configuration
+  if (!trelloApiSecret) {
+    // No secret configured, skip verification
+    return true
+  }
+
+  const callbackURL = _getWebhookUrl(ctx)
+
+  const content = (req.body ?? '') + callbackURL
+  const doubleHash = _base64Digest(trelloApiSecret, content)
+  const headerHash = req.headers['x-trello-webhook']
+  return doubleHash === headerHash
 }

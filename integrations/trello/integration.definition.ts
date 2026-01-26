@@ -1,7 +1,7 @@
 import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 
-import { events, states, actions, channels, user, configuration, entities } from './definitions'
+import { events, actions, channels, user, configuration, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'trello'
 export const INTEGRATION_VERSION = '2.1.0'
@@ -17,7 +17,6 @@ export default new sdk.IntegrationDefinition({
   channels,
   user,
   configuration,
-  states,
   events,
   entities,
   secrets: {
