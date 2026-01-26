@@ -1,4 +1,6 @@
-import { z } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+
+const { z } = sdk
 
 export const actions = {
   createPost: {
@@ -14,7 +16,6 @@ export const actions = {
           .describe('The text content of your LinkedIn post (required, max 3000 characters)'),
         visibility: z
           .enum(['PUBLIC', 'CONNECTIONS'])
-          .default('PUBLIC')
           .title('Visibility')
           .describe('Who can see this post: PUBLIC (anyone) or CONNECTIONS (1st degree only)'),
         imageUrl: z
@@ -71,4 +72,4 @@ export const actions = {
       }),
     },
   },
-} as const
+} as const satisfies sdk.IntegrationDefinitionProps['actions']
