@@ -112,7 +112,7 @@ export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema
     maxTokens: z
       .number()
       .optional()
-      .title('Maximum Response Tokens')
+      .title('Maximum number of output tokens')
       .describe('Maximum number of tokens allowed in the generated response'),
     temperature: z
       .number()
