@@ -12,7 +12,7 @@ export const OpenAITranscribeAudioOutputSchema = z.object({
         start: z.number().title('Segment Start Time').describe('Start time of the segment in seconds.'),
         end: z.number().title('Segment End Time').describe('End time of the segment in seconds.'),
         tokens: z.array(z.number()).title('Text Token IDs').describe('Array of token IDs for the text content.'),
-        temperature: z.number().describe('Temperature parameter used for generating the segment.'),
+        temperature: z.number().title('Temperature').describe('Temperature parameter used for generating the segment.'),
         avg_logprob: z
           .number()
           .describe('Average logprob of the segment. If the value is lower than -1, consider the logprobs failed.'),
@@ -69,7 +69,7 @@ export const TranscribeAudioInputSchema = <TModelRef extends z.ZodSchema>(imageM
       .number()
       .default(0)
       .optional()
-      .title('Sampling Temperature')
+      .title('Temperature')
       .describe(
         'The sampling temperature (optional), between 0 and 1. Defaults to 0 (automatic). Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.'
       ),
