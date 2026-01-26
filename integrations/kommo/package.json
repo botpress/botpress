@@ -1,17 +1,19 @@
 {
-  "name": "kommo",
-  "integrationName": "kommo",
-  "scripts": {
-    "check:type": "tsc --noEmit"
-  },
+  "name": "@botpresshub/kommo",
+  "description": "Kommo integration for Botpress",
   "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
   "dependencies": {
-    "@botpress/client": "1.29.0",
-    "@botpress/sdk": "5.1.1",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "axios": "^1.13.2"
   },
   "devDependencies": {
-    "@types/node": "^22.16.4",
-    "typescript": "^5.6.3"
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*"
   }
 }
