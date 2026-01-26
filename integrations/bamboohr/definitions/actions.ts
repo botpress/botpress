@@ -3,6 +3,7 @@ import {
   bambooHrCompanyInfo,
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
+  bambooHrFields,
 } from './bamboohr-schemas'
 import { employeeId, employeeIdObject } from './common'
 
@@ -68,9 +69,23 @@ const getCompanyInfo: ActionDefinition = {
   },
 }
 
+const getFields: ActionDefinition = {
+  title: 'Get Employee Fields',
+  description: 'Retrieve the list of available employee fields.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      fields: bambooHrFields,
+    }),
+  },
+}
+
 export const actions = {
   getEmployeeBasicInfo,
   getEmployeeCustomInfo,
   listEmployees,
   getCompanyInfo,
+  getFields,
 } as const
