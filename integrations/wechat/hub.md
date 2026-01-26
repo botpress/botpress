@@ -37,7 +37,7 @@ In your WeChat Official Account admin panel:
 2. Click **Enable** Server Configuration
 3. Set the **URL** to your Botpress webhook URL (provided after integration installation)
 4. Set the **Token** to the same token you used in Botpress configuration
-6. Click **Submit** - WeChat will verify your server
+5. Click **Submit** - WeChat will verify your server
 
 ## Supported Features
 
@@ -85,7 +85,6 @@ Your bot can send the following message types to WeChat users:
 - Check Botpress logs for errors
 - Verify the user messaged you within the last 48 hours
 - Ensure your bot flow is properly configured
-
 
 ## Additional Resources
 
