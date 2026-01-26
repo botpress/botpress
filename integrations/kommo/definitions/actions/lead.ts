@@ -1,5 +1,4 @@
-import { z } from '@bpinternal/zui'
-import { ActionDefinition } from '@botpress/sdk'
+import { z, ActionDefinition } from '@botpress/sdk'
 
 // Lead Schema: defines what a Kommo lead looks like in Botpress
 export const leadSchema = z.object({

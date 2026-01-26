@@ -1,5 +1,4 @@
-import {z} from '@bpinternal/zui'
-import{ActionDefinition} from '@botpress/sdk'
+import { z, ActionDefinition } from '@botpress/sdk'
 
 
 export const contactSchema = z.object({
