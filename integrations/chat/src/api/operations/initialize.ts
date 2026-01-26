@@ -35,7 +35,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  if (userId) preparedBody.userId = userId
+  if (request.auth.userId) preparedBody.userId = request.auth.userId
   else {
     preparedBody.user = {
       ...request.body.user,
