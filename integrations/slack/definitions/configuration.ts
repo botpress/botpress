@@ -26,6 +26,7 @@ const SHARED_CONFIGURATION = {
         .title('Require Bot Mention for Replies')
         .describe('This ensures that the bot only replies to messages when it is explicitly mentioned'),
     })
+    .optional()
     .title('Reply Behaviour')
     .describe('How the bot should reply to messages'),
 } as const
