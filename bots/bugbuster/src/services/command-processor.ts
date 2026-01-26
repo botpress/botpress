@@ -13,7 +13,8 @@ export class CommandProcessor {
 
   private _listTeams: types.CommandImplementation = async () => {
     const teams = await this._teamsManager.listWatchedTeams()
-    return { success: true, message: teams.join(', ') }
+    const message = teams.length > 0 ? teams.join(', ') : 'You have no watched teams.'
+    return { success: true, message }
   }
 
   private _addTeam: types.CommandImplementation = async ([team]: string[]) => {

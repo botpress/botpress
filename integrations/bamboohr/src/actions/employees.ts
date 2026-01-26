@@ -44,3 +44,14 @@ export const listEmployees: bp.IntegrationProps['actions']['listEmployees'] = as
     throw new RuntimeError(`Failed to list employees: ${error.message}`)
   }
 }
+
+export const getFields: bp.IntegrationProps['actions']['getFields'] = async ({ client, ctx, logger }) => {
+  const bambooHrClient = await BambooHRClient.create({ client, ctx, logger })
+
+  try {
+    return { fields: await bambooHrClient.getFields() }
+  } catch (thrown) {
+    const error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    throw new RuntimeError(`Failed to get fields: ${error.message}`)
+  }
+}

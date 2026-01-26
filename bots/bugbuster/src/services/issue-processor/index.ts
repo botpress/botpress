@@ -11,7 +11,8 @@ export class IssueProcessor {
   public constructor(
     private _logger: sdk.BotLogger,
     private _linear: lin.LinearApi,
-    private _teamsManager: tm.TeamsManager
+    private _teamsManager: tm.TeamsManager,
+    private _botId: string
   ) {}
 
   /**
@@ -40,6 +41,9 @@ export class IssueProcessor {
 
   public async listRelevantIssues(endCursor?: string): Promise<{ issues: lin.Issue[]; pagination?: lin.Pagination }> {
     const watchedTeams = await this._teamsManager.listWatchedTeams()
+    if (watchedTeams.length === 0) {
+      throw new Error('You have no watched teams.')
+    }
 
     return await this._linear.listIssues(
       {
@@ -72,8 +76,9 @@ export class IssueProcessor {
 
     this._logger.warn(warningMessage)
 
-    await this._linear.client.createComment({
+    await this._linear.createComment({
       issueId: issue.id,
+      botId: this._botId,
       body: [
         `BugBuster Bot found the following problems with ${issue.identifier}:`,
         '',

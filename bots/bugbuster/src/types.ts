@@ -33,6 +33,19 @@ export type StateAttributes = {
   buildWarningReason: (issueIdentifier: string) => string
 }
 
+export type LinearTeam = {
+  id: string
+  key: string
+  name: string
+  description?: string | undefined
+  icon?: string | undefined
+}
+
+export type LinearState = {
+  id: string
+  name: string
+}
+
 export type ISO8601Duration = string
 
 type CommandResult = { success: boolean; message: string }

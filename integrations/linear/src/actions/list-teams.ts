@@ -12,6 +12,7 @@ export const listTeams: bp.IntegrationProps['actions']['listTeams'] = async (arg
   return {
     teams: teams.nodes.map((x) => ({
       id: x.id,
+      key: x.key,
       name: x.name,
       description: x.description,
       icon: x.icon,
