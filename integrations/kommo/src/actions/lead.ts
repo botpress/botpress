@@ -16,11 +16,7 @@ function mapKommoLeadToBotpress(lead: KommoLead) {
   }
 }
 
-export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({ ctx, input, logger }) => {
   try {
     logger.forBot().info('Creating lead with input:', input)
     logger.forBot().info('Configuration:', { baseDomain: ctx.configuration.baseDomain })
@@ -49,13 +45,8 @@ export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({
   }
 }
 
-
 // handler for updating lead
-export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({ ctx, input, logger }) => {
   try {
     logger.forBot().info('Updating lead:', input)
 
@@ -84,11 +75,7 @@ export const updateLead: bp.IntegrationProps['actions']['updateLead'] = async ({
 }
 
 // search for lead action
-export const searchLeads: bp.IntegrationProps['actions']['searchLeads'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const searchLeads: bp.IntegrationProps['actions']['searchLeads'] = async ({ ctx, input, logger }) => {
   try {
     logger.forBot().info('Searching leads:', { query: input.query })
 
@@ -106,4 +93,3 @@ export const searchLeads: bp.IntegrationProps['actions']['searchLeads'] = async 
     throw new sdk.RuntimeError(getErrorMessage(error))
   }
 }
-

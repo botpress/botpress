@@ -1,9 +1,18 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from '@botpress/sdk'
 import * as bp from '../../.botpress'
-import { CreateLeadRequest, KommoLead, KommoCreateResponse, UpdateLeadRequest, CreateContactRequest, KommoContact, KommoCreateContactResponse, KommoSearchContactsResponse, KommoSearchLeadResponse } from './types'
+import {
+  CreateLeadRequest,
+  KommoLead,
+  KommoCreateResponse,
+  UpdateLeadRequest,
+  CreateContactRequest,
+  KommoContact,
+  KommoCreateContactResponse,
+  KommoSearchContactsResponse,
+  KommoSearchLeadResponse,
+} from './types'
 import { getErrorMessage } from './error-handler'
-
 
 export class KommoClient {
   private _axios: AxiosInstance
@@ -19,17 +28,17 @@ export class KommoClient {
     this._axios = axios.create({
       baseURL: `https://${cleanDomain}/api/v4`,
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     })
 
     this._logger.forBot().debug('KommoClient initialized', {
-      baseURL: `https://${cleanDomain}/api/v4`
+      baseURL: `https://${cleanDomain}/api/v4`,
     })
   }
 
-// -----LEADS------
+  // -----LEADS------
   async createLead(data: CreateLeadRequest): Promise<KommoLead> {
     try {
       this._logger.forBot().debug('Creating lead in Kommo', { name: data.name })
@@ -53,7 +62,6 @@ export class KommoClient {
       throw new sdk.RuntimeError(getErrorMessage(error))
     }
   }
-
 
   // gets a lead by id
   async getLead(leadId: number): Promise<KommoLead | undefined> {
@@ -99,7 +107,7 @@ export class KommoClient {
     try {
       this._logger.forBot().debug('Searching for leads', { query })
       const response = await this._axios.get<KommoSearchLeadResponse>('/leads', {
-        params: { query }
+        params: { query },
       })
 
       const leads = response.data._embedded?.leads || []
@@ -115,7 +123,7 @@ export class KommoClient {
       throw new sdk.RuntimeError(getErrorMessage(error))
     }
   }
-// -----Contacts-----
+  // -----Contacts-----
   async createContact(data: CreateContactRequest): Promise<KommoContact> {
     try {
       this._logger.forBot().debug('Creating contact in Kommo', { name: data.name })
@@ -166,7 +174,7 @@ export class KommoClient {
       this._logger.forBot().debug('Searching contacts in Kommo', { query })
 
       const response = await this._axios.get<KommoSearchContactsResponse>('/contacts', {
-        params: { query }
+        params: { query },
       })
 
       const contacts = response.data._embedded?.contacts || []
@@ -184,5 +192,3 @@ export class KommoClient {
     }
   }
 }
-
-

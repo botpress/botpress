@@ -1,6 +1,5 @@
 import { z, ActionDefinition } from '@botpress/sdk'
 
-
 export const contactSchema = z.object({
   id: z.number().describe('Contact ID'),
   name: z.string().describe('Contact name'),
@@ -17,42 +16,40 @@ export const contactSchema = z.object({
 })
 
 const createContact: ActionDefinition = {
-    title: 'Create Contact',
-    description: 'Creates a new contact',
-    input:{
-        schema:z.object({
-            name: z.string().optional().describe('Full contact name'),
-            firstName: z.string().optional().describe('First name'),
-            lastName: z.string().optional().describe('Last name'),
-            responsibleUserId: z.number().describe('User ID to assign this contact to'),
-            createdBy: z.number().describe('User ID who creates this contact'),
-            updatedBy: z.number().optional().describe('User ID who updates this contact'),
-        }),
-    },
-    output:{
-        schema:z.object({
-            contact: contactSchema
-        })
-    }
-
+  title: 'Create Contact',
+  description: 'Creates a new contact',
+  input: {
+    schema: z.object({
+      name: z.string().optional().describe('Full contact name'),
+      firstName: z.string().optional().describe('First name'),
+      lastName: z.string().optional().describe('Last name'),
+      responsibleUserId: z.number().describe('User ID to assign this contact to'),
+      createdBy: z.number().describe('User ID who creates this contact'),
+      updatedBy: z.number().optional().describe('User ID who updates this contact'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      contact: contactSchema,
+    }),
+  },
 }
 const searchContacts: ActionDefinition = {
-    title: "Search Contacts",
-    description: 'Search for contacts by name, phone number, or email',
-    input:{
-        schema: z.object({
-            query: z.string().describe('Search query (name, phone number, or email)')
-        }),
-    },
-    output: {
-        schema: z.object({
-            contacts: z.array(contactSchema).describe('Array of matching contacts (empty if none found)')
-        })
-
-    }
+  title: 'Search Contacts',
+  description: 'Search for contacts by name, phone number, or email',
+  input: {
+    schema: z.object({
+      query: z.string().describe('Search query (name, phone number, or email)'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      contacts: z.array(contactSchema).describe('Array of matching contacts (empty if none found)'),
+    }),
+  },
 }
 
 export const actions = {
-    createContact,
-    searchContacts,
+  createContact,
+  searchContacts,
 } as const

@@ -12,7 +12,6 @@ export const leadSchema = z.object({
   updatedAt: z.number().describe('When last updated (Unix timestamp)'),
 })
 
-
 const createLead: ActionDefinition = {
   title: 'Create Lead',
   description: 'Creates a new lead in Kommo CRM',
@@ -31,7 +30,6 @@ const createLead: ActionDefinition = {
     }),
   },
 }
-
 
 const updateLead: ActionDefinition = {
   title: 'Update Lead',
@@ -56,16 +54,16 @@ const updateLead: ActionDefinition = {
 const searchLeads: ActionDefinition = {
   title: 'Search Leads',
   description: 'search for leads by name or other fields',
-  input:{
+  input: {
     schema: z.object({
-      query: z.string().describe('Search query')
+      query: z.string().describe('Search query'),
     }),
   },
   output: {
     schema: z.object({
-      leads: z.array(leadSchema).describe('Array of matching leads (empty if none found)')
-    })
-  }
+      leads: z.array(leadSchema).describe('Array of matching leads (empty if none found)'),
+    }),
+  },
 }
 
 // Export all lead actions

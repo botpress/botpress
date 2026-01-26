@@ -56,6 +56,7 @@ Create a new lead in your Kommo CRM. Leads represent potential sales opportuniti
 - **Status ID**: Initial status/stage in the pipeline (e.g., "New Lead", "Contacted")
 
 **Output:** Returns the created lead with:
+
 - Lead ID
 - Name
 - Price
@@ -65,6 +66,7 @@ Create a new lead in your Kommo CRM. Leads represent potential sales opportuniti
 - Created and Updated timestamps
 
 **Example Use Cases:**
+
 - Capture leads from chatbot conversations
 - Create sales opportunities from customer inquiries
 - Track chatbot-generated leads in your CRM
@@ -90,6 +92,7 @@ Update an existing lead in Kommo. This action allows you to modify lead informat
 **Output:** Returns the updated lead with all current information.
 
 **Example Use Cases:**
+
 - Update lead value based on customer responses
 - Move leads through your sales pipeline automatically
 - Reassign leads to different team members
@@ -106,12 +109,14 @@ Search for leads in your Kommo CRM using keywords. This action searches through 
 - **Query**: Search term (searches through lead names, prices, and other fields)
 
 **Output:** Returns an array of matching leads. Each lead includes:
+
 - Lead ID, Name, Price
 - Responsible User ID
 - Pipeline and Status IDs
 - Created and Updated timestamps
 
 **Example Use Cases:**
+
 - Look up existing leads by name before creating duplicates
 - Find leads by company name or keywords
 - Check if a lead already exists in your CRM
@@ -136,6 +141,7 @@ Create a new contact in your Kommo CRM. Contacts represent individual people or 
 - **Updated By**: Kommo user ID of the person updating this contact
 
 **Output:** Returns the created contact with:
+
 - Contact ID
 - Name, First Name, Last Name
 - Responsible User ID
@@ -144,6 +150,7 @@ Create a new contact in your Kommo CRM. Contacts represent individual people or 
 - Deletion status
 
 **Example Use Cases:**
+
 - Add new contacts from chatbot conversations
 - Create CRM entries for new customers
 - Store contact information collected during chat
@@ -159,6 +166,7 @@ Search for contacts in your Kommo CRM by name, phone number, or email address. T
 - **Query**: Search term (can be name, phone number, or email)
 
 **Output:** Returns an array of matching contacts. Each contact includes:
+
 - Contact ID
 - Name, First Name, Last Name
 - Responsible User ID
@@ -169,6 +177,7 @@ Search for contacts in your Kommo CRM by name, phone number, or email address. T
 If no contacts are found, returns an empty array.
 
 **Example Use Cases:**
+
 - Look up contacts by email before creating new ones
 - Find contacts by phone number
 - Search for contacts by name
@@ -205,4 +214,3 @@ If no contacts are found, returns an empty array.
 - **Field Validation**: Some fields (like User IDs, Pipeline IDs) must exist in your Kommo account
 - **Search Scope**: Searches are limited to fields populated in your CRM
 - **Permissions**: The access token must have appropriate scopes (`crm`, `notifications`)
-

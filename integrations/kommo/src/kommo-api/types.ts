@@ -1,4 +1,3 @@
-
 // -----LEADS------
 
 export type KommoLead = {
@@ -12,8 +11,8 @@ export type KommoLead = {
   loss_reason_id: number | null
   created_by: number
   updated_by: number
-  created_at: number 
-  updated_at: number  
+  created_at: number
+  updated_at: number
   closed_at: number | null
   closest_task_at: number | null
   is_deleted: boolean
@@ -25,11 +24,11 @@ export type KommoLead = {
   custom_fields_values?: Array<{
     field_id: number
     field_name: string
-    field_code?: string | null     
-    field_type: string              
+    field_code?: string | null
+    field_type: string
     values: Array<{
       value: string | number
-      enum_id?: number              
+      enum_id?: number
     }>
   }>
 
@@ -64,9 +63,8 @@ export type KommoLead = {
   }
 }
 
-
 export type CreateLeadRequest = {
-  name: string  // REQUIRED - only required field!
+  name: string // REQUIRED - only required field!
   price?: number
   responsible_user_id?: number
   pipeline_id?: number
@@ -88,8 +86,8 @@ export type CreateLeadRequest = {
   // Embedded data (tags, contacts, companies)
   _embedded?: {
     tags?: Array<{
-      id?: number  
-      name?: string  
+      id?: number
+      name?: string
     }>
     contacts?: Array<{
       id: number
@@ -101,9 +99,8 @@ export type CreateLeadRequest = {
   }
 }
 
-
 export type UpdateLeadRequest = {
-  id?: number 
+  id?: number
   name?: string
   price?: number
   responsible_user_id?: number
@@ -117,7 +114,6 @@ export type UpdateLeadRequest = {
   }>
 }
 
-
 export type KommoCreateResponse = {
   _links: {
     self: {
@@ -127,7 +123,7 @@ export type KommoCreateResponse = {
   _embedded: {
     leads: Array<{
       id: number
-      request_id: string  
+      request_id: string
       _links: {
         self: {
           href: string
@@ -136,7 +132,6 @@ export type KommoCreateResponse = {
     }>
   }
 }
-
 
 export type KommoUpdateResponse = {
   _links: {
@@ -161,71 +156,68 @@ export type KommoSearchLeadResponse = {
   }
 }
 
-
 // -------------CONTACTS-------------
 
 // full contact with all details
 export type KommoContact = {
-  id: number;
-  name: string;
-  first_name: string;
-  last_name: string;
-  responsible_user_id: number;
-  group_id: number;
-  updated_by: number;
-  created_at: number;
-  updated_at: number;
-  closest_task_at: number | null;
-  is_deleted: boolean;
-  account_id: number;
-
-};
-
+  id: number
+  name: string
+  first_name: string
+  last_name: string
+  responsible_user_id: number
+  group_id: number
+  updated_by: number
+  created_at: number
+  updated_at: number
+  closest_task_at: number | null
+  is_deleted: boolean
+  account_id: number
+}
 
 // sends data to kommo
 export type CreateContactRequest = {
-  name?: string;
+  name?: string
   first_name?: string
-  last_name?: string;
-  responsible_user_id: number;
-  created_by: number;
-  updated_by?: number;
-};
+  last_name?: string
+  responsible_user_id: number
+  created_by: number
+  updated_by?: number
+}
 
 // what kommo returns after creating contats
 export type KommoCreateContactResponse = {
-  _links:{
-    self:{
-      href:string;
-    };
-  };
-  _embedded:{
+  _links: {
+    self: {
+      href: string
+    }
+  }
+  _embedded: {
     contacts: Array<{
-      id:number;
-      request_id: string;
-      _links:{
-        self:{
-        href:string;
-       };
-      };
-    }>;
-  };
+      id: number
+      request_id: string
+      _links: {
+        self: {
+          href: string
+        }
+      }
+    }>
+  }
 }
 
 // for searching contacts by phone number
 export type KommoSearchContactsResponse = {
-  _page: number;
+  _page: number
   _links: {
     self: {
-      href: string;
-    };
+      href: string
+    }
     next?: {
-      href: string;
-    };
-  };
+      href: string
+    }
+  }
   _embedded: {
-    contacts: KommoContact[];
-  };
+    contacts: KommoContact[]
+  }
 }
 
 //----General-----
