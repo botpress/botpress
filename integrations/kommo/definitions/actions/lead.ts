@@ -26,7 +26,7 @@ const createLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema,
+      lead: leadSchema.describe('The created lead'),
     }),
   },
 }
@@ -46,7 +46,7 @@ const updateLead: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      lead: leadSchema,
+      lead: leadSchema.describe('The updated lead'),
     }),
   },
 }

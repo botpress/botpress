@@ -30,7 +30,7 @@ const createContact: ActionDefinition = {
   },
   output: {
     schema: z.object({
-      contact: contactSchema,
+      contact: contactSchema.describe('The created contact'),
     }),
   },
 }
