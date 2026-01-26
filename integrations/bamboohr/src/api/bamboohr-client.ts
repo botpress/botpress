@@ -5,6 +5,7 @@ import {
   bambooHrEmployeeBasicInfoResponse,
   bambooHrEmployeeCustomInfoResponse,
   bambooHrEmployeeDirectoryResponse,
+  bambooHrFields,
   bambooHrWebhookCreateResponse,
 } from 'definitions'
 import * as types from '../types'
@@ -122,6 +123,20 @@ export class BambooHRClient {
 
     const res = await this._makeRequest({ method: 'GET', url })
     const result = await parseResponseWithErrors(res, bambooHrCompanyInfo)
+
+    if (!result.success) {
+      this._props.logger.forBot().error(result.error, result.details)
+      throw new Error(result.error)
+    }
+
+    return result.data
+  }
+
+  public async getFields(): Promise<z.infer<typeof bambooHrFields>> {
+    const url = new URL(`${this._baseUrl}/meta/fields`)
+
+    const res = await this._makeRequest({ method: 'GET', url })
+    const result = await parseResponseWithErrors(res, bambooHrFields)
 
     if (!result.success) {
       this._props.logger.forBot().error(result.error, result.details)
