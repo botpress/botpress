@@ -1,15 +1,17 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getWizardStepUrl, isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { RuntimeError } from '@botpress/sdk'
 import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
 import { isSuncoWebhookPayload } from './messaging-events'
+import * as wizard from './wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, client, logger } = props
 
   if (req.path.startsWith('/oauth')) {
-    await _handleOAuthCallback(props)
-    return
+    return await _handleOAuthCallback(props)
   }
 
   if (!req.body) {
@@ -33,9 +35,16 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
       console.warn(`Received an event of type ${event.type}, which is not supported`)
     }
   }
+  return {
+    status: 200,
+  }
 }
 
 const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
+  if (isOAuthWizardUrl(req.path)) {
+    return await wizard.handler({ client, ctx, logger, req })
+  }
+
   logger.forBot().debug('Handling OAuth callback')
 
   const searchParams = new URLSearchParams(req.query)
@@ -67,4 +76,6 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
   })
 
   await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+
+  return generateRedirection(getWizardStepUrl('start', ctx))
 }
