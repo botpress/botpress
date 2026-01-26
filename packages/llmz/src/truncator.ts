@@ -282,7 +282,7 @@ class _MessageContentParser {
   private _lastIndex: number = 0
 
   public constructor() {
-    this._regex = _getRegex()
+    this._regex = _createRegex()
   }
 
   public parse(content: string): ParsedMessageContent | null {
@@ -321,9 +321,9 @@ class _MessageContentParser {
   }
 }
 
-const _getRegex = () => new RegExp(REGEXP, 'g')
+const _createRegex = () => new RegExp(REGEXP, 'g')
 
-const _renderRemainingWrappers = (content: string) => content.replace(_getRegex(), '$2')
+const _renderRemainingWrappers = (content: string) => content.replace(_createRegex(), '$2')
 
 const _countTotalTokens = (parts: Part[][]) =>
   parts.reduce((acc, x) => acc + x.reduce((acc, y) => acc + y.tokens, 0), 0)
