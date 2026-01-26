@@ -4,9 +4,9 @@ import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
   actions: {
-    async syncFilesToBotpess(props) {
-      props.logger.info('Called action syncFilesToBotpess')
-      return await actions.syncFilesToBotpess.callAction(props)
+    async syncFilesToBotpress(props) {
+      props.logger.info('Called action syncFilesToBotpress')
+      return await actions.syncFilesToBotpress.callAction(props)
     },
     async listSynchronizationOperations(props) {
       props.logger.info('Called action listSynchronizationOperations')

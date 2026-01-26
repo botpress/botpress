@@ -6,7 +6,7 @@ import { WORKFLOW_ACTIVE_STATUSES } from '../consts'
 import * as SyncQueue from '../sync-queue'
 import { getAliasedName } from '../utils/get-aliased-name'
 
-export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess'] = async (props) => {
+export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpress'] = async (props) => {
   const { includeFiles, integrationInstanceAlias } = props.input
 
   await _assertSyncNotAlreadyInProgress(props)
@@ -67,7 +67,7 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpess
 }
 
 const _assertSyncNotAlreadyInProgress = async (
-  props: Extract<bp.ActionHandlerProps, { type?: 'syncFilesToBotpess' }>
+  props: Extract<bp.ActionHandlerProps, { type?: 'syncFilesToBotpress' }>
 ) => {
   const { integrationInstanceAlias } = props.input
 
@@ -100,7 +100,7 @@ const _generateFileKey = (props: {
 }) =>
   `${getAliasedName('knowledge-connector', props.pluginInstanceAlias)}:${props.integrationInstanceAlias}:/${props.syncJobId}.jsonl`
 
-const _getIntegrationDetails = async (props: Extract<bp.ActionHandlerProps, { type?: 'syncFilesToBotpess' }>) => {
+const _getIntegrationDetails = async (props: Extract<bp.ActionHandlerProps, { type?: 'syncFilesToBotpress' }>) => {
   // Cast the client to access getBot, and set the header for multiple integrations:
   const client = props.client as unknown as vanillaClient.Client
   const axiosHeaders = (client as any).axiosInstance.defaults.headers.get

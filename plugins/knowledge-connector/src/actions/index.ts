@@ -1,1 +1,1 @@
-export * as syncFilesToBotpess from './sync-files-to-botpress'
+export * as syncFilesToBotpress from './sync-files-to-botpress'

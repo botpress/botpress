@@ -93,7 +93,7 @@ export default new sdk.PluginDefinition({
         }),
       },
     },
-    syncFilesToBotpess: {
+    syncFilesToBotpress: {
       title: 'Sync files to Botpress',
       description: 'Start synchronization of files from the external service to Botpress',
       input: {
