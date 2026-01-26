@@ -16,8 +16,7 @@ const initializeBodySchema = schema(
 
 export const initializeIncomingMessageOperation: OperationFunc = (api) => ({
   name: 'initializeIncomingMessage',
-  description:
-    'Creates a SSE stream to receive messages and events. The first event will be a payload containing the user, conversation and optional message details.',
+  description: 'Initializes a user, conversation and sends a message to the conversation (optional).',
   method: 'post',
   path: '/initialize-incoming-message',
   requestBody: {
@@ -29,7 +28,7 @@ export const initializeIncomingMessageOperation: OperationFunc = (api) => ({
   },
   section: 'message',
   response: {
-    description: 'Returns nothing but a stream',
+    description: 'Returns the user, conversation and message if sent',
     schema: schema(
       z.object({
         user: userSchema.extend({ key: z.string() }),
