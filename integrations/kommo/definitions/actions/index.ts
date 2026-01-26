@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import { actions as leadActions } from './lead'
 import { actions as contactActions } from './contact'
+import { actions as leadActions } from './lead'
 
 export const actions = {
   ...leadActions,

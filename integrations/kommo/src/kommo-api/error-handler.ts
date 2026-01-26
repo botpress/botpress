@@ -1,5 +1,5 @@
-import { isAxiosError } from 'axios'
 import { ZodError, ZodIssue } from '@botpress/sdk'
+import { isAxiosError } from 'axios'
 import { KommoErrorResponse } from './types'
 
 const formatZodErrors = (issues: ZodIssue[]) =>

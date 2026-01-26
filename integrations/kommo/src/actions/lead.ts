@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
 import { KommoClient, CreateLeadRequest, UpdateLeadRequest, KommoLead, getErrorMessage } from '../kommo-api'
+import * as bp from '.botpress'
 
 // mapping kommo to local schema
 function mapKommoLeadToBotpress(lead: KommoLead) {

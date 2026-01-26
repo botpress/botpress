@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import * as bp from '.botpress'
 import { KommoClient, CreateContactRequest, KommoContact, getErrorMessage } from '../kommo-api'
+import * as bp from '.botpress'
 
 // mapping kommo to local schema
 function mapKommoContactToBotpress(contact: KommoContact) {
