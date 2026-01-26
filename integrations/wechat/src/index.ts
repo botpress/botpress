@@ -1,6 +1,6 @@
 import { handleImageMessage, handleTextMessage, handleVideoMessage } from './misc/message-handlers'
 import { downloadWeChatMedia, getAccessToken } from './misc/wechat-api'
-import { handleWechatSignatureVerificaation } from './wechat-handler'
+import { handleWechatSignatureVerification } from './wechat-handler'
 import * as bp from '.botpress'
 
 const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx }: bp.HandlerProps) => {
@@ -11,34 +11,16 @@ const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx }: bp.
   let echostr: string | undefined
 
   if (req.query) {
-    const query = typeof req.query === 'string' ? new URLSearchParams(req.query) : null
-    if (query) {
-      signature = query.get('signature') || undefined
-      timestamp = query.get('timestamp') || undefined
-      nonce = query.get('nonce') || undefined
-      echostr = query.get('echostr') || undefined
-    }
-  }
-
-  // Get signature params from the request path
-  if (!signature && req.path && req.path.includes('?')) {
-    const url = new URL(req.path, 'http://localhost')
-    signature = url.searchParams.get('signature') || undefined
-    timestamp = url.searchParams.get('timestamp') || undefined
-    nonce = url.searchParams.get('nonce') || undefined
-    echostr = url.searchParams.get('echostr') || undefined
-  }
-
-  // Get signature params from the headers
-  if (!signature && req.headers) {
-    signature = req.headers['x-wechat-signature'] || undefined
-    timestamp = req.headers['x-wechat-timestamp'] || undefined
-    nonce = req.headers['x-wechat-nonce'] || undefined
+    const query = new URLSearchParams(req.query)
+    signature = query.get('signature') || undefined
+    timestamp = query.get('timestamp') || undefined
+    nonce = query.get('nonce') || undefined
+    echostr = query.get('echostr') || undefined
   }
 
   // Handle WeChat signature verification
-  const method = (req.method ?? 'POST').toUpperCase()
-  const result = handleWechatSignatureVerificaation({
+  const method = req.method
+  const result = handleWechatSignatureVerification({
     wechatToken: ctx.configuration.wechatToken,
     method,
     signature,
@@ -93,59 +75,10 @@ const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx }: bp.
       conversationId: conversation.id,
     }
 
-    const createMessage = async (type: 'text', payload: bp.MessageProps['channel']['text']['payload']) =>
-      client.createMessage({
-        ...baseMessage,
-        type,
-        payload,
-      })
-    const createImageMessage = async (payload: bp.MessageProps['channel']['image']['payload']) =>
-      client.createMessage({
-        ...baseMessage,
-        type: 'image',
-        payload,
-      })
-    const createVideoMessage = async (payload: bp.MessageProps['channel']['video']['payload']) =>
-      client.createMessage({
-        ...baseMessage,
-        type: 'video',
-        payload,
-      })
-
-    const getOrUploadWechatMedia = async (params: {
-      // upload the media to the botpress file cloud
-      mediaId?: string
-      picUrl?: string
-      kind: 'image' | 'video'
-    }): Promise<string | undefined> => {
-      const { mediaId, picUrl, kind } = params
-      const mediaKey = `wechat/media/${kind}/${mediaId || messageId || Date.now()}`
-
-      if (picUrl) {
-        const { file } = await client.uploadFile({
-          key: mediaKey,
-          url: picUrl,
-          accessPolicies: ['public_content'],
-          publicContentImmediatelyAccessible: true,
-        })
-        return file.url
-      }
-
-      if (mediaId) {
-        const accessToken = await getAccessToken(ctx.configuration.appId, ctx.configuration.appSecret)
-        const { content, contentType } = await downloadWeChatMedia(accessToken, mediaId)
-        const { file } = await client.uploadFile({
-          key: mediaKey,
-          content,
-          contentType,
-          accessPolicies: ['public_content'],
-          publicContentImmediatelyAccessible: true,
-        })
-        return file.url
-      }
-
-      return undefined
-    }
+    const createMessage = makeCreateMessage(client, baseMessage)
+    const createImageMessage = makeCreateImageMessage(client, baseMessage)
+    const createVideoMessage = makeCreateVideoMessage(client, baseMessage)
+    const getOrUploadWechatMedia = makeGetOrUploadWechatMedia(client, ctx, messageId)
 
     switch (wechatMessage.MsgType) {
       case 'text':
@@ -204,6 +137,71 @@ const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx }: bp.
     body: 'success',
   }
 }
+
+type BaseMessage = {
+  tags: {
+    id: string
+    chatId: string
+  }
+  userId: string
+  conversationId: string
+}
+
+const makeCreateMessage = (client: bp.HandlerProps['client'], baseMessage: BaseMessage) =>
+  async (type: 'text', payload: bp.MessageProps['channel']['text']['payload']) =>
+    client.createMessage({
+      ...baseMessage,
+      type,
+      payload,
+    })
+
+const makeCreateImageMessage = (client: bp.HandlerProps['client'], baseMessage: BaseMessage) =>
+  async (payload: bp.MessageProps['channel']['image']['payload']) =>
+    client.createMessage({
+      ...baseMessage,
+      type: 'image',
+      payload,
+    })
+
+const makeCreateVideoMessage = (client: bp.HandlerProps['client'], baseMessage: BaseMessage) =>
+  async (payload: bp.MessageProps['channel']['video']['payload']) =>
+    client.createMessage({
+      ...baseMessage,
+      type: 'video',
+      payload,
+    })
+
+const makeGetOrUploadWechatMedia =
+  (client: bp.HandlerProps['client'], ctx: bp.HandlerProps['ctx'], messageId?: string) =>
+  async (params: { mediaId?: string; picUrl?: string; kind: 'image' | 'video' }): Promise<string | undefined> => {
+    const { mediaId, picUrl, kind } = params
+    const mediaKey = `wechat/media/${kind}/${mediaId || messageId || Date.now()}`
+
+    if (picUrl) {
+      const { file } = await client.uploadFile({
+        key: mediaKey,
+        url: picUrl,
+        accessPolicies: ['public_content'],
+        publicContentImmediatelyAccessible: true,
+      })
+      return file.url
+    }
+
+    if (mediaId) {
+      const accessToken = await getAccessToken(ctx.configuration.appId, ctx.configuration.appSecret)
+      const { content, contentType } = await downloadWeChatMedia(accessToken, mediaId)
+      const { file } = await client.uploadFile({
+        key: mediaKey,
+        content,
+        contentType,
+        accessPolicies: ['public_content'],
+        publicContentImmediatelyAccessible: true,
+      })
+      return file.url
+    }
+
+    return undefined
+  }
 
 const integration = new bp.Integration({
   register: async () => {},

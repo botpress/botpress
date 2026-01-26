@@ -100,27 +100,19 @@ export type ResponseToWeChat = {
   message?: WeChatMessage
 }
 
-export function handleWechatSignatureVerificaation(params: WeChatVerification): ResponseToWeChat {
+export function handleWechatSignatureVerification(params: WeChatVerification): ResponseToWeChat {
   const { wechatToken, method, signature, timestamp, nonce, echostr, body } = params
-  const normalizedMethod = method.toUpperCase()
+  const normalizedMethod = method
+  // WeChat signature is SHA1(sorted(token, timestamp, nonce)).
+  const hashcode = computeWeChatSignature(wechatToken, timestamp || '', nonce || '')
 
   // ========== Handle GET (Webhook Verification) ==========
   if (normalizedMethod === 'GET') {
-    // WeChat signature is SHA1(sorted(token, timestamp, nonce)).
-    const hashcode = computeWeChatSignature(wechatToken, timestamp || '', nonce || '')
-    if (hashcode === signature) {
-      return {
-        status: 200,
-        contentType: 'text/plain',
-        body: echostr || '',
-      }
-    } else {
-      //if credentials are incorrect, return empty body, wechat will not be verified
-      return {
-        status: 200,
-        contentType: 'text/plain',
-        body: '', // empty body, wechat will not be verified
-      }
+    const isValid = hashcode === signature
+    return {
+      status: 200,
+      contentType: 'text/plain',
+      body: isValid ? (echostr ?? '') : '',
     }
   }
 
@@ -134,8 +126,6 @@ export function handleWechatSignatureVerificaation(params: WeChatVerification): 
       }
     }
 
-    // WeChat signature is SHA1(sorted(token, timestamp, nonce)).
-    const hashcode = computeWeChatSignature(wechatToken, timestamp, nonce)
     if (hashcode !== signature) {
       return {
         status: 403,
