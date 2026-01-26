@@ -37,9 +37,7 @@ export const devBot: Test = {
     await utils.npmInstall({ workDir: botDir }).then(handleExitCode)
     await impl.login({ ...argv }).then(handleExitCode)
 
-    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId }).then((process) => {
-      handleExitCode(process)
-    })
+    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId }).then(handleExitCode)
     await utils.sleep(5000)
 
     const allProcess = await findProcess('port', PORT)
