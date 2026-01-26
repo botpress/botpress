@@ -182,6 +182,7 @@ export const actions = {
           .describe('The name of the channel to retrieve information about'),
         nextToken: sdk.z
           .string()
+          .optional()
           .title('Next Token')
           .describe('The pagination cursor token from the previous request. Use empty string for the first request.'),
       }),

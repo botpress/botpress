@@ -361,7 +361,7 @@ export class SlackClient {
 
   @requireAllScopes(['channels:read', 'chat:write'])
   @handleErrors('Failed to retrieve channel info (paginated)')
-  public async getChannelInfoPaginated({ channelName, nextToken }: { channelName: string; nextToken: string }) {
+  public async getChannelInfoPaginated({ channelName, nextToken }: { channelName: string; nextToken?: string }) {
     const { channels, response_metadata } = this._surfaceSlackErrors(
       await this._slackWebClient.conversations.list({
         types: 'public_channel,private_channel',
