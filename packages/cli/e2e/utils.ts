@@ -4,6 +4,8 @@ import _ from 'lodash'
 import pathlib from 'path'
 import tmp from 'tmp'
 import * as uuid from 'uuid'
+import { ApiBot, fetchAllBots } from './api'
+import { Client } from '@botpress/client'
 
 type PackageJson = {
   name: string
@@ -96,6 +98,11 @@ export const handleExitCode = ({ exitCode }: { exitCode: number }) => {
   if (exitCode !== 0) {
     throw new Error(`Command exited with code ${exitCode}`)
   }
+}
+
+export const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undefined> => {
+  const bots = await fetchAllBots(client)
+  return bots.find(({ name }) => name === botName)
 }
 
 export const getUUID = () => uuid.v4().replace(/-/g, '')

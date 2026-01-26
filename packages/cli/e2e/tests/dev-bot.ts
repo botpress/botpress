@@ -1,8 +1,10 @@
+import { Client } from '@botpress/client'
 import findProcess from 'find-process'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src'
 import defaults from '../defaults'
+import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
 
@@ -35,7 +37,9 @@ export const devBot: Test = {
     await utils.npmInstall({ workDir: botDir }).then(handleExitCode)
     await impl.login({ ...argv }).then(handleExitCode)
 
-    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId }).then(handleExitCode)
+    const cmdPromise = impl.dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId }).then((process) => {
+      handleExitCode(process)
+    })
     await utils.sleep(5000)
 
     const allProcess = await findProcess('port', PORT)
@@ -56,5 +60,18 @@ export const devBot: Test = {
 
     process.kill(botProcess.pid)
     await cmdPromise
+
+    //deleting the dev bot on the remote
+    const client = new Client({
+      apiUrl: creds.apiUrl,
+      token: creds.token,
+      workspaceId: creds.workspaceId,
+      retry: retry.config,
+    })
+    const bot = await utils.fetchBot(client, botName)
+    if (!bot) {
+      throw new Error(`Bot ${botName} should have been created`)
+    }
+    await impl.bots.delete({ ...argv, botRef: bot.id })
   },
 }

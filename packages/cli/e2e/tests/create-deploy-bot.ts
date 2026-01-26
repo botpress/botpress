@@ -2,16 +2,11 @@ import { Client } from '@botpress/client'
 import pathlib from 'path'
 import * as uuid from 'uuid'
 import impl from '../../src'
-import { ApiBot, fetchAllBots } from '../api'
 import defaults from '../defaults'
 import * as retry from '../retry'
 import { Test } from '../typings'
 import * as utils from '../utils'
-
-const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undefined> => {
-  const bots = await fetchAllBots(client)
-  return bots.find(({ name }) => name === botName)
-}
+import { fetchBot } from '../utils'
 
 export const createDeployBot: Test = {
   name: 'cli should allow creating, building, deploying and managing a bot',
