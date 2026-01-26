@@ -1,8 +1,7 @@
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import * as sdk from '@botpress/sdk'
 import * as bp from '../../.botpress'
-import { CreateLeadRequest, KommoLead, KommoCreateResponse, UpdateLeadRequest } from './types'
-import { CreateContactRequest, KommoContact, KommoCreateContactResponse, KommoSearchContactsResponse, KommoSearchLeadResponse } from './types'
+import { CreateLeadRequest, KommoLead, KommoCreateResponse, UpdateLeadRequest, CreateContactRequest, KommoContact, KommoCreateContactResponse, KommoSearchContactsResponse, KommoSearchLeadResponse } from './types'
 import { getErrorMessage } from './error-handler'
 
 
