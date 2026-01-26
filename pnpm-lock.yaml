@@ -2478,12 +2478,12 @@ importers:
         version: 11.7.0
       '@botpress/chat':
         specifier: 0.5.4
-        version: link:../chat-client
+        version: 0.5.4
       '@botpress/client':
         specifier: 1.30.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2607,7 +2607,7 @@ importers:
         specifier: 1.30.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2623,7 +2623,7 @@ importers:
         specifier: 1.30.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2636,7 +2636,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2652,7 +2652,7 @@ importers:
         specifier: 1.30.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2668,7 +2668,7 @@ importers:
         specifier: 1.30.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -3971,6 +3971,10 @@ packages:
 
   '@botpress/api@1.67.0':
     resolution: {integrity: sha512-pxg17xYvjX1siTkoZMVO5qgm8mtnoz88ep5D8yyw8IrTOmMTx/UO4LjYMsiIudDfIKYjZAPfDmPXFhCjhrbQJQ==}
+
+  '@botpress/chat@0.5.4':
+    resolution: {integrity: sha512-VS8CiX/NyyfFWa6bS8EbsbZxrrXKjHG12mx6Mm6i1XhJCaMo7r5tC6Nw6GNGkBJ0zMmrzcGuEFtLNIo3hefFbg==}
+    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13133,6 +13137,19 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
+
+  '@botpress/chat@0.5.4':
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      event-source-polyfill: 1.0.31
+      eventsource: 2.0.2
+      jsonwebtoken: 9.0.2
+      qs: 6.13.0
+      verror: 1.10.1
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - debug
 
   '@bpinternal/const@0.1.0': {}
 

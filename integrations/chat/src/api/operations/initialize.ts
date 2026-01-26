@@ -82,7 +82,8 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   const res = await fidHandler.mapResponse({
     body: {
       ...initializeResponse,
-      user: { ...initializeResponse.user, key: userKey },
+      user: { ...model.mapUser(initializeResponse.user), key: userKey },
+      conversation: model.mapConversation(initializeResponse.conversation),
       message: initializeResponse.message ? model.mapMessage(initializeResponse.message) : undefined,
     },
   })
