@@ -121,7 +121,7 @@ export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema
       // @ts-ignore
       .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
       .default(1)
-      .title('Sampling Temperature')
+      .title('Temperature')
       .describe('Sampling temperature for the model. Higher values result in more random outputs.'),
     topP: z
       .number()
