@@ -186,3 +186,104 @@ export const BOT_RULESET = {
     },
   },
 } satisfies RulesetDefinition
+
+export const BOT_RULESET_WITH_NESTED_CHECKS = {
+  ...BOT_RULESET,
+  rules: {
+    ...BOT_RULESET.rules,
+    'event-outputparams-should-have-title': {
+      description: 'All event output parameters SHOULD have a title',
+      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      severity: 'warn',
+      given: '$.events[*]..schema..properties[*]',
+      then: [
+        {
+          field: 'x-zui.title',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -5 : -3)}" of event "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
+        },
+      ],
+    },
+    'event-outputparams-must-have-description': {
+      description: 'All event output parameters MUST have a description',
+      message:
+        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+      severity: 'error',
+      given: '$.events[*]..schema..properties[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) =>
+              `output parameter "${path.at(isFallback ? -4 : -2)}" of event "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
+        },
+      ],
+    },
+    'configuration-fields-must-have-a-title': {
+      description: 'All configuration fields MUST have a title',
+      message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
+      severity: 'error',
+      given: '$.configuration..schema..properties[*].x-zui',
+      then: [
+        {
+          field: 'title',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
+        },
+      ],
+    },
+    'configuration-fields-must-have-a-description': {
+      description: 'All configuration fields MUST have a description',
+      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      severity: 'error',
+      given: '$.configuration..schema..properties[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -4 : -2)}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
+        },
+      ],
+    },
+    'state-fields-should-have-title': {
+      description: 'All state fields SHOULD have a title',
+      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      severity: 'warn',
+      given: '$.states[*]..schema..properties[*]',
+      then: [
+        {
+          field: 'x-zui.title',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -5 : -3)}" of state "${path[1]}"`,
+            fallbackExtractor: titleFallbackExtractor,
+          }),
+        },
+      ],
+    },
+    'state-fields-must-have-description': {
+      description: 'All state fields MUST have a description',
+      message:
+        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+      severity: 'error',
+      given: '$.states[*]..schema..properties[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage({
+            failMsgMapper: ({ path, isFallback }) => `field "${path.at(isFallback ? -4 : -2)}" of state "${path[1]}"`,
+            fallbackExtractor: descriptionFallbackExtractor,
+          }),
+        },
+      ],
+    },
+  },
+} satisfies RulesetDefinition
