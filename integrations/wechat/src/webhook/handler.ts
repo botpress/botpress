@@ -70,7 +70,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx
       }))
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
-      logger.error(message)
+      logger.error(`Failed to create user or conversation: ${message}`)
+      return createTextResponse(500, 'Failed to create user or conversation')
     }
 
     const messageTags = {
