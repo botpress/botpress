@@ -48,7 +48,7 @@
     "handlebars": "^4.7.8",
     "jsonpath-plus": "^10.3.0",
     "latest-version": "5.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "prettier": "^3.4.2",
     "prompts": "^2.4.2",
     "semver": "^7.3.8",
