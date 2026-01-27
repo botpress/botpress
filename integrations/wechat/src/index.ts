@@ -1,5 +1,5 @@
-import { handler } from './webhook'
 import channels from './channels'
+import { handler } from './webhook'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
