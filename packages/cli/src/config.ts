@@ -214,6 +214,12 @@ const devSchema = {
     type: 'string',
     description: 'The tunnel ID to use. The ID will be generated if not specified',
   },
+  noSecretsSaved: {
+    type: 'boolean',
+    description: 'Do not save the secrets locally',
+    default: false,
+    alias: 'nss',
+  },
 } satisfies CommandSchema
 
 const addSchema = {
