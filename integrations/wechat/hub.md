@@ -35,7 +35,7 @@ In your WeChat Official Account admin panel:
 
 1. Go to **Settings & Development** > **Basic Configuration**
 2. Click **Enable** Server Configuration
-3. Set the **URL** to your Botpress webhook URL (provided after integration installation)
+3. Set the **URL** to https://wechat.botpress.tech/{your Botpress webhook ID}, where the webhook ID is the string provided after installing the integration.
 4. Set the **Token** to the same token you used in Botpress configuration
 5. Click **Submit** - WeChat will verify your server
 
