@@ -1,5 +1,5 @@
-// @ts-expect-error No types for sunshine-conversations-client
 import { StoredCredentials } from 'src/types'
+// @ts-expect-error No types for sunshine-conversations-client
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
 export type CombinedApiClient = {
