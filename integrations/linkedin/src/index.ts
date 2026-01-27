@@ -22,4 +22,4 @@ const props: bp.IntegrationProps = {
   channels: {},
 }
 
-posthogHelper.wrapIntegration(config, props)
+export default posthogHelper.wrapIntegration(config, props)
