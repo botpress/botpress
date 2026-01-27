@@ -1,6 +1,14 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
-import { Action, CarouselItem, MessageContent, PostMessageRequest, createClient } from './api/sunshine-api'
+import {
+  Action,
+  ApiClient,
+  CarouselItem,
+  CombinedApiClient,
+  createClient,
+  MessageContent,
+  PostMessageRequest,
+} from './api/sunshine-api'
 import { getStoredCredentials } from './get-stored-credentials'
 import { Carousel, Choice, Conversation, StoredCredentials } from './types'
 import { getSuncoConversationId } from './util'
@@ -10,31 +18,31 @@ export const channels = {
   channel: {
     messages: {
       text: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendMessage(props, { type: 'text', text: props.payload.text }, credentials)
       },
       image: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         const mediaUrl = await getMediaUrl(props.payload.imageUrl, props.conversation, credentials)
         await sendMessage(props, { type: 'image', mediaUrl }, credentials)
       },
       markdown: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendMessage(props, { type: 'text', text: props.payload.markdown }, credentials)
       },
       audio: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         const mediaUrl = await getMediaUrl(props.payload.audioUrl, props.conversation, credentials)
         await sendMessage(props, { type: 'file', mediaUrl }, credentials)
       },
       video: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         const mediaUrl = await getMediaUrl(props.payload.videoUrl, props.conversation, credentials)
         await sendMessage(props, { type: 'file', mediaUrl }, credentials)
       },
       file: async (props) => {
         try {
-          const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+          const credentials = await getStoredCredentials(props.client, props.ctx)
           const mediaUrl = await getMediaUrl(props.payload.fileUrl, props.conversation, credentials)
           await sendMessage(props, { type: 'file', mediaUrl }, credentials)
         } catch (e) {
@@ -48,7 +56,7 @@ export const channels = {
         }
       },
       location: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendMessage(
           props,
           {
@@ -62,19 +70,19 @@ export const channels = {
         )
       },
       carousel: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendCarousel(props, props.payload, credentials)
       },
       card: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendCarousel(props, { items: [props.payload] }, credentials)
       },
       dropdown: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendMessage(props, renderChoiceMessage(props.payload), credentials)
       },
       choice: async (props) => {
-        const credentials = await getStoredCredentials(props.client, props.ctx.integrationId)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
         await sendMessage(props, renderChoiceMessage(props.payload), credentials)
       },
       bloc: () => {
@@ -139,15 +147,18 @@ async function downloadAndUploadAttachment(
   // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
   // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
   // don't implement stream interfaces. Using axios with native FormData works correctly.
+  const authorization =
+    credentials.configType === 'manual'
+      ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
+      : { headers: { Authorization: `Bearer ${credentials.token}` } }
+
   const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${credentials.appId}/attachments`, formData, {
     params: {
       access: 'public',
       for: 'message',
       conversationId,
     },
-    headers: {
-      Authorization: `Bearer ${credentials.token}`,
-    },
+    ...authorization,
   })
 
   const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
@@ -173,7 +184,7 @@ async function sendMessage(
   payload: MessageContent,
   credentials: StoredCredentials
 ) {
-  const client = createClient(credentials.token)
+  const client = createClient(credentials)
 
   const data: PostMessageRequest = {
     author: { type: 'business' },

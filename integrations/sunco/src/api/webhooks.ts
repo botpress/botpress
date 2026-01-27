@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { StoredCredentials } from 'src/types'
+import { OAuthCredentials, StoredCredentials } from 'src/types'
 import * as bp from '.botpress'
 
 const { z } = sdk
@@ -18,7 +18,7 @@ export const createWebhook = async ({
   logger,
   webhookUrl,
 }: {
-  credentials: StoredCredentials
+  credentials: OAuthCredentials
   logger: bp.Logger
   webhookUrl: string
 }): Promise<sdk.z.infer<typeof createWebhookSchema>['webhook']> => {
@@ -67,7 +67,7 @@ export const deleteWebhook = async ({
   logger,
   webhookId,
 }: {
-  credentials: StoredCredentials
+  credentials: OAuthCredentials
   logger: bp.Logger
   webhookId: string
 }) => {

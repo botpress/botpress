@@ -44,6 +44,16 @@ export default new IntegrationDefinition({
     },
     schema: z.object({}),
   },
+  configurations: {
+    manual: {
+      schema: z.object({
+        appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
+        keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
+        keySecret: z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
+        webhookSecret: z.string().min(1).title('Webhook Secret').describe('Your Sunshine Conversations Webhook Secret'),
+      }),
+    },
+  },
   channels: {
     channel: {
       title: 'Sunshine Conversations Channel',

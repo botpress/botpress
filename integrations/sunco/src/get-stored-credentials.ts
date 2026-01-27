@@ -2,13 +2,22 @@ import * as sdk from '@botpress/sdk'
 import { StoredCredentials } from './types'
 import * as bp from '.botpress'
 
-export const getStoredCredentials = async (client: bp.Client, integrationId: string): Promise<StoredCredentials> => {
+export const getStoredCredentials = async (
+  client: bp.Client,
+  ctx: bp.HandlerProps['ctx']
+): Promise<StoredCredentials> => {
+  const { configurationType: configType } = ctx
+  if (configType === 'manual') {
+    const { appId, keyId, keySecret } = ctx.configuration
+    return { configType, appId, keyId, keySecret }
+  }
+
   const {
     state: { payload: credentials },
   } = await client.getOrSetState({
     name: 'credentials',
     type: 'integration',
-    id: integrationId,
+    id: ctx.integrationId,
     payload: {},
   })
 
@@ -18,5 +27,5 @@ export const getStoredCredentials = async (client: bp.Client, integrationId: str
     throw new sdk.RuntimeError('failed to get stored access token or app ID')
   }
 
-  return { token, appId, subdomain }
+  return { configType, token, appId, subdomain }
 }

@@ -10,18 +10,18 @@ type SendActivityProps = Pick<bp.AnyMessageProps, 'ctx' | 'client'> & {
 }
 
 async function sendActivity({ client, ctx, conversationId, typingStatus, markAsRead }: SendActivityProps) {
-  const { token, appId } = await getStoredCredentials(client, ctx.integrationId)
+  const credentials = await getStoredCredentials(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
   const suncoConversationId = getSuncoConversationId(conversation)
-  const suncoClient = createClient(token)
+  const suncoClient = createClient(credentials)
   if (markAsRead) {
-    await suncoClient.activities.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(credentials.appId, suncoConversationId, {
       type: 'conversation:read',
       author: { type: 'business' },
     })
   }
   if (typingStatus) {
-    await suncoClient.activities.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(credentials.appId, suncoConversationId, {
       type: `typing:${typingStatus}`,
       author: { type: 'business' },
     })

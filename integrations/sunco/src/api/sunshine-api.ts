@@ -1,23 +1,57 @@
 // @ts-expect-error No types for sunshine-conversations-client
+import { StoredCredentials } from 'src/types'
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
-export function createClient(token: string) {
+export type CombinedApiClient = {
+  activities: ActivitiesApi
+  apps: AppsApi
+  users: UsersApi
+  conversations: ConversationsApi
+  messages: MessagesApi
+  webhooks: WebhooksApi
+  integrations: IntegrationsApi
+  switchboard: SwitchboardsApi
+  switchboardActions: SwitchboardActionsApi
+  switchboardIntegrations: SwitchboardIntegrationsApi
+}
+
+export function createClient(creds: StoredCredentials): CombinedApiClient {
+  let client: ApiClient | undefined
+  if (creds.configType === 'manual') {
+    client = createClientFromBasicAuth(creds.keyId, creds.keySecret)
+  } else {
+    client = createClientFromToken(creds.token)
+  }
+  return createApis(client)
+}
+
+function createClientFromBasicAuth(keyId: string, keySecret: string): ApiClient {
+  const apiClient = new SunshineConversationsApi.ApiClient()
+  const auth = apiClient.authentications['basicAuth']
+  auth.username = keyId
+  auth.password = keySecret
+  return apiClient
+}
+
+function createClientFromToken(token: string) {
   const apiClient = new SunshineConversationsApi.ApiClient()
   const auth = apiClient.authentications['bearerAuth']
   auth.accessToken = token
-  auth.type = 'bearer'
+  return apiClient
+}
 
+function createApis(client: ApiClient): CombinedApiClient {
   return {
-    activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
-    apps: new SunshineConversationsApi.AppsApi(apiClient),
-    users: new SunshineConversationsApi.UsersApi(apiClient),
-    conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
-    messages: new SunshineConversationsApi.MessagesApi(apiClient),
-    webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
-    integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
-    switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
-    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
-    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
+    activities: new SunshineConversationsApi.ActivitiesApi(client),
+    apps: new SunshineConversationsApi.AppsApi(client),
+    users: new SunshineConversationsApi.UsersApi(client),
+    conversations: new SunshineConversationsApi.ConversationsApi(client),
+    messages: new SunshineConversationsApi.MessagesApi(client),
+    webhooks: new SunshineConversationsApi.WebhooksApi(client),
+    integrations: new SunshineConversationsApi.IntegrationsApi(client),
+    switchboard: new SunshineConversationsApi.SwitchboardsApi(client),
+    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(client),
+    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(client),
   }
 }
 
