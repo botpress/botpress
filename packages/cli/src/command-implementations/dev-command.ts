@@ -249,6 +249,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     const nonNullKnownSecrets = utils.records.filterValues(knownSecrets, utils.guards.is.notNull)
+    if (Object.keys(nonNullKnownSecrets).length === 0) {
+      await this._secretsCache.rm(integrationDef.name)
+      return
+    }
     await this._secretsCache.set(integrationDef.name, nonNullKnownSecrets)
   }
 
