@@ -12,6 +12,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@types/node": "^22.16.4",
     "typescript": "^5.6.3"
   }
