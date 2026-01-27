@@ -138,10 +138,11 @@ export const updateCard = {
             'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
         dueDate: cardSchema.shape.dueDate
+          .nullable()
           .optional()
           .title('Due Date')
           .describe(
-            'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
+            'The due date of the card in ISO 8601 format (Optional). Set to null to remove the due date or leave empty to keep the current due date.'
           ),
         listId: listSchema.shape.id
           .optional()
@@ -150,13 +151,13 @@ export const updateCard = {
         /** Note: The validation for "verticalPosition" must be done in the action
          *   implementation, since studio does not support union types in inputs yet
          *   and the JSON schema generation does not support zod runtime validation
-         *   like "refine" (at the time of writing, 2026-01-13). */
+         *   like "refine" (at the time of writing, 2026-01-22). */
         verticalPosition: z
           .string()
           .optional()
           .title('Vertical Position')
           .describe(
-            'The new position of the card in the list, either "top", "bottom", or a float (Optional). Leave empty to keep the current position.'
+            'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
           ),
       })
       .describe('Input schema for creating a new card'),
@@ -248,6 +249,17 @@ export const moveCardToList = {
       newListId: listSchema.shape.id
         .title('New List ID')
         .describe('Unique identifier of the list in which the card will be moved to'),
+      /** Note: The validation for "newVerticalPosition" must be done in the action
+       *   implementation, since studio does not support union types in inputs yet
+       *   and the JSON schema generation does not support zod runtime validation
+       *   like "refine" (at the time of writing, 2026-01-22). */
+      newVerticalPosition: z
+        .string()
+        .optional()
+        .title('New Vertical Position')
+        .describe(
+          'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
+        ),
     }),
   },
   output: {
