@@ -2,6 +2,7 @@ import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { Response, z } from '@botpress/sdk'
 import * as bp from '../../../../.botpress'
 import { MetaOauthClient } from '../../../auth'
+import { isRateLimitError, RATE_LIMITED_ERROR } from './rate-limit'
 
 export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -86,7 +87,7 @@ const _setupHandler: WizardHandler = async (props) => {
 }
 
 const _getAccessTokenHandler: WizardHandler = async (props) => {
-  const { req, client, ctx, logger } = props
+  const { req, client, ctx, logger, responses } = props
   const params = new URLSearchParams(req.query)
   const code = z.string().safeParse(params.get('code')).data
   if (!code) {
@@ -94,7 +95,15 @@ const _getAccessTokenHandler: WizardHandler = async (props) => {
   }
   const oauthClient = new MetaOauthClient(logger)
   const redirectUri = _getOAuthRedirectUri() // Needs to be the same as the one used to get the code
-  const accessToken = await oauthClient.exchangeAuthorizationCodeForAccessToken(code, redirectUri)
+  let accessToken: string
+  try {
+    accessToken = await oauthClient.exchangeAuthorizationCodeForAccessToken(code, redirectUri)
+  } catch (error) {
+    if (isRateLimitError(error)) {
+      return responses.endWizard({ success: false, errorMessage: RATE_LIMITED_ERROR })
+    }
+    throw error
+  }
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
@@ -131,7 +140,15 @@ const _doStepVerifyWaba = async (
   }
   const oauthClient = new MetaOauthClient(logger)
   if (!wabaId) {
-    const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
+    let businesses: { id: string; name: string }[]
+    try {
+      businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
+    } catch (error) {
+      if (isRateLimitError(error)) {
+        return responses.endWizard({ success: false, errorMessage: RATE_LIMITED_ERROR })
+      }
+      throw error
+    }
     if (businesses.length === 1) {
       wabaId = businesses[0]?.id
     } else {
@@ -174,7 +191,15 @@ const _doStepVerifyNumber = async (
 
   const oauthClient = new MetaOauthClient(logger)
   if (!defaultBotPhoneNumberId) {
-    const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
+    let phoneNumbers: { id: string; verifiedName: string; displayPhoneNumber: string }[]
+    try {
+      phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
+    } catch (error) {
+      if (isRateLimitError(error)) {
+        return responses.endWizard({ success: false, errorMessage: RATE_LIMITED_ERROR })
+      }
+      throw error
+    }
     if (phoneNumbers.length === 1) {
       defaultBotPhoneNumberId = phoneNumbers[0]?.id
     } else {
@@ -217,8 +242,15 @@ const _doStepWrapUp: WizardHandler = async (props) => {
   await client.configureIntegration({
     identifier: wabaId,
   })
-  await oauthClient.registerNumber(defaultBotPhoneNumberId, accessToken)
-  await oauthClient.subscribeToWebhooks(wabaId, accessToken)
+  try {
+    await oauthClient.registerNumber(defaultBotPhoneNumberId, accessToken)
+    await oauthClient.subscribeToWebhooks(wabaId, accessToken)
+  } catch (error) {
+    if (isRateLimitError(error)) {
+      return responses.endWizard({ success: false, errorMessage: RATE_LIMITED_ERROR })
+    }
+    throw error
+  }
 
   return responses.displayButtons({
     pageTitle: 'Configuration Complete',
