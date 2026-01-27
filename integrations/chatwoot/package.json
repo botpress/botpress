@@ -1,0 +1,28 @@
+{
+  "name": "chatwoot",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "version": "bp --version",
+    "login": "bp login",
+    "gen": "bp gen",
+    "deploy": "bp deploy",
+    "build": "bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.27.1",
+    "@botpress/sdk": "4.21.0",
+    "axios": "^1.8.1",
+    "form-data": "^4.0.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@botpress/cli": "4.27.4",
+    "@types/node": "^18.19.76",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "bpDependencies": {
+    "hitl": "integration:hitl@2.0.2"
+  }
+}
