@@ -10,7 +10,7 @@ export type AggregateIntegrationBody = Omit<CreateIntegrationRequestBody, 'secre
 
 export class IntegrationLinter extends BaseLinter<AggregateIntegrationBody> {
   public constructor(definition: AggregateIntegrationBody, checkNested: boolean, logger?: Logger) {
-    const ruleset = checkNested ? INTEGRATION_RULESET : INTEGRATION_RULESET_WITH_NESTED_CHECKS
+    const ruleset = !checkNested ? INTEGRATION_RULESET : INTEGRATION_RULESET_WITH_NESTED_CHECKS
     super(definition, ruleset, logger)
   }
 }

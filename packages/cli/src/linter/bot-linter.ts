@@ -5,7 +5,7 @@ import { BOT_RULESET, BOT_RULESET_WITH_NESTED_CHECKS } from './rulesets/bot.rule
 
 export class BotLinter extends BaseLinter<CreateBotRequestBody> {
   public constructor(definition: CreateBotRequestBody, checkNested: boolean, logger?: Logger) {
-    const ruleset = checkNested ? BOT_RULESET : BOT_RULESET_WITH_NESTED_CHECKS
+    const ruleset = !checkNested ? BOT_RULESET : BOT_RULESET_WITH_NESTED_CHECKS
     super(definition, ruleset, logger)
   }
 }

@@ -5,7 +5,7 @@ import { INTERFACE_RULESET, INTERFACE_RULESET_WITH_NESTED_CHECKS } from './rules
 
 export class InterfaceLinter extends BaseLinter<CreateInterfaceRequestBody> {
   public constructor(definition: CreateInterfaceRequestBody, checkNested: boolean, logger?: Logger) {
-    const ruleset = checkNested ? INTERFACE_RULESET : INTERFACE_RULESET_WITH_NESTED_CHECKS
+    const ruleset = !checkNested ? INTERFACE_RULESET : INTERFACE_RULESET_WITH_NESTED_CHECKS
     super(definition, ruleset, logger)
   }
 }
