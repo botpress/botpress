@@ -130,10 +130,18 @@ export default new sdk.PluginDefinition({
             .describe(
               'The alias of the integration to use for synchronization. Must implement the files-readonly interface.'
             ),
-          interfaceAlias: sdk.z
+          integrationDefinitionName: sdk.z
             .string()
-            .title('Integration Interface Alias')
-            .describe('The alias of the files-readonly interface.'),
+            .title('files-readonly Integration Definition Name')
+            .describe(
+              'The name of the integration to use for synchronization. Must implement the files-readonly interface.'
+            ),
+          transferFileToBotpressAlias: sdk.z
+            .string()
+            .title('Integration Interface Action Alias')
+            .describe(
+              'The alias of the transferFileToBotpress of the files-readonly interface within the integration.'
+            ),
         }),
       },
       output: {
