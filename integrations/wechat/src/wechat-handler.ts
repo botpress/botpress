@@ -94,9 +94,8 @@ export type WeChatVerification = {
 }
 
 export type ResponseToWeChat = {
-  status: number
-  contentType: string
-  body: string
+  isValid: boolean
+  echostr?: string
   message?: WeChatMessage
 }
 
@@ -106,59 +105,36 @@ export function handleWechatSignatureVerification(params: WeChatVerification): R
   // WeChat signature is SHA1(sorted(token, timestamp, nonce)).
   const hashcode = computeWeChatSignature(wechatToken, timestamp || '', nonce || '')
 
+  // signature === SHA1(token, timestamp, nonce)
+
   // ========== Handle GET (Webhook Verification) ==========
   if (normalizedMethod === 'GET') {
     const isValid = hashcode === signature
-    return {
-      status: 200,
-      contentType: 'text/plain',
-      body: isValid ? (echostr ?? '') : '',
-    }
+    return { isValid, echostr }
   }
 
   // ========== Handle POST (Message Receive) ==========
   if (normalizedMethod === 'POST') {
     if (!signature || !timestamp || !nonce) {
-      return {
-        status: 401,
-        contentType: 'text/plain',
-        body: '',
-      }
+      return { isValid: false }
     }
 
     if (hashcode !== signature) {
-      return {
-        status: 403,
-        contentType: 'text/plain',
-        body: '',
-      }
+      return { isValid: false }
     }
 
     // Parse the incoming XML
     const recMsg = parseWeChatMessageXml(body || '')
 
     if (!recMsg) {
-      return {
-        status: 200,
-        contentType: 'text/plain',
-        body: 'success',
-      }
+      return { isValid: true }
     }
 
     // Return the parsed message to be handled by Botpress
     // We return 'success' to tell WeChat we received the message
-    return {
-      status: 200,
-      contentType: 'text/plain',
-      body: 'success',
-      message: recMsg,
-    }
+    return { isValid: true, message: recMsg }
   }
 
   // Other methods not allowed
-  return {
-    status: 405,
-    contentType: 'text/plain',
-    body: 'Method not allowed',
-  }
+  return { isValid: false }
 }
