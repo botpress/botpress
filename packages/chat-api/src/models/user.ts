@@ -28,7 +28,7 @@ export const userSchema = schema(
   }
 )
 
-export const userInput = schema(
+export const createUserInput = schema(
   z.object({
     name: schema(z.string().optional(), {
       description: 'Name of the [User](#schema_user) (not a unique identifier)',

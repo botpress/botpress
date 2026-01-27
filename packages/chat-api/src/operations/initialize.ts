@@ -2,13 +2,13 @@ import { schema } from '@bpinternal/opapi'
 import { z } from 'zod'
 import { conversationIdSchema } from '../models/conversation'
 import { messageInput } from '../models/message'
-import { userInput, userSchema } from '../models/user'
+import { createUserInput, userSchema } from '../models/user'
 import { authHeaders } from './auth'
 import type { OperationFunc } from './types'
 
 const initializeBodySchema = schema(
   z.object({
-    user: userInput.optional(),
+    user: createUserInput.optional(),
     conversationId: conversationIdSchema.optional(),
     message: messageInput.optional(),
   })

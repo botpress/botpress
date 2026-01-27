@@ -1,6 +1,6 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
-import { userIdSchema, userInput } from '../models/user'
+import { userIdSchema, createUserInput } from '../models/user'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
 
@@ -30,7 +30,7 @@ export const createUserOperation: OperationFunc = (api) => ({
   path: '/users',
   requestBody: {
     description: 'User data',
-    schema: userInput.extend({ id: userIdSchema.optional() }),
+    schema: createUserInput.extend({ id: userIdSchema.optional() }),
   },
   section,
   response: {
@@ -50,7 +50,7 @@ export const getOrCreateUserOperation: OperationFunc = (api) => ({
   path: '/users/get-or-create',
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: createUserInput,
   },
   parameters: {
     ...authHeaders,
@@ -73,7 +73,7 @@ export const updateUserOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: createUserInput,
   },
   section,
   response: {

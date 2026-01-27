@@ -1,19 +1,18 @@
-import { InvalidPayloadError } from 'src/gen/errors'
+import { InvalidPayloadError, UnauthorizedError } from 'src/gen/errors'
 import * as msgPayload from '../message-payload'
 import * as types from '../types'
 import * as fid from './fid'
 import * as model from './model'
 
 export const initialize: types.Operations['initializeIncomingMessage'] = async (props, req) => {
-  let userKey = req.headers['x-user-key']
-
-  let userId: string | undefined
-  if (userKey) {
-    const parsedKey = props.auth.parseKey(userKey)
-    userId = parsedKey.id
+  if (props.auth.mode === 'personal') {
+    throw new UnauthorizedError('The "initialize" operation can only be called when using the shared encryption key.')
   }
 
-  if ((!userId && !req.body.user) || (userId && req.body.user)) {
+  const userKeyHeader = req.headers['x-user-key']
+
+  const userId = userKeyHeader ? props.auth.parseKey(userKeyHeader).id : undefined
+  if ((!userKeyHeader && !req.body.user) || (userKeyHeader && req.body.user)) {
     throw new InvalidPayloadError('You have to set either the "x-user-key" header or the "user" body parameter.')
   }
 
@@ -35,11 +34,12 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  if (request.auth.userId) preparedBody.userId = request.auth.userId
-  else {
+  if (request.auth.userId) {
+    preparedBody.userId = request.auth.userId
+  } else {
     preparedBody.user = {
       ...request.body.user,
-      tags: {},
+      tags: { fid: userId, profile: request.body.user?.profile },
       discriminateByTags: [],
     }
   }
@@ -63,21 +63,12 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   }
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
-
-  const updateUserPromise = props.client.updateUser({
-    id: initializeResponse.user.id,
-    tags: { fid: userId ?? initializeResponse.user.id, profile: request.body.user?.profile },
-  })
-  const updateConversationPromise = await props.client.updateConversation({
+  await props.client.updateConversation({
     id: initializeResponse.conversation.id,
     tags: { owner: userId, fid: request.body.conversationId ?? initializeResponse.conversation.id },
   })
 
-  await Promise.all([updateUserPromise, updateConversationPromise])
-
-  if (!userKey) {
-    userKey = props.auth.generateKey({ id: initializeResponse.user.id })
-  }
+  const userKey = userKeyHeader ?? props.auth.generateKey({ id: initializeResponse.user.id })
 
   const res = await fidHandler.mapResponse({
     body: {
