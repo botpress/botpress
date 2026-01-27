@@ -2,16 +2,16 @@ import { RuntimeError } from '@botpress/client'
 import { getAccessToken, WECHAT_API_BASE } from './auth'
 
 export class WechatClient {
-  private accessToken?: string
+  private _accessToken?: string
 
   public constructor(
-    private readonly appId: string,
-    private readonly appSecret: string
+    private readonly _appId: string,
+    private readonly _appSecret: string
   ) {}
 
   public async getAccessToken(): Promise<string> {
-    const token = await getAccessToken(this.appId, this.appSecret)
-    this.accessToken = token
+    const token = await getAccessToken(this._appId, this._appSecret)
+    this._accessToken = token
     return token
   }
 
@@ -20,12 +20,12 @@ export class WechatClient {
   }
 
   public async downloadWeChatMedia(mediaId: string): Promise<{ content: ArrayBuffer; contentType?: string }> {
-    const accessToken = this.accessToken ?? (await this.getAccessToken())
+    const accessToken = this._accessToken ?? (await this.getAccessToken())
     const mediaUrl = this.getMediaUrl(accessToken, mediaId)
-    return this.downloadWeChatMediaFromUrl(mediaUrl)
+    return this._downloadWeChatMediaFromUrl(mediaUrl)
   }
 
-  private async downloadWeChatMediaFromUrl(url: string): Promise<{ content: ArrayBuffer; contentType?: string }> {
+  private async _downloadWeChatMediaFromUrl(url: string): Promise<{ content: ArrayBuffer; contentType?: string }> {
     const response = await fetch(url)
     if (!response.ok) {
       throw new RuntimeError(`Failed to download WeChat media: ${response.status} ${response.statusText}`)
@@ -40,7 +40,7 @@ export class WechatClient {
       if (!data.video_url) {
         throw new RuntimeError('Failed to download WeChat media: missing video_url')
       }
-      return this.downloadWeChatMediaFromUrl(data.video_url)
+      return this._downloadWeChatMediaFromUrl(data.video_url)
     }
 
     const content = await response.arrayBuffer()
