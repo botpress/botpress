@@ -40,18 +40,18 @@ function createClientFromToken(token: string) {
   return apiClient
 }
 
-function createApis(client: ApiClient): CombinedApiClient {
+function createApis(apiClient: ApiClient): CombinedApiClient {
   return {
-    activities: new SunshineConversationsApi.ActivitiesApi(client),
-    apps: new SunshineConversationsApi.AppsApi(client),
-    users: new SunshineConversationsApi.UsersApi(client),
-    conversations: new SunshineConversationsApi.ConversationsApi(client),
-    messages: new SunshineConversationsApi.MessagesApi(client),
-    webhooks: new SunshineConversationsApi.WebhooksApi(client),
-    integrations: new SunshineConversationsApi.IntegrationsApi(client),
-    switchboard: new SunshineConversationsApi.SwitchboardsApi(client),
-    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(client),
-    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(client),
+    activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
+    apps: new SunshineConversationsApi.AppsApi(apiClient),
+    users: new SunshineConversationsApi.UsersApi(apiClient),
+    conversations: new SunshineConversationsApi.ConversationsApi(apiClient),
+    messages: new SunshineConversationsApi.MessagesApi(apiClient),
+    webhooks: new SunshineConversationsApi.WebhooksApi(apiClient),
+    integrations: new SunshineConversationsApi.IntegrationsApi(apiClient),
+    switchboard: new SunshineConversationsApi.SwitchboardsApi(apiClient),
+    switchboardActions: new SunshineConversationsApi.SwitchboardActionsApi(apiClient),
+    switchboardIntegrations: new SunshineConversationsApi.SwitchboardIntegrationsApi(apiClient),
   }
 }
 
