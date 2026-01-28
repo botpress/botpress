@@ -44,6 +44,10 @@ RUN pnpm --filter @botpresshub/chat run build
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
 COPY --from=base /usr/app/integrations/chat/.botpress/dist/index.cjs ./index.cjs
-RUN echo -e "const server = require('./index.cjs')\nserver.default.start()" > server.js
+RUN echo "const server = require('./index.cjs')\nconst port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8081\nserver.default.start(port)" > server.js
+
+# set port env and expose it
+ENV PORT=8081
+EXPOSE ${PORT}
 
 ENTRYPOINT ["node", "server.js"]
