@@ -20,6 +20,10 @@ inputs:
     description: 'Optional Docker tag'
     required: false
     default: ''
+  depot-project:
+    description: 'Depot project ID (required if no depot.json; get it from depot.dev)'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -69,6 +73,7 @@ runs:
 
     - uses: depot/build-push-action@v1
       with:
+        project: ${{ inputs.depot-project }}
         build-args: |
           MINIFY=${{ inputs.minify }}
           DOCKER_TAG=${{ inputs.tag }}

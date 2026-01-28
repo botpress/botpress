@@ -27,3 +27,4 @@ jobs:
           repository: chat-integration
           dockerfile: ./integrations/chat/Dockerfile
           push: ${{ github.event_name == 'workflow_dispatch' }}
+          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
