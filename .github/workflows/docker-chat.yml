@@ -22,6 +22,10 @@ jobs:
     runs-on: depot-ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpresshub/chat'
       - uses: ./.github/actions/docker-build
         with:
           repository: chat-integration
