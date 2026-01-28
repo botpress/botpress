@@ -1,6 +1,6 @@
 {
   "name": "@bp-templates/hello-world",
-  "integrationName": "Planhat",
+  "integrationName": "planhat",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
