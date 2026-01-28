@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
-import { randomUUID } from '../utils/crypto'
-import * as bp from '.botpress'
 import { WORKFLOW_ACTIVE_STATUSES } from '../consts'
 import * as SyncQueue from '../sync-queue'
+import { randomUUID } from '../utils/crypto'
 import { getAliasedName } from '../utils/get-aliased-name'
+import * as bp from '.botpress'
 
 export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpress'] = async (props) => {
   const { includeFiles, integrationInstanceAlias, integrationDefinitionName, transferFileToBotpressAlias } = props.input
@@ -72,7 +72,7 @@ const _assertSyncNotAlreadyInProgress = async (
     .listInstances({
       statuses: [...WORKFLOW_ACTIVE_STATUSES],
       tags: {
-        integrationInstanceAlias: integrationInstanceAlias,
+        integrationInstanceAlias,
       },
     })
     .take(1)

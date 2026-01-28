@@ -10,11 +10,11 @@ const plugin = new bp.Plugin({
     },
     async listSynchronizationOperations(props) {
       props.logger.info('Called action listSynchronizationOperations')
-      throw new Error('Action not implemented.')
+      return await actions.listSynchronizationOperations.callAction(props)
     },
     async checkSynchronizationStatus(props) {
       props.logger.info('Called action checkSynchronizationStatus')
-      throw new Error('Action not implemented.')
+      return await actions.checkSynchronizationStatus.callAction(props)
     },
   },
 })
