@@ -61,5 +61,55 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    getAsset: {
+      title: 'Get Asset',
+      description: 'Retrieves a specific asset from Planhat',
+      input: {
+        schema: z.object({
+          assetId: z.string().min(1).describe('The asset ID, externalId (prefixed with "extid-"), or sourceId (prefixed with "srcid-")').title('Asset ID'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          id: z.string().describe('The ID of the asset'),
+          name: z.string().describe('The name of the asset'),
+          companyId: z.string().describe('The company ID'),
+          companyName: z.string().optional().describe('The name of the company'),
+          externalId: z.string().optional().describe('External ID if set'),
+          sourceId: z.string().optional().describe('Source ID if set'),
+          custom: z.record(z.any()).optional().describe('Custom fields'),
+          usage: z.record(z.any()).optional().describe('Usage data'),
+        }),
+      },
+    },
+    listAssets: {
+      title: 'List Assets',
+      description: 'Retrieves a list of assets from Planhat with optional filtering and pagination',
+      input: {
+        schema: z.object({
+          companyId: z.string().optional().describe('Filter assets by company ID').title('Company ID'),
+          limit: z.number().min(1).max(2000).optional().describe('Limit the number of results (default: 100, max: 2000)').title('Limit'),
+          offset: z.number().min(0).optional().describe('Offset for pagination (default: 0)').title('Offset'),
+          sort: z.string().optional().describe('Sort by property. Prefix with "-" for descending order (e.g., "-name")').title('Sort'),
+          select: z.string().optional().describe('Comma-separated list of properties to include (e.g., "_id,name,companyId")').title('Select Fields'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          assets: z.array(
+            z.object({
+              id: z.string().describe('The ID of the asset'),
+              name: z.string().optional().describe('The name of the asset'),
+              companyId: z.string().optional().describe('The company ID'),
+              companyName: z.string().optional().describe('The name of the company'),
+              externalId: z.string().optional().describe('External ID if set'),
+              sourceId: z.string().optional().describe('Source ID if set'),
+              custom: z.record(z.any()).optional().describe('Custom fields'),
+              usage: z.record(z.any()).optional().describe('Usage data'),
+            })
+          ).describe('Array of assets'),
+        }),
+      },
+    },
   },
 })
