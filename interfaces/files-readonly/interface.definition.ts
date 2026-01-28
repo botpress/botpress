@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 
 const BASE_ITEM = (itemType: 'file' | 'folder' | 'item' = 'item') =>
@@ -63,6 +62,7 @@ export default new sdk.InterfaceDefinition({
           sdk.z.object({
             folderId: FOLDER.shape.id
               .optional()
+              .title('Folder ID')
               .describe('The folder ID to list the items from. Leave empty to list items from the root folder.'),
             filters: sdk.z
               .object({
@@ -75,8 +75,9 @@ export default new sdk.InterfaceDefinition({
                   .describe('Filter the items modified after the given date'),
               })
               .optional()
+              .title('Search Filters')
               .describe('Optional search filters'),
-            nextToken: NEXT_TOKEN.describe(
+            nextToken: NEXT_TOKEN.title('Next Page Token').describe(
               'The token to get the next page of items. Leave empty to get the first page.'
             ),
           }),
@@ -84,10 +85,16 @@ export default new sdk.InterfaceDefinition({
       output: {
         schema: () =>
           sdk.z.object({
-            items: sdk.z.array(sdk.z.union([FILE, FOLDER])).describe('The files and folders in the folder'),
-            meta: sdk.z.object({
-              nextToken: NEXT_TOKEN,
-            }),
+            items: sdk.z
+              .array(sdk.z.union([FILE, FOLDER]))
+              .title('Folder Items')
+              .describe('The files and folders in the folder'),
+            meta: sdk.z
+              .object({
+                nextToken: NEXT_TOKEN,
+              })
+              .title('Metadata')
+              .describe('List items in folder metadata'),
           }),
       },
     },
@@ -112,7 +119,7 @@ export default new sdk.InterfaceDefinition({
       output: {
         schema: () =>
           sdk.z.object({
-            botpressFileId: sdk.z.string().describe('The file ID of the uploaded file on Botpress'),
+            botpressFileId: sdk.z.string().title('File ID').describe('The file ID of the uploaded file on Botpress'),
           }),
       },
     },
@@ -121,25 +128,25 @@ export default new sdk.InterfaceDefinition({
     fileCreated: {
       schema: () =>
         sdk.z.object({
-          file: FILE_WITH_PATH.describe('The created file'),
+          file: FILE_WITH_PATH.title('Created File').describe('The created file'),
         }),
     },
     fileUpdated: {
       schema: () =>
         sdk.z.object({
-          file: FILE_WITH_PATH.describe('The updated file'),
+          file: FILE_WITH_PATH.title('Updated File').describe('The updated file'),
         }),
     },
     fileDeleted: {
       schema: () =>
         sdk.z.object({
-          file: FILE_WITH_PATH.describe('The deleted file'),
+          file: FILE_WITH_PATH.title('Deleted File').describe('The deleted file'),
         }),
     },
     folderDeletedRecursive: {
       schema: () =>
         sdk.z.object({
-          folder: FOLDER_WITH_PATH.describe('The deleted folder'),
+          folder: FOLDER_WITH_PATH.title('Deleted Folder').describe('The deleted folder'),
         }),
     },
     aggregateFileChanges: {
@@ -153,6 +160,7 @@ export default new sdk.InterfaceDefinition({
                 .array(sdk.z.union([FILE_WITH_PATH, FOLDER_WITH_PATH]))
                 .describe('The files and folders deleted'),
             })
+            .title('Modified Items')
             .describe('The modified items'),
         }),
     },
