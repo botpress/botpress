@@ -69,7 +69,7 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
     throw new sdk.RuntimeError('Failed to delete app: no subdomain is associated with this bot installation')
   }
 
-  const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/v2/oauth/authorization`, {
+  const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/oauth/authorization`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
