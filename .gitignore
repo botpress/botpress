@@ -17,5 +17,3 @@ __snapshots__
 tilt_config.json
 /.idea
 hubspot.config.yml
-.claude.db
-.claude.error
