@@ -1,4 +1,4 @@
-name: Deploy Chat Integration Staging
+name: Build and push Chat Integration Docker
 
 on:
   pull_request:
