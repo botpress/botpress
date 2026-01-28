@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { getNetworkErrorDetails } from 'src/util'
 import { createClient } from '../api/sunshine-api'
-import { createWebhook } from '../api/webhooks'
+import { createWebhook, deleteApp } from '../api/webhooks'
 import { getStoredCredentials } from '../get-stored-credentials'
 import * as bp from '.botpress'
 
@@ -26,6 +26,10 @@ export const register: bp.IntegrationProps['register'] = async ({ ctx, logger, c
     }
     return
   }
+
+  await deleteApp({ credentials, logger }).catch((thrown) =>
+    logger.warn(thrown instanceof Error ? thrown.message : new Error(thrown).message)
+  )
 
   logger.forBot().info('Registering webhook...')
   const webhook = await createWebhook({
