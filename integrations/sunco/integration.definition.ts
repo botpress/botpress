@@ -46,6 +46,7 @@ export default new IntegrationDefinition({
   },
   configurations: {
     manual: {
+      title: 'Configure using your own app',
       schema: z.object({
         appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
         keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
