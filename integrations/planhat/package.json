@@ -1,0 +1,16 @@
+{
+  "name": "@bp-templates/hello-world",
+  "integrationName": "planhat/planhat",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "1.30.0",
+    "@botpress/sdk": "5.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.4",
+    "typescript": "^5.6.3"
+  }
+}
