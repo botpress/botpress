@@ -66,7 +66,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         utils.guards.is.notNull
       )
 
-      if (!this.argv.noSecretsSaved) {
+      if (!this.argv.noSecretCaching) {
         await this._writeKnownSecretsToCache(secretEnvVariables)
       }
 

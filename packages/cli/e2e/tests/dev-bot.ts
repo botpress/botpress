@@ -36,7 +36,7 @@ export const devBot: Test = {
     await impl.login({ ...argv }).then(handleExitCode)
 
     const cmdPromise = impl
-      .dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId, noSecretsSaved: true })
+      .dev({ ...argv, workDir: botDir, port: PORT, tunnelUrl, tunnelId, noSecretCaching: true })
       .then(handleExitCode)
     await utils.sleep(5000)
 
