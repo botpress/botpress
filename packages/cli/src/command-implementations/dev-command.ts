@@ -77,7 +77,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       )
 
       if (!this.argv.noSecretsSaved) {
-        await this._setKnownSecrets(this._initialDef.definition, secretEnvVariables)
+        await this._writeKnownSecretsToCache(this._initialDef.definition, secretEnvVariables)
       }
 
       env = { ...env, ...nonNullSecretEnvVariables }
@@ -237,7 +237,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     throw new errors.UnsupportedProjectType()
   }
 
-  private async _setKnownSecrets(
+  private async _writeKnownSecretsToCache(
     integrationDef: sdk.IntegrationDefinition,
     secretEnvVariables: Record<string, string | null>
   ) {
