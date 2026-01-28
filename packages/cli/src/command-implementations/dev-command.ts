@@ -23,11 +23,6 @@ const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
 const TUNNEL_HELLO_INTERVAL = 5000
 const FILEWATCHER_DEBOUNCE_MS = 500
-type IntegrationSecretsCache = {
-  [integrationName: string]: {
-    [secretName: string]: string
-  }
-}
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
@@ -38,11 +33,6 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   public constructor(...args: ConstructorParameters<typeof ProjectCommand<DevCommandDefinition>>) {
     super(...args)
     this._buildContext = new utils.esbuild.BuildCodeContext()
-  }
-
-  private get _secretsCache() {
-    const path = `${this.globalPaths.abs.botpressHomeDir}/dev-secrets.cache.json`
-    return new utils.cache.FSKeyValueCache<IntegrationSecretsCache>(path)
   }
 
   public async run(): Promise<void> {
@@ -66,7 +56,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     let defaultPort = DEFAULT_BOT_PORT
     if (this._initialDef.type === 'integration') {
       defaultPort = DEFAULT_INTEGRATION_PORT
-      const knownSecrets = await this._readKnownSecretsFromCache(this._initialDef.definition)
+      const knownSecrets = await this._readKnownSecretsFromCache()
       const secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
         knownSecrets: Object.keys(knownSecrets),
         formatEnv: true,
@@ -77,7 +67,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       )
 
       if (!this.argv.noSecretsSaved) {
-        await this._writeKnownSecretsToCache(this._initialDef.definition, secretEnvVariables)
+        await this._writeKnownSecretsToCache(secretEnvVariables)
       }
 
       env = { ...env, ...nonNullSecretEnvVariables }
@@ -237,11 +227,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     throw new errors.UnsupportedProjectType()
   }
 
-  private async _writeKnownSecretsToCache(
-    integrationDef: sdk.IntegrationDefinition,
-    secretEnvVariables: Record<string, string | null>
-  ) {
-    const knownSecrets: Record<string, string | null> = await this._readKnownSecretsFromCache(integrationDef)
+  private async _writeKnownSecretsToCache(secretEnvVariables: Record<string, string | null>) {
+    const knownSecrets: Record<string, string | null> = await this._readKnownSecretsFromCache()
 
     for (const [prefixedSecretName, secretValue] of Object.entries(secretEnvVariables)) {
       const secretName = stripSecretEnvVariablePrefix(prefixedSecretName)
@@ -250,14 +237,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const nonNullKnownSecrets = utils.records.filterValues(knownSecrets, utils.guards.is.notNull)
     if (Object.keys(nonNullKnownSecrets).length === 0) {
-      await this._secretsCache.rm(integrationDef.name)
+      await this.projectCache.rm('secrets')
       return
     }
-    await this._secretsCache.set(integrationDef.name, nonNullKnownSecrets)
   }
 
-  private async _readKnownSecretsFromCache(integrationDef: sdk.IntegrationDefinition) {
-    return (await this._secretsCache.get(integrationDef.name)) ?? {}
+  private async _readKnownSecretsFromCache() {
+    return (await this.projectCache.get('secrets')) ?? {}
   }
 
   private _applyPrefixToSecrets(secrets: Record<string, string>): Record<string, string> {
