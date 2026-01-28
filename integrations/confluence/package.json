@@ -1,7 +1,7 @@
 {
   "name": "@botpresshub/confluence",
   "scripts": {
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build",
     "test": "vitest --run"

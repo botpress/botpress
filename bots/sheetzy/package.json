@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e SHEETZY_TELEGRAM_BOT_TOKEN -e SHEETZY_GSHEETS_CLIENT_EMAIL -e SHEETZY_GSHEETS_PRIVATE_KEY -e SHEETZY_GSHEETS_SPREADSHEET_ID",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "build": "bp add -y && bp build"
   },
   "private": true,

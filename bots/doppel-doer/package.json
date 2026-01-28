@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e TODOIST_SRC_API_TOKEN -e TODOIST_DST_API_TOKEN",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "build": "bp add -y && bp build"
   },
   "private": true,

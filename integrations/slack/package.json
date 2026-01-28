@@ -4,7 +4,7 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",

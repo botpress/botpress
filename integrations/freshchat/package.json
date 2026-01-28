@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "build": "bp add -y && bp build",
     "deploy": "bp deploy",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix",

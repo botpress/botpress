@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e DROPBOX_A_APP_KEY -e DROPBOX_A_APP_SECRET -e DROPBOX_A_ACCESS_CODE -e DROPBOX_B_APP_KEY -e DROPBOX_B_APP_SECRET -e DROPBOX_B_ACCESS_CODE",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "build": "bp add -y && bp build"
   },
   "private": true,

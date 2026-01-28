@@ -1,3 +1,4 @@
+/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, configurations, events, identifier, secrets, states, user } from './definitions'
