@@ -28,9 +28,18 @@ API Access Tokens are generated using Private Apps under the Settings section in
 
 ## Usage
 
-This integration provides actions to interact with Planhat's API.
+This integration provides actions to manage assets in Planhat:
 
-> Specific usage instructions and examples will be added as actions are implemented.
+### Asset Management Actions
+
+- **Create Asset** - Create a single asset with name, company reference, and optional custom fields
+- **Update Asset** - Update an existing asset by ID, externalId, or sourceId
+- **Get Asset** - Retrieve a single asset by ID, externalId, or sourceId
+- **List Assets** - Query assets with filtering, sorting, pagination, and field selection
+- **Delete Asset** - Delete an asset by ID
+- **Bulk Upsert Assets** - Create and/or update up to 5,000 assets in a single request
+
+All actions support Planhat's flexible ID referencing using `extid-` and `srcid-` prefixes.
 
 ## Limitations
 
@@ -38,9 +47,22 @@ This integration provides actions to interact with Planhat's API.
 
 ## Changelog
 
-- 0.1.0: Initial scaffolding.
+### 0.1.1
 
-> Future versions will document changes and new features.
+- Added API Token configuration for authentication
+- Implemented complete asset management:
+  - `createAsset` - Create single asset
+  - `updateAsset` - Update single asset
+  - `getAsset` - Retrieve single asset
+  - `listAssets` - Query assets with filtering and pagination
+  - `deleteAsset` - Delete asset
+  - `bulkUpsertAssets` - Bulk create/update up to 5,000 assets
+- Refactored code structure with modular actions folder
+- Added support for flexible ID referencing (extid-, srcid- prefixes)
+
+### 0.1.0
+
+- Initial scaffolding
 
 ### Integration publication checklist
 
