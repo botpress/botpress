@@ -210,6 +210,7 @@ const updateIssue = {
   },
 } as const satisfies ActionDefinition
 
+// TODO: also implement proactive-conversation and replace action createIssue
 const createIssue = {
   title: 'Create Issue',
   description: 'Create an issue on Linear',
