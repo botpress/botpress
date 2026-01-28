@@ -115,20 +115,6 @@ export const INTERFACE_RULESET = {
       given: '$..ui[*].examples',
       then: [{ function: falsy }],
     },
-    'entities-should-have-a-title': {
-      description: 'All entities SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD have a non-empty title',
-      severity: 'warn',
-      given: '$.entities[*]',
-      then: [{ field: 'title', function: truthyWithMessage(({ path }) => `entity "${path[1]}"`) }],
-    },
-    'entities-must-have-a-description': {
-      description: 'All entities MUST have a description',
-      message: '{{description}}: {{error}} MUST have a non-empty description',
-      severity: 'error',
-      given: '$.entities[*]',
-      then: [{ field: 'description', function: truthyWithMessage(({ path }) => `entity "${path[1]}"`) }],
-    },
     'entity-fields-should-have-a-title': {
       description: 'All entity fields SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
@@ -162,6 +148,10 @@ export const INTERFACE_RULESET = {
   },
 } satisfies RulesetDefinition
 
+/** An override of the base ruleset that checks nested properties for missing titles & descriptions
+ *
+ *  @remark This can be removed when the "--checkNested" flag is removed from the lint command
+ *  @remark Look at the "--checkNested" flag implementation to see the removal conditions */
 export const INTERFACE_RULESET_WITH_NESTED_CHECKS = {
   ...INTERFACE_RULESET,
   rules: {

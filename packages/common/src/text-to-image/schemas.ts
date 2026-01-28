@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 
 export const ImageModelRefSchema = z.object({
-  id: z.string(),
+  id: z.string().title('Model ID').describe('Unique identifier of the image generation model'),
 })
 
 export const ImageModelSchema = ImageModelRefSchema.extend({
@@ -18,15 +18,19 @@ export const GenerateImageInputSchema = <TModelRef extends z.ZodSchema, TParams 
   paramsSchema: TParams
 ) =>
   z.object({
-    model: imageModelRefSchema.optional().describe('Model to use for image generation'),
-    prompt: z.string(),
-    size: z.string().optional(),
+    model: imageModelRefSchema
+      .optional()
+      .title('Model Name')
+      .describe('The name of the Generative AI Model to use for image generation'),
+    prompt: z.string().title('Image Prompt').describe('Text prompt describing the image to be generated'),
+    size: z.string().optional().title('Image Size').describe('Desired size of the generated image'),
     expiration: z
       .number()
       .int()
       .min(30)
       .max(90)
       .optional()
+      .title('Image Expiry (Days)')
       .describe(
         'Expiration of the generated image in days, after which the image will be automatically deleted to free up storage space in your account. The default is to keep the image indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.'
       ),
@@ -36,10 +40,16 @@ export const GenerateImageInputSchema = <TModelRef extends z.ZodSchema, TParams 
 export const GenerateContentInputBaseSchema = GenerateImageInputSchema(ImageModelRefSchema, ImageGenerationParamsSchema)
 
 export const GenerateImageOutputSchema = z.object({
-  model: z.string().describe('Model name used'),
-  imageUrl: z.string().describe('Temporary URL of generated image'),
-  cost: z.number().describe('Cost of the image generation, in U.S. dollars (DEPRECATED)'),
-  botpress: z.object({
-    cost: z.number().describe('Cost of the image generation, in U.S. dollars'),
-  }),
+  model: z.string().title('Model Name').describe('The name of the generative AI Model that was used'),
+  imageUrl: z.string().title('Image URL').describe('Temporary URL of generated image'),
+  cost: z
+    .number()
+    .title('Image Generation Cost')
+    .describe('Cost of the image generation, in U.S. dollars (DEPRECATED)'),
+  botpress: z
+    .object({
+      cost: z.number().title('Image Generation Cost').describe('Cost of the image generation, in U.S. dollars'),
+    })
+    .title('Botpress Metadata')
+    .describe('Metadata added by Botpress'),
 })

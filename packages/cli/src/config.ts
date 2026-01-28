@@ -361,7 +361,8 @@ const lintSchema = {
    *
    *  @see https://github.com/botpress/botpress/pull/14686
    *  @remark The removal criteria if the "given" value for each of the base rules
-   *   matches the "given" value in each of the nested field check rule overrides. */
+   *   matches the "given" value in each of the nested field check rule overrides
+   *   without having to add "bplint-disable" or causing the CI lint check to fail. */
   checkNested: {
     type: 'boolean',
     default: false,
