@@ -1,0 +1,29 @@
+name: Deploy Chat Integration Staging
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
+
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  docker-chat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/docker-build
+        with:
+          repository: chat-integration
+          dockerfile: ./integrations/chat/Dockerfile
+          push: ${{ github.event_name == 'workflow_dispatch' }}
