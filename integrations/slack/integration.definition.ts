@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import typingIndicator from 'bp_modules/typing-indicator'
 

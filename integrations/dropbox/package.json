@@ -14,7 +14,7 @@
   "private": true,
   "scripts": {
     "build": "bp add -y && bp build",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "check:type": "tsc --noEmit",
     "test": "vitest --run"
   },

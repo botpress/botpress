@@ -13,13 +13,13 @@ import { z } from '@botpress/sdk'
 //    - "email.failed"
 
 export const emailHeaderSchema = z.object({
-  name: z.string(),
-  value: z.string(),
+  name: z.string().title('Name').describe('The name of the header'),
+  value: z.string().title('Value').describe('The value of the header'),
 })
 
 export const emailTagSchema = z.object({
-  name: z.string(),
-  value: z.string(),
+  name: z.string().title('Name').describe('The name of the tag'),
+  value: z.string().title('Value').describe('The value of the tag'),
 })
 
 // Check if "cc" & "bcc" are included in the "to" field (It's included in an optional "headers" field)

@@ -24,13 +24,16 @@ export const listSubmissionsOuputSchema = z.object({
     .array(
       z.object({
         id: z.string().describe('Submission ID').title('Submission ID'),
-        responses: z.array(
-          z.object({
-            questionId: z.string().describe('Question ID').title('Question ID'),
-            value: z.any().optional().describe('Response value').title('Value'),
-            answer: z.any().optional().describe('Response answer').title('Answer'),
-          })
-        ),
+        responses: z
+          .array(
+            z.object({
+              questionId: z.string().describe('Question ID').title('Question ID'),
+              value: z.any().optional().describe('Response value').title('Value'),
+              answer: z.any().optional().describe('Response answer').title('Answer'),
+            })
+          )
+          .describe('List of responses for this submission')
+          .title('Responses'),
       })
     )
     .describe('List of submissions')

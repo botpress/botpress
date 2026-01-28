@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e HITLOOPER_ZENDESK_API_TOKEN -e HITLOOPER_ZENDESK_EMAIL -e HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
+    "check:bplint": "pnpm bp lint --checkNested",
     "build": "bp add -y && bp build"
   },
   "private": true,
