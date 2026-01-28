@@ -12,9 +12,6 @@ inputs:
     description: 'Whether to push the image to the registry'
     required: false
     default: false
-  sentry-auth-token:
-    description: 'The Sentry auth token'
-    required: true
   minify:
     description: 'Whether to minify the build'
     required: false
@@ -73,9 +70,6 @@ runs:
     - uses: depot/build-push-action@v1
       with:
         build-args: |
-          SENTRY_AUTH_TOKEN=${{ inputs.sentry-auth-token }}
-          SENTRY_ORGANIZATION_SLUG=botpress-rm
-          SENTRY_RELEASE=${{ github.sha }}
           MINIFY=${{ inputs.minify }}
           DOCKER_TAG=${{ inputs.tag }}
           BUILD_DATE=${{ steps.meta_date.outputs.timestamp }}
