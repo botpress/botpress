@@ -1,237 +1,321 @@
+import { z } from '@botpress/sdk'
+
 // -----LEADS------
 
-export type KommoLead = {
-  id: number
-  name: string
-  price: number
-  responsible_user_id: number
-  group_id: number
-  status_id: number
-  pipeline_id: number
-  loss_reason_id: number | null
-  created_by: number
-  updated_by: number
-  created_at: number
-  updated_at: number
-  closed_at: number | null
-  closest_task_at: number | null
-  is_deleted: boolean
-  score: number | null
-  account_id: number
-  labor_cost: number | null
-  is_price_computed: boolean
+// Zod schema for KommoLead
+export const kommoLeadSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  price: z.number(),
+  responsible_user_id: z.number(),
+  group_id: z.number(),
+  status_id: z.number(),
+  pipeline_id: z.number(),
+  loss_reason_id: z.number().nullable(),
+  created_by: z.number(),
+  updated_by: z.number(),
+  created_at: z.number(),
+  updated_at: z.number(),
+  closed_at: z.number().nullable(),
+  closest_task_at: z.number().nullable(),
+  is_deleted: z.boolean(),
+  score: z.number().nullable(),
+  account_id: z.number(),
+  labor_cost: z.number().nullable(),
+  is_price_computed: z.boolean(),
+  custom_fields_values: z
+    .array(
+      z.object({
+        field_id: z.number(),
+        field_name: z.string(),
+        field_code: z.string().nullable().optional(),
+        field_type: z.string(),
+        values: z.array(
+          z.object({
+            value: z.union([z.string(), z.number()]),
+            enum_id: z.number().optional(),
+          })
+        ),
+      })
+    )
+    .optional(),
+  _embedded: z
+    .object({
+      tags: z
+        .array(
+          z.object({
+            id: z.number(),
+            name: z.string(),
+          })
+        )
+        .optional(),
+      companies: z
+        .array(
+          z.object({
+            id: z.number(),
+            _links: z.object({
+              self: z.object({
+                href: z.string(),
+              }),
+            }),
+          })
+        )
+        .optional(),
+      contacts: z
+        .array(
+          z.object({
+            id: z.number(),
+            is_main: z.boolean(),
+            _links: z.object({
+              self: z.object({
+                href: z.string(),
+              }),
+            }),
+          })
+        )
+        .optional(),
+    })
+    .optional(),
+  _links: z
+    .object({
+      self: z.object({
+        href: z.string(),
+      }),
+    })
+    .optional(),
+})
 
-  custom_fields_values?: Array<{
-    field_id: number
-    field_name: string
-    field_code?: string | null
-    field_type: string
-    values: Array<{
-      value: string | number
-      enum_id?: number
-    }>
-  }>
+export type KommoLead = z.infer<typeof kommoLeadSchema>
 
-  // Embedded relationships (contacts, companies, tags)
-  _embedded?: {
-    tags?: Array<{
-      id: number
-      name: string
-    }>
-    companies?: Array<{
-      id: number
-      _links: {
-        self: {
-          href: string
-        }
-      }
-    }>
-    contacts?: Array<{
-      id: number
-      is_main: boolean
-      _links: {
-        self: {
-          href: string
-        }
-      }
-    }>
-  }
-  _links?: {
-    self: {
-      href: string
-    }
-  }
-}
+// Zod schema for CreateLeadRequest
+export const createLeadRequestSchema = z.object({
+  name: z.string(),
+  price: z.number().optional(),
+  responsible_user_id: z.number().optional(),
+  pipeline_id: z.number().optional(),
+  status_id: z.number().optional(),
+  created_by: z.number().optional(),
+  updated_by: z.number().optional(),
+  created_at: z.number().optional(),
+  updated_at: z.number().optional(),
+  closed_at: z.number().optional(),
+  custom_fields_values: z
+    .array(
+      z.object({
+        field_id: z.number(),
+        values: z.array(
+          z.object({
+            value: z.union([z.string(), z.number()]),
+          })
+        ),
+      })
+    )
+    .optional(),
+  _embedded: z
+    .object({
+      tags: z
+        .array(
+          z.object({
+            id: z.number().optional(),
+            name: z.string().optional(),
+          })
+        )
+        .optional(),
+      contacts: z
+        .array(
+          z.object({
+            id: z.number(),
+            is_main: z.boolean().optional(),
+          })
+        )
+        .optional(),
+      companies: z
+        .array(
+          z.object({
+            id: z.number(),
+          })
+        )
+        .optional(),
+    })
+    .optional(),
+})
 
-export type CreateLeadRequest = {
-  name: string // REQUIRED - only required field!
-  price?: number
-  responsible_user_id?: number
-  pipeline_id?: number
-  status_id?: number
-  created_by?: number
-  updated_by?: number
-  created_at?: number
-  updated_at?: number
-  closed_at?: number
+export type CreateLeadRequest = z.infer<typeof createLeadRequestSchema>
 
-  // Custom fields
-  custom_fields_values?: Array<{
-    field_id: number
-    values: Array<{
-      value: string | number
-    }>
-  }>
+// Zod schema for UpdateLeadRequest
+export const updateLeadRequestSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().optional(),
+  price: z.number().optional(),
+  responsible_user_id: z.number().optional(),
+  status_id: z.number().optional(),
+  pipeline_id: z.number().optional(),
+  custom_fields_values: z
+    .array(
+      z.object({
+        field_id: z.number(),
+        values: z.array(
+          z.object({
+            value: z.union([z.string(), z.number()]),
+          })
+        ),
+      })
+    )
+    .optional(),
+})
 
-  // Embedded data (tags, contacts, companies)
-  _embedded?: {
-    tags?: Array<{
-      id?: number
-      name?: string
-    }>
-    contacts?: Array<{
-      id: number
-      is_main?: boolean
-    }>
-    companies?: Array<{
-      id: number
-    }>
-  }
-}
+export type UpdateLeadRequest = z.infer<typeof updateLeadRequestSchema>
 
-export type UpdateLeadRequest = {
-  id?: number
-  name?: string
-  price?: number
-  responsible_user_id?: number
-  status_id?: number
-  pipeline_id?: number
-  custom_fields_values?: Array<{
-    field_id: number
-    values: Array<{
-      value: string | number
-    }>
-  }>
-}
+// Zod schema for KommoCreateResponse
+export const kommoCreateResponseSchema = z.object({
+  _links: z.object({
+    self: z.object({
+      href: z.string(),
+    }),
+  }),
+  _embedded: z.object({
+    leads: z.array(
+      z.object({
+        id: z.number(),
+        request_id: z.string(),
+        _links: z.object({
+          self: z.object({
+            href: z.string(),
+          }),
+        }),
+      })
+    ),
+  }),
+})
 
-export type KommoCreateResponse = {
-  _links: {
-    self: {
-      href: string
-    }
-  }
-  _embedded: {
-    leads: Array<{
-      id: number
-      request_id: string
-      _links: {
-        self: {
-          href: string
-        }
-      }
-    }>
-  }
-}
+export type KommoCreateResponse = z.infer<typeof kommoCreateResponseSchema>
 
-export type KommoUpdateResponse = {
-  _links: {
-    self: {
-      href: string
-    }
-  }
-  _embedded: {
-    leads: KommoLead[]
-  }
-}
+// Zod schema for KommoUpdateResponse
+export const kommoUpdateResponseSchema = z.object({
+  _links: z.object({
+    self: z.object({
+      href: z.string(),
+    }),
+  }),
+  _embedded: z.object({
+    leads: z.array(kommoLeadSchema),
+  }),
+})
 
-export type KommoSearchLeadResponse = {
-  _page: number
-  _links: {
-    self: {
-      href: string
-    }
-  }
-  _embedded: {
-    leads: KommoLead[]
-  }
-}
+export type KommoUpdateResponse = z.infer<typeof kommoUpdateResponseSchema>
+
+// Zod schema for KommoSearchLeadResponse
+export const kommoSearchLeadResponseSchema = z.object({
+  _page: z.number(),
+  _links: z.object({
+    self: z.object({
+      href: z.string(),
+    }),
+  }),
+  _embedded: z.object({
+    leads: z.array(kommoLeadSchema),
+  }),
+})
+
+export type KommoSearchLeadResponse = z.infer<typeof kommoSearchLeadResponseSchema>
 
 // -------------CONTACTS-------------
 
-// full contact with all details
-export type KommoContact = {
-  id: number
-  name: string
-  first_name: string
-  last_name: string
-  responsible_user_id: number
-  group_id: number
-  updated_by: number
-  created_at: number
-  updated_at: number
-  closest_task_at: number | null
-  is_deleted: boolean
-  account_id: number
-}
+// Zod schema for KommoContact
+export const kommoContactSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
+  responsible_user_id: z.number(),
+  group_id: z.number(),
+  updated_by: z.number(),
+  created_at: z.number(),
+  updated_at: z.number(),
+  closest_task_at: z.number().nullable(),
+  is_deleted: z.boolean(),
+  account_id: z.number(),
+})
 
-// sends data to kommo
-export type CreateContactRequest = {
-  name?: string
-  first_name?: string
-  last_name?: string
-  responsible_user_id: number
-  created_by: number
-  updated_by?: number
-}
+export type KommoContact = z.infer<typeof kommoContactSchema>
 
-// what kommo returns after creating contats
-export type KommoCreateContactResponse = {
-  _links: {
-    self: {
-      href: string
-    }
-  }
-  _embedded: {
-    contacts: Array<{
-      id: number
-      request_id: string
-      _links: {
-        self: {
-          href: string
-        }
-      }
-    }>
-  }
-}
+// Zod schema for CreateContactRequest
+export const createContactRequestSchema = z.object({
+  name: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  responsible_user_id: z.number(),
+  created_by: z.number(),
+  updated_by: z.number().optional(),
+})
 
-// for searching contacts by phone number
-export type KommoSearchContactsResponse = {
-  _page: number
-  _links: {
-    self: {
-      href: string
-    }
-    next?: {
-      href: string
-    }
-  }
-  _embedded: {
-    contacts: KommoContact[]
-  }
-}
+export type CreateContactRequest = z.infer<typeof createContactRequestSchema>
+
+// Zod schema for KommoCreateContactResponse
+export const kommoCreateContactResponseSchema = z.object({
+  _links: z.object({
+    self: z.object({
+      href: z.string(),
+    }),
+  }),
+  _embedded: z.object({
+    contacts: z.array(
+      z.object({
+        id: z.number(),
+        request_id: z.string(),
+        _links: z.object({
+          self: z.object({
+            href: z.string(),
+          }),
+        }),
+      })
+    ),
+  }),
+})
+
+export type KommoCreateContactResponse = z.infer<typeof kommoCreateContactResponseSchema>
+
+// Zod schema for KommoSearchContactsResponse
+export const kommoSearchContactsResponseSchema = z.object({
+  _page: z.number(),
+  _links: z.object({
+    self: z.object({
+      href: z.string(),
+    }),
+    next: z
+      .object({
+        href: z.string(),
+      })
+      .optional(),
+  }),
+  _embedded: z.object({
+    contacts: z.array(kommoContactSchema),
+  }),
+})
+
+export type KommoSearchContactsResponse = z.infer<typeof kommoSearchContactsResponseSchema>
 
 //----General-----
-export type KommoErrorResponse = {
-  title: string
-  type: string
-  status: number
-  detail: string
-  validation_errors?: Array<{
-    request_id: string
-    errors: Array<{
-      code: string
-      path: string
-      detail: string
-    }>
-  }>
-}
+// Zod schema for KommoErrorResponse
+export const kommoErrorResponseSchema = z.object({
+  title: z.string(),
+  type: z.string(),
+  status: z.number(),
+  detail: z.string(),
+  validation_errors: z
+    .array(
+      z.object({
+        request_id: z.string(),
+        errors: z.array(
+          z.object({
+            code: z.string(),
+            path: z.string(),
+            detail: z.string(),
+          })
+        ),
+      })
+    )
+    .optional(),
+})
+
+export type KommoErrorResponse = z.infer<typeof kommoErrorResponseSchema>
