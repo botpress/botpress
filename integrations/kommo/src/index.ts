@@ -4,15 +4,15 @@ import { KommoClient } from './kommo-api'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async ({ctx, logger}) => {
+  register: async ({ ctx, logger }) => {
     const { baseDomain, accessToken } = ctx.configuration
     const kommoClient = new KommoClient(accessToken, baseDomain, logger)
-    
-    try{
+
+    try {
       await kommoClient.searchLeads('')
-      logger.forBot().info("Connection to Kommo Successful")
-    } catch(error){
-      logger.forBot().error("Connection to Kommo Failed", {error})
+      logger.forBot().info('Connection to Kommo Successful')
+    } catch (error) {
+      logger.forBot().error('Connection to Kommo Failed', { error })
       throw new RuntimeError('failed to connect to Kommo, Please check your access token and subdomain are correct.  ')
     }
   },
