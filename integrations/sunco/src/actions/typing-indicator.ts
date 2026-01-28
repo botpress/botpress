@@ -1,4 +1,4 @@
-import { createClient } from '../sunshine-api'
+import { createClient } from '../api/sunshine-api'
 import { getSuncoConversationId } from '../util'
 import * as bp from '.botpress'
 

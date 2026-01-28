@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { getNetworkErrorDetails } from 'src/util'
 import * as bp from '../../.botpress'
-import { createClient } from '../sunshine-api'
+import { createClient } from '../api/sunshine-api'
 
 export const register: bp.IntegrationProps['register'] = async ({ ctx, logger }) => {
   logger.forBot().info('Starting Sunshine Conversations integration registration...')
