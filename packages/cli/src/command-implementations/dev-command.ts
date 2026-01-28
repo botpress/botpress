@@ -57,14 +57,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (this._initialDef.type === 'integration') {
       defaultPort = DEFAULT_INTEGRATION_PORT
       const knownSecrets = await this._readKnownSecretsFromCache()
-      const secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
+      let secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
         knownSecrets: Object.keys(knownSecrets),
         formatEnv: true,
       })
-      const nonNullSecretEnvVariables = utils.records.filterValues(
-        { ...this._applyPrefixToSecrets(knownSecrets), ...secretEnvVariables },
-        utils.guards.is.notNull
-      )
+      secretEnvVariables = { ...this._applyPrefixToSecrets(knownSecrets), ...secretEnvVariables }
+      const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
 
       if (!this.argv.noSecretCaching) {
         await this._writeKnownSecretsToCache(secretEnvVariables)
@@ -228,8 +226,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private async _writeKnownSecretsToCache(secretEnvVariables: Record<string, string | null>) {
-    const knownSecrets: Record<string, string | null> = await this._readKnownSecretsFromCache()
-
+    const knownSecrets: Record<string, string | null> = {}
     for (const [prefixedSecretName, secretValue] of Object.entries(secretEnvVariables)) {
       const secretName = stripSecretEnvVariablePrefix(prefixedSecretName)
       knownSecrets[secretName] = secretValue
