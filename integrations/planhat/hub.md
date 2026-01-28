@@ -9,9 +9,22 @@ Integrate your Botpress bot with Planhat to manage customer success data, track 
 To configure this integration, you will need:
 
 - A Planhat account
-- API credentials from Planhat
+- A Planhat API Access Token
 
-> Detailed configuration instructions will be added as the integration is developed.
+### Obtaining your API Access Token
+
+API Access Tokens are generated using Private Apps under the Settings section in Planhat:
+
+1. Log in to your Planhat account
+2. Navigate to **Settings** > **Private Apps**
+3. Create a new Private App or use an existing one
+4. Generate an API Access Token
+5. **Important:** Copy and store the token securely - it will only be displayed once and will last forever
+
+**Note:**
+- Operations performed with this token will appear as Private App actions in Planhat
+- You can limit the access scope by configuring permissions on the Private App level
+- To disable a token, disable the Private App, pause it, or remove the API Access Token (which permanently invalidates it)
 
 ## Usage
 
