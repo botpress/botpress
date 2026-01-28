@@ -3,7 +3,7 @@
   "description": "Zendesk integration for Botpress",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm bp lint --checkNested",
+    "check:bplint": "bp lint",
     "build": "bp add -y && bp build",
     "test": "vitest --run"
   },

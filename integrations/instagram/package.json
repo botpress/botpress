@@ -5,7 +5,7 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm bp lint --checkNested",
+    "check:bplint": "bp lint",
     "uploadSandboxScripts": "ts-node -T ../../scripts/upload-sandbox-scripts.ts --integrationPath='./'",
     "refreshTokens": "ts-node -T ./refreshTokens.ts",
     "test": "vitest --run"
