@@ -27,6 +27,7 @@ COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 # install
 RUN pnpm install --frozen-lockfile
 RUN pnpm install --frozen-lockfile --dir integrations/chat
+RUN pnpm --filter @botpress/sdk add @bpinternal/zui --save-prod
 RUN pnpm install --frozen-lockfile --dir packages/sdk
 RUN pnpm install --frozen-lockfile --dir packages/cli
 
