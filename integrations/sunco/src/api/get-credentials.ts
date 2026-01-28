@@ -33,7 +33,6 @@ export const getCredentials = async ({
   logger: bp.Logger
 }): Promise<{
   token: string
-  expiryTimestamp: number
   appId: string
   subdomain?: string
 }> => {
@@ -41,7 +40,7 @@ export const getCredentials = async ({
 
   const tokenInfo = await getTokenInfo({ token, logger })
 
-  return { token, expiryTimestamp: 123456, appId: tokenInfo.app.id, subdomain: tokenInfo.app.subdomain }
+  return { token, appId: tokenInfo.app.id, subdomain: tokenInfo.app.subdomain }
 }
 
 const _getToken = async ({
