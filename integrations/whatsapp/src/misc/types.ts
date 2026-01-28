@@ -21,6 +21,13 @@ const WhatsAppBaseMessageSchema = z.object({
       id: z.string().optional(),
     })
     .optional(),
+  // there are other fields in the referral object, but we don't need them
+  referral: z
+    .object({
+      source_url: z.string().optional(),
+      source_id: z.string().optional(),
+    })
+    .optional(),
   errors: z
     .array(
       z.object({

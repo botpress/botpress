@@ -88,8 +88,15 @@ async function _handleIncomingMessage(
     replyTo,
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
+    const { referral } = message
     return client.getOrCreateMessage({
-      tags: { id: message.id, replyTo },
+      tags: {
+        id: message.id,
+        replyTo,
+        // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
+        ...(referral?.source_url && { referralSourceUrl: referral.source_url.slice(0, 500) }),
+        ...(referral?.source_id && { referralSourceId: referral.source_id }),
+      },
       type,
       payload,
       userId: user.id,
