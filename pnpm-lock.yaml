@@ -3248,12 +3248,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@types/semver':
-        specifier: ^7.3.11
-        version: 7.5.0
-      semver:
-        specifier: ^7.3.8
-        version: 7.7.2
 
   plugins/logger:
     dependencies:

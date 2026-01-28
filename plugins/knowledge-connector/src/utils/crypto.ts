@@ -6,7 +6,7 @@ export const randomUUID = async (): Promise<string> => {
 type _WebCrypto = { randomUUID: () => string }
 let _webCrypto: _WebCrypto | undefined
 
-export const _getWebCrypto = async (): Promise<_WebCrypto> => {
+const _getWebCrypto = async (): Promise<_WebCrypto> => {
   if (!_webCrypto) {
     if (typeof (globalThis as any).crypto?.randomUUID === 'function') {
       _webCrypto = (globalThis as any).crypto

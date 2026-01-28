@@ -31,7 +31,7 @@ export const processQueue = async (props: ProcessQueueProps) => {
   }
 
   const syncQueue = structuredClone(props.syncQueue) as types.SyncQueue
-  const startCursor = syncQueue.findIndex((file) => file.status === 'pending') ?? syncQueue.length - 1
+  const startCursor = syncQueue.findIndex((file) => file.status === 'pending')
 
   if (startCursor < 0) {
     props.logger.info('No files left to process in the sync queue.')

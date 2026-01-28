@@ -12,8 +12,6 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@types/semver": "^7.3.11",
-    "semver": "^7.3.8"
+    "@botpress/sdk": "workspace:*"
   }
 }
