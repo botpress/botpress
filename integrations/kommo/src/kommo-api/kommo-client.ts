@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 import axios, { AxiosInstance } from 'axios'
 import * as bp from '../../.botpress'
 import { getErrorMessage } from './error-handler'
