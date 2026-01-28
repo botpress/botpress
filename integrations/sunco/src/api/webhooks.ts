@@ -62,41 +62,29 @@ export const createWebhook = async ({
   return webhook.webhook
 }
 
-export const deleteWebhook = async ({
-  credentials,
-  logger,
-  webhookId,
-}: {
-  credentials: OAuthCredentials
-  logger: bp.Logger
-  webhookId: string
-}) => {
-  logger.forBot().debug(`Deleting webhook with ID ${webhookId}`)
+export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
+  logger.forBot().debug(`Deleting app with ID ${credentials.appId}`)
 
   if (!credentials.subdomain) {
-    throw new sdk.RuntimeError('failed to delete webhook: no subdomain is associated with this bot installation')
+    throw new sdk.RuntimeError('failed to delete app: no subdomain is associated with this bot installation')
   }
 
-  const response = await fetch(
-    `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks/${webhookId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${credentials.token}`,
-        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
-      },
-    }
-  )
+  const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/v2/oauth/authorization`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${credentials.token}`,
+      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
+      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+    },
+  })
 
   if (!response.ok) {
     console.log('error: ', response.json())
-    logger.forBot().error('Failed to delete webhook', {
+    logger.forBot().error('Failed to delete app', {
       status: response.status,
     })
-    throw new sdk.RuntimeError('Failed to delete webhook')
+    throw new sdk.RuntimeError('Failed to delete app')
   }
-
-  logger.forBot().debug(`Successfully deleted SunCo webhook with ID ${webhookId}`)
+  logger.forBot().debug('Successfully deleted SunCo app')
 }
