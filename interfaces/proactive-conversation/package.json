@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm bp lint --checkNested"
+    "check:bplint": "bp lint"
   },
   "dependencies": {
     "@botpress/sdk": "workspace:*"

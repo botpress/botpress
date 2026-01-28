@@ -6,7 +6,7 @@
     "build": "bp add -y && bp build",
     "deploy": "bp deploy",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm bp lint --checkNested",
+    "check:bplint": "bp lint",
     "test": "vitest --run"
   },
   "dependencies": {
