@@ -111,5 +111,57 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    deleteAsset: {
+      title: 'Delete Asset',
+      description: 'Deletes an asset from Planhat',
+      input: {
+        schema: z.object({
+          assetId: z.string().min(1).describe('The asset ID to delete').title('Asset ID'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          success: z.boolean().describe('Whether the deletion was successful'),
+          deletedCount: z.number().describe('Number of assets deleted'),
+        }),
+      },
+    },
+    bulkUpsertAssets: {
+      title: 'Bulk Upsert Assets',
+      description: 'Create and/or update multiple assets in a single request (max 5,000 items)',
+      input: {
+        schema: z.object({
+          assets: z.array(
+            z.object({
+              id: z.string().optional().describe('Asset ID for updates').title('ID'),
+              name: z.string().optional().describe('The name of the asset (required for creation)').title('Asset Name'),
+              companyId: z.string().optional().describe('The company ID. Can also use "extid-[externalId]" or "srcid-[sourceId]" format').title('Company ID'),
+              externalId: z.string().optional().describe('External identifier for the asset').title('External ID'),
+              sourceId: z.string().optional().describe('Source identifier for the asset').title('Source ID'),
+              custom: z.record(z.any()).optional().describe('Custom fields as key-value pairs').title('Custom Fields'),
+            })
+          ).min(1).max(5000).describe('Array of assets to create or update (max 5,000)').title('Assets'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          created: z.number().describe('Number of assets created'),
+          updated: z.number().describe('Number of assets updated'),
+          nonupdates: z.number().describe('Number of assets that were not updated'),
+          upsertedIds: z.array(z.string()).describe('Array of IDs for all upserted assets'),
+          insertsKeys: z.array(
+            z.object({
+              id: z.string().optional(),
+              sourceId: z.string().optional(),
+              externalId: z.string().optional(),
+            })
+          ).describe('Keys for newly created assets'),
+          updatesKeys: z.array(z.any()).describe('Keys for updated assets'),
+          createdErrors: z.array(z.any()).describe('Errors during creation'),
+          updatedErrors: z.array(z.any()).describe('Errors during updates'),
+          permissionErrors: z.array(z.any()).describe('Permission errors'),
+        }),
+      },
+    },
   },
 })
