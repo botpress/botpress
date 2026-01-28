@@ -4,6 +4,7 @@ import { messages } from './definitions/channels/messages'
 import { apiVersion } from './src/gen/version'
 
 export default new sdk.IntegrationDefinition({
+  // Trigger CI build
   name: 'chat',
   title: 'Chat',
   version: apiVersion,
