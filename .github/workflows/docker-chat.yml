@@ -22,7 +22,7 @@ jobs:
     runs-on: depot-ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup
+      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
         uses: ./.github/actions/setup
         with:
           extra_filters: '-F @botpresshub/chat'
