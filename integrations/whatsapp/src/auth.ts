@@ -13,7 +13,7 @@ const getWabaIdsFromTokenResponseSchema = z
       granular_scopes: z.array(
         z.object({
           scope: z.string(),
-          target_ids: z.array(z.string()),
+          target_ids: z.array(z.string()).optional(),
         })
       ),
     }),
@@ -60,6 +60,8 @@ export class MetaOauthClient {
     const { data: dataDebugToken } = await axios.get(
       `https://graph.facebook.com/${this._version}/debug_token?${query.toString()}`
     )
+
+    console.log('dataDebugToken', dataDebugToken)
     const data = getWabaIdsFromTokenResponseSchema.safeParse(dataDebugToken).data?.data
     if (!data) {
       throw new RuntimeError('Invalid response from API when fetching WhatsApp Business Accounts IDs')

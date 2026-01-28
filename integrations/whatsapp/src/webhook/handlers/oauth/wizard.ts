@@ -81,7 +81,8 @@ const _setupHandler: WizardHandler = async (props) => {
       '&config_id=' +
       bp.secrets.OAUTH_CONFIG_ID +
       '&override_default_response_type=true' +
-      '&response_type=code'
+      '&response_type=code' +
+      '&extras={"featureType":"whatsapp_business_app_onboarding","sessionInfoVersion":"3","version":"v3","features":[]}'
   )
 }
 
