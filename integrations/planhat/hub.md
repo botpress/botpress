@@ -1,36 +1,33 @@
-# Hello World
+# Planhat
 
-This integration is a template with a single action.
+Integrate your Botpress bot with Planhat to manage customer success data, track user engagement, and automate customer workflows.
 
-> Describe the integration's purpose.
+> This integration allows your bot to interact with Planhat's customer success platform.
 
 ## Configuration
 
-This integration does not need a configuration.
+To configure this integration, you will need:
 
-> Explain how to configure your integration and list prerequisites `ex: accounts, etc.`.
-> You might also want to add configuration details for specific use cases.
+- A Planhat account
+- API credentials from Planhat
+
+> Detailed configuration instructions will be added as the integration is developed.
 
 ## Usage
 
-To use, call the action `helloWorld`. This action will greet the user.
+This integration provides actions to interact with Planhat's API.
 
-> Explain how to use your integration.
-> You might also want to include an example if there is a specific use case.
+> Specific usage instructions and examples will be added as actions are implemented.
 
 ## Limitations
 
-The `helloWorld` action has a max name size limit of 2^28 - 16 characters (the max javascript string size).
-
-> List the known bugs.
-> List known limits `ex: rate-limiting, payload sizes, etc.`
-> List unsupported use cases.
+> Known limitations and rate limits will be documented as the integration is developed.
 
 ## Changelog
 
-- 0.1.0: Implemented `helloWorld` action.
+- 0.1.0: Initial scaffolding.
 
-> If some versions of your integration introduce changes worth mentionning (breaking changes, bug fixes), describe them here. This will help users to know what to expect when updating the integration.
+> Future versions will document changes and new features.
 
 ### Integration publication checklist
 
