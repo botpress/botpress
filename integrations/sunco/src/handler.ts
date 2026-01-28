@@ -49,8 +49,6 @@ const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProp
 
   const searchParams = new URLSearchParams(req.query)
   const authorizationCode = searchParams.get('code')
-
-  //TODO verify that these are the correct error params
   const error = searchParams.get('error')
   const errorDescription = searchParams.get('error_description')
 
