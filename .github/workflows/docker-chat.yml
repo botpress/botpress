@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'integrations/chat/**'
+      - 'packages/sdk/**'
 
   workflow_dispatch: {}
 
