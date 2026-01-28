@@ -1,7 +1,16 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
-import { Action, CarouselItem, MessageContent, PostMessageRequest, createClient } from './api/sunshine-api'
-import { Carousel, Choice, Conversation } from './types'
+import {
+  Action,
+  ApiClient,
+  CarouselItem,
+  CombinedApiClient,
+  createClient,
+  MessageContent,
+  PostMessageRequest,
+} from './api/sunshine-api'
+import { getStoredCredentials } from './get-stored-credentials'
+import { Carousel, Choice, Conversation, StoredCredentials } from './types'
 import { getSuncoConversationId } from './util'
 import * as bp from '.botpress'
 
@@ -9,27 +18,33 @@ export const channels = {
   channel: {
     messages: {
       text: async (props) => {
-        await sendMessage(props, { type: 'text', text: props.payload.text })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendMessage(props, { type: 'text', text: props.payload.text }, credentials)
       },
       image: async (props) => {
-        const mediaUrl = await getMediaUrl(props.payload.imageUrl, props.ctx, props.conversation)
-        await sendMessage(props, { type: 'image', mediaUrl })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        const mediaUrl = await getMediaUrl(props.payload.imageUrl, props.conversation, credentials)
+        await sendMessage(props, { type: 'image', mediaUrl }, credentials)
       },
       markdown: async (props) => {
-        await sendMessage(props, { type: 'text', text: props.payload.markdown })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendMessage(props, { type: 'text', text: props.payload.markdown }, credentials)
       },
       audio: async (props) => {
-        const mediaUrl = await getMediaUrl(props.payload.audioUrl, props.ctx, props.conversation)
-        await sendMessage(props, { type: 'file', mediaUrl })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        const mediaUrl = await getMediaUrl(props.payload.audioUrl, props.conversation, credentials)
+        await sendMessage(props, { type: 'file', mediaUrl }, credentials)
       },
       video: async (props) => {
-        const mediaUrl = await getMediaUrl(props.payload.videoUrl, props.ctx, props.conversation)
-        await sendMessage(props, { type: 'file', mediaUrl })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        const mediaUrl = await getMediaUrl(props.payload.videoUrl, props.conversation, credentials)
+        await sendMessage(props, { type: 'file', mediaUrl }, credentials)
       },
       file: async (props) => {
         try {
-          const mediaUrl = await getMediaUrl(props.payload.fileUrl, props.ctx, props.conversation)
-          await sendMessage(props, { type: 'file', mediaUrl })
+          const credentials = await getStoredCredentials(props.client, props.ctx)
+          const mediaUrl = await getMediaUrl(props.payload.fileUrl, props.conversation, credentials)
+          await sendMessage(props, { type: 'file', mediaUrl }, credentials)
         } catch (e) {
           const err = e as any
           // 400 errors can be sent if file has unsupported type
@@ -41,25 +56,34 @@ export const channels = {
         }
       },
       location: async (props) => {
-        await sendMessage(props, {
-          type: 'location',
-          coordinates: {
-            lat: props.payload.latitude,
-            long: props.payload.longitude,
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendMessage(
+          props,
+          {
+            type: 'location',
+            coordinates: {
+              lat: props.payload.latitude,
+              long: props.payload.longitude,
+            },
           },
-        })
+          credentials
+        )
       },
       carousel: async (props) => {
-        await sendCarousel(props, props.payload)
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendCarousel(props, props.payload, credentials)
       },
       card: async (props) => {
-        await sendCarousel(props, { items: [props.payload] })
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendCarousel(props, { items: [props.payload] }, credentials)
       },
       dropdown: async (props) => {
-        await sendMessage(props, renderChoiceMessage(props.payload))
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendMessage(props, renderChoiceMessage(props.payload), credentials)
       },
       choice: async (props) => {
-        await sendMessage(props, renderChoiceMessage(props.payload))
+        const credentials = await getStoredCredentials(props.client, props.ctx)
+        await sendMessage(props, renderChoiceMessage(props.payload), credentials)
       },
       bloc: () => {
         throw new RuntimeError('Not implemented')
@@ -78,11 +102,15 @@ const SAY_PREFIX = 'say::'
  * The reason for this is that Zendesk will fail the sendMessage request if the URL is from
  * another Sunco Conversation.
  */
-async function getMediaUrl(sourceUrl: string, ctx: bp.Context, conversation: Conversation): Promise<string> {
+async function getMediaUrl(
+  sourceUrl: string,
+  conversation: Conversation,
+  credentials: StoredCredentials
+): Promise<string> {
   try {
     const hostname = new URL(sourceUrl).hostname
     if (hostname.endsWith('zendesk.com')) {
-      return downloadAndUploadAttachment(sourceUrl, ctx, getSuncoConversationId(conversation))
+      return downloadAndUploadAttachment(sourceUrl, getSuncoConversationId(conversation), credentials)
     }
   } catch {
     // Invalid URL or error, return as-is
@@ -96,11 +124,9 @@ async function getMediaUrl(sourceUrl: string, ctx: bp.Context, conversation: Con
  */
 async function downloadAndUploadAttachment(
   sourceUrl: string,
-  ctx: bp.Context,
-  conversationId: string
+  conversationId: string,
+  credentials: StoredCredentials
 ): Promise<string> {
-  const { appId, keyId, keySecret } = ctx.configuration
-
   // Download the file from the source URL
   const response = await axios.get(sourceUrl, {
     responseType: 'arraybuffer',
@@ -121,16 +147,18 @@ async function downloadAndUploadAttachment(
   // uses superagent internally, which doesn't properly handle Node.js File/Blob objects.
   // Superagent expects stream-like objects with .on() method, but Node.js 18+ File/Blob
   // don't implement stream interfaces. Using axios with native FormData works correctly.
-  const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${appId}/attachments`, formData, {
+  const authorization =
+    credentials.configType === 'manual'
+      ? { auth: { username: credentials.keyId, password: credentials.keySecret } }
+      : { headers: { Authorization: `Bearer ${credentials.token}` } }
+
+  const uploadResponse = await axios.post(`https://api.smooch.io/v2/apps/${credentials.appId}/attachments`, formData, {
     params: {
       access: 'public',
       for: 'message',
       conversationId,
     },
-    auth: {
-      username: keyId,
-      password: keySecret,
-    },
+    ...authorization,
   })
 
   const mediaUrl = uploadResponse.data?.attachment?.mediaUrl
@@ -151,19 +179,19 @@ function renderChoiceMessage(payload: Choice): MessageContent {
 
 type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 
-async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: MessageContent) {
-  const client = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
+async function sendMessage(
+  { conversation, ack }: SendMessageProps,
+  payload: MessageContent,
+  credentials: StoredCredentials
+) {
+  const client = createClient(credentials)
 
   const data: PostMessageRequest = {
     author: { type: 'business' },
     content: payload,
   }
 
-  const { messages } = await client.messages.postMessage(
-    ctx.configuration.appId,
-    getSuncoConversationId(conversation),
-    data
-  )
+  const { messages } = await client.messages.postMessage(credentials.appId, getSuncoConversationId(conversation), data)
 
   const message = messages?.[0]
 
@@ -178,7 +206,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
   }
 }
 
-const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
+const sendCarousel = async (props: SendMessageProps, payload: Carousel, credentials: StoredCredentials) => {
   const items: CarouselItem[] = []
 
   for (const card of payload.items) {
@@ -216,8 +244,12 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
     items.push({ title: card.title, description: card.subtitle, mediaUrl: card.imageUrl, actions })
   }
 
-  await sendMessage(props, {
-    type: 'carousel',
-    items,
-  })
+  await sendMessage(
+    props,
+    {
+      type: 'carousel',
+      items,
+    },
+    credentials
+  )
 }
