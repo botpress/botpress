@@ -20,12 +20,12 @@ const createContact: ActionDefinition = {
   description: 'Creates a new contact',
   input: {
     schema: z.object({
-      name: z.string().optional().describe('Full contact name'),
-      firstName: z.string().optional().describe('First name'),
-      lastName: z.string().optional().describe('Last name'),
-      responsibleUserId: z.number().describe('User ID to assign this contact to'),
-      createdBy: z.number().describe('User ID who creates this contact'),
-      updatedBy: z.number().optional().describe('User ID who updates this contact'),
+      name: z.string().optional().title('Full contact name').describe('Full contact name'),
+      firstName: z.string().optional().title('First name').describe('First name'),
+      lastName: z.string().optional().title('Last name').describe('Last name'),
+      responsibleUserId: z.number().title('Responsible User ID').describe('User ID to assign this contact to'),
+      createdBy: z.number().title('Created By').describe('User ID who creates this contact'),
+      updatedBy: z.number().optional().title('Updated By').describe('User ID who updates this contact'),
     }),
   },
   output: {

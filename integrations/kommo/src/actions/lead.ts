@@ -18,8 +18,8 @@ function mapKommoLeadToBotpress(lead: KommoLead) {
 
 export const createLead: bp.IntegrationProps['actions']['createLead'] = async ({ ctx, input, logger }) => {
   try {
-    logger.forBot().info('Creating lead with input:', input)
-    logger.forBot().info('Configuration:', { baseDomain: ctx.configuration.baseDomain })
+    logger.forBot().debug('Creating lead with input:', input)
+    logger.forBot().debug('Configuration:', { baseDomain: ctx.configuration.baseDomain })
 
     const { baseDomain, accessToken } = ctx.configuration
     const kommoClient = new KommoClient(accessToken, baseDomain, logger)

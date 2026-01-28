@@ -12,8 +12,8 @@ export default new IntegrationDefinition({
   // User provides these when configuring the integration
   configuration: {
     schema: z.object({
-      baseDomain: z.string().describe('Your Kommo subdomain (e.g., yourcompany.kommo.com)'),
-      accessToken: z.string().describe('Long-lived access token from your Kommo private integration'),
+      baseDomain: z.string().title('Subdomain').describe('Your Kommo subdomain (e.g., yourcompany.kommo.com)'),
+      accessToken: z.string().title('Access token').describe('Long-lived access token from your Kommo private integration'),
     }),
   },
   actions,

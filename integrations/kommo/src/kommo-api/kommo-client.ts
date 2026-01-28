@@ -46,20 +46,20 @@ export class KommoClient {
       const createdLeadId = response.data._embedded.leads[0]?.id
 
       if (!createdLeadId) {
-        throw new sdk.RuntimeError('No lead ID returned from Kommo')
+        throw new Error('No lead ID returned from Kommo')
       }
 
       const lead = await this.getLead(createdLeadId)
 
       if (!lead) {
-        throw new sdk.RuntimeError('Failed to fetch created lead')
+        throw new Error('Failed to fetch created lead')
       }
 
       this._logger.forBot().info('Lead created successfully', { leadId: lead.id })
       return lead
     } catch (error) {
       this._logger.forBot().error('Failed to create lead', { error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 
@@ -79,7 +79,7 @@ export class KommoClient {
       }
 
       this._logger.forBot().error('Failed to fetch lead', { leadId, error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 
@@ -91,14 +91,14 @@ export class KommoClient {
       const lead = await this.getLead(leadId)
 
       if (!lead) {
-        throw new sdk.RuntimeError('Failed to fetch updated lead')
+        throw new Error('Failed to fetch updated lead')
       }
 
       this._logger.forBot().info('Lead updated successfully', { leadId: lead.id })
       return lead
     } catch (error) {
       this._logger.forBot().error('Failed to update lead', { leadId, error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 
@@ -120,7 +120,7 @@ export class KommoClient {
         return []
       }
       this._logger.forBot().error('Failed to search leads', { query, error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
   // -----Contacts-----
@@ -133,19 +133,19 @@ export class KommoClient {
       // get the ID from the response
       const createdContactId = response.data._embedded.contacts[0]?.id
       if (!createdContactId) {
-        throw new sdk.RuntimeError('No contact ID returned from Kommo')
+        throw new Error('No contact ID returned from Kommo')
       }
       // fetch full contact details to return to user
       const contact = await this.getContact(createdContactId)
       if (!contact) {
-        throw new sdk.RuntimeError('Failed to fetch created contact')
+        throw new Error('Failed to fetch created contact')
       }
       this._logger.forBot().info('Contact created successfully', { contactId: contact.id })
 
       return contact
     } catch (error) {
       this._logger.forBot().error('Failed to create contact', { error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 
@@ -164,7 +164,7 @@ export class KommoClient {
       }
 
       this._logger.forBot().error('Failed to fetch contact', { contactId, error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 
@@ -188,7 +188,7 @@ export class KommoClient {
       }
 
       this._logger.forBot().error('Failed to search contacts', { query, error })
-      throw new sdk.RuntimeError(getErrorMessage(error))
+      throw new Error(getErrorMessage(error))
     }
   }
 }

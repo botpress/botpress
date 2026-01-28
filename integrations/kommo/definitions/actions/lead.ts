@@ -17,11 +17,11 @@ const createLead: ActionDefinition = {
   description: 'Creates a new lead in Kommo CRM',
   input: {
     schema: z.object({
-      name: z.string().describe('Lead name (required)'),
-      price: z.number().optional().describe('Lead value in dollars'),
-      responsibleUserId: z.number().optional().describe('User ID to assign this lead to'),
-      pipelineId: z.number().optional().describe('Pipeline ID (defaults to main pipeline)'),
-      statusId: z.number().optional().describe('Initial status/stage ID'),
+      name: z.string().title('Lead name').describe('Lead name (required)'),
+      price: z.number().optional().title('Lead value').describe('Lead value in dollars'),
+      responsibleUserId: z.number().optional().title('Responsible User ID').describe('User ID to assign this lead to'),
+      pipelineId: z.number().optional().title('Pipeline ID').describe('Pipeline ID (defaults to main pipeline)'),
+      statusId: z.number().optional().title('Status ID').describe('Initial status/stage ID'),
     }),
   },
   output: {
@@ -36,12 +36,12 @@ const updateLead: ActionDefinition = {
   description: 'Updates an existing lead in Kommo',
   input: {
     schema: z.object({
-      leadId: z.number().describe('Lead ID to update'),
-      name: z.string().optional().describe('New name'),
-      price: z.number().optional().describe('New price'),
-      responsibleUserId: z.number().optional().describe('New responsible user'),
-      pipelineId: z.number().optional().describe('New pipeline ID'),
-      statusId: z.number().optional().describe('New status/stage ID'),
+      leadId: z.number().title('Lead ID').describe('Lead ID to update'),
+      name: z.string().optional().title('New name').describe('New name'),
+      price: z.number().optional().title('New price').describe('New price'),
+      responsibleUserId: z.number().optional().title('New responsible user').describe('New responsible user'),
+      pipelineId: z.number().optional().title('New pipeline ID').describe('New pipeline ID'),
+      statusId: z.number().optional().title('New status/stage ID').describe('New status/stage ID'),
     }),
   },
   output: {
