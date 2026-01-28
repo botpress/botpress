@@ -1,24 +1,10 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
-import { userIdSchema } from '../models/user'
+import { userIdSchema, createUserInput } from '../models/user'
 import { authHeaders } from './auth'
 import { OperationFunc } from './types'
 
 const section = 'user' as const
-
-const userInput = schema(
-  z.object({
-    name: schema(z.string().optional(), {
-      description: 'Name of the [User](#schema_user) (not a unique identifier)',
-    }),
-    pictureUrl: schema(z.string().optional(), {
-      description: 'Picture url of the [User](#schema_user)',
-    }),
-    profile: schema(z.string().max(1000).optional(), {
-      description: 'Custom profile data of the [User](#schema_user) encoded as a string',
-    }),
-  })
-)
 
 export const getUserOperation: OperationFunc = (api) => ({
   name: 'getUser',
@@ -44,7 +30,7 @@ export const createUserOperation: OperationFunc = (api) => ({
   path: '/users',
   requestBody: {
     description: 'User data',
-    schema: userInput.extend({ id: userIdSchema.optional() }),
+    schema: createUserInput.extend({ id: userIdSchema.optional() }),
   },
   section,
   response: {
@@ -64,7 +50,7 @@ export const getOrCreateUserOperation: OperationFunc = (api) => ({
   path: '/users/get-or-create',
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: createUserInput,
   },
   parameters: {
     ...authHeaders,
@@ -87,7 +73,7 @@ export const updateUserOperation: OperationFunc = (api) => ({
   parameters: authHeaders,
   requestBody: {
     description: 'User data',
-    schema: userInput,
+    schema: createUserInput,
   },
   section,
   response: {
