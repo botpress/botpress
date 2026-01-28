@@ -187,6 +187,10 @@ export const BOT_RULESET = {
   },
 } satisfies RulesetDefinition
 
+/** An override of the base ruleset that checks nested properties for missing titles & descriptions
+ *
+ *  @remark This can be removed when the "--checkNested" flag is removed from the lint command
+ *  @remark Look at the "--checkNested" flag implementation to see the removal conditions */
 export const BOT_RULESET_WITH_NESTED_CHECKS = {
   ...BOT_RULESET,
   rules: {
