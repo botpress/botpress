@@ -66,7 +66,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     let defaultPort = DEFAULT_BOT_PORT
     if (this._initialDef.type === 'integration') {
       defaultPort = DEFAULT_INTEGRATION_PORT
-      const knownSecrets = await this._getKnownSecrets(this._initialDef.definition)
+      const knownSecrets = await this._readKnownSecretsFromCache(this._initialDef.definition)
       const secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
         knownSecrets: Object.keys(knownSecrets),
         formatEnv: true,
@@ -241,7 +241,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     integrationDef: sdk.IntegrationDefinition,
     secretEnvVariables: Record<string, string | null>
   ) {
-    const knownSecrets: Record<string, string | null> = await this._getKnownSecrets(integrationDef)
+    const knownSecrets: Record<string, string | null> = await this._readKnownSecretsFromCache(integrationDef)
 
     for (const [prefixedSecretName, secretValue] of Object.entries(secretEnvVariables)) {
       const secretName = stripSecretEnvVariablePrefix(prefixedSecretName)
@@ -256,7 +256,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await this._secretsCache.set(integrationDef.name, nonNullKnownSecrets)
   }
 
-  private async _getKnownSecrets(integrationDef: sdk.IntegrationDefinition) {
+  private async _readKnownSecretsFromCache(integrationDef: sdk.IntegrationDefinition) {
     return (await this._secretsCache.get(integrationDef.name)) ?? {}
   }
 
