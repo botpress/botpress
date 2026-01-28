@@ -240,6 +240,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.rm('secrets')
       return
     }
+    await this.projectCache.set('secrets', nonNullKnownSecrets)
   }
 
   private async _readKnownSecretsFromCache() {
