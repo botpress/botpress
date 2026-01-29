@@ -29,3 +29,23 @@ export const getStoredCredentials = async (
 
   return { configType, token, appId, subdomain }
 }
+
+export const getWebhookSecret = async (client: bp.Client, ctx: bp.HandlerProps['ctx']) => {
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.webhookSecret
+  }
+  const {
+    state: {
+      payload: { secret },
+    },
+  } = await client.getOrSetState({
+    name: 'webhook',
+    type: 'integration',
+    id: ctx.integrationId,
+    payload: { id: '', secret: '' },
+  })
+  if (!secret) {
+    throw new sdk.RuntimeError('Error: the webhook secret was not found in the bot state.')
+  }
+  return secret
+}
