@@ -1,28 +1,13 @@
 import * as sdk from '@botpress/sdk'
-import { OAuthCredentials, StoredCredentials } from 'src/types'
+import { OAuthCredentials } from 'src/types'
 import { BASE_HEADERS } from './const'
 import * as bp from '.botpress'
 
 const { z } = sdk
 
-const createWebhookSchema = z
-  .object({
-    webhook: z.object({
-      secret: z.string(),
-      id: z.string(),
-    }),
-  })
-  .passthrough()
+const createWebhookSchema = z.object({ webhook: z.object({ secret: z.string(), id: z.string() }) }).passthrough()
 
-const listWebhooksSchema = z
-  .object({
-    webhooks: z.array(
-      z.object({
-        id: z.string(),
-      })
-    ),
-  })
-  .passthrough()
+const listWebhooksSchema = z.object({ webhooks: z.array(z.object({ id: z.string() })) }).passthrough()
 
 export const createWebhook = async ({
   credentials,
@@ -48,23 +33,18 @@ export const createWebhook = async ({
     `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks`,
     {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${credentials.token}`,
-        ...BASE_HEADERS,
-      },
+      headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS },
       body: JSON.stringify(params),
     }
   )
 
+  const payload = await response.json()
   if (!response.ok) {
-    console.log('error: ', await response.json())
-    logger.forBot().error('Failed to register webhook', {
-      status: response.status,
-    })
+    logger.forBot().error('Failed to register webhook', { status: response.status, payload })
     throw new sdk.RuntimeError('failed to register webhook')
   }
 
-  const webhook = createWebhookSchema.parse(await response.json())
+  const webhook = createWebhookSchema.parse(payload)
 
   logger.forBot().debug('Successfully registered webhook for SunCo')
 
@@ -82,17 +62,12 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
 
   const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/oauth/authorization`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${credentials.token}`,
-      ...BASE_HEADERS,
-    },
+    headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS },
   })
 
+  const payload = await response.json()
   if (!response.ok) {
-    console.log('error: ', await response.json())
-    logger.forBot().error('Failed to delete app', {
-      status: response.status,
-    })
+    logger.forBot().error('Failed to delete app', { status: response.status, payload })
     throw new sdk.RuntimeError('Failed to delete app')
   }
   logger.forBot().debug('Successfully deleted SunCo app')
@@ -124,18 +99,12 @@ const deleteWebhook = async ({
     `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks/${webhookId}`,
     {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${credentials.token}`,
-        ...BASE_HEADERS,
-      },
+      headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS },
     }
   )
 
   if (!response.ok) {
-    console.log('error: ', await response.json())
-    logger.forBot().error('Failed to delete webhook', {
-      status: response.status,
-    })
+    logger.forBot().error('Failed to delete webhook', { status: response.status, payload: await response.json() })
     throw new sdk.RuntimeError('failed to delete webhook')
   }
 }
@@ -151,24 +120,17 @@ const listWebhooks = async ({ credentials, logger }: { credentials: OAuthCredent
     `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks`,
     {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${credentials.token}`,
-        ...BASE_HEADERS,
-      },
+      headers: { Authorization: `Bearer ${credentials.token}`, ...BASE_HEADERS },
     }
   )
 
+  const payload = await response.json()
   if (!response.ok) {
-    console.log('error: ', await response.json())
-    logger.forBot().error('Failed to list webhooks', {
-      status: response.status,
-    })
+    logger.forBot().error('Failed to list webhooks', { status: response.status, payload })
     throw new sdk.RuntimeError('Failed to list webhooks')
   }
 
-  const parsed = listWebhooksSchema.parse(await response.json())
-
+  const parsed = listWebhooksSchema.parse(payload)
   logger.forBot().debug('Successfully listed webhooks for SunCo')
-
   return parsed.webhooks
 }

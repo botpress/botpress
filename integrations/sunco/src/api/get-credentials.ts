@@ -6,24 +6,12 @@ const { z } = sdk
 const TOKEN_URL = 'https://oauth-bridge.zendesk.com/sc/oauth/token'
 const TOKEN_INFO_URL = 'https://oauth-bridge.zendesk.com/sc/v2/tokenInfo'
 
-type ClientCredentials = {
-  clientId: string
-  clientSecret: string
-}
+type ClientCredentials = { clientId: string; clientSecret: string }
 
-const getTokenSchema = z
-  .object({
-    access_token: z.string(),
-  })
-  .passthrough()
+const getTokenSchema = z.object({ access_token: z.string() }).passthrough()
 
 const getTokenInfoSchema = z
-  .object({
-    app: z.object({
-      id: z.string(),
-      subdomain: z.string().optional(),
-    }),
-  })
+  .object({ app: z.object({ id: z.string(), subdomain: z.string().optional() }) })
   .passthrough()
 
 export const getCredentials = async ({
@@ -32,15 +20,9 @@ export const getCredentials = async ({
 }: {
   authorizationCode: string
   logger: bp.Logger
-}): Promise<{
-  token: string
-  appId: string
-  subdomain?: string
-}> => {
+}): Promise<{ token: string; appId: string; subdomain?: string }> => {
   const token = await _getToken({ authorizationCode, clientCredentials: _getBotpressClientCredentials(), logger })
-
   const tokenInfo = await getTokenInfo({ token, logger })
-
   return { token, appId: tokenInfo.app.id, subdomain: tokenInfo.app.subdomain }
 }
 
@@ -106,8 +88,5 @@ export const getTokenInfo = async ({ token, logger }: { token: string; logger: b
 }
 
 const _getBotpressClientCredentials = (): ClientCredentials => {
-  return {
-    clientId: bp.secrets.CLIENT_ID,
-    clientSecret: bp.secrets.CLIENT_SECRET,
-  }
+  return { clientId: bp.secrets.CLIENT_ID, clientSecret: bp.secrets.CLIENT_SECRET }
 }
