@@ -23,7 +23,9 @@ COPY ./packages /usr/app/packages
 COPY ./tsconfig.json /usr/app/tsconfig.json
 COPY integrations/chat ./integrations/chat
 COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
-COPY ./turbo.json /usr/app/
+
+# Use NODE_ENV to avoid installing devDependencies
+ENV NODE_ENV=production
 
 # install
 RUN pnpm install --frozen-lockfile
@@ -34,9 +36,6 @@ RUN pnpm --filter @botpress/sdk run build
 RUN pnpm --filter @botpress/cognitive run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
-
-# Use production node environment by default
-ENV NODE_ENV=production
 
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
