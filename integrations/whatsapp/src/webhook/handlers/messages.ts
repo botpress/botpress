@@ -88,14 +88,11 @@ async function _handleIncomingMessage(
     replyTo,
   }: ValueOf<IncomingMessages> & { incomingMessageType?: string; replyTo?: string }) => {
     logger.forBot().debug(`Received ${incomingMessageType ?? type} message from WhatsApp:`, payload)
-    const { referral } = message
     return client.getOrCreateMessage({
       tags: {
         id: message.id,
         replyTo,
-        // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
-        ...(referral?.source_url && { referralSourceUrl: referral.source_url.slice(0, 500) }),
-        ...(referral?.source_id && { referralSourceId: referral.source_id }),
+        ..._processReferralTags(message, logger),
       },
       type,
       payload,
@@ -251,4 +248,35 @@ function _getMediaExpiry(ctx: bp.Context) {
   }
   const expiresAt = new Date(Date.now() + expiryDelayHours * 60 * 60 * 1000)
   return expiresAt.toISOString()
+}
+
+function _processReferralTags(message: WhatsAppMessage, logger: bp.Logger): Record<string, string> {
+  const { referral } = message
+  if (!referral) {
+    return {}
+  }
+
+  const tags: Record<string, string> = {}
+
+  if (referral.source_url) {
+    const originalUrl = referral.source_url
+    // Urls can go up to 2048 characters, but we limit to 500 to avoid tags limit error
+    const processedUrl = originalUrl.slice(0, 500)
+
+    if (originalUrl !== processedUrl) {
+      logger
+        .forBot()
+        .warn(
+          `For whatsapp message "${message.id}", referral source URL was truncated from ${originalUrl.length} to 500 characters. Original: ${originalUrl}, Sliced: ${processedUrl}`
+        )
+    }
+
+    tags.referralSourceUrl = processedUrl
+  }
+
+  if (referral.source_id) {
+    tags.referralSourceId = referral.source_id
+  }
+
+  return tags
 }
