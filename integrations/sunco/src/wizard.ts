@@ -1,5 +1,4 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
-import { webcrypto } from 'crypto'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -8,24 +7,11 @@ const BOT_LIST_PATH = '/admin/ai/ai-agents/ai-agents/marketplace-bots'
 
 export const handler = async (props: bp.HandlerProps) => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
-    .addStep({
-      id: 'start',
-      handler: _start,
-    })
-    .addStep({
-      id: 'get-subdomain',
-      handler: _getSubdomain,
-    })
-    .addStep({
-      id: 'add-to-channels',
-      handler: _addToChannels,
-    })
-    .addStep({
-      id: 'end',
-      handler: _endHandler,
-    })
+    .addStep({ id: 'start', handler: _start })
+    .addStep({ id: 'get-subdomain', handler: _getSubdomain })
+    .addStep({ id: 'add-to-channels', handler: _addToChannels })
+    .addStep({ id: 'end', handler: _endHandler })
     .build()
-
   return await wizard.handleRequest()
 }
 
@@ -87,7 +73,5 @@ const _addToChannels: WizardHandler = async (props) => {
 }
 
 const _endHandler: WizardHandler = ({ responses }) => {
-  return responses.endWizard({
-    success: true,
-  })
+  return responses.endWizard({ success: true })
 }
