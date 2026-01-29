@@ -125,8 +125,7 @@ export const INTEGRATION_RULESET = {
     },
     'event-outputparams-must-have-description': {
       description: 'All event output parameters MUST have a description',
-      message:
-        '[{{path}} | {{property}}] {{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.events[*]..schema.properties[*]',
       then: [
