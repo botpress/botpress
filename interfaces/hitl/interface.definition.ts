@@ -1,4 +1,3 @@
-/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 
 type AnyMessageType = { schema: sdk.z.ZodObject }
