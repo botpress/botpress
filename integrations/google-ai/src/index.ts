@@ -11,7 +11,8 @@ const DEFAULT_LANGUAGE_MODEL_ID: ModelId = 'models/gemini-2.0-flash'
 const languageModels: Record<ModelId, llm.ModelDetails> = {
   'gemini-3-pro-preview': {
     name: 'Gemini 3 Pro (Preview)',
-    description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
+    description:
+      "One of the best models for multimodal understanding, and Google's most powerful agentic and vibe-coding model yet, delivering richer visuals and deeper interactivity, built on a foundation of state-of-the-art reasoning.",
     tags: ['preview', 'reasoning', 'agents', 'general-purpose', 'vision'],
     input: {
       costPer1MTokens: 2,
