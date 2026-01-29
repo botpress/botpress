@@ -65,7 +65,7 @@ const _start: WizardHandler = async (props) => {
 const _getSubdomain: WizardHandler = async (props) => {
   const { responses } = props
   return responses.displayInput({
-    pageTitle: 'Get SunCo Subdomain',
+    pageTitle: 'Enter your SunCo Subdomain',
     htmlOrMarkdownPageContents: "To continue, you need to enter your SunCo's subdomain",
     input: { label: 'e.g. https://{subdomain}.zendesk.com', type: 'text' },
     nextStepId: 'start',
