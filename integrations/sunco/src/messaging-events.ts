@@ -188,3 +188,16 @@ export function isSuncoWebhookPayload(data: unknown): data is SuncoWebhookPayloa
     })
     .safeParse(data).success
 }
+
+export function isWebhookSignatureValid(
+  headers: {
+    [key: string]: string | undefined
+  },
+  webhookSecret: string
+) {
+  const actualSecret = headers['x-api-key']
+  if (!actualSecret || actualSecret !== webhookSecret) {
+    return false
+  }
+  return true
+}

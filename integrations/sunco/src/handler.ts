@@ -3,12 +3,13 @@ import { getWizardStepUrl, isOAuthWizardUrl } from '@botpress/common/src/oauth-w
 import { RuntimeError } from '@botpress/sdk'
 import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
-import { isSuncoWebhookPayload } from './messaging-events'
+import { getWebhookSecret } from './get-stored-credentials'
+import { isSuncoWebhookPayload, isWebhookSignatureValid as isSignatureValid } from './messaging-events'
 import * as wizard from './wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
-  const { req, client, logger } = props
+  const { req, client, logger, ctx } = props
 
   if (req.path.startsWith('/oauth')) {
     return await _handleOAuthCallback(props)
@@ -22,6 +23,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const data = JSON.parse(req.body)
 
   if (!isSuncoWebhookPayload(data)) {
+    logger.forBot().warn('Received an invalid payload from Sunco')
+    return
+  }
+
+  if (!isSignatureValid(req.headers, await getWebhookSecret(client, ctx))) {
     logger.forBot().warn('Received an invalid payload from Sunco')
     return
   }
