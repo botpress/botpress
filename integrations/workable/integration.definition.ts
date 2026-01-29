@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   createCandidateInJob,

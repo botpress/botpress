@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
