@@ -159,6 +159,29 @@ export type WhatsAppReactionMessage = WhatsAppMessage & {
   type: 'reaction'
 }
 
+const WhatsAppStatusSchema = z.object({
+  id: z.string(),
+  status: z.enum(['sent', 'delivered', 'read', 'failed']),
+  timestamp: z.string(),
+  recipient_id: z.string(),
+  errors: z
+    .array(
+      z.object({
+        code: z.number(),
+        title: z.string(),
+        message: z.string(),
+        error_data: z
+          .object({
+            details: z.string(),
+          })
+          .optional(),
+      })
+    )
+    .optional(),
+})
+
+export type WhatsAppStatusValue = z.infer<typeof WhatsAppStatusSchema>
+
 const WhatsAppMessageValueSchema = z.object({
   messaging_product: z.literal('whatsapp'),
   metadata: z.object({
@@ -167,6 +190,7 @@ const WhatsAppMessageValueSchema = z.object({
   }),
   contacts: z.array(WhatsAppContactSchema).optional(),
   messages: z.array(WhatsAppMessageSchema).optional(),
+  statuses: z.array(WhatsAppStatusSchema).optional(),
 })
 export type WhatsAppMessageValue = z.infer<typeof WhatsAppMessageValueSchema>
 
