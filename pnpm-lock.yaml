@@ -1378,6 +1378,28 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/proactive-conversation
 
+  integrations/linkedin:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@types/node':
+        specifier: ^22.16.4
+        version: 22.16.4
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   integrations/loops:
     dependencies:
       '@botpress/common':
