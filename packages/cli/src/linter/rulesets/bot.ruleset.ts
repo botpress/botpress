@@ -9,7 +9,7 @@ export const BOT_RULESET = {
       description: 'All event output parameters SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.events[*]..schema.properties[*]',
+      given: '$.events[*]..schema..properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -26,7 +26,7 @@ export const BOT_RULESET = {
       message:
         '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.events[*]..schema.properties[*]',
+      given: '$.events[*]..schema..properties[*]',
       then: [
         {
           field: 'description',
@@ -42,7 +42,7 @@ export const BOT_RULESET = {
       description: 'All configuration fields MUST have a title',
       message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema.properties[*].x-zui',
+      given: '$.configuration..schema..properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -57,7 +57,7 @@ export const BOT_RULESET = {
       description: 'All configuration fields MUST have a description',
       message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema.properties[*]',
+      given: '$.configuration..schema..properties[*]',
       then: [
         {
           field: 'description',
@@ -157,7 +157,7 @@ export const BOT_RULESET = {
       description: 'All state fields SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.states[*]..schema.properties[*]',
+      given: '$.states[*]..schema..properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -173,7 +173,7 @@ export const BOT_RULESET = {
       message:
         '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.states[*]..schema.properties[*]',
+      given: '$.states[*]..schema..properties[*]',
       then: [
         {
           field: 'description',
