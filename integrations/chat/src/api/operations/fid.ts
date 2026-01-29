@@ -479,7 +479,7 @@ export const handlers = {
         auth: { userId: authUserId },
         body: {
           conversationId,
-        } as PartialInitializeIncomingMessageBody,
+        } satisfies PartialInitializeIncomingMessageBody as PartialInitializeIncomingMessageBody,
       })
     },
     mapResponse: async (res) => {
