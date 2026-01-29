@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import _ from 'lodash'
+import * as utils from './utils'
 import * as config from './config'
 import * as chat from '../src'
 
@@ -75,4 +76,16 @@ test('api allows creating the conversation first, then initializing message and 
     payload: { type: 'text', text: 'hi' },
     metadata: {},
   })
+})
+
+test('api rejects reusing a self-encrypted user key with initialize', async () => {
+  const encryptionKey = config.get('ENCRYPTION_KEY')
+  const userId = utils.getUserFid()
+  const client = await chat.Client.connect({ apiUrl, userId, encryptionKey })
+
+  await expect(
+    client.initializeIncomingMessage({
+      message: { payload: { type: 'text', text: 'hi' }, metadata: {} },
+    })
+  ).rejects.toThrow()
 })
