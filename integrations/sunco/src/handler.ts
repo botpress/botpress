@@ -1,8 +1,19 @@
+import { generateRedirection } from '@botpress/common/src/html-dialogs'
+import { getWizardStepUrl, isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import { RuntimeError } from '@botpress/sdk'
+import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
 import { isSuncoWebhookPayload } from './messaging-events'
+import * as wizard from './wizard'
 import * as bp from '.botpress'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, client, logger } = props
+
+  if (req.path.startsWith('/oauth')) {
+    return await _handleOAuthCallback(props)
+  }
+
   if (!req.body) {
     console.warn('Handler received an empty body')
     return
@@ -24,4 +35,45 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, client, log
       console.warn(`Received an event of type ${event.type}, which is not supported`)
     }
   }
+  return {
+    status: 200,
+  }
+}
+
+const _handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
+  if (isOAuthWizardUrl(req.path)) {
+    return await wizard.handler({ client, ctx, logger, req })
+  }
+
+  logger.forBot().debug('Handling OAuth callback')
+
+  const searchParams = new URLSearchParams(req.query)
+  const authorizationCode = searchParams.get('code')
+  const error = searchParams.get('error')
+  const errorDescription = searchParams.get('error_description')
+
+  if (error) {
+    logger.forBot().error(`SunCo OAuth error: ${error} - ${errorDescription}`)
+    throw new RuntimeError(`SunCo OAuth error: ${error} - ${errorDescription}`)
+  }
+
+  if (!authorizationCode) {
+    logger.forBot().error('Authorization code not present in OAuth callback')
+    throw new RuntimeError('Authorization code not present in OAuth callback')
+  }
+
+  const credentials = await getCredentials({
+    authorizationCode,
+    logger,
+  })
+
+  logger.forBot().info('Successfully authenticated SunCo user')
+
+  await client.configureIntegration({
+    identifier: credentials.appId,
+  })
+
+  await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+
+  return generateRedirection(getWizardStepUrl('start', ctx))
 }
