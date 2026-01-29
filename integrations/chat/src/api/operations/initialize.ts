@@ -5,16 +5,18 @@ import * as fid from './fid'
 import * as model from './model'
 
 export const initialize: types.Operations['initializeIncomingMessage'] = async (props, req) => {
-  if (props.auth.mode === 'personal') {
-    throw new UnauthorizedError('The "initialize" operation can only be called when using the shared encryption key.')
-  }
-
   const userKeyHeader = req.headers['x-user-key']
-
-  const userId = userKeyHeader ? props.auth.parseKey(userKeyHeader).id : undefined
   if ((!userKeyHeader && !req.body.user) || (userKeyHeader && req.body.user)) {
     throw new InvalidPayloadError('You have to set either the "x-user-key" header or the "user" body parameter.')
   }
+
+  if (props.auth.mode === 'personal' && !req.headers['x-user-key']) {
+    throw new UnauthorizedError(
+      'The "initialize" operation can only create a user when using the shared encryption key.'
+    )
+  }
+
+  const userId = userKeyHeader ? props.auth.parseKey(userKeyHeader).id : undefined
 
   const fidHandler = fid.handlers.initializeIncomingMessage(props, {
     ...req,
