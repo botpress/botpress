@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { listBoards, getBoard, listPosts, createPost, deletePost, updatePost, getComments } from 'definitions/actions'
 import { comments } from 'definitions/channels'
