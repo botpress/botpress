@@ -1,4 +1,4 @@
-import { createClient } from '../sunshine-api'
+import { createClient } from '../api/sunshine-api'
 import * as bp from '.botpress'
 
 export const getOrCreateUser: bp.IntegrationProps['actions']['getOrCreateUser'] = async ({ client, input, ctx }) => {
