@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import { OAuthCredentials, StoredCredentials } from 'src/types'
+import { BASE_HEADERS } from './const'
 import * as bp from '.botpress'
 
 const { z } = sdk
@@ -48,10 +49,8 @@ export const createWebhook = async ({
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${credentials.token}`,
-        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+        ...BASE_HEADERS,
       },
       body: JSON.stringify(params),
     }
@@ -84,10 +83,8 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
   const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/oauth/authorization`, {
     method: 'DELETE',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${credentials.token}`,
-      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+      ...BASE_HEADERS,
     },
   })
 
@@ -128,10 +125,8 @@ const deleteWebhook = async ({
     {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${credentials.token}`,
-        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+        ...BASE_HEADERS,
       },
     }
   )
@@ -157,10 +152,8 @@ const listWebhooks = async ({ credentials, logger }: { credentials: OAuthCredent
     {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${credentials.token}`,
-        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+        ...BASE_HEADERS,
       },
     }
   )

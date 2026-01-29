@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import { BASE_HEADERS } from './const'
 import * as bp from '.botpress'
 
 const { z } = sdk
@@ -63,11 +64,7 @@ const _getToken = async ({
 
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
-    },
+    headers: BASE_HEADERS,
     body: JSON.stringify(params),
   })
 
@@ -91,10 +88,8 @@ export const getTokenInfo = async ({ token, logger }: { token: string; logger: b
   const response = await fetch(TOKEN_INFO_URL, {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
-      'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+      ...BASE_HEADERS,
     },
   })
 
