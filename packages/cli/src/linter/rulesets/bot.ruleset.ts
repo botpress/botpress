@@ -23,8 +23,7 @@ export const BOT_RULESET = {
     },
     'event-outputparams-must-have-description': {
       description: 'All event output parameters MUST have a description',
-      message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.events[*]..schema.properties[*]',
       then: [
@@ -142,7 +141,7 @@ export const BOT_RULESET = {
     },
     'legacy-zui-title-should-be-removed': {
       description:
-        'Legacy ZUI title fields (ui.title) SHOULD be removed. Please use .title() in your Zod schemas instead',
+        'Legacy ZUI title fields (ui.title) MUST be removed. Please use .title() in your Zod schemas instead',
       severity: 'error',
       given: '$..ui[*].title',
       then: [{ function: falsy }],
@@ -170,8 +169,7 @@ export const BOT_RULESET = {
     },
     'state-fields-must-have-description': {
       description: 'All state fields MUST have a description',
-      message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.states[*]..schema.properties[*]',
       then: [
