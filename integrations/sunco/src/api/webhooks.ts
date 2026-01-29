@@ -13,6 +13,16 @@ const createWebhookSchema = z
   })
   .passthrough()
 
+const listWebhooksSchema = z
+  .object({
+    webhooks: z.array(
+      z.object({
+        id: z.string(),
+      })
+    ),
+  })
+  .passthrough()
+
 export const createWebhook = async ({
   credentials,
   logger,
@@ -48,7 +58,7 @@ export const createWebhook = async ({
   )
 
   if (!response.ok) {
-    console.log('error: ', response.json())
+    console.log('error: ', await response.json())
     logger.forBot().error('Failed to register webhook', {
       status: response.status,
     })
@@ -69,6 +79,8 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
     throw new sdk.RuntimeError('Failed to delete app: no subdomain is associated with this bot installation')
   }
 
+  await deleteAllWebhooks({ credentials, logger })
+
   const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/oauth/authorization`, {
     method: 'DELETE',
     headers: {
@@ -80,11 +92,90 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
   })
 
   if (!response.ok) {
-    console.log('error: ', response.json())
+    console.log('error: ', await response.json())
     logger.forBot().error('Failed to delete app', {
       status: response.status,
     })
     throw new sdk.RuntimeError('Failed to delete app')
   }
   logger.forBot().debug('Successfully deleted SunCo app')
+}
+
+const deleteAllWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
+  const webhooks = await listWebhooks({ credentials, logger })
+  for (const { id } of webhooks) {
+    await deleteWebhook({ credentials, logger, webhookId: id })
+  }
+}
+
+const deleteWebhook = async ({
+  credentials,
+  logger,
+  webhookId,
+}: {
+  credentials: OAuthCredentials
+  logger: bp.Logger
+  webhookId: string
+}) => {
+  if (!credentials.subdomain) {
+    throw new sdk.RuntimeError(
+      `Failed to delete webhook with ID ${webhookId} : no subdomain is associated with this bot installation`
+    )
+  }
+
+  const response = await fetch(
+    `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks/${webhookId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${credentials.token}`,
+        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
+        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+      },
+    }
+  )
+
+  if (!response.ok) {
+    console.log('error: ', await response.json())
+    logger.forBot().error('Failed to delete webhook', {
+      status: response.status,
+    })
+    throw new sdk.RuntimeError('failed to delete webhook')
+  }
+}
+
+const listWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
+  logger.forBot().debug('Listing webhooks')
+
+  if (!credentials.subdomain) {
+    throw new sdk.RuntimeError('failed to list webhooks: no subdomain is associated with this bot installation')
+  }
+
+  const response = await fetch(
+    `https://${credentials.subdomain}.zendesk.com/sc/v2/apps/${credentials.appId}/integrations/me/webhooks`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${credentials.token}`,
+        'X-Zendesk-Marketplace-Name': bp.secrets.MARKETPLACE_BOT_NAME,
+        'X-Zendesk-Marketplace-Organization-Id': bp.secrets.MARKETPLACE_ORG_ID,
+      },
+    }
+  )
+
+  if (!response.ok) {
+    console.log('error: ', await response.json())
+    logger.forBot().error('Failed to list webhooks', {
+      status: response.status,
+    })
+    throw new sdk.RuntimeError('Failed to list webhooks')
+  }
+
+  const parsed = listWebhooksSchema.parse(await response.json())
+
+  logger.forBot().debug('Successfully listed webhooks for SunCo')
+
+  return parsed.webhooks
 }

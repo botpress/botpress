@@ -72,7 +72,7 @@ const _getToken = async ({
   })
 
   if (!response.ok) {
-    console.log('error: ', response.json())
+    console.log('error: ', await response.json())
     logger.forBot().error('Failed to exchange authorization code for SunCo token', {
       status: response.status,
     })
