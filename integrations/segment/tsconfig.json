@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "lib": ["es2022"],
+    "module": "commonjs",
+    "target": "es2017",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "incremental": true,
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedParameters": true,
+    "checkJs": false,
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": false
+  },
+  "include": [".botpress/**/*", "src/**/*", "./*.ts", "./*.json"]
+}
