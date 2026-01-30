@@ -1,0 +1,85 @@
+name: Docker Build
+description: 'Build and push a Docker image to the registry'
+
+inputs:
+  repository:
+    description: 'The name of the repository to build'
+    required: true
+  dockerfile:
+    description: 'The name of the Dockerfile to build'
+    required: true
+  push:
+    description: 'Whether to push the image to the registry'
+    required: false
+    default: false
+  minify:
+    description: 'Whether to minify the build'
+    required: false
+    default: true
+  tag:
+    description: 'Optional Docker tag'
+    required: false
+    default: ''
+  depot-project:
+    description: 'Depot project ID (required if no depot.json; get it from depot.dev)'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-session-name: container_pusher
+        role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+        aws-region: us-east-1
+
+    - uses: aws-actions/amazon-ecr-login@v1
+      id: ecr
+      with:
+        mask-password: true
+
+    - uses: docker/metadata-action@v4
+      id: meta
+      with:
+        images: ${{ steps.ecr.outputs.registry }}/${{ inputs.repository }}
+        flavor: |
+          latest=false
+        tags: |
+          type=raw,enable=${{ inputs.tag != '' }},value=${{ inputs.tag }}
+          type=semver,pattern={{version}}
+          type=sha,enable=${{ !startsWith(github.ref, 'refs/tags') }},prefix=,format=long
+
+    - name: Set BUILD_DATE
+      id: meta_date
+      shell: bash
+      run: |
+        export TZ=America/Toronto
+        echo "timestamp=$(date +"%Y-%m-%d %H:%M:%S")" >> "$GITHUB_OUTPUT"
+
+    - name: Create ECR Registry
+      shell: bash
+      env:
+        ECR_REPOSITORY: ${{ inputs.repository }}
+        ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+      run: |
+        aws --version
+        aws ecr create-repository --repository-name $ECR_REPOSITORY || true
+        aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r > repository-policy.json
+        aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
+
+    - name: Set up Depot CLI
+      uses: depot/setup-action@v1
+
+    - uses: depot/build-push-action@v1
+      with:
+        project: ${{ inputs.depot-project }}
+        build-args: |
+          MINIFY=${{ inputs.minify }}
+          DOCKER_TAG=${{ inputs.tag }}
+          BUILD_DATE=${{ steps.meta_date.outputs.timestamp }}
+        file: ${{ inputs.dockerfile }}
+        context: .
+        push: ${{ inputs.push }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
