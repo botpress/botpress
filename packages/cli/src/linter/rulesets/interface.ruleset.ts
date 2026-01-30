@@ -115,20 +115,6 @@ export const INTERFACE_RULESET = {
       given: '$..ui[*].examples',
       then: [{ function: falsy }],
     },
-    'entities-should-have-a-title': {
-      description: 'All entities SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD have a non-empty title',
-      severity: 'warn',
-      given: '$.entities[*]',
-      then: [{ field: 'title', function: truthyWithMessage(({ path }) => `entity "${path[1]}"`) }],
-    },
-    'entities-must-have-a-description': {
-      description: 'All entities MUST have a description',
-      message: '{{description}}: {{error}} MUST have a non-empty description',
-      severity: 'error',
-      given: '$.entities[*]',
-      then: [{ field: 'description', function: truthyWithMessage(({ path }) => `entity "${path[1]}"`) }],
-    },
     'entity-fields-should-have-a-title': {
       description: 'All entity fields SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
