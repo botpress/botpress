@@ -1,0 +1,17 @@
+# Parse incoming webhook body
+body = parse_json!(.body)
+
+# LinkedIn webhooks contain actor/author URNs like "urn:li:person:abc123"
+# We need to extract just the ID to match our OAuth identifier
+# Fallback chain: actor -> author -> owner
+
+actorUrn = body.actor ?? body.author ?? body.owner ?? ""
+
+# Extract ID from URN format: "urn:li:person:abc123" -> "abc123"
+# Split by colon and take the last segment
+if actorUrn != "" {
+    parts = split(actorUrn, ":")
+    parts[length(parts) - 1]
+} else {
+    null
+}
