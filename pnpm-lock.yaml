@@ -2477,13 +2477,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.5.4
+        specifier: 0.6.0
         version: link:../chat-client
       '@botpress/client':
         specifier: 1.31.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2607,7 +2607,7 @@ importers:
         specifier: 1.31.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2623,7 +2623,7 @@ importers:
         specifier: 1.31.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2636,7 +2636,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2652,7 +2652,7 @@ importers:
         specifier: 1.31.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2668,7 +2668,7 @@ importers:
         specifier: 1.31.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.3.2
+        specifier: 5.4.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
