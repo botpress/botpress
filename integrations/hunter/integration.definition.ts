@@ -3,7 +3,7 @@ import { leadSchema, leadPayloadSchema, searchLeadsPayloadSchema } from './defin
 
 export default new IntegrationDefinition({
   name: 'hunter',
-  version: '1.0.0',
+  version: '1.0.1',
   title: 'Hunter.io',
   description: 'Manage leads in Hunter.io',
   readme: 'hub.md',

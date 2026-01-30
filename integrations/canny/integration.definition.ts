@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'canny',
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Canny',
   description: 'Connect your Botpress bot to Canny for feature request management and customer feedback collection',
   readme: 'hub.md',
