@@ -47,7 +47,9 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
   const issue = getIssueFields(fullIssue)
   const issueTags = await getIssueTags(fullIssue)
 
-  await client.getOrCreateConversation({
+  const {
+    conversation: { id: conversationId },
+  } = await client.getOrCreateConversation({
     channel: 'issue',
     tags: issueTags,
     discriminateByTags: ['id'],
@@ -55,5 +57,6 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
 
   return {
     issue,
+    conversationId, // no need to implement proactive conversation, just return this
   }
 }
