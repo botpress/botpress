@@ -223,11 +223,10 @@ export class LinkedInOAuthClient {
   }
 
   private async _refreshTokenIfNeeded(): Promise<void> {
-    const accessTokenExpiresAt = new Date(this._credentials.accessToken.expiresAt)
-    const now = new Date()
-    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
+    const now = new Date().getTime()
+    const fiveMinutesFromNow = now + 5 * 60 * 1000
 
-    if (accessTokenExpiresAt > fiveMinutesFromNow) {
+    if (this._credentials.accessToken.expiresAt > fiveMinutesFromNow) {
       return
     }
 
@@ -242,10 +241,9 @@ export class LinkedInOAuthClient {
     }
 
     if (this._credentials.refreshToken.expiresAt) {
-      const refreshTokenExpiresAt = new Date(this._credentials.refreshToken.expiresAt)
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000
 
-      if (refreshTokenExpiresAt <= sevenDaysFromNow) {
+      if (this._credentials.refreshToken.expiresAt <= sevenDaysFromNow) {
         this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
         throw new sdk.RuntimeError(
           'LinkedIn refresh token has expired or will expire soon. ' +
