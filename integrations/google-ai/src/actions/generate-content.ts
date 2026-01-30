@@ -126,7 +126,13 @@ async function buildGenerateContentRequest(
     }
   }
 
-  const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? 'none'] // Default to not use reasoning as Gemini 2.5+ models use optional reasoning
+  let defaultReasoningEffort: ReasoningEffort = 'none'
+  if (modelId === 'gemini-3-pro-preview') {
+    // Gemini 3 Pro doesn't support disabling reasoning, so we use the lowest reasoning effort by default.
+    defaultReasoningEffort = 'low'
+  }
+
+  const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? defaultReasoningEffort]
   const modelSupportsThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
 
   return {
