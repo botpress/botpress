@@ -20,7 +20,7 @@ test('api prevents creating user with an invalid fid', async () => {
   }
 
   for (const id of invalidUserIds) {
-    const key = utils.getUserKey(id)
+    const key = await utils.getUserKey(id)
     await expect(client.getOrCreateUser({ 'x-user-key': key })).rejects.toThrow(chat.InvalidPayloadError)
   }
 })
@@ -43,7 +43,7 @@ test('get or create user should create a user', async () => {
   const client = new chat.Client({ apiUrl })
 
   const userFid = utils.getUserFid()
-  const userKey = utils.getUserKey(userFid)
+  const userKey = await utils.getUserKey(userFid)
   await client.getOrCreateUser({ 'x-user-key': userKey })
 
   const {
@@ -79,7 +79,7 @@ test('get or create user with a fid always returns the same user', async () => {
   const client = new chat.Client({ apiUrl })
 
   const userFid = utils.getUserFid()
-  const userKey = utils.getUserKey(userFid)
+  const userKey = await utils.getUserKey(userFid)
   await client.createUser({ id: userFid })
 
   const {
