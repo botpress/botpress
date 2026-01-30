@@ -4,15 +4,5 @@ if actualSignature != expectedSignature {
   null
 } else {
   body = parse_json!(.body)
-  value = body.entry[0].changes[0].value
-  identifier = if value.contacts {
-    value.contacts[0].wa_id
-  } else {
-    if value.statuses {
-      value.statuses[0].recipient_id
-    } else {
-      null
-    }
-  }
-  identifier
+  body.entry[0].changes[0].value.contacts[0].wa_id
 }
