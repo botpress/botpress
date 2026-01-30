@@ -1,10 +1,13 @@
-import { RuleDefinition, RulesetDefinition } from '@stoplight/spectral-core'
+import { RuleDefinition, RulesetDefinition as SpectralRulesetDefinition } from '@stoplight/spectral-core'
 import { DiagnosticSeverity } from '@stoplight/types'
+import { Ruleset } from './ruleset-tests/common'
+
+type RulesetDefinition = SpectralRulesetDefinition & Ruleset
 
 /** Applies build-time transformations to the ruleset. See remarks for details.
  *
  *  @remark Replaces "{{callToAction}}" placeholders with their corresponding words (e.g. "SHOULD" or "MUST") */
-export const preprocessRuleset = (ruleset: RulesetDefinition) => {
+export const preprocessRuleset = (ruleset: RulesetDefinition): RulesetDefinition => {
   if ('rules' in ruleset) {
     for (const ruleName in ruleset.rules) {
       let rule = ruleset.rules[ruleName]
