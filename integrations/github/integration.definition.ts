@@ -7,7 +7,7 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.1.6',
+  version: '1.1.7',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Manage GitHub issues, pull requests, and repositories.',

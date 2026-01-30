@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'canny',
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Canny',
   description: 'Connect your Botpress bot to Canny for feature request management and customer feedback collection',
   readme: 'hub.md',
@@ -102,17 +102,17 @@ export default new IntegrationDefinition({
         schema: z.object({
           post: z
             .object({
-              id: z.string(),
-              title: z.string(),
-              details: z.string().optional(),
-              authorName: z.string().optional(),
-              authorEmail: z.string().optional(),
-              boardName: z.string(),
-              status: z.string(),
-              score: z.number(),
-              commentCount: z.number(),
-              created: z.string(),
-              url: z.string(),
+              id: z.string().title('ID').describe('Post ID'),
+              title: z.string().title('Title').describe('Post title'),
+              details: z.string().optional().title('Details').describe('Post details'),
+              authorName: z.string().optional().title('Author Name').describe('Name of the post author'),
+              authorEmail: z.string().optional().title('Author Email').describe('Email of the post author'),
+              boardName: z.string().title('Board Name').describe('Name of the board'),
+              status: z.string().title('Status').describe('Post status'),
+              score: z.number().title('Score').describe('Post score'),
+              commentCount: z.number().title('Comment Count').describe('Number of comments'),
+              created: z.string().title('Created').describe('Creation timestamp'),
+              url: z.string().title('URL').describe('Post URL'),
             })
             .title('Post')
             .describe('The retrieved post object'),
@@ -144,17 +144,17 @@ export default new IntegrationDefinition({
           posts: z
             .array(
               z.object({
-                id: z.string(),
-                title: z.string(),
-                details: z.string().optional(),
-                authorName: z.string().optional(),
-                authorEmail: z.string().optional(),
-                boardName: z.string(),
-                status: z.string(),
-                score: z.number(),
-                commentCount: z.number(),
-                created: z.string(),
-                url: z.string(),
+                id: z.string().title('ID').describe('Post ID'),
+                title: z.string().title('Title').describe('Post title'),
+                details: z.string().optional().title('Details').describe('Post details'),
+                authorName: z.string().optional().title('Author Name').describe('Name of the post author'),
+                authorEmail: z.string().optional().title('Author Email').describe('Email of the post author'),
+                boardName: z.string().title('Board Name').describe('Name of the board'),
+                status: z.string().title('Status').describe('Post status'),
+                score: z.number().title('Score').describe('Post score'),
+                commentCount: z.number().title('Comment Count').describe('Number of comments'),
+                created: z.string().title('Created').describe('Creation timestamp'),
+                url: z.string().title('URL').describe('Post URL'),
               })
             )
             .title('Posts')
@@ -232,15 +232,15 @@ export default new IntegrationDefinition({
         schema: z.object({
           comment: z
             .object({
-              id: z.string(),
-              value: z.string(),
-              authorName: z.string(),
-              authorEmail: z.string(),
-              postTitle: z.string(),
-              postId: z.string(),
-              created: z.string(),
-              internal: z.boolean(),
-              likeCount: z.number(),
+              id: z.string().title('ID').describe('Comment ID'),
+              value: z.string().title('Value').describe('Comment text'),
+              authorName: z.string().title('Author Name').describe('Name of the comment author'),
+              authorEmail: z.string().title('Author Email').describe('Email of the comment author'),
+              postTitle: z.string().title('Post Title').describe('Title of the associated post'),
+              postId: z.string().title('Post ID').describe('ID of the associated post'),
+              created: z.string().title('Created').describe('Creation timestamp'),
+              internal: z.boolean().title('Internal').describe('Whether this is an internal comment'),
+              likeCount: z.number().title('Like Count').describe('Number of likes'),
             })
             .title('Comment')
             .describe('The retrieved comment object'),
@@ -269,15 +269,15 @@ export default new IntegrationDefinition({
           comments: z
             .array(
               z.object({
-                id: z.string(),
-                value: z.string(),
-                authorName: z.string(),
-                authorEmail: z.string(),
-                postTitle: z.string(),
-                postId: z.string(),
-                created: z.string(),
-                internal: z.boolean(),
-                likeCount: z.number(),
+                id: z.string().title('ID').describe('Comment ID'),
+                value: z.string().title('Value').describe('Comment text'),
+                authorName: z.string().title('Author Name').describe('Name of the comment author'),
+                authorEmail: z.string().title('Author Email').describe('Email of the comment author'),
+                postTitle: z.string().title('Post Title').describe('Title of the associated post'),
+                postId: z.string().title('Post ID').describe('ID of the associated post'),
+                created: z.string().title('Created').describe('Creation timestamp'),
+                internal: z.boolean().title('Internal').describe('Whether this is an internal comment'),
+                likeCount: z.number().title('Like Count').describe('Number of likes'),
               })
             )
             .title('Comments')
@@ -322,13 +322,13 @@ export default new IntegrationDefinition({
         schema: z.object({
           user: z
             .object({
-              id: z.string(),
-              name: z.string(),
-              email: z.string(),
-              avatarURL: z.string().optional(),
-              userId: z.string(),
-              isAdmin: z.boolean(),
-              created: z.string(),
+              id: z.string().title('ID').describe('User ID'),
+              name: z.string().title('Name').describe('User display name'),
+              email: z.string().title('Email').describe('User email address'),
+              avatarURL: z.string().optional().title('Avatar URL').describe('User avatar URL'),
+              userId: z.string().title('User ID').describe('Your internal user ID'),
+              isAdmin: z.boolean().title('Is Admin').describe('Whether the user is an admin'),
+              created: z.string().title('Created').describe('User creation timestamp'),
             })
             .title('User')
             .describe('The created or updated user object'),
@@ -355,13 +355,13 @@ export default new IntegrationDefinition({
           users: z
             .array(
               z.object({
-                id: z.string(),
-                name: z.string(),
-                email: z.string(),
-                avatarURL: z.string().optional(),
-                userId: z.string(), // Can be empty string if user has no userId
-                isAdmin: z.boolean(),
-                created: z.string(),
+                id: z.string().title('ID').describe('User ID'),
+                name: z.string().title('Name').describe('User display name'),
+                email: z.string().title('Email').describe('User email address'),
+                avatarURL: z.string().optional().title('Avatar URL').describe('User avatar URL'),
+                userId: z.string().title('User ID').describe('Your internal user ID'), // Can be empty string if user has no userId
+                isAdmin: z.boolean().title('Is Admin').describe('Whether the user is an admin'),
+                created: z.string().title('Created').describe('User creation timestamp'),
               })
             )
             .title('Users')
@@ -386,11 +386,11 @@ export default new IntegrationDefinition({
           boards: z
             .array(
               z.object({
-                id: z.string(),
-                name: z.string(),
-                postCount: z.number(),
-                url: z.string(),
-                created: z.string(),
+                id: z.string().title('ID').describe('Board ID'),
+                name: z.string().title('Name').describe('Board name'),
+                postCount: z.number().title('Post Count').describe('Number of posts in the board'),
+                url: z.string().title('URL').describe('Board URL'),
+                created: z.string().title('Created').describe('Board creation timestamp'),
               })
             )
             .title('Boards')
