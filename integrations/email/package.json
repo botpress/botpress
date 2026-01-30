@@ -10,7 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "imap": "^0.8.17",
-    "nodemailer": "^6.7.2"
+    "nodemailer": "^7.0.11"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
