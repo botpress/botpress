@@ -24,23 +24,19 @@ COPY ./tsconfig.json /usr/app/tsconfig.json
 COPY integrations/chat ./integrations/chat
 COPY patches/source-map-js@1.2.1.patch patches/source-map-js@1.2.1.patch
 
-# install
-RUN pnpm install --frozen-lockfile
-RUN pnpm install --frozen-lockfile --dir integrations/chat
-RUN pnpm --dir packages/sdk add @bpinternal/zui --save-prod
-RUN pnpm --dir packages/cli add @botpress/sdk@workspace:* --workspace
-RUN pnpm install --frozen-lockfile --dir packages/sdk
-RUN pnpm install --frozen-lockfile --dir packages/cli
-
-# Use production node environment by default
+# Use NODE_ENV to avoid installing devDependencies
 ENV NODE_ENV=production
 
-# build dependencies in correct order: client -> chat-client -> SDK -> CLI -> chat integration
-RUN pnpm --filter @botpress/client run build
+# install
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @bpinternal/zui run build
 RUN pnpm --filter @botpress/chat run build
+RUN pnpm --filter @botpress/client run build
 RUN pnpm --filter @botpress/sdk run build
+RUN pnpm --filter @botpress/cognitive run build
 RUN pnpm --filter @botpress/cli run bundle
 RUN pnpm --filter @botpresshub/chat run build
+
 
 FROM node:${NODE_VERSION}-bullseye-slim AS deploy
 
