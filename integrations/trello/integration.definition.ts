@@ -1,5 +1,6 @@
 import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
+import { trelloIdSchema } from 'definitions/schemas'
 
 import { events, actions, channels, user, configuration, entities } from './definitions'
 
@@ -21,5 +22,23 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets: {
     ...posthogHelper.COMMON_SECRET_NAMES,
+  },
+  /** The states are no longer being used, however, it is
+   *  being left in, in order to prevent potential breaking changes.
+   *
+   *  It should be removed next time we push a major release.
+   *  @see https://github.com/botpress/botpress/pull/14849#pullrequestreview-3728680072 For more details. */
+  states: {
+    // TODO: Remove in next major release (v3.0.0)
+    webhook: {
+      type: 'integration',
+      schema: sdk.z.object({
+        trelloWebhookId: trelloIdSchema
+          .nullable()
+          .default(null)
+          .title('Trello Webhook ID')
+          .describe('Unique id of the webhook that is created by Trello upon integration registration'),
+      }),
+    },
   },
 })
