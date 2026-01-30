@@ -5,11 +5,9 @@ if actualSignature != expectedSignature {
 } else {
   body = parse_json!(.body)
   value = body.entry[0].changes[0].value
-  if !is_nullish(value.contacts) && length!(value.contacts) > 0 {
-    value.contacts[0].wa_id
-  } else if !is_nullish(value.statuses) && length!(value.statuses) > 0 {
-      value.statuses[0].recipient_id
+  if !is_nullish(value.statuses) && length!(value.statuses) > 0 {
+    value.statuses[0].recipient_id
   } else {
-      null
+    value.contacts[0].wa_id
   }
 }
