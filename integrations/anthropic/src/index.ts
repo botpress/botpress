@@ -27,7 +27,6 @@ export const ReasoningModelIdReplacements: Partial<Record<ModelId, ModelId>> = {
   'claude-haiku-4-5-reasoning-20251001': 'claude-haiku-4-5-20251001',
   'claude-sonnet-4-5-reasoning-20250929': 'claude-sonnet-4-5-20250929',
   'claude-sonnet-4-reasoning-20250514': 'claude-sonnet-4-20250514',
-  'claude-3-7-sonnet-reasoning-20250219': 'claude-3-7-sonnet-20250219',
 }
 
 const LanguageModels: Record<ModelId, llm.ModelDetails> = {
@@ -117,48 +116,6 @@ const LanguageModels: Record<ModelId, llm.ModelDetails> = {
     output: {
       costPer1MTokens: 15,
       maxTokens: 64_000,
-    },
-  },
-  'claude-3-7-sonnet-20250219': {
-    name: 'Claude 3.7 Sonnet',
-    description:
-      'Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
-    tags: ['agents', 'vision', 'general-purpose', 'coding'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 15,
-      maxTokens: 64_000,
-    },
-  },
-  'claude-3-7-sonnet-reasoning-20250219': {
-    name: 'Claude 3.7 Sonnet (Reasoning Mode)',
-    description:
-      'This model uses the "Extended Thinking" mode and will use a significantly higher amount of output tokens than the Standard Mode, so this model should only be used for tasks that actually require it.\n\nClaude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes.',
-    tags: ['vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 15,
-      maxTokens: 64_000,
-    },
-  },
-  'claude-3-5-haiku-20241022': {
-    name: 'Claude 3.5 Haiku',
-    description:
-      'Claude 3.5 Haiku features offers enhanced capabilities in speed, coding accuracy, and tool use. Engineered to excel in real-time applications, it delivers quick response times that are essential for dynamic tasks such as chat interactions and immediate coding suggestions. This makes it highly suitable for environments that demand both speed and precision, such as software development, customer service bots, and data management systems.',
-    tags: ['general-purpose'],
-    input: {
-      costPer1MTokens: 0.8,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 4,
-      maxTokens: 8192,
     },
   },
   'claude-3-5-sonnet-20241022': {

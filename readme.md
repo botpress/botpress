@@ -80,7 +80,7 @@ This will deploy your integration's current version to your workspace and make i
 By default, all integrations are private to the workspace they have been deployed in. When you are ready to share your version with the community, you can make it public by running:
 
 ```sh
-bp deploy --public
+bp deploy --visibility public
 ```
 
 This will make your integration available to all Botpress users on the [Botpress Hub](https://app.botpress.cloud/hub). Once a version of your integration is public, it cannot be updated again.
