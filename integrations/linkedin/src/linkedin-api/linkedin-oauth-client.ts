@@ -258,11 +258,10 @@ export class LinkedInOAuthClient {
           description:
             'The LinkedIn api refresh token is expired or expiring within 7 days. Please re-authorize the integration through the OAuth flow.',
           category: 'configuration',
-          groupBy: ['access_token_expired'],
+          groupBy: ['refresh_token_expired'],
           code: 'code',
           data: {},
         })
-        this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
       }
     }
 
