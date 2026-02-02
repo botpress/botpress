@@ -16,12 +16,10 @@ export type CombinedApiClient = {
 }
 
 export function createClient(creds: StoredCredentials): CombinedApiClient {
-  let client: ApiClient | undefined
-  if (creds.configType === 'manual') {
-    client = createClientFromBasicAuth(creds.keyId, creds.keySecret)
-  } else {
-    client = createClientFromToken(creds.token)
-  }
+  const client =
+    creds.configType === 'manual'
+      ? createClientFromBasicAuth(creds.keyId, creds.keySecret)
+      : createClientFromToken(creds.token)
   return createApis(client)
 }
 
