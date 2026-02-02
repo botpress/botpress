@@ -9,6 +9,13 @@ const OAUTH_REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
 const ACCESS_TOKEN_BUFFER_MS = 5 * 60 * 1000 // 5 minutes
 const REFRESH_TOKEN_BUFFER_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
+const ACCESS_TOKEN_EXPIRED_ISSUE_TITLE = 'Access token expired'
+const ACCESS_TOKEN_EXPIRED_ISSUE_DESC =
+  'The LinkedIn api access token is expired or expiring within 7 days and no refresh token is available. Please re-authorize the integration through the OAuth flow.'
+const REFRESH_TOKEN_EXPIRED_ISSUE_TITLE = 'Refresh token expired'
+const REFRESH_TOKEN_EXPIRED_ISSUE_DESC =
+  'The LinkedIn api refresh token is expired or expiring within 7 days. Please re-authorize the integration through the OAuth flow.'
+
 type OAuthCredentialsPayload = bp.states.oauthCredentials.OauthCredentials['payload']
 
 type ClientCredentials = {
@@ -232,13 +239,20 @@ export class LinkedInOAuthClient {
       if (this._credentials.accessToken.expiresAt > now + REFRESH_TOKEN_BUFFER_MS) {
         this._logger.issue({
           type: 'issue',
-          title: 'Access token expired',
-          description:
-            'The LinkedIn api token is expired or expiring within 7 days and no refresh token is available. Please re-authorize the integration through the OAuth flow.',
+          title: ACCESS_TOKEN_EXPIRED_ISSUE_TITLE,
+          description: ACCESS_TOKEN_EXPIRED_ISSUE_DESC,
           category: 'configuration',
           groupBy: ['access_token_expired'],
           code: 'code',
-          data: {},
+          data: {
+            details: {
+              raw: ACCESS_TOKEN_EXPIRED_ISSUE_TITLE,
+              pretty: ACCESS_TOKEN_EXPIRED_ISSUE_DESC,
+            },
+            expiryDate: {
+              raw: new Date(this._credentials.accessToken.expiresAt).toISOString(),
+            },
+          },
         })
       }
       return
@@ -254,13 +268,20 @@ export class LinkedInOAuthClient {
       if (this._credentials.refreshToken.expiresAt <= now + REFRESH_TOKEN_BUFFER_MS) {
         this._logger.issue({
           type: 'issue',
-          title: 'Refresh token expired',
-          description:
-            'The LinkedIn api refresh token is expired or expiring within 7 days. Please re-authorize the integration through the OAuth flow.',
+          title: REFRESH_TOKEN_EXPIRED_ISSUE_TITLE,
+          description: REFRESH_TOKEN_EXPIRED_ISSUE_DESC,
           category: 'configuration',
           groupBy: ['refresh_token_expired'],
           code: 'code',
-          data: {},
+          data: {
+            details: {
+              raw: REFRESH_TOKEN_EXPIRED_ISSUE_TITLE,
+              pretty: REFRESH_TOKEN_EXPIRED_ISSUE_DESC,
+            },
+            expiryDate: {
+              raw: new Date(this._credentials.refreshToken.expiresAt).toISOString(),
+            },
+          },
         })
       }
     }
