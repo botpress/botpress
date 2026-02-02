@@ -69,7 +69,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
     await props.client.updateConversation({
       id: initializeResponse.conversation.id,
       tags: {
-        owner: userId ?? initializeResponse.user.id,
+        owner: initializeResponse.user.id,
         fid: request.body.conversationId ?? initializeResponse.conversation.id,
       },
     })
