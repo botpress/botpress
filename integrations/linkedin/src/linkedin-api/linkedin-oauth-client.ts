@@ -6,6 +6,9 @@ const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
 const OAUTH_REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
 
+const ACCESS_TOKEN_BUFFER_MS = 5 * 60 * 1000 // 5 minutes
+const REFRESH_TOKEN_BUFFER_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+
 type OAuthCredentialsPayload = bp.states.oauthCredentials.OauthCredentials['payload']
 
 type ClientCredentials = {
@@ -206,28 +209,7 @@ export class LinkedInOAuthClient {
     logger.forBot().debug('Fetching LinkedIn user info')
     const userInfo = await LinkedInOAuthClient._fetchUserInfo(tokenData.access_token, logger)
 
-    const now = new Date()
-    const accessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
-
-    const credentials: OAuthCredentialsPayload = {
-      accessToken: {
-        token: tokenData.access_token,
-        issuedAt: now.toISOString(),
-        expiresAt: accessTokenExpiresAt.toISOString(),
-      },
-      refreshToken: tokenData.refresh_token
-        ? {
-            token: tokenData.refresh_token,
-            issuedAt: now.toISOString(),
-            expiresAt: tokenData.refresh_token_expires_in
-              ? new Date(now.getTime() + tokenData.refresh_token_expires_in * 1000).toISOString()
-              : undefined,
-          }
-        : undefined,
-      grantedScopes: tokenData.scope ? tokenData.scope.split(' ') : [],
-      linkedInUserId: userInfo.sub,
-    }
-
+    const credentials = LinkedInOAuthClient._generateCredentials(tokenData, userInfo.sub)
     const oauthClient = new LinkedInOAuthClient({
       credentials,
       client,
@@ -244,11 +226,9 @@ export class LinkedInOAuthClient {
   }
 
   private async _refreshTokenIfNeeded(): Promise<void> {
-    const accessTokenExpiresAt = new Date(this._credentials.accessToken.expiresAt)
-    const now = new Date()
-    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
+    const now = new Date().getTime()
 
-    if (accessTokenExpiresAt > fiveMinutesFromNow) {
+    if (this._credentials.accessToken.expiresAt > now + ACCESS_TOKEN_BUFFER_MS) {
       return
     }
 
@@ -263,10 +243,7 @@ export class LinkedInOAuthClient {
     }
 
     if (this._credentials.refreshToken.expiresAt) {
-      const refreshTokenExpiresAt = new Date(this._credentials.refreshToken.expiresAt)
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-
-      if (refreshTokenExpiresAt <= sevenDaysFromNow) {
+      if (this._credentials.refreshToken.expiresAt <= now + REFRESH_TOKEN_BUFFER_MS) {
         this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
         throw new sdk.RuntimeError(
           'LinkedIn refresh token has expired or will expire soon. ' +
@@ -329,29 +306,11 @@ export class LinkedInOAuthClient {
     }
 
     const tokenData = linkedInTokenResponseSchema.parse(await response.json())
-
-    const now = new Date()
-    const newAccessTokenExpiresAt = new Date(now.getTime() + tokenData.expires_in * 1000)
-
-    this._credentials = {
-      ...this._credentials,
-      accessToken: {
-        token: tokenData.access_token,
-        issuedAt: now.toISOString(),
-        expiresAt: newAccessTokenExpiresAt.toISOString(),
-      },
-      refreshToken: tokenData.refresh_token
-        ? {
-            token: tokenData.refresh_token,
-            issuedAt: this._credentials.refreshToken?.issuedAt ?? now.toISOString(),
-            expiresAt: tokenData.refresh_token_expires_in
-              ? new Date(now.getTime() + tokenData.refresh_token_expires_in * 1000).toISOString()
-              : this._credentials.refreshToken?.expiresAt,
-          }
-        : this._credentials.refreshToken,
-      grantedScopes: tokenData.scope ? tokenData.scope.split(' ') : this._credentials.grantedScopes,
-    }
-
+    LinkedInOAuthClient._generateCredentials(
+      tokenData,
+      this._credentials.linkedInUserId,
+      this._credentials.grantedScopes
+    )
     await this._saveCredentials()
     this._logger.forBot().debug('LinkedIn access token refreshed successfully')
   }
@@ -363,6 +322,31 @@ export class LinkedInOAuthClient {
       id: this._ctx.integrationId,
       payload: this._credentials,
     })
+  }
+
+  private static _generateCredentials(
+    tokenData: sdk.z.infer<typeof linkedInTokenResponseSchema>,
+    userId: string,
+    defaultScopes?: string[]
+  ) {
+    defaultScopes = defaultScopes ?? []
+    const now = new Date().getTime()
+    return {
+      accessToken: {
+        token: tokenData.access_token,
+        issuedAt: now,
+        expiresAt: now + tokenData.expires_in * 1000,
+      },
+      refreshToken: tokenData.refresh_token
+        ? {
+            token: tokenData.refresh_token,
+            issuedAt: now,
+            expiresAt: tokenData.refresh_token_expires_in ? now + tokenData.refresh_token_expires_in * 1000 : undefined,
+          }
+        : undefined,
+      grantedScopes: tokenData.scope ? tokenData.scope.split(' ') : defaultScopes,
+      linkedInUserId: userId,
+    }
   }
 
   private static async _fetchUserInfo(accessToken: string, logger: bp.Logger): Promise<UserInfo> {
