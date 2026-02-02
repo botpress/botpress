@@ -1,0 +1,35 @@
+name: Build and push Chat Integration Docker
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
+      - 'packages/sdk/**'
+
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  docker-chat:
+    runs-on: depot-ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpresshub/chat'
+      - uses: ./.github/actions/docker-build
+        with:
+          repository: chat-integration
+          dockerfile: ./integrations/chat/Dockerfile
+          push: ${{ github.event_name == 'workflow_dispatch' }}
+          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
