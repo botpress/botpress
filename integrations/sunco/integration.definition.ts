@@ -47,6 +47,7 @@ export default new IntegrationDefinition({
   configurations: {
     manual: {
       title: 'Configure manually with your own app',
+      description: 'Configure the integration with your own SunCo OAuth app',
       schema: z.object({
         appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
         keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
