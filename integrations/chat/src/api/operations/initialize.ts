@@ -65,13 +65,15 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   }
 
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
-  await props.client.updateConversation({
-    id: initializeResponse.conversation.id,
-    tags: {
-      owner: userId ?? initializeResponse.user.id,
-      fid: request.body.conversationId ?? initializeResponse.conversation.id,
-    },
-  })
+  if (!req.body.conversationId) {
+    await props.client.updateConversation({
+      id: initializeResponse.conversation.id,
+      tags: {
+        owner: userId ?? initializeResponse.user.id,
+        fid: request.body.conversationId ?? initializeResponse.conversation.id,
+      },
+    })
+  }
 
   const userKey = userKeyHeader ?? props.auth.generateKey({ id: initializeResponse.user.id })
 
