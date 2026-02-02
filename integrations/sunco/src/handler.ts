@@ -15,6 +15,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return await _handleOAuthCallback(props)
   }
 
+  if (!isWebhookSignatureValid(req.headers, await getWebhookSecret(client, ctx))) {
+    logger.forBot().warn('Received a request with an invalid webhook secret')
+    return
+  }
+
   if (!req.body) {
     console.warn('Handler received an empty body')
     return
@@ -23,11 +28,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const data = JSON.parse(req.body)
 
   if (!isSuncoWebhookPayload(data)) {
-    logger.forBot().warn('Received an invalid payload from Sunco')
-    return
-  }
-
-  if (!isWebhookSignatureValid(req.headers, await getWebhookSecret(client, ctx))) {
     logger.forBot().warn('Received an invalid payload from Sunco')
     return
   }
