@@ -228,27 +228,41 @@ export class LinkedInOAuthClient {
   private async _refreshTokenIfNeeded(): Promise<void> {
     const now = new Date().getTime()
 
+    if (!this._credentials.refreshToken) {
+      if (this._credentials.accessToken.expiresAt > now + REFRESH_TOKEN_BUFFER_MS) {
+        this._logger.issue({
+          type: 'issue',
+          title: 'Access token expired',
+          description:
+            'The LinkedIn api token is expired or expiring within 7 days and no refresh token is available. Please re-authorize the integration through the OAuth flow.',
+          category: 'configuration',
+          groupBy: ['access_token_expired'],
+          code: 'code',
+          data: {},
+        })
+      }
+      return
+    }
+
     if (this._credentials.accessToken.expiresAt > now + ACCESS_TOKEN_BUFFER_MS) {
       return
     }
 
     this._logger.forBot().debug('LinkedIn access token expired or expiring soon, refreshing')
 
-    if (!this._credentials.refreshToken) {
-      this._logger.forBot().error('LinkedIn access token expired but no refresh token available')
-      throw new sdk.RuntimeError(
-        'LinkedIn access token has expired and no refresh token is available. ' +
-          'Please re-authorize the integration through the OAuth flow.'
-      )
-    }
-
     if (this._credentials.refreshToken.expiresAt) {
       if (this._credentials.refreshToken.expiresAt <= now + REFRESH_TOKEN_BUFFER_MS) {
+        this._logger.issue({
+          type: 'issue',
+          title: 'Refresh token expired',
+          description:
+            'The LinkedIn api refresh token is expired or expiring within 7 days. Please re-authorize the integration through the OAuth flow.',
+          category: 'configuration',
+          groupBy: ['access_token_expired'],
+          code: 'code',
+          data: {},
+        })
         this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
-        throw new sdk.RuntimeError(
-          'LinkedIn refresh token has expired or will expire soon. ' +
-            'Please re-authorize the integration through the OAuth flow to obtain a new refresh token.'
-        )
       }
     }
 
