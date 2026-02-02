@@ -6,6 +6,7 @@ import {
   CommentUpdatedWebhook,
 } from '../schemas/card-comment-webhook-schemas'
 import { extractCommonEventData, extractIdAndName } from './helpers'
+import { Expect, IsWebhookHandler } from './types'
 import * as bp from '.botpress'
 
 export const handleCommentAddedEvent = async (
@@ -32,6 +33,7 @@ export const handleCommentAddedEvent = async (
 
   return result[1].status === 'fulfilled' ? result[1].value : null
 }
+type _HandleCommentAddedEventTest = Expect<IsWebhookHandler<typeof handleCommentAddedEvent>>
 
 export const handleCommentUpdatedEvent = async (
   props: bp.HandlerProps,
@@ -54,6 +56,7 @@ export const handleCommentUpdatedEvent = async (
     },
   })
 }
+type _HandleCommentUpdatedEventTest = Expect<IsWebhookHandler<typeof handleCommentUpdatedEvent>>
 
 export const handleCommentDeletedEvent = async (
   props: bp.HandlerProps,
@@ -72,3 +75,4 @@ export const handleCommentDeletedEvent = async (
     },
   })
 }
+type _HandleCommentDeletedEventTest = Expect<IsWebhookHandler<typeof handleCommentDeletedEvent>>
