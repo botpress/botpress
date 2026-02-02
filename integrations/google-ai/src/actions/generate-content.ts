@@ -17,7 +17,7 @@ import {
   FunctionDeclaration,
 } from '@google/genai'
 import crypto from 'crypto'
-import { DefaultModelId, DiscontinuedModelIds, ModelId } from 'src/schemas'
+import { DefaultModelId, DiscontinuedModelIds, ModelId, OverrideModelIds } from 'src/schemas'
 
 type ReasoningEffort = NonNullable<llm.GenerateContentInput['reasoningEffort']>
 
@@ -127,13 +127,17 @@ async function buildGenerateContentRequest(
   }
 
   let defaultReasoningEffort: ReasoningEffort = 'none'
-  if (modelId === 'gemini-3-pro-preview') {
+  if (modelId === 'gemini-3-pro') {
     // Gemini 3 Pro doesn't support disabling reasoning, so we use the lowest reasoning effort by default.
     defaultReasoningEffort = 'low'
   }
 
   const thinkingBudget = ThinkingModeBudgetTokens[input.reasoningEffort ?? defaultReasoningEffort]
   const modelSupportsThinking = modelId !== 'models/gemini-2.0-flash' // Gemini 2.0 doesn't support thinking mode
+
+  if (OverrideModelIds[modelId]) {
+    modelId = OverrideModelIds[modelId] as ModelId
+  }
 
   return {
     model: modelId,
