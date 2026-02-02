@@ -95,7 +95,7 @@ export default new IntegrationDefinition({
       description: 'The name of the marketplace bot',
     },
     MARKETPLACE_ORG_ID: {
-      description: 'The ID or the marketplace organization',
+      description: 'The ID of the marketplace organization',
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
