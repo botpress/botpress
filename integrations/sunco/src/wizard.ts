@@ -72,6 +72,7 @@ const _addToChannels: WizardHandler = async (props) => {
   })
 }
 
-const _endHandler: WizardHandler = ({ responses }) => {
+const _endHandler: WizardHandler = async ({ responses, client, ctx }) => {
+  await client.configureIntegration({ identifier: ctx.webhookId })
   return responses.endWizard({ success: true })
 }
