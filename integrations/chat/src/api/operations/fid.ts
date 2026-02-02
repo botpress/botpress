@@ -492,7 +492,7 @@ export const handlers = {
         body: {
           user: { ...res.body.user, id: userId },
           conversation: { ...res.body.conversation, id: conversationId },
-          message: res.body.message,
+          message: { ...res.body.message, userId, conversationId },
         },
       })
     },
