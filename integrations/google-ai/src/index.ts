@@ -1,15 +1,13 @@
 import { llm } from '@botpress/common'
 import { GoogleGenAI } from '@google/genai'
 import { generateContent } from './actions/generate-content'
-import { ModelId } from './schemas'
+import { DefaultModelId, ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const googleAIClient = new GoogleGenAI({ apiKey: bp.secrets.GOOGLE_AI_API_KEY })
 
-const DEFAULT_LANGUAGE_MODEL_ID: ModelId = 'models/gemini-2.0-flash'
-
 const languageModels: Record<ModelId, llm.ModelDetails> = {
-  'gemini-3-pro-preview': {
+  'gemini-3-pro': {
     name: 'Gemini 3 Pro (Preview)',
     description:
       "One of the best models for multimodal understanding, and Google's most powerful agentic and vibe-coding model yet, delivering richer visuals and deeper interactivity, built on a foundation of state-of-the-art reasoning.",
@@ -25,7 +23,7 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 65_536,
     },
   },
-  'gemini-3-flash-preview': {
+  'gemini-3-flash': {
     name: 'Gemini 3 Flash (Preview)',
     description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
     tags: ['preview', 'reasoning', 'agents', 'general-purpose', 'vision'],
@@ -96,7 +94,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger, metadata }) => {
       const output = await generateContent(<llm.GenerateContentInput>input, googleAIClient, logger, {
         models: languageModels,
-        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+        defaultModel: DefaultModelId,
       })
       metadata.setCost(output.botpress.cost)
       return output
