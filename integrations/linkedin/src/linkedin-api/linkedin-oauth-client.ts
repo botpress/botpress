@@ -6,6 +6,9 @@ const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_USERINFO_URL = 'https://api.linkedin.com/v2/userinfo'
 const OAUTH_REDIRECT_URI = `${process.env.BP_WEBHOOK_URL}/oauth`
 
+const ACCESS_TOKEN_BUFFER_MS = 5 * 60 * 1000 // 5 minutes
+const REFRESH_TOKEN_BUFFER_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+
 type OAuthCredentialsPayload = bp.states.oauthCredentials.OauthCredentials['payload']
 
 type ClientCredentials = {
@@ -224,9 +227,8 @@ export class LinkedInOAuthClient {
 
   private async _refreshTokenIfNeeded(): Promise<void> {
     const now = new Date().getTime()
-    const fiveMinutesFromNow = now + 5 * 60 * 1000
 
-    if (this._credentials.accessToken.expiresAt > fiveMinutesFromNow) {
+    if (this._credentials.accessToken.expiresAt > now + ACCESS_TOKEN_BUFFER_MS) {
       return
     }
 
@@ -241,9 +243,7 @@ export class LinkedInOAuthClient {
     }
 
     if (this._credentials.refreshToken.expiresAt) {
-      const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000
-
-      if (this._credentials.refreshToken.expiresAt <= sevenDaysFromNow) {
+      if (this._credentials.refreshToken.expiresAt <= now + REFRESH_TOKEN_BUFFER_MS) {
         this._logger.forBot().error('LinkedIn refresh token expired or expiring within 7 days')
         throw new sdk.RuntimeError(
           'LinkedIn refresh token has expired or will expire soon. ' +
