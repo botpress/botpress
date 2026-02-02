@@ -58,7 +58,7 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
     throw new sdk.RuntimeError('Failed to delete app: no subdomain is associated with this bot installation')
   }
 
-  await deleteAllWebhooks({ credentials, logger })
+  await _deleteAllWebhooks({ credentials, logger })
 
   const response = await fetch(`https://${credentials.subdomain}.zendesk.com/sc/oauth/authorization`, {
     method: 'DELETE',
@@ -73,14 +73,14 @@ export const deleteApp = async ({ credentials, logger }: { credentials: OAuthCre
   logger.forBot().debug('Successfully deleted SunCo app')
 }
 
-const deleteAllWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
-  const webhooks = await listWebhooks({ credentials, logger })
+const _deleteAllWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
+  const webhooks = await _listWebhooks({ credentials, logger })
   for (const { id } of webhooks) {
-    await deleteWebhook({ credentials, logger, webhookId: id })
+    await _deleteWebhook({ credentials, logger, webhookId: id })
   }
 }
 
-const deleteWebhook = async ({
+const _deleteWebhook = async ({
   credentials,
   logger,
   webhookId,
@@ -109,7 +109,7 @@ const deleteWebhook = async ({
   }
 }
 
-const listWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
+const _listWebhooks = async ({ credentials, logger }: { credentials: OAuthCredentials; logger: bp.Logger }) => {
   logger.forBot().debug('Listing webhooks')
 
   if (!credentials.subdomain) {
