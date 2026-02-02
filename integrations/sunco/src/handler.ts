@@ -4,7 +4,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { getCredentials } from './api/get-credentials'
 import { executeConversationCreated, handleConversationMessage } from './events'
 import { getWebhookSecret } from './get-stored-credentials'
-import { isSuncoWebhookPayload, isWebhookSignatureValid as isSignatureValid } from './messaging-events'
+import { isSuncoWebhookPayload, isWebhookSignatureValid } from './messaging-events'
 import * as wizard from './wizard'
 import * as bp from '.botpress'
 
@@ -27,7 +27,7 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     return
   }
 
-  if (!isSignatureValid(req.headers, await getWebhookSecret(client, ctx))) {
+  if (!isWebhookSignatureValid(req.headers, await getWebhookSecret(client, ctx))) {
     logger.forBot().warn('Received an invalid payload from Sunco')
     return
   }
