@@ -16,7 +16,7 @@ const INTEGRATION_NAME = 'mailchimp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Mailchimp',
-  version: '0.3.8',
+  version: '0.3.9',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.',
