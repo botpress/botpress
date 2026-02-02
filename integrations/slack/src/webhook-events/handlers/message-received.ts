@@ -47,62 +47,73 @@ export const handleEvent = async (props: HandleEventProps) => {
     return
   }
 
-  const { botpressConversation } = await getBotpressConversationFromSlackThread(
-    { slackChannelId: slackEvent.channel, slackThreadId: slackEvent.thread_ts },
-    client
-  )
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
   await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
   const isSentInChannel = !slackEvent.thread_ts
-  const isThreadingEnabled = ctx.configuration.createReplyThread?.enabled ?? false
-  const threadingRequiresMention = ctx.configuration.createReplyThread?.onlyOnBotMention ?? false
-  const shouldForkToReplyThread = isSentInChannel && isThreadingEnabled && (!threadingRequiresMention || mentionsBot)
+  const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
+  const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
 
-  await _sendMessage({
-    botpressConversation,
-    botpressUser,
-    tags: {
-      ts: slackEvent.ts,
-      userId: slackEvent.user,
-      channelId: slackEvent.channel,
-      mentionsBot: mentionsBot ? 'true' : undefined,
-      forkedToThread: 'false',
-    },
-    discriminateByTags: ['ts', 'channelId'],
-    slackEvent,
-    client,
-    ctx,
-    logger,
-  })
-
-  if (!shouldForkToReplyThread) {
+  if (replyOnlyOnBotMention && !mentionsBot) {
+    logger.forBot().warn('Message was not sent because the bot was not mentioned')
     return
   }
 
-  const { conversation: threadConversation } = await client.getOrCreateConversation({
-    channel: 'thread',
-    tags: { id: slackEvent.channel, thread: slackEvent.ts, isBotReplyThread: 'true' },
-    discriminateByTags: ['id', 'thread'],
-  })
+  const shouldRespondInChannel =
+    isSentInChannel && (replyLocation === 'channel' || replyLocation === 'channelAndThread')
+  const shouldRespondInThread = !isSentInChannel || replyLocation === 'thread' || replyLocation === 'channelAndThread'
 
-  await _sendMessage({
-    botpressConversation: threadConversation,
-    botpressUser,
-    tags: {
-      ts: slackEvent.ts,
-      userId: slackEvent.user,
-      channelId: slackEvent.channel,
-      mentionsBot: mentionsBot ? 'true' : undefined,
-      forkedToThread: 'true',
-    },
-    discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
-    slackEvent,
-    client,
-    ctx,
-    logger,
-  })
+  if (shouldRespondInChannel) {
+    const { botpressConversation } = await getBotpressConversationFromSlackThread(
+      { slackChannelId: slackEvent.channel, slackThreadId: undefined },
+      client
+    )
+
+    await _sendMessage({
+      botpressConversation,
+      botpressUser,
+      tags: {
+        ts: slackEvent.ts,
+        userId: slackEvent.user,
+        channelId: slackEvent.channel,
+        mentionsBot: mentionsBot ? 'true' : undefined,
+        forkedToThread: 'false',
+      },
+      discriminateByTags: ['ts', 'channelId'],
+      slackEvent,
+      client,
+      ctx,
+      logger,
+    })
+  }
+
+  if (shouldRespondInThread) {
+    const threadTs = slackEvent.thread_ts ?? slackEvent.ts
+
+    const { conversation: threadConversation } = await client.getOrCreateConversation({
+      channel: 'thread',
+      tags: { id: slackEvent.channel, thread: threadTs, isBotReplyThread: 'true' },
+      discriminateByTags: ['id', 'thread'],
+    })
+
+    await _sendMessage({
+      botpressConversation: threadConversation,
+      botpressUser,
+      tags: {
+        ts: slackEvent.ts,
+        userId: slackEvent.user,
+        channelId: slackEvent.channel,
+        mentionsBot: mentionsBot ? 'true' : undefined,
+        forkedToThread: isSentInChannel ? 'true' : 'false',
+      },
+      discriminateByTags: ['ts', 'channelId', 'forkedToThread'],
+      slackEvent,
+      client,
+      ctx,
+      logger,
+    })
+  }
 }
 
 type _SendMessageProps = HandleEventProps & {

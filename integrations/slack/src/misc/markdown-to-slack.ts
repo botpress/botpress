@@ -47,10 +47,6 @@ const slackHandlers: MarkdownHandlers = {
   paragraph: (node, visit) => `${visit(node)}\n`,
 }
 
-export function transformMarkdownForSlack(text: string | undefined): string | undefined {
-  if (!text) {
-    return text
-  }
-
+export function transformMarkdownForSlack(text: string): string {
   return transformMarkdown(text, slackHandlers)
 }

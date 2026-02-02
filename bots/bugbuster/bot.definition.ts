@@ -122,5 +122,9 @@ export default new sdk.BotDefinition({
       clientSecret: genenv.BUGBUSTER_SLACK_CLIENT_SECRET,
       signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
       typingIndicatorEmoji: false,
+      replyBehaviour: {
+        location: 'channel',
+        onlyOnBotMention: false,
+      },
     },
   })

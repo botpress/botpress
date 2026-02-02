@@ -31,7 +31,9 @@ export const handler = async (props: bp.HandlerProps) => {
 const _startHandler: WizardHandler = ({ responses }) => {
   return responses.displayInput({
     pageTitle: 'BambooHR Integration',
-    htmlOrMarkdownPageContents: 'Please enter your BambooHR subdomain to continue.',
+    htmlOrMarkdownPageContents: `Please enter your BambooHR subdomain to continue.
+
+**Important:** BambooHR has a known OAuth bug that may cause the first connection attempt from Google to fail. If this happens, please try connecting again.`,
     input: {
       type: 'text',
       label: 'Subdomain',

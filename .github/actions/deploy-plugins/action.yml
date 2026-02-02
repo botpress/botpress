@@ -54,7 +54,7 @@ runs:
             plugin=$(basename $plugin_path)
             exists=$(./.github/scripts/plugin-exists.sh $plugin)
 
-            base_command="bp deploy -v -y --public"
+            base_command="bp deploy -v -y --visibility public"
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying plugin: ### $plugin ###\n"

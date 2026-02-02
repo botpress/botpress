@@ -171,7 +171,7 @@ export const bambooHrEmployeeBasicInfoResponse = bambooHrEmployeeWebhookFields.e
   displayName: z.string().title('Display Name').describe("Employee's display name."),
 })
 
-export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).catchall(z.string())
+export const bambooHrEmployeeCustomInfoResponse = z.object({ id: employeeId }).passthrough()
 
 export const bambooHrEmployeeDirectoryResponse = z.object({
   fields: z
@@ -211,3 +211,17 @@ export const bambooHrCompanyInfo = z.object({
     .describe('Address of the company.'),
   phone: z.string().nullable().optional().title('Phone Number').describe('Phone number of the company.'),
 })
+
+export const bambooHrFields = z
+  .array(
+    z
+      .object({
+        id: z.union([z.string(), z.number()]).title('ID').describe('Unique identifier for the field.'),
+        name: z.string().title('Name').describe('Name of the field.'),
+        type: z.string().title('Type').describe('Data type of the field.'),
+        alias: z.string().optional().title('Alias').describe('Alias used for the field in API requests.'),
+      })
+      .passthrough()
+  )
+  .title('Fields')
+  .describe('List of available employee fields.')
