@@ -36,7 +36,7 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
 
   const preparedBody: PreparedBody = {}
 
-  if (request.auth.userId) {
+  if (request.auth.userId !== '') {
     preparedBody.userId = request.auth.userId
   } else {
     preparedBody.user = {
@@ -67,7 +67,10 @@ export const initialize: types.Operations['initializeIncomingMessage'] = async (
   const initializeResponse = await props.client.initializeIncomingMessage(preparedBody)
   await props.client.updateConversation({
     id: initializeResponse.conversation.id,
-    tags: { owner: userId, fid: request.body.conversationId ?? initializeResponse.conversation.id },
+    tags: {
+      owner: userId ?? initializeResponse.user.id,
+      fid: request.body.conversationId ?? initializeResponse.conversation.id,
+    },
   })
 
   const userKey = userKeyHeader ?? props.auth.generateKey({ id: initializeResponse.user.id })
