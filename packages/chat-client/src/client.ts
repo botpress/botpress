@@ -278,7 +278,7 @@ export class AuthenticatedClient implements IAuthenticatedClient {
   public readonly getEvent: IAuthenticatedClient['getEvent'] = (x) =>
     this._client.getEvent({ 'x-user-key': this.user.key, ...x })
   public readonly initializeIncomingMessage: IAuthenticatedClient['initializeIncomingMessage'] = (x) =>
-    this._client.initializeIncomingMessage(x)
+    this._client.initializeIncomingMessage({ 'x-user-key': this.user.key, ...x })
 
   public get list() {
     return {
