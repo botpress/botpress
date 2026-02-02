@@ -1,8 +1,19 @@
 import { z } from '@botpress/sdk'
 
-const fieldSchema = z.object({ name: z.string(), type: z.string() }).passthrough()
+const fieldSchema = z
+  .object({
+    name: z.string().title('Name').describe('Field name'),
+    type: z.string().title('Type').describe('Field type'),
+  })
+  .passthrough()
 
-const viewSchema = z.object({ id: z.string(), name: z.string(), type: z.string() }).passthrough()
+const viewSchema = z
+  .object({
+    id: z.string().title('ID').describe('View ID'),
+    name: z.string().title('Name').describe('View name'),
+    type: z.string().title('Type').describe('View type'),
+  })
+  .passthrough()
 
 const tableSchema = z.object({
   description: z.string().optional().describe('The description of the table').title('description'),
