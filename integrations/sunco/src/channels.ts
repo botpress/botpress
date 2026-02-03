@@ -1,14 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
-import {
-  Action,
-  ApiClient,
-  CarouselItem,
-  CombinedApiClient,
-  createClient,
-  MessageContent,
-  PostMessageRequest,
-} from './api/sunshine-api'
+import { Action, CarouselItem, createClient, MessageContent, PostMessageRequest } from './api/sunshine-api'
 import { getStoredCredentials } from './get-stored-credentials'
 import { Carousel, Choice, Conversation, StoredCredentials } from './types'
 import { getSuncoConversationId } from './util'
