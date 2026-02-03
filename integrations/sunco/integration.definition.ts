@@ -40,7 +40,7 @@ export default new IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
-      required: true,
+      required: false,
     },
     schema: z.object({}),
   },
