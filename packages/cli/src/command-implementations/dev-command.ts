@@ -161,16 +161,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
           const typescriptEvents = events
             .filter((e) => !e.path.startsWith(this.projectPaths.abs.outDir))
+            .filter((e) => !e.path.startsWith(this.projectPaths.abs.distDir))
             .filter((e) => pathlib.extname(e.path) === '.ts')
-
-          const distEvents = events.filter((e) => e.path.startsWith(this.projectPaths.abs.distDir))
 
           if (typescriptEvents.length > 0) {
             this.logger.log('Changes detected, rebuilding')
             await this._restart(api, worker, httpTunnelUrl)
-          } else if (distEvents.length > 0) {
-            this.logger.log('Changes detected in output directory, reloading worker')
-            await worker.reload()
           }
         },
         {
