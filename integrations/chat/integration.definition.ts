@@ -38,9 +38,12 @@ export default new sdk.IntegrationDefinition({
       title: 'Custom Event',
       description: 'Custom event sent from the chat client to the bot',
       schema: z.object({
-        userId: z.string(),
-        conversationId: z.string(),
-        payload: z.record(z.any()),
+        userId: z.string().title('User ID').describe('The ID of the user who sent the custom event'),
+        conversationId: z
+          .string()
+          .title('Conversation ID')
+          .describe('The ID of the conversation where the event was sent'),
+        payload: z.record(z.any()).title('Payload').describe('Custom data payload sent with the event'),
       }),
     },
   },
@@ -50,8 +53,11 @@ export default new sdk.IntegrationDefinition({
       description: 'Send a custom event from the bot to the chat client',
       input: {
         schema: z.object({
-          conversationId: z.string(),
-          payload: z.record(z.any()),
+          conversationId: z
+            .string()
+            .title('Conversation ID')
+            .describe('The ID of the conversation to send the event to'),
+          payload: z.record(z.any()).title('Payload').describe('Custom data payload to send with the event'),
         }),
       },
       output: {
@@ -61,6 +67,8 @@ export default new sdk.IntegrationDefinition({
   },
   channels: {
     channel: {
+      title: 'Chat Channel',
+      description: 'Web chat channel for communicating with users via HTTP requests',
       conversation: {
         tags: {
           owner: { title: 'Conversation Owner', description: 'ID of the user who created the conversation' },
