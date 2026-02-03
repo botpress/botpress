@@ -243,7 +243,7 @@ export class LinkedInOAuthClient {
           description: ACCESS_TOKEN_EXPIRED_ISSUE_DESC,
           category: 'configuration',
           groupBy: ['access_token_expired'],
-          code: 'code',
+          code: 'access_token_expired',
           data: {
             details: {
               raw: ACCESS_TOKEN_EXPIRED_ISSUE_TITLE,
@@ -272,7 +272,7 @@ export class LinkedInOAuthClient {
           description: REFRESH_TOKEN_EXPIRED_ISSUE_DESC,
           category: 'configuration',
           groupBy: ['refresh_token_expired'],
-          code: 'code',
+          code: 'refresh_token_expired',
           data: {
             details: {
               raw: REFRESH_TOKEN_EXPIRED_ISSUE_TITLE,
