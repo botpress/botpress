@@ -415,8 +415,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
   rules: {
     ...INTEGRATION_RULESET.rules,
     'action-inputparams-should-have-a-title': {
-      description: 'All action input parameters SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All action input parameters {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.actions[*].input..schema..properties[*]',
       then: [
@@ -431,8 +432,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'action-inputparams-must-have-a-description': {
-      description: 'All action input parameters MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All action input parameters {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.actions[*].input..schema..properties[*]',
       then: [
@@ -447,8 +449,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'action-outputparams-should-have-a-title': {
-      description: 'All action output parameters SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All action output parameters {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.actions[*].output..schema..properties[*].x-zui',
       then: [
@@ -463,8 +466,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'action-outputparams-must-have-a-description': {
-      description: 'All action output parameters MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All action output parameters {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.actions[*].output..schema..properties[*]',
       then: [
@@ -479,8 +483,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'event-outputparams-should-have-title': {
-      description: 'All event output parameters SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All event output parameters {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.events[*]..schema..properties[*]',
       then: [
@@ -495,9 +500,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'event-outputparams-must-have-description': {
-      description: 'All event output parameters MUST have a description',
+      description: 'All event output parameters {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.events[*]..schema..properties[*]',
       then: [
@@ -512,8 +517,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'configuration-fields-must-have-a-title': {
-      description: 'All configuration fields MUST have a title',
-      message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema..properties[*].x-zui',
       then: [
@@ -527,8 +533,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'configuration-fields-must-have-a-description': {
-      description: 'All configuration fields MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema..properties[*]',
       then: [
@@ -542,8 +549,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'multipes-configurations-fields-must-have-a-title': {
-      description: 'All configuration fields in multiple configurations MUST have a title',
-      message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
+      description: 'All configuration fields in multiple configurations {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
       given: '$.configurations[*]..schema..properties[*].x-zui',
       then: [
@@ -558,8 +566,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'multipes-configurations-fields-must-have-a-description': {
-      description: 'All configuration fields in multiple configurations MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All configuration fields in multiple configurations {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.configurations[*]..schema..properties[*]',
       then: [
@@ -574,8 +583,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'state-fields-should-have-title': {
-      description: 'All state fields SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All state fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.states[*]..schema..properties[*]',
       then: [
@@ -589,9 +599,9 @@ export const INTEGRATION_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'state-fields-must-have-description': {
-      description: 'All state fields MUST have a description',
+      description: 'All state fields {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.states[*]..schema..properties[*]',
       then: [

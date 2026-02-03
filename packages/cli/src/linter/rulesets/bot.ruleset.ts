@@ -201,8 +201,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
   rules: {
     ...BOT_RULESET.rules,
     'event-outputparams-should-have-title': {
-      description: 'All event output parameters SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All event output parameters {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.events[*]..schema..properties[*]',
       then: [
@@ -217,9 +218,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'event-outputparams-must-have-description': {
-      description: 'All event output parameters MUST have a description',
+      description: 'All event output parameters {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.events[*]..schema..properties[*]',
       then: [
@@ -234,8 +235,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'configuration-fields-must-have-a-title': {
-      description: 'All configuration fields MUST have a title',
-      message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema..properties[*].x-zui',
       then: [
@@ -249,8 +251,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'configuration-fields-must-have-a-description': {
-      description: 'All configuration fields MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema..properties[*]',
       then: [
@@ -264,8 +267,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'state-fields-should-have-title': {
-      description: 'All state fields SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All state fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.states[*]..schema..properties[*]',
       then: [
@@ -279,9 +283,9 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       ],
     },
     'state-fields-must-have-description': {
-      description: 'All state fields MUST have a description',
+      description: 'All state fields {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.states[*]..schema..properties[*]',
       then: [
