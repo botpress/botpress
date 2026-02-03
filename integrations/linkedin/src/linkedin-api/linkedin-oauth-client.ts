@@ -236,7 +236,7 @@ export class LinkedInOAuthClient {
     const now = new Date().getTime()
 
     if (!this._credentials.refreshToken) {
-      if (this._credentials.accessToken.expiresAt > now + REFRESH_TOKEN_BUFFER_MS) {
+      if (this._credentials.accessToken.expiresAt <= now + REFRESH_TOKEN_BUFFER_MS) {
         this._logger.issue({
           type: 'issue',
           title: ACCESS_TOKEN_EXPIRED_ISSUE_TITLE,
@@ -340,7 +340,7 @@ export class LinkedInOAuthClient {
     }
 
     const tokenData = linkedInTokenResponseSchema.parse(await response.json())
-    LinkedInOAuthClient._generateCredentials(
+    this._credentials = LinkedInOAuthClient._generateCredentials(
       tokenData,
       this._credentials.linkedInUserId,
       this._credentials.grantedScopes
