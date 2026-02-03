@@ -3127,8 +3127,8 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.8
-        version: 0.3.8
+        specifier: 0.3.9
+        version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -3971,10 +3971,6 @@ packages:
 
   '@botpress/api@1.70.2':
     resolution: {integrity: sha512-K/4pdxmco0PyJV/IukWM8zD26OtFn0hcG51Gwv2LXJu0SzvTswr6myhzdspYuY3O1GR8+CLVbIXJT9eYul77pA==}
-
-  '@botpress/cognitive@0.3.8':
-    resolution: {integrity: sha512-zcDm66TaUxflz04d8sZQ8sLwqjKurir4QQccgNvlq5tlvVCGhqBgbp7H5NBNZFbWMeWXrq8jjhA+DAfpUSjYwA==}
-    engines: {node: '>=18.0.0'}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -13149,11 +13145,6 @@ snapshots:
       - debug
       - openapi-types
       - supports-color
-
-  '@botpress/cognitive@0.3.8':
-    dependencies:
-      exponential-backoff: 3.1.1
-      nanoevents: 9.1.0
 
   '@bpinternal/const@0.1.0': {}
 
