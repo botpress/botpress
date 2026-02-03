@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'google-ai',
   title: 'Google AI',
   description: 'Gain access to Gemini models for content generation, chat responses, and advanced language tasks.',
-  version: '6.0.4',
+  version: '7.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

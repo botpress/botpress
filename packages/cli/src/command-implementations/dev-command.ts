@@ -7,6 +7,10 @@ import { isEqual } from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import * as apiUtils from '../api'
+import {
+  secretEnvVariableName,
+  stripSecretEnvVariablePrefix,
+} from '../code-generation/integration-implementation/integration-secret'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as tables from '../tables'
@@ -52,9 +56,18 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     let defaultPort = DEFAULT_BOT_PORT
     if (this._initialDef.type === 'integration') {
       defaultPort = DEFAULT_INTEGRATION_PORT
-      // TODO: store secrets in local cache to avoid prompting every time
-      const secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, { formatEnv: true })
+      const knownSecrets = await this._readKnownSecretsFromCache()
+      let secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, {
+        knownSecrets: Object.keys(knownSecrets),
+        formatEnv: true,
+      })
+      secretEnvVariables = { ...this._applyPrefixToSecrets(knownSecrets), ...secretEnvVariables }
       const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
+
+      if (!this.argv.noSecretCaching) {
+        await this._writeKnownSecretsToCache(secretEnvVariables)
+      }
+
       env = { ...env, ...nonNullSecretEnvVariables }
     }
 
@@ -210,6 +223,33 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
     }
     throw new errors.UnsupportedProjectType()
+  }
+
+  private async _writeKnownSecretsToCache(secretEnvVariables: Record<string, string | null>) {
+    const knownSecrets: Record<string, string | null> = {}
+    for (const [prefixedSecretName, secretValue] of Object.entries(secretEnvVariables)) {
+      const secretName = stripSecretEnvVariablePrefix(prefixedSecretName)
+      knownSecrets[secretName] = secretValue
+    }
+
+    const nonNullKnownSecrets = utils.records.filterValues(knownSecrets, utils.guards.is.notNull)
+    if (Object.keys(nonNullKnownSecrets).length === 0) {
+      await this.projectCache.rm('secrets')
+      return
+    }
+    await this.projectCache.set('secrets', nonNullKnownSecrets)
+  }
+
+  private async _readKnownSecretsFromCache() {
+    return (await this.projectCache.get('secrets')) ?? {}
+  }
+
+  private _applyPrefixToSecrets(secrets: Record<string, string>): Record<string, string> {
+    const prefixedSecretEntries = Object.entries(secrets).map(([secretName, secretValue]) => [
+      secretEnvVariableName(secretName),
+      secretValue,
+    ])
+    return Object.fromEntries(prefixedSecretEntries)
   }
 
   private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {

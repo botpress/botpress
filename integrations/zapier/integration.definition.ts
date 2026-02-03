@@ -4,7 +4,7 @@ import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStat
 
 export default new IntegrationDefinition({
   name: 'zapier',
-  version: '0.3.6',
+  version: '0.3.7',
   title: 'Zapier',
   description:
     "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",

@@ -93,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.5.20'
+export const INTEGRATION_VERSION = '4.7.1'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -265,6 +265,14 @@ export default new IntegrationDefinition({
           replyTo: {
             title: 'Reply To',
             description: 'The ID of the message that this message is a reply to',
+          },
+          referralSourceUrl: {
+            title: 'Referral Source URL',
+            description: 'The URL of the ad or content that led to the conversation',
+          },
+          referralSourceId: {
+            title: 'Referral Source ID',
+            description: 'The ID of the ad or content that led to the conversation',
           },
         },
       },

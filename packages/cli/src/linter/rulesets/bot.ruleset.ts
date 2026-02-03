@@ -1,13 +1,14 @@
-import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy } from '@stoplight/spectral-functions'
+import { preprocessRuleset } from '../ruleset-functions'
 import { descriptionFallbackExtractor, titleFallbackExtractor, truthyWithMessage } from '../spectral-functions'
 
-export const BOT_RULESET = {
+export const BOT_RULESET = preprocessRuleset({
   extends: [],
   rules: {
     'event-outputparams-should-have-title': {
-      description: 'All event output parameters SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All event output parameters {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.events[*]..schema.properties[*]',
       then: [
@@ -22,9 +23,9 @@ export const BOT_RULESET = {
       ],
     },
     'event-outputparams-must-have-description': {
-      description: 'All event output parameters MUST have a description',
+      description: 'All event output parameters {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.events[*]..schema.properties[*]',
       then: [
@@ -39,8 +40,9 @@ export const BOT_RULESET = {
       ],
     },
     'configuration-fields-must-have-a-title': {
-      description: 'All configuration fields MUST have a title',
-      message: '{{description}}: {{error}} MUST provide a non-empty title by using .title() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema.properties[*].x-zui',
       then: [
@@ -54,8 +56,9 @@ export const BOT_RULESET = {
       ],
     },
     'configuration-fields-must-have-a-description': {
-      description: 'All configuration fields MUST have a description',
-      message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      description: 'All configuration fields {{callToAction}} have a description',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.configuration..schema.properties[*]',
       then: [
@@ -69,8 +72,8 @@ export const BOT_RULESET = {
       ],
     },
     'user-tags-should-have-a-title': {
-      description: 'All user tags SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD have a non-empty title',
+      description: 'All user tags {{callToAction}} have a title',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty title',
       severity: 'warn',
       given: '$.user.tags[*]',
       then: [
@@ -81,8 +84,8 @@ export const BOT_RULESET = {
       ],
     },
     'user-tags-must-have-a-description': {
-      description: 'All user tags MUST have a description',
-      message: '{{description}}: {{error}} MUST have a non-empty description',
+      description: 'All user tags {{callToAction}} have a description',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty description',
       severity: 'error',
       given: '$.user.tags[*]',
       then: [
@@ -93,8 +96,8 @@ export const BOT_RULESET = {
       ],
     },
     'conversation-tags-should-have-a-title': {
-      description: 'All conversation tags SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD have a non-empty title',
+      description: 'All conversation tags {{callToAction}} have a title',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty title',
       severity: 'warn',
       given: '$.conversation.tags[*]',
       then: [
@@ -105,8 +108,8 @@ export const BOT_RULESET = {
       ],
     },
     'conversation-tags-must-have-a-description': {
-      description: 'All conversation tags MUST have a description',
-      message: '{{description}}: {{error}} MUST have a non-empty description',
+      description: 'All conversation tags {{callToAction}} have a description',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty description',
       severity: 'error',
       given: '$.conversation.tags[*]',
       then: [
@@ -117,8 +120,8 @@ export const BOT_RULESET = {
       ],
     },
     'message-tags-should-have-a-title': {
-      description: 'All message tags SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD have a non-empty title',
+      description: 'All message tags {{callToAction}} have a title',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty title',
       severity: 'warn',
       given: '$.message.tags[*]',
       then: [
@@ -129,8 +132,8 @@ export const BOT_RULESET = {
       ],
     },
     'message-tags-must-have-a-description': {
-      description: 'All message tags MUST have a description',
-      message: '{{description}}: {{error}} MUST have a non-empty description',
+      description: 'All message tags {{callToAction}} have a description',
+      message: '{{description}}: {{error}} {{callToAction}} have a non-empty description',
       severity: 'error',
       given: '$.message.tags[*]',
       then: [
@@ -142,20 +145,22 @@ export const BOT_RULESET = {
     },
     'legacy-zui-title-should-be-removed': {
       description:
-        'Legacy ZUI title fields (ui.title) SHOULD be removed. Please use .title() in your Zod schemas instead',
+        'Legacy ZUI title fields (ui.title) {{callToAction}} be removed. Please use .title() in your Zod schemas instead',
       severity: 'error',
       given: '$..ui[*].title',
       then: [{ function: falsy }],
     },
     'legacy-zui-examples-should-be-removed': {
-      description: 'Legacy ZUI examples fields (ui.examples) SHOULD be removed. There are currently no alternatives',
+      description:
+        'Legacy ZUI examples fields (ui.examples) {{callToAction}} be removed. There are currently no alternatives',
       severity: 'hint',
       given: '$..ui[*].examples',
       then: [{ function: falsy }],
     },
     'state-fields-should-have-title': {
-      description: 'All state fields SHOULD have a title',
-      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      description: 'All state fields {{callToAction}} have a title',
+      message:
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
       given: '$.states[*]..schema.properties[*]',
       then: [
@@ -169,9 +174,9 @@ export const BOT_RULESET = {
       ],
     },
     'state-fields-must-have-description': {
-      description: 'All state fields MUST have a description',
+      description: 'All state fields {{callToAction}} have a description',
       message:
-        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+        '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
       given: '$.states[*]..schema.properties[*]',
       then: [
@@ -185,13 +190,13 @@ export const BOT_RULESET = {
       ],
     },
   },
-} satisfies RulesetDefinition
+})
 
 /** An override of the base ruleset that checks nested properties for missing titles & descriptions
  *
  *  @remark This can be removed when the "--checkNested" flag is removed from the lint command
  *  @remark Look at the "--checkNested" flag implementation to see the removal conditions */
-export const BOT_RULESET_WITH_NESTED_CHECKS = {
+export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
   ...BOT_RULESET,
   rules: {
     ...BOT_RULESET.rules,
@@ -290,4 +295,4 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = {
       ],
     },
   },
-} satisfies RulesetDefinition
+})
