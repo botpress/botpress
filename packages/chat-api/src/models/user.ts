@@ -27,3 +27,17 @@ export const userSchema = schema(
       'The user object represents someone interacting with the bot within a specific integration. The same person interacting with a bot in slack and messenger will be represented with two different users.',
   }
 )
+
+export const userInput = schema(
+  z.object({
+    name: schema(z.string().optional(), {
+      description: 'Name of the [User](#schema_user) (not a unique identifier)',
+    }),
+    pictureUrl: schema(z.string().optional(), {
+      description: 'Picture url of the [User](#schema_user)',
+    }),
+    profile: schema(z.string().max(1000).optional(), {
+      description: 'Custom profile data of the [User](#schema_user) encoded as a string',
+    }),
+  })
+)
