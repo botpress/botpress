@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import { LinkedInBaseApi } from '../base-api'
 import { extractLinkedInHeaders } from '../linkedin-oauth-client'
-import { InitializeUploadResponse } from '../schemas'
+import { initializeUploadResponseSchema } from '../schemas'
 import { getImageBufferFromResponse } from './get-image-buffer-from-response'
 
 export type CreatePostParams = {
@@ -120,7 +120,7 @@ export class PostsApi extends LinkedInBaseApi {
       'Failed to initialize image upload with LinkedIn'
     )
 
-    const data = (await response.json()) as InitializeUploadResponse
+    const data = initializeUploadResponseSchema.parse(await response.json())
 
     return {
       uploadUrl: data.value.uploadUrl,

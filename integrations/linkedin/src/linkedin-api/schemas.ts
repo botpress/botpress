@@ -46,5 +46,3 @@ export const initializeUploadResponseSchema = z
       .passthrough(),
   })
   .passthrough()
-
-export type InitializeUploadResponse = z.infer<typeof initializeUploadResponseSchema>
