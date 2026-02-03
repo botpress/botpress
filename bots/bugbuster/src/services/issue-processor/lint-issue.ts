@@ -16,7 +16,7 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
   const hasBlockedLabel = _hasLabelOfCategory(issue, 'blocked')
   const hasBlockedRelation = issue.inverseRelations.nodes.some((relation) => relation.type === 'blocks')
 
-  if (state === 'BLOCKED' && !issue.assignee) {
+  if (state === 'BLOCKED' && !issue.assignee && !hasBlockedRelation) {
     lints.push(`Issue ${issue.identifier} is blocked but has no assignee.`)
   }
   if (state === 'BLOCKED' && !hasBlockedLabel && !hasBlockedRelation) {

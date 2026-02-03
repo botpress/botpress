@@ -6,8 +6,8 @@ type Is<A, B> = A extends B ? (B extends A ? true : false) : false
 type Expect<_T extends true> = void
 
 export const channelAccountSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  id: z.string().title('ID').describe('Account ID'),
+  name: z.string().title('Name').describe('Account name'),
 })
 
 const _convReferenceSchema = z.object({

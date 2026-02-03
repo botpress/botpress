@@ -10,7 +10,7 @@ export type RecursivePartial<T> = {
       : T[P]
 }
 
-type Ruleset = {
+export type Ruleset = {
   rules: Record<string, Readonly<RuleDefinition>>
 }
 
