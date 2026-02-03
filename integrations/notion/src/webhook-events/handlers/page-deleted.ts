@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
+import { BASE_EVENT_PAYLOAD } from 'definitions/events'
 import * as filesReadonly from '../../files-readonly'
 import { NotionClient } from '../../notion-api'
-import { BASE_EVENT_PAYLOAD } from '../base-payload'
 import * as bp from '.botpress'
 
 const NOTIFICATION_PAYLOAD = BASE_EVENT_PAYLOAD.extend({

@@ -15,7 +15,8 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:bplint": "bp lint",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "test": "vitest --run"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"

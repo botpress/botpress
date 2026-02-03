@@ -2,25 +2,29 @@ import { z } from '@botpress/sdk'
 import { omit } from 'lodash'
 
 const requesterSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().optional(),
+  name: z.string().optional().title('Name').describe('Requester name'),
+  email: z.string().optional().title('Email').describe('Requester email'),
 })
 
 export const ticketSchema = z.object({
-  id: z.number(),
-  subject: z.string(),
-  description: z.string(),
-  status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']),
-  priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable(),
-  requesterId: z.number(),
-  requester: requesterSchema.optional(),
-  assigneeId: z.number().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  tags: z.array(z.string()),
-  externalId: z.string().nullable(),
-  comment: z.record(z.any()).optional(),
-  via: z.object({ channel: z.string().optional() }).optional(),
+  id: z.number().title('ID').describe('Ticket ID'),
+  subject: z.string().title('Subject').describe('Ticket subject'),
+  description: z.string().title('Description').describe('Ticket description'),
+  status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']).title('Status').describe('Ticket status'),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable().title('Priority').describe('Ticket priority'),
+  requesterId: z.number().title('Requester ID').describe('ID of the requester'),
+  requester: requesterSchema.optional().title('Requester').describe('Requester information'),
+  assigneeId: z.number().nullable().title('Assignee ID').describe('ID of the assignee'),
+  createdAt: z.string().title('Created At').describe('Ticket creation date'),
+  updatedAt: z.string().title('Updated At').describe('Ticket last update date'),
+  tags: z.array(z.string()).title('Tags').describe('Ticket tags'),
+  externalId: z.string().nullable().title('External ID').describe('External ticket ID'),
+  comment: z.record(z.any()).optional().title('Comment').describe('Ticket comment'),
+  via: z
+    .object({ channel: z.string().optional().title('Channel').describe('Channel name') })
+    .optional()
+    .title('Via')
+    .describe('How the ticket was created'),
 })
 
 const _zdTicketSchema = ticketSchema.transform((data) => ({
@@ -47,18 +51,18 @@ export const transformTicket = (ticket: ZendeskTicket): Ticket => {
 }
 
 export const userSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  email: z.string(),
-  phone: z.string().nullable().optional(),
-  photo: z.string().nullable().optional(),
-  remotePhotoUrl: z.string().nullable().optional(),
-  role: z.enum(['end-user', 'agent', 'admin']),
-  tags: z.array(z.string()),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  externalId: z.string().nullable(),
-  userFields: z.record(z.string()).optional(),
+  id: z.number().title('ID').describe('User ID'),
+  name: z.string().title('Name').describe('User name'),
+  email: z.string().title('Email').describe('User email'),
+  phone: z.string().nullable().optional().title('Phone').describe('User phone number'),
+  photo: z.string().nullable().optional().title('Photo').describe('User photo URL'),
+  remotePhotoUrl: z.string().nullable().optional().title('Remote Photo URL').describe('Remote photo URL'),
+  role: z.enum(['end-user', 'agent', 'admin']).title('Role').describe('User role'),
+  tags: z.array(z.string()).title('Tags').describe('User tags'),
+  createdAt: z.string().title('Created At').describe('User creation date'),
+  updatedAt: z.string().title('Updated At').describe('User last update date'),
+  externalId: z.string().nullable().title('External ID').describe('External user ID'),
+  userFields: z.record(z.string()).optional().title('User Fields').describe('Custom user fields'),
 })
 
 const _zdUserSchema = userSchema.transform((data) => ({

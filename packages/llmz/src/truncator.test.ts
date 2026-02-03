@@ -7,6 +7,7 @@ import { truncateWrappedContent, wrapContent } from './truncator.js'
 import { getTokenizer, init } from './utils.js'
 
 import * as _ from 'lodash-es'
+import { LLMzPrompts } from './prompts/prompt.js'
 
 const ONE_TOKEN = 'TOKEN\n'
 
@@ -35,7 +36,7 @@ ${wrapContent(ONE_TOKEN.repeat(250))}
 Footer
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const tokenLimit = 25
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit })
@@ -74,7 +75,7 @@ Header
 Footer
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const tokenLimit = 25
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit })
@@ -110,7 +111,7 @@ Footer
         role: 'user',
         content: `That's what she said`,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const tokenLimit = 25
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit })
@@ -153,7 +154,7 @@ ${wrapContent(ONE_TOKEN.repeat(10_000))}
 ${wrapContent(ONE_TOKEN.repeat(1000))}
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const tokenLimit = 10_000
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit })
@@ -194,7 +195,7 @@ Now, here's some content that you can't truncate:
 ${ONE_TOKEN.repeat(1_000)}
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     expect(() => truncateWrappedContent({ messages, tokenLimit: 500, throwOnFailure: true })).toThrow()
   })
@@ -210,7 +211,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'top' })}
 """
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
@@ -239,7 +240,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 """
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
@@ -269,7 +270,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'both' })}
 """
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 20, throwOnFailure: false })
 
@@ -306,7 +307,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
 """
 `,
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 60, throwOnFailure: false })
 
@@ -462,7 +463,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
         role: 'user',
         content: wrapContent(N_TOKENS(2_000), { flex: 4 }),
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 2000, throwOnFailure: false })
     const tokens = truncated.map((msg) => tokenizer.count(msg.content))
@@ -484,7 +485,7 @@ ${wrapContent(N_TOKENS(1_000), { preserve: 'bottom' })}
         role: 'user',
         content: wrapContent(N_TOKENS(1000), { flex: 4, minTokens: 100 }),
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncated = truncateWrappedContent({ messages, tokenLimit: 50, throwOnFailure: false })
     const tokens = truncated.map((msg) => tokenizer.count(msg.content))
@@ -521,7 +522,7 @@ describe('bug fixes', () => {
         role: 'user',
         content: wrapContent('Before ' + wrapContent('Intact') + ' After'),
       },
-    ]
+    ] satisfies LLMzPrompts.Message[]
 
     const truncatedMessages = truncateWrappedContent({ messages, tokenLimit: 10000 })
 

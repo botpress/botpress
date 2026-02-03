@@ -411,8 +411,7 @@ export const textSchema = sdk.z
       .string()
       .describe(
         'Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array'
-      )
-      .optional(),
+      ),
     blocks: sdk.z
       .array(blocks)
       .max(50)

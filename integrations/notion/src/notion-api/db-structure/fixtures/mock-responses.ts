@@ -1,8 +1,8 @@
-import { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import { GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from '../consts'
 
-export const MOCK_RESPONSE_1: GetDatabaseResponse = {
-  object: 'database',
+export const MOCK_RESPONSE_1: GetDataSourceResponse = {
+  object: 'data_source',
   id: 'e819c5b1-77f8-4a7d-953c-3dc9e9c46037',
   cover: {
     type: 'external',
@@ -158,7 +158,9 @@ export const MOCK_RESPONSE_1: GetDatabaseResponse = {
     Author: { id: 'qNw_', name: 'Author', type: 'rich_text', rich_text: {}, description: '' },
     Name: { id: 'title', name: 'Name', type: 'title', title: {}, description: '' },
   },
-  parent: { type: 'workspace', workspace: true },
+  parent: { type: 'data_source_id', data_source_id: 'parent-ds-id', database_id: 'parent-db-id' },
+  database_parent: { type: 'workspace', workspace: true },
+  in_trash: false,
   url: 'https://www.notion.so/e819c5b177f84a7d953c3dc9e9c46037',
   public_url: null,
   archived: false,

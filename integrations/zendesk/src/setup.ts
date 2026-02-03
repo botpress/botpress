@@ -14,7 +14,7 @@ export const register: bp.IntegrationProps['register'] = async (props) => {
     // silent catch since if it's the first time, there's nothing to unregister
   }
 
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
   const subscriptionId = await zendeskClient
     .subscribeWebhook(webhookUrl)
     .catch(_throwRuntimeError('Failed to create webhook subscription'))
@@ -91,7 +91,7 @@ type RegisterOrUnregisterProps =
   | Parameters<bp.IntegrationProps['unregister']>[number]
 const _unsubscribeWebhooks = async (props: RegisterOrUnregisterProps) => {
   const { ctx, client: bpClient, logger } = props
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
 
   const { state } = await bpClient
     .getState({

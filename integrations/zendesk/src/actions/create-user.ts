@@ -1,13 +1,9 @@
 import { getZendeskClient } from '../client'
 import * as bp from '.botpress'
 
-export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({
-  ctx,
-  client: bpClient,
-  input,
-  logger,
-}) => {
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+export const createUser: bp.IntegrationProps['actions']['createUser'] = async (props) => {
+  const { client: bpClient, ctx, input, logger } = props
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
 
   const { name, email, pictureUrl } = input
 

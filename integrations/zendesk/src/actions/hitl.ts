@@ -4,7 +4,7 @@ import { getZendeskClient, type ZendeskClient } from '../client'
 import * as bp from '.botpress'
 
 export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (props) => {
-  const { ctx, input, client: bpClient } = props
+  const { ctx, input, client: bpClient, logger } = props
 
   const downstreamBotpressUser = await bpClient.getUser({ id: ctx.botUserId })
   const chatbotName = input.hitlSession?.chatbotName ?? downstreamBotpressUser.user.name ?? 'Botpress'
@@ -23,7 +23,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async (pro
     throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
   }
 
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
   await _updateZendeskBotpressUser(props, {
     zendeskClient,
     chatbotName,
@@ -94,7 +94,8 @@ const _buildTicketBody = async (
   return description + (messageHistory.length ? `\n\n---\n\n${messageHistory}` : '')
 }
 
-export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx, input, client: bpClient }) => {
+export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async (props) => {
+  const { client: bpClient, ctx, input, logger } = props
   const { conversation } = await bpClient.getConversation({
     id: input.conversationId,
   })
@@ -104,7 +105,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
     return {}
   }
 
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
 
   try {
     await zendeskClient.updateTicket(ticketId, {

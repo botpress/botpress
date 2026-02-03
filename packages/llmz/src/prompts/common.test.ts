@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { parseAssistantResponse, replacePlaceholders } from './common'
+import { parseAssistantResponse, replacePlaceholders } from './common.js'
 
 describe('October Prompt', { timeout: 60_000 }, () => {
   describe('parseAssistantResponse', () => {

@@ -1,46 +1,23 @@
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-
+import { posthogHelper } from '@botpress/common'
+import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import actions from './actions'
 import channels from './channels'
 import { handler } from './handler'
 import { register, unregister } from './setup'
 import * as bp from '.botpress'
 
-const integration = new bp.Integration({
+const posthogConfig: posthogHelper.PostHogConfig = {
+  integrationName: INTEGRATION_NAME,
+  integrationVersion: INTEGRATION_VERSION,
+  key: bp.secrets.POSTHOG_KEY,
+}
+
+const integrationConfig: bp.IntegrationProps = {
   register,
   unregister,
-  handler,
+  actions,
   channels,
-  actions: {
-    ...actions,
-    issueList: async (props) => {
-      const count = 20
-      const startCursor = props.input.nextToken
-      const res = await actions.listIssues({
-        ...props,
-        type: 'listIssues',
-        input: {
-          count,
-          startCursor,
-        },
-      })
-      return {
-        items: res.issues.map(({ linearIds: _, ...item }) => item),
-        meta: { nextToken: res.nextCursor },
-      }
-    },
-    issueDelete: async (props) => {
-      return actions.deleteIssue({
-        ...props,
-        type: 'deleteIssue',
-        input: { id: props.input.id },
-      })
-    },
-  },
-})
+  handler,
+}
 
-export default sentryHelpers.wrapIntegration(integration, {
-  dsn: bp.secrets.SENTRY_DSN,
-  environment: bp.secrets.SENTRY_ENVIRONMENT,
-  release: bp.secrets.SENTRY_RELEASE,
-})
+export default posthogHelper.wrapIntegration(posthogConfig, integrationConfig)

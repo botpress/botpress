@@ -9,16 +9,22 @@ export const retrieveParentPath = async (
   const parentPathFragments: string[] = []
   let currentParent = parentObject
 
-  while (currentParent.type === 'database_id' || currentParent.type === 'page_id') {
-    if (currentParent.type === 'database_id') {
-      const db = await notionClient.getDatabase({ databaseId: currentParent.database_id })
+  while (
+    currentParent.type === 'database_id' ||
+    currentParent.type === 'data_source_id' ||
+    currentParent.type === 'page_id'
+  ) {
+    if (currentParent.type === 'database_id' || currentParent.type === 'data_source_id') {
+      const dataSourceId =
+        currentParent.type === 'database_id' ? currentParent.database_id : currentParent.data_source_id
+      const ds = await notionClient.getDataSource({ dataSourceId })
 
-      if (!db) {
+      if (!ds) {
         return '/'
       }
 
-      parentPathFragments.unshift(mapping.getDatabaseTitle(db))
-      currentParent = db.parent
+      parentPathFragments.unshift(mapping.getDataSourceTitle(ds))
+      currentParent = ds.parent
       continue
     }
 

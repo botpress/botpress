@@ -37,3 +37,17 @@ export const safeParseJson = <T>(str: string): ParseResult<T> => {
     return { success: false, error }
   }
 }
+
+export const stripSubdomain = (input: string): string => {
+  const trimmedInput = input.trim()
+
+  // Remove protocol if present
+  const withoutProtocol = trimmedInput.replace(/^https?:\/\//, '')
+
+  const suffix = '.bamboohr.com'
+  if (withoutProtocol.endsWith(suffix)) {
+    return withoutProtocol.slice(0, -suffix.length)
+  }
+
+  return trimmedInput
+}

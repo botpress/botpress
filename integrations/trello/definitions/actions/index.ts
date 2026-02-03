@@ -3,6 +3,7 @@ import { getAllBoards, getBoardById, getBoardsByDisplayName } from './board-acti
 import {
   addCardComment,
   createCard,
+  deleteCard,
   getCardById,
   getCardsByDisplayName,
   getCardsInList,
@@ -34,6 +35,7 @@ export const actions = {
   getCardsInList,
   createCard,
   updateCard,
+  deleteCard,
   addCardComment,
   moveCardUp,
   moveCardDown,

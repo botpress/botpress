@@ -24,6 +24,7 @@ export const buildChart = async (props: BuildChartProps) => {
       content: response.data,
       index: false,
       accessPolicies: ['public_content'],
+      publicContentImmediatelyAccessible: true,
     })
 
     return file.url!

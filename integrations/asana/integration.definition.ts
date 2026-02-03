@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -7,7 +6,7 @@ import { configuration, states, user, channels, actions } from './src/definition
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.9',
+  version: '0.3.10',
   title: 'Asana',
   readme: 'hub.md',
   description: 'Connect your bot to your Asana inbox, create and update tasks, add comments, and locate users.',

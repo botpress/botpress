@@ -81,7 +81,7 @@ const userSchema = z.object({
     .title('Description')
     .describe("The user's description, such as their title or bio"),
   lastSeen: z.string().optional().title('Last Seen').describe('The last time the user was seen'),
-  updatedAt: z.date().title('Updated At').describe('The last time the user was updated'),
+  updatedAt: z.string().datetime().title('Updated At').describe('The last time the user was updated'),
 })
 
 const listUsers = {
@@ -113,6 +113,7 @@ const listTeams = {
         .array(
           z.object({
             id: z.string().title('ID').describe('The unique identifier of the entity'),
+            key: z.string().title('Key').describe("The team's key"),
             name: z.string().title('Name').describe("The team's name"),
             description: z.string().optional().title('Description').describe("The team's description"),
             icon: z.string().optional().title('Icon').describe('The icon of the team'),
@@ -120,6 +121,31 @@ const listTeams = {
         )
         .title('Teams')
         .describe('The list of teams'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
+const listStates = {
+  title: 'List States',
+  description: 'List states from Linear',
+  input: {
+    schema: z.object({
+      count: z.number().optional().default(10).title('Fetch Amount').describe('The number of states to return'),
+      startCursor: z.string().optional().title('Start Cursor').describe('The cursor to start from'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      states: z
+        .array(
+          z.object({
+            id: z.string().title('ID').describe('The unique identifier of the entity'),
+            name: z.string().title('Name').describe("The state's name"),
+          })
+        )
+        .title('States')
+        .describe('The list of states'),
+      nextCursor: z.string().optional().title('Next Cursor').describe('The cursor to fetch the next page'),
     }),
   },
 } as const satisfies ActionDefinition
@@ -145,8 +171,11 @@ const getUser = {
     schema: z.object({
       linearUserId: z
         .string()
+        .optional()
         .title('User ID')
-        .describe("The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}"),
+        .describe(
+          "The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}. If omitted, returns the current user."
+        ),
     }),
   },
   output: {
@@ -214,15 +243,58 @@ const deleteIssue = {
   },
 } as const satisfies ActionDefinition
 
+const sendRawGraphqlQuery = {
+  title: 'Send Raw GraphQL Query',
+  description: 'Send a raw GraphQL query to the linear API',
+  input: {
+    schema: z.object({
+      query: z.string().title('Query').describe('The GraphQL query'),
+      parameters: z
+        .array(
+          z.object({
+            name: z.string().title('Name').describe('The parameter name'),
+            value: z.any().title('Value').describe('The parameter value'),
+          })
+        )
+        .optional()
+        .title('Parameters')
+        .describe('The query parameters'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      result: z.unknown().title('Result').describe('The query result'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
+const resolveComment = {
+  title: 'Resolve Comment',
+  description: 'Resolve a comment by id',
+  input: {
+    schema: z.object({
+      id: z.string().title('ID').describe('The comment ID'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean().title('Success').describe('Whether the operation was successful'),
+    }),
+  },
+} as const satisfies ActionDefinition
+
 export const actions = {
   findTarget,
   listIssues,
   listTeams,
   listUsers,
+  listStates,
   markAsDuplicate,
   getIssue,
   getUser,
   updateIssue,
   createIssue,
   deleteIssue,
+  sendRawGraphqlQuery,
+  resolveComment,
 } as const satisfies IntegrationDefinitionProps['actions']

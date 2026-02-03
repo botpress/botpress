@@ -2,11 +2,12 @@
   "name": "@botpresshub/conversation-insights",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
-    "@botpress/cognitive": "0.3.4",
+    "@botpress/cognitive": "0.3.8",
     "@botpress/sdk": "workspace:*",
     "browser-or-node": "^2.1.1",
     "jsonrepair": "^3.10.0"

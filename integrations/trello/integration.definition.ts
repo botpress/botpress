@@ -1,18 +1,16 @@
+import { posthogHelper } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import creatable from './bp_modules/creatable'
-import deletable from './bp_modules/deletable'
-import listable from './bp_modules/listable'
-import readable from './bp_modules/readable'
-import updatable from './bp_modules/updatable'
+import { trelloIdSchema } from 'definitions/schemas'
 
-import { events, states, actions, channels, user, configuration, entities } from './definitions'
-import { integrationName } from './package.json'
+import { events, actions, channels, user, configuration, entities } from './definitions'
+
+export const INTEGRATION_NAME = 'trello'
+export const INTEGRATION_VERSION = '2.1.0'
 
 export default new sdk.IntegrationDefinition({
-  name: integrationName,
+  name: INTEGRATION_NAME,
   title: 'Trello',
-  version: '1.2.0',
+  version: INTEGRATION_VERSION,
   readme: 'hub.md',
   description: 'Update cards, add comments, create new cards, and read board members from your chatbot.',
   icon: 'icon.svg',
@@ -20,65 +18,27 @@ export default new sdk.IntegrationDefinition({
   channels,
   user,
   configuration,
-  states,
   events,
   entities,
   secrets: {
-    ...sentryHelpers.COMMON_SECRET_NAMES,
+    ...posthogHelper.COMMON_SECRET_NAMES,
+  },
+  /** The states are no longer being used, however, it is
+   *  being left in, in order to prevent potential breaking changes.
+   *
+   *  It should be removed next time we push a major release.
+   *  @see https://github.com/botpress/botpress/pull/14849#pullrequestreview-3728680072 For more details. */
+  states: {
+    // TODO: Remove in next major release (v3.0.0)
+    webhook: {
+      type: 'integration',
+      schema: sdk.z.object({
+        trelloWebhookId: trelloIdSchema
+          .nullable()
+          .default(null)
+          .title('Trello Webhook ID')
+          .describe('Unique id of the webhook that is created by Trello upon integration registration'),
+      }),
+    },
   },
 })
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.card },
-    actions: { list: { name: 'cardList' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.card },
-    actions: { read: { name: 'cardRead' } },
-  }))
-  .extend(creatable, ({ entities }) => ({
-    entities: { item: entities.card },
-    actions: { create: { name: 'cardCreate' } },
-    events: { created: { name: 'cardCreated' } },
-  }))
-  .extend(updatable, ({ entities }) => ({
-    entities: { item: entities.card },
-    actions: { update: { name: 'cardUpdate' } },
-    events: { updated: { name: 'cardUpdated' } },
-  }))
-  .extend(deletable, ({ entities }) => ({
-    entities: { item: entities.card },
-    actions: { delete: { name: 'cardDelete' } },
-    events: { deleted: { name: 'cardDeleted' } },
-  }))
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.list },
-    actions: { list: { name: 'listList' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.list },
-    actions: { read: { name: 'listRead' } },
-  }))
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.board },
-    actions: { list: { name: 'boardList' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.board },
-    actions: { read: { name: 'boardRead' } },
-  }))
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.boardMember },
-    actions: { list: { name: 'boardMemberList' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.boardMember },
-    actions: { read: { name: 'boardMemberRead' } },
-  }))
-  .extend(listable, ({ entities }) => ({
-    entities: { item: entities.cardMember },
-    actions: { list: { name: 'cardMemberList' } },
-  }))
-  .extend(readable, ({ entities }) => ({
-    entities: { item: entities.cardMember },
-    actions: { read: { name: 'cardMemberRead' } },
-  }))

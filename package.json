@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "bump": "depsynky bump --ignore-dev && pnpm -w install",
-    "test": "vitest --run",
+    "test": "turbo test",
     "check:bplint": "turbo check:bplint",
     "check:dep": "depsynky check --ignore-dev",
     "check:sherif": "sherif -i zod -i axios -i query-string -i googleapis -i @linear/sdk -i openai",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.564.0",
-    "@botpress/api": "1.60.0",
+    "@botpress/api": "1.70.2",
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",

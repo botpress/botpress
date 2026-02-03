@@ -4,6 +4,8 @@ import type { TriggerPayload } from '../triggers'
 import { retrieveHitlConversation } from './hitl-ticket-filter'
 import * as bp from '.botpress'
 
+const COMMENT_ON_BEHALF_START = '----------------------------------------------\n\n!***'
+
 export const executeMessageReceived = async ({
   zendeskClient,
   zendeskTrigger,
@@ -65,7 +67,13 @@ export const executeMessageReceived = async ({
     })
   }
 
-  const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
+  let messageWithoutAuthor: string
+
+  if (zendeskTrigger.comment.startsWith(COMMENT_ON_BEHALF_START)) {
+    messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(5).join('\n')
+  } else {
+    messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
+  }
 
   await client.createMessage({
     tags: { zendeskCommentId: zendeskTrigger.commentId },

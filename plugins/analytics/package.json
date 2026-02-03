@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp add -y && bp build",
-    "add:integrations": "echo 'no integrations to add'"
+    "add:integrations": "echo 'no integrations to add'",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {

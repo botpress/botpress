@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { getIssueTags, getLinearClient, getTeam } from '../misc/utils'
 import { getIssueFields } from './get-issue'
 import * as bp from '.botpress'
@@ -14,7 +15,7 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
   const team = await getTeam(linearClient, undefined, teamName)
 
   if (!team.id) {
-    throw new Error(`Could not find team "${teamName}"`)
+    throw new RuntimeError(`Could not find team "${teamName}"`)
   }
 
   const labelIds = labels ? await team.findLabelIds(labels) : undefined
@@ -40,7 +41,7 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
 
   const fullIssue = await issueFetch
   if (!fullIssue) {
-    throw new Error('Could not create issue')
+    throw new RuntimeError('Could not create issue')
   }
 
   const issue = getIssueFields(fullIssue)
@@ -49,6 +50,7 @@ export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async 
   await client.getOrCreateConversation({
     channel: 'issue',
     tags: issueTags,
+    discriminateByTags: ['id'],
   })
 
   return {

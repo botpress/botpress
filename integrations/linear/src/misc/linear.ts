@@ -1,4 +1,4 @@
-import { z, Request } from '@botpress/sdk'
+import { z, Request, RuntimeError } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
@@ -148,7 +148,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
   const code = query.code
 
   if (typeof code !== 'string') {
-    throw new Error('Handler received an empty code')
+    throw new RuntimeError('Handler received an empty code')
   }
 
   const { accessToken, expiresAt } = await linearOauthClient.getAccessToken(code)

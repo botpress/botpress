@@ -19,7 +19,7 @@ export const listUsers: bp.IntegrationProps['actions']['listUsers'] = async (arg
   const users: bp.actions.listUsers.output.Output['users'] = query.nodes.map((user) => ({
     ...user,
     lastSeen: user.lastSeen?.toISOString(),
-    updatedAt: user.updatedAt,
+    updatedAt: user.updatedAt.toISOString(),
   }))
 
   return {

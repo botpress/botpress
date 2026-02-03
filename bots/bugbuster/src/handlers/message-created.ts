@@ -67,7 +67,7 @@ const _buildListCommandsMessage = (definitions: CommandDefinition[]) => {
 }
 
 const _buildCommandMessage = (definition: CommandDefinition) => {
-  const requiredArgs = definition.requiredArgs?.map((arg) => `<${arg}>`).join(' ')
+  const requiredArgs = definition.requiredArgs?.map((arg) => `&lt;${arg}&gt;`).join(' ')
   const optionalArgs = definition.optionalArgs?.map((arg) => `[${arg}]`).join(' ')
 
   return `${definition.name} ${requiredArgs ?? ''} ${optionalArgs ?? ''}`

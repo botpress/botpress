@@ -2,7 +2,7 @@ name: Production version matches master
 
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 8 * * 1-5'
   workflow_dispatch: # optional manual trigger
 
 jobs:

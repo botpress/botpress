@@ -1,5 +1,5 @@
-import { Request } from '@botpress/sdk'
-import { LinearWebhooks } from '@linear/sdk'
+import { Request, RuntimeError } from '@botpress/sdk'
+import { LinearWebhookClient } from '@linear/sdk/webhooks'
 
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueDeleted } from './events/issueDeleted'
@@ -31,7 +31,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   if (!result.success) {
     const message = `Error while verifying webhook signature: ${result.message}`
     logger.forBot().error(message)
-    throw new Error(message)
+    throw new RuntimeError(message)
   }
 
   const linearBotId = await _getLinearBotId({ client, ctx })
@@ -108,7 +108,7 @@ const _safeCheckWebhookSignature = ({
     return { success: false, message: 'missing signature header or request body' }
   }
 
-  const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
+  const webhookHandler = new LinearWebhookClient(_getWebhookSigningSecret({ ctx }))
   const bodyBuffer = Buffer.from(req.body)
   const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
   try {

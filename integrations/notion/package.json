@@ -3,7 +3,8 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {
@@ -11,7 +12,8 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@notionhq/client": "^2.3.0",
+    "@notionhq/client": "^5.6.0",
+    "@tryfabric/martian": "^1.2.4",
     "notion-to-md": "^4.0.0-alpha.4"
   },
   "devDependencies": {

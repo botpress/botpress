@@ -2,8 +2,9 @@
   "name": "@botpresshub/email",
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
     "build": "bp build",
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {

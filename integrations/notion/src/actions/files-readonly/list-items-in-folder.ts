@@ -50,8 +50,8 @@ const _enumeratePageAndChildItems: EnumerateItemsFn = async ({ folderId, prevTok
 
 const _enumerateDbChildItems: EnumerateItemsFn = async ({ folderId, prevToken, notionClient }) => {
   const dbId = folderId!.slice(mapping.PREFIXES.DB_FOLDER.length)
-  const { nextToken, results } = await notionClient.enumerateDatabaseChildren({
-    databaseId: dbId,
+  const { nextToken, results } = await notionClient.enumerateDataSourceChildren({
+    dataSourceId: dbId,
     nextToken: prevToken,
   })
 

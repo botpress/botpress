@@ -6,9 +6,9 @@ export class RecentlyLintedManager {
   public constructor(private _linear: lin.LinearApi) {}
 
   public async isRecentlyLinted(issue: lin.Issue): Promise<boolean> {
-    const me = await this._linear.getMe()
+    const me = await this._linear.getViewerId()
     const timestamps = issue.comments.nodes
-      .filter((comment) => comment.user?.id === me.id)
+      .filter((comment) => comment.user?.id === me)
       .map((comment) => new Date(comment.createdAt).getTime())
     const now = new Date().getTime()
     for (const timestamp of timestamps) {

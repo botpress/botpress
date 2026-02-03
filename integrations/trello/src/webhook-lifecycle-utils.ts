@@ -1,21 +1,7 @@
 import { Webhook } from 'definitions/schemas'
-import { WebhookIdState } from 'definitions/states'
-import { integrationName } from '../package.json'
+import { INTEGRATION_NAME } from 'integration.definition'
 import { TrelloClient } from './trello-api/trello-client'
 import * as bp from '.botpress'
-
-const _setWebhookId = async ({ ctx, client }: bp.CommonHandlerProps, webhookId: WebhookIdState): Promise<void> => {
-  await client.setState({
-    type: 'integration',
-    name: 'webhookState',
-    id: ctx.integrationId,
-    payload: {
-      trelloWebhookId: webhookId,
-    },
-  })
-}
-
-const _clearWebhookId = (props: bp.CommonHandlerProps): Promise<void> => _setWebhookId(props, null)
 
 const _registerWebhook = async (
   props: bp.CommonHandlerProps,
@@ -26,13 +12,11 @@ const _registerWebhook = async (
   const { ctx, logger } = props
   logger.forBot().info('Registering Trello webhook...')
 
-  const newWebhook = await trelloClient.createWebhook({
-    description: integrationName + ctx.integrationId,
+  await trelloClient.createWebhook({
+    description: INTEGRATION_NAME + ctx.integrationId,
     url: webhookUrl,
     modelId,
   })
-
-  await _setWebhookId(props, newWebhook.id)
 }
 
 export const registerTrelloWebhookIfNotExists = async (
@@ -100,6 +84,4 @@ export const unregisterTrelloWebhooks = async (
   if (webhooksToDelete.length > 0) {
     props.logger.forBot().info(`Deleted ${webhooksToDelete.length} Trello webhook(s).`)
   }
-
-  await _clearWebhookId(props)
 }

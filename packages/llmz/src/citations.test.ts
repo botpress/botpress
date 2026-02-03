@@ -43,8 +43,8 @@ describe('CitationsManager', () => {
 
     expect(result.cleaned).toBe('This content references a missing citation.')
     expect(result.citations).toHaveLength(1)
-    expect(result.citations[0].source).toBe('Not Found')
-    expect(result.citations[0].offset).toBe(42)
+    expect(result.citations[0]!.source).toBe('Not Found')
+    expect(result.citations[0]!.offset).toBe(42)
   })
 
   it('should handle multiple citations', () => {
@@ -56,12 +56,12 @@ describe('CitationsManager', () => {
 
     expect(result.cleaned).toBe('This content references a missing citation.')
     expect(result.citations).toHaveLength(6)
-    expect(result.citations[0].source).toBe(citation1.source)
-    expect(result.citations[1].source).toBe('Not Found')
-    expect(result.citations[2].source).toBe('Not Found')
-    expect(result.citations[3].source).toBe('Not Found')
-    expect(result.citations[4].id).toBe(citation2.id)
-    expect(result.citations[4].source).toBe(citation2.source)
+    expect(result.citations[0]!.source).toBe(citation1.source)
+    expect(result.citations[1]!.source).toBe('Not Found')
+    expect(result.citations[2]!.source).toBe('Not Found')
+    expect(result.citations[3]!.source).toBe('Not Found')
+    expect(result.citations[4]!.id).toBe(citation2.id)
+    expect(result.citations[4]!.source).toBe(citation2.source)
   })
 
   it('allow changing the replacer', () => {
@@ -99,12 +99,12 @@ describe('CitationsManager', () => {
       ]
     `)
     expect(result.citations).toHaveLength(5)
-    expect(result.citations[0].source).toBe(citation1.source)
-    expect(result.citations[1].source).toBe('Not Found')
-    expect(result.citations[2].source).toBe('Not Found')
-    expect(result.citations[3].source).toBe('Not Found')
-    expect(result.citations[4].id).toBe(citation2.id)
-    expect(result.citations[4].source).toBe(citation2.source)
+    expect(result.citations[0]!.source).toBe(citation1.source)
+    expect(result.citations[1]!.source).toBe('Not Found')
+    expect(result.citations[2]!.source).toBe('Not Found')
+    expect(result.citations[3]!.source).toBe('Not Found')
+    expect(result.citations[4]!.id).toBe(citation2.id)
+    expect(result.citations[4]!.source).toBe(citation2.source)
   })
 
   it('should handle content without citations', () => {

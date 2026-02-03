@@ -6,7 +6,8 @@
     "build": "bp add -y && bp build",
     "deploy": "bp deploy",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@botpress/client": "workspace:*",
@@ -15,7 +16,7 @@
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.0",
     "query-string": "^6.14.1",
-    "twilio": "^3.84.0"
+    "twilio": "^5.4.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
@@ -23,10 +24,12 @@
     "@botpress/sdk": "workspace:*",
     "@botpresshub/proactive-conversation": "workspace:*",
     "@botpresshub/proactive-user": "workspace:*",
+    "@botpresshub/typing-indicator": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "proactive-conversation": "../../interfaces/proactive-conversation",
-    "proactive-user": "../../interfaces/proactive-user"
+    "proactive-user": "../../interfaces/proactive-user",
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

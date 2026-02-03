@@ -47,21 +47,28 @@ export const createCard = {
       .object({
         listId: listSchema.shape.id.title('List ID').describe('ID of the list in which to insert the new card'),
         cardName: cardSchema.shape.name.title('Card Name').describe('Name of the new card'),
-        cardBody: cardSchema.shape.description.optional().title('Card Body').describe('Body text of the new card'),
-        members: z
+        cardBody: cardSchema.shape.description.optional().title('Card Body').describe('The body text of the new card'),
+        memberIds: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members')
+          .title('Member IDs')
           .describe('Members to add to the card (Optional). This should be a list of member IDs.'),
-        labels: z
+        labelIds: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels')
+          .title('Label IDs')
           .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
         dueDate: cardSchema.shape.dueDate
           .optional()
           .title('Due Date')
           .describe('The due date of the card in ISO 8601 format (Optional).'),
+        completionStatus: z
+          .enum(['Complete', 'Incomplete'])
+          .default('Incomplete')
+          .title('Completion Status')
+          .describe(
+            'Whether the card should be marked as complete (Optional). Enter "Complete" or "Incomplete" (without quotes).'
+          ),
       })
       .describe('Input schema for creating a new card'),
   },
@@ -80,69 +87,103 @@ export const updateCard = {
   input: {
     schema: hasCardId
       .extend({
-        name: cardSchema.shape.name
+        cardName: cardSchema.shape.name
           .optional()
-          .title('Name')
+          .title('Card Name')
           .describe('The name of the card (Optional) (e.g. "My Test Card"). Leave empty to keep the current name.'),
-        bodyText: cardSchema.shape.description
+        cardBody: cardSchema.shape.description
           .optional()
-          .title('Body Text')
-          .describe('Body text of the new card (Optional). Leave empty to keep the current body.'),
-        closedState: z
-          .enum(['open', 'archived'])
+          .title('Card Body')
+          .describe('The new body text of the card (Optional). Leave empty to keep the current body.'),
+        lifecycleStatus: z
+          .enum(['Open', 'Archived'])
           .optional()
-          .title('Closed State')
+          .title('Lifecycle Status')
           .describe(
-            'Whether the card should be archived (Optional). Enter "open", "archived" (without quotes), or leave empty to keep the previous status.'
-          )
-          .optional(),
-        completeState: z
-          .enum(['complete', 'incomplete'])
+            'Whether the card should be archived (Optional). Enter "Open", "Archived" (without quotes), or leave empty to keep the previous status.'
+          ),
+        completionStatus: z
+          .enum(['Complete', 'Incomplete'])
           .optional()
-          .title('State Completion')
+          .title('Completion Status')
           .describe(
-            'Whether the card should be marked as complete (Optional). Enter "complete", "incomplete" (without quotes), or leave empty to keep the previous status.'
-          )
-          .optional(),
-        membersToAdd: z
+            'Whether the card should be marked as complete (Optional). Enter "Complete", "Incomplete" (without quotes), or leave empty to keep the previous status.'
+          ),
+        memberIdsToAdd: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members to Add')
+          .title('Member IDs to Add')
           .describe(
             'Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
           ),
-        membersToRemove: z
+        memberIdsToRemove: z
           .array(trelloIdSchema)
           .optional()
-          .title('Members to Remove')
+          .title('Member IDs to Remove')
           .describe(
             'Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
           ),
-        labelsToAdd: z
+        labelIdsToAdd: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels to Add')
+          .title('Label IDs to Add')
           .describe(
             'Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
-        labelsToRemove: z
+        labelIdsToRemove: z
           .array(trelloIdSchema)
           .optional()
-          .title('Labels to Remove')
+          .title('Label IDs to Remove')
           .describe(
             'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
           ),
         dueDate: cardSchema.shape.dueDate
+          .nullable()
           .optional()
           .title('Due Date')
           .describe(
-            'The due date of the card in ISO 8601 format (Optional). Leave empty to keep the current due date.'
+            'The due date of the card in ISO 8601 format (Optional). Set to null to remove the due date or leave empty to keep the current due date.'
+          ),
+        listId: listSchema.shape.id
+          .optional()
+          .title('List ID')
+          .describe('Unique identifier of the list in which the card will be moved to'),
+        /** Note: The validation for "verticalPosition" must be done in the action
+         *   implementation, since studio does not support union types in inputs yet
+         *   and the JSON schema generation does not support zod runtime validation
+         *   like "refine" (at the time of writing, 2026-01-22). */
+        verticalPosition: z
+          .string()
+          .optional()
+          .title('Vertical Position')
+          .describe(
+            'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
           ),
       })
       .describe('Input schema for creating a new card'),
   },
   output: {
     schema: hasMessage.describe('Output schema for updating a card'),
+  },
+} as const satisfies ActionDefinition
+
+export const deleteCard = {
+  title: 'Delete card',
+  description: 'Deletes a card by its unique identifier',
+  input: {
+    schema: z.object({
+      cardId: cardSchema.shape.id.title('Card ID').describe('ID of the card to delete'),
+      hardDelete: z
+        .boolean()
+        .default(false)
+        .title('Hard Delete')
+        .describe(
+          'Whether to perform a hard delete or a soft delete (archive). Set to true for hard delete, false for soft delete.'
+        ),
+    }),
+  },
+  output: {
+    schema: z.object({}),
   },
 } as const satisfies ActionDefinition
 
@@ -207,7 +248,18 @@ export const moveCardToList = {
     schema: hasCardId.extend({
       newListId: listSchema.shape.id
         .title('New List ID')
-        .describe('Unique identifier of the list in which the card will be moved'),
+        .describe('Unique identifier of the list in which the card will be moved to'),
+      /** Note: The validation for "newVerticalPosition" must be done in the action
+       *   implementation, since studio does not support union types in inputs yet
+       *   and the JSON schema generation does not support zod runtime validation
+       *   like "refine" (at the time of writing, 2026-01-22). */
+      newVerticalPosition: z
+        .string()
+        .optional()
+        .title('New Vertical Position')
+        .describe(
+          'The new position of the card in the list, either "top", "bottom", or a stringified float (Optional). Leave empty to keep the current position.'
+        ),
     }),
   },
   output: {

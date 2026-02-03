@@ -30,9 +30,6 @@ export class TeamsManager {
 
   public async listWatchedTeams(): Promise<string[]> {
     const teamKeys = await this._getWatchedTeams()
-    if (teamKeys.length === 0) {
-      throw new Error('You have no watched teams.')
-    }
     return teamKeys
   }
 

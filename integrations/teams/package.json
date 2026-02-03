@@ -6,7 +6,8 @@
     "build": "bp add -y && bp build",
     "deploy": "bp deploy",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint"
+    "check:bplint": "bp lint",
+    "test": "vitest --run"
   },
   "dependencies": {
     "@azure/identity": "^4.10.2",

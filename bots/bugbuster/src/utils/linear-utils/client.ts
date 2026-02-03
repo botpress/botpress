@@ -1,40 +1,36 @@
-import * as lin from '@linear/sdk'
 import * as utils from '..'
-import * as genenv from '../../../.genenv'
 import * as types from '../../types'
 import * as graphql from './graphql-queries'
+import { Client } from '.botpress'
 
-type State = { state: lin.WorkflowState; key: types.StateKey }
+type State = { state: types.LinearState; key: types.StateKey }
 
 const RESULTS_PER_PAGE = 200
 
 export class LinearApi {
-  private _teams?: lin.Team[] = undefined
+  private _teams?: types.LinearTeam[] = undefined
   private _states?: State[] = undefined
-  private _viewer?: lin.User = undefined
+  private _viewerId?: string = undefined
 
-  private constructor(private _client: lin.LinearClient) {}
+  private constructor(private _bpClient: Client) {}
 
-  public static create(): LinearApi {
-    const client = new lin.LinearClient({ apiKey: genenv.BUGBUSTER_LINEAR_API_KEY })
-
-    return new LinearApi(client)
+  public static create(bpClient: Client): LinearApi {
+    return new LinearApi(bpClient)
   }
 
-  public get client(): lin.LinearClient {
-    return this._client
-  }
-
-  public async getMe(): Promise<lin.User> {
-    if (this._viewer) {
-      return this._viewer
+  public async getViewerId(): Promise<string> {
+    if (this._viewerId) {
+      return this._viewerId
     }
-    const me = await this._client.viewer
+    const { output: me } = await this._bpClient.callAction({
+      type: 'linear:getUser',
+      input: {},
+    })
     if (!me) {
       throw new Error('Viewer not found. Please ensure you are authenticated.')
     }
-    this._viewer = me
-    return this._viewer
+    this._viewerId = me.linearId
+    return this._viewerId
   }
 
   public async isTeam(teamKey: string) {
@@ -95,19 +91,6 @@ export class LinearApi {
     return { issues: data.issues.nodes, pagination: data.pageInfo }
   }
 
-  public async findLabel(filter: { name: string; parentName?: string }): Promise<lin.IssueLabel | undefined> {
-    const { name, parentName } = filter
-    const { nodes: labels } = await this._client.issueLabels({
-      filter: {
-        name: { eq: name },
-        parent: parentName ? { name: { eq: parentName } } : undefined,
-      },
-    })
-
-    const [label] = labels
-    return label || undefined
-  }
-
   public async issueState(issue: graphql.Issue): Promise<types.StateKey> {
     const states = await this.getStates()
     const state = states.find((s) => s.state.id === issue.state.id)
@@ -119,15 +102,33 @@ export class LinearApi {
 
   public async resolveComments(issue: graphql.Issue): Promise<void> {
     const comments = issue.comments.nodes
-    const me = await this.getMe()
+    const me = await this.getViewerId()
 
-    const promises: Promise<lin.CommentPayload>[] = []
+    const promises: ReturnType<typeof this._bpClient.callAction<'linear:resolveComment'>>[] = []
     for (const comment of comments) {
-      if (comment.user?.id === me.id && !comment.parentId && !comment.resolvedAt) {
-        promises.push(this._client.commentResolve(comment.id))
+      if (comment.user?.id === me && !comment.parentId && !comment.resolvedAt) {
+        promises.push(this._bpClient.callAction({ type: 'linear:resolveComment', input: { id: comment.id } }))
       }
     }
     await Promise.all(promises)
+  }
+
+  public async createComment(props: { body: string; issueId: string; botId: string }): Promise<void> {
+    const { body, issueId, botId } = props
+    const conversation = await this._bpClient.callAction({
+      type: 'linear:getOrCreateIssueConversation',
+      input: {
+        conversation: { id: issueId },
+      },
+    })
+
+    await this._bpClient.createMessage({
+      type: 'text',
+      conversationId: conversation.output.conversationId,
+      payload: { text: body },
+      tags: {},
+      userId: botId,
+    })
   }
 
   public async findTeamStates(teamKey: string): Promise<graphql.TeamStates | undefined> {
@@ -144,7 +145,7 @@ export class LinearApi {
     return team
   }
 
-  public async getTeams(): Promise<lin.Team[]> {
+  public async getTeams(): Promise<types.LinearTeam[]> {
     if (!this._teams) {
       this._teams = await this._listAllTeams()
     }
@@ -170,29 +171,31 @@ export class LinearApi {
     })
   }
 
-  private _listAllTeams = async (): Promise<lin.Team[]> => {
-    let teams: lin.Team[] = []
-    let cursor: string | undefined = undefined
-    do {
-      const response = await this._client.teams({ after: cursor, first: 100 })
-      teams = teams.concat(response.nodes)
-      cursor = response.pageInfo.endCursor
-    } while (cursor)
-    return teams
+  private _listAllTeams = async (): Promise<types.LinearTeam[]> => {
+    const response = await this._bpClient.callAction({ type: 'linear:listTeams', input: {} })
+    return response.output.teams
   }
 
-  private _listAllStates = async (): Promise<lin.WorkflowState[]> => {
-    let states: lin.WorkflowState[] = []
-    let cursor: string | undefined = undefined
-    do {
-      const response = await this._client.workflowStates({ after: cursor, first: 100 })
-      states = states.concat(response.nodes)
-      cursor = response.pageInfo.endCursor
-    } while (cursor)
+  private _listAllStates = async (): Promise<types.LinearState[]> => {
+    let response = await this._bpClient.callAction<'linear:listStates'>({
+      type: 'linear:listStates',
+      input: { count: 100 },
+    })
+    let states: types.LinearState[] = response.output.states
+    let startCursor = response.output.nextCursor
+
+    while (startCursor) {
+      response = await this._bpClient.callAction<'linear:listStates'>({
+        type: 'linear:listStates',
+        input: { count: 100, startCursor },
+      })
+      states = states.concat(response.output.states)
+      startCursor = response.output.nextCursor
+    }
     return states
   }
 
-  private static _toStateObjects(states: lin.WorkflowState[]): State[] {
+  private static _toStateObjects(states: types.LinearState[]): State[] {
     const stateObjects: State[] = []
     for (const state of states) {
       const key = utils.string.toScreamingSnakeCase(state.name) as types.StateKey
@@ -205,7 +208,17 @@ export class LinearApi {
     queryName: K,
     variables: graphql.GRAPHQL_QUERIES[K][graphql.QUERY_INPUT]
   ): Promise<graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]> {
-    return (await this._client.client.rawRequest(graphql.GRAPHQL_QUERIES[queryName].query, variables))
-      .data as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
+    const params = Object.entries(variables).map(([name, value]) => ({
+      name,
+      value,
+    }))
+    const result = await this._bpClient.callAction({
+      type: 'linear:sendRawGraphqlQuery',
+      input: {
+        query: graphql.GRAPHQL_QUERIES[queryName].query,
+        parameters: params,
+      },
+    })
+    return result.output.result as graphql.GRAPHQL_QUERIES[K][graphql.QUERY_RESPONSE]
   }
 }

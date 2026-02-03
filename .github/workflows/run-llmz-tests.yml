@@ -38,7 +38,7 @@ jobs:
           export CLOUD_API_ENDPOINT='https://api.botpress.dev'
           export CLOUD_BOT_ID=$bot_id
           export CLOUD_PAT=${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
-          pnpm -F llmz run test
+          pnpm -F llmz run test:e2e
 
       - name: Cleanup
         if: ${{ always() }}

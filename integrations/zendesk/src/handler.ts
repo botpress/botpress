@@ -39,7 +39,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return
   }
 
-  const zendeskClient = await getZendeskClient(bpClient, ctx)
+  const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
   const trigger = JSON.parse(req.body)
   const zendeskTrigger = trigger as TriggerPayload
 

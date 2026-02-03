@@ -2,6 +2,8 @@ import * as types from 'src/types'
 import * as boot from '../bootstrap'
 import * as bp from '.botpress'
 
+const LINEAR_ISSUE_BASE_URL = 'https://linear.app/botpress/issue/'
+
 export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
   const { client, workflow, ctx, conversation } = props
 
@@ -94,7 +96,9 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
       channel.teams.some((team) => result.identifier.includes(team))
     )
 
-    await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    if (relevantIssues.length > 0) {
+      await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    }
   }
 
   await workflow.setCompleted()
@@ -110,7 +114,9 @@ export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props
 }
 
 const _buildResultMessage = (results: types.LintResult[]) => {
-  const failedIssuesLinks = results.filter((result) => result.result === 'failed').map((result) => result.identifier)
+  const failedIssuesLinks = results
+    .filter((result) => result.result === 'failed')
+    .map((result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`)
 
   let messageDetail = 'No issue contained lint errors.'
   if (failedIssuesLinks.length === 1) {

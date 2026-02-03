@@ -146,7 +146,7 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
   const newCredentials = { ...credentials, accessToken }
   await _patchCredentialsState(client, ctx, newCredentials)
 
-  await client.configureIntegration({ identifier: subdomain })
+  await client.configureIntegration({ identifier: ctx.webhookId })
 
   return responses.redirectToStep('end')
 }

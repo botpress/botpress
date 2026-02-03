@@ -341,7 +341,11 @@ export const _executeContext = async (props: ExecutionProps): Promise<ExecutionR
           onBeforeTool,
         })
       } catch (err) {
-        // this should not happen, but if it does, we want to catch it and mark the iteration as failed and loop
+        if (err instanceof CognitiveError) {
+          // early return when problems with cognitive service
+          return new ErrorExecutionResult(ctx, err)
+        }
+
         iteration.end({
           type: 'execution_error',
           execution_error: {
@@ -416,7 +420,11 @@ const executeIteration = async ({
 } & ExecutionHooks): Promise<void> => {
   let startedAt = Date.now()
   const traces = iteration.traces
-  const model = await cognitive.getModelDetails(Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model)
+
+  const modelRef = Array.isArray(iteration.model) ? iteration.model[0]! : iteration.model
+  const model = await cognitive.getModelDetails(modelRef).catch((thrown) => {
+    throw new CognitiveError(`Failed to fetch model details for model "${modelRef}": ${getErrorMessage(thrown)}`)
+  })
   const modelLimit = Math.max(model.input.maxTokens, 8_000)
   const responseLengthBuffer = getModelOutputLimit(modelLimit)
 
@@ -439,15 +447,19 @@ const executeIteration = async ({
     model: model.ref,
   })
 
-  const output = await cognitive.generateContent({
-    signal: controller.signal,
-    systemPrompt: messages.find((x) => x.role === 'system')?.content,
-    model: model.ref,
-    temperature: iteration.temperature,
-    responseFormat: 'text',
-    messages: messages.filter((x) => x.role !== 'system'),
-    stopSequences: ctx.version.getStopTokens(),
-  })
+  const output = await cognitive
+    .generateContent({
+      signal: controller.signal,
+      systemPrompt: messages.find((x) => x.role === 'system')?.content,
+      model: model.ref,
+      temperature: iteration.temperature,
+      responseFormat: 'text',
+      messages: messages.filter((x) => x.role !== 'system'),
+      stopSequences: ctx.version.getStopTokens(),
+    })
+    .catch((thrown) => {
+      throw new CognitiveError(`LLM generation failed: ${getErrorMessage(thrown)}`)
+    })
 
   const out = typeof output.output.choices?.[0]?.content === 'string' ? output.output.choices[0].content : null
 

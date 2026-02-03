@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "test": "vitest --run"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.5",

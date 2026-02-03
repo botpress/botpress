@@ -808,6 +808,8 @@ export class Tool<I extends ZuiType = ZuiType, O extends ZuiType = ZuiType> impl
         toolName = `${tool.name}${++counter}`
       }
 
+      names.add(toolName)
+
       return tool.rename(toolName)
     })
   }

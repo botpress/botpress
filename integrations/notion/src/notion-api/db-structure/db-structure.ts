@@ -1,4 +1,4 @@
-import type { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { GetDataSourceResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './consts'
 
 /**
@@ -8,7 +8,12 @@ import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './consts'
  *
  * These are based on the [Notion Page Properties](https://developers.notion.com/reference/page-property-values)
  */
-export function getDbStructure(response: GetDatabaseResponse): string {
+export function getDbStructure(response: GetDataSourceResponse): string {
+  // Ensure we have a full response with properties
+  if (!('properties' in response)) {
+    return '{}'
+  }
+
   const properties = Object.entries(response.properties)
   const stringifiedTypes: string = properties.reduce((_stringifiedTypes, [key, value], index) => {
     _stringifiedTypes += `${key}:{type:"${value.type}";"${value.type}":${

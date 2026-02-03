@@ -13,11 +13,6 @@ const commentReplies: bp.IntegrationProps['channels']['commentReplies'] = {
         return
       }
 
-      if (!ctx.configuration.replyToComments) {
-        logger.forBot().info('Comment replies are disabled in the configuration')
-        return
-      }
-
       if (!id) {
         logger.forBot().error('Comment ID is required to reply to comments')
         return

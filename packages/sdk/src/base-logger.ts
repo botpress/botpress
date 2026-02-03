@@ -2,6 +2,18 @@ import util from 'util'
 
 type LogLevel = 'info' | 'debug' | 'warn' | 'error'
 
+export type IssueLogEvent = {
+  type: 'issue'
+  code: string
+  category: 'user_code' | 'limits' | 'configuration' | 'other'
+  title: string
+  description: string
+  data: Record<string, { raw: string; pretty?: string }>
+  /** This groups by data fields */
+  groupBy: string[]
+  traceId?: string
+}
+
 export abstract class BaseLogger<TOptions extends object> {
   protected defaultOptions: TOptions
 
@@ -25,6 +37,10 @@ export abstract class BaseLogger<TOptions extends object> {
 
   public error(...args: Parameters<typeof console.error>) {
     this._log('error', args)
+  }
+
+  public issue(args: IssueLogEvent) {
+    console.info(JSON.stringify(args))
   }
 
   private _log(level: LogLevel, args: Parameters<typeof console.info>) {

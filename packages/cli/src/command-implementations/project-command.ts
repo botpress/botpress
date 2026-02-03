@@ -16,7 +16,14 @@ import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
-export type ProjectCache = { botId: string; devId: string; tunnelId: string }
+export type ProjectCache = {
+  botId: string
+  devId: string
+  tunnelId: string
+  secrets: {
+    [secretName: string]: string
+  }
+}
 
 type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
@@ -307,9 +314,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     this.logger.log('Integrations:')
     for (const [alias, integration] of Object.entries(bot.integrations)) {
       if (integration.enabled) {
-        this.logger.log(`${alias}:`, { prefix: { symbol: '→', indent: 2 } })
+        this.logger.log(`${alias} ${integration.version}:`, { prefix: { symbol: '→', indent: 2 } })
       } else {
-        this.logger.log(`${alias} ${chalk.italic('(disabled)')}:`, {
+        this.logger.log(`${alias} ${integration.version} ${chalk.italic('(disabled)')}:`, {
           prefix: { symbol: '→', indent: 2 },
         })
       }

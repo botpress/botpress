@@ -1,11 +1,10 @@
-/* bplint-disable */
 import { z, InterfaceDefinition } from '@botpress/sdk'
 
-const baseItem = z.object({ id: z.string() })
+const baseItem = z.object({ id: z.string().title('Item ID').describe('The unique identifier for the deletable item') })
 
 export default new InterfaceDefinition({
   name: 'deletable',
-  version: '0.0.2',
+  version: '0.0.3',
   entities: {
     item: {
       schema: baseItem,

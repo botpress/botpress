@@ -1,5 +1,6 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { handleOauthRequest } from './api/auth'
+import { stripSubdomain } from './api/utils'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -30,7 +31,9 @@ export const handler = async (props: bp.HandlerProps) => {
 const _startHandler: WizardHandler = ({ responses }) => {
   return responses.displayInput({
     pageTitle: 'BambooHR Integration',
-    htmlOrMarkdownPageContents: 'Please enter your BambooHR subdomain to continue.',
+    htmlOrMarkdownPageContents: `Please enter your BambooHR subdomain to continue.
+
+**Important:** BambooHR has a known OAuth bug that may cause the first connection attempt from Google to fail. If this happens, please try connecting again.`,
     input: {
       type: 'text',
       label: 'Subdomain',
@@ -47,12 +50,14 @@ const _oauthRedirectHandler: WizardHandler = async ({ inputValue, responses, ctx
     })
   }
 
+  const subdomain = stripSubdomain(inputValue)
+
   await client.setState({
     type: 'integration',
     name: 'oauth',
     id: ctx.integrationId,
     payload: {
-      domain: inputValue,
+      domain: subdomain,
       accessToken: '',
       refreshToken: '',
       expiresAt: 0,

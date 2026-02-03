@@ -25,6 +25,16 @@ runs:
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       run: pnpm i --frozen-lockfile
 
+    - name: Cache Turbo
+      uses: actions/cache@v5
+      with:
+        path: |
+          .turbo
+          node_modules/.cache/turbo
+        key: turbo-${{ runner.os }}-${{ github.workflow_ref }}
+        restore-keys: |
+          turbo-${{ runner.os }}-
+
     - name: Build
       shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
       env:

@@ -4,7 +4,7 @@ import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '3.1.1',
+  version: '3.1.2',
   title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',

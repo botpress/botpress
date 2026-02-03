@@ -4,7 +4,8 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint",
     "version": "bp --version",
-    "build": "bp add -y && bp build"
+    "build": "bp add -y && bp build",
+    "test": "vitest --run"
   },
   "private": true,
   "dependencies": {

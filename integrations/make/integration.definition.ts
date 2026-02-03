@@ -1,11 +1,10 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const INTEGRATION_NAME = 'make'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.5',
+  version: '0.3.6',
   title: 'Make.com (Deprecated)',
   icon: 'icon.svg',
   description:

@@ -20,7 +20,7 @@ export const articlePublished = async (props: {
       return
     }
 
-    const zendeskClient = await getZendeskClient(bpClient, ctx)
+    const zendeskClient = await getZendeskClient(bpClient, ctx, logger)
 
     const response: { data: { article: ZendeskArticle } } = await zendeskClient.makeRequest({
       method: 'get',

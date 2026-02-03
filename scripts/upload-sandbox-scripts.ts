@@ -18,6 +18,27 @@ function readIntegrationDefinition(integrationPath: string): any {
   return JSON.parse(readCmdResult.stdout.toString())
 }
 
+const _fallbackProfileArgs = () => ({
+  apiUrl: undefined,
+  workspaceId: undefined,
+  token: undefined,
+})
+function getProfileArgs(): any {
+  const activeProfileCmdResult = spawnSync('pnpm', ['exec', 'bp', 'profiles', 'active', '--json'])
+  if (activeProfileCmdResult.status !== 0) {
+    console.debug(
+      `Failed to get active profile: ${activeProfileCmdResult.error?.message || activeProfileCmdResult.stderr.toString() || 'Unknown error'}`
+    )
+    return _fallbackProfileArgs()
+  }
+
+  try {
+    return JSON.parse(activeProfileCmdResult.stdout.toString())
+  } catch {
+    return _fallbackProfileArgs()
+  }
+}
+
 function parseArgs(): Args {
   return process.argv.slice(2).reduce<Record<string, string | undefined>>((acc, arg) => {
     const [key, value] = arg.split('=')
@@ -98,14 +119,20 @@ async function uploadScripts({
 }
 
 const args = parseArgs()
-const apiUrl = args.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
-const token = args.token || process.env.BP_TOKEN
-const workspaceId = args.workspaceId || process.env.BP_WORKSPACE_ID
+const profileArgs = getProfileArgs()
+const apiUrl = args.apiUrl || profileArgs.apiUrl || process.env.BP_API_URL || DEFAULT_API_URL
+const token = args.token || profileArgs.token || process.env.BP_TOKEN
+const workspaceId = args.workspaceId || profileArgs.workspaceId || process.env.BP_WORKSPACE_ID
 const userEmail = args.userEmail
 const integrationId = args.integrationId || process.env.BP_INTEGRATION_ID
 const integrationPath = args.integrationPath
 if (!userEmail || !token || !workspaceId) {
-  console.error('Missing required arguments: userEmail, token, workspaceId')
+  const missingArgs: string[] = [
+    !userEmail ? 'userEmail' : null,
+    !token ? 'token' : null,
+    !workspaceId ? 'workspaceId' : null,
+  ].filter((value) => value !== null)
+  console.error(`Missing required arguments: ${missingArgs.join(', ')}`)
   console.error(
     'Usage: pnpm run ts-node -T upload-sandbox-scripts.ts --userEmail=<email> --token=<token> --workspaceId=<workspaceId> [--apiUrl=<apiUrl>] [--integrationId=<id>] [--integrationPath=<path>]\n' +
       'integrationId, apiUrl, token, and workspaceId can also be set in the environment variables BP_INTEGRATION_ID, BP_API_URL, BP_TOKEN, BP_WORKSPACE_ID'
