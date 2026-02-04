@@ -1,3 +1,6 @@
+// @ts-ignore
+export { version } from '../package.json'
+
 export { Tool } from './tool.js'
 export { Exit, ExitResult } from './exit.js'
 export { ObjectInstance } from './objects.js'
