@@ -1,5 +1,28 @@
 The Slack integration enables seamless communication between your AI-powered chatbot and Slack, the popular collaboration platform. Connect your chatbot to Slack and streamline team communication, automate tasks, and enhance productivity. With this integration, your chatbot can send and receive messages, share updates, handle inquiries, and perform actions directly within Slack channels. Leverage Slack's extensive features such as chat, file sharing, notifications, and app integrations to create a powerful conversational AI experience. Enhance team collaboration and streamline workflows with the Slack Integration for Botpress.
 
+## Migrating from version `4.x` to `5.x`
+
+Version 5.0 introduces more granular control over when the bot requires mentions to respond. The `onlyOnBotMention` boolean has been replaced with two new options that let you configure mention requirements separately for channels and threads.
+
+### Breaking Change: New Mention Configuration
+
+| Old Config | New Config | Description |
+|------------|------------|-------------|
+| `onlyOnBotMention: true` | `channelMention: 'required'` | Bot only responds in channels when mentioned |
+| `onlyOnBotMention: true` | `threadMention: 'required'` | Bot only responds in threads when mentioned |
+| `onlyOnBotMention: false` | Both set to `notRequired` | Bot responds to all messages (default behavior) |
+
+**New `channelMention` values:**
+- `required` - Bot only responds in channels when explicitly mentioned
+- `notRequired` - Bot responds to all channel messages (default)
+
+**New `threadMention` values:**
+- `required` - Bot only responds in threads when explicitly mentioned
+- `inherit` - Bot responds in threads if it was mentioned in the original message that started the thread
+- `notRequired` - Bot responds to all thread messages (default)
+
+**Automatic Migration:** If your bot uses the legacy `onlyOnBotMention` configuration, it will be automatically mapped to the new options. No action is required, but we recommend updating your configuration to use the new explicit options.
+
 ## Migrating from version `3.x` to `4.x`
 
 Version 4.0 of the Slack integration refines the bot's reply behaviour by introducing the possibility to reply in either `channel`, `thread` or `channel and thread`. This replaces the previous `createReplyThread` configuration option by adding the ability to **only** reply in threads.
@@ -142,7 +165,22 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 
 ## Replying in threads instead of the main channel
 
-To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond. For a more targeted approach, enable the "Require Bot Mention for Replies" to only create threads when the bot is mentioned by name.
+To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond.
+
+### Configuring mention requirements
+
+For more targeted bot interactions, you can configure when the bot requires an explicit mention to respond:
+
+- **Channel Mention** (`channelMention`): Controls whether the bot requires a mention to respond to messages in channels.
+  - `required` - Bot only responds when mentioned (e.g., `@YourBot`)
+  - `notRequired` - Bot responds to all channel messages
+
+- **Thread Mention** (`threadMention`): Controls whether the bot requires a mention to respond to messages in threads.
+  - `required` - Bot only responds in threads when mentioned
+  - `inherit` - Bot responds in threads if it was mentioned in the original message that started the thread (useful for "summoned" conversations)
+  - `notRequired` - Bot responds to all thread messages
+
+The `inherit` option is particularly useful when you want the bot to continue a conversation in a thread without requiring repeated mentions, but only if someone explicitly started the conversation by mentioning the bot.
 
 ## Limitations
 
