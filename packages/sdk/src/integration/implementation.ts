@@ -56,5 +56,6 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   }
 
   public readonly handler = integrationHandler(this as IntegrationImplementation<any>)
-  public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
+  public readonly start = (port?: number, signingSecrets?: string[]): Promise<Server> =>
+    serve({ handler: this.handler, port, signingSecrets })
 }

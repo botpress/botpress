@@ -1,6 +1,7 @@
 import { isNode } from 'browser-or-node'
 import * as http from 'node:http'
 import { log } from './log'
+import { createSignatureVerifier } from '@bpinternal/signature-verification'
 
 export type Request = {
   body?: string
@@ -25,16 +26,24 @@ export function parseBody<T>(req: Request): T {
   return JSON.parse(req.body)
 }
 
-export async function serve(
-  handler: Handler,
-  port: number = 8072,
-  callback: (port: number) => void = defaultCallback
-): Promise<http.Server> {
+export async function serve({
+  handler,
+  port = 8072,
+  callback = defaultCallback,
+  signingSecrets,
+}: {
+  handler: Handler
+  port?: number
+  callback?: (port: number) => void
+  signingSecrets?: string[]
+}): Promise<http.Server> {
   if (!isNode) {
     throw new Error('This function can only be called in Node.js')
   }
 
   const httpModule = require('http') as typeof http
+
+  const signatureVerifier = signingSecrets ? createSignatureVerifier({ sharedSecrets: signingSecrets }) : undefined
 
   /* eslint-disable @typescript-eslint/no-misused-promises */
   const server = httpModule.createServer(async (req, res) => {
@@ -44,6 +53,19 @@ export async function serve(
         res.writeHead(200).end('ok')
         return
       }
+
+      if (signatureVerifier) {
+        const isProperlyAuthenticated = await signatureVerifier.verify({
+          ...request,
+          rawBody: request.body,
+        })
+
+        if (!isProperlyAuthenticated) {
+          res.writeHead(401).end(JSON.stringify({ error: 'Unauthorized' }))
+          return
+        }
+      }
+
       const response = await handler(request)
       res.writeHead(response?.status ?? 200, response?.headers ?? {}).end(response?.body ?? '{}')
     } catch (thrown: unknown) {

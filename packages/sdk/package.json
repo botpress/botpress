@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "1.32.0",
+    "@bpinternal/signature-verification": "^0.2.0",
     "browser-or-node": "^2.1.1",
     "semver": "^7.3.8"
   },

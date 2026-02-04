@@ -452,5 +452,6 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
 
   public readonly handler = botHandler(this as unknown as BotHandlers<any>)
 
-  public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
+  public readonly start = (port?: number, signingSecrets?: string[]): Promise<Server> =>
+    serve({ handler: this.handler, port, signingSecrets })
 }

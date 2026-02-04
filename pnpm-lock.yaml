@@ -2949,6 +2949,9 @@ importers:
       '@botpress/client':
         specifier: 1.32.0
         version: link:../client
+      '@bpinternal/signature-verification':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@bpinternal/zui':
         specifier: ^1.3.2
         version: link:../zui
@@ -4027,6 +4030,10 @@ packages:
     resolution: {integrity: sha512-gXzkw2nByc/mFGlEnfi6lpBPuXU/uKBDQ1oQ0ipsDGngztfteyEwt5BUt746QlqH26k5KU36TbnEhqE089U3hg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
     hasBin: true
+
+  '@bpinternal/signature-verification@0.2.0':
+    resolution: {integrity: sha512-vv0djt1szcVunRpJ6AKlbdApyxQUDsx56kqYl+IBPbpiLkstYmmkGJLMTzrvRXAT68baZf8qlvRUCymDZ7w0YA==}
+    engines: {node: '>=19.0.0', pnpm: 10.28.2}
 
   '@bpinternal/slackdown@0.1.0':
     resolution: {integrity: sha512-Gz6xR/BQcfbpxiors8W94JmEl+eoNI7kRncNbduTaSD7saIqGnYokwoVqZw4FzSUSLgpiXCQCnUnoQsc+Yt63Q==}
@@ -13244,6 +13251,8 @@ snapshots:
       '@bpinternal/yargs-extra': 0.0.20
       cross-spawn: 7.0.6
       retry: 0.13.1
+
+  '@bpinternal/signature-verification@0.2.0': {}
 
   '@bpinternal/slackdown@0.1.0':
     dependencies:
