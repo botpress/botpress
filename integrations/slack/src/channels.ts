@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
-import { ChatPostMessageArguments } from '@slack/web-api'
+import { Block, KnownBlock } from '@slack/web-api'
 import { textSchema } from '../definitions/channels/text-input-schema'
+import { ChannelOrigin, channelOriginSchema, ReplyLocation, replyLocationSchema } from '../definitions/configuration'
 import { transformMarkdownForSlack } from './misc/markdown-to-slack'
 import { replaceMentions } from './misc/replace-mentions'
 import { isValidUrl } from './misc/utils'
@@ -15,20 +16,13 @@ const defaultMessages = {
     transformedText = transformMarkdownForSlack(transformedText)
     parsed.text = transformedText
     logger.forBot().debug('Sending text message to Slack chat:', payload)
-    await _sendSlackMessage(
-      { ack, ctx, client, logger },
-      {
-        ..._getSlackTarget(conversation),
-        ...parsed,
-      }
-    )
+    await _sendSlackMessage({ ack, ctx, client, logger, conversation }, parsed)
   },
   image: async ({ client, payload, ctx, conversation, ack, logger }) => {
     logger.forBot().debug('Sending image message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         blocks: [
           {
             type: 'image',
@@ -42,9 +36,8 @@ const defaultMessages = {
   audio: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending audio message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'audio',
         blocks: [
           {
@@ -58,9 +51,8 @@ const defaultMessages = {
   video: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending video message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'video',
         blocks: [
           {
@@ -74,9 +66,8 @@ const defaultMessages = {
   file: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending file message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'file',
         blocks: [
           {
@@ -91,9 +82,8 @@ const defaultMessages = {
     const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
     logger.forBot().debug('Sending location message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'location',
         blocks: [
           {
@@ -107,9 +97,8 @@ const defaultMessages = {
   carousel: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending carousel message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'carousel',
         blocks: payload.items.flatMap(renderCard).filter((value) => !!value),
       }
@@ -118,9 +107,8 @@ const defaultMessages = {
   card: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending card message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: 'card',
         blocks: renderCard(payload),
       }
@@ -129,9 +117,8 @@ const defaultMessages = {
   dropdown: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending dropdown message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: payload.text,
         blocks:
           payload.options?.length > 0
@@ -166,9 +153,8 @@ const defaultMessages = {
   choice: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending choice message to Slack chat:', payload)
     await _sendSlackMessage(
-      { ack, ctx, client, logger },
+      { ack, ctx, client, logger, conversation },
       {
-        ..._getSlackTarget(conversation),
         text: payload.text,
         blocks:
           payload.options?.length > 0
@@ -203,15 +189,43 @@ const defaultMessages = {
   bp.IntegrationProps['channels']['dm']['messages'] &
   bp.IntegrationProps['channels']['thread']['messages']
 
-const _getSlackTarget = (conversation: bp.ClientResponses['getConversation']['conversation']) => {
+type SlackReplyLocation = { channel: string; thread_ts?: string }
+
+const _resolveReplyLocations = (
+  conversation: bp.ClientResponses['getConversation']['conversation'],
+  ctx: bp.Context
+): SlackReplyLocation[] => {
+  const channelOrigin: ChannelOrigin = channelOriginSchema.parse(conversation.tags.channelOrigin)
   const channel = conversation.tags.id
-  const thread = (conversation.tags as Record<string, string>).thread // TODO: fix cast in SDK typings
+  const existingThread = conversation.tags.thread
+  const originalMessageTs = conversation.tags.originalMessageTs
 
   if (!channel) {
-    throw Error(`No channel found for conversation ${conversation.id}`)
+    throw new Error(`No channel found for conversation ${conversation.id}`)
   }
 
-  return { channel, thread_ts: thread }
+  if (channelOrigin === 'dm') {
+    return [{ channel }]
+  }
+
+  if (channelOrigin === 'thread' && existingThread) {
+    return [{ channel, thread_ts: existingThread }]
+  }
+
+  const replyLocation: ReplyLocation = replyLocationSchema.parse(
+    conversation.tags.replyLocation ?? ctx.configuration.replyBehaviour?.location ?? 'channel'
+  )
+
+  const threadTs = existingThread ?? originalMessageTs
+
+  switch (replyLocation) {
+    case 'channel':
+      return [{ channel }]
+    case 'thread':
+      return threadTs ? [{ channel, thread_ts: threadTs }] : [{ channel }]
+    case 'channelAndThread':
+      return threadTs ? [{ channel }, { channel, thread_ts: threadTs }] : [{ channel }]
+  }
 }
 
 const _getOptionalProps = (ctx: bp.Context, logger: bp.Logger) => {
@@ -232,29 +246,63 @@ const _getOptionalProps = (ctx: bp.Context, logger: bp.Logger) => {
 }
 
 const _sendSlackMessage = async (
-  { client, ctx, ack, logger }: { client: bp.Client; ctx: bp.Context; ack: bp.AnyAckFunction; logger: bp.Logger },
-  payload: ChatPostMessageArguments
+  {
+    client,
+    ctx,
+    ack,
+    logger,
+    conversation,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    ack: bp.AnyAckFunction
+    logger: bp.Logger
+    conversation: bp.ClientResponses['getConversation']['conversation']
+  },
+  payload: { text?: string; blocks?: (Block | KnownBlock)[] }
 ) => {
   const slackClient = await SlackClient.createFromStates({ client, ctx, logger })
-
   const botOptionalProps = _getOptionalProps(ctx, logger)
+  const replyLocations = _resolveReplyLocations(conversation, ctx)
 
-  const message = await slackClient.postMessage({
-    channelId: payload.channel,
-    threadTs: payload.thread_ts,
-    text: payload.text,
-    blocks: payload.blocks,
-    username: botOptionalProps.username,
-    iconUrl: botOptionalProps.icon_url,
-  })
+  let firstMessage: Awaited<ReturnType<typeof slackClient.postMessage>> | undefined
 
-  if (!message) {
-    throw Error('Error sending message')
+  for (const location of replyLocations) {
+    const message = await slackClient.postMessage({
+      channelId: location.channel,
+      threadTs: location.thread_ts,
+      text: payload.text,
+      blocks: payload.blocks,
+      username: botOptionalProps.username,
+      iconUrl: botOptionalProps.icon_url,
+    })
+
+    if (!message) {
+      throw Error('Error sending message')
+    }
+
+    // NOTE: When sending to multiple locations (e.g. channel + thread), we only ack the first message
+    // to Botpress and use it to track the thread for future replies
+    if (!firstMessage) {
+      firstMessage = message
+
+      // NOTE: Store thread_ts so subsequent messages in this conversation reply to the same thread
+      if (location.thread_ts && !conversation.tags.thread) {
+        await client.updateConversation({
+          id: conversation.id,
+          tags: { thread: location.thread_ts },
+        })
+      }
+    }
   }
 
-  await ack({ tags: { ts: message.ts, channelId: payload.channel, userId: message?.user } })
+  if (!firstMessage) {
+    throw Error('No message was sent')
+  }
 
-  return message
+  await ack({ tags: { ts: firstMessage.ts, channelId: replyLocations[0]!.channel, userId: firstMessage.user } })
+
+  return firstMessage
 }
 
 export default {

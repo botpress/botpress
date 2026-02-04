@@ -1,5 +1,33 @@
 import * as sdk from '@botpress/sdk'
 
+export const channelOriginSchema = sdk.z
+  .enum(['dm', 'channel', 'thread'])
+  .default('channel')
+  .title('Channel Origin')
+  .describe('The origin of the conversation (channel, dm, or thread)')
+export const replyLocationSchema = sdk.z
+  .enum(['channel', 'thread', 'channelAndThread'])
+  .default('channel')
+  .title('Reply Location')
+  .describe('The location where the bot will reply to the message (channel, thread, or channelAndThread)')
+export const channelMentionSchema = sdk.z
+  .enum(['required', 'notRequired'])
+  .default('notRequired')
+  .title('Channel Mention')
+  .describe('Whether the bot requires an @mention to reply in channels')
+export const threadMentionSchema = sdk.z
+  .enum(['required', 'inherit', 'notRequired'])
+  .default('notRequired')
+  .title('Thread Mention')
+  .describe(
+    'Whether the bot requires an @mention to reply in threads: required, inherit (reply if bot was mentioned in parent), or notRequired'
+  )
+
+export type ChannelOrigin = sdk.z.infer<typeof channelOriginSchema>
+export type ReplyLocation = sdk.z.infer<typeof replyLocationSchema>
+export type ChannelMention = sdk.z.infer<typeof channelMentionSchema>
+export type ThreadMention = sdk.z.infer<typeof threadMentionSchema>
+
 const SHARED_CONFIGURATION = {
   botAvatarUrl: sdk.z
     .string()
@@ -15,16 +43,9 @@ const SHARED_CONFIGURATION = {
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
   replyBehaviour: sdk.z
     .object({
-      location: sdk.z
-        .enum(['channel', 'thread', 'channelAndThread'])
-        .default('channel')
-        .title('Reply Location')
-        .describe('Where the bot sends replies: Channel only, Thread only (creates if needed), or both'),
-      onlyOnBotMention: sdk.z
-        .boolean()
-        .default(false)
-        .title('Require Bot Mention for Replies')
-        .describe('This ensures that the bot only replies to messages when it is explicitly mentioned'),
+      location: replyLocationSchema,
+      channelMention: channelMentionSchema,
+      threadMention: threadMentionSchema,
     })
     .title('Reply Behaviour')
     .describe('How the bot should reply to messages'),
