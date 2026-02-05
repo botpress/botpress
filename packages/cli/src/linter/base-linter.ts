@@ -97,7 +97,9 @@ export abstract class BaseLinter<TDefinition> {
   }
 
   private _simplifyPath(path: (string | number)[]) {
-    return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
+    return path
+      .join('.')
+      .replace(/(\.additionalProperties)?\.properties(\.(properties)?)|\.((allOf|anyOf)\.\d+)(?=\.)|\.x-zui/g, '$2')
   }
 
   private _logResultMessage(logger: Logger, message: string, severity: ProblemSeverity) {
