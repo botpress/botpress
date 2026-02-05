@@ -2,9 +2,14 @@ import * as sdk from '@botpress/sdk'
 import * as crypto from 'crypto'
 import { handleFileChangeEvent, isFileChangeNotification } from './handlers/file-change'
 import { isWebhookVerificationRequest, handleWebhookVerificationRequest } from './handlers/webhook-verification'
+import { oauthCallbackHandler } from './oauth'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  if (props.req.path.startsWith('/oauth')) {
+    return await oauthCallbackHandler(props)
+  }
+
   if (isWebhookVerificationRequest(props)) {
     return await handleWebhookVerificationRequest(props)
   }
