@@ -16,7 +16,7 @@ const handleExitCode = ({ exitCode }: { exitCode: number }) => {
   }
 }
 
-const fetchDevBot = async (client: Client, id: string) => {
+const fetchDevBotById = async (client: Client, id: string) => {
   const { bot } = await client.getBot({ id }).catch((err) => {
     if (isApiError(err) && err.type === 'ResourceNotFound') {
       return { bot: undefined }
@@ -103,14 +103,14 @@ export const devBot: Test = {
     process.kill(botProcess.pid)
     await cmdPromise
 
-    const apiBot = await fetchDevBot(client, botId)
+    const apiBot = await fetchDevBotById(client, botId)
     if (!apiBot) {
       throw new Error(`Dev Bot ${botId} should have been created in the backend`)
     }
 
     await impl.bots.delete({ ...argv, botRef: apiBot.id }).then(utils.handleExitCode)
 
-    if (await fetchDevBot(client, botId)) {
+    if (await fetchDevBotById(client, botId)) {
       throw new Error(`Dev bot ${botId} should have been deleted`)
     }
   },
