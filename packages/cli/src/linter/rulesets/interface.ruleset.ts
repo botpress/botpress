@@ -169,7 +169,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].input..schema..properties[*].x-zui',
+      given: '$.actions[*].input..schema..[?(@property === "type" && @ === "object")]^.properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -186,7 +186,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].input..schema..properties[*]',
+      given: '$.actions[*].input..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'description',
@@ -203,7 +203,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].output..schema..properties[*].x-zui',
+      given: '$.actions[*].output..schema..[?(@property === "type" && @ === "object")]^.properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -220,7 +220,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].output..schema..properties[*]',
+      given: '$.actions[*].output..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'description',
@@ -237,7 +237,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.events[*]..schema..properties[*]',
+      given: '$.events[*]..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -254,7 +254,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.events[*]..schema..properties[*]',
+      given: '$.events[*]..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'description',
@@ -271,7 +271,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.entities[*]..schema..properties[*]',
+      given: '$.entities[*]..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -287,7 +287,7 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.entities[*]..schema..properties[*]',
+      given: '$.entities[*]..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
           field: 'description',
