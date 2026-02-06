@@ -13,7 +13,7 @@
     "marked": "^15.0.1",
     "openai": "^6.9.0",
     "posthog-node": "5.14.1",
-    "preact": "^10.26.6",
+    "preact": "^10.26.10",
     "preact-render-to-string": "^6.5.13",
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1"

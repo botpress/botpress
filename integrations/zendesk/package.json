@@ -16,7 +16,7 @@
     "axios": "^1.4.0",
     "axios-retry": "^4.5.0",
     "lodash": "^4.17.21",
-    "preact": "^10.26.6",
+    "preact": "^10.26.10",
     "preact-render-to-string": "^6.5.13"
   },
   "devDependencies": {
