@@ -11,6 +11,35 @@ export default new sdk.PluginDefinition({
     // This plugin should be invisible to users:
     ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
   },
+  states: {
+    folderSyncSettings: {
+      type: 'bot',
+      schema: sdk.z.object({
+        settings: sdk.z.record(
+          sdk.z.string(),
+          sdk.z.record(
+            sdk.z.string(),
+            sdk.z.object({
+              syncNewFiles: sdk.z
+                .boolean()
+                .default(false)
+                .title('Sync New Files')
+                .describe(
+                  'When enabled, automatically sync new files added to this folder to Botpress. Files will be synchronized in real-time as they are added to the folder. Real-time sync is considered enabled if at least one folder has syncNewFiles set to true.'
+                ),
+              path: sdk.z
+                .string()
+                .optional()
+                .title('Folder Path')
+                .describe(
+                  'The absolute path of the folder in the integration tree structure. Used to identify and locate the folder for synchronization.'
+                ),
+            })
+          )
+        ),
+      }),
+    },
+  },
   actions: {
     listSynchronizationOperations: {
       title: 'List current synchronization operations',

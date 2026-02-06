@@ -1,4 +1,5 @@
 import * as SyncQueue from '../../sync-queue'
+import { createIntegrationTransferHandler } from '../../utils/create-integration-transfer-handler'
 import * as bp from '.botpress'
 
 export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) => {
@@ -21,22 +22,13 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
     logger,
     syncQueue,
     fileRepository: props.client,
-    integration: {
-      name: props.workflow.tags.integrationDefinitionName,
-      alias: props.workflow.tags.integrationInstanceAlias,
-      async transferFileToBotpress({ file, fileKey }) {
-        const { output } = await props.client.callAction({
-          type: `${props.workflow.tags.integrationInstanceAlias}:${props.workflow.input.transferFileToBotpressAlias}`,
-          input: {
-            file,
-            fileKey,
-            shouldIndex: true,
-          },
-        })
-
-        return { botpressFileId: output.botpressFileId }
-      },
-    },
+    integration: createIntegrationTransferHandler({
+      integrationName: props.workflow.tags.integrationDefinitionName,
+      integrationAlias: props.workflow.tags.integrationInstanceAlias,
+      client: props.client,
+      transferFileToBotpressAlias: props.workflow.input.transferFileToBotpressAlias,
+      shouldIndex: true,
+    }),
     updateSyncQueue: (params) => SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue),
   })
 
