@@ -17,7 +17,7 @@
   },
   "scripts": {
     "generate": "pnpm build:markdown",
-    "build": "tsup && pnpm tsc --emitDeclarationOnly",
+    "build": "tsup && pnpm tsc --emitDeclarationOnly --noCheck",
     "check:type": "tsc --noEmit",
     "watch": "tsup --watch",
     "test": "vitest --run",
