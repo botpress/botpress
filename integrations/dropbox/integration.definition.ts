@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import filesReadonly from './bp_modules/files-readonly'
-import { actions, configuration, entities, secrets, states } from './definitions'
+import { actions, configuration, configurations, entities, secrets, states } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'dropbox',
@@ -10,6 +10,7 @@ export default new sdk.IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
+  configurations,
   actions,
   entities,
   secrets,
