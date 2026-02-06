@@ -42,7 +42,7 @@
     "dotenv": "^16.4.4",
     "esbuild": "^0.25.10",
     "esbuild-plugin-polyfill-node": "^0.3.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "uuid": "^9.0.0"
   },
   "engines": {
