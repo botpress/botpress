@@ -23,7 +23,7 @@
     "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/uuid": "^9.0.1",
-    "preact": "^10.26.6"
+    "preact": "^10.26.10"
   },
   "bpDependencies": {
     "files-readonly": "../../interfaces/files-readonly"
