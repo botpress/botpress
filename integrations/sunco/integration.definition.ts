@@ -7,18 +7,54 @@ import { events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '1.5.0',
+  version: '1.6.0',
   title: 'Sunshine Conversations',
   description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        token: z
+          .string()
+          .optional()
+          .title('Token')
+          .describe('The bearer token obtained after completing the OAuth flow'),
+        appId: z.string().optional().title('App ID').describe('The registered app ID'),
+        subdomain: z
+          .string()
+          .optional()
+          .title('Subdomain')
+          .describe('The subdomain of the authenticated app if there is one'),
+      }),
+    },
+    webhook: {
+      type: 'integration',
+      schema: z.object({
+        id: z.string().title('ID').describe('The webhook ID'),
+        secret: z.string().title('Secret').describe('The webhook secret'),
+      }),
+    },
+  },
   configuration: {
-    schema: z.object({
-      appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
-      keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
-      keySecret: z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
-      webhookSecret: z.string().min(1).title('Webhook Secret').describe('Your Sunshine Conversations Webhook Secret'),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+      required: false,
+    },
+    schema: z.object({}),
+  },
+  configurations: {
+    manual: {
+      title: 'Configure manually with your own app',
+      description: 'Configure the integration with your own SunCo OAuth app',
+      schema: z.object({
+        appId: z.string().min(1).title('App ID').describe('Your Sunshine Conversations App ID'),
+        keyId: z.string().min(1).title('Key ID').describe('Your Sunshine Conversations Key ID'),
+        keySecret: z.string().min(1).title('Key Secret').describe('Your Sunshine Conversations Key Secret'),
+        webhookSecret: z.string().min(1).title('Webhook Secret').describe('Your Sunshine Conversations Webhook Secret'),
+      }),
+    },
   },
   channels: {
     channel: {
@@ -49,7 +85,21 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    CLIENT_ID: {
+      description: 'Botpress SunCo OAuth Client ID',
+    },
+    CLIENT_SECRET: {
+      description: 'Botpress SunCo OAuth Client Secret',
+    },
+    MARKETPLACE_BOT_NAME: {
+      description: 'The name of the marketplace bot',
+    },
+    MARKETPLACE_ORG_ID: {
+      description: 'The ID of the marketplace organization',
+    },
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
   user: {
     tags: {
       id: {
