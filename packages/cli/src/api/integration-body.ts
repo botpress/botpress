@@ -11,6 +11,22 @@ export const prepareCreateIntegrationBody = async (
   title: 'title' in integration ? integration.title : undefined,
   description: 'description' in integration ? integration.description : undefined,
   user: integration.user,
+  configuration: integration.configuration
+    ? {
+        ...integration.configuration,
+        schema: await utils.schema.mapZodToJsonSchema(integration.configuration, {
+          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
+        }),
+      }
+    : undefined,
+  configurations: integration.configurations
+    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
+        ...configuration,
+        schema: await utils.schema.mapZodToJsonSchema(configuration, {
+          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
+        }),
+      }))
+    : undefined,
   events: integration.events
     ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
