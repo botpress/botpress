@@ -56,7 +56,7 @@
     "lint-staged": "^15.4.3",
     "oxlint": "^1.14.0",
     "prettier": "^3.4.2",
-    "semver": "^7.3.8",
+    "semver": "^7.5.2",
     "sherif": "1.0.1",
     "ts-node": "^10.9.2",
     "turbo": "^2.3.3",
