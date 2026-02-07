@@ -99,7 +99,7 @@ export const INTEGRATION_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].output..schema.properties[*]',
+      given: '$.actions[*].output..schema.properties[?(@.type)]', // some complex types don't have descriptions on the parent level
       then: [
         {
           field: 'description',
