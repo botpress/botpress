@@ -239,27 +239,38 @@ export function truncateWrappedContent<T extends MessageLike>({
       }
     }
 
-    if (biggest.tokens - toRemove < (biggest.attributes?.minTokens ?? 0)) {
-      toRemove = biggest.tokens - (biggest.attributes?.minTokens ?? 0)
+    const min = biggest.attributes?.minTokens ?? 0
+    if (biggest.tokens - toRemove < min) {
+      toRemove = biggest.tokens - min
     }
 
     const preserve = biggest.attributes?.preserve ?? DEFAULT_TRUNCATE_OPTIONS.preserve
-    const split = tokenizer.split(biggest.content)
 
+    let slices: [number, number][]
     if (preserve === 'bottom') {
-      biggest.content = split.slice(toRemove).join('')
+      slices = [[toRemove, Number.POSITIVE_INFINITY]]
     } else if (preserve === 'top') {
-      biggest.content = split.slice(0, -toRemove).join('')
+      slices = [[0, -toRemove]]
     } else {
-      // Preserve both top and bottom
-      // Remove from the middle-out
-      const anchor = Math.ceil(split.length / 2)
+      preserve satisfies 'both'
+
+      // const totalTokens = biggest.tokens
+      const totalTokens = tokenizer.count(biggest.content) // TODO: rm that for speed
+      const anchor = Math.ceil(totalTokens / 2)
       const radius = Math.ceil(toRemove / 2)
       const left = anchor - radius
       const right = anchor + radius
-      biggest.content = split.slice(0, left).join('') + split.slice(right).join('')
+
+      slices = [
+        [0, left],
+        [right, Number.POSITIVE_INFINITY],
+      ]
     }
 
+    const tokens = tokenizer.split(biggest.content, slices)
+    // const removed = biggest.tokens - tokens.length
+
+    biggest.content = tokens.join('')
     biggest.tokens -= toRemove
     currentCount -= toRemove
   }
