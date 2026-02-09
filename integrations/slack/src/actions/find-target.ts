@@ -16,7 +16,8 @@ const fuse = new Fuse<Target>([], {
 
 export const findTarget = wrapActionAndInjectSlackClient(
   { actionName: 'findTarget', errorMessage: 'Failed to find any target' },
-  async ({ slackClient }, { channel, query }) => {
+  async ({ logger, slackClient }, { channel, query }) => {
+    logger.forBot().debug(`[findTarget] Starting with channel="${channel}", query="${query}"`)
     const targets: (Target & Record<string, unknown>)[] =
       channel === 'dm'
         ? await slackClient
@@ -48,6 +49,7 @@ export const findTarget = wrapActionAndInjectSlackClient(
     fuse.setCollection(targets)
 
     const filteredTargets: Target[] = fuse.search<Target>(query).map((x) => x.item)
+    logger.forBot().debug(`[findTarget] Returning result ${JSON.stringify(filteredTargets)}`)
     return {
       targets: filteredTargets,
     }

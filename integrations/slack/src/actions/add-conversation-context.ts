@@ -6,6 +6,7 @@ export const addConversationContext = wrapActionAndInjectSlackClient(
     logger.forBot().debug('Adding conversation context', { conversationId, messageCount: messages.length })
 
     for (const rawMessage of messages) {
+      logger.forBot().debug('Adding synthetic message to conversation', { conversationId, rawMessage })
       await client.createMessage({
         origin: 'synthetic',
         conversationId,
@@ -36,6 +37,7 @@ export const addConversationContext = wrapActionAndInjectSlackClient(
         logger.forBot().debug('Sending trigger message to start bot turn', { conversationId, triggerText })
 
         await client.createMessage({
+          origin: 'synthetic',
           conversationId,
           userId: triggerUserId,
           type: 'text',
