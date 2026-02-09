@@ -62,27 +62,12 @@ export const actions = {
   addConversationContext: {
     title: 'Add Conversation Context',
     description:
-      'Add messages from a previous conversation as context to a target conversation. Optionally trigger a bot reply in the target conversation after injecting context.',
+      'Add messages from a previous conversation as synthetic context to a target conversation, so the bot has full history when responding there.',
     input: {
       schema: sdk.z.object({
         conversationId: sdk.z.string().title('Conversation ID').describe('The target conversation to add context to'),
         messages: sdk.z.array(messageSchema).title('Messages').describe('The messages to add as context'),
         channelOrigin: channelTypeSchema.title('Channel Type').describe('The type of channel the messages came from'),
-        triggerBotReply: sdk.z
-          .boolean()
-          .optional()
-          .default(false)
-          .title('Trigger Bot Reply')
-          .describe(
-            'If true, sends a non-synthetic trigger message after the context so the bot starts a new turn in the target conversation'
-          ),
-        botInstructions: sdk.z
-          .string()
-          .optional()
-          .title('Bot Instructions')
-          .describe(
-            'Instructions for the bot when triggering a reply, e.g. "Ask the user for more details about the integration description." Only used when triggerBotReply is true.'
-          ),
       }),
     },
     output: {
@@ -184,10 +169,16 @@ export const actions = {
 
   startDmConversation: {
     title: 'Start DM Conversation',
-    description: 'Initiate a conversation with a user in a DM',
+    description:
+      'Initiate a conversation with a user in a DM. Optionally send an initial message that will be delivered via Slack and recorded in the conversation history.',
     input: {
       schema: sdk.z.object({
         slackUserId: sdk.z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
+        message: sdk.z
+          .string()
+          .optional()
+          .title('Initial Message')
+          .describe('An optional initial message to send to the user in the DM'),
       }),
     },
     output: {
