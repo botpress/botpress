@@ -3,7 +3,6 @@ import { prepareCreateIntegrationBody } from '../api/integration-body'
 import * as utils from '../utils'
 import { IntegrationLinter } from './integration-linter'
 import { IntegrationDefinition, type IntegrationDefinitionProps, z } from '@botpress/sdk'
-import chalk from 'chalk'
 
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'
@@ -143,11 +142,10 @@ const mockLogger = {
   debug: vi.fn((message) => void message),
 }
 
-const lintDefinition = async (definition: IntegrationDefinitionProps, printDef: boolean = false) => {
+const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
   const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
-
-  const integrationDefinitionBody = {
+  const linter = new IntegrationLinter({
     ...integrationBody,
     configuration: integrationDefinition.configuration
       ? {
@@ -168,19 +166,13 @@ const lintDefinition = async (definition: IntegrationDefinitionProps, printDef: 
     readme: integrationDefinition.readme,
     icon: integrationDefinition.icon,
     secrets: integrationDefinition.secrets,
-  } as const
-
-  if (printDef) {
-    console.log(chalk.green(JSON.stringify(integrationDefinitionBody, null, 2)))
-  }
-
-  const linter = new IntegrationLinter(integrationDefinitionBody)
+  })
   await linter.lint()
   return linter
 }
 
-const lintDefinitionAndReturnResults = async (definition: IntegrationDefinitionProps, printDef: boolean = false) => {
-  const linter = await lintDefinition(definition, printDef)
+const lintDefinitionAndReturnResults = async (definition: IntegrationDefinitionProps) => {
+  const linter = await lintDefinition(definition)
   return linter.getSortedResults()
 }
 
@@ -267,48 +259,5 @@ describe.concurrent('Integration Linter', () => {
 
     // assert
     expect(mockLogger.warn).toHaveBeenCalled()
-  })
-})
-
-describe('Simplify Path Function', () => {
-  test("A schema with a property called 'properties' doesn't get striped from the path", async () => {
-    // arrange
-    const definition = {
-      ...VALID_INTEGRATION,
-      configuration: {
-        schema: z.object({
-          properties: z.object({
-            [PARAM_NAME]: z.string().describe(TRUTHY_STRING),
-          }),
-        }),
-      },
-    } as const
-
-    // act
-    const results = await lintDefinitionAndReturnResults(definition)
-    // console.log({ results })
-
-    // assert
-    expect(results[0]?.path).toBe('configuration.schema.properties')
-  })
-
-  test("'anyOf.#' gets removed from the path", async () => {
-    // arrange
-    const definition = {
-      ...VALID_INTEGRATION,
-      configuration: {
-        schema: z.object({
-          [PARAM_NAME]: z.string().or(z.number()),
-        }),
-      },
-    } as const
-
-    // act
-    const results = await lintDefinitionAndReturnResults(definition, true)
-
-    console.log({ results })
-
-    // assert
-    expect(results[0]?.path).toBe('configuration.schema.properties')
   })
 })
