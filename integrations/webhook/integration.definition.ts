@@ -13,12 +13,14 @@ export default new IntegrationDefinition({
       secret: z
         .string()
         .optional()
+        .title('Webhook Header Secret')
         .describe(
           'Secret that must be sent with the request as a header called "x-bp-secret." Leave empty to allow all requests without a secret.'
         ),
       allowedOrigins: z
         .array(z.string())
         .optional()
+        .title('Allowed Origins')
         .describe(
           'List of allowed origins for CORS. Leaving this field empty will block all requests originating from a browser and only allow requests from a server.'
         ),

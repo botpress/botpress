@@ -13,7 +13,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z
       .object({
-        webhookUrl: z.string().url().describe('Make.com webhook URL'),
+        webhookUrl: z.string().url().title('Webhook URL').describe('Make.com webhook URL'),
       })
       .describe('Configuration schema for Make.com Integration'),
   },

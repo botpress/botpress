@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Open AI Key'),
+      apiKey: z.string().title('OpenAI API Key').describe('An API Key for the OpenAI DALL-E service'),
     }),
   },
   channels: {},
