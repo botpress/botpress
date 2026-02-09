@@ -244,7 +244,7 @@ export function truncateWrappedContent<T extends MessageLike>({
     }
 
     const preserve = biggest.attributes?.preserve ?? DEFAULT_TRUNCATE_OPTIONS.preserve
-    const split = tokenizer.split(biggest.content)
+    const split = tokenizer.splitAndSlice(biggest.content)
 
     if (preserve === 'bottom') {
       biggest.content = split.slice(toRemove).join('')
