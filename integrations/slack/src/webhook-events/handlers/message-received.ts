@@ -67,6 +67,7 @@ type _SendMessageProps = HandleEventProps & {
 
 export const handleEvent = async (props: HandleEventProps): Promise<void> => {
   const { slackEvent, client, ctx, logger } = props
+  logger.forBot().debug('handleEvent called with slackEvent', { slackEvent })
 
   // NOTE: Skip notification-type messages (channel_join, channel_leave, etc.)
   if (slackEvent.subtype && slackEvent.subtype !== 'file_share') {
@@ -109,10 +110,13 @@ export const handleEvent = async (props: HandleEventProps): Promise<void> => {
     const conversationBotMentioned = botpressConversation.tags.mentionsBot === 'true'
     const effectiveMentionsBot = conversationBotMentioned || mentionsBotInMessage
 
-    // NOTE: For inherit mode on thread messages, skip if neither the conversation nor the message mentions the bot
-    if (origin === 'channelThread' && threadMention === 'inherit' && !effectiveMentionsBot) {
-      logger.forBot().debug('Thread message skipped: inherit mode and no bot mention found')
-      continue
+    // NOTE: For inherit mode, the bot should continue responding in threads it was already engaged in
+    if (origin === 'channelThread' && threadMention === 'inherit') {
+      const botAlreadyEngaged = effectiveMentionsBot || channelMention === 'notRequired'
+      if (!botAlreadyEngaged) {
+        logger.forBot().debug('Thread message skipped: inherit mode and no bot mention found')
+        continue
+      }
     }
 
     if (effectiveMentionsBot) {

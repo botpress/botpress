@@ -61,12 +61,28 @@ export const actions = {
 
   addConversationContext: {
     title: 'Add Conversation Context',
-    description: 'Add messages from a previous conversation as context to a target conversation',
+    description:
+      'Add messages from a previous conversation as context to a target conversation. Optionally trigger a bot reply in the target conversation after injecting context.',
     input: {
       schema: sdk.z.object({
         conversationId: sdk.z.string().title('Conversation ID').describe('The target conversation to add context to'),
         messages: sdk.z.array(messageSchema).title('Messages').describe('The messages to add as context'),
         channelOrigin: channelTypeSchema.title('Channel Type').describe('The type of channel the messages came from'),
+        triggerBotReply: sdk.z
+          .boolean()
+          .optional()
+          .default(false)
+          .title('Trigger Bot Reply')
+          .describe(
+            'If true, sends a non-synthetic trigger message after the context so the bot starts a new turn in the target conversation'
+          ),
+        botInstructions: sdk.z
+          .string()
+          .optional()
+          .title('Bot Instructions')
+          .describe(
+            'Instructions for the bot when triggering a reply, e.g. "Ask the user for more details about the integration description." Only used when triggerBotReply is true.'
+          ),
       }),
     },
     output: {

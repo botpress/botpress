@@ -5,7 +5,7 @@ import { getConversationContextByConversationId, getConversationContextByTags } 
 import { getUserProfile } from './get-user-profile'
 import { retrieveMessage } from './retrieve-message'
 import { startChannelConversation } from './start-channel-conversation'
-import { startDmConversation } from './start-dm'
+import { startDmConversation } from './start-dm-conversation'
 import { startThreadConversation } from './start-thread-conversation'
 import { syncMembers } from './sync-members'
 import { startTypingIndicator, stopTypingIndicator } from './typing-indicator'
