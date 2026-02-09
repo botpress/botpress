@@ -10,9 +10,14 @@ export const startDmConversation = wrapActionAndInjectSlackClient(
     })
 
     if (user.tags.dm_conversation_id) {
-      return {
-        conversationId: user.tags.dm_conversation_id,
-        userId: user.id,
+      try {
+        await client.getConversation({ id: user.tags.dm_conversation_id })
+        return {
+          conversationId: user.tags.dm_conversation_id,
+          userId: user.id,
+        }
+      } catch {
+        // NOTE: Cached conversation no longer exists (e.g. bot was re-deployed), fall through to create a new one
       }
     }
 
