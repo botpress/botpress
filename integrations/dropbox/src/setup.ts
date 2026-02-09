@@ -25,6 +25,11 @@ const _isAlreadyAuthenticatedWithSameCredentials = async (props: RegisterProps):
       return false
     }
 
+    if (props.ctx.configurationType !== 'manual') {
+      return true
+    }
+
+    // For manual configurations, compare the authorization code from context with the one in state
     const { state } = await props.client.getState({
       type: 'integration',
       id: props.ctx.integrationId,
@@ -90,12 +95,20 @@ const _authenticate = async (props: RegisterProps): Promise<void> => {
   }
 
   if (!authenticationSucceeded) {
-    throw new sdk.RuntimeError(
-      'Dropbox authentication failed. ' +
-        'Please note that the Access Code is only valid for a few minutes. ' +
-        'You may need to reauthorize your Dropbox application by navigating ' +
-        "to the authorization URL and update the integration's config accordingly."
-    )
+    if (ctx.configurationType === 'manual') {
+      throw new sdk.RuntimeError(
+        'Dropbox authentication failed. ' +
+          'Please note that the Access Code is only valid for a few minutes. ' +
+          'You may need to reauthorize your Dropbox application by navigating ' +
+          "to the authorization URL and update the integration's config accordingly."
+      )
+    } else {
+      throw new sdk.RuntimeError(
+        'Dropbox authentication failed. ' +
+          'Please use the OAuth wizard to re-authenticate your Dropbox application. ' +
+          'You can access the wizard through the integration configuration page.'
+      )
+    }
   }
 }
 
