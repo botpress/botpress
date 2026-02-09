@@ -5,7 +5,7 @@ import { actions, configuration, configurations, entities, secrets, states } fro
 export default new sdk.IntegrationDefinition({
   name: 'dropbox',
   title: 'Dropbox',
-  version: '1.2.1',
+  version: '1.3.0',
   description: 'Manage your files and folders effortlessly.',
   readme: 'hub.md',
   icon: 'icon.svg',

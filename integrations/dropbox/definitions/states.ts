@@ -1,13 +1,6 @@
 import * as sdk from '@botpress/sdk'
 
 export const states = {
-  credentials: {
-    type: 'integration',
-    schema: sdk.z.object({
-      accessCode: sdk.z.string().optional().title('Access token').describe('The access token obtained by OAuth'),
-      subdomain: sdk.z.string().optional().title('Subdomain').describe('The bot subdomain'),
-    }),
-  },
   authorization: {
     type: 'integration',
     schema: sdk.z.object({
