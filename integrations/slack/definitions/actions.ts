@@ -1,11 +1,11 @@
 import * as sdk from '@botpress/sdk'
-
-type Channel = 'dm' | 'channel'
+import { channelTypeSchema, ChannelType } from './schemas/channel'
+import { messagePayloadTypesSchema, messageSchema } from './schemas/messages'
 
 export type Target = {
   displayName: string
   tags: { [key: string]: string }
-  channel: Channel
+  channel: ChannelType
 }
 
 export const actions = {
@@ -50,14 +50,67 @@ export const actions = {
             sdk.z.object({
               displayName: sdk.z.string().title('Display Name').describe('The display name of the target'),
               tags: sdk.z.record(sdk.z.string()).title('Tags').describe('The tags of the target'),
-              channel: sdk.z
-                .enum(['dm', 'channel'])
-                .title('Channel type')
-                .describe('The type of channel of the target'),
+              channel: channelTypeSchema.title('Channel Type').describe('The type of channel of the target'),
             })
           )
           .title('Targets')
           .describe('The matching targets'),
+      }),
+    },
+  },
+
+  addConversationContext: {
+    title: 'Add Conversation Context',
+    description: 'Add messages from a previous conversation as context to a target conversation',
+    input: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The target conversation to add context to'),
+        messages: sdk.z.array(messageSchema).title('Messages').describe('The messages to add as context'),
+        channelOrigin: channelTypeSchema.title('Channel Type').describe('The type of channel the messages came from'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z
+          .string()
+          .title('Conversation ID')
+          .describe('The conversation ID that received the context'),
+      }),
+    },
+  },
+
+  getConversationContextByConversationId: {
+    title: 'Get Conversation Context by Conversation ID',
+    description: 'Get the context of a conversation by its ID',
+    input: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the conversation'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the conversation'),
+        messages: sdk.z.array(messageSchema).title('Messages').describe('The messages in the conversation'),
+      }),
+    },
+  },
+
+  getConversationContextByTags: {
+    title: 'Get Conversation Context by Tags',
+    description: 'Get the context of a conversation',
+    input: {
+      schema: sdk.z.object({
+        channel: channelTypeSchema.title('Channel').describe('The channel of the conversation'),
+        channelId: sdk.z.string().title('Channel ID').describe('The ID of the channel'),
+        thread: sdk.z.string().optional().title('Thread').describe('The thread of the conversation'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the conversation'),
+        channelId: sdk.z.string().title('Channel ID').describe('The ID of the channel'),
+        thread: sdk.z.string().optional().title('Thread').describe('The thread of the conversation'),
+        messages: sdk.z.array(messageSchema).title('Messages').describe('The messages in the conversation'),
       }),
     },
   },
@@ -73,7 +126,7 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        type: sdk.z.string().title('Type').describe('The type of the message'),
+        type: sdk.z.string().title('Type').describe('The type of the message'), // QUESTION: Should I be using my messagePayloadTypesSchema or just string?
         user: sdk.z.string().title('User').describe('The user who sent the message'),
         ts: sdk.z.string().title('Timestamp').describe('The timestamp of the message'),
         text: sdk.z.string().title('Text').describe('The text of the message'),
@@ -124,6 +177,25 @@ export const actions = {
     output: {
       schema: sdk.z.object({
         userId: sdk.z.string().title('User ID').describe('The ID of the user'),
+        conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
+      }),
+    },
+  },
+
+  startThreadConversation: {
+    title: 'Start Thread Conversation',
+    description: 'Start a conversation in a thread',
+    input: {
+      schema: sdk.z.object({
+        channelId: sdk.z.string().title('Channel ID').describe('The ID of the channel to start the conversation in'),
+        threadTs: sdk.z
+          .string()
+          .title('Thread Timestamp')
+          .describe('The timestamp of the thread to start the conversation in'),
+      }),
+    },
+    output: {
+      schema: sdk.z.object({
         conversationId: sdk.z.string().title('Conversation ID').describe('The ID of the new conversation'),
       }),
     },

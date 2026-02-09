@@ -2,26 +2,91 @@ The Slack integration enables seamless communication between your AI-powered cha
 
 ## Migrating from version `4.x` to `5.x`
 
-Version 5.0 introduces more granular control over when the bot requires mentions to respond. The `onlyOnBotMention` boolean has been replaced with two new options that let you configure mention requirements separately for channels and threads.
+Version 5.0 overhauls how the bot routes and replies to messages. It introduces separate reply location controls for channels and DMs, a new `dmThread` channel type, new conversation context actions, and replaces the legacy `onlyOnBotMention` setting with granular mention controls.
+
+### Breaking Change: New Reply Location Settings
+
+The `replyBehaviour` configuration object now includes two new fields that control **where** the bot sends its replies:
+
+| New Setting | Values | Default | Description |
+|---|---|---|---|
+| `channelReplyLocation` | `channel`, `thread`, `both` | `channel` | Where the bot replies to channel messages |
+| `dmReplyLocation` | `dm`, `thread`, `both` | `dm` | Where the bot replies to DM messages |
+
+**`channelReplyLocation`** controls what happens when a message arrives in a public/private channel:
+- `channel` — reply in the channel (same behavior as v4.x default)
+- `thread` — reply in a new or existing thread under the message
+- `both` — reply in both the channel and a thread
+
+**`dmReplyLocation`** controls what happens when a message arrives in a DM:
+- `dm` — reply in the DM conversation (same behavior as v4.x default)
+- `thread` — reply in a thread within the DM
+- `both` — reply in both the DM conversation and a thread
+
+#### Migration from v4.x `replyBehaviour`
+
+| v4.x Config | v5.x Equivalent |
+|---|---|
+| Default (reply in channel) | `channelReplyLocation: 'channel'`, `dmReplyLocation: 'dm'` |
+| `createReplyThread: true` | `channelReplyLocation: 'thread'` |
 
 ### Breaking Change: New Mention Configuration
 
+The `onlyOnBotMention` boolean has been replaced with two new options that let you configure mention requirements separately for channels and threads.
+
 | Old Config | New Config | Description |
-|------------|------------|-------------|
+|---|---|---|
 | `onlyOnBotMention: true` | `channelMention: 'required'` | Bot only responds in channels when mentioned |
 | `onlyOnBotMention: true` | `threadMention: 'required'` | Bot only responds in threads when mentioned |
 | `onlyOnBotMention: false` | Both set to `notRequired` | Bot responds to all messages (default behavior) |
 
-**New `channelMention` values:**
-- `required` - Bot only responds in channels when explicitly mentioned
-- `notRequired` - Bot responds to all channel messages (default)
+**`channelMention` values:**
+- `required` — Bot only responds in channels when explicitly mentioned
+- `notRequired` — Bot responds to all channel messages (default)
 
-**New `threadMention` values:**
-- `required` - Bot only responds in threads when explicitly mentioned
-- `inherit` - Bot responds in threads if it was mentioned in the original message that started the thread
-- `notRequired` - Bot responds to all thread messages (default)
+**`threadMention` values:**
+- `required` — Bot only responds in threads when explicitly mentioned
+- `inherit` — Bot responds in threads if it was mentioned in the original message that started the thread
+- `notRequired` — Bot responds to all thread messages (default)
 
-**Automatic Migration:** If your bot uses the legacy `onlyOnBotMention` configuration, it will be automatically mapped to the new options. No action is required, but we recommend updating your configuration to use the new explicit options.
+### Breaking Change: New `dmThread` Channel Type
+
+Conversations in DM threads are now tracked as a separate `dmThread` channel, distinct from the `dm` channel. Previously, DM thread messages were handled as part of the `dm` channel.
+
+This affects any workflows or automations that check the conversation channel type. The four channel types are now:
+
+| Channel | Description |
+|---|---|
+| `channel` | A message in a public or private Slack channel |
+| `dm` | A top-level direct message |
+| `thread` | A thread inside a channel |
+| `dmThread` | A thread inside a DM |
+
+### Breaking Change: Message Routing Behavior
+
+The way messages are routed to conversations has changed significantly. The bot now classifies each incoming message by its **origin** (`dm`, `dmThread`, `channel`, `channelThread`) and routes it according to the reply location settings:
+
+| Origin | Reply Location | Behavior |
+|---|---|---|
+| DM | `dm` | Reply in the DM conversation |
+| DM | `thread` | Reply in a DM thread |
+| DM | `both` | Reply in both the DM conversation and a DM thread |
+| DM thread | `dm` or `thread` | Reply in the existing DM thread |
+| DM thread | `both` | Reply in both the DM conversation and the DM thread |
+| Channel | `channel` | Reply in the channel (gated by `channelMention`) |
+| Channel | `thread` | Reply in a thread (gated by `channelMention`) |
+| Channel | `both` | Reply in both (gated by `channelMention`) |
+| Channel thread | `channel` or `thread` | Reply in the thread (gated by `threadMention`) |
+| Channel thread | `both` | Reply in both channel and thread (gated by `threadMention`) |
+
+### New Actions
+
+The following actions have been added:
+
+- **`startThreadConversation`** — Start a conversation in a specific thread by providing a channel ID and thread timestamp.
+- **`addConversationContext`** — Attach messages from a previous conversation as context to a target conversation.
+- **`getConversationContextByConversationId`** — Retrieve the message history of a conversation by its Botpress conversation ID.
+- **`getConversationContextByTags`** — Retrieve the message history of a conversation by its channel type, channel ID, and optional thread ID.
 
 ## Migrating from version `3.x` to `4.x`
 
@@ -163,22 +228,29 @@ Regardless of the configuration mode you choose, you can optionally set a custom
 - **Bot Name**: If provided, this name will be displayed as the sender in Slack conversations.
 - **Bot Avatar URL**: If provided, the bot's avatar will be updated to the image at this URL. The image should be square, at least 512x512 pixels, and no larger than 1024x1024 pixels. The URL must be publicly accessible. Supported formats include GIF, PNG, JPG, JPEG, HEIC, and HEIF.
 
-## Replying in threads instead of the main channel
+## Configuring Reply Behavior
 
-To minimize disruption in busy Slack channels, you can activate reply threading in the integration settings. This feature creates a thread for each incoming message, where the bot will respond.
+### Reply locations
+
+You can control where the bot sends its replies using the `channelReplyLocation` and `dmReplyLocation` settings inside the `replyBehaviour` configuration object.
+
+- **`channelReplyLocation`**: Where the bot replies to channel messages — `channel` (default), `thread`, or `both`.
+- **`dmReplyLocation`**: Where the bot replies to DM messages — `dm` (default), `thread`, or `both`.
+
+Setting `channelReplyLocation` to `thread` or `both` will cause the bot to create threads for channel messages, which can help minimize disruption in busy channels.
 
 ### Configuring mention requirements
 
 For more targeted bot interactions, you can configure when the bot requires an explicit mention to respond:
 
 - **Channel Mention** (`channelMention`): Controls whether the bot requires a mention to respond to messages in channels.
-  - `required` - Bot only responds when mentioned (e.g., `@YourBot`)
-  - `notRequired` - Bot responds to all channel messages
+  - `required` — Bot only responds when mentioned (e.g., `@YourBot`)
+  - `notRequired` — Bot responds to all channel messages (default)
 
 - **Thread Mention** (`threadMention`): Controls whether the bot requires a mention to respond to messages in threads.
-  - `required` - Bot only responds in threads when mentioned
-  - `inherit` - Bot responds in threads if it was mentioned in the original message that started the thread (useful for "summoned" conversations)
-  - `notRequired` - Bot responds to all thread messages
+  - `required` — Bot only responds in threads when mentioned
+  - `inherit` — Bot responds in threads if it was mentioned in the original message that started the thread (useful for "summoned" conversations)
+  - `notRequired` — Bot responds to all thread messages (default)
 
 The `inherit` option is particularly useful when you want the bot to continue a conversation in a thread without requiring repeated mentions, but only if someone explicitly started the conversation by mentioning the bot.
 

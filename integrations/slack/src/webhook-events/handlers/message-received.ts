@@ -1,4 +1,3 @@
-import { z } from '@botpress/sdk'
 import { slackToMarkdown } from '@bpinternal/slackdown'
 import {
   ActionsBlockElement,
@@ -10,11 +9,16 @@ import {
   RichTextElement,
   RichTextSection,
 } from '@slack/types'
-import { textSchema } from 'definitions/channels/text-input-schema'
-import { getBotpressUserFromSlackUser, getChannelTypeFromOrigin, updateBotpressUserFromSlackUser } from 'src/misc/utils'
+import {
+  ChannelMention,
+  ChannelReplyLocation,
+  DmReplyLocation,
+  replyBehaviourSchema,
+  ThreadMention,
+} from 'definitions/schemas/configuration'
+import { Mention, MessageTag } from 'definitions/schemas/messages'
+import { getBotpressUserFromSlackUser, updateBotpressUserFromSlackUser } from 'src/misc/utils'
 import * as bp from '.botpress'
-
-type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
 
 type BlocItem =
   | bp.channels.channel.bloc.Bloc['items'][number]
@@ -26,8 +30,6 @@ type BlocItem =
       }
     }
 
-type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
-
 export type HandleEventProps = {
   slackEvent: AllMessageEvents
   client: bp.Client
@@ -35,10 +37,38 @@ export type HandleEventProps = {
   logger: bp.Logger
 }
 
-export const handleEvent = async (props: HandleEventProps) => {
+type MessageOrigin = 'dm' | 'dmThread' | 'channel' | 'channelThread'
+
+// NOTE: Derives conversation tag keys from the generated bp.channels types per channel
+type ChannelConversationTagKeys = {
+  channel: keyof bp.channels.channel.Channel['conversation']['tags']
+  dm: keyof bp.channels.dm.Dm['conversation']['tags']
+  thread: keyof bp.channels.thread.Thread['conversation']['tags']
+  dmThread: keyof bp.channels.dmThread.DmThread['conversation']['tags']
+}
+
+type ChannelType = keyof ChannelConversationTagKeys
+
+// NOTE: Using a distributive mapped type to produce a proper discriminated union when C is a union
+type ConversationTargetFor<C extends ChannelType> = {
+  channel: C
+  tags: Partial<Record<ChannelConversationTagKeys[C], string>>
+  discriminateByTags: ChannelConversationTagKeys[C][]
+}
+
+type ConversationTarget = { [C in ChannelType]: ConversationTargetFor<C> }[ChannelType]
+
+type _SendMessageProps = HandleEventProps & {
+  botpressConversation: { id: string }
+  botpressUser: { id: string }
+  tags: Record<MessageTag, string | undefined>
+  discriminateByTags: MessageTag[] | undefined
+}
+
+export const handleEvent = async (props: HandleEventProps): Promise<void> => {
   const { slackEvent, client, ctx, logger } = props
 
-  // do not handle notification-type messages such as channel_join, channel_leave, etc:
+  // NOTE: Skip notification-type messages (channel_join, channel_leave, etc.)
   if (slackEvent.subtype && slackEvent.subtype !== 'file_share') {
     return
   }
@@ -46,109 +76,309 @@ export const handleEvent = async (props: HandleEventProps) => {
   const { botpressUser } = await getBotpressUserFromSlackUser({ slackUserId: slackEvent.user }, client)
   await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
-  const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
-  const isThreadConversation = !!slackEvent.thread_ts
-  const channelOrigin = getChannelTypeFromOrigin(slackEvent.channel, isThreadConversation)
+  const mentionsBotInMessage = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+  const origin = _classifyMessageOrigin(slackEvent)
 
-  // NOTE: Migration - map legacy onlyOnBotMention to new channelMention/threadMention
-  const legacyReplyBehaviourSchema = z.object({ onlyOnBotMention: z.boolean().optional() }).passthrough()
-  const legacyConfig = legacyReplyBehaviourSchema.safeParse(ctx.configuration.replyBehaviour)
-  const legacyOnlyOnBotMention = legacyConfig.success ? legacyConfig.data.onlyOnBotMention : undefined
-  const channelMention =
-    ctx.configuration.replyBehaviour?.channelMention ?? (legacyOnlyOnBotMention ? 'required' : 'notRequired')
-  const threadMention =
-    ctx.configuration.replyBehaviour?.threadMention ?? (legacyOnlyOnBotMention ? 'required' : 'notRequired')
+  const { channelMention, threadMention, channelReplyLocation, dmReplyLocation } = replyBehaviourSchema.parse(
+    ctx.configuration.replyBehaviour
+  )
 
-  // NOTE: Get or create conversation first (needed to check botMentioned tag for inherit mode)
-  const conversationTags: Record<string, string | undefined> = {
-    id: slackEvent.channel,
-    channelOrigin,
-  }
-
-  if (isThreadConversation) {
-    conversationTags.thread = slackEvent.thread_ts
-  }
-
-  const discriminateByTags: ('id' | 'thread')[] = isThreadConversation ? ['id', 'thread'] : ['id']
-
-  // NOTE: Use 'dm' or 'channel' based on Slack channel type, not thread status.
-  // This ensures thread replies continue in the same conversation as the original message.
-  const botpressChannelType = slackEvent.channel.startsWith('D') ? 'dm' : 'channel'
-
-  const { conversation: botpressConversation } = await client.getOrCreateConversation({
-    channel: botpressChannelType,
-    tags: conversationTags,
-    discriminateByTags,
-  })
-
-  // NOTE: For inherit mode in threads, check if the original thread message mentioned the bot
-  let inheritModeDiscoveredMention = false
-  if (isThreadConversation && threadMention === 'inherit' && botpressConversation.tags.botMentioned !== 'true') {
-    const { messages } = await client.listMessages({
-      tags: {
-        ts: slackEvent.thread_ts,
-        channelId: slackEvent.channel,
-      },
-    })
-
-    inheritModeDiscoveredMention = messages[0]?.tags.mentionsBot === 'true'
-  }
-
-  const conversationBotMentioned = botpressConversation.tags.botMentioned === 'true' || inheritModeDiscoveredMention
-
-  const shouldRespond = _shouldRespondToMessage({
-    channelOrigin,
-    mentionsBot,
+  const targets = _resolveConversationTargets({
+    origin,
+    slackEvent,
+    mentionsBotInMessage,
     channelMention,
     threadMention,
-    conversationBotMentioned,
+    channelReplyLocation,
+    dmReplyLocation,
   })
 
-  if (!shouldRespond) {
-    logger.forBot().debug('Message ignored: bot mention required but not mentioned')
+  if (targets.length === 0) {
+    logger
+      .forBot()
+      .debug(
+        `Message ignored: ${JSON.stringify({ origin, mentionsBotInMessage, channelMention, threadMention, channelReplyLocation, dmReplyLocation })}`
+      )
     return
   }
 
-  const tagsToUpdate: Record<string, string> = {}
+  // NOTE: Create conversations and send messages for each resolved target
+  for (const target of targets) {
+    const { conversation: botpressConversation } = await _getOrCreateConversation(client, target)
 
-  // NOTE: Store originalMessageTs on first channel message (for later thread creation)
-  if (channelOrigin === 'channel' && !isThreadConversation && !botpressConversation.tags.originalMessageTs) {
-    tagsToUpdate.originalMessageTs = slackEvent.ts
-  }
+    const conversationBotMentioned = botpressConversation.tags.mentionsBot === 'true'
+    const effectiveMentionsBot = conversationBotMentioned || mentionsBotInMessage
 
-  if ((mentionsBot && botpressConversation.tags.botMentioned !== 'true') || inheritModeDiscoveredMention) {
-    tagsToUpdate.botMentioned = 'true'
-  }
+    // NOTE: For inherit mode on thread messages, skip if neither the conversation nor the message mentions the bot
+    if (origin === 'channelThread' && threadMention === 'inherit' && !effectiveMentionsBot) {
+      logger.forBot().debug('Thread message skipped: inherit mode and no bot mention found')
+      continue
+    }
 
-  if (Object.keys(tagsToUpdate).length > 0) {
-    await client.updateConversation({
-      id: botpressConversation.id,
-      tags: tagsToUpdate,
+    if (effectiveMentionsBot) {
+      await client.updateConversation({
+        id: botpressConversation.id,
+        tags: { mentionsBot: 'true' },
+      })
+    }
+
+    const isThreadTarget = target.channel === 'thread' || target.channel === 'dmThread'
+
+    await _sendMessage({
+      botpressConversation,
+      botpressUser,
+      tags: {
+        ts: slackEvent.ts,
+        userId: slackEvent.user,
+        channelId: slackEvent.channel,
+        channelOrigin: target.channel,
+        forkedToThread: isThreadTarget ? 'true' : undefined,
+        mentionsBot: effectiveMentionsBot ? 'true' : undefined,
+      },
+      discriminateByTags: ['ts', 'channelId'],
+      slackEvent,
+      client,
+      ctx,
+      logger,
     })
   }
-
-  await _sendMessage({
-    botpressConversation,
-    botpressUser,
-    tags: {
-      ts: slackEvent.ts,
-      userId: slackEvent.user,
-      channelId: slackEvent.channel,
-      mentionsBot: mentionsBot ? 'true' : undefined,
-    },
-    discriminateByTags: ['ts', 'channelId'],
-    slackEvent,
-    client,
-    ctx,
-    logger,
-  })
 }
 
-type _SendMessageProps = HandleEventProps & {
-  botpressConversation: { id: string }
-  botpressUser: { id: string }
-  tags: Record<MessageTag, string | undefined>
-  discriminateByTags: MessageTag[] | undefined
+const _classifyMessageOrigin = (slackEvent: AllMessageEvents): MessageOrigin => {
+  const isDm = slackEvent.channel.startsWith('D')
+  const isThread = 'thread_ts' in slackEvent && !!slackEvent.thread_ts
+
+  if (isDm && isThread) {
+    return 'dmThread'
+  }
+  if (isDm) {
+    return 'dm'
+  }
+  if (isThread) {
+    return 'channelThread'
+  }
+  return 'channel'
+}
+
+// NOTE: Not all AllMessageEvents union members have thread_ts, so we safely extract it with a runtime check
+const _getThreadTs = (slackEvent: AllMessageEvents): string | undefined => {
+  if ('thread_ts' in slackEvent && typeof slackEvent.thread_ts === 'string') {
+    return slackEvent.thread_ts
+  }
+  return undefined
+}
+
+type ResolveTargetsParams = {
+  origin: MessageOrigin
+  slackEvent: AllMessageEvents
+  mentionsBotInMessage: boolean
+  channelMention: ChannelMention
+  threadMention: ThreadMention
+  channelReplyLocation: ChannelReplyLocation
+  dmReplyLocation: DmReplyLocation
+}
+
+const _resolveConversationTargets = (params: ResolveTargetsParams): ConversationTarget[] => {
+  const {
+    origin,
+    slackEvent,
+    mentionsBotInMessage,
+    channelMention,
+    threadMention,
+    channelReplyLocation,
+    dmReplyLocation,
+  } = params
+
+  const mentionsBotTag = mentionsBotInMessage ? 'true' : undefined
+  const threadTs = _getThreadTs(slackEvent) ?? slackEvent.ts
+
+  const channelTarget: ConversationTargetFor<'channel'> = {
+    channel: 'channel',
+    tags: { id: slackEvent.channel, mentionsBot: mentionsBotTag },
+    discriminateByTags: ['id'],
+  }
+
+  const threadTarget: ConversationTargetFor<'thread'> = {
+    channel: 'thread',
+    tags: {
+      id: slackEvent.channel,
+      thread: threadTs,
+      mentionsBot: mentionsBotTag,
+      isBotReplyThread: 'true',
+    },
+    discriminateByTags: ['id', 'thread'],
+  }
+
+  const dmTarget: ConversationTargetFor<'dm'> = {
+    channel: 'dm',
+    tags: { id: slackEvent.channel, mentionsBot: mentionsBotTag },
+    discriminateByTags: ['id'],
+  }
+
+  const dmThreadTarget: ConversationTargetFor<'dmThread'> = {
+    channel: 'dmThread',
+    tags: {
+      id: slackEvent.channel,
+      thread: threadTs,
+      mentionsBot: mentionsBotTag,
+      isBotReplyThread: 'true',
+    },
+    discriminateByTags: ['id', 'thread'],
+  }
+
+  switch (origin) {
+    // NOTE: DM messages — always respond, route per dmReplyLocation
+    case 'dm': {
+      if (dmReplyLocation === 'dm') {
+        return [dmTarget]
+      }
+      if (dmReplyLocation === 'thread') {
+        return [dmThreadTarget]
+      }
+      return [dmTarget, dmThreadTarget] // 'both'
+    }
+
+    // NOTE: DM thread messages — if dmReplyLocation is dm or thread, collapse to thread reply;
+    // if 'both', reply in both dm channel and dm thread
+    case 'dmThread': {
+      if (dmReplyLocation === 'dm' || dmReplyLocation === 'thread') {
+        return [dmThreadTarget]
+      }
+      return [dmTarget, dmThreadTarget] // 'both'
+    }
+
+    // NOTE: Channel messages — gated by channelMention
+    case 'channel': {
+      if (!_isChannelMentionSatisfied(channelMention, mentionsBotInMessage)) {
+        return []
+      }
+
+      if (channelReplyLocation === 'channel') {
+        return [channelTarget]
+      }
+      if (channelReplyLocation === 'thread') {
+        return [threadTarget]
+      }
+      return [channelTarget, threadTarget] // 'both'
+    }
+
+    // NOTE: Channel thread messages — gated by threadMention (inherit deferred to handleEvent)
+    case 'channelThread': {
+      if (!_isThreadMentionSatisfied(threadMention, mentionsBotInMessage)) {
+        return []
+      }
+
+      if (channelReplyLocation === 'channel' || channelReplyLocation === 'thread') {
+        return [threadTarget]
+      }
+      return [channelTarget, threadTarget] // 'both'
+    }
+  }
+}
+
+const _isChannelMentionSatisfied = (channelMention: ChannelMention, mentionsBotInMessage: boolean): boolean => {
+  if (channelMention === 'notRequired') {
+    return true
+  }
+  return mentionsBotInMessage
+}
+
+// NOTE: For 'inherit' mode, we do an optimistic check here using the message-level mention.
+// The conversation-level mentionsBot tag is checked after getOrCreateConversation in handleEvent.
+const _isThreadMentionSatisfied = (threadMention: ThreadMention, mentionsBotInMessage: boolean): boolean => {
+  switch (threadMention) {
+    case 'notRequired':
+      return true
+    case 'required':
+      return mentionsBotInMessage
+    case 'inherit':
+      // NOTE: Return true optimistically; the full inherit check (conversation tag OR message mention)
+      // happens in handleEvent after the conversation is fetched
+      return true
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Conversation Creation
+// ---------------------------------------------------------------------------
+
+// NOTE: Dispatches getOrCreateConversation per channel type so TypeScript can narrow the discriminateByTags union
+const _getOrCreateConversation = (
+  client: bp.Client,
+  target: ConversationTarget
+): ReturnType<bp.Client['getOrCreateConversation']> => {
+  switch (target.channel) {
+    case 'channel':
+      return client.getOrCreateConversation({
+        channel: target.channel,
+        tags: target.tags,
+        discriminateByTags: target.discriminateByTags,
+      })
+    case 'dm':
+      return client.getOrCreateConversation({
+        channel: target.channel,
+        tags: target.tags,
+        discriminateByTags: target.discriminateByTags,
+      })
+    case 'thread':
+      return client.getOrCreateConversation({
+        channel: target.channel,
+        tags: target.tags,
+        discriminateByTags: target.discriminateByTags,
+      })
+    case 'dmThread':
+      return client.getOrCreateConversation({
+        channel: target.channel,
+        tags: target.tags,
+        discriminateByTags: target.discriminateByTags,
+      })
+  }
+}
+
+async function _isBotMentionedInMessage({
+  slackEvent,
+  client,
+  ctx,
+}: {
+  slackEvent: AllMessageEvents
+  client: bp.Client
+  ctx: bp.Context
+}) {
+  if (slackEvent.subtype || !slackEvent.text) {
+    return false
+  }
+
+  const slackBotId = await _getSlackBotIdFromStates(client, ctx)
+
+  if (!slackBotId) {
+    return false
+  }
+
+  return (
+    slackEvent.text.includes(`<@${slackBotId}>`) ||
+    (slackEvent.blocks?.some(
+      (block) =>
+        'elements' in block &&
+        block.elements.some(
+          (element) =>
+            'elements' in element &&
+            element.elements.some((subElement) => subElement.type === 'user' && subElement.user_id === slackBotId)
+        )
+    ) ??
+      false)
+  )
+}
+
+const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
+  try {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'oAuthCredentialsV2',
+      id: ctx.integrationId,
+    })
+    return state.payload.botUserId
+  } catch {}
+  return
 }
 
 const _sendMessage = async (props: _SendMessageProps) => {
@@ -185,80 +415,6 @@ const _sendMessage = async (props: _SendMessageProps) => {
     tags,
     discriminateByTags,
   })
-}
-
-type ShouldRespondProps = {
-  channelOrigin: 'dm' | 'channel' | 'thread'
-  mentionsBot: boolean
-  channelMention: 'required' | 'notRequired'
-  threadMention: 'required' | 'inherit' | 'notRequired'
-  conversationBotMentioned: boolean
-}
-
-const _shouldRespondToMessage = ({
-  channelOrigin,
-  mentionsBot,
-  channelMention,
-  threadMention,
-  conversationBotMentioned,
-}: ShouldRespondProps): boolean => {
-  if (channelOrigin === 'dm') return true
-  if (channelOrigin === 'channel') return channelMention === 'notRequired' || mentionsBot
-
-  switch (threadMention) {
-    case 'notRequired':
-      return true
-    case 'required':
-      return mentionsBot
-    case 'inherit':
-      return conversationBotMentioned || mentionsBot
-  }
-}
-
-const _isBotMentionedInMessage = async ({
-  slackEvent,
-  client,
-  ctx,
-}: {
-  slackEvent: AllMessageEvents
-  client: bp.Client
-  ctx: bp.Context
-}) => {
-  if (slackEvent.subtype || !slackEvent.text) {
-    return false
-  }
-
-  const slackBotId = await _getSlackBotIdFromStates(client, ctx)
-
-  if (!slackBotId) {
-    return false
-  }
-
-  return (
-    slackEvent.text.includes(`<@${slackBotId}>`) ||
-    (slackEvent.blocks?.some(
-      (block) =>
-        'elements' in block &&
-        block.elements.some(
-          (element) =>
-            'elements' in element &&
-            element.elements.some((subElement) => subElement.type === 'user' && subElement.user_id === slackBotId)
-        )
-    ) ??
-      false)
-  )
-}
-
-const _getSlackBotIdFromStates = async (client: bp.Client, ctx: bp.Context) => {
-  try {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'oAuthCredentialsV2',
-      id: ctx.integrationId,
-    })
-    return state.payload.botUserId
-  } catch {}
-  return
 }
 
 const _getOrCreateMessageFromFiles = async ({

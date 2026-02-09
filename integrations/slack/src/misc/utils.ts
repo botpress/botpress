@@ -75,14 +75,6 @@ export const getBotpressConversationFromSlackThread = async (
   }
 }
 
-export const getChannelTypeFromOrigin = (
-  slackChannelId: string,
-  isFromThread: boolean
-): 'dm' | 'channel' | 'thread' => {
-  if (isFromThread) return 'thread'
-  return slackChannelId.startsWith('D') ? 'dm' : 'channel'
-}
-
 export const getMessageFromSlackEvent = async (
   client: bp.Client,
   event: { item: { type: string; channel?: string; ts?: string } }

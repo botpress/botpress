@@ -1,48 +1,36 @@
 import * as sdk from '@botpress/sdk'
-import { textSchema } from './text-input-schema'
+import { messagePayloadSchemas } from '../schemas/messages'
 
-const messages = {
-  ...sdk.messages.defaults,
-  text: {
-    schema: textSchema,
-  },
-  bloc: sdk.messages.markdownBloc,
-} as const satisfies sdk.ChannelDefinition['messages']
+export const messages: sdk.ChannelDefinition['messages'] = {
+  ...Object.fromEntries(Object.entries(messagePayloadSchemas).map(([key, schema]) => [key, { schema }])),
+}
 
 const conversationTags = {
   id: {
     title: 'ID',
     description: 'The Slack ID of the conversation',
   },
-  title: {
-    title: 'Title',
-    description: 'The title of the conversation',
-  },
-  channelOrigin: {
-    title: 'Channel Origin',
-    description: 'The origin of the conversation (channel, dm, or thread)',
-  },
-  replyLocation: {
-    title: 'Reply Location',
-    description: 'The location where the bot will reply to the message (channel, thread, or channelAndThread).',
-  },
-  originalMessageTs: {
-    title: 'Original Message Timestamp',
-    description: 'Timestamp of the first message (used for thread creation)',
-  },
-  thread: {
-    title: 'Thread ID',
-    description: 'The Slack thread timestamp',
-  },
-  botMentioned: {
-    title: 'Bot Mentioned',
+  mentionsBot: {
+    title: 'Mentions Bot',
     description: 'Whether the bot was mentioned in this conversation (activates thread replies)',
   },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
+const dmConversationTags = {
+  title: {
+    title: 'Title',
+    description: 'The title of the conversation',
+  },
+} as const satisfies Record<string, Required<sdk.TagDefinition>>
+
 const threadConversationTags = {
-  ...conversationTags,
+  thread: {
+    title: 'Thread',
+    description:
+      'The Slack thread ID (is the thread_ts field from the Slack event of a thread message or the ts field from the Slack event of a channel message)',
+  },
   isBotReplyThread: {
+    // NOTE: Only kept for backwards compatibility with existing conversations
     title: 'Is Bot Reply Thread?',
     description: 'Whether the thread is a bot reply thread',
   },
@@ -65,6 +53,15 @@ const messageTags = {
     title: 'Mentions Bot?',
     description: 'Whether the message mentions the Slack App bot',
   },
+  channelOrigin: {
+    title: 'Channel Origin',
+    description: 'The type of channel the message was sent from (channel, dm, or thread)',
+  },
+  forkedToThread: {
+    // NOTE: Only kept for backwards compatibility with existing conversations
+    title: 'Forked to Thread',
+    description: 'Whether the message was forked to a thread',
+  },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
 export const channels = {
@@ -84,7 +81,10 @@ export const channels = {
     messages,
     message: { tags: messageTags },
     conversation: {
-      tags: conversationTags,
+      tags: {
+        ...conversationTags,
+        ...dmConversationTags,
+      },
     },
   },
 
@@ -94,7 +94,24 @@ export const channels = {
     messages,
     message: { tags: messageTags },
     conversation: {
-      tags: threadConversationTags,
+      tags: {
+        ...conversationTags,
+        ...threadConversationTags,
+      },
+    },
+  },
+
+  dmThread: {
+    title: 'DM Thread',
+    description: 'A thread inside a DM channel',
+    messages,
+    message: { tags: messageTags },
+    conversation: {
+      tags: {
+        ...conversationTags,
+        ...dmConversationTags,
+        ...threadConversationTags,
+      },
     },
   },
 } as const satisfies sdk.IntegrationDefinitionProps['channels']
