@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { textSchema } from './text-input-schema'
+import { textSchema } from './text-input'
 import * as bp from '.botpress'
 
 // NOTE: hardcoded to satisfy typescript linting

@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { replyBehaviourSchema } from './schemas/configuration'
+import { replyBehaviourSchema } from './schemas/reply-behaviour'
 
 const SHARED_CONFIGURATION = {
   botAvatarUrl: sdk.z

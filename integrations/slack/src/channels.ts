@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { ChatPostMessageArguments } from '@slack/web-api'
-import { textSchema } from '../definitions/schemas/text-input-schema'
+import { textSchema } from '../definitions/schemas/text-input'
 import { transformMarkdownForSlack } from './misc/markdown-to-slack'
 import { replaceMentions } from './misc/replace-mentions'
 import { isValidUrl } from './misc/utils'

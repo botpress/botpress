@@ -9,14 +9,14 @@ import {
   RichTextElement,
   RichTextSection,
 } from '@slack/types'
+import { Mention, MessageTag } from 'definitions/schemas/messages'
 import {
   ChannelMention,
   ChannelReplyLocation,
   DmReplyLocation,
   replyBehaviourSchema,
   ThreadMention,
-} from 'definitions/schemas/configuration'
-import { Mention, MessageTag } from 'definitions/schemas/messages'
+} from 'definitions/schemas/reply-behaviour'
 import { getBotpressUserFromSlackUser, updateBotpressUserFromSlackUser } from 'src/misc/utils'
 import * as bp from '.botpress'
 

@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { textSchema } from 'definitions/schemas/text-input-schema'
+import { textSchema } from 'definitions/schemas/text-input'
 export type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
 
 export const replaceMentions = (text: string, mentions: Mention[] | undefined): string => {

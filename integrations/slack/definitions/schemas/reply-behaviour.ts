@@ -2,24 +2,20 @@ import { z } from '@botpress/sdk'
 
 export const channelMentionSchema = z
   .enum(['required', 'notRequired'])
-  .default('notRequired')
   .title('Channel Mention Required')
   .describe('Whether the bot requires an @mention to reply in channels')
 export const threadMentionSchema = z
   .enum(['required', 'inherit', 'notRequired'])
-  .default('notRequired')
   .title('Thread Mention Required')
   .describe(
     'Whether the bot requires an @mention to reply in threads: required, inherit (reply if bot was mentioned in parent), or notRequired'
   )
 export const channelReplyLocationSchema = z
   .enum(['channel', 'thread', 'both'])
-  .default('channel')
   .title('Channel Reply Location')
   .describe('Where the bot should reply to channel messages: channel, thread, or both')
 export const dmReplyLocationSchema = z
   .enum(['dm', 'thread', 'both'])
-  .default('dm')
   .title('DM Reply Location')
   .describe('Where the bot should reply to DM messages: dm, thread, or both')
 
