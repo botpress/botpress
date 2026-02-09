@@ -11,7 +11,7 @@ const emailSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'email',
-  version: '0.1.1',
+  version: '0.1.2',
   title: 'Email',
   description: 'Send and receive emails using IMAP and SMTP protocols',
   readme: 'hub.md',
