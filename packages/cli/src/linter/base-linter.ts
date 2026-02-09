@@ -99,9 +99,11 @@ export abstract class BaseLinter<TDefinition> {
   private _simplifyPath(path: (string | number)[]) {
     // For an explanation of how this regex pattern works, see:
     // https://github.com/botpress/botpress/pull/14916#issuecomment-3850702975
-    return path
-      .join('.')
-      .replace(/(\.additionalProperties)?\.properties(\.(properties)?)|\.((allOf|anyOf)\.\d+)(?=\.)|\.x-zui/g, '$2')
+    // return path
+    //   .join('.')
+    //   .replace(/(\.additionalProperties)?\.properties(\.(properties)?)|\.((allOf|anyOf)\.\d+)(?=\.)|\.x-zui/g, '$2')
+
+    return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
   }
 
   private _logResultMessage(logger: Logger, message: string, severity: ProblemSeverity) {
