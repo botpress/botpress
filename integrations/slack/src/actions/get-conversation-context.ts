@@ -29,7 +29,7 @@ export const getConversationContextByConversationId = wrapActionAndInjectSlackCl
 export const getConversationContextByTags = wrapActionAndInjectSlackClient(
   { actionName: 'getConversationContextByTags', errorMessage: 'Failed to get Conversation context' },
   async ({ client, logger }, { channel, channelId, thread }) => {
-    const tags = channel === 'thread' ? { id: channelId, thread } : { id: channelId }
+    const tags = channel === 'thread' || channel === 'dmThread' ? { id: channelId, thread } : { id: channelId }
     const { conversation } = await client.getOrCreateConversation({ channel, tags })
 
     const messages = await getAllMessagesFromConversation({ conversationId: conversation.id, client, logger })
