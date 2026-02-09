@@ -4,10 +4,10 @@ import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
 export const getOAuthClientId = ({ ctx }: { ctx: bp.Context }) =>
-  ctx.configurationType === 'manual' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID
+  ctx.configurationType === 'manual' ? ctx.configuration.clientId : bp.secrets.APP_KEY
 
 export const getOAuthClientSecret = ({ ctx }: { ctx: bp.Context }) =>
-  ctx.configurationType === 'manual' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET
+  ctx.configurationType === 'manual' ? ctx.configuration.clientSecret : bp.secrets.APP_SECRET
 
 export const getAuthorizationCode = ({ ctx }: { ctx: bp.Context }): string | undefined => {
   if (ctx.configurationType === 'manual') {

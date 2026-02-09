@@ -23,6 +23,13 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   throw new sdk.RuntimeError('Unsupported webhook event')
 }
 
+const _getClientSecret = (ctx: bp.Context): string => {
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.clientSecret
+  }
+  return bp.secrets.APP_SECRET
+}
+
 const _validatePayloadSignature = (props: bp.HandlerProps) => {
   const bodySignatureFromDropbox = props.req.headers['X-Dropbox-Signature'] ?? props.req.headers['x-dropbox-signature']
 
@@ -30,8 +37,9 @@ const _validatePayloadSignature = (props: bp.HandlerProps) => {
     throw new sdk.RuntimeError('Missing Dropbox signature in request headers')
   }
 
+  const clientSecret = _getClientSecret(props.ctx)
   const bodySignatureFromBotpress = crypto
-    .createHmac('sha256', props.ctx.configuration.clientSecret)
+    .createHmac('sha256', clientSecret)
     .update(props.req.body ?? '')
     .digest('hex')
 

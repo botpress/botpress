@@ -45,7 +45,7 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
   if (!clientId) {
     return responses.endWizard({
       success: false,
-      errorMessage: 'Dropbox App Key (CLIENT_ID) is not configured. Please configure it in the integration settings.',
+      errorMessage: 'Dropbox App Key (APP_KEY) is not configured. Please configure it in the integration settings.',
     })
   }
 
