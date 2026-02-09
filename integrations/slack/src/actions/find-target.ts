@@ -16,16 +16,13 @@ const fuse = new Fuse<Target>([], {
 
 export const findTarget = wrapActionAndInjectSlackClient(
   { actionName: 'findTarget', errorMessage: 'Failed to find any target' },
-  async ({ logger, slackClient }, { channel, query }) => {
-    logger.forBot().debug(`[findTarget] Starting with channel="${channel}", query="${query}"`)
-
+  async ({ slackClient }, { channel, query }) => {
     const targets: (Target & Record<string, unknown>)[] =
       channel === 'dm'
         ? await slackClient
             .enumerateAllMembers()
             .collect()
             .then((members) => {
-              logger.forBot().debug(`[findTarget] Collected ${members.length} members from Slack`)
               return members.map((member) => ({
                 // TODO: perform mapping in the slack client directly; we don't want
                 //       to expose raw slack member objects outside of the custom
@@ -41,7 +38,6 @@ export const findTarget = wrapActionAndInjectSlackClient(
             .enumerateAllPublicChannels()
             .collect()
             .then((channels) => {
-              logger.forBot().debug(`[findTarget] Collected ${channels.length} channels from Slack`)
               return channels.map((channel) => ({
                 displayName: channel.name!,
                 tags: { id: channel.id! },
@@ -49,12 +45,9 @@ export const findTarget = wrapActionAndInjectSlackClient(
               }))
             })
 
-    logger.forBot().debug(`[findTarget] Set Fuse collection with ${targets.length} targets`)
     fuse.setCollection(targets)
 
     const filteredTargets: Target[] = fuse.search<Target>(query).map((x) => x.item)
-    logger.forBot().debug(`[findTarget] Fuse search returned ${filteredTargets.length} results`)
-    logger.forBot().debug(`[findTarget] Returning result ${JSON.stringify(filteredTargets)}`)
     return {
       targets: filteredTargets,
     }

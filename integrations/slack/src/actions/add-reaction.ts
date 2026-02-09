@@ -9,10 +9,17 @@ export const addReaction = wrapActionAndInjectSlackClient(
       throw new sdk.RuntimeError('Missing Botpress message ID')
     }
 
-    const { channel, ts } = await retrieveChannelAndMessageTs({
+    const result = await retrieveChannelAndMessageTs({
       client,
       messageId,
     })
+
+    if (!result) {
+      logger.forBot().debug(`Skipping reaction for message ${messageId} — missing Slack channel or timestamp`)
+      return
+    }
+
+    const { channel, ts } = result
 
     logger.forBot().debug('Sending reaction to Slack')
 

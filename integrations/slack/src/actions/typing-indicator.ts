@@ -6,10 +6,20 @@ const TYPING_INDICATOR_EMOJI = 'eyes'
 export const startTypingIndicator = wrapActionAndInjectSlackClient(
   { actionName: 'startTypingIndicator', errorMessage: 'Failed to start typing indicator' },
   async ({ ctx, client, slackClient, logger }, { conversationId, messageId }) => {
-    const { channel, ts } = await retrieveChannelAndMessageTs({
+    // NOTE: Use throwOnMissing: false so synthetic/trigger messages (which lack Slack ts tags)
+    // don't crash the typing indicator — we just skip it gracefully
+    const result = await retrieveChannelAndMessageTs({
       client,
       messageId,
+      throwOnMissing: false,
     })
+
+    if (!result) {
+      logger.forBot().debug(`Skipping typing indicator for message ${messageId} — missing Slack channel or timestamp`)
+      return
+    }
+
+    const { channel, ts } = result
 
     if (ctx.configuration.typingIndicatorEmoji) {
       logger
@@ -26,8 +36,7 @@ export const startTypingIndicator = wrapActionAndInjectSlackClient(
       } catch (err: unknown) {
         // NOTE: Ignore "already_reacted" — this happens when startTypingIndicator is called
         // multiple times for the same message (e.g. multiple LLM iterations in a single turn)
-        const isAlreadyReacted =
-          err instanceof Error && 'data' in err && (err as any).data?.error === 'already_reacted'
+        const isAlreadyReacted = err instanceof Error && 'data' in err && (err as any).data?.error === 'already_reacted'
         if (!isAlreadyReacted) {
           throw err
         }
@@ -46,10 +55,20 @@ export const startTypingIndicator = wrapActionAndInjectSlackClient(
 export const stopTypingIndicator = wrapActionAndInjectSlackClient(
   { actionName: 'stopTypingIndicator', errorMessage: 'Failed to stop typing indicator' },
   async ({ client, slackClient, logger, ctx }, { messageId, conversationId }) => {
-    const { channel, ts } = await retrieveChannelAndMessageTs({
+    const result = await retrieveChannelAndMessageTs({
       client,
       messageId,
+      throwOnMissing: false,
     })
+
+    if (!result) {
+      logger
+        .forBot()
+        .debug(`Skipping typing indicator removal for message ${messageId} — missing Slack channel or timestamp`)
+      return
+    }
+
+    const { channel, ts } = result
 
     if (ctx.configuration.typingIndicatorEmoji) {
       logger
