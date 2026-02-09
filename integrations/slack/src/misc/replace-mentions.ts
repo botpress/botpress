@@ -1,8 +1,4 @@
-export type Mention = {
-  start: number
-  end: number
-  user: { id: string; name: string }
-}
+import { Mention } from 'definitions/schemas/messages'
 
 export const replaceMentions = (text: string, mentions: Mention[] | undefined): string => {
   if (!mentions) {

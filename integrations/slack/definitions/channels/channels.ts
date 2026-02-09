@@ -1,22 +1,35 @@
 import * as sdk from '@botpress/sdk'
-import { textSchema } from './text-input-schema'
+import { messagePayloadSchemas } from '../schemas/messages'
 
-const messages = {
-  ...sdk.messages.defaults,
-  text: {
-    schema: textSchema,
-  },
-  bloc: sdk.messages.markdownBloc,
-} as const satisfies sdk.ChannelDefinition['messages']
+export const messages: sdk.ChannelDefinition['messages'] = {
+  ...Object.fromEntries(Object.entries(messagePayloadSchemas).map(([key, schema]) => [key, { schema }])),
+}
 
 const conversationTags = {
   id: {
     title: 'ID',
     description: 'The Slack ID of the conversation',
   },
+  mentionsBot: {
+    title: 'Mentions Bot',
+    description: 'Whether the bot was mentioned in this conversation (activates thread replies)',
+  },
   title: {
     title: 'Title',
     description: 'The title of the conversation',
+  },
+} as const satisfies Record<string, Required<sdk.TagDefinition>>
+
+const threadConversationTags = {
+  thread: {
+    title: 'Thread',
+    description:
+      'The Slack thread ID (is the thread_ts field from the Slack event of a thread message or the ts field from the Slack event of a channel message)',
+  },
+  isBotReplyThread: {
+    // NOTE: Only kept for backwards compatibility with existing conversations
+    title: 'Is Bot Reply Thread?',
+    description: 'Whether the thread is a bot reply thread',
   },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
@@ -37,9 +50,13 @@ const messageTags = {
     title: 'Mentions Bot?',
     description: 'Whether the message mentions the Slack App bot',
   },
+  channelOrigin: {
+    title: 'Channel Origin',
+    description: 'The type of channel the message was sent from (channel, dm, or thread)',
+  },
   forkedToThread: {
-    title: 'Forked to Thread?',
-    description: 'Whether the message created a thread',
+    title: 'Forked to Thread',
+    description: 'Whether the message was forked to a thread',
   },
 } as const satisfies Record<string, Required<sdk.TagDefinition>>
 
@@ -50,7 +67,7 @@ export const channels = {
     messages,
     message: { tags: messageTags },
     conversation: {
-      tags: { ...conversationTags },
+      tags: conversationTags,
     },
   },
 
@@ -60,7 +77,7 @@ export const channels = {
     messages,
     message: { tags: messageTags },
     conversation: {
-      tags: { ...conversationTags },
+      tags: conversationTags,
     },
   },
 
@@ -72,14 +89,7 @@ export const channels = {
     conversation: {
       tags: {
         ...conversationTags,
-        thread: {
-          title: 'Thread ID',
-          description: 'The Slack ID of the thread',
-        },
-        isBotReplyThread: {
-          title: 'Is Bot Reply Thread?',
-          description: 'Whether the thread is a bot reply thread',
-        },
+        ...threadConversationTags,
       },
     },
   },

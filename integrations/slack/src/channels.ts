@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { ChatPostMessageArguments } from '@slack/web-api'
-import { textSchema } from '../definitions/channels/text-input-schema'
+import { textSchema } from '../definitions/schemas/text-input'
 import { transformMarkdownForSlack } from './misc/markdown-to-slack'
 import { replaceMentions } from './misc/replace-mentions'
 import { isValidUrl } from './misc/utils'
@@ -205,7 +205,11 @@ const defaultMessages = {
 
 const _getSlackTarget = (conversation: bp.ClientResponses['getConversation']['conversation']) => {
   const channel = conversation.tags.id
-  const thread = (conversation.tags as Record<string, string>).thread // TODO: fix cast in SDK typings
+  let thread: string | undefined = undefined
+
+  if ('thread' in conversation.tags) {
+    thread = conversation.tags.thread
+  }
 
   if (!channel) {
     throw Error(`No channel found for conversation ${conversation.id}`)
@@ -232,16 +236,25 @@ const _getOptionalProps = (ctx: bp.Context, logger: bp.Logger) => {
 }
 
 const _sendSlackMessage = async (
-  { client, ctx, ack, logger }: { client: bp.Client; ctx: bp.Context; ack: bp.AnyAckFunction; logger: bp.Logger },
+  {
+    client,
+    ctx,
+    ack,
+    logger,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    ack: bp.AnyAckFunction
+    logger: bp.Logger
+  },
   payload: ChatPostMessageArguments
 ) => {
   const slackClient = await SlackClient.createFromStates({ client, ctx, logger })
-
   const botOptionalProps = _getOptionalProps(ctx, logger)
 
   const message = await slackClient.postMessage({
     channelId: payload.channel,
-    threadTs: payload.thread_ts,
+    threadTs: payload.thread_ts ?? undefined,
     text: payload.text,
     blocks: payload.blocks,
     username: botOptionalProps.username,

@@ -1,11 +1,10 @@
 import * as sdk from '@botpress/sdk'
-
-type Channel = 'dm' | 'channel'
+import { channelTypeSchema, ChannelType } from './schemas/channels'
 
 export type Target = {
   displayName: string
   tags: { [key: string]: string }
-  channel: Channel
+  channel: ChannelType
 }
 
 export const actions = {
@@ -50,10 +49,7 @@ export const actions = {
             sdk.z.object({
               displayName: sdk.z.string().title('Display Name').describe('The display name of the target'),
               tags: sdk.z.record(sdk.z.string()).title('Tags').describe('The tags of the target'),
-              channel: sdk.z
-                .enum(['dm', 'channel'])
-                .title('Channel type')
-                .describe('The type of channel of the target'),
+              channel: channelTypeSchema.title('Channel Type').describe('The type of channel of the target'),
             })
           )
           .title('Targets')
@@ -73,10 +69,10 @@ export const actions = {
     },
     output: {
       schema: sdk.z.object({
-        type: sdk.z.string().title('Type').describe('The type of the message'),
+        type: sdk.z.string().title('Type').describe('The type of the message'), // QUESTION: Should I be using my messagePayloadTypesSchema or just string?
         user: sdk.z.string().title('User').describe('The user who sent the message'),
         ts: sdk.z.string().title('Timestamp').describe('The timestamp of the message'),
-        text: sdk.z.string().title('Text').describe('The text of the message'),
+        text: sdk.z.string().title('Text').describe('The text of the message'), // QUESTION: Shouldn't this be messagePayloadSchema?
       }),
     },
   },
