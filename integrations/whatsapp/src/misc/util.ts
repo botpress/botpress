@@ -3,6 +3,7 @@ import { AtLeastOne } from 'whatsapp-api-js/lib/utils'
 import * as bp from '.botpress'
 
 type Message = Awaited<ReturnType<bp.Client['listMessages']>>['messages'][number]
+type Conversation = Awaited<ReturnType<bp.Client['listConversations']>>['conversations'][number]
 
 export function chunkArray<T>(array: T[], chunkSize: number) {
   const chunks: T[][] = []
@@ -50,6 +51,18 @@ export const getMessageFromWhatsappMessageId = async (
     },
   })
   return messages[0]
+}
+
+export const getConversationFromWhatsappUserPhone = async (
+  userPhone: string,
+  client: bp.Client
+): Promise<Conversation | undefined> => {
+  const { conversations } = await client.listConversations({
+    tags: {
+      userPhone,
+    },
+  })
+  return conversations[0]
 }
 
 export function logForBotAndThrow(message: string, logger: bp.Logger): never {
