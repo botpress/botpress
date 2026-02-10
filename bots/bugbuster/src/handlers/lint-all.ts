@@ -96,8 +96,9 @@ export const handleLintAll: bp.WorkflowHandlers['lintAll'] = async (props) => {
       channel.teams.some((team) => result.identifier.includes(team))
     )
 
-    if (relevantIssues.length > 0) {
-      await botpress.respondText(channel.conversationId, _buildResultMessage(relevantIssues)).catch(() => {})
+    const lintFailures = relevantIssues.filter((issue) => issue.result === 'failed')
+    if (lintFailures.length > 0) {
+      await botpress.respondText(channel.conversationId, _buildResultMessage(lintFailures)).catch(() => {})
     }
   }
 
@@ -114,9 +115,9 @@ export const handleLintAllTimeout: bp.WorkflowHandlers['lintAll'] = async (props
 }
 
 const _buildResultMessage = (results: types.LintResult[]) => {
-  const failedIssuesLinks = results
-    .filter((result) => result.result === 'failed')
-    .map((result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`)
+  const failedIssuesLinks = results.map(
+    (result) => `[${result.identifier}](${LINEAR_ISSUE_BASE_URL + result.identifier})`
+  )
 
   let messageDetail = 'No issue contained lint errors.'
   if (failedIssuesLinks.length === 1) {
