@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { boardSchema, listSchema, cardSchema, memberSchema } from 'definitions/schemas'
+import { boardSchema, listSchema, cardSchema } from 'definitions/schemas'
 
 // ==== Common Input Schemas ====
 export const noInput = z.object({})
