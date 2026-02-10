@@ -2,6 +2,8 @@
 
 A simple bot built on top of the Botpress [SDK](https://botpress.com/docs/integrations/sdk/overview) that lints Linear issues and synchronizes them with GitHub issues.
 
+<img src="./bugbuster.png" />
+
 ## Linear
 
 Once connected to your Linear workspace, the bot comments on newly created or updated issues when linting errors are detected, and automatically resolves those comments once the linting errors are fixed.
