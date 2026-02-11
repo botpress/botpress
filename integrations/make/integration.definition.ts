@@ -4,7 +4,7 @@ const INTEGRATION_NAME = 'make'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.6',
+  version: '0.3.7',
   title: 'Make.com (Deprecated)',
   icon: 'icon.svg',
   description:
@@ -13,7 +13,7 @@ export default new IntegrationDefinition({
   configuration: {
     schema: z
       .object({
-        webhookUrl: z.string().url().describe('Make.com webhook URL'),
+        webhookUrl: z.string().url().title('Webhook URL').describe('Make.com webhook URL'),
       })
       .describe('Configuration schema for Make.com Integration'),
   },
