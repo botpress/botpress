@@ -1,0 +1,72 @@
+name: Chat Integration Docker Smoke Test
+
+on:
+  workflow_run:
+    workflows: ["Build and push Chat Integration Docker"]
+    types:
+      - completed
+    branches:
+      - master
+
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpresshub/chat'
+
+      - name: Build Docker image
+        run: docker build -f integrations/chat/Dockerfile -t chat-integration:test .
+
+      - name: Start Docker container
+        run: |
+          docker run -d \
+            --name chat-test \
+            -p 8081:8081 \
+            -e SECRET_SIGNAL_URL=https://chat.botpress.dev \
+            chat-integration:test
+
+      - name: Wait for container to be ready
+        run: |
+          echo "Waiting for container to start..."
+          for i in {1..30}; do
+            if docker ps | grep -q chat-test; then
+              echo "Container is running"
+              sleep 5
+              break
+            fi
+            echo "Waiting for container... ($i/30)"
+            sleep 2
+          done
+
+      - name: Check health endpoint
+        run: |
+          echo "Checking /health endpoint..."
+          for i in {1..15}; do
+            if curl -f http://localhost:8081/health; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Attempt $i/15 failed, retrying..."
+            sleep 2
+          done
+          echo "Health check failed after 15 attempts"
+          exit 1
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs chat-test
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f chat-test || true
