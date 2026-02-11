@@ -82,10 +82,10 @@ export const INTEGRATION_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].output..schema.properties[*].x-zui',
+      given: '$.actions[*].output..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) =>
               `output parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
@@ -174,10 +174,10 @@ export const INTEGRATION_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema.properties[*].x-zui',
+      given: '$.configuration..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
             fallbackExtractor: titleFallbackExtractor,
@@ -220,10 +220,10 @@ export const INTEGRATION_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configurations[*]..schema.properties[*].x-zui',
+      given: '$.configurations[*]..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) =>
               `configuration field "${path.at(isFallback ? -5 : -3)}" of configuration "${path[1]}"`,

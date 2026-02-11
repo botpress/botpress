@@ -11,7 +11,7 @@ const emailSchema = z.object({
 
 export default new IntegrationDefinition({
   name: 'email',
-  version: '0.1.1',
+  version: '0.1.2',
   title: 'Email',
   description: 'Send and receive emails using IMAP and SMTP protocols',
   readme: 'hub.md',
@@ -21,10 +21,17 @@ export default new IntegrationDefinition({
       .object({
         user: z
           .string()
+          .title('Email Address')
           .describe('The email account you want to use to receive and send messages. Example: example@gmail.com'),
-        password: z.string().describe('The password to the email account.'),
-        imapHost: z.string().describe('The imap server you want to connect to. Example: imap.gmail.com'),
-        smtpHost: z.string().describe('The smtp server you want to connect to. Example: smtp.gmail.com'),
+        password: z.string().title('Account Password').describe('The password to the email account.'),
+        imapHost: z
+          .string()
+          .title('IMAP Host')
+          .describe('The imap server you want to connect to. Example: imap.gmail.com'),
+        smtpHost: z
+          .string()
+          .title('SMTP Host')
+          .describe('The smtp server you want to connect to. Example: smtp.gmail.com'),
       })
       .required(),
   },
