@@ -146,7 +146,7 @@ const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
   const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
   const linter = new IntegrationLinter(
-      {
+    {
       ...integrationBody,
       configuration: integrationDefinition.configuration
         ? {
