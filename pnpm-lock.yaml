@@ -2505,7 +2505,7 @@ importers:
         specifier: 1.33.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2629,7 +2629,7 @@ importers:
         specifier: 1.33.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2645,7 +2645,7 @@ importers:
         specifier: 1.33.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2658,7 +2658,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2674,7 +2674,7 @@ importers:
         specifier: 1.33.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2690,7 +2690,7 @@ importers:
         specifier: 1.33.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2844,13 +2844,13 @@ importers:
         specifier: 1.33.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.12
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^2.0.0
         version: 2.0.0
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
@@ -2950,7 +2950,7 @@ importers:
         specifier: 1.33.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
@@ -2990,7 +2990,7 @@ importers:
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3030,13 +3030,13 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.12
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3149,7 +3149,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.12
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
