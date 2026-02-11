@@ -1,5 +1,5 @@
-import { formatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
-import { getConversationFromWhatsappUserPhone } from 'src/misc/util'
+import { safeFormatPhoneNumber } from 'src/misc/phone-number-to-whatsapp'
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppStatusValue } from '../../misc/types'
 import * as bp from '.botpress'
 
@@ -7,17 +7,24 @@ export const statusHandler = async (value: WhatsAppStatusValue, props: bp.Handle
   const { client, logger } = props
 
   if (value.status === 'read') {
-    const userPhone = formatPhoneNumber(value.recipient_id)
-    const conversation = await getConversationFromWhatsappUserPhone(userPhone, client)
-    if (!conversation) {
-      logger
-        .forBot()
-        .error(`No conversation found for recipient ID ${value.recipient_id}, cannot create messageRead event`)
-      throw new Error(`No conversation found for recipient ID ${value.recipient_id}, cannot create messageRead event`)
+    const userPhoneResponse = safeFormatPhoneNumber(value.recipient_id)
+    if (userPhoneResponse.success === false) {
+      logger.forBot().error(`Failed to format phone number ${value.recipient_id}: ${userPhoneResponse.error}`)
+      return
     }
+
+    const message = await getMessageFromWhatsappMessageId(value.id, client)
+    if (!message) {
+      logger.forBot().error(`No message found for WhatsApp message ID ${value.id}, cannot create messageRead event`)
+      return
+    }
+
+    const { conversation } = await client.getConversation({ id: message.conversationId })
+
     await client.createEvent({
       type: 'messageRead',
       conversationId: conversation.id,
+      messageId: message.id,
       payload: {},
     })
   }
