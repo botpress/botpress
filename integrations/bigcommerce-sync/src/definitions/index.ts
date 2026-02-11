@@ -2,16 +2,8 @@ import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export const configuration = {
   schema: z.object({
-    storeHash: z
-      .string({
-        description: 'Your BigCommerce store hash (e.g., abc123)',
-      })
-      .min(1),
-    accessToken: z
-      .string({
-        description: 'BigCommerce API Access Token',
-      })
-      .min(1),
+    storeHash: z.string().min(1).title('Store Hash').describe('Your BigCommerce store hash (e.g., abc123)'),
+    accessToken: z.string().min(1).title('Access Token').describe('BigCommerce API Access Token'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
