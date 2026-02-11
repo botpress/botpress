@@ -1,9 +1,8 @@
-import { isApiError } from '@botpress/client'
 import { posthogHelper } from '@botpress/common'
 import { INTEGRATION_NAME, INTEGRATION_VERSION } from 'integration.definition'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { getDefaultBotPhoneNumberId, getAuthenticatedWhatsappClient } from '../auth'
-import { formatPhoneNumber } from '../misc/phone-number-to-whatsapp'
+import { safeFormatPhoneNumber } from '../misc/phone-number-to-whatsapp'
 import { getTemplateText, parseTemplateVariablesJSON } from '../misc/template-utils'
 import { TemplateVariables } from '../misc/types'
 import { hasAtleastOne, logForBotAndThrow } from '../misc/util'
@@ -40,11 +39,9 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     templateVariables = parseTemplateVariablesJSON(templateVariablesJson, logger)
   }
 
-  let formattedUserPhone = userPhone
-  try {
-    formattedUserPhone = formatPhoneNumber(userPhone)
-  } catch (thrown) {
-    const distinctId = isApiError(thrown) ? thrown.id : undefined
+  const formatPhoneNumberResponse = safeFormatPhoneNumber(userPhone)
+  if (formatPhoneNumberResponse.success === false) {
+    const distinctId = formatPhoneNumberResponse.error.id
     await posthogHelper.sendPosthogEvent(
       {
         distinctId: distinctId ?? 'no id',
@@ -56,7 +53,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
       },
       { integrationName: INTEGRATION_NAME, integrationVersion: INTEGRATION_VERSION, key: bp.secrets.POSTHOG_KEY }
     )
-    const errorMessage = (thrown instanceof Error ? thrown : new Error(String(thrown))).message
+    const errorMessage = formatPhoneNumberResponse.error.message
     logForBotAndThrow(`Failed to parse phone number "${userPhone}": ${errorMessage}`, logger)
   }
 
@@ -64,7 +61,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: formattedUserPhone,
+      userPhone: formatPhoneNumberResponse.phoneNumber,
     },
   })
 
