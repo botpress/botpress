@@ -39,7 +39,6 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     templateVariables = parseTemplateVariablesJSON(templateVariablesJson, logger)
   }
 
-  const formattedUserPhone = userPhone
   const formatPhoneNumberResponse = safeFormatPhoneNumber(userPhone)
   if (formatPhoneNumberResponse.success === false) {
     const distinctId = formatPhoneNumberResponse.error.id
@@ -62,7 +61,7 @@ export const startConversation: bp.IntegrationProps['actions']['startConversatio
     channel: 'channel',
     tags: {
       botPhoneNumberId,
-      userPhone: formattedUserPhone,
+      userPhone: formatPhoneNumberResponse.phoneNumber,
     },
   })
 
