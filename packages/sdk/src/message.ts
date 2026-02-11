@@ -15,14 +15,17 @@ const markdownMessageSchema = z.object({
 
 const imageMessageSchema = z.object({
   imageUrl: NonEmptyString,
+  title: NonEmptyString.optional(),
 })
 
 const audioMessageSchema = z.object({
   audioUrl: NonEmptyString,
+  title: NonEmptyString.optional(),
 })
 
 const videoMessageSchema = z.object({
   videoUrl: NonEmptyString,
+  title: NonEmptyString.optional(),
 })
 
 const fileMessageSchema = z.object({
