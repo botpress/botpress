@@ -239,10 +239,10 @@ export const BOT_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema..[?(@property === "type" && @ === "object")]^.properties[*].x-zui',
+      given: '$.configuration..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
             fallbackExtractor: titleFallbackExtractor,

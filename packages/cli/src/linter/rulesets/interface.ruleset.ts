@@ -169,10 +169,10 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].input..schema..[?(@property === "type" && @ === "object")]^.properties[*].x-zui',
+      given: '$.actions[*].input..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) =>
               `input parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
@@ -203,10 +203,10 @@ export const INTERFACE_RULESET_WITH_NESTED_CHECKS = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].output..schema..[?(@property === "type" && @ === "object")]^.properties[*].x-zui',
+      given: '$.actions[*].output..schema..[?(@property === "type" && @ === "object")]^.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) =>
               `output parameter "${path.at(isFallback ? -5 : -3)}" of action "${path[1]}"`,
