@@ -64,11 +64,12 @@ async function _getAccessToken(appId: string, appSecret: string): Promise<Result
     .catch(useHandleCaughtError('Failed to acquire a WeChat access token'))
 
   const result = weChatAuthTokenResponseSchema.safeParse(resp.data)
-  if (!result.success)
+  if (!result.success) {
     return {
       success: false,
       error: new RuntimeError(`Unexpected access token response received -> ${result.error.message}`),
     }
+  }
 
   const { data } = result
   if ('errcode' in data) {
