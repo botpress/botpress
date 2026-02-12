@@ -2,12 +2,16 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Result } from '../types'
 import { useHandleCaughtError } from '../utils'
-import { weChatAuthTokenResponseSchema } from './schemas'
+import { weChatAuthTokenResponseSchema, WeChatSendMessageResponse, wechatSendMessageResponseSchema } from './schemas'
 import * as bp from '.botpress'
 
 export const WECHAT_API_BASE = 'https://api.weixin.qq.com/cgi-bin'
 
 type WeChatMediaResponse = Promise<{ content: ArrayBuffer; contentType?: string }>
+type WeChatTextMessage = { msgtype: 'text'; text: { content: string } }
+type WeChatImageMessage = { msgtype: 'image'; image: { media_id: string } }
+type WeChatVideoMessage = { msgtype: 'video'; video: { media_id: string; title?: string; description?: string } }
+type WeChatOutgoingMessage = WeChatTextMessage | WeChatImageMessage | WeChatVideoMessage
 
 // TODO: Finish cleaning this class logic up
 export class WeChatClient {
@@ -43,6 +47,55 @@ export class WeChatClient {
 
     const content = await response.arrayBuffer()
     return { content, contentType }
+  }
+
+  public async sendMessage(toUser: string, message: WeChatOutgoingMessage): Promise<WeChatSendMessageResponse> {
+    const resp = await axios
+      .post(`${WECHAT_API_BASE}/message/custom/send?access_token=${this._accessToken}`, {
+        touser: toUser,
+        ...message,
+      })
+      .catch(useHandleCaughtError('Failed to send WeChat message'))
+
+    const parseResult = wechatSendMessageResponseSchema.safeParse(resp.data)
+    if (!parseResult.success) {
+      throw new RuntimeError('Unexpected response structure received when attempting to send message to WeChat')
+    }
+
+    const data = parseResult.data
+    if (data.errorCode && data.errorCode !== 0) {
+      throw new RuntimeError(`Failed to send WeChat message: ${data.errorMsg} (code: ${data.errorCode})`)
+    }
+
+    return data
+  }
+
+  public async uploadMedia(mediaType: 'image' | 'voice' | 'video', mediaBlob: Blob, fileExtension: string) {
+    const formData = new FormData()
+    formData.append('media', mediaBlob, `media.${fileExtension}`)
+
+    const uploadUrl = `${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!uploadResponse.ok) {
+      throw new RuntimeError(`Failed to upload media to WeChat: ${uploadResponse.status} ${uploadResponse.statusText}`)
+    }
+
+    // TODO: Refactor this
+    const uploadData = (await uploadResponse.json()) as { media_id?: string; errcode?: number; errmsg?: string }
+
+    if (uploadData.errcode && uploadData.errcode !== 0) {
+      throw new RuntimeError(`Failed to upload media to WeChat: ${uploadData.errmsg} (code: ${uploadData.errcode})`)
+    }
+
+    if (!uploadData.media_id) {
+      throw new RuntimeError('Failed to upload media to WeChat: missing media_id')
+    }
+
+    return uploadData.media_id
   }
 
   public static async create(ctx: bp.Context) {
