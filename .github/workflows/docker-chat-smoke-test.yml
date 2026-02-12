@@ -11,22 +11,35 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    # Only run if the workflow completed successfully AND it was triggered by workflow_dispatch (which pushes)
+    # OR if this workflow itself was manually triggered
+    if: ${{ (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_dispatch') || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup
-        uses: ./.github/actions/setup
+      - uses: aws-actions/configure-aws-credentials@v3
         with:
-          extra_filters: '-F @botpresshub/chat'
+          role-session-name: container_puller
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
 
-      - name: Build Docker image
-        run: docker build -f integrations/chat/Dockerfile -t chat-integration:test .
+      - uses: aws-actions/amazon-ecr-login@v1
+        id: ecr
+
+      - name: Pull Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          echo "Pulling image: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
+          docker pull $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/chat-integration:$IMAGE_TAG chat-integration:test
 
       - name: Start Docker container
         run: |
@@ -40,14 +53,22 @@ jobs:
         run: |
           echo "Waiting for container to start..."
           for i in {1..30}; do
-            if docker ps | grep -q chat-test; then
+            if docker ps --filter "name=chat-test" --filter "status=running" | grep -q chat-test; then
               echo "Container is running"
               sleep 5
-              break
+              exit 0
+            fi
+            if docker ps -a --filter "name=chat-test" --filter "status=exited" | grep -q chat-test; then
+              echo "Container exited prematurely!"
+              docker logs chat-test
+              exit 1
             fi
             echo "Waiting for container... ($i/30)"
             sleep 2
           done
+          echo "Container did not start within expected time"
+          docker ps -a
+          exit 1
 
       - name: Check health endpoint
         run: |
