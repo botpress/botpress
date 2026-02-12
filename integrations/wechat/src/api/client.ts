@@ -7,6 +7,8 @@ import * as bp from '.botpress'
 
 export const WECHAT_API_BASE = 'https://api.weixin.qq.com/cgi-bin'
 
+type WeChatMediaResponse = Promise<{ content: ArrayBuffer; contentType?: string }>
+
 // TODO: Finish cleaning this class logic up
 export class WeChatClient {
   private constructor(private readonly _accessToken: string) {}
@@ -15,18 +17,18 @@ export class WeChatClient {
     return `${WECHAT_API_BASE}/media/get?access_token=${accessToken}&media_id=${mediaId}`
   }
 
-  public async downloadWeChatMedia(mediaId: string): Promise<{ content: ArrayBuffer; contentType?: string }> {
+  public async downloadWeChatMedia(mediaId: string): WeChatMediaResponse {
     const mediaUrl = this.getMediaUrl(this._accessToken, mediaId)
     return this._downloadWeChatMediaFromUrl(mediaUrl)
   }
 
-  private async _downloadWeChatMediaFromUrl(url: string): Promise<{ content: ArrayBuffer; contentType?: string }> {
+  private async _downloadWeChatMediaFromUrl(url: string): WeChatMediaResponse {
     const response = await fetch(url)
     if (!response.ok) {
       throw new RuntimeError(`Failed to download WeChat media: ${response.status} ${response.statusText}`)
     }
 
-    const contentType = response.headers.get('content-type') || undefined
+    const contentType = response.headers.get('content-type') ?? undefined
     if (contentType?.includes('application/json')) {
       const data = (await response.json()) as { video_url?: string; errcode?: number; errmsg?: string }
       if (data.errcode) {
@@ -35,6 +37,7 @@ export class WeChatClient {
       if (!data.video_url) {
         throw new RuntimeError('Failed to download WeChat media: missing video_url')
       }
+      // THIS IS VERY SKETCHY! We should NOT be using recursion here
       return this._downloadWeChatMediaFromUrl(data.video_url)
     }
 
