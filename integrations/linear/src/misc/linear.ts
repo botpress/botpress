@@ -69,21 +69,9 @@ const oauthHeaders = {
   'Content-Type': 'application/x-www-form-urlencoded',
 } as const
 
-export async function getAccessToken(code: string) {
-  await axios.post(
-    `${linearEndpoint}/oauth/token`,
-    {
-      code,
-      grant_type: 'authorization_code',
-    },
-    {
-      headers: oauthHeaders,
-    }
-  )
-}
-
 const oauthSchema = z.object({
   access_token: z.string(),
+  refresh_token: z.string(),
   expires_in: z.number(),
 })
 
@@ -94,6 +82,35 @@ export class LinearOauthClient {
   public constructor() {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
+  }
+
+  public async refreshAccessToken(oldRefreshToken: string) {
+    const expiresAt = new Date()
+
+    const res = await axios.post(
+      `${linearEndpoint}/oauth/token`,
+      {
+        client_id: this._clientId,
+        client_secret: this._clientSecret,
+        actor: 'application',
+        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+        refresh_token: oldRefreshToken,
+        grant_type: 'refresh_token',
+      },
+      {
+        headers: oauthHeaders,
+      }
+    )
+
+    const { access_token, expires_in, refresh_token } = oauthSchema.parse(res.data)
+
+    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
+
+    return {
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresAt: expiresAt.toISOString(),
+    }
   }
 
   public async getAccessToken(code: string) {
@@ -114,12 +131,13 @@ export class LinearOauthClient {
       }
     )
 
-    const { access_token, expires_in } = oauthSchema.parse(res.data)
+    const { access_token, expires_in, refresh_token } = oauthSchema.parse(res.data)
 
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
 
     return {
       accessToken: access_token,
+      refreshToken: refresh_token,
       expiresAt: expiresAt.toISOString(),
     }
   }
@@ -137,6 +155,22 @@ export class LinearOauthClient {
       id: integrationId,
     })
 
+    const FIVE_MINUTES_MS = 5 * 60 * 1000
+    const isExpired = new Date(payload.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
+
+    if (isExpired) {
+      const newCredentials = await this.refreshAccessToken(payload.refreshToken)
+
+      await client.setState({
+        type: 'integration',
+        name: 'credentials',
+        id: integrationId,
+        payload: newCredentials,
+      })
+
+      return new LinearClient({ accessToken: newCredentials.accessToken })
+    }
+
     return new LinearClient({ accessToken: payload.accessToken })
   }
 }
@@ -151,7 +185,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  const { accessToken, expiresAt } = await linearOauthClient.getAccessToken(code)
+  const { accessToken, refreshToken, expiresAt } = await linearOauthClient.getAccessToken(code)
 
   await client.setState({
     type: 'integration',
@@ -159,6 +193,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     id: ctx.integrationId,
     payload: {
       accessToken,
+      refreshToken,
       expiresAt,
     },
   })
