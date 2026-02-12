@@ -71,7 +71,7 @@ const _getOrUploadWeChatMedia = async (
   }
 
   if (mediaId) {
-    const wechatClient = await WeChatClient.create(ctx.configuration.appId, ctx.configuration.appSecret)
+    const wechatClient = await WeChatClient.create(ctx)
     const { content, contentType } = await wechatClient.downloadWeChatMedia(mediaId)
     const { file } = await client.uploadFile({
       key: mediaKey,

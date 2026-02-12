@@ -42,14 +42,7 @@ export class WeChatClient {
     return { content, contentType }
   }
 
-  public static async create(appId: string, appSecret: string) {
-    const tokenResult = await _getAccessToken(appId, appSecret)
-    if (!tokenResult.success) throw tokenResult.error
-
-    return new WeChatClient(tokenResult.data)
-  }
-
-  public static async createV2(ctx: bp.Context) {
+  public static async create(ctx: bp.Context) {
     const { appId, appSecret } = ctx.configuration
     const tokenResult = await _getAccessToken(appId, appSecret)
     if (!tokenResult.success) throw tokenResult.error
