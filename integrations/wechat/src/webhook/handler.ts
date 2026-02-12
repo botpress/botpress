@@ -1,83 +1,43 @@
-import { z } from '@botpress/sdk'
+import { Request } from '@botpress/sdk'
+import { processInboundChannelMessage } from '../channels/inbound'
+import { verifyWebhookSignature } from './signature'
 import * as bp from '.botpress'
 
-export const handler = (async (props) => {
-  /**
-   * This is the incoming request handler. It is called by the external service you are integrating with.
-   */
-  const {
-    client,
-    req: { body },
-  } = props
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  if (!verifyWebhookSignature(props)) {
+    return _createTextResponse(403, 'Invalid webhook signature')
+  }
 
-  if (!body) {
-    return {
-      status: 400,
-      body: JSON.stringify({ error: 'No body' }),
+  const reqMethod = props.req.method
+  if (reqMethod === 'GET') {
+    return _handleWebhookChallenge(props.req)
+  } else if (reqMethod === 'POST') {
+    const result = await processInboundChannelMessage(props)
+    if (!result.success) {
+      props.logger.forBot().error(result.error.message)
+      return _createTextResponse(500, 'Internal Server Error')
     }
+
+    return _createTextResponse(200, result.data)
   }
 
-  let parsedBody: unknown
-  try {
-    parsedBody = JSON.parse(body)
-  } catch {
-    return {
-      status: 400,
-      body: JSON.stringify({ error: 'Invalid JSON Body' }),
-    }
-  }
+  props.logger.forBot().warn(`Unhandled request type - ${reqMethod}`)
+  return _createTextResponse(200, 'OK')
+}
 
-  const parseResult = z
-    .object({
-      userId: z.string(),
-      conversationId: z.string(),
-      text: z.string(),
-    })
-    .safeParse(parsedBody)
+const _handleWebhookChallenge = (req: Request) => {
+  const query = new URLSearchParams(req.query)
+  const echostr = query.get('echostr') || ''
 
-  if (!parseResult.success) {
-    return {
-      status: 400,
-      body: JSON.stringify({ error: 'Invalid body' }),
-    }
-  }
+  // The "|" suffix may not be correct, but it was copied from the old implementation.
+  // I'll see if it should be removed once I start QA testing the integration.
+  return _createTextResponse(200, `${echostr}|`)
+}
 
-  const { userId, conversationId, text } = parseResult.data
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'channel',
-    tags: {
-      id: conversationId,
-      fromUserId: 'Unknown',
-      chatId: 'Unknown',
-    },
-  })
-
-  const { user } = await client.getOrCreateUser({
-    tags: {
-      id: userId,
-    },
-  })
-
-  const { message } = await client.createMessage({
-    type: 'text',
-    conversationId: conversation.id,
-    userId: user.id,
-    payload: {
-      text,
-    },
-    tags: {
-      id: 'Unknown',
-      chatId: 'Unknown',
-    },
-  })
-
-  const response = {
-    message,
-  }
-
-  return {
-    status: 200,
-    body: JSON.stringify(response),
-  }
-}) satisfies bp.IntegrationProps['handler']
+const _createTextResponse = (status: number, body: string) => ({
+  status,
+  headers: {
+    'Content-Type': 'text/plain',
+  },
+  body,
+})
