@@ -44,10 +44,10 @@ export const BOT_RULESET = preprocessRuleset({
       message:
         '{{description}}: {{error}} {{callToAction}} provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: '$.configuration..schema.properties[*].x-zui',
+      given: '$.configuration..schema.properties[*]',
       then: [
         {
-          field: 'title',
+          field: 'x-zui.title',
           function: truthyWithMessage({
             failMsgMapper: ({ path, isFallback }) => `configuration parameter "${path.at(isFallback ? -5 : -3)}"`,
             fallbackExtractor: titleFallbackExtractor,
