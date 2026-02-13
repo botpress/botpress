@@ -2,7 +2,7 @@ name: Chat Integration Docker Smoke Test
 
 on:
   workflow_run:
-    workflows: ["Build and push Chat Integration Docker"]
+    workflows: ['Build and push Chat Integration Docker']
     types:
       - completed
     branches:
