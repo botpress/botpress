@@ -37,12 +37,12 @@ type PrintResult = {
   truncated: boolean
 }
 
-function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys: number): PrintResult {
+function printLimitedJson(obj: object, maxDepth: number, maxLength: number, maxKeys: number): PrintResult {
   const indent = 2
   let currentLength = 0
   let wasTruncated = false
 
-  function recurse(currentObj: any, depth: number, currentIndent: number): string {
+  function recurse(currentObj: unknown, depth: number, currentIndent: number): string {
     if (depth > maxDepth || currentLength >= maxLength) {
       wasTruncated = true
       return '...'
@@ -52,8 +52,9 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
       currentIndent += 3
       try {
         return currentObj.toISOString()
-      } catch (err: any) {
-        return `<Date: ${err?.message ?? 'Invalid Date'}>`
+      } catch (thrown: unknown) {
+        const errMessage = thrown instanceof Error ? thrown.message : 'Invalid Date'
+        return `<Date: ${errMessage}>`
       }
     }
 
@@ -86,7 +87,7 @@ function printLimitedJson(obj: any, maxDepth: number, maxLength: number, maxKeys
         if (i > 0) {
           result += ',\n'
         }
-        const value = recurse(currentObj[key], depth + 1, currentIndent + indent)
+        const value = recurse((currentObj as Record<string, unknown>)[key], depth + 1, currentIndent + indent)
         result += indentation + ' '.repeat(indent) + `"${key}": ${value}`
       }
       if (numKeys > maxKeys) {
@@ -189,7 +190,7 @@ function previewValue(value: unknown, length: number = LONG_TEXT_LENGTH) {
     return escapeString(str)
   }
 
-  const previewObj = (obj: any) => {
+  const previewObj = (obj: object) => {
     const mapped = mapKeys(obj, (_value, key) => previewStr(key))
     return JSON.stringify(mapped)
   }
@@ -444,7 +445,8 @@ export const inspect = (value: unknown, name?: string, options: PreviewOptions =
     }
 
     return header + previewValue(value)
-  } catch (err: any) {
-    return `Error: ${err?.message ?? 'Unknown Error'}`
+  } catch (thrown: unknown) {
+    const errMessage = thrown instanceof Error ? thrown.message : 'Unknown Error'
+    return `Error: ${errMessage}`
   }
 }
