@@ -8,6 +8,7 @@ export const states = {
       accessToken: z.string().title('Access Token').describe('The access token for Linear'),
       refreshToken: z
         .string()
+        .optional()
         .title('Refresh Token')
         .describe('The refresh token needed when the access token expires'),
       expiresAt: z.string().title('Expires At').describe('The time when the access token expires'),

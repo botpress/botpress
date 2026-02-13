@@ -71,6 +71,12 @@ const oauthHeaders = {
 
 const oauthSchema = z.object({
   access_token: z.string(),
+  refresh_token: z.string().optional(),
+  expires_in: z.number(),
+})
+
+const migrationSchema = z.object({
+  access_token: z.string(),
   refresh_token: z.string(),
   expires_in: z.number(),
 })
@@ -82,6 +88,32 @@ export class LinearOauthClient {
   public constructor() {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
+  }
+
+  public async migrateOldToken(oldAccessToken: string) {
+    const expiresAt = new Date()
+
+    const res = await axios.post(
+      `${linearEndpoint}/oauth/migrate_old_token`,
+      {
+        access_token: oldAccessToken,
+        client_id: this._clientId,
+        client_secret: this._clientSecret,
+      },
+      {
+        headers: oauthHeaders,
+      }
+    )
+
+    const { access_token, expires_in, refresh_token } = migrationSchema.parse(res.data)
+
+    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
+
+    return {
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      expiresAt: expiresAt.toISOString(),
+    }
   }
 
   public async refreshAccessToken(oldRefreshToken: string) {
@@ -155,6 +187,19 @@ export class LinearOauthClient {
       id: integrationId,
     })
 
+    if (!payload.refreshToken) {
+      const newCredentials = await this.migrateOldToken(payload.accessToken)
+
+      await client.setState({
+        type: 'integration',
+        name: 'credentials',
+        id: integrationId,
+        payload: newCredentials,
+      })
+
+      return new LinearClient({ accessToken: newCredentials.accessToken })
+    }
+
     const FIVE_MINUTES_MS = 5 * 60 * 1000
     const isExpired = new Date(payload.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
 
@@ -185,20 +230,20 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  const { accessToken, refreshToken, expiresAt } = await linearOauthClient.getAccessToken(code)
+  let credentials = await linearOauthClient.getAccessToken(code)
+
+  if (!credentials.refreshToken) {
+    credentials = await linearOauthClient.migrateOldToken(credentials.accessToken)
+  }
 
   await client.setState({
     type: 'integration',
     name: 'credentials',
     id: ctx.integrationId,
-    payload: {
-      accessToken,
-      refreshToken,
-      expiresAt,
-    },
+    payload: credentials,
   })
 
-  const linearClient = new LinearClient({ accessToken })
+  const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const organization = await linearClient.organization
   await client.configureIntegration({ identifier: organization.id })
 }
