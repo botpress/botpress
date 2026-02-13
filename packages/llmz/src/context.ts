@@ -635,9 +635,9 @@ export class Context implements Serializable<Context.JSON> {
     return iteration
   }
 
-  private _getIterationVariables(): Record<string, any> {
+  private _getIterationVariables(): Record<string, unknown> {
     const lastIteration = this.iterations.at(-1)
-    const variables: Record<string, any> = {}
+    const variables: Record<string, unknown> = {}
 
     if (lastIteration?.status.type === 'thinking_requested') {
       const lastThinkingVariables = lastIteration.status.thinking_requested.variables
@@ -929,7 +929,7 @@ export class Context implements Serializable<Context.JSON> {
     loop?: number
     temperature?: ValueOrGetter<number, Context>
     model?: ValueOrGetter<Models | Models[], Context>
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
     snapshot?: Snapshot
     timeout?: number
   }) {

@@ -89,7 +89,7 @@ export class VMSignal extends Error {
    */
   public truncatedCode: string = ''
 
-  /** The current tool call, if any */
+  /** The current tool call, if there's one */
   public toolCall?: ToolCall
 
   /**

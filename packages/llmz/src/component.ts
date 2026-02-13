@@ -69,7 +69,7 @@ export function getComponentReference(component: ComponentDefinition): string {
   let doc = `### <${component.name}>\n\n`
   doc += `${component.description}\n\n`
 
-  const getPropsDoc = (props: z.ZodObject<any>) => {
+  const getPropsDoc = (props: z.ZodObject) => {
     const shape = props.shape as Record<string, z.ZodTypeAny>
     if (Object.keys(shape).length === 0) return '_No props._\n\n'
 
@@ -159,7 +159,7 @@ export function getComponentReference(component: ComponentDefinition): string {
 }
 
 // Component definition types with inferred props
-export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
+export type DefaultComponentDefinition<T extends z.ZodObject = z.ZodObject> = {
   type: 'default'
   name: string
   aliases: string[]
@@ -171,7 +171,7 @@ export type DefaultComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<
   }
 }
 
-export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
+export type LeafComponentDefinition<T extends z.ZodObject = z.ZodObject> = {
   type: 'leaf'
   name: string
   description: string
@@ -182,7 +182,7 @@ export type LeafComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any
   }
 }
 
-export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObject<any>> = {
+export type ContainerComponentDefinition<T extends z.ZodObject = z.ZodObject> = {
   type: 'container'
   name: string
   description: string
@@ -196,7 +196,7 @@ export type ContainerComponentDefinition<T extends z.ZodObject<any> = z.ZodObjec
 
 export type ComponentDefinition = DefaultComponentDefinition | LeafComponentDefinition | ContainerComponentDefinition
 
-// Helper type to extract props from any component definition type
+// Helper type to extract props from a component definition type
 type ExtractComponentProps<T extends ComponentDefinition> =
   T extends LeafComponentDefinition<infer P>
     ? z.infer<P>
@@ -207,10 +207,10 @@ type ExtractComponentProps<T extends ComponentDefinition> =
         : never
 
 // Rendered component type
-export type RenderedComponent<TProps = Record<string, any>> = {
+export type RenderedComponent<TProps = Record<string, unknown>> = {
   __jsx: true
   type: string
-  children: any[]
+  children: unknown[]
   props: TProps
 }
 
@@ -227,13 +227,13 @@ export class Component<T extends ComponentDefinition = ComponentDefinition> {
 
 // Type guard function that infers props from component
 export function isComponent<T extends ComponentDefinition>(
-  rendered: RenderedComponent<any>,
+  rendered: RenderedComponent,
   component: Component<T>
 ): rendered is RenderedComponent<ExtractComponentProps<T>> {
   return isJsxComponent(component.definition.name, rendered)
 }
 
-// Type guard function that checks if something is any rendered component
+// Type guard function that checks if something is a rendered component
 export function isAnyComponent(message: unknown): message is RenderedComponent {
   return isAnyJsxComponent(message)
 }

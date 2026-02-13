@@ -1,9 +1,9 @@
 /**
- * Creates a new AbortController that aborts when any of the provided signals abort.
+ * Creates a new AbortController that aborts when one of the provided signals abort.
  * This is useful for combining multiple abort conditions (e.g., user cancellation, timeout, parent operation abort).
  *
  * @param signals - Array of AbortSignals to listen to. Undefined/null signals are ignored.
- * @returns A new AbortController that will abort if any input signal aborts
+ * @returns A new AbortController that will abort if an input signal aborts
  *
  * @example
  * ```typescript
@@ -31,7 +31,7 @@ export function createJoinedAbortController(signals: (AbortSignal | undefined | 
     return controller
   }
 
-  // Check if any signal is already aborted
+  // Check if a signal is already aborted
   for (const signal of validSignals) {
     if (signal.aborted) {
       controller.abort(signal.reason)

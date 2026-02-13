@@ -31,7 +31,7 @@ export class CitationsManager {
    * @param source An object representing the source of the citation.
    * @returns The created Citation.
    */
-  public registerSource(source: any): Citation {
+  public registerSource(source: unknown): Citation {
     const id = this._nextId++
     const tag = `${RARE_SYMBOLS.OPENING_TAG}${id}${RARE_SYMBOLS.CLOSING_TAG}`
     const citation: Citation = {
@@ -128,7 +128,7 @@ export class CitationsManager {
   public removeCitationsFromObject<T>(obj: T): [T, { path: string; citation: Citation }[]] {
     const result: { path: string; citation: Citation }[] = []
 
-    const processObject = (current: any, path: string): any => {
+    const processObject = (current: unknown, path: string): unknown => {
       if (typeof current === 'string') {
         const extraction = this.extractCitations(current)
         if (extraction.citations.length > 0) {
@@ -136,9 +136,12 @@ export class CitationsManager {
         }
         return extraction.cleaned
       } else if (typeof current === 'object' && current !== null) {
-        const newObject: any = Array.isArray(current) ? [] : {}
+        const newObject: object = Array.isArray(current) ? [] : {}
         for (const key of Object.keys(current)) {
-          newObject[key] = processObject(current[key], `${path}.${key}`)
+          ;(newObject as Record<string, unknown>)[key] = processObject(
+            (current as Record<string, unknown>)[key],
+            `${path}.${key}`
+          )
         }
         return newObject
       }
