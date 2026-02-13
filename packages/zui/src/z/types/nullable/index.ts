@@ -3,7 +3,6 @@ import {
   ParseInput,
   ParseReturnType,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -13,7 +12,7 @@ import {
 
 export type ZodNullableDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
-  typeName: ZodFirstPartyTypeKind.ZodNullable
+  typeName: 'ZodNullable'
 } & ZodTypeDef
 
 export type ZodNullableType<T extends ZodTypeAny> = ZodNullable<T>
@@ -56,7 +55,7 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodNullable<T> => {
     return new ZodNullable({
       innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodNullable,
+      typeName: 'ZodNullable',
       ...processCreateParams(params),
     })
   }

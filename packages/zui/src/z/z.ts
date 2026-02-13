@@ -6,8 +6,6 @@ import {
   ZodArray,
   ZodBigInt,
   ZodBoolean,
-  ZodBranded,
-  ZodCatch,
   ZodDate,
   ZodDefault,
   ZodDiscriminatedUnion,
@@ -20,6 +18,9 @@ import {
   ZodMap,
   ZodNaN,
   ZodNativeEnum,
+  ZodNativeSchema,
+  ZodNativeSchemaDef,
+  ZodNativeSchemaType,
   ZodNever,
   ZodNull,
   ZodNullable,
@@ -42,50 +43,17 @@ import {
   ZodVoid,
 } from './types'
 
-export { ZodType as Schema, ZodType as ZodSchema }
+export {
+  ZodType as Schema,
+  ZodType as ZodSchema,
+  type ZodNativeSchema,
+  type ZodNativeSchemaDef,
+  type ZodNativeSchemaType,
+}
 
 export const late = {
   object: ZodObject.lazycreate,
 }
-
-export type ZodFirstPartySchemaTypes =
-  | ZodString
-  | ZodNumber
-  | ZodNaN
-  | ZodBigInt
-  | ZodBoolean
-  | ZodDate
-  | ZodUndefined
-  | ZodNull
-  | ZodAny
-  | ZodUnknown
-  | ZodNever
-  | ZodVoid
-  | ZodArray
-  | ZodObject
-  | ZodUnion
-  | ZodDiscriminatedUnion
-  | ZodIntersection
-  | ZodTuple
-  | ZodRecord
-  | ZodMap
-  | ZodSet
-  | ZodFunction
-  | ZodLazy
-  | ZodLiteral
-  | ZodEnum
-  | ZodEffects
-  | ZodNativeEnum
-  | ZodOptional
-  | ZodNullable
-  | ZodDefault
-  | ZodCatch
-  | ZodPromise
-  | ZodBranded
-  | ZodPipeline
-  | ZodReadonly
-  | ZodSymbol
-  | ZodRef
 
 // requires TS 4.4+
 abstract class Class {
@@ -205,3 +173,48 @@ export * from './types/utils'
 export * from './types/utils/parseUtil'
 export * from './types/utils/typeAliases'
 export * from './extensions'
+
+/**
+ * @deprecated use ZodNativeSchemaType instead
+ */
+export const ZodFirstPartyTypeKind = {
+  ZodString: 'ZodString',
+  ZodNumber: 'ZodNumber',
+  ZodNaN: 'ZodNaN',
+  ZodBigInt: 'ZodBigInt',
+  ZodBoolean: 'ZodBoolean',
+  ZodDate: 'ZodDate',
+  ZodUndefined: 'ZodUndefined',
+  ZodNull: 'ZodNull',
+  ZodAny: 'ZodAny',
+  ZodUnknown: 'ZodUnknown',
+  ZodNever: 'ZodNever',
+  ZodVoid: 'ZodVoid',
+  ZodArray: 'ZodArray',
+  ZodObject: 'ZodObject',
+  ZodUnion: 'ZodUnion',
+  ZodDiscriminatedUnion: 'ZodDiscriminatedUnion',
+  ZodIntersection: 'ZodIntersection',
+  ZodTuple: 'ZodTuple',
+  ZodRecord: 'ZodRecord',
+  ZodMap: 'ZodMap',
+  ZodSet: 'ZodSet',
+  ZodFunction: 'ZodFunction',
+  ZodLazy: 'ZodLazy',
+  ZodLiteral: 'ZodLiteral',
+  ZodEnum: 'ZodEnum',
+  ZodEffects: 'ZodEffects',
+  ZodNativeEnum: 'ZodNativeEnum',
+  ZodOptional: 'ZodOptional',
+  ZodNullable: 'ZodNullable',
+  ZodDefault: 'ZodDefault',
+  ZodCatch: 'ZodCatch',
+  ZodPromise: 'ZodPromise',
+  ZodBranded: 'ZodBranded',
+  ZodPipeline: 'ZodPipeline',
+  ZodReadonly: 'ZodReadonly',
+  ZodSymbol: 'ZodSymbol',
+  ZodRef: 'ZodRef',
+} satisfies {
+  [K in ZodNativeSchemaType]: K
+}

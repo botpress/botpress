@@ -2,7 +2,6 @@ import {
   ZodIssueCode,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -18,7 +17,7 @@ import {
 
 export type ZodSetDef<Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
-  typeName: ZodFirstPartyTypeKind.ZodSet
+  typeName: 'ZodSet'
   minSize: { value: number; message?: string } | null
   maxSize: { value: number; message?: string } | null
 } & ZodTypeDef
@@ -140,7 +139,7 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
       valueType,
       minSize: null,
       maxSize: null,
-      typeName: ZodFirstPartyTypeKind.ZodSet,
+      typeName: 'ZodSet',
       ...processCreateParams(params),
     })
   }

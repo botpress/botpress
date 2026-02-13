@@ -1,7 +1,6 @@
 import {
   ZodError,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -17,7 +16,7 @@ export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
 export type ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   catchValue: CatchFn<T['_output']>
-  typeName: ZodFirstPartyTypeKind.ZodCatch
+  typeName: 'ZodCatch'
 } & ZodTypeDef
 
 export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -88,7 +87,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   ): ZodCatch<T> => {
     return new ZodCatch({
       innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodCatch,
+      typeName: 'ZodCatch',
       catchValue: typeof params.catch === 'function' ? params.catch : () => params.catch,
       ...processCreateParams(params),
     })

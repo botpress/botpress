@@ -1,16 +1,7 @@
-import {
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  OK,
-  ParseInput,
-  ParseReturnType,
-  processCreateParams,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef, OK, ParseInput, ParseReturnType, processCreateParams } from '../index'
 
 export type ZodAnyDef = {
-  typeName: ZodFirstPartyTypeKind.ZodAny
+  typeName: 'ZodAny'
 } & ZodTypeDef
 
 export class ZodAny extends ZodType<any, ZodAnyDef> {
@@ -21,7 +12,7 @@ export class ZodAny extends ZodType<any, ZodAnyDef> {
   }
   static create = (params?: RawCreateParams): ZodAny => {
     return new ZodAny({
-      typeName: ZodFirstPartyTypeKind.ZodAny,
+      typeName: 'ZodAny',
       ...processCreateParams(params),
     })
   }

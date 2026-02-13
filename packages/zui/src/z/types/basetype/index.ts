@@ -36,9 +36,9 @@ import {
   ZodEffects,
   ZodError,
   ZodErrorMap,
-  ZodFirstPartyTypeKind,
   ZodIntersection,
   ZodIssueCode,
+  ZodNativeSchemaDef,
   ZodNullable,
   ZodOptional,
   ZodPipeline,
@@ -61,6 +61,8 @@ type __ZodType<Output = any, Input = Output> = {
   readonly _input: Input
 }
 
+type Cast<A, B> = A extends B ? A : B
+
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
@@ -75,7 +77,7 @@ export type { TypeOf as infer }
 export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
 export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
 export type ZodTypeDef = {
-  typeName: ZodFirstPartyTypeKind
+  typeName: string
   errorMap?: ZodErrorMap
   description?: string
   [zuiKey]?: ZuiExtensionObject
@@ -163,6 +165,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   readonly _output!: Output
   readonly _input!: Input
   readonly _def!: Def
+
+  get typeName(): Def['typeName'] {
+    return this._def.typeName
+  }
 
   get description() {
     return this._metadataRoot._def.description
@@ -365,7 +371,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   _refinement(refinement: RefinementEffect<Output>['refinement']): ZodEffects<this, Output, Input> {
     return new ZodEffects({
       schema: this,
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      typeName: 'ZodEffects',
       effect: { type: 'refinement', refinement },
     })
   }
@@ -456,7 +462,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return new ZodEffects({
       ...processCreateParams(this._def),
       schema: this,
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      typeName: 'ZodEffects',
       effect: { type: 'transform', transform },
     })
   }
@@ -470,14 +476,14 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       ...processCreateParams(this._def),
       innerType: this,
       defaultValue: defaultValueFunc,
-      typeName: ZodFirstPartyTypeKind.ZodDefault,
+      typeName: 'ZodDefault',
     })
   }
 
   brand<B extends string | number | symbol>(brand?: B): ZodBranded<this, B>
   brand<B extends string | number | symbol>(): ZodBranded<this, B> {
     return new ZodBranded({
-      typeName: ZodFirstPartyTypeKind.ZodBranded,
+      typeName: 'ZodBranded',
       type: this,
       ...processCreateParams(this._def),
     })
@@ -490,7 +496,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       ...processCreateParams(this._def),
       innerType: this,
       catchValue: catchValueFunc,
-      typeName: ZodFirstPartyTypeKind.ZodCatch,
+      typeName: 'ZodCatch',
     })
   }
 
@@ -565,7 +571,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    */
   displayAs<
     UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseType = ZodKindToBaseType<this['_def']>,
+    Type extends BaseType = ZodKindToBaseType<Cast<Def, ZodNativeSchemaDef>>,
   >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
     return this.metadata({ displayAs: [options.id, options.params] })
   }

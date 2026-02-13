@@ -4,7 +4,6 @@ import {
   ZodIssueCode,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -21,7 +20,7 @@ import {
 export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
   keyType: Key
-  typeName: ZodFirstPartyTypeKind.ZodRecord
+  typeName: 'ZodRecord'
 } & ZodTypeDef
 
 export type KeySchema = ZodType<string | number | symbol, any, any>
@@ -118,7 +117,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
       return new ZodRecord({
         keyType: first,
         valueType: second,
-        typeName: ZodFirstPartyTypeKind.ZodRecord,
+        typeName: 'ZodRecord',
         ...processCreateParams(third),
       })
     }
@@ -126,7 +125,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
     return new ZodRecord({
       keyType: ZodString.create(),
       valueType: first,
-      typeName: ZodFirstPartyTypeKind.ZodRecord,
+      typeName: 'ZodRecord',
       ...processCreateParams(second),
     })
   }

@@ -1,5 +1,5 @@
 import { zuiKey } from '../../ui/constants'
-import { ZodFirstPartyTypeKind, ZodTypeDef } from '../../z/index'
+import { ZodFirstPartyTypeKind, ZodNativeSchemaDef, ZodNativeSchemaType, ZodTypeDef } from '../../z/index'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
 import { JsonSchema7BigintType, parseBigintDef } from './parsers/bigint'
@@ -68,7 +68,7 @@ export type JsonSchema7TypeUnion =
 export type JsonSchema7Type = JsonSchema7TypeUnion & JsonSchema7Meta
 
 export function parseDef(
-  def: ZodTypeDef,
+  def: ZodNativeSchemaDef,
   refs: Refs,
   forceResolution = false // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
 ): JsonSchema7Type | undefined {
@@ -135,7 +135,7 @@ const getRelativePath = (pathA: string[], pathB: string[]) => {
   return [(pathA.length - i).toString(), ...pathB.slice(i)].join('/')
 }
 
-const selectParser = (def: any, typeName: ZodFirstPartyTypeKind, refs: Refs): JsonSchema7Type | undefined => {
+const selectParser = (def: any, typeName: ZodNativeSchemaType, refs: Refs): JsonSchema7Type | undefined => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
       return parseStringDef(def, refs)

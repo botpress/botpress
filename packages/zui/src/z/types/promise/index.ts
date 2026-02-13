@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -16,7 +15,7 @@ import {
 
 export type ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
-  typeName: ZodFirstPartyTypeKind.ZodPromise
+  typeName: 'ZodPromise'
 } & ZodTypeDef
 
 export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -72,7 +71,7 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(schema: T, params?: RawCreateParams): ZodPromise<T> => {
     return new ZodPromise({
       type: schema,
-      typeName: ZodFirstPartyTypeKind.ZodPromise,
+      typeName: 'ZodPromise',
       ...processCreateParams(params),
     })
   }

@@ -3,7 +3,6 @@ import {
   ZodIssueCode,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -39,7 +38,7 @@ export type InputTypeOfTupleWithRest<
 export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodTypeAny | null = null> = {
   items: T
   rest: Rest
-  typeName: ZodFirstPartyTypeKind.ZodTuple
+  typeName: 'ZodTuple'
 } & ZodTypeDef
 
 export type AnyZodTuple = ZodTuple<[ZodTypeAny, ...ZodTypeAny[]] | [], ZodTypeAny | null>
@@ -147,7 +146,7 @@ export class ZodTuple<
     }
     return new ZodTuple({
       items: schemas,
-      typeName: ZodFirstPartyTypeKind.ZodTuple,
+      typeName: 'ZodTuple',
       rest: null,
       ...processCreateParams(params),
     })

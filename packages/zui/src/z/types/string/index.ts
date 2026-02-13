@@ -3,7 +3,6 @@ import {
   StringValidation,
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -49,9 +48,10 @@ export type ZodStringCheck =
 
 export type ZodStringDef = {
   checks: ZodStringCheck[]
-  typeName: ZodFirstPartyTypeKind.ZodString
+  typeName: 'ZodString'
   coerce: boolean
 } & ZodTypeDef
+
 export const cuidRegex = /^c[^\s-]{8,}$/i
 export const cuid2Regex = /^[a-z][a-z0-9]*$/
 export const ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/
@@ -521,7 +521,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   static create = (params?: RawCreateParams & { coerce?: true }): ZodString => {
     return new ZodString({
       checks: [],
-      typeName: ZodFirstPartyTypeKind.ZodString,
+      typeName: 'ZodString',
       coerce: params?.coerce ?? false,
       ...processCreateParams({ ...params, supportsExtensions: ['secret'] }),
     })

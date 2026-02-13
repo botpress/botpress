@@ -1,5 +1,4 @@
 import {
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   INVALID,
@@ -11,7 +10,7 @@ import {
 } from '../index'
 
 export type ZodRefDef = {
-  typeName: ZodFirstPartyTypeKind.ZodRef
+  typeName: 'ZodRef'
   uri: string
 } & ZodTypeDef
 
@@ -41,7 +40,7 @@ export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
 
   static create = (uri: string): ZodRef => {
     return new ZodRef({
-      typeName: ZodFirstPartyTypeKind.ZodRef,
+      typeName: 'ZodRef',
       uri,
     })
   }

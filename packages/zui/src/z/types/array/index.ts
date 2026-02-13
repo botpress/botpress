@@ -3,7 +3,6 @@ import {
   ZodIssueCode,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -19,7 +18,7 @@ import {
 
 export type ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
-  typeName: ZodFirstPartyTypeKind.ZodArray
+  typeName: 'ZodArray'
   exactLength: { value: number; message?: string } | null
   minLength: { value: number; message?: string } | null
   maxLength: { value: number; message?: string } | null
@@ -178,7 +177,7 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
       minLength: null,
       maxLength: null,
       exactLength: null,
-      typeName: ZodFirstPartyTypeKind.ZodArray,
+      typeName: 'ZodArray',
       ...processCreateParams(params),
     })
   }

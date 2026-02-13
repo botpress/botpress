@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -14,7 +13,7 @@ import {
 } from '../index'
 
 export type ZodBooleanDef = {
-  typeName: ZodFirstPartyTypeKind.ZodBoolean
+  typeName: 'ZodBoolean'
   coerce: boolean
 } & ZodTypeDef
 
@@ -39,7 +38,7 @@ export class ZodBoolean extends ZodType<boolean, ZodBooleanDef> {
 
   static create = (params?: RawCreateParams & { coerce?: boolean }): ZodBoolean => {
     return new ZodBoolean({
-      typeName: ZodFirstPartyTypeKind.ZodBoolean,
+      typeName: 'ZodBoolean',
       coerce: params?.coerce || false,
       ...processCreateParams(params),
     })

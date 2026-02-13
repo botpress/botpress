@@ -7,7 +7,6 @@ import {
   ParseStatus,
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -24,7 +23,7 @@ export type ZodBigIntCheck =
 
 export type ZodBigIntDef = {
   checks: ZodBigIntCheck[]
-  typeName: ZodFirstPartyTypeKind.ZodBigInt
+  typeName: 'ZodBigInt'
   coerce: boolean
 } & ZodTypeDef
 
@@ -95,7 +94,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
   static create = (params?: RawCreateParams & { coerce?: boolean }): ZodBigInt => {
     return new ZodBigInt({
       checks: [],
-      typeName: ZodFirstPartyTypeKind.ZodBigInt,
+      typeName: 'ZodBigInt',
       coerce: params?.coerce ?? false,
       ...processCreateParams(params),
     })

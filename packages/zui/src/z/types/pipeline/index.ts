@@ -1,19 +1,10 @@
 import { unique } from '../../utils'
-import {
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  DIRTY,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { ZodType, ZodTypeAny, ZodTypeDef, DIRTY, INVALID, ParseInput, ParseReturnType } from '../index'
 
 export type ZodPipelineDef<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> = {
   in: A
   out: B
-  typeName: ZodFirstPartyTypeKind.ZodPipeline
+  typeName: 'ZodPipeline'
 } & ZodTypeDef
 
 export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -90,7 +81,7 @@ export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny
     return new ZodPipeline({
       in: a,
       out: b,
-      typeName: ZodFirstPartyTypeKind.ZodPipeline,
+      typeName: 'ZodPipeline',
     })
   }
 

@@ -1,4 +1,4 @@
-import type { ZodSchema } from '../../z/index'
+import type { ZodNativeSchema, ZodSchema } from '../../z/index'
 import { Options, Targets } from './Options'
 import { JsonSchema7Type, parseDef } from './parseDef'
 import { getRefs } from './Refs'
@@ -25,7 +25,7 @@ const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
             ...acc,
             [name]:
               parseDef(
-                schema._def,
+                (schema as ZodNativeSchema)._def,
                 {
                   ...refs,
                   currentPath: [...refs.basePath, refs.definitionPath, name],
@@ -41,7 +41,7 @@ const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
 
   const main =
     parseDef(
-      schema._def,
+      (schema as ZodNativeSchema)._def,
       name === undefined
         ? refs
         : {

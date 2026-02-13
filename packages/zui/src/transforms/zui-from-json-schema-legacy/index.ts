@@ -20,6 +20,7 @@ import {
   ZodEnumDef,
   ZodDefaultDef,
   z,
+  ZodNativeSchemaType,
 } from '../../z/index'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
@@ -78,7 +79,7 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        const def: z.ZodDef = zodField._def
+        const def: z.ZodNativeSchemaDef = zodField._def
 
         if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
           applyZuiPropsRecursively(def.items[index]!, item)
@@ -106,9 +107,7 @@ export type ZodAllDefs =
   | ZodStringDef
   | ZodDefaultDef
 
-export type ZodTypeKind = `${ZodFirstPartyTypeKind}`
-
-export type ZodDef<Type extends ZodTypeKind> = Type extends 'ZodObject'
+export type ZodDef<Type extends ZodNativeSchemaType = ZodNativeSchemaType> = Type extends 'ZodObject'
   ? ZodObjectDef
   : Type extends 'ZodArray'
     ? ZodArrayDef
@@ -143,8 +142,12 @@ export type ZodDef<Type extends ZodTypeKind> = Type extends 'ZodObject'
                                 : never
 
 export const traverseZodDefinitions = (
-  def: ZodDef<ZodFirstPartyTypeKind>,
-  cb: <T extends ZodTypeKind>(type: T, def: ZodDef<T> & { [zuiKey]?: ZuiExtensionObject }, path: string[]) => void,
+  def: ZodDef,
+  cb: <T extends ZodNativeSchemaType>(
+    type: T,
+    def: ZodDef<T> & { [zuiKey]?: ZuiExtensionObject },
+    path: string[]
+  ) => void,
   path: string[] = []
 ) => {
   switch (def.typeName) {

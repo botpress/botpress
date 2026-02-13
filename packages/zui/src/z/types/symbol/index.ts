@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -14,7 +13,7 @@ import {
 } from '../index'
 
 export type ZodSymbolDef = {
-  typeName: ZodFirstPartyTypeKind.ZodSymbol
+  typeName: 'ZodSymbol'
 } & ZodTypeDef
 
 export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
@@ -35,7 +34,7 @@ export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
 
   static create = (params?: RawCreateParams): ZodSymbol => {
     return new ZodSymbol({
-      typeName: ZodFirstPartyTypeKind.ZodSymbol,
+      typeName: 'ZodSymbol',
       ...processCreateParams(params),
     })
   }
