@@ -8,6 +8,11 @@ on:
       - 'integrations/chat/**'
       - 'packages/sdk/**'
 
+  # TEMPORARY: Testing smoke test workflow on PR branch
+  push:
+    branches:
+      - ng/feat/chat-smoke-test
+
   workflow_dispatch: {}
 
 permissions:
@@ -31,5 +36,5 @@ jobs:
         with:
           repository: chat-integration
           dockerfile: ./integrations/chat/Dockerfile
-          push: ${{ github.event_name == 'workflow_dispatch' }}
+          push: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
           depot-project: ${{ secrets.DEPOT_PROJECT_ID }}

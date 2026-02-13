@@ -17,9 +17,9 @@ permissions:
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-    # Only run if the workflow completed successfully AND it was triggered by workflow_dispatch (which pushes)
+    # Only run if the workflow completed successfully AND it pushed an image (workflow_dispatch or push)
     # OR if this workflow itself was manually triggered
-    if: ${{ (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'workflow_dispatch') || github.event_name == 'workflow_dispatch' }}
+    if: ${{ (github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'workflow_dispatch' || github.event.workflow_run.event == 'push')) || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
