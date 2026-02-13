@@ -7,6 +7,7 @@ on:
       - completed
     branches:
       - master
+      - ng/feat/chat-smoke-test
 
   workflow_dispatch: {}
 
