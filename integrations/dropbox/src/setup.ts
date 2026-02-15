@@ -43,72 +43,77 @@ const _isAlreadyAuthenticatedWithSameCredentials = async (props: RegisterProps):
   return false
 }
 
-const _authenticate = async (props: RegisterProps): Promise<void> => {
+const _authenticateWithRefreshToken = async (props: RegisterProps): Promise<boolean> => {
+  const dropboxClient = await DropboxClient.create(props)
+  return dropboxClient.isProperlyAuthenticated()
+}
+
+const _authenticateWithAuthorizationCode = async (props: RegisterProps): Promise<boolean> => {
+  const { logger } = props
+  await DropboxClient.processAuthorizationCode(props)
+  const dropboxClient = await DropboxClient.create(props)
+  const authenticated = await dropboxClient.isProperlyAuthenticated()
+  if (authenticated) {
+    logger?.forBot().info('Successfully created Dropbox client from authorization code')
+  }
+  return authenticated
+}
+
+const _authenticateManual = async (props: RegisterProps): Promise<boolean> => {
   const { ctx, logger } = props
-  let authenticationSucceeded = false
+  const authorizationCode = getAuthorizationCode({ ctx })
 
-  const createFromRefreshToken = async () => {
-    try {
-      const dropboxClient = await DropboxClient.create(props)
-      return await dropboxClient.isProperlyAuthenticated()
-    } catch (err) {
-      logger?.forBot().error({ err }, 'Failed to create Dropbox client from refresh token')
-      throw err
-    }
-  }
-
-  if (ctx.configurationType !== 'manual') {
-    logger?.forBot().info('Using refresh token from state')
-    try {
-      authenticationSucceeded = await createFromRefreshToken()
-    } catch (err) {
+  if (!authorizationCode) {
+    logger?.forBot().info('No authorization code provided, using existing refresh token from state')
+    return _authenticateWithRefreshToken(props).catch((err) => {
       logger?.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
-      authenticationSucceeded = false
-    }
-  } else {
-    const authorizationCode = getAuthorizationCode({ ctx })
-    if (!authorizationCode) {
-      logger?.forBot().info('No authorization code provided, using existing refresh token from state')
-      try {
-        authenticationSucceeded = await createFromRefreshToken()
-      } catch (err) {
-        logger?.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
-        authenticationSucceeded = false
-      }
-    } else {
-      logger?.forBot().info('Using authorization code from context')
-      try {
-        await DropboxClient.processAuthorizationCode(props)
-        const dropboxClient = await DropboxClient.create(props)
-        authenticationSucceeded = await dropboxClient.isProperlyAuthenticated()
-        logger?.forBot().info('Successfully created Dropbox client from authorization code')
-      } catch (err) {
-        logger?.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
-        try {
-          authenticationSucceeded = await createFromRefreshToken()
-        } catch (fallbackErr) {
-          logger?.forBot().error({ err: fallbackErr }, 'Failed to authenticate with fallback')
-          authenticationSucceeded = false
-        }
-      }
-    }
+      return false
+    })
   }
+
+  logger?.forBot().info('Using authorization code from context')
+  return _authenticateWithAuthorizationCode(props).catch((err) => {
+    logger?.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
+    return _authenticateWithRefreshToken(props).catch((fallbackErr) => {
+      logger?.forBot().error({ err: fallbackErr }, 'Failed to authenticate with fallback')
+      return false
+    })
+  })
+}
+
+const _authenticateOAuth = async (props: RegisterProps): Promise<boolean> => {
+  const { logger } = props
+  logger?.forBot().info('Using refresh token from state')
+  return _authenticateWithRefreshToken(props).catch((err) => {
+    logger?.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
+    return false
+  })
+}
+
+const _getAuthFailureMessage = (configurationType: string): string => {
+  if (configurationType === 'manual') {
+    return (
+      'Dropbox authentication failed. ' +
+      'Please note that the Access Code is only valid for a few minutes. ' +
+      'You may need to reauthorize your Dropbox application by navigating ' +
+      "to the authorization URL and update the integration's config accordingly."
+    )
+  }
+  return (
+    'Dropbox authentication failed. ' +
+    'Please use the OAuth wizard to re-authenticate your Dropbox application. ' +
+    'You can access the wizard through the integration configuration page.'
+  )
+}
+
+const _authenticate = async (props: RegisterProps): Promise<void> => {
+  const { ctx } = props
+  const isManual = ctx.configurationType === 'manual'
+
+  const authenticationSucceeded = isManual ? await _authenticateManual(props) : await _authenticateOAuth(props)
 
   if (!authenticationSucceeded) {
-    if (ctx.configurationType === 'manual') {
-      throw new sdk.RuntimeError(
-        'Dropbox authentication failed. ' +
-          'Please note that the Access Code is only valid for a few minutes. ' +
-          'You may need to reauthorize your Dropbox application by navigating ' +
-          "to the authorization URL and update the integration's config accordingly."
-      )
-    } else {
-      throw new sdk.RuntimeError(
-        'Dropbox authentication failed. ' +
-          'Please use the OAuth wizard to re-authenticate your Dropbox application. ' +
-          'You can access the wizard through the integration configuration page.'
-      )
-    }
+    throw new sdk.RuntimeError(_getAuthFailureMessage(ctx.configurationType ?? ''))
   }
 }
 
