@@ -61,14 +61,11 @@ type __ZodType<Output = any, Input = Output> = {
   readonly _input: Input
 }
 
-type Cast<A, B> = A extends B ? A : B
-
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
-export type ZodRawShape = { [k: string]: ZodTypeAny }
-export type ZodTypeAny = ZodType<any, any, any>
+export type ZodRawShape = { [k: string]: ZodType }
 export type TypeOf<T extends __ZodType> = T['_output']
 export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
 export type input<T extends __ZodType> = T['_input']
@@ -177,7 +174,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
   /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(_defs: Record<string, ZodType>): ZodType {
     return this
   }
 
@@ -448,11 +445,11 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return this
   }
 
-  or<T extends ZodTypeAny>(option: T): ZodUnion<[this, T]> {
+  or<T extends ZodType>(option: T): ZodUnion<[this, T]> {
     return ZodUnion.create([this, option], this._def)
   }
 
-  and<T extends ZodTypeAny>(incoming: T): ZodIntersection<this, T> {
+  and<T extends ZodType>(incoming: T): ZodIntersection<this, T> {
     return ZodIntersection.create(this, incoming, this._def)
   }
 
@@ -506,7 +503,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return clone
   }
 
-  pipe<T extends ZodTypeAny>(target: T): ZodPipeline<this, T> {
+  pipe<T extends ZodType>(target: T): ZodPipeline<this, T> {
     return ZodPipeline.create(this, target)
   }
 
@@ -571,7 +568,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    */
   displayAs<
     UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseType = ZodKindToBaseType<Cast<this['_def'], ZodNativeSchemaDef>>,
+    Type extends BaseType = ZodKindToBaseType<this['_def']>,
   >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
     return this.metadata({ displayAs: [options.id, options.params] })
   }
@@ -656,7 +653,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * Allows removing all wrappers around the schema
    * @returns either this or the closest children schema that represents the actual data
    */
-  naked(): ZodTypeAny {
+  naked(): ZodType {
     return this
   }
 }

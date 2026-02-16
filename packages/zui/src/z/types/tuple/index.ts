@@ -4,7 +4,6 @@ import {
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
@@ -17,37 +16,37 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-export type ZodTupleItems = [ZodTypeAny, ...ZodTypeAny[]]
+export type ZodTupleItems = [ZodType, ...ZodType[]]
 export type AssertArray<T> = T extends any[] ? T : never
 export type OutputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_output'] : never
 }>
 export type OutputTypeOfTupleWithRest<
   T extends ZodTupleItems | [],
-  Rest extends ZodTypeAny | null = null,
-> = Rest extends ZodTypeAny ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
+  Rest extends ZodType | null = null,
+> = Rest extends ZodType ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
 
 export type InputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_input'] : never
 }>
 export type InputTypeOfTupleWithRest<
   T extends ZodTupleItems | [],
-  Rest extends ZodTypeAny | null = null,
-> = Rest extends ZodTypeAny ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
+  Rest extends ZodType | null = null,
+> = Rest extends ZodType ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
 
-export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodTypeAny | null = null> = {
+export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodType | null = null> = {
   items: T
   rest: Rest
   typeName: 'ZodTuple'
 } & ZodTypeDef
 
-export type AnyZodTuple = ZodTuple<[ZodTypeAny, ...ZodTypeAny[]] | [], ZodTypeAny | null>
+export type AnyZodTuple = ZodTuple<[ZodType, ...ZodType[]] | [], ZodType | null>
 export class ZodTuple<
-  T extends [ZodTypeAny, ...ZodTypeAny[]] | [] = [ZodTypeAny, ...ZodTypeAny[]],
-  Rest extends ZodTypeAny | null = null,
+  T extends [ZodType, ...ZodType[]] | [] = [ZodType, ...ZodType[]],
+  Rest extends ZodType | null = null,
 > extends ZodType<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    const items = this._def.items.map((item) => item.dereference(defs)) as [ZodTypeAny, ...ZodTypeAny[]]
+  dereference(defs: Record<string, ZodType>): ZodType {
+    const items = this._def.items.map((item) => item.dereference(defs)) as [ZodType, ...ZodType[]]
     const rest = this._def.rest ? this._def.rest.dereference(defs) : null
     return new ZodTuple({
       ...this._def,
@@ -64,7 +63,7 @@ export class ZodTuple<
   }
 
   clone(): ZodTuple<T, Rest> {
-    const items = this._def.items.map((item) => item.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
+    const items = this._def.items.map((item) => item.clone()) as [ZodType, ...ZodType[]]
     const rest = this._def.rest ? this._def.rest.clone() : null
     return new ZodTuple({
       ...this._def,
@@ -130,17 +129,14 @@ export class ZodTuple<
     return this._def.items
   }
 
-  rest<Rest extends ZodTypeAny>(rest: Rest): ZodTuple<T, Rest> {
+  rest<Rest extends ZodType>(rest: Rest): ZodTuple<T, Rest> {
     return new ZodTuple({
       ...this._def,
       rest,
     })
   }
 
-  static create = <T extends [ZodTypeAny, ...ZodTypeAny[]] | []>(
-    schemas: T,
-    params?: RawCreateParams
-  ): ZodTuple<T, null> => {
+  static create = <T extends [ZodType, ...ZodType[]] | []>(schemas: T, params?: RawCreateParams): ZodTuple<T, null> => {
     if (!Array.isArray(schemas)) {
       throw new Error('You must pass an array of schemas to z.tuple([ ... ])')
     }

@@ -6,10 +6,10 @@ import type {
   ZodTuple,
   ZodTupleItems,
   ZodRawShape,
-  ZodTypeAny,
+  ZodType,
 } from '../index'
 export namespace partialUtil {
-  export type DeepPartial<T extends ZodTypeAny> =
+  export type DeepPartial<T extends ZodType> =
     T extends ZodObject<ZodRawShape>
       ? ZodObject<{ [k in keyof T['shape']]: ZodOptional<DeepPartial<T['shape'][k]>> }, T['_def']['unknownKeys']>
       : T extends ZodArray<infer Type, infer Card>
@@ -20,7 +20,7 @@ export namespace partialUtil {
             ? ZodNullable<DeepPartial<Type>>
             : T extends ZodTuple<infer Items>
               ? {
-                  [k in keyof Items]: Items[k] extends ZodTypeAny ? DeepPartial<Items[k]> : never
+                  [k in keyof Items]: Items[k] extends ZodType ? DeepPartial<Items[k]> : never
                 } extends infer PI
                 ? PI extends ZodTupleItems
                   ? ZodTuple<PI>

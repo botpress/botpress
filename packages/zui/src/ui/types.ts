@@ -1,4 +1,5 @@
-import { ZodEnumDef, ZodNativeSchemaDef, z } from '../z'
+import { ZodTypeDef, ZodType, TypeOf } from '../z/types/basetype'
+import { ZodObject } from '../z/types/object'
 
 export type ZuiMetadata = string | number | boolean | null | undefined | ZuiMetadata[] | { [key: string]: ZuiMetadata }
 
@@ -23,12 +24,12 @@ export type UIComponentDefinitions = {
   [T in BaseType]: {
     [K: string]: {
       id: string
-      params: z.ZodObject<any>
+      params: ZodObject<any>
     }
   }
 }
 
-export type ZodKindToBaseType<T extends ZodNativeSchemaDef> = T extends infer U
+export type ZodKindToBaseType<T extends ZodTypeDef> = T extends infer U
   ? U extends { typeName: 'ZodString' }
     ? 'string'
     : U extends { typeName: 'ZodNumber' }
@@ -41,27 +42,24 @@ export type ZodKindToBaseType<T extends ZodNativeSchemaDef> = T extends infer U
             ? 'object'
             : U extends { typeName: 'ZodTuple' }
               ? never
-              : U extends ZodEnumDef
+              : U extends { typeName: 'ZodEnum' }
                 ? 'string'
-                : U extends { typeName: 'ZodDefault'; innerType: z.ZodTypeAny }
+                : U extends { typeName: 'ZodDefault'; innerType: ZodType }
                   ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends { typeName: 'ZodOptional'; innerType: z.ZodTypeAny }
+                  : U extends { typeName: 'ZodOptional'; innerType: ZodType }
                     ? ZodKindToBaseType<U['innerType']['_def']>
-                    : U extends { typeName: 'ZodNullable'; innerType: z.ZodTypeAny }
+                    : U extends { typeName: 'ZodNullable'; innerType: ZodType }
                       ? ZodKindToBaseType<U['innerType']['_def']>
-                      : U extends {
-                            typeName: 'ZodDiscriminatedUnion'
-                            options: z.ZodDiscriminatedUnionOption<any>[]
-                          }
+                      : U extends { typeName: 'ZodDiscriminatedUnion' }
                         ? 'discriminatedUnion'
                         : never
   : never
 
 export type ParseSchema<I> = I extends infer U
-  ? U extends { id: string; params: z.AnyZodObject }
+  ? U extends { id: string; params: ZodObject }
     ? {
         id: U['id']
-        params: z.infer<U['params']>
+        params: TypeOf<U['params']>
       }
     : object
   : never

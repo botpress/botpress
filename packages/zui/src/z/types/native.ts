@@ -32,6 +32,7 @@ import {
   ZodString,
   ZodSymbol,
   ZodTuple,
+  ZodType,
   ZodUndefined,
   ZodUnion,
   ZodUnknown,
@@ -80,6 +81,9 @@ export type ZodNativeSchema =
   | ZodReadonly
   | ZodSymbol
   | ZodRef
+
+type ExtractZodDef<T extends ZodType> = T['_def']
+type ExtractedZodDef = ExtractZodDef<ZodNativeSchema>
 
 /**
  * @deprecated - use ZodNativeSchemaDef instead

@@ -5,22 +5,21 @@ import {
   processCreateParams,
   ParseInput,
   ParseReturnType,
-  ZodTypeAny,
   output,
   input,
 } from '../index'
 
-export type ZodLazyDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodLazyDef<T extends ZodType = ZodType> = {
   getter: () => T
   typeName: 'ZodLazy'
 } & ZodTypeDef
 
-export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T>, ZodLazyDef<T>, input<T>> {
+export class ZodLazy<T extends ZodType = ZodType> extends ZodType<output<T>, ZodLazyDef<T>, input<T>> {
   get schema(): T {
     return this._def.getter()
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodLazy({
       ...this._def,
       getter: () => this._def.getter().dereference(defs),
@@ -44,7 +43,7 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
     return lazySchema._parse({ data: ctx.data, path: ctx.path, parent: ctx })
   }
 
-  static create = <T extends ZodTypeAny>(getter: () => T, params?: RawCreateParams): ZodLazy<T> => {
+  static create = <T extends ZodType>(getter: () => T, params?: RawCreateParams): ZodLazy<T> => {
     return new ZodLazy({
       getter,
       typeName: 'ZodLazy',
@@ -61,7 +60,7 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
     return this._def.getter().naked()
   }
 
-  mandatory(): ZodLazy<ZodTypeAny> {
+  mandatory(): ZodLazy<ZodType> {
     return new ZodLazy({
       ...this._def,
       getter: () => this._def.getter().mandatory(),

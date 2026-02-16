@@ -10,7 +10,6 @@ import {
   RawCreateParams,
   ZodRawShape,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   ZodLazy,
   ZodLiteral,
@@ -34,7 +33,7 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
+const getDiscriminator = <T extends ZodType>(type: T): Primitive[] => {
   if (type instanceof ZodLazy) {
     return getDiscriminator(type.schema)
   } else if (type instanceof ZodEffects) {
@@ -68,7 +67,7 @@ const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
 
 export type ZodDiscriminatedUnionOption<Discriminator extends string> = ZodObject<
   {
-    [key in Discriminator]: ZodTypeAny
+    [key in Discriminator]: ZodType
   } & ZodRawShape,
   UnknownKeysParam
 >
@@ -87,7 +86,7 @@ export class ZodDiscriminatedUnion<
   Discriminator extends string = string,
   Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
 > extends ZodType<output<Options[number]>, ZodDiscriminatedUnionDef<Discriminator, Options>, input<Options[number]>> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     const options = this.options.map((option) => option.dereference(defs)) as [
       ZodDiscriminatedUnionOption<Discriminator>,
       ...ZodDiscriminatedUnionOption<Discriminator>[],

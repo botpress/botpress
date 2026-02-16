@@ -11,7 +11,7 @@ const deref = {
   baz: z.boolean(),
 }
 
-const intersect = (...schemas: z.ZodTypeAny[]) => {
+const intersect = (...schemas: z.ZodType[]) => {
   if (schemas.length === 0) {
     throw new Error('Intersection expects at least one schema')
   }

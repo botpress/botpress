@@ -175,7 +175,7 @@ function sUnwrapZod(schema: z.Schema): string {
   }
 }
 
-const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodTypeAny) => {
+const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodType) => {
   const innerDef = inner?._def
   return `${_addZuiExtensions(def, innerDef)}${_maybeDescribe(def, innerDef)}`
 }

@@ -149,7 +149,7 @@ export const traverseZodDefinitions = (
 ) => {
   switch (def.typeName) {
     case ZodFirstPartyTypeKind.ZodObject:
-      const shape = def.shape()
+      const shape = def.shape() as Record<string, ZodTypeAny>
       cb(ZodFirstPartyTypeKind.ZodObject, def, path)
       Object.entries(shape).forEach(([key, field]) => {
         traverseZodDefinitions(field._def, cb, [...path, key])
@@ -158,18 +158,18 @@ export const traverseZodDefinitions = (
 
     case ZodFirstPartyTypeKind.ZodArray:
       cb(ZodFirstPartyTypeKind.ZodArray, def, path)
-      traverseZodDefinitions(def.type._def, cb, [...path, '0'])
+      traverseZodDefinitions((def.type as ZodTypeAny)._def, cb, [...path, '0'])
       break
 
     case ZodFirstPartyTypeKind.ZodLazy:
       cb(ZodFirstPartyTypeKind.ZodLazy, def, path)
-      traverseZodDefinitions(def.getter()._def, cb, path)
+      traverseZodDefinitions((def.getter() as ZodTypeAny)._def, cb, path)
       break
 
     case ZodFirstPartyTypeKind.ZodUnion:
       cb(ZodFirstPartyTypeKind.ZodUnion, def, path)
       def.options.forEach((option) => {
-        traverseZodDefinitions(option._def, cb, path)
+        traverseZodDefinitions((option as ZodTypeAny)._def, cb, path)
       })
       break
 
@@ -212,11 +212,11 @@ export const traverseZodDefinitions = (
 
     case ZodFirstPartyTypeKind.ZodNullable:
       cb(ZodFirstPartyTypeKind.ZodNullable, def, path)
-      traverseZodDefinitions(def.innerType._def, cb, path)
+      traverseZodDefinitions((def.innerType as ZodTypeAny)._def, cb, path)
       break
     case ZodFirstPartyTypeKind.ZodOptional:
       cb(ZodFirstPartyTypeKind.ZodOptional, def, path)
-      traverseZodDefinitions(def.innerType._def, cb, path)
+      traverseZodDefinitions((def.innerType as ZodTypeAny)._def, cb, path)
       break
 
     case ZodFirstPartyTypeKind.ZodNumber:

@@ -3,26 +3,25 @@ import {
   ZodParsedType,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   OK,
   ParseInput,
   ParseReturnType,
 } from '../index'
 
-export type ZodOptionalDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodOptionalDef<T extends ZodType = ZodType> = {
   innerType: T
   typeName: 'ZodOptional'
 } & ZodTypeDef
 
-export type ZodOptionalType<T extends ZodTypeAny> = ZodOptional<T>
+export type ZodOptionalType<T extends ZodType> = ZodOptional<T>
 
-export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
   T['_output'] | undefined,
   ZodOptionalDef<T>,
   T['_input'] | undefined
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodOptional({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -52,7 +51,7 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
-  static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodOptional<T> => {
+  static create = <T extends ZodType>(type: T, params?: RawCreateParams): ZodOptional<T> => {
     return new ZodOptional({
       innerType: type,
       typeName: 'ZodOptional',
@@ -69,7 +68,7 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodTypeAny {
+  mandatory(): ZodType {
     return this._def.innerType.mandatory()
   }
 }

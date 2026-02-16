@@ -2,7 +2,6 @@ import {
   ZodIssueCode,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
@@ -13,12 +12,12 @@ import {
   ParseReturnType,
 } from '../index'
 
-export type ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodPromiseDef<T extends ZodType = ZodType> = {
   type: T
   typeName: 'ZodPromise'
 } & ZodTypeDef
 
-export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodPromise<T extends ZodType = ZodType> extends ZodType<
   Promise<T['_output']>,
   ZodPromiseDef<T>,
   Promise<T['_input']>
@@ -27,7 +26,7 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.type
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodPromise({
       ...this._def,
       type: this._def.type.dereference(defs),
@@ -68,7 +67,7 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     )
   }
 
-  static create = <T extends ZodTypeAny>(schema: T, params?: RawCreateParams): ZodPromise<T> => {
+  static create = <T extends ZodType>(schema: T, params?: RawCreateParams): ZodPromise<T> => {
     return new ZodPromise({
       type: schema,
       typeName: 'ZodPromise',
@@ -76,7 +75,7 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     })
   }
 
-  isEqual(schema: ZodTypeAny): boolean {
+  isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodPromise)) return false
     return this._def.type.isEqual(schema._def.type)
   }

@@ -5,7 +5,6 @@ import {
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   ZodString,
   processCreateParams,
@@ -17,7 +16,7 @@ import {
   ParseStatus,
 } from '../index'
 
-export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodTypeAny = ZodTypeAny> = {
+export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {
   valueType: Value
   keyType: Key
   typeName: 'ZodRecord'
@@ -35,7 +34,7 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         ? Record<K, V>
         : Partial<Record<K, V>>
 
-export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> extends ZodType<
   RecordType<Key['_output'], Value['_output']>,
   ZodRecordDef<Key, Value>,
   RecordType<Key['_input'], Value['_input']>
@@ -47,7 +46,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
     return new ZodRecord({
@@ -106,8 +105,8 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
     return this._def.valueType
   }
 
-  static create<Value extends ZodTypeAny>(valueType: Value, params?: RawCreateParams): ZodRecord<ZodString, Value>
-  static create<Keys extends KeySchema, Value extends ZodTypeAny>(
+  static create<Value extends ZodType>(valueType: Value, params?: RawCreateParams): ZodRecord<ZodString, Value>
+  static create<Keys extends KeySchema, Value extends ZodType>(
     keySchema: Keys,
     valueType: Value,
     params?: RawCreateParams

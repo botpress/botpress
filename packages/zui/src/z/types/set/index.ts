@@ -3,7 +3,6 @@ import {
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
@@ -15,19 +14,19 @@ import {
   SyncParseReturnType,
 } from '../index'
 
-export type ZodSetDef<Value extends ZodTypeAny = ZodTypeAny> = {
+export type ZodSetDef<Value extends ZodType = ZodType> = {
   valueType: Value
   typeName: 'ZodSet'
   minSize: { value: number; message?: string } | null
   maxSize: { value: number; message?: string } | null
 } & ZodTypeDef
 
-export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
   Set<Value['_output']>,
   ZodSetDef<Value>,
   Set<Value['_input']>
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodSet({
       ...this._def,
       valueType: this._def.valueType.dereference(defs),
@@ -131,10 +130,7 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this.min(1, message) as this
   }
 
-  static create = <Value extends ZodTypeAny = ZodTypeAny>(
-    valueType: Value,
-    params?: RawCreateParams
-  ): ZodSet<Value> => {
+  static create = <Value extends ZodType = ZodType>(valueType: Value, params?: RawCreateParams): ZodSet<Value> => {
     return new ZodSet({
       valueType,
       minSize: null,

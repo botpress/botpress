@@ -4,7 +4,6 @@ import {
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
@@ -15,13 +14,13 @@ import {
   SyncParseReturnType,
 } from '../index'
 
-export type ZodMapDef<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> = {
+export type ZodMapDef<Key extends ZodType = ZodType, Value extends ZodType = ZodType> = {
   valueType: Value
   keyType: Key
   typeName: 'ZodMap'
 } & ZodTypeDef
 
-export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodType> extends ZodType<
   Map<Key['_output'], Value['_output']>,
   ZodMapDef<Key, Value>,
   Map<Key['_input'], Value['_input']>
@@ -33,7 +32,7 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
     return new ZodMap({
@@ -110,7 +109,7 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
       return { status: status.value, value: finalMap }
     }
   }
-  static create = <Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny>(
+  static create = <Key extends ZodType = ZodType, Value extends ZodType = ZodType>(
     keyType: Key,
     valueType: Value,
     params?: RawCreateParams

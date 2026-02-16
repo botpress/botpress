@@ -1,8 +1,8 @@
-import { ZodType, ZodTypeAny, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
+import { ZodType, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
 
 type Key = string | number | symbol
 
-export type ZodBrandedDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodBrandedDef<T extends ZodType = ZodType> = {
   type: T
   typeName: 'ZodBranded'
 } & ZodTypeDef
@@ -14,12 +14,12 @@ export type BRAND<T extends Key = Key> = {
   }
 }
 
-export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> extends ZodType<
+export class ZodBranded<T extends ZodType = ZodType, B extends Key = Key> extends ZodType<
   T['_output'] & BRAND<B>,
   ZodBrandedDef<T>,
   T['_input']
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodBranded({
       ...this._def,
       type: this._def.type.dereference(defs),
@@ -56,11 +56,11 @@ export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> 
     return this._def.type.isEqual(schema._def.type)
   }
 
-  naked(): ZodTypeAny {
+  naked(): ZodType {
     return this._def.type.naked()
   }
 
-  mandatory(): ZodBranded<ZodTypeAny, B> {
+  mandatory(): ZodBranded<ZodType, B> {
     return new ZodBranded({
       ...this._def,
       type: this._def.type.mandatory(),

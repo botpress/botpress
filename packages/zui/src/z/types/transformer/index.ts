@@ -5,7 +5,6 @@ import {
   RawCreateParams,
   RefinementCtx,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   util,
@@ -34,13 +33,13 @@ export type PreprocessEffect<T> = {
 }
 export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
 
-export type ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodEffectsDef<T extends ZodType = ZodType> = {
   schema: T
   typeName: 'ZodEffects'
   effect: Effect<any>
 } & ZodTypeDef
 
-export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, Input = input<T>> extends ZodType<
+export class ZodEffects<T extends ZodType = ZodType, Output = output<T>, Input = input<T>> extends ZodType<
   Output,
   ZodEffectsDef<T>,
   Input
@@ -58,7 +57,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
       : (this._def.schema as T)
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodEffects({
       ...this._def,
       schema: this._def.schema.dereference(defs),
@@ -209,7 +208,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     })
   }
 
-  static createWithPreprocess = <I extends ZodTypeAny>(
+  static createWithPreprocess = <I extends ZodType>(
     preprocess: (arg: unknown, ctx: RefinementCtx) => unknown,
     schema: I,
     params?: RawCreateParams
@@ -249,7 +248,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return this._def.schema.naked()
   }
 
-  mandatory(): ZodEffects<ZodTypeAny> {
+  mandatory(): ZodEffects<ZodType> {
     return new ZodEffects({
       ...this._def,
       schema: this._def.schema.mandatory(),

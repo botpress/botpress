@@ -2,7 +2,6 @@ import {
   processCreateParams,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   isValid,
   ParseInput,
@@ -31,17 +30,17 @@ type MakeReadonly<T> =
             ? T
             : Readonly<T>
 
-export type ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodReadonlyDef<T extends ZodType = ZodType> = {
   innerType: T
   typeName: 'ZodReadonly'
 } & ZodTypeDef
 
-export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodReadonly<T extends ZodType = ZodType> extends ZodType<
   MakeReadonly<T['_output']>,
   ZodReadonlyDef<T>,
   MakeReadonly<T['_input']>
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodReadonly({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -67,7 +66,7 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return result
   }
 
-  static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodReadonly<T> => {
+  static create = <T extends ZodType>(type: T, params?: RawCreateParams): ZodReadonly<T> => {
     return new ZodReadonly({
       innerType: type,
       typeName: 'ZodReadonly',
@@ -88,7 +87,7 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodReadonly<ZodTypeAny> {
+  mandatory(): ZodReadonly<ZodType> {
     return new ZodReadonly({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodSetDef } from '../../../z/index'
+import { ZodSetDef, ZodTypeAny } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -16,7 +16,7 @@ export type JsonSchema7SetType = {
 }
 
 export function parseSetDef(def: ZodSetDef, refs: Refs): JsonSchema7SetType {
-  const items = parseDef(def.valueType._def, {
+  const items = parseDef((def.valueType as ZodTypeAny)._def, {
     ...refs,
     currentPath: [...refs.currentPath, 'items'],
   })

@@ -1,13 +1,4 @@
-import {
-  ZodType,
-  ZodTypeDef,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  ZodTypeAny,
-  addIssueToContext,
-  ZodIssueCode,
-} from '../index'
+import { ZodType, ZodTypeDef, INVALID, ParseInput, ParseReturnType, addIssueToContext, ZodIssueCode } from '../index'
 
 export type ZodRefDef = {
   typeName: 'ZodRef'
@@ -17,7 +8,7 @@ export type ZodRefDef = {
 type ZodRefOutput = NonNullable<unknown>
 
 export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     const def = defs[this._def.uri]
     if (!def) {
       return this

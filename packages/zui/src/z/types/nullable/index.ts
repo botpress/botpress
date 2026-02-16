@@ -4,25 +4,24 @@ import {
   ParseReturnType,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
 } from '../index'
 
-export type ZodNullableDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodNullableDef<T extends ZodType = ZodType> = {
   innerType: T
   typeName: 'ZodNullable'
 } & ZodTypeDef
 
-export type ZodNullableType<T extends ZodTypeAny> = ZodNullable<T>
+export type ZodNullableType<T extends ZodType> = ZodNullable<T>
 
-export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
   T['_output'] | null,
   ZodNullableDef<T>,
   T['_input'] | null
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodNullable({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -52,7 +51,7 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
-  static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodNullable<T> => {
+  static create = <T extends ZodType>(type: T, params?: RawCreateParams): ZodNullable<T> => {
     return new ZodNullable({
       innerType: type,
       typeName: 'ZodNullable',
@@ -69,7 +68,7 @@ export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodNullable<ZodTypeAny> {
+  mandatory(): ZodNullable<ZodType> {
     return new ZodNullable({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

@@ -2,7 +2,6 @@ import { unique } from '../../utils'
 import {
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   ZodError,
   ZodIssue,
@@ -20,8 +19,8 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>
-export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
+type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
+export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
 export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
   options: T
   typeName: 'ZodUnion'
@@ -32,12 +31,8 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
   ZodUnionDef<T>,
   T[number]['_input']
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    const options = this._def.options.map((option) => option.dereference(defs)) as [
-      ZodTypeAny,
-      ZodTypeAny,
-      ...ZodTypeAny[],
-    ]
+  dereference(defs: Record<string, ZodType>): ZodType {
+    const options = this._def.options.map((option) => option.dereference(defs)) as [ZodType, ZodType, ...ZodType[]]
     return new ZodUnion({
       ...this._def,
       options,
@@ -53,7 +48,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
   }
 
   clone(): ZodUnion<T> {
-    const options = this._def.options.map((option) => option.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
+    const options = this._def.options.map((option) => option.clone()) as [ZodType, ...ZodType[]]
     return new ZodUnion({
       ...this._def,
       options,
@@ -159,7 +154,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     return this._def.options
   }
 
-  static create = <T extends Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>>(
+  static create = <T extends Readonly<[ZodType, ZodType, ...ZodType[]]>>(
     types: T,
     params?: RawCreateParams
   ): ZodUnion<T> => {
