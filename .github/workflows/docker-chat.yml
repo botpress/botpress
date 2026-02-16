@@ -8,6 +8,13 @@ on:
       - 'integrations/chat/**'
       - 'packages/sdk/**'
 
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
+      - 'packages/sdk/**'
+
   workflow_dispatch: {}
 
 permissions:
@@ -21,8 +28,6 @@ concurrency:
 jobs:
   build-test-push:
     runs-on: depot-ubuntu-latest
-    # Only build and push for workflow_dispatch or push events
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -135,6 +140,7 @@ jobs:
         run: docker rm -f chat-test || true
 
       - name: Tag and push to ECR
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
         env:
           ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
