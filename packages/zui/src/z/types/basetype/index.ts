@@ -170,6 +170,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return this._metadataRoot._def.description
   }
 
+  get typeName(): Def['typeName'] {
+    return this._def.typeName
+  }
+
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
   /** deeply replace all references in the schema */
