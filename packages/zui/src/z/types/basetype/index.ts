@@ -11,12 +11,23 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
-import { CatchFn } from '../catch'
+import { ZodArray } from '../array'
+import { ZodBranded } from '../branded'
+import { CatchFn, ZodCatch } from '../catch'
+import { ZodDefault } from '../default'
+import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap, ZodIssueCode } from '../error'
+import { ZodIntersection } from '../intersection'
+import { ZodNullable } from '../nullable'
+import { ZodOptional } from '../optional'
+import { ZodPipeline } from '../pipeline'
+import { ZodPromise } from '../promise'
+import { ZodReadonly } from '../readonly'
+import { RefinementEffect, ZodEffects } from '../transformer'
+import { ZodUnion } from '../union'
+import { getParsedType, processCreateParams, util } from '../utils'
 import {
   AsyncParseReturnType,
-  getParsedType,
   isAsync,
-  IssueData,
   isValid,
   ParseContext,
   ParseInput,
@@ -24,27 +35,8 @@ import {
   ParsePath,
   ParseReturnType,
   ParseStatus,
-  processCreateParams,
-  RefinementEffect,
   SyncParseReturnType,
-  util,
-  ZodArray,
-  ZodBranded,
-  ZodCatch,
-  ZodCustomIssue,
-  ZodDefault,
-  ZodEffects,
-  ZodError,
-  ZodErrorMap,
-  ZodIntersection,
-  ZodIssueCode,
-  ZodNullable,
-  ZodOptional,
-  ZodPipeline,
-  ZodPromise,
-  ZodReadonly,
-  ZodUnion,
-} from '../index'
+} from '../utils/parseUtil'
 
 /**
  * This type is not part of the original Zod library, it's been added in Zui to:
@@ -69,7 +61,7 @@ export type TypeOf<T extends __ZodType> = T['_output']
 export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
 export type input<T extends __ZodType> = T['_input']
 export type output<T extends __ZodType> = T['_output']
-export type { TypeOf as infer }
+
 export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
 export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
 export type ZodTypeDef = {

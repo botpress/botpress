@@ -1,20 +1,7 @@
-import {
-  IssueData,
-  input,
-  output,
-  RawCreateParams,
-  RefinementCtx,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  addIssueToContext,
-  DIRTY,
-  INVALID,
-  isValid,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { input, output, RawCreateParams, RefinementCtx, ZodType, ZodTypeDef } from '../basetype'
+import { IssueData } from '../error'
+import { processCreateParams, util } from '../utils'
+import { addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type Refinement<T> = (arg: T, ctx: RefinementCtx) => any
 export type SuperRefinement<T> = (arg: T, ctx: RefinementCtx) => void | Promise<void>
@@ -255,4 +242,3 @@ export class ZodEffects<T extends ZodType = ZodType, Output = output<T>, Input =
     })
   }
 }
-export { ZodEffects as ZodTransformer }

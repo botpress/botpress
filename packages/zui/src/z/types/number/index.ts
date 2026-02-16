@@ -1,20 +1,9 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  errorUtil,
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, util, ZodParsedType } from '../utils'
 import { CustomSet } from '../utils/custom-set'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseContext, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }

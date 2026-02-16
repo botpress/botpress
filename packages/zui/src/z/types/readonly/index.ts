@@ -1,12 +1,6 @@
-import {
-  processCreateParams,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  isValid,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { processCreateParams } from '../utils'
+import { isValid, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 type BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))

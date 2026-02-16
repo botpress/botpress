@@ -1,20 +1,9 @@
-import {
-  ZodIssueCode,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  errorUtil,
-  ZodTypeDef,
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-  ZodType,
-  RawCreateParams,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, util, ZodParsedType } from '../utils'
 import { CustomSet } from '../utils/custom-set'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseContext, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
 
 export type ZodDateCheck =
   | { kind: 'min'; value: number; message?: string }

@@ -1,15 +1,7 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodNaNDef = {
   typeName: 'ZodNaN'

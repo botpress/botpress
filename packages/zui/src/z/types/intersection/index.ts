@@ -1,13 +1,9 @@
 import { unique } from '../../utils'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { getParsedType, processCreateParams, util, ZodParsedType } from '../utils'
+import { CustomSet } from '../utils/custom-set'
 import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  getParsedType,
-  processCreateParams,
-  util,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   isAborted,
@@ -15,8 +11,7 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+} from '../utils/parseUtil'
 
 export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
   left: T

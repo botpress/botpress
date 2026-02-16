@@ -1,19 +1,9 @@
 import { isEqual } from 'lodash-es'
-import {
-  ZodIssueCode,
-  ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  errorUtil,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-} from '../index'
+import { ParseInputLazyPath, RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
 
 export type ZodArrayDef<T extends ZodType = ZodType> = {
   type: T

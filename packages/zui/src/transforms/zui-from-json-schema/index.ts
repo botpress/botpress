@@ -1,5 +1,7 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import z from '../../z'
+import { ZodDiscriminatedUnionOption } from '../../z/types/discriminatedUnion'
+import { util } from '../../z/types/utils'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 import * as guards from './guards'
@@ -173,9 +175,9 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (guards.isDiscriminatedUnionSchema(schema) && schema['x-zui']?.def?.discriminator) {
       const { discriminator } = schema['x-zui'].def
       const options = schema.anyOf.map(_fromJSONSchema) as [
-        z.ZodDiscriminatedUnionOption<string>,
-        z.ZodDiscriminatedUnionOption<string>,
-        ...z.ZodDiscriminatedUnionOption<string>[],
+        ZodDiscriminatedUnionOption<string>,
+        ZodDiscriminatedUnionOption<string>,
+        ...ZodDiscriminatedUnionOption<string>[],
       ]
       return z.discriminatedUnion(discriminator, options)
     }
@@ -197,7 +199,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return z.intersection(zLeft, zRight)
   }
 
-  type _expectUndefined = z.util.AssertTrue<z.util.IsEqual<typeof schema.type, undefined>>
+  type _expectUndefined = util.AssertTrue<util.IsEqual<typeof schema.type, undefined>>
 
   if (guards.isUnknownSchema(schema)) {
     return z.unknown()

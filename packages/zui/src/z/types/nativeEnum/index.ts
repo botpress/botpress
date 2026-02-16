@@ -1,19 +1,8 @@
 import { isEqual } from 'lodash-es'
-
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, util, ZodParsedType } from '../utils'
+import { addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
   values: T

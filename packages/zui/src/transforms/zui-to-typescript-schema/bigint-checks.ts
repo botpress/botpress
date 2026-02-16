@@ -1,5 +1,5 @@
-import { util } from '../../z'
 import { ZodBigIntCheck, ZodBigIntDef } from '../../z/types/bigint'
+import { util } from '../../z/types/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateBigIntChecks = (def: ZodBigIntDef): string => {

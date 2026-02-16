@@ -1,16 +1,7 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodBooleanDef = {
   typeName: 'ZodBoolean'

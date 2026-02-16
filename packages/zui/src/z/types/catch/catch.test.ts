@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { z } from '../..'
+import { z } from '../../index'
 import { util } from '../utils'
 
 test('basic catch', () => {

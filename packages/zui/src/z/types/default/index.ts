@@ -1,15 +1,7 @@
 import { isEqual } from 'lodash-es'
-
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { processCreateParams, util, ZodParsedType } from '../utils'
+import { ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodDefaultDef<T extends ZodType = ZodType> = {
   innerType: T

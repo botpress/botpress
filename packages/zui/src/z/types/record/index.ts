@@ -1,20 +1,10 @@
 import { unique } from '../../utils'
-import {
-  BRAND,
-  ZodIssueCode,
-  ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  ZodString,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-} from '../index'
+import { ParseInputLazyPath, RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { BRAND } from '../branded'
+import { ZodIssueCode } from '../error'
+import { ZodString } from '../string'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
 
 export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {
   valueType: Value

@@ -1,15 +1,7 @@
-import {
-  ZodError,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  isAsync,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  util,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodError } from '../error'
+import { processCreateParams, util } from '../utils'
+import { isAsync, ParseContext, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
 export type ZodCatchDef<T extends ZodType = ZodType> = {

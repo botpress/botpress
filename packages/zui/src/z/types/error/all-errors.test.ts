@@ -1,6 +1,8 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 import { util } from '../utils'
+import { inferFlattenedErrors } from './index'
+import { SafeParseError, SafeParseReturnType, SafeParseSuccess } from '../basetype'
 
 const Test = z.object({
   f1: z.number(),
@@ -8,8 +10,8 @@ const Test = z.object({
   f3: z.string().nullable(),
   f4: z.array(z.object({ t: z.union([z.string(), z.boolean()]) })),
 })
-type TestFlattenedErrors = z.inferFlattenedErrors<typeof Test, { message: string; code: number }>
-type TestFormErrors = z.inferFlattenedErrors<typeof Test>
+type TestFlattenedErrors = inferFlattenedErrors<typeof Test, { message: string; code: number }>
+type TestFormErrors = inferFlattenedErrors<typeof Test>
 
 test('default flattened errors type inference', () => {
   type TestTypeErrors = {
@@ -17,8 +19,8 @@ test('default flattened errors type inference', () => {
     fieldErrors: { [P in keyof z.TypeOf<typeof Test>]?: string[] | undefined }
   }
 
-  util.assertEqual<z.inferFlattenedErrors<typeof Test>, TestTypeErrors>(true)
-  util.assertEqual<z.inferFlattenedErrors<typeof Test, { message: string }>, TestTypeErrors>(false)
+  util.assertEqual<inferFlattenedErrors<typeof Test>, TestTypeErrors>(true)
+  util.assertEqual<inferFlattenedErrors<typeof Test, { message: string }>, TestTypeErrors>(false)
 })
 
 test('custom flattened errors type inference', () => {
@@ -30,9 +32,9 @@ test('custom flattened errors type inference', () => {
     }
   }
 
-  util.assertEqual<z.inferFlattenedErrors<typeof Test>, TestTypeErrors>(false)
-  util.assertEqual<z.inferFlattenedErrors<typeof Test, { message: string; code: number }>, TestTypeErrors>(true)
-  util.assertEqual<z.inferFlattenedErrors<typeof Test, { message: string }>, TestTypeErrors>(false)
+  util.assertEqual<inferFlattenedErrors<typeof Test>, TestTypeErrors>(false)
+  util.assertEqual<inferFlattenedErrors<typeof Test, { message: string; code: number }>, TestTypeErrors>(true)
+  util.assertEqual<inferFlattenedErrors<typeof Test, { message: string }>, TestTypeErrors>(false)
 })
 
 test('form errors type inference', () => {
@@ -41,11 +43,11 @@ test('form errors type inference', () => {
     fieldErrors: { [P in keyof z.TypeOf<typeof Test>]?: string[] | undefined }
   }
 
-  util.assertEqual<z.inferFlattenedErrors<typeof Test>, TestTypeErrors>(true)
+  util.assertEqual<inferFlattenedErrors<typeof Test>, TestTypeErrors>(true)
 })
 
 test('.flatten() type assertion', () => {
-  const parsed = Test.safeParse({}) as z.SafeParseError<void>
+  const parsed = Test.safeParse({}) as SafeParseError<void>
   const validFlattenedErrors: TestFlattenedErrors = parsed.error.flatten(() => ({ message: '', code: 0 }))
   // @ts-expect-error should fail assertion between `TestFlattenedErrors` and unmapped `flatten()`.
   const invalidFlattenedErrors: TestFlattenedErrors = parsed.error.flatten()
@@ -60,7 +62,7 @@ test('.flatten() type assertion', () => {
 })
 
 test('.formErrors type assertion', () => {
-  const parsed = Test.safeParse({}) as z.SafeParseError<void>
+  const parsed = Test.safeParse({}) as SafeParseError<void>
   const validFormErrors: TestFormErrors = parsed.error.formErrors
   // @ts-expect-error should fail assertion between `TestFlattenedErrors` and `.formErrors`.
   const invalidFlattenedErrors: TestFlattenedErrors = parsed.error.formErrors

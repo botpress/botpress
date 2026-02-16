@@ -1,13 +1,6 @@
-import {
-  OK,
-  ParseInput,
-  ParseReturnType,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodNullableDef<T extends ZodType = ZodType> = {
   innerType: T

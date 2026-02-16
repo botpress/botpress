@@ -1,5 +1,7 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
+import { ZodIssueCode } from '../error'
+import { util, ZodParsedType } from '../utils'
 
 test('valid', () => {
   expect(
@@ -70,10 +72,10 @@ test('invalid - null', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.object,
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.object,
         message: 'Expected object, received null',
-        received: z.ZodParsedType.null,
+        received: ZodParsedType.null,
         path: [],
       },
     ])
@@ -90,7 +92,7 @@ test('invalid discriminator value', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_union_discriminator,
+        code: ZodIssueCode.invalid_union_discriminator,
         options: ['a', 'b'],
         message: "Invalid discriminator value. Expected 'a' | 'b'",
         path: ['type'],
@@ -109,11 +111,11 @@ test('valid discriminator value, invalid data', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.string,
+        code: ZodIssueCode.invalid_type,
+        expected: ZodParsedType.string,
         message: 'Required',
         path: ['a'],
-        received: z.ZodParsedType.undefined,
+        received: ZodParsedType.undefined,
       },
     ])
   }
@@ -281,7 +283,7 @@ test('optional and nullable', () => {
   ])
 
   type schema = z.infer<typeof schema>
-  z.util.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
+  util.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
 
   schema.parse({ key: 'a', a: true })
   schema.parse({ key: undefined, a: true })

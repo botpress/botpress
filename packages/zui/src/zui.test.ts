@@ -1,5 +1,5 @@
 import { test, describe, it, expect } from 'vitest'
-import * as zui from './z/index'
+import * as zui from './z'
 
 type ExampleSchema = {
   schema: zui.ZodObject<any>
@@ -169,35 +169,4 @@ test('array', () => {
       },
     },
   ] satisfies zui.infer<typeof schema>)
-})
-
-describe('custom types', () => {
-  const schema = zui.object({
-    agent: zui.agent(),
-    conversation: zui.conversation(),
-    user: zui.user(),
-    message: zui.message(),
-    event: zui.event(),
-    table: zui.table(),
-    tablerow: zui.tablerow(),
-    intent: zui.intent(),
-    aimodel: zui.aimodel().default('gpt-3.5-turbo'),
-    datasource: zui.datasource(),
-  })
-
-  it('should parse', () => {
-    const parse = schema.safeParse({
-      agent: 'hello',
-      conversation: 'hello',
-      user: 'hello',
-      message: 'hello',
-      event: 'hello',
-      table: 'hello',
-      tablerow: 'hello',
-      intent: 'hello',
-      aimodel: 'gpt-3.5-turbo',
-      datasource: 'hello',
-    })
-    expect(parse.success).toBe(true)
-  })
 })

@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { toTypescriptType as toTs } from '.'
-import z, { util, ZodType } from '../../z'
+import z, { ZodType } from '../../z'
 import * as errors from '../common/errors'
 import { assert } from '../../assertions.utils.test'
+import { util } from '../../z/types/utils'
 
 const toTypescript = (schema: ZodType): string => {
   const hasTitle = 'title' in schema.ui

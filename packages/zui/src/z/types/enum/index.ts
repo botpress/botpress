@@ -1,17 +1,8 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, util } from '../utils'
 import { CustomSet } from '../utils/custom-set'
+import { addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ArrayKeys = keyof any[]
 export type Indices<T> = Exclude<keyof T, ArrayKeys>

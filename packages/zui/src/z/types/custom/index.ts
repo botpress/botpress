@@ -1,4 +1,5 @@
-import { ZodAny, CustomErrorParams, ZodType } from '../index'
+import { ZodAny } from '../any'
+import { CustomErrorParams, ZodType } from '../basetype'
 
 export type CustomParams = CustomErrorParams & { fatal?: boolean }
 

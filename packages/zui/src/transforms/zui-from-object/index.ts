@@ -1,4 +1,5 @@
-import { z, SomeZodObject, ZodType } from '../../z/index'
+import { z, ZodType } from '../../z'
+import { ZodObject } from '../../z/types/object'
 import * as errors from '../common/errors'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
@@ -65,7 +66,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
       }
     }
     return acc
-  }, {} as SomeZodObject)
+  }, {} as ZodObject)
 
   const hasProperties = Object.keys(schema).length > 0
   if (opts?.passtrough || (!isRoot && !hasProperties)) {

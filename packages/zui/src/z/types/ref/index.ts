@@ -1,4 +1,6 @@
-import { ZodType, ZodTypeDef, INVALID, ParseInput, ParseReturnType, addIssueToContext, ZodIssueCode } from '../index'
+import { ZodIssueCode } from '../error'
+import { ZodType, ZodTypeDef } from '../index'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodRefDef = {
   typeName: 'ZodRef'

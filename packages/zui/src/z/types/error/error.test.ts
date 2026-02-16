@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { ZodParsedType } from '../../index'
-import { ZodError, ZodIssueCode } from '.'
+
+import { defaultErrorMap, inferFormattedError, setErrorMap, ZodError, ZodErrorMap, ZodIssueCode } from './index'
+import { ZodParsedType } from '../utils'
 
 test('error creation', () => {
   const err1 = ZodError.create([])
@@ -24,7 +25,7 @@ test('error creation', () => {
   err3.message
 })
 
-const errorMap: z.ZodErrorMap = (error, ctx) => {
+const errorMap: ZodErrorMap = (error, ctx) => {
   if (error.code === ZodIssueCode.invalid_type) {
     if (error.expected === 'string') {
       return { message: 'bad type!' }
@@ -156,7 +157,7 @@ test('custom path in custom error map', () => {
     }),
   })
 
-  const errorMap: z.ZodErrorMap = (error) => {
+  const errorMap: ZodErrorMap = (error) => {
     expect(error.path.length).toBe(2)
     return { message: 'doesnt matter' }
   }
@@ -291,7 +292,7 @@ test('formatting', () => {
     expect(error.inner?.name?.[1]).toEqual(undefined)
   }
   if (!result2.success) {
-    type FormattedError = z.inferFormattedError<typeof schema>
+    type FormattedError = inferFormattedError<typeof schema>
     const error: FormattedError = result2.error.format()
     expect(error._errors).toEqual([])
     expect(error.inner?._errors).toEqual([])
@@ -303,7 +304,7 @@ test('formatting', () => {
 
   // test custom mapper
   if (!result2.success) {
-    type FormattedError = z.inferFormattedError<typeof schema, number>
+    type FormattedError = inferFormattedError<typeof schema, number>
     const error: FormattedError = result2.error.format(() => 5)
     expect(error._errors).toEqual([])
     expect(error.inner?._errors).toEqual([])
@@ -332,7 +333,7 @@ test('formatting with nullable and optional fields', () => {
   const result = schema.safeParse(invalidItem)
   expect(result.success).toEqual(false)
   if (!result.success) {
-    type FormattedError = z.inferFormattedError<typeof schema>
+    type FormattedError = inferFormattedError<typeof schema>
     const error: FormattedError = result.error.format()
     expect(error._errors).toEqual([])
     expect(error.nullableObject?._errors).toEqual([])
@@ -383,13 +384,13 @@ test('schema-bound error map', () => {
 
 test('overrideErrorMap', () => {
   // support overrideErrorMap
-  z.setErrorMap(() => ({ message: 'OVERRIDE' }))
+  setErrorMap(() => ({ message: 'OVERRIDE' }))
   const result4 = stringWithCustomError.min(10).safeParse('tooshort')
   expect(result4.success).toEqual(false)
   if (!result4.success) {
     expect(result4.error.issues[0]?.message).toEqual('OVERRIDE')
   }
-  z.setErrorMap(z.defaultErrorMap)
+  setErrorMap(defaultErrorMap)
 })
 
 test('invalid and required', () => {

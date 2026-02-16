@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import z from '../index'
-import type { SyncParseReturnType } from '../types'
+import { isAborted, isDirty, isValid, SyncParseReturnType } from '../types/utils/parseUtil'
 
 test('parseUtil isInvalid should use structural typing', () => {
   // Test for issue #556: https://github.com/colinhacks/zod/issues/556
@@ -8,15 +8,15 @@ test('parseUtil isInvalid should use structural typing', () => {
   const dirty: SyncParseReturnType = { status: 'dirty', value: 'whatever' }
   const valid: SyncParseReturnType = { status: 'valid', value: 'whatever' }
 
-  expect(z.isAborted(aborted)).toBe(true)
-  expect(z.isAborted(dirty)).toBe(false)
-  expect(z.isAborted(valid)).toBe(false)
+  expect(isAborted(aborted)).toBe(true)
+  expect(isAborted(dirty)).toBe(false)
+  expect(isAborted(valid)).toBe(false)
 
-  expect(z.isDirty(aborted)).toBe(false)
-  expect(z.isDirty(dirty)).toBe(true)
-  expect(z.isDirty(valid)).toBe(false)
+  expect(isDirty(aborted)).toBe(false)
+  expect(isDirty(dirty)).toBe(true)
+  expect(isDirty(valid)).toBe(false)
 
-  expect(z.isValid(aborted)).toBe(false)
-  expect(z.isValid(dirty)).toBe(false)
-  expect(z.isValid(valid)).toBe(true)
+  expect(isValid(aborted)).toBe(false)
+  expect(isValid(dirty)).toBe(false)
+  expect(isValid(valid)).toBe(true)
 })

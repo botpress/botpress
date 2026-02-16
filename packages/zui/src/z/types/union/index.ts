@@ -1,12 +1,11 @@
 import { unique } from '../../utils'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodError, ZodIssue, ZodIssueCode } from '../error'
+import { ZodNever } from '../never'
+import { ZodUndefined } from '../undefined'
+import { processCreateParams } from '../utils'
+import { CustomSet } from '../utils/custom-set'
 import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  ZodError,
-  ZodIssue,
-  ZodIssueCode,
-  processCreateParams,
   addIssueToContext,
   DIRTY,
   INVALID,
@@ -14,10 +13,7 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ZodUndefined,
-  ZodNever,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+} from '../utils/parseUtil'
 
 type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>

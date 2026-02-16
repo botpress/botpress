@@ -1,5 +1,5 @@
-import { util } from '../../z'
 import { ZodStringCheck, ZodStringDef } from '../../z/types/string'
+import { util } from '../../z/types/utils'
 import { primitiveToTypescriptValue as toTs, unknownToTypescriptValue } from '../common/utils'
 
 export const generateStringChecks = (def: ZodStringDef): string => {

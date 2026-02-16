@@ -1,33 +1,19 @@
 import { unique } from '../../utils'
-import {
-  ZodArray,
-  ZodEnum,
-  ZodNullable,
-  ZodOptional,
-  ZodTuple,
-  addIssueToContext,
-  INVALID,
-  objectUtil,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-  util,
-  ZodIssueCode,
-  ZodParsedType,
-  ParseInputLazyPath,
-  RawCreateParams,
-  ZodRawShape,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  enumUtil,
-  errorUtil,
-  partialUtil,
-  createZodEnum,
-  ZodNever,
-  ZodAny,
-} from '../index'
+import { ZodAny } from '../any'
+import { ZodArray } from '../array'
+import { ParseInputLazyPath, RawCreateParams, ZodRawShape, ZodType, ZodTypeDef } from '../basetype'
+import { createZodEnum, ZodEnum } from '../enum'
+import { ZodIssueCode } from '../error'
+import { ZodNever } from '../never'
+import { ZodNullable } from '../nullable'
+import { ZodOptional } from '../optional'
+import { ZodTuple } from '../tuple'
+import { objectUtil, processCreateParams, util, ZodParsedType } from '../utils'
 import { CustomSet } from '../utils/custom-set'
+import { enumUtil } from '../utils/enumUtil'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
+import { partialUtil } from '../utils/partialUtil'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 
@@ -84,8 +70,6 @@ export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
 
 export type deoptional<T extends ZodType> =
   T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
-
-export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
 
 export type noUnrecognized<Obj extends object, Shape extends object> = {
   [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never

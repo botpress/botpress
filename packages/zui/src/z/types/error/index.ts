@@ -1,4 +1,6 @@
-import { TypeOf, ZodType, ZodParsedType, util, Primitive } from '../index'
+import { TypeOf, ZodType } from '../basetype'
+import { util, ZodParsedType } from '../utils'
+import { Primitive } from '../utils/typeAliases'
 import { errorMap as defaultErrorMap } from './locales/en'
 
 type allKeys<T> = T extends any ? keyof T : never
@@ -327,6 +329,7 @@ export type ZodErrorMap = (issue: ZodIssueOptionalMessage, _ctx: ErrorMapCtx) =>
 let overrideErrorMap = defaultErrorMap
 export { defaultErrorMap }
 
+// TODO: rm this global setter
 export function setErrorMap(map: ZodErrorMap) {
   overrideErrorMap = map
 }

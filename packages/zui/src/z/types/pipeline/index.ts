@@ -1,5 +1,6 @@
 import { unique } from '../../utils'
-import { ZodType, ZodTypeDef, DIRTY, INVALID, ParseInput, ParseReturnType } from '../index'
+import { ZodType, ZodTypeDef } from '../basetype'
+import { DIRTY, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodPipelineDef<A extends ZodType = ZodType, B extends ZodType = ZodType> = {
   in: A

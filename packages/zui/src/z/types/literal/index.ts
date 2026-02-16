@@ -1,17 +1,9 @@
 import { isEqual } from 'lodash-es'
-
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  Primitive,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams } from '../utils'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
+import { Primitive } from '../utils/typeAliases'
 
 export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T

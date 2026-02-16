@@ -1,4 +1,4 @@
-import { Primitive } from '../../z'
+import { Primitive } from '../../z/types/utils/typeAliases'
 
 /**
  * @returns a valid typescript literal type usable in `type MyType = ${x}`

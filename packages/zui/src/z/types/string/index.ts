@@ -1,22 +1,10 @@
 import { zuiKey } from '../../../ui/constants'
-import {
-  StringValidation,
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  errorUtil,
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { StringValidation, ZodIssueCode } from '../error'
+import { processCreateParams, util, ZodParsedType } from '../utils'
 import { CustomSet } from '../utils/custom-set'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseContext, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
 import { generateDatetimeRegex } from './datetime'
 
 export type IpVersion = 'v4' | 'v6'

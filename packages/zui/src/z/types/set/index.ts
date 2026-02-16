@@ -1,18 +1,8 @@
-import {
-  ZodIssueCode,
-  ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  errorUtil,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  SyncParseReturnType,
-} from '../index'
+import { ParseInputLazyPath, RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { ZodIssueCode } from '../error'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { errorUtil } from '../utils/errorUtil'
+import { addIssueToContext, INVALID, ParseInput, ParseReturnType, SyncParseReturnType } from '../utils/parseUtil'
 
 export type ZodSetDef<Value extends ZodType = ZodType> = {
   valueType: Value

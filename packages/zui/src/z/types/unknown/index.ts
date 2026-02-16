@@ -1,4 +1,6 @@
-import { RawCreateParams, ZodType, ZodTypeDef, processCreateParams, OK, ParseInput, ParseReturnType } from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { processCreateParams } from '../utils'
+import { OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodUnknownDef = {
   typeName: 'ZodUnknown'

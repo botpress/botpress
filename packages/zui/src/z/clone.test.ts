@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { z } from '.'
+import { z } from './index'
 
 const expectZui = (actual: z.Schema) => ({
   not: {

@@ -1,27 +1,11 @@
 import { unique } from '../../utils'
-import {
-  defaultErrorMap,
-  getErrorMap,
-  ZodError,
-  ZodErrorMap,
-  ZodIssue,
-  ZodIssueCode,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  ZodPromise,
-  AnyZodTuple,
-  ZodTuple,
-  ZodUnknown,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  makeIssue,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import { RawCreateParams, ZodType, ZodTypeDef } from '../basetype'
+import { defaultErrorMap, getErrorMap, ZodError, ZodErrorMap, ZodIssue, ZodIssueCode } from '../error'
+import { ZodPromise } from '../promise'
+import { AnyZodTuple, ZodTuple } from '../tuple'
+import { ZodUnknown } from '../unknown'
+import { processCreateParams, ZodParsedType } from '../utils'
+import { addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
   args: Args
