@@ -32,7 +32,6 @@ import {
   ZodString,
   ZodSymbol,
   ZodTuple,
-  ZodType,
   ZodUndefined,
   ZodUnion,
   ZodUnknown,

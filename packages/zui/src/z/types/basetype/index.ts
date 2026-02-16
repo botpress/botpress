@@ -38,7 +38,6 @@ import {
   ZodErrorMap,
   ZodIntersection,
   ZodIssueCode,
-  ZodNativeSchemaDef,
   ZodNullable,
   ZodOptional,
   ZodPipeline,
