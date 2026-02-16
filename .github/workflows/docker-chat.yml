@@ -74,7 +74,7 @@ jobs:
         run: |
           aws --version
           aws ecr create-repository --repository-name $ECR_REPOSITORY || true
-          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r > repository-policy.json
+          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r '.' > repository-policy.json
           aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
 
       - name: Set up Depot CLI
