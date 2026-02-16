@@ -1,7 +1,9 @@
 import { z } from '@botpress/sdk'
 
+export const channelTypeValues = ['channel', 'dm', 'thread'] as const
+
 export const channelTypeSchema = z
-  .enum(['channel', 'dm', 'thread'])
+  .enum(channelTypeValues)
   .title('Channel Type')
   .describe('The slack channel type (channel, dm, or thread)')
 

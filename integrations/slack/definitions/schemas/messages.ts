@@ -29,7 +29,7 @@ export const messagePayloadSchemas = {
   card: sdk.messages.defaults.card.schema,
   dropdown: sdk.messages.defaults.dropdown.schema,
   choice: sdk.messages.defaults.choice.schema,
-  bloc: sdk.messages.defaults.bloc.schema,
+  bloc: sdk.messages.markdownBloc.schema,
 }
 
 export const messagePayloadSchema = sdk.z.union([
@@ -43,7 +43,7 @@ export const messagePayloadSchema = sdk.z.union([
   sdk.messages.defaults.card.schema,
   sdk.messages.defaults.dropdown.schema,
   sdk.messages.defaults.choice.schema,
-  sdk.messages.defaults.bloc.schema,
+  sdk.messages.markdownBloc.schema,
 ])
 
 export const messageSchema = sdk.object({

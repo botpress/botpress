@@ -1,3 +1,5 @@
+import { channelTypeValues } from 'definitions/schemas/channels'
+import { MessageOrigin } from 'definitions/schemas/messages'
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
 
@@ -87,7 +89,29 @@ export const getMessageFromSlackEvent = async (
     tags: { ts: event.item.ts, channelId: event.item.channel },
   })
 
-  return messages[0]
+  const message = messages[0]
+  if (!message) {
+    return undefined
+  }
+
+  if (_isMessageOrigin(message.tags.channelOrigin)) {
+    return message
+  }
+
+  const { conversation } = await client.getConversation({ id: message.conversationId })
+  const threadId = 'thread' in conversation.tags ? conversation.tags.thread : undefined
+  const inferredOrigin = _inferMessageOrigin({
+    channelId: message.tags.channelId ?? conversation.tags.id,
+    threadId,
+  })
+
+  return {
+    ...message,
+    tags: {
+      ...message.tags,
+      channelOrigin: inferredOrigin,
+    },
+  }
 }
 
 export const safeParseBody = (body: string) => {
@@ -119,4 +143,25 @@ const _safeParseJson = (json: string) => {
       error: thrown instanceof Error ? thrown : new Error(String(thrown)),
     }
   }
+}
+
+const _messageOriginValues = new Set<string>(channelTypeValues)
+
+const _isMessageOrigin = (value: string | undefined): value is MessageOrigin =>
+  value !== undefined && _messageOriginValues.has(value)
+
+const _inferMessageOrigin = ({
+  channelId,
+  threadId,
+}: {
+  channelId: string | undefined
+  threadId: string | undefined
+}): MessageOrigin => {
+  if (threadId) {
+    return 'thread'
+  }
+  if (channelId?.startsWith('D')) {
+    return 'dm'
+  }
+  return 'channel'
 }
