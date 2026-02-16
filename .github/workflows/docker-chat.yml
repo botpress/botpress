@@ -24,46 +24,69 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  docker-chat:
+  build-test-push:
     runs-on: depot-ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
-        uses: ./.github/actions/setup
-        with:
-          extra_filters: '-F @botpresshub/chat'
-      - uses: ./.github/actions/docker-build
-        with:
-          repository: chat-integration
-          dockerfile: ./integrations/chat/Dockerfile
-          push: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
-          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
-
-  smoke-test:
-    runs-on: ubuntu-latest
-    needs: docker-chat
-    # Only run if an image was pushed (workflow_dispatch or push events)
+    # Only build and push for workflow_dispatch or push events
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
+        uses: ./.github/actions/setup
+        with:
+          extra_filters: '-F @botpresshub/chat'
+
       - uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-session-name: container_puller
+          role-session-name: container_pusher
           role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
           aws-region: us-east-1
 
       - uses: aws-actions/amazon-ecr-login@v1
         id: ecr
+        with:
+          mask-password: true
 
-      - name: Pull Docker image
-        env:
-          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ${{ steps.ecr.outputs.registry }}/chat-integration
+          flavor: |
+            latest=false
+          tags: |
+            type=sha,prefix=,format=long
+
+      - name: Set BUILD_DATE
+        id: meta_date
         run: |
-          echo "Pulling image: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
-          docker pull $ECR_REGISTRY/chat-integration:$IMAGE_TAG
-          docker tag $ECR_REGISTRY/chat-integration:$IMAGE_TAG chat-integration:test
+          export TZ=America/Toronto
+          echo "timestamp=$(date +"%Y-%m-%d %H:%M:%S")" >> "$GITHUB_OUTPUT"
+
+      - name: Create ECR Registry
+        env:
+          ECR_REPOSITORY: chat-integration
+        run: |
+          aws --version
+          aws ecr create-repository --repository-name $ECR_REPOSITORY || true
+          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r > repository-policy.json
+          aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Build Docker image
+        uses: depot/build-push-action@v1
+        with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
+          build-args: |
+            MINIFY=true
+            BUILD_DATE=${{ steps.meta_date.outputs.timestamp }}
+          file: ./integrations/chat/Dockerfile
+          context: .
+          push: false
+          load: true
+          tags: chat-integration:test
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Start Docker container
         run: |
@@ -112,6 +135,19 @@ jobs:
         if: failure()
         run: docker logs chat-test
 
-      - name: Cleanup
+      - name: Cleanup container
         if: always()
         run: docker rm -f chat-test || true
+
+      - name: Tag and push to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Tagging image for ECR: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
+          docker tag chat-integration:test $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+
+          echo "Pushing to ECR..."
+          docker push $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+
+          echo "Successfully pushed image: $IMAGE_TAG"
