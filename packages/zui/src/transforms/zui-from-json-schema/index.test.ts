@@ -12,7 +12,7 @@ const buildSchema = (s: JSONSchema7, xZui: ZuiJSONSchema['x-zui'] = undefined): 
 }
 
 const undefinedSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 =>
-  buildSchema({ not: true }, { ...xZui, def: { typeName: z.ZodFirstPartyTypeKind.ZodUndefined } })
+  buildSchema({ not: true }, { ...xZui, def: { typeName: 'ZodUndefined' } })
 
 const nullSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 => buildSchema({ type: 'null' }, xZui)
 

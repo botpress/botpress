@@ -84,7 +84,7 @@ export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema
         break
       default:
         throw new errors.UnsupportedZuiCheckToJSONSchemaError({
-          zodType: z.ZodFirstPartyTypeKind.ZodString,
+          zodType: 'ZodString',
           checkKind: check.kind,
         })
     }
