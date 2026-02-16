@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -25,7 +24,7 @@ export type Values<T extends EnumValues> = {
 
 export type ZodEnumDef<T extends EnumValues = EnumValues> = {
   values: T
-  typeName: ZodFirstPartyTypeKind.ZodEnum
+  typeName: 'ZodEnum'
 } & ZodTypeDef
 
 export type Writeable<T> = {
@@ -50,7 +49,7 @@ export function createZodEnum<U extends string, T extends [U, ...U[]]>(values: T
 export function createZodEnum(values: [string, ...string[]], params?: RawCreateParams) {
   return new ZodEnum({
     values,
-    typeName: ZodFirstPartyTypeKind.ZodEnum,
+    typeName: 'ZodEnum',
     ...processCreateParams(params),
   })
 }

@@ -1,7 +1,6 @@
 import {
   processCreateParams,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -34,7 +33,7 @@ type MakeReadonly<T> =
 
 export type ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
-  typeName: ZodFirstPartyTypeKind.ZodReadonly
+  typeName: 'ZodReadonly'
 } & ZodTypeDef
 
 export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -71,7 +70,7 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodReadonly<T> => {
     return new ZodReadonly({
       innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodReadonly,
+      typeName: 'ZodReadonly',
       ...processCreateParams(params),
     })
   }

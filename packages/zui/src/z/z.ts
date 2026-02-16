@@ -6,8 +6,6 @@ import {
   ZodArray,
   ZodBigInt,
   ZodBoolean,
-  ZodBranded,
-  ZodCatch,
   ZodDate,
   ZodDefault,
   ZodDiscriminatedUnion,
@@ -47,45 +45,6 @@ export { ZodType as Schema, ZodType as ZodSchema }
 export const late = {
   object: ZodObject.lazycreate,
 }
-
-export type ZodFirstPartySchemaTypes =
-  | ZodString
-  | ZodNumber
-  | ZodNaN
-  | ZodBigInt
-  | ZodBoolean
-  | ZodDate
-  | ZodUndefined
-  | ZodNull
-  | ZodAny
-  | ZodUnknown
-  | ZodNever
-  | ZodVoid
-  | ZodArray
-  | ZodObject
-  | ZodUnion
-  | ZodDiscriminatedUnion
-  | ZodIntersection
-  | ZodTuple
-  | ZodRecord
-  | ZodMap
-  | ZodSet
-  | ZodFunction
-  | ZodLazy
-  | ZodLiteral
-  | ZodEnum
-  | ZodEffects
-  | ZodNativeEnum
-  | ZodOptional
-  | ZodNullable
-  | ZodDefault
-  | ZodCatch
-  | ZodPromise
-  | ZodBranded
-  | ZodPipeline
-  | ZodReadonly
-  | ZodSymbol
-  | ZodRef
 
 // requires TS 4.4+
 abstract class Class {

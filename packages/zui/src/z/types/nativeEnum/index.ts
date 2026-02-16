@@ -3,7 +3,6 @@ import { isEqual } from 'lodash-es'
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -18,7 +17,7 @@ import {
 
 export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
   values: T
-  typeName: ZodFirstPartyTypeKind.ZodNativeEnum
+  typeName: 'ZodNativeEnum'
 } & ZodTypeDef
 
 export type EnumLike = { [k: string]: string | number; [nu: number]: string }
@@ -58,7 +57,7 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
   static create = <T extends EnumLike>(values: T, params?: RawCreateParams): ZodNativeEnum<T> => {
     return new ZodNativeEnum({
       values,
-      typeName: ZodFirstPartyTypeKind.ZodNativeEnum,
+      typeName: 'ZodNativeEnum',
       ...processCreateParams(params),
     })
   }

@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -14,7 +13,7 @@ import {
 } from '../index'
 
 export type ZodVoidDef = {
-  typeName: ZodFirstPartyTypeKind.ZodVoid
+  typeName: 'ZodVoid'
 } & ZodTypeDef
 
 export class ZodVoid extends ZodType<void, ZodVoidDef> {
@@ -34,7 +33,7 @@ export class ZodVoid extends ZodType<void, ZodVoidDef> {
 
   static create = (params?: RawCreateParams): ZodVoid => {
     return new ZodVoid({
-      typeName: ZodFirstPartyTypeKind.ZodVoid,
+      typeName: 'ZodVoid',
       ...processCreateParams(params),
     })
   }

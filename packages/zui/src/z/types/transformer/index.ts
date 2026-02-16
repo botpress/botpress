@@ -4,7 +4,6 @@ import {
   output,
   RawCreateParams,
   RefinementCtx,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -37,7 +36,7 @@ export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEff
 
 export type ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> = {
   schema: T
-  typeName: ZodFirstPartyTypeKind.ZodEffects
+  typeName: 'ZodEffects'
   effect: Effect<any>
 } & ZodTypeDef
 
@@ -54,7 +53,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
    * @deprecated use naked() instead
    */
   sourceType(): T {
-    return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects
+    return this._def.schema._def.typeName === 'ZodEffects'
       ? (this._def.schema as unknown as ZodEffects<T>).sourceType()
       : (this._def.schema as T)
   }
@@ -204,7 +203,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
   ): ZodEffects<I, I['_output']> => {
     return new ZodEffects({
       schema,
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      typeName: 'ZodEffects',
       effect,
       ...processCreateParams(params),
     })
@@ -218,7 +217,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return new ZodEffects({
       schema,
       effect: { type: 'preprocess', transform: preprocess },
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
+      typeName: 'ZodEffects',
       ...processCreateParams(params),
     })
   }

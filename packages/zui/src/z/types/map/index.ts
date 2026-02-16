@@ -3,7 +3,6 @@ import {
   ZodIssueCode,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -19,7 +18,7 @@ import {
 export type ZodMapDef<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> = {
   valueType: Value
   keyType: Key
-  typeName: ZodFirstPartyTypeKind.ZodMap
+  typeName: 'ZodMap'
 } & ZodTypeDef
 
 export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -119,7 +118,7 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
     return new ZodMap({
       valueType,
       keyType,
-      typeName: ZodFirstPartyTypeKind.ZodMap,
+      typeName: 'ZodMap',
       ...processCreateParams(params),
     })
   }

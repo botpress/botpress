@@ -2,7 +2,6 @@ import {
   processCreateParams,
   ZodParsedType,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -13,7 +12,7 @@ import {
 
 export type ZodOptionalDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
-  typeName: ZodFirstPartyTypeKind.ZodOptional
+  typeName: 'ZodOptional'
 } & ZodTypeDef
 
 export type ZodOptionalType<T extends ZodTypeAny> = ZodOptional<T>
@@ -56,7 +55,7 @@ export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodOptional<T> => {
     return new ZodOptional({
       innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodOptional,
+      typeName: 'ZodOptional',
       ...processCreateParams(params),
     })
   }

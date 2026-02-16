@@ -2,7 +2,6 @@ import { isEqual } from 'lodash-es'
 
 import {
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -16,7 +15,7 @@ import {
 export type ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> = {
   innerType: T
   defaultValue: () => util.noUndefined<T['_input']>
-  typeName: ZodFirstPartyTypeKind.ZodDefault
+  typeName: 'ZodDefault'
 } & ZodTypeDef
 
 export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
@@ -66,7 +65,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   ): ZodDefault<T> => {
     return new ZodDefault({
       innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodDefault,
+      typeName: 'ZodDefault',
       defaultValue: typeof value === 'function' ? value : () => value,
       ...processCreateParams(params),
     })
