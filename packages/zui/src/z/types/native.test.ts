@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import { ZodFirstPartySchemaTypes, ZodFirstPartyTypeKind } from '..'
+import { ZodFirstPartySchemaTypes, ZodFirstPartyTypeKind } from './native'
 import * as z from '../index'
 import { util } from './utils'
 

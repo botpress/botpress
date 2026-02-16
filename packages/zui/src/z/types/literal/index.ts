@@ -3,7 +3,6 @@ import { isEqual } from 'lodash-es'
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -16,7 +15,7 @@ import {
 
 export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T
-  typeName: ZodFirstPartyTypeKind.ZodLiteral
+  typeName: 'ZodLiteral'
 } & ZodTypeDef
 
 export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodLiteralDef<T>> {
@@ -40,7 +39,7 @@ export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodL
   static create = <T extends Primitive>(value: T, params?: RawCreateParams): ZodLiteral<T> => {
     return new ZodLiteral({
       value,
-      typeName: ZodFirstPartyTypeKind.ZodLiteral,
+      typeName: 'ZodLiteral',
       ...processCreateParams(params),
     })
   }

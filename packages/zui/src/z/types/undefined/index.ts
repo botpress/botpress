@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -15,7 +14,7 @@ import {
 } from '../index'
 
 export type ZodUndefinedDef = {
-  typeName: ZodFirstPartyTypeKind.ZodUndefined
+  typeName: 'ZodUndefined'
 } & ZodTypeDef
 
 export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
@@ -36,7 +35,7 @@ export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
 
   static create = (params?: RawCreateParams): ZodUndefined => {
     return new ZodUndefined({
-      typeName: ZodFirstPartyTypeKind.ZodUndefined,
+      typeName: 'ZodUndefined',
       ...processCreateParams(params),
     })
   }

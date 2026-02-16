@@ -1,7 +1,6 @@
 import { unique } from '../../utils'
 import {
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -25,7 +24,7 @@ type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]
 export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
 export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
   options: T
-  typeName: ZodFirstPartyTypeKind.ZodUnion
+  typeName: 'ZodUnion'
 } & ZodTypeDef
 
 export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodType<
@@ -166,7 +165,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
   ): ZodUnion<T> => {
     return new ZodUnion({
       options: types,
-      typeName: ZodFirstPartyTypeKind.ZodUnion,
+      typeName: 'ZodUnion',
       ...processCreateParams(params),
     })
   }

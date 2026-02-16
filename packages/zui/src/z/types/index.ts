@@ -5,7 +5,7 @@
  */
 
 export * from './basetype'
-export * from './defs'
+export * from './native'
 export * from './utils'
 export * from './utils/parseUtil'
 export * from './utils/enumUtil'

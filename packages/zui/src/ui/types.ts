@@ -1,4 +1,4 @@
-import { ZodEnumDef, z } from '../z'
+import { ZodEnumDef, ZodNativeSchemaDef, z } from '../z'
 
 export type ZuiMetadata = string | number | boolean | null | undefined | ZuiMetadata[] | { [key: string]: ZuiMetadata }
 
@@ -28,29 +28,29 @@ export type UIComponentDefinitions = {
   }
 }
 
-export type ZodKindToBaseType<T extends z.ZodTypeDef> = T extends infer U
-  ? U extends { typeName: z.ZodFirstPartyTypeKind.ZodString }
+export type ZodKindToBaseType<T extends ZodNativeSchemaDef> = T extends infer U
+  ? U extends { typeName: 'ZodString' }
     ? 'string'
-    : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNumber }
+    : U extends { typeName: 'ZodNumber' }
       ? 'number'
-      : U extends { typeName: z.ZodFirstPartyTypeKind.ZodBoolean }
+      : U extends { typeName: 'ZodBoolean' }
         ? 'boolean'
-        : U extends { typeName: z.ZodFirstPartyTypeKind.ZodArray }
+        : U extends { typeName: 'ZodArray' }
           ? 'array'
-          : U extends { typeName: z.ZodFirstPartyTypeKind.ZodObject }
+          : U extends { typeName: 'ZodObject' }
             ? 'object'
-            : U extends { typeName: z.ZodFirstPartyTypeKind.ZodTuple }
+            : U extends { typeName: 'ZodTuple' }
               ? never
               : U extends ZodEnumDef
                 ? 'string'
-                : U extends { typeName: z.ZodFirstPartyTypeKind.ZodDefault; innerType: z.ZodTypeAny }
+                : U extends { typeName: 'ZodDefault'; innerType: z.ZodTypeAny }
                   ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends { typeName: z.ZodFirstPartyTypeKind.ZodOptional; innerType: z.ZodTypeAny }
+                  : U extends { typeName: 'ZodOptional'; innerType: z.ZodTypeAny }
                     ? ZodKindToBaseType<U['innerType']['_def']>
-                    : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
+                    : U extends { typeName: 'ZodNullable'; innerType: z.ZodTypeAny }
                       ? ZodKindToBaseType<U['innerType']['_def']>
                       : U extends {
-                            typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
+                            typeName: 'ZodDiscriminatedUnion'
                             options: z.ZodDiscriminatedUnionOption<any>[]
                           }
                         ? 'discriminatedUnion'

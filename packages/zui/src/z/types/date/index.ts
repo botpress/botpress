@@ -4,7 +4,6 @@ import {
   util,
   ZodParsedType,
   errorUtil,
-  ZodFirstPartyTypeKind,
   ZodTypeDef,
   addIssueToContext,
   INVALID,
@@ -23,7 +22,7 @@ export type ZodDateCheck =
 export type ZodDateDef = {
   checks: ZodDateCheck[]
   coerce: boolean
-  typeName: ZodFirstPartyTypeKind.ZodDate
+  typeName: 'ZodDate'
 } & ZodTypeDef
 
 export class ZodDate extends ZodType<Date, ZodDateDef> {
@@ -141,7 +140,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     return new ZodDate({
       checks: [],
       coerce: params?.coerce || false,
-      typeName: ZodFirstPartyTypeKind.ZodDate,
+      typeName: 'ZodDate',
       ...processCreateParams(params),
     })
   }

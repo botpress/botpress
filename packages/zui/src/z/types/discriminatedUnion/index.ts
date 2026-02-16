@@ -8,7 +8,6 @@ import {
   input,
   output,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodRawShape,
   ZodType,
   ZodTypeAny,
@@ -81,7 +80,7 @@ export type ZodDiscriminatedUnionDef<
   discriminator: Discriminator
   options: Options
   optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
-  typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion
+  typeName: 'ZodDiscriminatedUnion'
 } & ZodTypeDef
 
 export class ZodDiscriminatedUnion<
@@ -193,7 +192,7 @@ export class ZodDiscriminatedUnion<
       // DiscriminatorValue,
       Types
     >({
-      typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
+      typeName: 'ZodDiscriminatedUnion',
       discriminator,
       options,
       optionsMap,

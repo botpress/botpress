@@ -1,7 +1,6 @@
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -35,7 +34,7 @@ function floatSafeRemainder(val: number, step: number) {
 
 export type ZodNumberDef = {
   checks: ZodNumberCheck[]
-  typeName: ZodFirstPartyTypeKind.ZodNumber
+  typeName: 'ZodNumber'
   coerce: boolean
 } & ZodTypeDef
 
@@ -128,7 +127,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   static create = (params?: RawCreateParams & { coerce?: boolean }): ZodNumber => {
     return new ZodNumber({
       checks: [],
-      typeName: ZodFirstPartyTypeKind.ZodNumber,
+      typeName: 'ZodNumber',
       coerce: params?.coerce || false,
       ...processCreateParams(params),
     })

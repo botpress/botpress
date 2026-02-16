@@ -9,12 +9,12 @@ import { util } from '../../z/types/utils'
  * Mutiple zui schemas map to the same JSON schema; undefined/never, any/unknown, union/discriminated-union
  * Adding some ZodDef to the ZuiExtension allows us to differentiate between them
  */
-type NullableDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodNullable }, Partial<z.ZodNullableDef>>
-type OptionalDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodOptional }, Partial<z.ZodOptionalDef>>
-type UndefinedDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodUndefined }, Partial<z.ZodUndefinedDef>>
-type UnknownDef = util.Satisfies<{ typeName: z.ZodFirstPartyTypeKind.ZodUnknown }, Partial<z.ZodUnknownDef>>
+type NullableDef = util.Satisfies<{ typeName: 'ZodNullable' }, Partial<z.ZodNullableDef>>
+type OptionalDef = util.Satisfies<{ typeName: 'ZodOptional' }, Partial<z.ZodOptionalDef>>
+type UndefinedDef = util.Satisfies<{ typeName: 'ZodUndefined' }, Partial<z.ZodUndefinedDef>>
+type UnknownDef = util.Satisfies<{ typeName: 'ZodUnknown' }, Partial<z.ZodUnknownDef>>
 type DiscriminatedUnionDef = util.Satisfies<
-  { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion; discriminator?: string },
+  { typeName: 'ZodDiscriminatedUnion'; discriminator?: string },
   Partial<z.ZodDiscriminatedUnionDef>
 >
 

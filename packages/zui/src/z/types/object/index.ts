@@ -16,7 +16,6 @@ import {
   ZodParsedType,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodRawShape,
   ZodType,
   ZodTypeAny,
@@ -37,7 +36,7 @@ export type ZodObjectDef<
   T extends ZodRawShape = ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
 > = {
-  typeName: ZodFirstPartyTypeKind.ZodObject
+  typeName: 'ZodObject'
   shape: () => T
   unknownKeys: UnknownKeys
 } & ZodTypeDef
@@ -404,7 +403,7 @@ export class ZodObject<
         ...this._def.shape(),
         ...merging._def.shape(),
       }),
-      typeName: ZodFirstPartyTypeKind.ZodObject,
+      typeName: 'ZodObject',
     })
     return merged
   }
@@ -439,7 +438,7 @@ export class ZodObject<
   //     catchall: merging._def.catchall,
   //     shape: () =>
   //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: ZodFirstPartyTypeKind.ZodObject,
+  //     typeName: 'ZodObject',
   //   });
   //   return merged;
   // }
@@ -476,7 +475,7 @@ export class ZodObject<
   //     catchall: merging._def.catchall,
   //     shape: () =>
   //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: ZodFirstPartyTypeKind.ZodObject,
+  //     typeName: 'ZodObject',
   //   });
   //   return merged;
   // }
@@ -643,7 +642,7 @@ export class ZodObject<
     return new ZodObject({
       shape: () => shape,
       unknownKeys: 'strip',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
+      typeName: 'ZodObject',
       ...processCreateParams(params),
     })
   }
@@ -652,7 +651,7 @@ export class ZodObject<
     return new ZodObject({
       shape: () => shape,
       unknownKeys: 'strict',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
+      typeName: 'ZodObject',
       ...processCreateParams(params),
     })
   }
@@ -661,7 +660,7 @@ export class ZodObject<
     return new ZodObject({
       shape,
       unknownKeys: 'strip',
-      typeName: ZodFirstPartyTypeKind.ZodObject,
+      typeName: 'ZodObject',
       ...processCreateParams(params),
     })
   }

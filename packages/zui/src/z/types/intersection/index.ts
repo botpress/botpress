@@ -2,7 +2,6 @@ import { unique } from '../../utils'
 import {
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -23,7 +22,7 @@ import { CustomSet } from '../utils/custom-set'
 export type ZodIntersectionDef<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny> = {
   left: T
   right: U
-  typeName: ZodFirstPartyTypeKind.ZodIntersection
+  typeName: 'ZodIntersection'
 } & ZodTypeDef
 
 function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
@@ -160,7 +159,7 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
     return new ZodIntersection({
       left,
       right,
-      typeName: ZodFirstPartyTypeKind.ZodIntersection,
+      typeName: 'ZodIntersection',
       ...processCreateParams(params),
     })
   }

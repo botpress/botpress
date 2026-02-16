@@ -1,6 +1,5 @@
 import {
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -13,7 +12,7 @@ import {
 
 export type ZodLazyDef<T extends ZodTypeAny = ZodTypeAny> = {
   getter: () => T
-  typeName: ZodFirstPartyTypeKind.ZodLazy
+  typeName: 'ZodLazy'
 } & ZodTypeDef
 
 export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T>, ZodLazyDef<T>, input<T>> {
@@ -48,7 +47,7 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
   static create = <T extends ZodTypeAny>(getter: () => T, params?: RawCreateParams): ZodLazy<T> => {
     return new ZodLazy({
       getter,
-      typeName: ZodFirstPartyTypeKind.ZodLazy,
+      typeName: 'ZodLazy',
       ...processCreateParams(params),
     })
   }

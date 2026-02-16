@@ -7,7 +7,6 @@ import {
   ZodIssue,
   ZodIssueCode,
   RawCreateParams,
-  ZodFirstPartyTypeKind,
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
@@ -28,7 +27,7 @@ import {
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodTypeAny = ZodTypeAny> = {
   args: Args
   returns: Returns
-  typeName: ZodFirstPartyTypeKind.ZodFunction
+  typeName: 'ZodFunction'
 } & ZodTypeDef
 
 export type OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodTypeAny> =
@@ -201,7 +200,7 @@ export class ZodFunction<
     return new ZodFunction({
       args: args ? args : ZodTuple.create([]).rest(ZodUnknown.create()),
       returns: returns || ZodUnknown.create(),
-      typeName: ZodFirstPartyTypeKind.ZodFunction,
+      typeName: 'ZodFunction',
       ...processCreateParams(params),
     })
   }

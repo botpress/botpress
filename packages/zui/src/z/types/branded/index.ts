@@ -1,10 +1,10 @@
-import { ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
+import { ZodType, ZodTypeAny, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
 
 type Key = string | number | symbol
 
 export type ZodBrandedDef<T extends ZodTypeAny = ZodTypeAny> = {
   type: T
-  typeName: ZodFirstPartyTypeKind.ZodBranded
+  typeName: 'ZodBranded'
 } & ZodTypeDef
 
 export const BRAND: unique symbol = Symbol('zod_brand')
