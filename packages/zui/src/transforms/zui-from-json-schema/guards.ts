@@ -1,5 +1,4 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../z'
 import * as json from '../common/json-schema'
 
 export const isOptionalSchema = (s: JSONSchema7): s is json.OptionalSchema =>
