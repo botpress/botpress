@@ -1,4 +1,4 @@
-import { z, SomeZodObject, ZodTypeAny } from '../../z/index'
+import { z, SomeZodObject, ZodType } from '../../z/index'
 import * as errors from '../common/errors'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
@@ -14,7 +14,7 @@ export type ObjectToZuiOptions = { optional?: boolean; nullable?: boolean; passt
  * @param opts - Options to customize the Zod schema:
  * @returns A Zod schema representing the object.
  */
-export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true): ZodTypeAny => {
+export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true): ZodType => {
   if (typeof obj !== 'object') {
     throw new errors.ObjectToZuiError('Input must be an object')
   }

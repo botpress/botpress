@@ -2,7 +2,6 @@ import {
   ZodError,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   isAsync,
@@ -13,13 +12,13 @@ import {
 } from '../index'
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
-export type ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodCatchDef<T extends ZodType = ZodType> = {
   innerType: T
   catchValue: CatchFn<T['_output']>
   typeName: 'ZodCatch'
 } & ZodTypeDef
 
-export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
   T['_output'],
   ZodCatchDef<T>,
   unknown // any input will pass validation // T["_input"]
@@ -79,7 +78,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
-  static create = <T extends ZodTypeAny>(
+  static create = <T extends ZodType>(
     type: T,
     params: RawCreateParams & {
       catch: T['_output'] | CatchFn<T['_output']>
@@ -101,7 +100,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     )
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodCatch({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -123,7 +122,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodCatch<ZodTypeAny> {
+  mandatory(): ZodCatch<ZodType> {
     return new ZodCatch({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

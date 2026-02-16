@@ -164,3 +164,8 @@ export * from './types/utils'
 export * from './types/utils/parseUtil'
 export * from './types/utils/typeAliases'
 export * from './extensions'
+
+/**
+ * @deprecated - use ZodType instead
+ */
+export type ZodTypeAny = ZodType<any, any, any>

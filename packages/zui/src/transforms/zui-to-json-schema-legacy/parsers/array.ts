@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodArrayDef, ZodFirstPartyTypeKind } from '../../../z/index'
+import { ZodArrayDef, ZodFirstPartyTypeKind, ZodTypeAny } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -20,7 +20,7 @@ export function parseArrayDef(def: ZodArrayDef, refs: Refs) {
   }
 
   if (def.type?._def?.typeName !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef(def.type._def, {
+    res.items = parseDef((def.type as ZodTypeAny)._def, {
       ...refs,
       currentPath: [...refs.currentPath, 'items'],
     })

@@ -3,10 +3,10 @@ import z from '../index'
 import { util } from '../types/utils'
 
 test('generics', () => {
-  async function stripOuter<TData extends z.ZodTypeAny>(schema: TData, data: unknown) {
+  async function stripOuter<TData extends z.ZodType>(schema: TData, data: unknown) {
     return z
       .object({
-        nested: schema, // as z.ZodTypeAny,
+        nested: schema,
       })
       .transform((data) => {
         return data.nested!

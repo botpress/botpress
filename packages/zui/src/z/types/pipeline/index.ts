@@ -1,18 +1,18 @@
 import { unique } from '../../utils'
-import { ZodType, ZodTypeAny, ZodTypeDef, DIRTY, INVALID, ParseInput, ParseReturnType } from '../index'
+import { ZodType, ZodTypeDef, DIRTY, INVALID, ParseInput, ParseReturnType } from '../index'
 
-export type ZodPipelineDef<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> = {
+export type ZodPipelineDef<A extends ZodType = ZodType, B extends ZodType = ZodType> = {
   in: A
   out: B
   typeName: 'ZodPipeline'
 } & ZodTypeDef
 
-export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodPipeline<A extends ZodType = ZodType, B extends ZodType = ZodType> extends ZodType<
   B['_output'],
   ZodPipelineDef<A, B>,
   A['_input']
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodPipeline({
       ...this._def,
       in: this._def.in.dereference(defs),
@@ -77,7 +77,7 @@ export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny
     }
   }
 
-  static create<A extends ZodTypeAny, B extends ZodTypeAny>(a: A, b: B): ZodPipeline<A, B> {
+  static create<A extends ZodType, B extends ZodType>(a: A, b: B): ZodPipeline<A, B> {
     return new ZodPipeline({
       in: a,
       out: b,

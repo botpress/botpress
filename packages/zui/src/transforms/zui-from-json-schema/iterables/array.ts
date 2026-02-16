@@ -4,7 +4,7 @@ import { ArraySchema, SetSchema, TupleSchema } from '../../common/json-schema'
 
 export const arrayJSONSchemaToZuiArray = (
   schema: ArraySchema | SetSchema | TupleSchema,
-  toZui: (x: JSONSchema7Definition) => z.ZodTypeAny
+  toZui: (x: JSONSchema7Definition) => z.ZodType
 ): z.ZodArray | z.ZodSet | z.ZodTuple =>
   _isTuple(schema)
     ? _handleTuple(schema, toZui)
@@ -19,7 +19,7 @@ const _isSet = (schema: ArraySchema | SetSchema | TupleSchema): schema is SetSch
 
 const _handleTuple = (
   { items, additionalItems }: TupleSchema,
-  toZui: (x: JSONSchema7Definition) => z.ZodTypeAny
+  toZui: (x: JSONSchema7Definition) => z.ZodType
 ): z.ZodTuple => {
   const itemSchemas = items.map(toZui) as [] | [z.ZodType, ...z.ZodType[]]
   let zodTuple: z.ZodTuple<any, any> = z.tuple(itemSchemas)
@@ -33,7 +33,7 @@ const _handleTuple = (
 
 const _handleSet = (
   { items, minItems, maxItems }: SetSchema,
-  toZui: (x: JSONSchema7Definition) => z.ZodTypeAny
+  toZui: (x: JSONSchema7Definition) => z.ZodType
 ): z.ZodSet => {
   let zodSet = z.set(toZui(items))
 
@@ -50,7 +50,7 @@ const _handleSet = (
 
 const _handleArray = (
   { minItems, maxItems, items }: ArraySchema,
-  toZui: (x: JSONSchema7Definition) => z.ZodTypeAny
+  toZui: (x: JSONSchema7Definition) => z.ZodType
 ): z.ZodArray | z.ZodSet | z.ZodTuple => {
   let zodArray = z.array(toZui(items))
 

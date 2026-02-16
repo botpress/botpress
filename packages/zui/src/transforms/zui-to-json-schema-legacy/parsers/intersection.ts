@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodIntersectionDef } from '../../../z/index'
+import { ZodIntersectionDef, ZodTypeAny } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7StringType } from './string'
@@ -21,11 +21,11 @@ export function parseIntersectionDef(
   refs: Refs
 ): JsonSchema7AllOfType | JsonSchema7Type | undefined {
   const allOf = [
-    parseDef(def.left._def, {
+    parseDef((def.left as ZodTypeAny)._def, {
       ...refs,
       currentPath: [...refs.currentPath, 'allOf', '0'],
     }),
-    parseDef(def.right._def, {
+    parseDef((def.right as ZodTypeAny)._def, {
       ...refs,
       currentPath: [...refs.currentPath, 'allOf', '1'],
     }),

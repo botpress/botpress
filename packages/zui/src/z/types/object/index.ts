@@ -18,7 +18,6 @@ import {
   RawCreateParams,
   ZodRawShape,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   enumUtil,
@@ -30,7 +29,7 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodTypeAny
+export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 
 export type ZodObjectDef<
   T extends ZodRawShape = ZodRawShape,
@@ -63,19 +62,19 @@ export type baseObjectInputType<Shape extends ZodRawShape> = objectUtil.addQuest
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
-export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodTypeAny
+export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodType
   ? { [k: string]: T['_input'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodTypeAny
+export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodType
   ? { [k: string]: T['_output'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodTypeAny
+export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
   ? T
   : T extends 'passthrough'
     ? ZodAny
@@ -83,7 +82,7 @@ export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
       ? ZodNever
       : undefined
 
-export type deoptional<T extends ZodTypeAny> =
+export type deoptional<T extends ZodType> =
   T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
 
 export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
@@ -91,7 +90,7 @@ export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
 export type noUnrecognized<Obj extends object, Shape extends object> = {
   [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never
 }
-function deepPartialify(schema: ZodTypeAny): any {
+function deepPartialify(schema: ZodType): any {
   if (schema instanceof ZodObject) {
     const newShape: any = {}
 
@@ -134,9 +133,9 @@ export class ZodObject<
     return (this._cached = { shape, keys })
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     const currentShape = this._def.shape()
-    const shape: Record<string, ZodTypeAny> = {}
+    const shape: Record<string, ZodType> = {}
     for (const key in currentShape) {
       shape[key] = currentShape[key]!.dereference(defs)
     }
@@ -156,7 +155,7 @@ export class ZodObject<
   }
 
   clone(): ZodObject<T, UnknownKeys, Output, Input> {
-    const newShape: Record<string, ZodTypeAny> = {}
+    const newShape: Record<string, ZodType> = {}
     const currentShape = this._def.shape()
     for (const [key, value] of Object.entries(currentShape)) {
       newShape[key] = value.clone()
@@ -442,7 +441,7 @@ export class ZodObject<
   //   });
   //   return merged;
   // }
-  setKey<Key extends string, Schema extends ZodTypeAny>(
+  setKey<Key extends string, Schema extends ZodType>(
     key: Key,
     schema: Schema
   ): ZodObject<
@@ -479,7 +478,7 @@ export class ZodObject<
   //   });
   //   return merged;
   // }
-  catchall<Index extends ZodTypeAny>(index: Index): ZodObject<T, Index> {
+  catchall<Index extends ZodType>(index: Index): ZodObject<T, Index> {
     return new ZodObject({
       ...this._def,
       unknownKeys: index,
@@ -550,7 +549,7 @@ export class ZodObject<
     UnknownKeys
   >
   partial(mask?: any) {
-    const newShape: Record<string, ZodTypeAny | undefined> = {}
+    const newShape: Record<string, ZodType | undefined> = {}
 
     util.objectKeys(this.shape).forEach((key) => {
       const fieldSchema = this.shape[key]
@@ -621,7 +620,7 @@ export class ZodObject<
     const thisShape = this._def.shape()
     const thatShape = schema._def.shape()
 
-    type Property = [string, ZodTypeAny]
+    type Property = [string, ZodType]
     const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
     const thisProps = new CustomSet<Property>(Object.entries(thisShape), { compare })
     const thatProps = new CustomSet<Property>(Object.entries(thatShape), { compare })

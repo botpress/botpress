@@ -3,7 +3,6 @@ import {
   ZodIssueCode,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   getParsedType,
   processCreateParams,
@@ -19,7 +18,7 @@ import {
 } from '../index'
 import { CustomSet } from '../utils/custom-set'
 
-export type ZodIntersectionDef<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny> = {
+export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
   left: T
   right: U
   typeName: 'ZodIntersection'
@@ -71,12 +70,12 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
   }
 }
 
-export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = ZodType> extends ZodType<
   T['_output'] & U['_output'],
   ZodIntersectionDef<T, U>,
   T['_input'] & U['_input']
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodIntersection({
       ...this._def,
       left: this._def.left.dereference(defs),
@@ -151,7 +150,7 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
     }
   }
 
-  static create = <T extends ZodTypeAny, U extends ZodTypeAny>(
+  static create = <T extends ZodType, U extends ZodType>(
     left: T,
     right: U,
     params?: RawCreateParams

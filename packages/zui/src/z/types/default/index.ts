@@ -3,7 +3,6 @@ import { isEqual } from 'lodash-es'
 import {
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   util,
@@ -12,13 +11,13 @@ import {
   ParseReturnType,
 } from '../index'
 
-export type ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodDefaultDef<T extends ZodType = ZodType> = {
   innerType: T
   defaultValue: () => util.noUndefined<T['_input']>
   typeName: 'ZodDefault'
 } & ZodTypeDef
 
-export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
+export class ZodDefault<T extends ZodType = ZodType> extends ZodType<
   util.noUndefined<T['_output']>,
   ZodDefaultDef<T>,
   T['_input'] | undefined
@@ -40,7 +39,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodDefault({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -58,7 +57,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     }) as ZodDefault<T>
   }
 
-  static create = <T extends ZodTypeAny>(
+  static create = <T extends ZodType>(
     type: T,
     value: T['_input'] | (() => util.noUndefined<T['_input']>),
     params?: RawCreateParams
@@ -87,7 +86,7 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodDefault<ZodTypeAny> {
+  mandatory(): ZodDefault<ZodType> {
     return new ZodDefault({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

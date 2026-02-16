@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z/index'
+import { ZodTupleDef, ZodTupleItems, ZodType, ZodTypeAny } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
@@ -18,23 +18,20 @@ export type JsonSchema7TupleType = {
     }
 )
 
-export function parseTupleDef(
-  def: ZodTupleDef<ZodTupleItems | [], ZodTypeAny | null>,
-  refs: Refs
-): JsonSchema7TupleType {
+export function parseTupleDef(def: ZodTupleDef<ZodTupleItems | [], ZodType | null>, refs: Refs): JsonSchema7TupleType {
   if (def.rest) {
     return {
       type: 'array',
       minItems: def.items.length,
       items: def.items
-        .map((x, i) =>
+        .map((x: ZodTypeAny, i) =>
           parseDef(x._def, {
             ...refs,
             currentPath: [...refs.currentPath, 'items', `${i}`],
           })
         )
         .reduce((acc: JsonSchema7Type[], x) => (x === undefined ? acc : [...acc, x]), []),
-      additionalItems: parseDef(def.rest._def, {
+      additionalItems: parseDef((def.rest as ZodTypeAny)._def, {
         ...refs,
         currentPath: [...refs.currentPath, 'additionalItems'],
       }),
@@ -45,7 +42,7 @@ export function parseTupleDef(
       minItems: def.items.length,
       maxItems: def.items.length,
       items: def.items
-        .map((x, i) =>
+        .map((x: ZodTypeAny, i) =>
           parseDef(x._def, {
             ...refs,
             currentPath: [...refs.currentPath, 'items', `${i}`],

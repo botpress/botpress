@@ -4,7 +4,6 @@ import {
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
-  ZodTypeAny,
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
@@ -16,7 +15,7 @@ import {
   ParseStatus,
 } from '../index'
 
-export type ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> = {
+export type ZodArrayDef<T extends ZodType = ZodType> = {
   type: T
   typeName: 'ZodArray'
   exactLength: { value: number; message?: string } | null
@@ -26,16 +25,16 @@ export type ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> = {
 
 export type ArrayCardinality = 'many' | 'atleastone'
 export type arrayOutputType<
-  T extends ZodTypeAny,
+  T extends ZodType,
   Cardinality extends ArrayCardinality = 'many',
 > = Cardinality extends 'atleastone' ? [T['_output'], ...T['_output'][]] : T['_output'][]
 
-export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends ArrayCardinality = 'many'> extends ZodType<
+export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCardinality = 'many'> extends ZodType<
   arrayOutputType<T, Cardinality>,
   ZodArrayDef<T>,
   Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]
 > {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+  dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodArray({
       ...this._def,
       type: this._def.type.dereference(defs),
@@ -171,7 +170,7 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
     return this.min(1, message) as ZodArray<T, 'atleastone'>
   }
 
-  static create = <T extends ZodTypeAny>(schema: T, params?: RawCreateParams): ZodArray<T> => {
+  static create = <T extends ZodType>(schema: T, params?: RawCreateParams): ZodArray<T> => {
     return new ZodArray({
       type: schema,
       minLength: null,
@@ -183,4 +182,4 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
   }
 }
 
-export type ZodNonEmptyArray<T extends ZodTypeAny> = ZodArray<T, 'atleastone'>
+export type ZodNonEmptyArray<T extends ZodType> = ZodArray<T, 'atleastone'>
