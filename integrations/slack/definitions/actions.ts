@@ -1,10 +1,11 @@
 import * as sdk from '@botpress/sdk'
-import { channelTypeSchema, ChannelType } from './schemas/channels'
+import { FindTargetChannelType, findTargetChannelSchema } from './schemas/channels'
 
+// TODO: Re-allow "thread" in findTarget output when bumping integration major version to 5.0.0.
 export type Target = {
   displayName: string
   tags: { [key: string]: string }
-  channel: ChannelType
+  channel: FindTargetChannelType
 }
 
 export const actions = {
@@ -36,10 +37,7 @@ export const actions = {
           .min(2)
           .title('Search Query')
           .describe('What to search for, ex name of a channel, a user, etc.'),
-        channel: sdk.z
-          .enum(['dm', 'channel'])
-          .title('Channel Name')
-          .describe('Which channel to look into, ex: dm, channel'),
+        channel: findTargetChannelSchema.title('Channel Name').describe('Which channel to look into, ex: dm, channel'),
       }),
     },
     output: {
@@ -49,7 +47,7 @@ export const actions = {
             sdk.z.object({
               displayName: sdk.z.string().title('Display Name').describe('The display name of the target'),
               tags: sdk.z.record(sdk.z.string()).title('Tags').describe('The tags of the target'),
-              channel: channelTypeSchema.title('Channel Type').describe('The type of channel of the target'),
+              channel: findTargetChannelSchema,
             })
           )
           .title('Targets')
