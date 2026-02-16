@@ -43,17 +43,20 @@ jobs:
           extra_filters: '-F @botpresshub/chat'
 
       - uses: aws-actions/configure-aws-credentials@v3
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
         with:
           role-session-name: container_pusher
           role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
           aws-region: us-east-1
 
       - uses: aws-actions/amazon-ecr-login@v1
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
         id: ecr
         with:
           mask-password: true
 
       - uses: docker/metadata-action@v4
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
         id: meta
         with:
           images: ${{ steps.ecr.outputs.registry }}/chat-integration
@@ -69,6 +72,7 @@ jobs:
           echo "timestamp=$(date +"%Y-%m-%d %H:%M:%S")" >> "$GITHUB_OUTPUT"
 
       - name: Create ECR Registry
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
         env:
           ECR_REPOSITORY: chat-integration
         run: |
