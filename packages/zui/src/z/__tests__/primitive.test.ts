@@ -430,9 +430,3 @@ test('primitive inference', () => {
 test('get literal value', () => {
   expect(literalStringSchema.value).toEqual('asdf')
 })
-
-test('optional convenience method', () => {
-  z.ostring().parse(undefined)
-  z.onumber().parse(undefined)
-  z.oboolean().parse(undefined)
-})

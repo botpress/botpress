@@ -1,7 +1,6 @@
 import {
   custom,
   CustomParams,
-  INVALID,
   ZodAny,
   ZodArray,
   ZodBigInt,
@@ -95,9 +94,6 @@ const nullableType = ZodNullable.create
 const defaultType = ZodDefault.create
 const preprocessType = ZodEffects.createWithPreprocess
 const pipelineType = ZodPipeline.create
-const ostring = () => stringType().optional()
-const onumber = () => numberType().optional()
-const oboolean = () => booleanType().optional()
 
 export const coerce = {
   string: ((arg) => ZodString.create({ ...arg, coerce: true })) as (typeof ZodString)['create'],
@@ -134,10 +130,7 @@ export {
   nullableType as nullable,
   numberType as number,
   objectType as object,
-  oboolean,
-  onumber,
   optionalType as optional,
-  ostring,
   pipelineType as pipeline,
   preprocessType as preprocess,
   promiseType as promise,
@@ -156,14 +149,11 @@ export {
   voidType as void,
 }
 
-export const NEVER = INVALID as never
-
 export * from './types'
 export * from './types/error'
 export * from './types/utils'
 export * from './types/utils/parseUtil'
 export * from './types/utils/typeAliases'
-export * from './extensions'
 
 /**
  * @deprecated - use ZodType instead

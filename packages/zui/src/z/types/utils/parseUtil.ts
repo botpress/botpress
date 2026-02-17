@@ -146,6 +146,9 @@ export const INVALID: INVALID = Object.freeze({
   status: 'aborted',
 })
 
+export type NEVER = never
+export const NEVER = INVALID as never
+
 export type DIRTY<T> = { status: 'dirty'; value: T }
 export const DIRTY = <T>(value: T): DIRTY<T> => ({ status: 'dirty', value })
 
