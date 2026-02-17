@@ -77,12 +77,6 @@ const oauthSchema = z.object({
   expires_in: z.number(),
 })
 
-const refreshOAuthSchema = z.object({
-  access_token: z.string(),
-  refresh_token: z.string(),
-  expires_in: z.number(),
-})
-
 type TokenRequestParams = {
   actor: 'application'
   redirect_uri: string
@@ -176,7 +170,7 @@ export class LinearOauthClient {
   public async refreshAccessToken(oldRefreshToken: string): Promise<Credentials> {
     const data = await this._getAccessToken(
       { grant_type: 'refresh_token', refresh_token: oldRefreshToken },
-      refreshOAuthSchema
+      oauthSchema
     )
     return this._toCredentials(data)
   }
