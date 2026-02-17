@@ -151,7 +151,7 @@ export class LinearOauthClient {
     )
   }
 
-  private _toCredentials(data: z.infer<typeof refreshOAuthSchema>): Credentials {
+  private _toCredentials(data: z.infer<typeof oauthSchema>): Credentials {
     const expiresAt = new Date()
     expiresAt.setSeconds(expiresAt.getSeconds() + data.expires_in)
 
@@ -183,15 +183,7 @@ export class LinearOauthClient {
 
   public async getAccessToken(code: string) {
     const data = await this._getAccessToken({ grant_type: 'authorization_code', code }, oauthSchema)
-
-    const expiresAt = new Date()
-    expiresAt.setSeconds(expiresAt.getSeconds() + data.expires_in)
-
-    return {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-      expiresAt: expiresAt.toISOString(),
-    }
+    return this._toCredentials(data)
   }
 
   public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
