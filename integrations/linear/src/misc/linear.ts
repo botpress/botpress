@@ -4,6 +4,7 @@ import axios from 'axios'
 import queryString from 'query-string'
 import * as bp from '.botpress'
 import { credentials } from '.botpress/implementation/typings/states'
+import { UnauthorizedError } from '@botpress/client'
 
 type Credentials = bp.states.States['credentials']['payload']
 
@@ -110,7 +111,7 @@ export class LinearOauthClient {
 
     const { data, error } = refreshOAuthSchema.safeParse(res.data)
     if (error) {
-      throw new Error(`Failed to migrate access token: ${error}`)
+      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
     }
     const { access_token, expires_in, refresh_token } = data
 
@@ -143,7 +144,7 @@ export class LinearOauthClient {
 
     const { data, error } = refreshOAuthSchema.safeParse(res.data)
     if (error) {
-      throw new Error(`Failed to refresh access token: ${error}`)
+      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
     }
     const { access_token, expires_in, refresh_token } = data
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
@@ -175,7 +176,7 @@ export class LinearOauthClient {
 
     const { data, error } = oauthSchema.safeParse(res.data)
     if (error) {
-      throw new Error(`Failed to refresh access token: ${error}`)
+      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
     }
     const { access_token, expires_in, refresh_token } = data
 
