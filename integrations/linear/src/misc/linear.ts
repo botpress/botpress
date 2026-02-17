@@ -3,6 +3,9 @@ import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import * as bp from '.botpress'
+import { credentials } from '.botpress/implementation/typings/states'
+
+type Credentials = bp.states.States['credentials']['payload']
 
 type BaseEvent = {
   action: 'create' | 'update' | 'remove' | 'restore'
@@ -75,7 +78,7 @@ const oauthSchema = z.object({
   expires_in: z.number(),
 })
 
-const migrationSchema = z.object({
+const refreshOAuthSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string(),
   expires_in: z.number(),
@@ -105,7 +108,11 @@ export class LinearOauthClient {
       }
     )
 
-    const { access_token, expires_in, refresh_token } = migrationSchema.parse(res.data)
+    const { data, error } = refreshOAuthSchema.safeParse(res.data)
+    if (error) {
+      throw new Error(`Failed to migrate access token: ${error}`)
+    }
+    const { access_token, expires_in, refresh_token } = data
 
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
 
@@ -113,7 +120,7 @@ export class LinearOauthClient {
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: expiresAt.toISOString(),
-    }
+    } satisfies Credentials
   }
 
   public async refreshAccessToken(oldRefreshToken: string) {
@@ -134,15 +141,18 @@ export class LinearOauthClient {
       }
     )
 
-    const { access_token, expires_in, refresh_token } = oauthSchema.parse(res.data)
-
+    const { data, error } = refreshOAuthSchema.safeParse(res.data)
+    if (error) {
+      throw new Error(`Failed to refresh access token: ${error}`)
+    }
+    const { access_token, expires_in, refresh_token } = data
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
 
     return {
       accessToken: access_token,
       refreshToken: refresh_token,
       expiresAt: expiresAt.toISOString(),
-    }
+    } satisfies Credentials
   }
 
   public async getAccessToken(code: string) {
@@ -163,7 +173,11 @@ export class LinearOauthClient {
       }
     )
 
-    const { access_token, expires_in, refresh_token } = oauthSchema.parse(res.data)
+    const { data, error } = oauthSchema.safeParse(res.data)
+    if (error) {
+      throw new Error(`Failed to refresh access token: ${error}`)
+    }
+    const { access_token, expires_in, refresh_token } = data
 
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
 
