@@ -1,10 +1,8 @@
-import { z, Request, RuntimeError } from '@botpress/sdk'
+import { Request, RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import * as bp from '.botpress'
-import { credentials } from '.botpress/implementation/typings/states'
-import { UnauthorizedError } from '@botpress/client'
 
 type Credentials = bp.states.States['credentials']['payload']
 
@@ -85,106 +83,113 @@ const refreshOAuthSchema = z.object({
   expires_in: z.number(),
 })
 
+type TokenRequestParams = {
+  actor: 'application'
+  redirect_uri: string
+}
+type GetAccessTokenParams = {
+  grant_type: 'authorization_code'
+  code: string
+}
+
+type RefreshTokenRequestParams = {
+  grant_type: 'refresh_token'
+  refresh_token: string
+}
+
+type MigrateTokenRequestParams = {
+  access_token: string
+}
+
+type OAuthRequestParams =
+  | (TokenRequestParams & GetAccessTokenParams)
+  | (TokenRequestParams & RefreshTokenRequestParams)
+  | MigrateTokenRequestParams
+
 export class LinearOauthClient {
   private _clientId: string
   private _clientSecret: string
+  private _redirectUri: string
 
   public constructor() {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
+    this._redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   }
 
-  public async migrateOldToken(oldAccessToken: string) {
-    const expiresAt = new Date()
-
+  private async _postOAuth<T extends z.ZodSchema>(
+    url: string,
+    body: OAuthRequestParams,
+    schema: T
+  ): Promise<z.infer<T>> {
     const res = await axios.post(
+      url,
+      { client_id: this._clientId, client_secret: this._clientSecret, ...body },
+      { headers: oauthHeaders }
+    )
+
+    const { data, error } = schema.safeParse(res.data)
+    if (error) {
+      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
+    }
+
+    return data
+  }
+
+  private async _getAccessToken<T extends z.ZodSchema>(
+    params: GetAccessTokenParams | RefreshTokenRequestParams,
+    schema: T
+  ): Promise<z.infer<T>> {
+    return this._postOAuth(
+      `${linearEndpoint}/oauth/token`,
+      {
+        redirect_uri: this._redirectUri,
+        actor: 'application',
+        ...params,
+      },
+      schema
+    )
+  }
+
+  private _toCredentials(data: z.infer<typeof refreshOAuthSchema>): Credentials {
+    const expiresAt = new Date()
+    expiresAt.setSeconds(expiresAt.getSeconds() + data.expires_in)
+
+    return {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      expiresAt: expiresAt.toISOString(),
+    }
+  }
+
+  public async migrateOldToken(oldAccessToken: string): Promise<Credentials> {
+    const data = await this._postOAuth(
       `${linearEndpoint}/oauth/migrate_old_token`,
       {
         access_token: oldAccessToken,
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
       },
-      {
-        headers: oauthHeaders,
-      }
+      refreshOAuthSchema
     )
-
-    const { data, error } = refreshOAuthSchema.safeParse(res.data)
-    if (error) {
-      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
-    }
-    const { access_token, expires_in, refresh_token } = data
-
-    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
-
-    return {
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: expiresAt.toISOString(),
-    } satisfies Credentials
+    return this._toCredentials(data)
   }
 
-  public async refreshAccessToken(oldRefreshToken: string) {
-    const expiresAt = new Date()
-
-    const res = await axios.post(
-      `${linearEndpoint}/oauth/token`,
-      {
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-        actor: 'application',
-        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
-        refresh_token: oldRefreshToken,
-        grant_type: 'refresh_token',
-      },
-      {
-        headers: oauthHeaders,
-      }
+  public async refreshAccessToken(oldRefreshToken: string): Promise<Credentials> {
+    const data = await this._getAccessToken(
+      { grant_type: 'refresh_token', refresh_token: oldRefreshToken },
+      refreshOAuthSchema
     )
-
-    const { data, error } = refreshOAuthSchema.safeParse(res.data)
-    if (error) {
-      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
-    }
-    const { access_token, expires_in, refresh_token } = data
-    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
-
-    return {
-      accessToken: access_token,
-      refreshToken: refresh_token,
-      expiresAt: expiresAt.toISOString(),
-    } satisfies Credentials
+    return this._toCredentials(data)
   }
 
   public async getAccessToken(code: string) {
+    const data = await this._getAccessToken({ grant_type: 'authorization_code', code }, oauthSchema)
+
     const expiresAt = new Date()
-
-    const res = await axios.post(
-      `${linearEndpoint}/oauth/token`,
-      {
-        client_id: this._clientId,
-        client_secret: this._clientSecret,
-        actor: 'application',
-        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
-        code,
-        grant_type: 'authorization_code',
-      },
-      {
-        headers: oauthHeaders,
-      }
-    )
-
-    const { data, error } = oauthSchema.safeParse(res.data)
-    if (error) {
-      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
-    }
-    const { access_token, expires_in, refresh_token } = data
-
-    expiresAt.setSeconds(expiresAt.getSeconds() + expires_in)
+    expiresAt.setSeconds(expiresAt.getSeconds() + data.expires_in)
 
     return {
-      accessToken: access_token,
-      refreshToken: refresh_token,
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
       expiresAt: expiresAt.toISOString(),
     }
   }
@@ -245,11 +250,11 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  let credentials = await linearOauthClient.getAccessToken(code)
+  const tokenResponse = await linearOauthClient.getAccessToken(code)
 
-  if (!credentials.refreshToken) {
-    credentials = await linearOauthClient.migrateOldToken(credentials.accessToken)
-  }
+  const credentials = tokenResponse.refreshToken
+    ? tokenResponse
+    : await linearOauthClient.migrateOldToken(tokenResponse.accessToken)
 
   await client.setState({
     type: 'integration',
