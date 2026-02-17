@@ -162,7 +162,7 @@ export class LinearOauthClient {
       {
         access_token: oldAccessToken,
       },
-      refreshOAuthSchema
+      oauthSchema
     )
     return this._toCredentials(data)
   }
