@@ -194,6 +194,21 @@ export class LinearOauthClient {
     }
   }
 
+  public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
+    if (!current.refreshToken) {
+      return this.migrateOldToken(current.accessToken)
+    }
+
+    const FIVE_MINUTES_MS = 5 * 60 * 1000
+    const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
+
+    if (isExpired) {
+      return this.refreshAccessToken(current.refreshToken)
+    }
+
+    return current
+  }
+
   public async getLinearClient(client: bp.Client, ctx: bp.Context, integrationId: string) {
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
@@ -207,36 +222,13 @@ export class LinearOauthClient {
       id: integrationId,
     })
 
-    if (!payload.refreshToken) {
-      const newCredentials = await this.migrateOldToken(payload.accessToken)
+    const credentials = await this.resolveValidCredentials(payload)
 
-      await client.setState({
-        type: 'integration',
-        name: 'credentials',
-        id: integrationId,
-        payload: newCredentials,
-      })
-
-      return new LinearClient({ accessToken: newCredentials.accessToken })
+    if (credentials !== payload) {
+      await client.setState({ type: 'integration', name: 'credentials', id: integrationId, payload: credentials })
     }
 
-    const FIVE_MINUTES_MS = 5 * 60 * 1000
-    const isExpired = new Date(payload.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
-
-    if (isExpired) {
-      const newCredentials = await this.refreshAccessToken(payload.refreshToken)
-
-      await client.setState({
-        type: 'integration',
-        name: 'credentials',
-        id: integrationId,
-        payload: newCredentials,
-      })
-
-      return new LinearClient({ accessToken: newCredentials.accessToken })
-    }
-
-    return new LinearClient({ accessToken: payload.accessToken })
+    return new LinearClient({ accessToken: credentials.accessToken })
   }
 }
 
@@ -251,10 +243,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
   }
 
   const tokenResponse = await linearOauthClient.getAccessToken(code)
-
-  const credentials = tokenResponse.refreshToken
-    ? tokenResponse
-    : await linearOauthClient.migrateOldToken(tokenResponse.accessToken)
+  const credentials = await linearOauthClient.resolveValidCredentials(tokenResponse)
 
   await client.setState({
     type: 'integration',
