@@ -73,7 +73,6 @@ abstract class Cls {
 }
 
 const instanceOfType = <T extends typeof Cls>(
-  // const instanceOfType = <T extends new (...args: any[]) => any>(
   cls: T,
   params: CustomParams = {
     message: `Input not instance of ${cls.name}`,

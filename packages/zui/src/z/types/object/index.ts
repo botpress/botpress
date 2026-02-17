@@ -1,3 +1,4 @@
+import { ZodIssueCode } from '../../error'
 import { unique } from '../../utils'
 import {
   ZodArray,
@@ -12,7 +13,6 @@ import {
   ParseReturnType,
   ParseStatus,
   util,
-  ZodIssueCode,
   ZodParsedType,
   ParseInputLazyPath,
   RawCreateParams,

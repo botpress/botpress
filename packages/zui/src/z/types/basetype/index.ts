@@ -11,12 +11,12 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
+import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap, ZodIssueCode } from '../../error'
 import { CatchFn } from '../catch'
 import {
   AsyncParseReturnType,
   getParsedType,
   isAsync,
-  IssueData,
   isValid,
   ParseContext,
   ParseInput,
@@ -31,13 +31,9 @@ import {
   ZodArray,
   ZodBranded,
   ZodCatch,
-  ZodCustomIssue,
   ZodDefault,
   ZodEffects,
-  ZodError,
-  ZodErrorMap,
   ZodIntersection,
-  ZodIssueCode,
   ZodNullable,
   ZodOptional,
   ZodPipeline,

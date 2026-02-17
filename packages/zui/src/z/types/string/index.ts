@@ -1,7 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
+import { StringValidation, ZodIssueCode } from '../../error'
 import {
-  StringValidation,
-  ZodIssueCode,
   RawCreateParams,
   ZodType,
   ZodTypeDef,

@@ -1,11 +1,9 @@
+import { ZodError, ZodIssue, ZodIssueCode } from '../../error'
 import { unique } from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
-  ZodError,
-  ZodIssue,
-  ZodIssueCode,
   processCreateParams,
   addIssueToContext,
   DIRTY,

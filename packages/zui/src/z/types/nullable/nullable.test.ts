@@ -6,12 +6,12 @@ function checkErrors(a: z.ZodType, bad: any) {
   try {
     a.parse(bad)
   } catch (error) {
-    expected = (error as z.ZodError).formErrors
+    expected = error as z.ZodError
   }
   try {
     a.nullable().parse(bad)
   } catch (error) {
-    expect((error as z.ZodError).formErrors).toEqual(expected)
+    expect(error as z.ZodError).toEqual(expected)
   }
 }
 

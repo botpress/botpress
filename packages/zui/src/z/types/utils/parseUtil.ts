@@ -1,4 +1,4 @@
-import { IssueData, ZodErrorMap, ZodIssue, defaultErrorMap, getErrorMap } from '../error'
+import { IssueData, ZodErrorMap, ZodIssue, defaultErrorMap, getErrorMap } from '../../error'
 import type { ZodParsedType } from '.'
 
 export const makeIssue = (params: {
