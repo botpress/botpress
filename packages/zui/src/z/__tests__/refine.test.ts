@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { util } from '../types/utils'
 import z from '../index'
-import { ZodIssueCode } from '../types/error'
+import { ZodIssueCode } from '../error'
 
 test('refinement', () => {
   const obj1 = z.object({

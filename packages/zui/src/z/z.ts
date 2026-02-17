@@ -6,7 +6,7 @@ export * from './builders'
 export { default } from './builders' // Re-export 'default' explicitly since export * doesn't handle it
 
 export * from './types'
-export * from './types/error'
+export * from './error'
 export * from './types/utils'
 export * from './types/utils/parseUtil'
 export * from './types/utils/typeAliases'

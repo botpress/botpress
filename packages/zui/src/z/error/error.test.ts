@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
-import { ZodParsedType } from '../../index'
+import * as z from '../index'
+import { ZodParsedType } from '../index'
 import { ZodError, ZodIssueCode } from '.'
 
 test('error creation', () => {
@@ -129,25 +129,6 @@ test('array minimum', () => {
     expect(zerr.issues[0]?.message).toEqual(`Array must contain at least 3 element(s)`)
   }
 })
-
-// implement test for semi-smart union logic that checks for type error on either left or right
-// test("union smart errors", () => {
-//   // expect.assertions(2);
-
-//   const p1 = z
-//     .union([z.string(), z.number().refine((x) => x > 0)])
-//     .safeParse(-3.2);
-
-//   if (p1.success === true) throw new Error();
-//   expect(p1.success).toBe(false);
-//   expect(p1.error.issues[0]?.code).toEqual(ZodIssueCode.custom);
-
-//   const p2 = z.union([z.string(), z.number()]).safeParse(false);
-//   // .catch(err => expect(err.issues[0].code).toEqual(ZodIssueCode.invalid_union));
-//   if (p2.success === true) throw new Error();
-//   expect(p2.success).toBe(false);
-//   expect(p2.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_union);
-// });
 
 test('custom path in custom error map', () => {
   const schema = z.object({
@@ -291,8 +272,7 @@ test('formatting', () => {
     expect(error.inner?.name?.[1]).toEqual(undefined)
   }
   if (!result2.success) {
-    type FormattedError = z.inferFormattedError<typeof schema>
-    const error: FormattedError = result2.error.format()
+    const error = result2.error.format()
     expect(error._errors).toEqual([])
     expect(error.inner?._errors).toEqual([])
     expect(error.inner?.name?._errors).toEqual(['Invalid input'])
@@ -303,8 +283,7 @@ test('formatting', () => {
 
   // test custom mapper
   if (!result2.success) {
-    type FormattedError = z.inferFormattedError<typeof schema, number>
-    const error: FormattedError = result2.error.format(() => 5)
+    const error = result2.error.format(() => 5)
     expect(error._errors).toEqual([])
     expect(error.inner?._errors).toEqual([])
     expect(error.inner?.name?._errors).toEqual([5])
@@ -332,8 +311,7 @@ test('formatting with nullable and optional fields', () => {
   const result = schema.safeParse(invalidItem)
   expect(result.success).toEqual(false)
   if (!result.success) {
-    type FormattedError = z.inferFormattedError<typeof schema>
-    const error: FormattedError = result.error.format()
+    const error = result.error.format()
     expect(error._errors).toEqual([])
     expect(error.nullableObject?._errors).toEqual([])
     expect(error.nullableObject?.name?._errors).toEqual(['Invalid input'])

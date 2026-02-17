@@ -1,5 +1,5 @@
 import { zuiKey } from '../../../ui/constants'
-import type { ZodErrorMap } from '../error'
+import type { ZodErrorMap } from '../../error'
 import type { ProcessedCreateParams, RawCreateParams } from '../index'
 
 export namespace util {

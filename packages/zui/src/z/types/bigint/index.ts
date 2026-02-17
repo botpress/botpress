@@ -1,3 +1,4 @@
+import { ZodIssueCode } from '../../error'
 import {
   addIssueToContext,
   INVALID,
@@ -5,7 +6,6 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-  ZodIssueCode,
   RawCreateParams,
   ZodType,
   ZodTypeDef,

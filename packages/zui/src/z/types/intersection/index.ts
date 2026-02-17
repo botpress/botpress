@@ -1,6 +1,6 @@
+import { ZodIssueCode } from '../../error'
 import { unique } from '../../utils'
 import {
-  ZodIssueCode,
   RawCreateParams,
   ZodType,
   ZodTypeDef,

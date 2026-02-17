@@ -1,5 +1,5 @@
+import { IssueData } from '../../error'
 import {
-  IssueData,
   input,
   output,
   RawCreateParams,
