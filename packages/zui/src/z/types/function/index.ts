@@ -19,7 +19,7 @@ import {
   ZodTuple,
   ZodUnknown,
   AnyZodTuple,
-} from '../index'
+} from '../index' // TODO(circle): adress circular dependency
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
   args: Args

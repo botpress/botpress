@@ -23,7 +23,7 @@ import {
   ZodNever,
   ZodAny,
   ZodTupleItems,
-} from '../index'
+} from '../index' // TODO(circle): adress circular dependency
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 

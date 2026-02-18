@@ -14,7 +14,7 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-import { ZodUndefined, ZodNever } from '../index'
+import { ZodUndefined, ZodNever } from '../index' // TODO(circle): adress circular dependency
 
 type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>

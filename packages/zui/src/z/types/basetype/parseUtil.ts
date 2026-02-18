@@ -1,6 +1,22 @@
 import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { type IssueData, type ZodIssue, type ZodErrorMap, defaultErrorMap, getErrorMap } from '../../error'
-import type { ProcessedCreateParams, RawCreateParams } from '../basetype'
+
+export type RawCreateParams =
+  | {
+      errorMap?: ZodErrorMap
+      invalid_type_error?: string
+      required_error?: string
+      description?: string
+      [zuiKey]?: ZuiExtensionObject
+    }
+  | undefined
+
+export type ProcessedCreateParams = {
+  errorMap?: ZodErrorMap
+  description?: string
+  [zuiKey]?: ZuiExtensionObject
+}
 
 export const makeIssue = (params: {
   data: any

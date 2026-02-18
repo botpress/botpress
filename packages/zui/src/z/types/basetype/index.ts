@@ -13,7 +13,7 @@ import type {
 } from '../../../ui/types'
 import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
 import * as utils from '../../utils'
-import { CatchFn } from '../catch'
+import type { CatchFn } from '../catch'
 
 import {
   ZodArray,
@@ -29,7 +29,7 @@ import {
   ZodReadonly,
   ZodUnion,
   RefinementEffect,
-} from '../index'
+} from '../index' // TODO(circle): adress circular dependency
 
 import {
   AsyncParseReturnType,
@@ -132,25 +132,12 @@ const handleResult = <Input, Output>(
   }
 }
 
-export type RawCreateParams =
-  | {
-      errorMap?: ZodErrorMap
-      invalid_type_error?: string
-      required_error?: string
-      description?: string
-      [zuiKey]?: ZuiExtensionObject
-    }
-  | undefined
-export type ProcessedCreateParams = {
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
 export type SafeParseSuccess<Output> = {
   success: true
   data: Output
   error?: never
 }
+
 export type SafeParseError<Input> = {
   success: false
   error: ZodError<Input>

@@ -28,7 +28,7 @@ import {
   ZodEffects,
   ZodUndefined,
   UnknownKeysParam,
-} from '../index'
+} from '../index' // TODO(circle): adress circular dependency
 
 const getDiscriminator = <T extends ZodType>(type: T): utils.types.Primitive[] => {
   if (type instanceof ZodLazy) {

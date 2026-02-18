@@ -10,7 +10,7 @@ import {
   ParseReturnType,
 } from '../basetype'
 
-import { ZodNever } from '../index'
+import { ZodNever } from '../index' // TODO(circle): adress circular dependency
 
 export type ZodUndefinedDef = {
   typeName: 'ZodUndefined'

@@ -16,7 +16,7 @@ import {
   //
   ZodString,
   BRAND,
-} from '../index'
+} from '../index' // TODO(circle): adress circular dependency
 
 export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {
   valueType: Value
