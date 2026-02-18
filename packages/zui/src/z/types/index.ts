@@ -6,8 +6,6 @@
 
 export * from './basetype'
 export * from './native'
-export * from './utils'
-export * from './utils/parseUtil'
 export * from './any'
 export * from './array'
 export * from './bigint'
