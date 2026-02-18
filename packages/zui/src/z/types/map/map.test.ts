@@ -47,7 +47,7 @@ test('throws when a Set is given', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
   }
 })
 
@@ -56,9 +56,9 @@ test('throws when the given map has invalid key and invalid input', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
     expect(result.error.issues[0]?.path).toEqual([0, 'key'])
-    expect(result.error.issues[1]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[1]?.code).toEqual('invalid_type')
     expect(result.error.issues[1]?.path).toEqual([0, 'value'])
   }
 })
@@ -77,9 +77,9 @@ test('throws when the given map has multiple invalid entries', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
     expect(result.error.issues[0]?.path).toEqual([0, 'key'])
-    expect(result.error.issues[1]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[1]?.code).toEqual('invalid_type')
     expect(result.error.issues[1]?.path).toEqual([1, 'value'])
   }
 })
@@ -100,9 +100,9 @@ test('dirty', async () => {
   expect(result.success).toEqual(false)
   if (!result.success) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(z.ZodIssueCode.custom)
+    expect(result.error.issues[0]?.code).toEqual('custom')
     expect(result.error.issues[0]?.message).toEqual('Keys must be uppercase')
-    expect(result.error.issues[1]?.code).toEqual(z.ZodIssueCode.custom)
+    expect(result.error.issues[1]?.code).toEqual('custom')
     expect(result.error.issues[1]?.message).toEqual('Keys must be uppercase')
   }
 })

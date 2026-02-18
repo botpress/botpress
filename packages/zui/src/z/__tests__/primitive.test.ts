@@ -281,7 +281,7 @@ test('parse dateSchema invalid date', async () => {
   try {
     await dateSchema.parseAsync(new Date('invalid'))
   } catch (err) {
-    expect((err as z.ZodError).issues[0]?.code).toEqual(z.ZodIssueCode.invalid_date)
+    expect((err as z.ZodError).issues[0]?.code).toEqual('invalid_date')
   }
 })
 // ==============

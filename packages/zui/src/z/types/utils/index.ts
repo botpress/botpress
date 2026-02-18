@@ -24,77 +24,54 @@ export type ZodParsedType =
   | 'map'
   | 'set'
 
-export const ZodParsedType = {
-  string: 'string',
-  nan: 'nan',
-  number: 'number',
-  integer: 'integer',
-  float: 'float',
-  boolean: 'boolean',
-  date: 'date',
-  bigint: 'bigint',
-  symbol: 'symbol',
-  function: 'function',
-  undefined: 'undefined',
-  null: 'null',
-  array: 'array',
-  object: 'object',
-  unknown: 'unknown',
-  promise: 'promise',
-  void: 'void',
-  never: 'never',
-  map: 'map',
-  set: 'set',
-} as const satisfies { [k in ZodParsedType]: k }
-
 export const getParsedType = (data: any): ZodParsedType => {
   const t = typeof data
 
   switch (t) {
     case 'undefined':
-      return ZodParsedType.undefined
+      return 'undefined'
 
     case 'string':
-      return ZodParsedType.string
+      return 'string'
 
     case 'number':
-      return isNaN(data) ? ZodParsedType.nan : ZodParsedType.number
+      return isNaN(data) ? 'nan' : 'number'
 
     case 'boolean':
-      return ZodParsedType.boolean
+      return 'boolean'
 
     case 'function':
-      return ZodParsedType.function
+      return 'function'
 
     case 'bigint':
-      return ZodParsedType.bigint
+      return 'bigint'
 
     case 'symbol':
-      return ZodParsedType.symbol
+      return 'symbol'
 
     case 'object':
       if (Array.isArray(data)) {
-        return ZodParsedType.array
+        return 'array'
       }
       if (data === null) {
-        return ZodParsedType.null
+        return 'null'
       }
       if (data.then && typeof data.then === 'function' && data.catch && typeof data.catch === 'function') {
-        return ZodParsedType.promise
+        return 'promise'
       }
       if (typeof Map !== 'undefined' && data instanceof Map) {
-        return ZodParsedType.map
+        return 'map'
       }
       if (typeof Set !== 'undefined' && data instanceof Set) {
-        return ZodParsedType.set
+        return 'set'
       }
       if (typeof Date !== 'undefined' && data instanceof Date) {
-        return ZodParsedType.date
+        return 'date'
       }
-      return ZodParsedType.object
+      return 'object'
 
     default:
-      return ZodParsedType.unknown
+      return 'unknown'
   }
 }
 

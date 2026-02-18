@@ -1,10 +1,8 @@
-import { ZodIssueCode } from '../../error'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   OK,
@@ -19,11 +17,11 @@ export type ZodSymbolDef = {
 export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.symbol) {
+    if (parsedType !== 'symbol') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.symbol,
+        code: 'invalid_type',
+        expected: 'symbol',
         received: ctx.parsedType,
       })
       return INVALID

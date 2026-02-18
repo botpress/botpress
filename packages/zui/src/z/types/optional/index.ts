@@ -1,6 +1,6 @@
 import {
+  //
   processCreateParams,
-  ZodParsedType,
   RawCreateParams,
   ZodType,
   ZodTypeDef,
@@ -41,7 +41,7 @@ export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType === ZodParsedType.undefined) {
+    if (parsedType === 'undefined') {
       return OK(undefined)
     }
     return this._def.innerType._parse(input)

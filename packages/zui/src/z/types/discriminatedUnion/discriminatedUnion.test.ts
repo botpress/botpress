@@ -71,10 +71,10 @@ test('invalid - null', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         message: 'Expected object, received null',
-        received: z.ZodParsedType.null,
+        received: 'null',
         path: [],
       },
     ])
@@ -91,7 +91,7 @@ test('invalid discriminator value', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_union_discriminator,
+        code: 'invalid_union_discriminator',
         options: ['a', 'b'],
         message: "Invalid discriminator value. Expected 'a' | 'b'",
         path: ['type'],
@@ -110,11 +110,11 @@ test('valid discriminator value, invalid data', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.string,
+        code: 'invalid_type',
+        expected: 'string',
         message: 'Required',
         path: ['a'],
-        received: z.ZodParsedType.undefined,
+        received: 'undefined',
       },
     ])
   }

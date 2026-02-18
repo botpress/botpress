@@ -1,10 +1,8 @@
-import { ZodIssueCode } from '../../error'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   OK,
@@ -24,11 +22,11 @@ export class ZodBoolean extends ZodType<boolean, ZodBooleanDef> {
     }
     const parsedType = this._getType(input)
 
-    if (parsedType !== ZodParsedType.boolean) {
+    if (parsedType !== 'boolean') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.boolean,
+        code: 'invalid_type',
+        expected: 'boolean',
         received: ctx.parsedType,
       })
       return INVALID

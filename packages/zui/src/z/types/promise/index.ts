@@ -1,10 +1,8 @@
-import { ZodIssueCode } from '../../error'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   OK,
@@ -46,16 +44,16 @@ export class ZodPromise<T extends ZodType = ZodType> extends ZodType<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.promise && ctx.common.async === false) {
+    if (ctx.parsedType !== 'promise' && ctx.common.async === false) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.promise,
+        code: 'invalid_type',
+        expected: 'promise',
         received: ctx.parsedType,
       })
       return INVALID
     }
 
-    const promisified = ctx.parsedType === ZodParsedType.promise ? ctx.data : Promise.resolve(ctx.data)
+    const promisified = ctx.parsedType === 'promise' ? ctx.data : Promise.resolve(ctx.data)
 
     return OK(
       promisified.then((data: any) => {

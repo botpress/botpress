@@ -1,4 +1,3 @@
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   RawCreateParams,
@@ -64,7 +63,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
       addIssueToContext(ctx, {
         expected: utils.others.joinValues(expectedValues) as 'string',
         received: ctx.parsedType,
-        code: ZodIssueCode.invalid_type,
+        code: 'invalid_type',
       })
       return INVALID
     }
@@ -75,7 +74,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
       addIssueToContext(ctx, {
         received: ctx.data,
-        code: ZodIssueCode.invalid_enum_value,
+        code: 'invalid_enum_value',
         options: expectedValues,
       })
       return INVALID

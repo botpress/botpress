@@ -1,4 +1,3 @@
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -6,7 +5,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -73,10 +71,10 @@ export class ZodTuple<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.array) {
+    if (ctx.parsedType !== 'array') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.array,
+        code: 'invalid_type',
+        expected: 'array',
         received: ctx.parsedType,
       })
       return INVALID
@@ -84,7 +82,7 @@ export class ZodTuple<
 
     if (ctx.data.length < this._def.items.length) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.too_small,
+        code: 'too_small',
         minimum: this._def.items.length,
         inclusive: true,
         exact: false,
@@ -98,7 +96,7 @@ export class ZodTuple<
 
     if (!rest && ctx.data.length > this._def.items.length) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: this._def.items.length,
         inclusive: true,
         exact: false,

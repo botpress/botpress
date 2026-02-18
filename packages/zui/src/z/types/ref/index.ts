@@ -1,5 +1,12 @@
-import { ZodIssueCode } from '../../error'
-import { ZodType, ZodTypeDef, INVALID, ParseInput, ParseReturnType, addIssueToContext } from '../index'
+import {
+  //
+  ZodType,
+  ZodTypeDef,
+  INVALID,
+  ParseInput,
+  ParseReturnType,
+  addIssueToContext,
+} from '../index'
 
 export type ZodRefDef = {
   typeName: 'ZodRef'
@@ -25,7 +32,7 @@ export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
     // a schema containing references should never be used to parse data
     const ctx = this._getOrReturnCtx(input)
     addIssueToContext(ctx, {
-      code: ZodIssueCode.unresolved_reference,
+      code: 'unresolved_reference',
     })
     return INVALID
   }

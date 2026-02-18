@@ -1,14 +1,13 @@
 import { test, expect } from 'vitest'
 import * as z from '../index'
-import { ZodParsedType } from '../index'
 import { ZodError, ZodIssueCode } from '.'
 
 test('error creation', () => {
   const err1 = ZodError.create([])
   err1.addIssue({
-    code: ZodIssueCode.invalid_type,
-    expected: ZodParsedType.object,
-    received: ZodParsedType.string,
+    code: 'invalid_type',
+    expected: 'object',
+    received: 'string',
     path: [],
     message: '',
     fatal: true,
@@ -25,12 +24,12 @@ test('error creation', () => {
 })
 
 const errorMap: z.ZodErrorMap = (error, ctx) => {
-  if (error.code === ZodIssueCode.invalid_type) {
+  if (error.code === 'invalid_type') {
     if (error.expected === 'string') {
       return { message: 'bad type!' }
     }
   }
-  if (error.code === ZodIssueCode.custom) {
+  if (error.code === 'custom') {
     return { message: `less-than-${(error.params || {}).minimum}` }
   }
   return { message: ctx.defaultError }
@@ -42,7 +41,7 @@ test('type error with custom error map', () => {
   } catch (err) {
     const zerr = err as z.ZodError
 
-    expect(zerr.issues[0]?.code).toEqual(z.ZodIssueCode.invalid_type)
+    expect(zerr.issues[0]?.code).toEqual('invalid_type')
     expect(zerr.issues[0]?.message).toEqual(`bad type!`)
   }
 })
@@ -56,7 +55,7 @@ test('refinement fail with params', () => {
       .parse(2, { errorMap })
   } catch (err) {
     const zerr = err as z.ZodError
-    expect(zerr.issues[0]?.code).toEqual(z.ZodIssueCode.custom)
+    expect(zerr.issues[0]?.code).toEqual('custom')
     expect(zerr.issues[0]?.message).toEqual(`less-than-3`)
   }
 })
@@ -118,14 +117,14 @@ test('array minimum', () => {
     z.array(z.string()).min(3, 'tooshort').parse(['asdf', 'qwer'])
   } catch (err) {
     const zerr = err as ZodError
-    expect(zerr.issues[0]?.code).toEqual(ZodIssueCode.too_small)
+    expect(zerr.issues[0]?.code).toEqual('too_small')
     expect(zerr.issues[0]?.message).toEqual('tooshort')
   }
   try {
     z.array(z.string()).min(3).parse(['asdf', 'qwer'])
   } catch (err) {
     const zerr = err as ZodError
-    expect(zerr.issues[0]?.code).toEqual(ZodIssueCode.too_small)
+    expect(zerr.issues[0]?.code).toEqual('too_small')
     expect(zerr.issues[0]?.message).toEqual(`Array must contain at least 3 element(s)`)
   }
 })

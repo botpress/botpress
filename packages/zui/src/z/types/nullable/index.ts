@@ -1,4 +1,5 @@
 import {
+  //
   OK,
   ParseInput,
   ParseReturnType,
@@ -6,7 +7,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
 } from '../index'
 
 export type ZodNullableDef<T extends ZodType = ZodType> = {
@@ -41,7 +41,7 @@ export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType === ZodParsedType.null) {
+    if (parsedType === 'null') {
       return OK(null)
     }
     return this._def.innerType._parse(input)

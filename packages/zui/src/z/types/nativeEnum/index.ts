@@ -1,12 +1,10 @@
 import { isEqual } from 'lodash-es'
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   OK,
@@ -26,12 +24,12 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
     const nativeEnumValues = this._getValidEnumValues(this._def.values)
 
     const ctx = this._getOrReturnCtx(input)
-    if (ctx.parsedType !== ZodParsedType.string && ctx.parsedType !== ZodParsedType.number) {
+    if (ctx.parsedType !== 'string' && ctx.parsedType !== 'number') {
       const expectedValues = Object.values(nativeEnumValues)
       addIssueToContext(ctx, {
         expected: utils.others.joinValues(expectedValues) as 'string',
         received: ctx.parsedType,
-        code: ZodIssueCode.invalid_type,
+        code: 'invalid_type',
       })
       return INVALID
     }
@@ -41,7 +39,7 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
 
       addIssueToContext(ctx, {
         received: ctx.data,
-        code: ZodIssueCode.invalid_enum_value,
+        code: 'invalid_enum_value',
         options: expectedValues,
       })
       return INVALID

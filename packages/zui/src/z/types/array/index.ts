@@ -1,5 +1,4 @@
 import { isEqual } from 'lodash-es'
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -7,7 +6,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -70,10 +68,10 @@ export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCard
 
     const def = this._def
 
-    if (ctx.parsedType !== ZodParsedType.array) {
+    if (ctx.parsedType !== 'array') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.array,
+        code: 'invalid_type',
+        expected: 'array',
         received: ctx.parsedType,
       })
       return INVALID
@@ -84,7 +82,7 @@ export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCard
       const tooSmall = ctx.data.length < def.exactLength.value
       if (tooBig || tooSmall) {
         addIssueToContext(ctx, {
-          code: tooBig ? ZodIssueCode.too_big : ZodIssueCode.too_small,
+          code: tooBig ? 'too_big' : 'too_small',
           minimum: (tooSmall ? def.exactLength.value : undefined) as number,
           maximum: (tooBig ? def.exactLength.value : undefined) as number,
           type: 'array',
@@ -99,7 +97,7 @@ export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCard
     if (def.minLength !== null) {
       if (ctx.data.length < def.minLength.value) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.too_small,
+          code: 'too_small',
           minimum: def.minLength.value,
           type: 'array',
           inclusive: true,
@@ -113,7 +111,7 @@ export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCard
     if (def.maxLength !== null) {
       if (ctx.data.length > def.maxLength.value) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.too_big,
+          code: 'too_big',
           maximum: def.maxLength.value,
           type: 'array',
           inclusive: true,

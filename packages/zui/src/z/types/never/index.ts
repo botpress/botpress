@@ -1,10 +1,8 @@
-import { ZodIssueCode } from '../../error'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -19,8 +17,8 @@ export class ZodNever extends ZodType<never, ZodNeverDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const ctx = this._getOrReturnCtx(input)
     addIssueToContext(ctx, {
-      code: ZodIssueCode.invalid_type,
-      expected: ZodParsedType.never,
+      code: 'invalid_type',
+      expected: 'never',
       received: ctx.parsedType,
     })
     return INVALID

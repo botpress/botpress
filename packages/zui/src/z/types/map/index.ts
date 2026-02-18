@@ -1,4 +1,3 @@
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -6,7 +5,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -56,10 +54,10 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.map) {
+    if (ctx.parsedType !== 'map') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.map,
+        code: 'invalid_type',
+        expected: 'map',
         received: ctx.parsedType,
       })
       return INVALID

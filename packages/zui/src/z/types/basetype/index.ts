@@ -11,7 +11,7 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
-import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap, ZodIssueCode } from '../../error'
+import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
 import * as utils from '../../utils'
 import { CatchFn } from '../catch'
 import {
@@ -320,7 +320,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       const result = check(val)
       const setError = () =>
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           ...getIssueProperties(val),
         })
       if (typeof Promise !== 'undefined' && result instanceof Promise) {
