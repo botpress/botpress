@@ -8,7 +8,6 @@ import {
   ZodTuple,
   addIssueToContext,
   INVALID,
-  objectUtil,
   ParseInput,
   ParseReturnType,
   ParseStatus,
@@ -43,7 +42,7 @@ export type mergeTypes<A, B> = {
 export type objectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & objectUtil.flatten<objectUtil.addQuestionMarks<baseObjectOutputType<Shape>>>
+> = UnknownKeysOutputType<UnknownKeys> & utils.types.Flatten<utils.types.AddQuestionMarks<baseObjectOutputType<Shape>>>
 
 export type baseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
@@ -52,9 +51,9 @@ export type baseObjectOutputType<Shape extends ZodRawShape> = {
 export type objectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = objectUtil.flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+> = utils.types.Flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
 
-export type baseObjectInputType<Shape extends ZodRawShape> = objectUtil.addQuestionMarks<{
+export type baseObjectInputType<Shape extends ZodRawShape> = utils.types.AddQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
@@ -346,7 +345,7 @@ export class ZodObject<
   //   };
   extend<Augmentation extends ZodRawShape>(
     augmentation: Augmentation
-  ): ZodObject<objectUtil.extendShape<T, Augmentation>, UnknownKeys> {
+  ): ZodObject<utils.types.ExtendShape<T, Augmentation>, UnknownKeys> {
     return new ZodObject({
       ...this._def,
       shape: () => ({
@@ -400,7 +399,7 @@ export class ZodObject<
    */
   merge<Incoming extends AnyZodObject, Augmentation extends Incoming['shape']>(
     merging: Incoming
-  ): ZodObject<objectUtil.extendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
+  ): ZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
     const merged: any = new ZodObject({
       unknownKeys: merging._def.unknownKeys,
       shape: () => ({
@@ -441,7 +440,7 @@ export class ZodObject<
   //     unknownKeys: merging._def.unknownKeys,
   //     catchall: merging._def.catchall,
   //     shape: () =>
-  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
+  //       utils.types.mergeShapes(this._def.shape(), merging._def.shape()),
   //     typeName: 'ZodObject',
   //   });
   //   return merged;
@@ -470,7 +469,7 @@ export class ZodObject<
   //   Incoming["_def"]["unknownKeys"],
   //   Incoming["_def"]["catchall"]
   // > {
-  //   // const mergedShape = objectUtil.mergeShapes(
+  //   // const mergedShape = utils.types.mergeShapes(
   //   //   this._def.shape(),
   //   //   merging._def.shape()
   //   // );
@@ -478,7 +477,7 @@ export class ZodObject<
   //     unknownKeys: merging._def.unknownKeys,
   //     catchall: merging._def.catchall,
   //     shape: () =>
-  //       objectUtil.mergeShapes(this._def.shape(), merging._def.shape()),
+  //       utils.types.mergeShapes(this._def.shape(), merging._def.shape()),
   //     typeName: 'ZodObject',
   //   });
   //   return merged;
@@ -548,7 +547,7 @@ export class ZodObject<
   >(
     mask: Mask
   ): ZodObject<
-    objectUtil.noNever<{
+    utils.types.NoNever<{
       [k in keyof T]: k extends keyof Mask ? ZodOptional<T[k]> : T[k]
     }>,
     UnknownKeys
@@ -585,7 +584,7 @@ export class ZodObject<
   >(
     mask: Mask
   ): ZodObject<
-    objectUtil.noNever<{
+    utils.types.NoNever<{
       [k in keyof T]: k extends keyof Mask ? deoptional<T[k]> : T[k]
     }>,
     UnknownKeys
