@@ -20,7 +20,6 @@ import {
   ZodTypeDef,
   processCreateParams,
   enumUtil,
-  errorUtil,
   partialUtil,
   createZodEnum,
   ZodNever,
@@ -261,8 +260,8 @@ export class ZodObject<
     return this._def.shape()
   }
 
-  strict(message?: errorUtil.ErrMessage): ZodObject<T, 'strict'> {
-    errorUtil.errToObj
+  strict(message?: utils.errors.ErrMessage): ZodObject<T, 'strict'> {
+    utils.errors.errToObj
     return new ZodObject({
       ...this._def,
       unknownKeys: 'strict',
@@ -272,7 +271,7 @@ export class ZodObject<
               const defaultError = this._def.errorMap?.(issue, ctx).message ?? ctx.defaultError
               if (issue.code === 'unrecognized_keys') {
                 return {
-                  message: errorUtil.errToObj(message).message ?? defaultError,
+                  message: utils.errors.errToObj(message).message ?? defaultError,
                 }
               }
               return {

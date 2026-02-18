@@ -3,7 +3,6 @@ import * as utils from '../../utils'
 import {
   processCreateParams,
   ZodParsedType,
-  errorUtil,
   ZodTypeDef,
   addIssueToContext,
   INVALID,
@@ -97,19 +96,19 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     })
   }
 
-  min(minDate: Date, message?: errorUtil.ErrMessage) {
+  min(minDate: Date, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: minDate.getTime(),
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  max(maxDate: Date, message?: errorUtil.ErrMessage) {
+  max(maxDate: Date, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: maxDate.getTime(),
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 

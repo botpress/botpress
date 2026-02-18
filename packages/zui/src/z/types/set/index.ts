@@ -1,4 +1,5 @@
 import { ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
   RawCreateParams,
@@ -6,7 +7,6 @@ import {
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
-  errorUtil,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -108,25 +108,25 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     }
   }
 
-  min(minSize: number, message?: errorUtil.ErrMessage): this {
+  min(minSize: number, message?: utils.errors.ErrMessage): this {
     return new ZodSet({
       ...this._def,
-      minSize: { value: minSize, message: errorUtil.toString(message) },
+      minSize: { value: minSize, message: utils.errors.toString(message) },
     }) as this
   }
 
-  max(maxSize: number, message?: errorUtil.ErrMessage): this {
+  max(maxSize: number, message?: utils.errors.ErrMessage): this {
     return new ZodSet({
       ...this._def,
-      maxSize: { value: maxSize, message: errorUtil.toString(message) },
+      maxSize: { value: maxSize, message: utils.errors.toString(message) },
     }) as this
   }
 
-  size(size: number, message?: errorUtil.ErrMessage): this {
+  size(size: number, message?: utils.errors.ErrMessage): this {
     return this.min(size, message).max(size, message) as this
   }
 
-  nonempty(message?: errorUtil.ErrMessage): ZodSet<Value> {
+  nonempty(message?: utils.errors.ErrMessage): ZodSet<Value> {
     return this.min(1, message) as this
   }
 

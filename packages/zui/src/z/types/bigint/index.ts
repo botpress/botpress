@@ -12,7 +12,6 @@ import {
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
-  errorUtil,
 } from '../index'
 
 export type ZodBigIntCheck =
@@ -111,22 +110,22 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
     return thisChecks.isEqual(thatChecks)
   }
 
-  gte(value: bigint, message?: errorUtil.ErrMessage) {
-    return this.setLimit('min', value, true, errorUtil.toString(message))
+  gte(value: bigint, message?: utils.errors.ErrMessage) {
+    return this.setLimit('min', value, true, utils.errors.toString(message))
   }
   min = this.gte
 
-  gt(value: bigint, message?: errorUtil.ErrMessage) {
-    return this.setLimit('min', value, false, errorUtil.toString(message))
+  gt(value: bigint, message?: utils.errors.ErrMessage) {
+    return this.setLimit('min', value, false, utils.errors.toString(message))
   }
 
-  lte(value: bigint, message?: errorUtil.ErrMessage) {
-    return this.setLimit('max', value, true, errorUtil.toString(message))
+  lte(value: bigint, message?: utils.errors.ErrMessage) {
+    return this.setLimit('max', value, true, utils.errors.toString(message))
   }
   max = this.lte
 
-  lt(value: bigint, message?: errorUtil.ErrMessage) {
-    return this.setLimit('max', value, false, errorUtil.toString(message))
+  lt(value: bigint, message?: utils.errors.ErrMessage) {
+    return this.setLimit('max', value, false, utils.errors.toString(message))
   }
 
   protected setLimit(kind: 'min' | 'max', value: bigint, inclusive: boolean, message?: string) {
@@ -138,7 +137,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
           kind,
           value,
           inclusive,
-          message: errorUtil.toString(message),
+          message: utils.errors.toString(message),
         },
       ],
     })
@@ -151,47 +150,47 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
     })
   }
 
-  positive(message?: errorUtil.ErrMessage) {
+  positive(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: BigInt(0),
       inclusive: false,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  negative(message?: errorUtil.ErrMessage) {
+  negative(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: BigInt(0),
       inclusive: false,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  nonpositive(message?: errorUtil.ErrMessage) {
+  nonpositive(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: BigInt(0),
       inclusive: true,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  nonnegative(message?: errorUtil.ErrMessage) {
+  nonnegative(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: BigInt(0),
       inclusive: true,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  multipleOf(value: bigint, message?: errorUtil.ErrMessage) {
+  multipleOf(value: bigint, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'multipleOf',
       value,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 

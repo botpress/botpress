@@ -7,7 +7,6 @@ import {
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
-  errorUtil,
   addIssueToContext,
   INVALID,
   ParseContext,
@@ -310,11 +309,11 @@ export class ZodString extends ZodType<string, ZodStringDef> {
     return { status: status.value, value: input.data }
   }
 
-  protected _regex(regex: RegExp, validation: StringValidation, message?: errorUtil.ErrMessage) {
+  protected _regex(regex: RegExp, validation: StringValidation, message?: utils.errors.ErrMessage) {
     return this.refinement((data) => regex.test(data), {
       validation,
       code: ZodIssueCode.invalid_string,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
@@ -325,30 +324,30 @@ export class ZodString extends ZodType<string, ZodStringDef> {
     })
   }
 
-  email(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'email', ...errorUtil.errToObj(message) })
+  email(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'email', ...utils.errors.errToObj(message) })
   }
-  url(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'url', ...errorUtil.errToObj(message) })
+  url(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'url', ...utils.errors.errToObj(message) })
   }
-  emoji(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'emoji', ...errorUtil.errToObj(message) })
+  emoji(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'emoji', ...utils.errors.errToObj(message) })
   }
-  uuid(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'uuid', ...errorUtil.errToObj(message) })
+  uuid(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'uuid', ...utils.errors.errToObj(message) })
   }
-  cuid(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'cuid', ...errorUtil.errToObj(message) })
+  cuid(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'cuid', ...utils.errors.errToObj(message) })
   }
-  cuid2(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'cuid2', ...errorUtil.errToObj(message) })
+  cuid2(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'cuid2', ...utils.errors.errToObj(message) })
   }
-  ulid(message?: errorUtil.ErrMessage) {
-    return this._addCheck({ kind: 'ulid', ...errorUtil.errToObj(message) })
+  ulid(message?: utils.errors.ErrMessage) {
+    return this._addCheck({ kind: 'ulid', ...utils.errors.errToObj(message) })
   }
 
   ip(options?: string | { version?: 'v4' | 'v6'; message?: string }) {
-    return this._addCheck({ kind: 'ip', ...errorUtil.errToObj(options) })
+    return this._addCheck({ kind: 'ip', ...utils.errors.errToObj(options) })
   }
 
   datetime(
@@ -372,15 +371,15 @@ export class ZodString extends ZodType<string, ZodStringDef> {
       kind: 'datetime',
       precision: typeof options?.precision === 'undefined' ? null : options?.precision,
       offset: options?.offset ?? false,
-      ...errorUtil.errToObj(options?.message),
+      ...utils.errors.errToObj(options?.message),
     })
   }
 
-  regex(regex: RegExp, message?: errorUtil.ErrMessage) {
+  regex(regex: RegExp, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'regex',
       regex,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
@@ -389,47 +388,47 @@ export class ZodString extends ZodType<string, ZodStringDef> {
       kind: 'includes',
       value,
       position: options?.position,
-      ...errorUtil.errToObj(options?.message),
+      ...utils.errors.errToObj(options?.message),
     })
   }
 
-  startsWith(value: string, message?: errorUtil.ErrMessage) {
+  startsWith(value: string, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'startsWith',
       value,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
-  endsWith(value: string, message?: errorUtil.ErrMessage) {
+  endsWith(value: string, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'endsWith',
       value,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
-  min(minLength: number, message?: errorUtil.ErrMessage) {
+  min(minLength: number, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: minLength,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
-  max(maxLength: number, message?: errorUtil.ErrMessage) {
+  max(maxLength: number, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: maxLength,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
-  length(len: number, message?: errorUtil.ErrMessage) {
+  length(len: number, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'length',
       value: len,
-      ...errorUtil.errToObj(message),
+      ...utils.errors.errToObj(message),
     })
   }
 
@@ -437,8 +436,8 @@ export class ZodString extends ZodType<string, ZodStringDef> {
    * @deprecated Use z.string().min(1) instead.
    * @see {@link ZodString.min}
    */
-  nonempty(message?: errorUtil.ErrMessage) {
-    return this.min(1, errorUtil.errToObj(message))
+  nonempty(message?: utils.errors.ErrMessage) {
+    return this.min(1, utils.errors.errToObj(message))
   }
 
   trim() {
