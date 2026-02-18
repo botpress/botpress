@@ -12,7 +12,7 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-} from '../index'
+} from '../basetype'
 import { generateDatetimeRegex } from './datetime'
 
 export type IpVersion = 'v4' | 'v6'

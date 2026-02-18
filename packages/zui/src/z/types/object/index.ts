@@ -1,10 +1,5 @@
 import * as utils from '../../utils'
 import {
-  ZodArray,
-  ZodEnum,
-  ZodNullable,
-  ZodOptional,
-  ZodTuple,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -16,7 +11,15 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  createZodEnum,
+} from '../basetype'
+
+import {
+  //
+  ZodArray,
+  ZodEnum,
+  ZodNullable,
+  ZodOptional,
+  ZodTuple,
   ZodNever,
   ZodAny,
   ZodTupleItems,
@@ -630,7 +633,7 @@ export class ZodObject<
   }
 
   keyof(): ZodEnum<KeyOfObject<T>> {
-    return createZodEnum(Object.keys(this.shape) as [string, ...string[]]) as any
+    return ZodEnum.create(Object.keys(this.shape) as [string, ...string[]]) as any
   }
 
   isEqual(schema: ZodType): boolean {

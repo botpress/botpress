@@ -7,7 +7,7 @@ import {
   INVALID,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodNeverDef = {
   typeName: 'ZodNever'

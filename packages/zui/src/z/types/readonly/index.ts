@@ -6,7 +6,7 @@ import {
   isValid,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 type BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))

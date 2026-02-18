@@ -7,7 +7,7 @@ import {
   ParseReturnType,
   output,
   input,
-} from '../index'
+} from '../basetype'
 
 export type ZodLazyDef<T extends ZodType = ZodType> = {
   getter: () => T

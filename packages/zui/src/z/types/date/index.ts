@@ -10,7 +10,7 @@ import {
   ParseStatus,
   ZodType,
   RawCreateParams,
-} from '../index'
+} from '../basetype'
 
 export type ZodDateCheck =
   | { kind: 'min'; value: number; message?: string }

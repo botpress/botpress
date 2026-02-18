@@ -4,10 +4,6 @@ import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
-  ZodPromise,
-  AnyZodTuple,
-  ZodTuple,
-  ZodUnknown,
   processCreateParams,
   addIssueToContext,
   INVALID,
@@ -15,6 +11,14 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
+} from '../basetype'
+
+import {
+  //
+  ZodPromise,
+  ZodTuple,
+  ZodUnknown,
+  AnyZodTuple,
 } from '../index'
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {

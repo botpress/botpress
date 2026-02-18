@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { type IssueData, type ZodIssue, type ZodErrorMap, defaultErrorMap, getErrorMap } from '../../error'
-import type { ProcessedCreateParams, RawCreateParams } from '../index'
+import type { ProcessedCreateParams, RawCreateParams } from '../basetype'
 
 export const makeIssue = (params: {
   data: any

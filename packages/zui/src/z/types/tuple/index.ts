@@ -11,7 +11,7 @@ import {
   ParseReturnType,
   ParseStatus,
   SyncParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodTupleItems = [ZodType, ...ZodType[]]
 export type AssertArray<T> = T extends any[] ? T : never
@@ -37,7 +37,11 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
   typeName: 'ZodTuple'
 } & ZodTypeDef
 
+/**
+ * @deprecated use ZodTuple instead
+ */
 export type AnyZodTuple = ZodTuple<[ZodType, ...ZodType[]] | [], ZodType | null>
+
 export class ZodTuple<
   T extends [ZodType, ...ZodType[]] | [] = [ZodType, ...ZodType[]],
   Rest extends ZodType | null = null,

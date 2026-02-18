@@ -11,7 +11,7 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-} from '../index'
+} from '../basetype'
 
 export type ZodArrayDef<T extends ZodType = ZodType> = {
   type: T

@@ -12,7 +12,7 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
   left: T

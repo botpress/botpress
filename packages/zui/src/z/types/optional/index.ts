@@ -7,7 +7,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodOptionalDef<T extends ZodType = ZodType> = {
   innerType: T

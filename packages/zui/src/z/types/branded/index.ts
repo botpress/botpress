@@ -1,4 +1,4 @@
-import { ZodType, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
+import { ZodType, ZodTypeDef, ParseInput, ParseReturnType } from '../basetype'
 
 type Key = string | number | symbol
 

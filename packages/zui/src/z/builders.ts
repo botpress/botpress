@@ -1,5 +1,4 @@
 import {
-  CustomErrorParams,
   ZodAny,
   ZodArray,
   ZodBigInt,
@@ -37,6 +36,7 @@ import {
   ZodUnknown,
   ZodVoid,
 } from './types'
+import { CustomErrorParams } from './types/basetype'
 
 type CustomParams = CustomErrorParams & { fatal?: boolean }
 const customType = <T>(

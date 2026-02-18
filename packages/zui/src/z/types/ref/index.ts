@@ -6,7 +6,7 @@ import {
   ParseInput,
   ParseReturnType,
   addIssueToContext,
-} from '../index'
+} from '../basetype'
 
 export type ZodRefDef = {
   typeName: 'ZodRef'

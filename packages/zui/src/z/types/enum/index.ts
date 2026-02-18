@@ -9,7 +9,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ArrayKeys = keyof any[]
 export type Indices<T> = Exclude<keyof T, ArrayKeys>
@@ -38,19 +38,6 @@ export type FilterEnum<Values, ToExclude> = Values extends []
     : never
 
 export type typecast<A, T> = A extends T ? A : never
-
-export function createZodEnum<U extends string, T extends Readonly<[U, ...U[]]>>(
-  values: T,
-  params?: RawCreateParams
-): ZodEnum<Writeable<T>>
-export function createZodEnum<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
-export function createZodEnum(values: [string, ...string[]], params?: RawCreateParams) {
-  return new ZodEnum({
-    values,
-    typeName: 'ZodEnum',
-    ...processCreateParams(params),
-  })
-}
 
 export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> extends ZodType<
   T[number],
@@ -130,7 +117,18 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     }) as ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
   }
 
-  static create = createZodEnum
+  static create<U extends string, T extends Readonly<[U, ...U[]]>>(
+    values: T,
+    params?: RawCreateParams
+  ): ZodEnum<Writeable<T>>
+  static create<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
+  static create(values: [string, ...string[]], params?: RawCreateParams) {
+    return new ZodEnum({
+      values,
+      typeName: 'ZodEnum',
+      ...processCreateParams(params),
+    })
+  }
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodEnum)) return false

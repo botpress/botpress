@@ -8,8 +8,9 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-  ZodNever,
-} from '../index'
+} from '../basetype'
+
+import { ZodNever } from '../index'
 
 export type ZodUndefinedDef = {
   typeName: 'ZodUndefined'

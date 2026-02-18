@@ -1,17 +1,21 @@
 import * as utils from '../../utils'
 import {
-  BRAND,
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
   ZodTypeDef,
-  ZodString,
   processCreateParams,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
   ParseStatus,
+} from '../basetype'
+
+import {
+  //
+  ZodString,
+  BRAND,
 } from '../index'
 
 export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {

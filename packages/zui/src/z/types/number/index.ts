@@ -10,7 +10,7 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-} from '../index'
+} from '../basetype'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }

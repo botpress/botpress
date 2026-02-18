@@ -10,7 +10,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
   values: T

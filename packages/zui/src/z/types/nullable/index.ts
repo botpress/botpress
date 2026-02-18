@@ -7,7 +7,7 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-} from '../index'
+} from '../basetype'
 
 export type ZodNullableDef<T extends ZodType = ZodType> = {
   innerType: T

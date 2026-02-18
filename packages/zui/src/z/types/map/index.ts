@@ -10,7 +10,7 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodMapDef<Key extends ZodType = ZodType, Value extends ZodType = ZodType> = {
   valueType: Value

@@ -7,7 +7,7 @@ import {
   INVALID,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodNaNDef = {
   typeName: 'ZodNaN'

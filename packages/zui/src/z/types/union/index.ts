@@ -12,9 +12,9 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ZodUndefined,
-  ZodNever,
-} from '../index'
+} from '../basetype'
+
+import { ZodUndefined, ZodNever } from '../index'
 
 type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>

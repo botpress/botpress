@@ -9,7 +9,7 @@ import {
   ParseContext,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
 export type ZodCatchDef<T extends ZodType = ZodType> = {
