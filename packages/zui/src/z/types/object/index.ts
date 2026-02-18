@@ -18,10 +18,10 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  partialUtil,
   createZodEnum,
   ZodNever,
   ZodAny,
+  ZodTupleItems,
 } from '../index'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
@@ -93,6 +93,24 @@ export type KeyOfObject<T extends ZodRawShape> = utils.types.Cast<
   utils.types.UnionToTuple<keyof T>,
   [string, ...string[]]
 >
+
+export type DeepPartial<T extends ZodType> = T extends ZodObject
+  ? ZodObject<{ [k in keyof T['shape']]: ZodOptional<DeepPartial<T['shape'][k]>> }, T['_def']['unknownKeys']>
+  : T extends ZodArray<infer Type, infer Card>
+    ? ZodArray<DeepPartial<Type>, Card>
+    : T extends ZodOptional<infer Type>
+      ? ZodOptional<DeepPartial<Type>>
+      : T extends ZodNullable<infer Type>
+        ? ZodNullable<DeepPartial<Type>>
+        : T extends ZodTuple<infer Items>
+          ? {
+              [k in keyof Items]: Items[k] extends ZodType ? DeepPartial<Items[k]> : never
+            } extends infer PI
+            ? PI extends ZodTupleItems
+              ? ZodTuple<PI>
+              : never
+            : never
+          : T
 
 function deepPartialify(schema: ZodType): any {
   if (schema instanceof ZodObject) {
@@ -530,7 +548,7 @@ export class ZodObject<
   /**
    * @deprecated
    */
-  deepPartial(): partialUtil.DeepPartial<this> {
+  deepPartial(): DeepPartial<this> {
     return deepPartialify(this)
   }
 
