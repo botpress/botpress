@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique, CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   ZodArray,
   ZodEnum,
@@ -12,7 +12,6 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-  util,
   ZodParsedType,
   ParseInputLazyPath,
   RawCreateParams,
@@ -128,7 +127,7 @@ export class ZodObject<
   _getCached(): { shape: T; keys: string[] } {
     if (this._cached !== null) return this._cached
     const shape = this._def.shape()
-    const keys = util.objectKeys(shape)
+    const keys = Object.keys(shape)
     return (this._cached = { shape, keys })
   }
 
@@ -150,7 +149,7 @@ export class ZodObject<
     for (const key in shape) {
       refs.push(...shape[key]!.getReferences())
     }
-    return unique(refs)
+    return utils.fn.unique(refs)
   }
 
   clone(): ZodObject<T, UnknownKeys, Output, Input> {
@@ -491,7 +490,7 @@ export class ZodObject<
   >(mask: Mask): ZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> {
     const shape: any = {}
 
-    util.objectKeys(mask).forEach((key) => {
+    Object.keys(mask).forEach((key) => {
       if (mask[key] && this.shape[key]) {
         shape[key] = this.shape[key]
       }
@@ -510,7 +509,7 @@ export class ZodObject<
   >(mask: Mask): ZodObject<Omit<T, keyof Mask>, UnknownKeys> {
     const shape: any = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.keys(this.shape).forEach((key) => {
       if (!mask[key]) {
         shape[key] = this.shape[key]
       }
@@ -550,7 +549,7 @@ export class ZodObject<
   partial(mask?: any) {
     const newShape: Record<string, ZodType | undefined> = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.keys(this.shape).forEach((key) => {
       const fieldSchema = this.shape[key]
 
       if (mask && !mask[key]) {
@@ -587,7 +586,7 @@ export class ZodObject<
   required(mask?: any) {
     const newShape: any = {}
 
-    util.objectKeys(this.shape).forEach((key) => {
+    Object.keys(this.shape).forEach((key) => {
       if (mask && !mask[key]) {
         newShape[key] = this.shape[key]
       } else {
@@ -609,7 +608,7 @@ export class ZodObject<
   }
 
   keyof(): ZodEnum<enumUtil.UnionToTupleString<keyof T>> {
-    return createZodEnum(util.objectKeys(this.shape) as [string, ...string[]]) as any
+    return createZodEnum(Object.keys(this.shape) as [string, ...string[]]) as any
   }
 
   isEqual(schema: ZodType): boolean {
@@ -621,8 +620,8 @@ export class ZodObject<
 
     type Property = [string, ZodType]
     const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
-    const thisProps = new CustomSet<Property>(Object.entries(thisShape), { compare })
-    const thatProps = new CustomSet<Property>(Object.entries(thatShape), { compare })
+    const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
+    const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })
 
     return thisProps.isEqual(thatProps)
   }

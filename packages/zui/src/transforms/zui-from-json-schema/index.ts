@@ -1,5 +1,6 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import z from '../../z'
+import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 import * as guards from './guards'
@@ -197,7 +198,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return z.intersection(zLeft, zRight)
   }
 
-  type _expectUndefined = z.util.AssertTrue<z.util.IsEqual<typeof schema.type, undefined>>
+  type _expectUndefined = utils.assert.AssertTrue<utils.types.IsEqual<typeof schema.type, undefined>>
 
   if (guards.isUnknownSchema(schema)) {
     return z.unknown()

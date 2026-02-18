@@ -1,4 +1,5 @@
-import z, { util } from '../../z'
+import z from '../../z'
+import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
@@ -339,7 +340,7 @@ ${value}`.trim()
       return toTypeArgumentName(s._def.uri)
 
     default:
-      util.assertNever(s)
+      utils.assert.assertNever(s)
   }
 }
 

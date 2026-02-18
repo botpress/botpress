@@ -1,4 +1,4 @@
-import { isEqual } from './is-equal'
+import { isEqual } from './fn-utils'
 
 export type CustomSetOptions<T> = {
   compare: (a: T, b: T) => boolean

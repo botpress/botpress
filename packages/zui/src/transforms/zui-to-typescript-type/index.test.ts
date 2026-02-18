@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { toTypescriptType as toTs } from '.'
-import z, { util, ZodType } from '../../z'
+import * as utils from '../../z/utils'
+import z, { ZodType } from '../../z'
 import * as errors from '../common/errors'
 import { assert } from '../../assertions.utils.test'
 
@@ -894,7 +895,7 @@ describe.concurrent('objects', () => {
     await assert(actual).toMatchWithoutFormatting(expected)
 
     type S = z.infer<typeof zSchema>
-    util.assertEqual<S, { a?: any }>(true)
+    utils.assert.assertEqual<S, { a?: any }>(true)
   })
 
   it('should treat an optional any key as optional with a single question mark', async () => {

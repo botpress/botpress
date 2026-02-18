@@ -1,28 +1,45 @@
-import { util, ZodParsedType } from '../types/utils'
-import { Primitive } from '../types/utils/typeAliases'
+import { ZodParsedType } from '../types/utils'
+import * as utils from '../utils'
 import { errorMap as defaultErrorMap } from './locales/en'
 
-export const ZodIssueCode = util.arrayToEnum([
-  'invalid_type',
-  'invalid_literal',
-  'custom',
-  'invalid_union',
-  'invalid_union_discriminator',
-  'invalid_enum_value',
-  'unrecognized_keys',
-  'invalid_arguments',
-  'invalid_return_type',
-  'invalid_date',
-  'invalid_string',
-  'too_small',
-  'too_big',
-  'invalid_intersection_types',
-  'not_multiple_of',
-  'not_finite',
-  'unresolved_reference',
-])
+export type ZodIssueCode =
+  | 'invalid_type'
+  | 'invalid_literal'
+  | 'custom'
+  | 'invalid_union'
+  | 'invalid_union_discriminator'
+  | 'invalid_enum_value'
+  | 'unrecognized_keys'
+  | 'invalid_arguments'
+  | 'invalid_return_type'
+  | 'invalid_date'
+  | 'invalid_string'
+  | 'too_small'
+  | 'too_big'
+  | 'invalid_intersection_types'
+  | 'not_multiple_of'
+  | 'not_finite'
+  | 'unresolved_reference'
 
-export type ZodIssueCode = keyof typeof ZodIssueCode
+export const ZodIssueCode = {
+  invalid_type: 'invalid_type',
+  invalid_literal: 'invalid_literal',
+  custom: 'custom',
+  invalid_union: 'invalid_union',
+  invalid_union_discriminator: 'invalid_union_discriminator',
+  invalid_enum_value: 'invalid_enum_value',
+  unrecognized_keys: 'unrecognized_keys',
+  invalid_arguments: 'invalid_arguments',
+  invalid_return_type: 'invalid_return_type',
+  invalid_date: 'invalid_date',
+  invalid_string: 'invalid_string',
+  too_small: 'too_small',
+  too_big: 'too_big',
+  invalid_intersection_types: 'invalid_intersection_types',
+  not_multiple_of: 'not_multiple_of',
+  not_finite: 'not_finite',
+  unresolved_reference: 'unresolved_reference',
+} as const satisfies { [k in ZodIssueCode]: k }
 
 export type ZodIssueBase = {
   path: (string | number)[]
@@ -53,7 +70,7 @@ export type ZodInvalidUnionIssue = {
 
 export type ZodInvalidUnionDiscriminatorIssue = {
   code: typeof ZodIssueCode.invalid_union_discriminator
-  options: Primitive[]
+  options: utils.types.Primitive[]
 } & ZodIssueBase
 
 export type ZodInvalidEnumValueIssue = {
@@ -263,7 +280,7 @@ export class ZodError<T = any> extends Error {
     return this.message
   }
   get message() {
-    return JSON.stringify(this.issues, util.jsonStringifyReplacer, 2)
+    return JSON.stringify(this.issues, utils.others.jsonStringifyReplacer, 2)
   }
 
   get isEmpty(): boolean {
@@ -279,7 +296,7 @@ export class ZodError<T = any> extends Error {
   }
 }
 
-type stripPath<T extends object> = T extends any ? util.OmitKeys<T, 'path'> : never
+type stripPath<T extends object> = T extends any ? Omit<T, 'path'> : never
 
 export type IssueData = stripPath<ZodIssueOptionalMessage> & {
   path?: (string | number)[]

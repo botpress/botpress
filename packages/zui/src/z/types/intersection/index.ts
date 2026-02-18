@@ -1,12 +1,11 @@
 import { ZodIssueCode } from '../../error'
-import { unique, CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   getParsedType,
   processCreateParams,
-  util,
   ZodParsedType,
   addIssueToContext,
   INVALID,
@@ -30,8 +29,8 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
   if (a === b) {
     return { valid: true, data: a }
   } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
-    const bKeys = util.objectKeys(b)
-    const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1)
+    const bKeys = Object.keys(b)
+    const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1)
 
     const newObj: any = { ...a, ...b }
     for (const key of sharedKeys) {
@@ -83,7 +82,7 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
   }
 
   getReferences(): string[] {
-    return unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
+    return utils.fn.unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
   }
 
   clone(): ZodIntersection<T, U> {
@@ -166,8 +165,8 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
     if (!(schema instanceof ZodIntersection)) return false
 
     const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisItems = new CustomSet<ZodType>([this._def.left, this._def.right], { compare })
-    const thatItems = new CustomSet<ZodType>([schema._def.left, schema._def.right], { compare })
+    const thisItems = new utils.ds.CustomSet<ZodType>([this._def.left, this._def.right], { compare })
+    const thatItems = new utils.ds.CustomSet<ZodType>([schema._def.left, schema._def.right], { compare })
     return thisItems.isEqual(thatItems)
   }
 }

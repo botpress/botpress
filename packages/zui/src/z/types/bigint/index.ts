@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   addIssueToContext,
   INVALID,
@@ -11,7 +11,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   ZodParsedType,
   errorUtil,
 } from '../index'
@@ -84,7 +83,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -106,8 +105,8 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
     }
     if (this._def.coerce !== schema._def.coerce) return false
 
-    const thisChecks = new CustomSet<ZodBigIntCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodBigIntCheck>(schema._def.checks)
+    const thisChecks = new utils.ds.CustomSet<ZodBigIntCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodBigIntCheck>(schema._def.checks)
 
     return thisChecks.isEqual(thatChecks)
   }

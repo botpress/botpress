@@ -1,8 +1,7 @@
 import { ZodIssueCode } from '../../error'
-import { CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   processCreateParams,
-  util,
   ZodParsedType,
   errorUtil,
   ZodTypeDef,
@@ -81,7 +80,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -147,8 +146,8 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodDate)) return false
-    const thisChecks = new CustomSet<ZodDateCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodDateCheck>(schema._def.checks)
+    const thisChecks = new utils.ds.CustomSet<ZodDateCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodDateCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks) && this._def.coerce === schema._def.coerce
   }
 }

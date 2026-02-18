@@ -1,12 +1,11 @@
 import { zuiKey } from '../../../ui/constants'
 import { StringValidation, ZodIssueCode } from '../../error'
-import { CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   ZodParsedType,
   errorUtil,
   addIssueToContext,
@@ -304,7 +303,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -527,8 +526,8 @@ export class ZodString extends ZodType<string, ZodStringDef> {
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodString)) return false
-    const thisChecks = new CustomSet<ZodStringCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodStringCheck>(schema._def.checks)
+    const thisChecks = new utils.ds.CustomSet<ZodStringCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodStringCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)
   }
 }

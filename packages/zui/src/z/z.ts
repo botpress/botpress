@@ -9,8 +9,6 @@ export * from './types'
 export * from './error'
 export * from './types/utils'
 export * from './types/utils/parseUtil'
-export * from './types/utils/typeAliases'
-
 /**
  * @deprecated - use ZodType instead
  */

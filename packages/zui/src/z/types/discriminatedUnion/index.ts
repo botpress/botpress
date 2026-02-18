@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique, CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   ZodBranded,
   ZodCatch,
@@ -23,16 +23,14 @@ import {
   ZodEffects,
   ZodUndefined,
   processCreateParams,
-  util,
   ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
-  Primitive,
 } from '../index'
 
-const getDiscriminator = <T extends ZodType>(type: T): Primitive[] => {
+const getDiscriminator = <T extends ZodType>(type: T): utils.types.Primitive[] => {
   if (type instanceof ZodLazy) {
     return getDiscriminator(type.schema)
   } else if (type instanceof ZodEffects) {
@@ -42,7 +40,7 @@ const getDiscriminator = <T extends ZodType>(type: T): Primitive[] => {
   } else if (type instanceof ZodEnum) {
     return type.options
   } else if (type instanceof ZodNativeEnum) {
-    return util.objectValues(type.enum)
+    return Object.values(type.enum)
   } else if (type instanceof ZodDefault) {
     return getDiscriminator(type._def.innerType)
   } else if (type instanceof ZodUndefined) {
@@ -77,7 +75,7 @@ export type ZodDiscriminatedUnionDef<
 > = {
   discriminator: Discriminator
   options: Options
-  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
+  optionsMap: Map<utils.types.Primitive, ZodDiscriminatedUnionOption<any>>
   typeName: 'ZodDiscriminatedUnion'
 } & ZodTypeDef
 
@@ -101,7 +99,7 @@ export class ZodDiscriminatedUnion<
   }
 
   getReferences(): string[] {
-    return unique(this.options.flatMap((option) => option.getReferences()))
+    return utils.fn.unique(this.options.flatMap((option) => option.getReferences()))
   }
 
   clone(): ZodDiscriminatedUnion<Discriminator, Options> {
@@ -203,7 +201,7 @@ export class ZodDiscriminatedUnion<
     Types extends [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],
   >(discriminator: Discriminator, options: Types) {
     // Get all the valid discriminator values
-    const optionsMap: Map<Primitive, Types[number]> = new Map()
+    const optionsMap: Map<utils.types.Primitive, Types[number]> = new Map()
 
     // try {
     for (const type of options) {
@@ -230,8 +228,8 @@ export class ZodDiscriminatedUnion<
     if (this._def.discriminator !== schema._def.discriminator) return false
 
     const compare = (a: ZodObject, b: ZodObject) => a.isEqual(b)
-    const thisOptions = new CustomSet<ZodObject>(this._def.options, { compare })
-    const thatOptions = new CustomSet<ZodObject>(schema._def.options, { compare })
+    const thisOptions = new utils.ds.CustomSet<ZodObject>(this._def.options, { compare })
+    const thatOptions = new utils.ds.CustomSet<ZodObject>(schema._def.options, { compare })
 
     // no need to compare optionsMap, as it is derived from discriminator + options
 

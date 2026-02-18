@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
+import * as utils from '../../z/utils'
 import z from '../index'
 
 const fish = z.object({
@@ -11,7 +11,7 @@ const fish = z.object({
 test('pick type inference', () => {
   const nameonlyFish = fish.pick({ name: true })
   type nameonlyFish = z.infer<typeof nameonlyFish>
-  util.assertEqual<nameonlyFish, { name: string }>(true)
+  utils.assert.assertEqual<nameonlyFish, { name: string }>(true)
 })
 
 test('pick parse - success', () => {
@@ -46,7 +46,7 @@ test('pick parse - fail', () => {
 test('omit type inference', () => {
   const nonameFish = fish.omit({ name: true })
   type nonameFish = z.infer<typeof nonameFish>
-  util.assertEqual<nonameFish, { age: number; nested: {} }>(true)
+  utils.assert.assertEqual<nonameFish, { age: number; nested: {} }>(true)
 })
 
 test('omit parse - success', () => {
@@ -77,7 +77,7 @@ test('omit parse - fail', () => {
 test('nonstrict inference', () => {
   const laxfish = fish.pick({ name: true }).catchall(z.any())
   type laxfish = z.infer<typeof laxfish>
-  util.assertEqual<laxfish, { name: string } & { [k: string]: unknown }>(true)
+  utils.assert.assertEqual<laxfish, { name: string } & { [k: string]: unknown }>(true)
 })
 
 test('nonstrict parsing - pass', () => {

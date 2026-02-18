@@ -1,11 +1,10 @@
 import { ZodIssueCode } from '../../error'
-import { CustomSet } from '../../utils'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   ZodParsedType,
   errorUtil,
   addIssueToContext,
@@ -59,7 +58,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
 
     for (const check of this._def.checks) {
       if (check.kind === 'int') {
-        if (!util.isInteger(input.data)) {
+        if (!Number.isInteger(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             code: ZodIssueCode.invalid_type,
@@ -117,7 +116,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -267,7 +266,9 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   }
 
   get isInt() {
-    return !!this._def.checks.find((ch) => ch.kind === 'int' || (ch.kind === 'multipleOf' && util.isInteger(ch.value)))
+    return !!this._def.checks.find(
+      (ch) => ch.kind === 'int' || (ch.kind === 'multipleOf' && Number.isInteger(ch.value))
+    )
   }
 
   get isFinite() {
@@ -287,8 +288,8 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodNumber)) return false
-    const thisChecks = new CustomSet<ZodNumberCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodNumberCheck>(schema._def.checks)
+    const thisChecks = new utils.ds.CustomSet<ZodNumberCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodNumberCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)
   }
 }

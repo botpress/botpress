@@ -1,5 +1,5 @@
 import { defaultErrorMap, getErrorMap, ZodError, ZodErrorMap, ZodIssue, ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -46,7 +46,7 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
   }
 
   getReferences(): string[] {
-    return unique([...this._def.args.getReferences(), ...this._def.returns.getReferences()])
+    return utils.fn.unique([...this._def.args.getReferences(), ...this._def.returns.getReferences()])
   }
 
   clone(): ZodFunction<Args, Returns> {

@@ -1,11 +1,11 @@
 import { isEqual } from 'lodash-es'
+import * as utils from '../../utils'
 
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   ZodParsedType,
   ParseInput,
   ParseReturnType,
@@ -13,12 +13,12 @@ import {
 
 export type ZodDefaultDef<T extends ZodType = ZodType> = {
   innerType: T
-  defaultValue: () => util.noUndefined<T['_input']>
+  defaultValue: () => utils.types.NoUndefined<T['_input']>
   typeName: 'ZodDefault'
 } & ZodTypeDef
 
 export class ZodDefault<T extends ZodType = ZodType> extends ZodType<
-  util.noUndefined<T['_output']>,
+  utils.types.NoUndefined<T['_output']>,
   ZodDefaultDef<T>,
   T['_input'] | undefined
 > {
@@ -59,7 +59,7 @@ export class ZodDefault<T extends ZodType = ZodType> extends ZodType<
 
   static create = <T extends ZodType>(
     type: T,
-    value: T['_input'] | (() => util.noUndefined<T['_input']>),
+    value: T['_input'] | (() => utils.types.NoUndefined<T['_input']>),
     params?: RawCreateParams
   ): ZodDefault<T> => {
     return new ZodDefault({

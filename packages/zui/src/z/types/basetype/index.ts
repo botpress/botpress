@@ -12,6 +12,7 @@ import type {
   ZuiMetadata,
 } from '../../../ui/types'
 import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap, ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import { CatchFn } from '../catch'
 import {
   AsyncParseReturnType,
@@ -27,7 +28,6 @@ import {
   processCreateParams,
   RefinementEffect,
   SyncParseReturnType,
-  util,
   ZodArray,
   ZodBranded,
   ZodCatch,
@@ -56,6 +56,10 @@ type __ZodType<Output = any, Input = Output> = {
   readonly _input: Input
 }
 
+type _DeepPartialBoolean<T> = {
+  [K in keyof T]?: T[K] extends object ? _DeepPartialBoolean<T[K]> | boolean : boolean
+}
+
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
@@ -66,8 +70,8 @@ export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
 export type input<T extends __ZodType> = T['_input']
 export type output<T extends __ZodType> = T['_output']
 export type { TypeOf as infer }
-export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
-export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
+export type Maskable<T = any> = boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
+export type CustomErrorParams = Partial<utils.types.SafeOmit<ZodCustomIssue, 'code'>>
 export type ZodTypeDef = {
   typeName: string
   errorMap?: ZodErrorMap
@@ -459,8 +463,8 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     })
   }
 
-  default(def: util.noUndefined<Input>): ZodDefault<this>
-  default(def: () => util.noUndefined<Input>): ZodDefault<this>
+  default(def: utils.types.NoUndefined<Input>): ZodDefault<this>
+  default(def: () => utils.types.NoUndefined<Input>): ZodDefault<this>
   default(def: any) {
     const defaultValueFunc = typeof def === 'function' ? def : () => def
 
@@ -580,7 +584,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   hidden<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
+    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -598,7 +602,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   disabled<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
+    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {

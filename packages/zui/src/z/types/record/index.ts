@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import * as utils from '../../utils'
 import {
   BRAND,
   ParseInputLazyPath,
@@ -57,7 +57,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodType 
   }
 
   getReferences(): string[] {
-    return unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
+    return utils.fn.unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
   clone(): ZodRecord<Key, Value> {

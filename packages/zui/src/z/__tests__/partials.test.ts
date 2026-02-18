@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
+import * as utils from '../../z/utils'
 import z, { ZodNullable, ZodOptional } from '../index'
 
 const nested = z.object({
@@ -20,7 +20,7 @@ test('shallow inference', () => {
     outer?: { inner: string } | undefined
     array?: { asdf: string }[]
   }
-  util.assertEqual<shallow, correct>(true)
+  utils.assert.assertEqual<shallow, correct>(true)
 })
 
 test('shallow partial parse', () => {
@@ -44,7 +44,7 @@ test('deep partial inference', () => {
     outer?: { inner?: string | undefined } | undefined
   }
 
-  util.assertEqual<deep, correct>(true)
+  utils.assert.assertEqual<deep, correct>(true)
 })
 
 test('deep partial parse', () => {
@@ -117,7 +117,7 @@ test('deep partial inference', () => {
       | undefined
     tuple?: [{ value?: string }] | undefined
   }
-  util.assertEqual<expected, partialed>(true)
+  utils.assert.assertEqual<expected, partialed>(true)
 })
 
 test('required', () => {
@@ -156,7 +156,7 @@ test('required inference', () => {
     nullableField: number | null
     nullishField: string | null
   }
-  util.assertEqual<expected, required>(true)
+  utils.assert.assertEqual<expected, required>(true)
 })
 
 test('required with mask', () => {

@@ -1,7 +1,8 @@
 import { mapValues, isEqual } from 'lodash-es'
 
 import { zuiKey } from '../../ui/constants'
-import z, { util } from '../../z'
+import z from '../../z'
+import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
@@ -171,7 +172,7 @@ function sUnwrapZod(schema: z.Schema): string {
       return `z.ref(${uri})${_addMetadata(s._def)}`.trim()
 
     default:
-      util.assertNever(s)
+      utils.assert.assertNever(s)
   }
 }
 

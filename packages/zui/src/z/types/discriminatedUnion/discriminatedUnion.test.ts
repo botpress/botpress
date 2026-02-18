@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
+import * as utils from '../../utils'
 
 test('valid', () => {
   expect(
@@ -281,7 +282,7 @@ test('optional and nullable', () => {
   ])
 
   type schema = z.infer<typeof schema>
-  z.util.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
+  utils.assert.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
 
   schema.parse({ key: 'a', a: true })
   schema.parse({ key: undefined, a: true })

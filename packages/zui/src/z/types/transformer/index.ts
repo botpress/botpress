@@ -1,4 +1,5 @@
 import { IssueData } from '../../error'
+import * as utils from '../../utils'
 import {
   input,
   output,
@@ -7,7 +8,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   addIssueToContext,
   DIRTY,
   INVALID,
@@ -192,7 +192,7 @@ export class ZodEffects<T extends ZodType = ZodType, Output = output<T>, Input =
       }
     }
 
-    util.assertNever(effect)
+    utils.assert.assertNever(effect)
   }
 
   static create = <I extends ZodType>(
@@ -227,20 +227,20 @@ export class ZodEffects<T extends ZodType = ZodType, Output = output<T>, Input =
 
     if (this._def.effect.type === 'refinement') {
       if (schema._def.effect.type !== 'refinement') return false
-      return util.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
+      return utils.others.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
     }
 
     if (this._def.effect.type === 'transform') {
       if (schema._def.effect.type !== 'transform') return false
-      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
     if (this._def.effect.type === 'preprocess') {
       if (schema._def.effect.type !== 'preprocess') return false
-      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
-    type _assertion = util.AssertNever<typeof this._def.effect>
+    type _assertion = utils.assert.AssertNever<typeof this._def.effect>
     return false
   }
 

@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-
 import { ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -10,15 +10,14 @@ import {
   INVALID,
   ParseInput,
   ParseReturnType,
-  Primitive,
 } from '../index'
 
-export type ZodLiteralDef<T extends Primitive = Primitive> = {
+export type ZodLiteralDef<T extends utils.types.Primitive = utils.types.Primitive> = {
   value: T
   typeName: 'ZodLiteral'
 } & ZodTypeDef
 
-export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodLiteralDef<T>> {
+export class ZodLiteral<T extends utils.types.Primitive = utils.types.Primitive> extends ZodType<T, ZodLiteralDef<T>> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (input.data !== this._def.value) {
       const ctx = this._getOrReturnCtx(input)
@@ -36,7 +35,7 @@ export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodL
     return this._def.value
   }
 
-  static create = <T extends Primitive>(value: T, params?: RawCreateParams): ZodLiteral<T> => {
+  static create = <T extends utils.types.Primitive>(value: T, params?: RawCreateParams): ZodLiteral<T> => {
     return new ZodLiteral({
       value,
       typeName: 'ZodLiteral',

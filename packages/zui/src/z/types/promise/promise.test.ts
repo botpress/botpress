@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../utils'
+import * as utils from '../../utils'
 import * as z from '../../index'
 
 const promSchema = z.promise(
@@ -11,7 +11,7 @@ const promSchema = z.promise(
 
 test('promise inference', () => {
   type promSchemaType = z.infer<typeof promSchema>
-  util.assertEqual<promSchemaType, Promise<{ name: string; age: number }>>(true)
+  utils.assert.assertEqual<promSchemaType, Promise<{ name: string; age: number }>>(true)
 })
 
 test('promise parsing success', async () => {
