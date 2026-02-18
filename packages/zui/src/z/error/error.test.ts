@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../index'
-import { ZodError, ZodIssueCode } from '.'
+import { ZodError } from './index'
 
 test('error creation', () => {
   const err1 = ZodError.create([])
