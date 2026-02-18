@@ -11,7 +11,7 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
-import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap, ZodIssueCode } from '../../error'
+import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
 import * as utils from '../../utils'
 import { CatchFn } from '../catch'
 import {

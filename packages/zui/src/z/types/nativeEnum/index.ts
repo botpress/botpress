@@ -1,12 +1,10 @@
 import { isEqual } from 'lodash-es'
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   OK,

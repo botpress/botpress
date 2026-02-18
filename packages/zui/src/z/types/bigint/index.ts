@@ -1,4 +1,3 @@
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   addIssueToContext,
@@ -11,7 +10,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
 } from '../index'
 
 export type ZodBigIntCheck =

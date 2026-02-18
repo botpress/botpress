@@ -1,5 +1,4 @@
 import { isEqual } from 'lodash-es'
-import { ZodIssueCode } from '../../error'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -7,7 +6,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,

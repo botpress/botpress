@@ -1,4 +1,5 @@
 import {
+  //
   OK,
   ParseInput,
   ParseReturnType,
@@ -6,7 +7,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  ZodParsedType,
 } from '../index'
 
 export type ZodNullableDef<T extends ZodType = ZodType> = {

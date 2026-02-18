@@ -1,4 +1,4 @@
-import { defaultErrorMap, getErrorMap, ZodError, ZodErrorMap, ZodIssue, ZodIssueCode } from '../../error'
+import { defaultErrorMap, getErrorMap, ZodError, ZodErrorMap, ZodIssue } from '../../error'
 import * as utils from '../../utils'
 import {
   RawCreateParams,
@@ -9,7 +9,6 @@ import {
   ZodTuple,
   ZodUnknown,
   processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   makeIssue,
