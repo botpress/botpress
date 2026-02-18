@@ -5,6 +5,7 @@ export type NoUndefined<T> = T extends undefined ? never : T
 export type Satisfies<X extends Y, Y> = X
 export type SafeOmit<T, K extends keyof T> = Omit<T, K>
 export type Primitive = string | number | bigint | boolean | symbol | null | undefined
+export type Cast<A, B> = A extends B ? A : B
 
 type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: Normalize<O[K]> } : never
 export type Normalize<T> = T extends (...args: infer A) => infer R
@@ -20,3 +21,15 @@ export type Normalize<T> = T extends (...args: infer A) => infer R
           : T extends object
             ? NormalizeObject<T>
             : T
+
+type _UnionToIntersectionFn<T> = (T extends unknown ? (k: () => T) => void : never) extends (
+  k: infer Intersection
+) => void
+  ? Intersection
+  : never
+
+type _GetUnionLast<T> = _UnionToIntersectionFn<T> extends () => infer Last ? Last : never
+
+export type UnionToTuple<T, Tuple extends unknown[] = []> = [T] extends [never]
+  ? Tuple
+  : UnionToTuple<Exclude<T, _GetUnionLast<T>>, [_GetUnionLast<T>, ...Tuple]>

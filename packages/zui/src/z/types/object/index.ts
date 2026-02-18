@@ -19,7 +19,6 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  enumUtil,
   partialUtil,
   createZodEnum,
   ZodNever,
@@ -82,11 +81,20 @@ export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
 export type deoptional<T extends ZodType> =
   T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
 
+/**
+ * @deprecated use ZodObject instead
+ */
 export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
 
 export type noUnrecognized<Obj extends object, Shape extends object> = {
   [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never
 }
+
+export type KeyOfObject<T extends ZodRawShape> = utils.types.Cast<
+  utils.types.UnionToTuple<keyof T>,
+  [string, ...string[]]
+>
+
 function deepPartialify(schema: ZodType): any {
   if (schema instanceof ZodObject) {
     const newShape: any = {}
@@ -606,7 +614,7 @@ export class ZodObject<
     })
   }
 
-  keyof(): ZodEnum<enumUtil.UnionToTupleString<keyof T>> {
+  keyof(): ZodEnum<KeyOfObject<T>> {
     return createZodEnum(Object.keys(this.shape) as [string, ...string[]]) as any
   }
 
@@ -662,4 +670,7 @@ export class ZodObject<
   }
 }
 
+/**
+ * @deprecated use ZodObject instead
+ */
 export type AnyZodObject = ZodObject<any, any>
