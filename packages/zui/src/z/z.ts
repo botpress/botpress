@@ -7,8 +7,7 @@ export { default } from './builders' // Re-export 'default' explicitly since exp
 
 export * from './types'
 export * from './error'
-export * from './types/utils'
-export * from './types/utils/parseUtil'
+
 /**
  * @deprecated - use ZodType instead
  */

@@ -1,4 +1,4 @@
-import { ZodParsedType } from '../types/utils'
+import type { ZodParsedType } from '../types/basetype'
 import * as utils from '../utils'
 import { errorMap as defaultErrorMap } from './locales/en'
 

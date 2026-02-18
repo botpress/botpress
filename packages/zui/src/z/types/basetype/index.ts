@@ -14,20 +14,8 @@ import type {
 import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
 import * as utils from '../../utils'
 import { CatchFn } from '../catch'
+
 import {
-  AsyncParseReturnType,
-  getParsedType,
-  isAsync,
-  isValid,
-  ParseContext,
-  ParseInput,
-  ParseParams,
-  ParsePath,
-  ParseReturnType,
-  ParseStatus,
-  processCreateParams,
-  RefinementEffect,
-  SyncParseReturnType,
   ZodArray,
   ZodBranded,
   ZodCatch,
@@ -40,7 +28,25 @@ import {
   ZodPromise,
   ZodReadonly,
   ZodUnion,
+  RefinementEffect,
 } from '../index'
+
+import {
+  AsyncParseReturnType,
+  getParsedType,
+  isAsync,
+  isValid,
+  ParseContext,
+  ParseInput,
+  ParseParams,
+  ParsePath,
+  ParseReturnType,
+  ParseStatus,
+  processCreateParams,
+  SyncParseReturnType,
+} from './parseUtil'
+
+export * from './parseUtil'
 
 /**
  * This type is not part of the original Zod library, it's been added in Zui to:
