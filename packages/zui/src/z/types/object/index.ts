@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import { unique, CustomSet } from '../../utils'
 import {
   ZodArray,
   ZodEnum,
@@ -27,7 +27,6 @@ import {
   ZodNever,
   ZodAny,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 

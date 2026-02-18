@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import { unique, CustomSet } from '../../utils'
 import {
   ZodBranded,
   ZodCatch,
@@ -31,7 +31,6 @@ import {
   ParseReturnType,
   Primitive,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 const getDiscriminator = <T extends ZodType>(type: T): Primitive[] => {
   if (type instanceof ZodLazy) {

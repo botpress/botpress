@@ -1,4 +1,5 @@
 import { ZodIssueCode } from '../../error'
+import { CustomSet } from '../../utils'
 import {
   processCreateParams,
   util,
@@ -14,7 +15,6 @@ import {
   ZodType,
   RawCreateParams,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodDateCheck =
   | { kind: 'min'; value: number; message?: string }

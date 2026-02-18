@@ -1,5 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { StringValidation, ZodIssueCode } from '../../error'
+import { CustomSet } from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -15,7 +16,6 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 import { generateDatetimeRegex } from './datetime'
 
 export type IpVersion = 'v4' | 'v6'

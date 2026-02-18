@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import { unique, CustomSet } from '../../utils'
 import {
   ParseInputLazyPath,
   RawCreateParams,
@@ -14,7 +14,6 @@ import {
   ParseStatus,
   SyncParseReturnType,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodTupleItems = [ZodType, ...ZodType[]]
 export type AssertArray<T> = T extends any[] ? T : never

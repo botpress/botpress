@@ -1,5 +1,5 @@
 import { ZodError, ZodIssue, ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import { unique, CustomSet } from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -15,7 +15,6 @@ import {
   ZodUndefined,
   ZodNever,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>

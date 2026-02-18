@@ -1,4 +1,5 @@
 import { ZodIssueCode } from '../../error'
+import { CustomSet } from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -14,7 +15,6 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }

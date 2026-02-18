@@ -1,4 +1,5 @@
 import { ZodIssueCode } from '../../error'
+import { CustomSet } from '../../utils'
 import {
   addIssueToContext,
   INVALID,
@@ -14,7 +15,6 @@ import {
   ZodParsedType,
   errorUtil,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodBigIntCheck =
   | { kind: 'min'; value: bigint; inclusive: boolean; message?: string }
