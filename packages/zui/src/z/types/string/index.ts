@@ -86,13 +86,13 @@ export class ZodString extends ZodType<string, ZodStringDef> {
     }
     const parsedType = this._getType(input)
 
-    if (parsedType !== ZodParsedType.string) {
+    if (parsedType !== 'string') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(
         ctx,
         {
-          code: ZodIssueCode.invalid_type,
-          expected: ZodParsedType.string,
+          code: 'invalid_type',
+          expected: 'string',
           received: ctx.parsedType,
         }
         //
@@ -108,7 +108,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (input.data.length < check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_small,
+            code: 'too_small',
             minimum: check.value,
             type: 'string',
             inclusive: true,
@@ -121,7 +121,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (input.data.length > check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_big,
+            code: 'too_big',
             maximum: check.value,
             type: 'string',
             inclusive: true,
@@ -137,7 +137,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           if (tooBig) {
             addIssueToContext(ctx, {
-              code: ZodIssueCode.too_big,
+              code: 'too_big',
               maximum: check.value,
               type: 'string',
               inclusive: true,
@@ -146,7 +146,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
             })
           } else if (tooSmall) {
             addIssueToContext(ctx, {
-              code: ZodIssueCode.too_small,
+              code: 'too_small',
               minimum: check.value,
               type: 'string',
               inclusive: true,
@@ -161,7 +161,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'email',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -174,7 +174,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'emoji',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -184,7 +184,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'uuid',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -194,7 +194,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'cuid',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -204,7 +204,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'cuid2',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -214,7 +214,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'ulid',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -226,7 +226,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'url',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -238,7 +238,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'regex',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -249,7 +249,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (!(input.data as string).includes(check.value, check.position)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             validation: { includes: check.value, position: check.position },
             message: check.message,
           })
@@ -263,7 +263,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (!(input.data as string).startsWith(check.value)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             validation: { startsWith: check.value },
             message: check.message,
           })
@@ -273,7 +273,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (!(input.data as string).endsWith(check.value)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             validation: { endsWith: check.value },
             message: check.message,
           })
@@ -285,7 +285,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
         if (!regex.test(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             validation: 'datetime',
             message: check.message,
           })
@@ -296,7 +296,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             validation: 'ip',
-            code: ZodIssueCode.invalid_string,
+            code: 'invalid_string',
             message: check.message,
           })
           status.dirty()
@@ -312,7 +312,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   protected _regex(regex: RegExp, validation: StringValidation, message?: utils.errors.ErrMessage) {
     return this.refinement((data) => regex.test(data), {
       validation,
-      code: ZodIssueCode.invalid_string,
+      code: 'invalid_string',
       ...utils.errors.errToObj(message),
     })
   }

@@ -18,11 +18,11 @@ export type ZodNaNDef = {
 export class ZodNaN extends ZodType<number, ZodNaNDef> {
   _parse(input: ParseInput): ParseReturnType<any> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.nan) {
+    if (parsedType !== 'nan') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.nan,
+        code: 'invalid_type',
+        expected: 'nan',
         received: ctx.parsedType,
       })
       return INVALID

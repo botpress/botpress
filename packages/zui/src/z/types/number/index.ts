@@ -42,11 +42,11 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
       input.data = Number(input.data)
     }
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.number) {
+    if (parsedType !== 'number') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.number,
+        code: 'invalid_type',
+        expected: 'number',
         received: ctx.parsedType,
       })
       return INVALID
@@ -60,7 +60,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
         if (!Number.isInteger(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.invalid_type,
+            code: 'invalid_type',
             expected: 'integer',
             received: 'float',
             message: check.message,
@@ -72,7 +72,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
         if (tooSmall) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_small,
+            code: 'too_small',
             minimum: check.value,
             type: 'number',
             inclusive: check.inclusive,
@@ -86,7 +86,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
         if (tooBig) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_big,
+            code: 'too_big',
             maximum: check.value,
             type: 'number',
             inclusive: check.inclusive,
@@ -99,7 +99,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
         if (floatSafeRemainder(input.data, check.value) !== 0) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.not_multiple_of,
+            code: 'not_multiple_of',
             multipleOf: check.value,
             message: check.message,
           })
@@ -109,7 +109,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
         if (!Number.isFinite(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.not_finite,
+            code: 'not_finite',
             message: check.message,
           })
           status.dirty()

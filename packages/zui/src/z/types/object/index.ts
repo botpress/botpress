@@ -190,11 +190,11 @@ export class ZodObject<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.object) {
+    if (parsedType !== 'object') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         received: ctx.parsedType,
       })
       return INVALID
@@ -239,7 +239,7 @@ export class ZodObject<
     } else if (unknownKeys === 'strict') {
       if (extraKeys.length > 0) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.unrecognized_keys,
+          code: 'unrecognized_keys',
           keys: extraKeys,
         })
         status.dirty()

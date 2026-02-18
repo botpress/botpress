@@ -76,7 +76,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
       const unionErrors = results.map((result) => new ZodError(result.ctx.common.issues))
 
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_union,
+        code: 'invalid_union',
         unionErrors,
       })
       return INVALID
@@ -139,7 +139,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
 
       const unionErrors = issues.map((issues) => new ZodError(issues))
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_union,
+        code: 'invalid_union',
         unionErrors,
       })
 

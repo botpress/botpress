@@ -5,38 +5,38 @@ import { type ZodErrorMap, ZodIssueCode } from '../index'
 export const errorMap: ZodErrorMap = (issue, _ctx) => {
   let message: string
   switch (issue.code) {
-    case ZodIssueCode.invalid_type:
-      if (issue.received === ZodParsedType.undefined) {
+    case 'invalid_type':
+      if (issue.received === 'undefined') {
         message = 'Required'
       } else {
         message = `Expected ${issue.expected}, received ${issue.received}`
       }
       break
-    case ZodIssueCode.invalid_literal:
+    case 'invalid_literal':
       message = `Invalid literal value, expected ${JSON.stringify(issue.expected, utils.others.jsonStringifyReplacer)}`
       break
-    case ZodIssueCode.unrecognized_keys:
+    case 'unrecognized_keys':
       message = `Unrecognized key(s) in object: ${utils.others.joinValues(issue.keys, ', ')}`
       break
-    case ZodIssueCode.invalid_union:
+    case 'invalid_union':
       message = 'Invalid input'
       break
-    case ZodIssueCode.invalid_union_discriminator:
+    case 'invalid_union_discriminator':
       message = `Invalid discriminator value. Expected ${utils.others.joinValues(issue.options)}`
       break
-    case ZodIssueCode.invalid_enum_value:
+    case 'invalid_enum_value':
       message = `Invalid enum value. Expected ${utils.others.joinValues(issue.options)}, received '${issue.received}'`
       break
-    case ZodIssueCode.invalid_arguments:
+    case 'invalid_arguments':
       message = 'Invalid function arguments'
       break
-    case ZodIssueCode.invalid_return_type:
+    case 'invalid_return_type':
       message = 'Invalid function return type'
       break
-    case ZodIssueCode.invalid_date:
+    case 'invalid_date':
       message = 'Invalid date'
       break
-    case ZodIssueCode.invalid_string:
+    case 'invalid_string':
       if (typeof issue.validation === 'object') {
         if ('includes' in issue.validation) {
           message = `Invalid input: must include "${issue.validation.includes}"`
@@ -57,7 +57,7 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
         message = 'Invalid'
       }
       break
-    case ZodIssueCode.too_small:
+    case 'too_small':
       if (issue.type === 'array') {
         message = `Array must contain ${
           issue.exact ? 'exactly' : issue.inclusive ? 'at least' : 'more than'
@@ -76,7 +76,7 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
         }${new Date(Number(issue.minimum))}`
       } else message = 'Invalid input'
       break
-    case ZodIssueCode.too_big:
+    case 'too_big':
       if (issue.type === 'array') {
         message = `Array must contain ${
           issue.exact ? 'exactly' : issue.inclusive ? 'at most' : 'less than'
@@ -99,19 +99,19 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
         } ${new Date(Number(issue.maximum))}`
       } else message = 'Invalid input'
       break
-    case ZodIssueCode.custom:
+    case 'custom':
       message = 'Invalid input'
       break
-    case ZodIssueCode.invalid_intersection_types:
+    case 'invalid_intersection_types':
       message = 'Intersection results could not be merged'
       break
-    case ZodIssueCode.not_multiple_of:
+    case 'not_multiple_of':
       message = `Number must be a multiple of ${issue.multipleOf}`
       break
-    case ZodIssueCode.not_finite:
+    case 'not_finite':
       message = 'Number must be finite'
       break
-    case ZodIssueCode.unresolved_reference:
+    case 'unresolved_reference':
       message = 'Unresolved reference'
       break
     default:

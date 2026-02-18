@@ -125,7 +125,7 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
 test('z.NEVER in preprocess', () => {
   const foo = z.preprocess((val, ctx) => {
     if (!val) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'bad' })
+      ctx.addIssue({ code: 'custom', message: 'bad' })
       return z.NEVER
     }
     return val
@@ -150,8 +150,8 @@ test('preprocess as the second property of object', () => {
   expect(result.success).toEqual(false)
   if (!result.success) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(z.ZodIssueCode.too_small)
-    expect(result.error.issues[1]?.code).toEqual(z.ZodIssueCode.too_small)
+    expect(result.error.issues[0]?.code).toEqual('too_small')
+    expect(result.error.issues[1]?.code).toEqual('too_small')
   }
 })
 

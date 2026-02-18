@@ -92,7 +92,7 @@ test('use path in refinement context', async () => {
   const noNested = z.string()._refinement((_val, ctx) => {
     if (ctx.path.length > 0) {
       ctx.addIssue({
-        code: ZodIssueCode.custom,
+        code: 'custom',
         message: `schema cannot be nested. path: ${ctx.path.join('.')}`,
       })
       return false
@@ -119,7 +119,7 @@ test('superRefine', () => {
   const Strings = z.array(z.string()).superRefine((val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: 3,
         type: 'array',
         inclusive: true,
@@ -130,7 +130,7 @@ test('superRefine', () => {
 
     if (val.length !== new Set(val).size) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `No duplicates allowed.`,
       })
     }
@@ -148,7 +148,7 @@ test('superRefine async', async () => {
   const Strings = z.array(z.string()).superRefine(async (val, ctx) => {
     if (val.length > 3) {
       ctx.addIssue({
-        code: z.ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: 3,
         type: 'array',
         inclusive: true,
@@ -159,7 +159,7 @@ test('superRefine async', async () => {
 
     if (val.length !== new Set(val).size) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: `No duplicates allowed.`,
       })
     }
@@ -185,7 +185,7 @@ test('superRefine - type narrowing', () => {
       if (!arg) {
         // still need to make a call to ctx.addIssue
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'cannot be null',
           fatal: true,
         })
@@ -216,7 +216,7 @@ test('chained mixed refining types', () => {
       utils.assert.assertEqual<typeof arg, firstRefinement>(true)
       if (arg.first !== 'bob') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: '`first` property must be `bob`',
         })
         return false
@@ -273,7 +273,7 @@ test('fatal superRefine', () => {
     .superRefine((val, ctx) => {
       if (val === '') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'foo',
           fatal: true,
         })
@@ -282,7 +282,7 @@ test('fatal superRefine', () => {
     .superRefine((val, ctx) => {
       if (val !== ' ') {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: 'bar',
         })
       }

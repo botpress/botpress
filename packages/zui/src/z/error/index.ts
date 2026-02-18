@@ -2,95 +2,56 @@ import { ZodParsedType } from '../types/utils'
 import * as utils from '../utils'
 import { errorMap as defaultErrorMap } from './locales/en'
 
-export type ZodIssueCode =
-  | 'invalid_type'
-  | 'invalid_literal'
-  | 'custom'
-  | 'invalid_union'
-  | 'invalid_union_discriminator'
-  | 'invalid_enum_value'
-  | 'unrecognized_keys'
-  | 'invalid_arguments'
-  | 'invalid_return_type'
-  | 'invalid_date'
-  | 'invalid_string'
-  | 'too_small'
-  | 'too_big'
-  | 'invalid_intersection_types'
-  | 'not_multiple_of'
-  | 'not_finite'
-  | 'unresolved_reference'
-
-export const ZodIssueCode = {
-  invalid_type: 'invalid_type',
-  invalid_literal: 'invalid_literal',
-  custom: 'custom',
-  invalid_union: 'invalid_union',
-  invalid_union_discriminator: 'invalid_union_discriminator',
-  invalid_enum_value: 'invalid_enum_value',
-  unrecognized_keys: 'unrecognized_keys',
-  invalid_arguments: 'invalid_arguments',
-  invalid_return_type: 'invalid_return_type',
-  invalid_date: 'invalid_date',
-  invalid_string: 'invalid_string',
-  too_small: 'too_small',
-  too_big: 'too_big',
-  invalid_intersection_types: 'invalid_intersection_types',
-  not_multiple_of: 'not_multiple_of',
-  not_finite: 'not_finite',
-  unresolved_reference: 'unresolved_reference',
-} as const satisfies { [k in ZodIssueCode]: k }
-
 export type ZodIssueBase = {
   path: (string | number)[]
   message?: string
 }
 
 export type ZodInvalidTypeIssue = {
-  code: typeof ZodIssueCode.invalid_type
+  code: 'invalid_type'
   expected: ZodParsedType
   received: ZodParsedType
 } & ZodIssueBase
 
 export type ZodInvalidLiteralIssue = {
-  code: typeof ZodIssueCode.invalid_literal
+  code: 'invalid_literal'
   expected: unknown
   received: unknown
 } & ZodIssueBase
 
 export type ZodUnrecognizedKeysIssue = {
-  code: typeof ZodIssueCode.unrecognized_keys
+  code: 'unrecognized_keys'
   keys: string[]
 } & ZodIssueBase
 
 export type ZodInvalidUnionIssue = {
-  code: typeof ZodIssueCode.invalid_union
+  code: 'invalid_union'
   unionErrors: ZodError[]
 } & ZodIssueBase
 
 export type ZodInvalidUnionDiscriminatorIssue = {
-  code: typeof ZodIssueCode.invalid_union_discriminator
+  code: 'invalid_union_discriminator'
   options: utils.types.Primitive[]
 } & ZodIssueBase
 
 export type ZodInvalidEnumValueIssue = {
   received: string | number
-  code: typeof ZodIssueCode.invalid_enum_value
+  code: 'invalid_enum_value'
   options: (string | number)[]
 } & ZodIssueBase
 
 export type ZodInvalidArgumentsIssue = {
-  code: typeof ZodIssueCode.invalid_arguments
+  code: 'invalid_arguments'
   argumentsError: ZodError
 } & ZodIssueBase
 
 export type ZodInvalidReturnTypeIssue = {
-  code: typeof ZodIssueCode.invalid_return_type
+  code: 'invalid_return_type'
   returnTypeError: ZodError
 } & ZodIssueBase
 
 export type ZodInvalidDateIssue = {
-  code: typeof ZodIssueCode.invalid_date
+  code: 'invalid_date'
 } & ZodIssueBase
 
 export type StringValidation =
@@ -109,12 +70,12 @@ export type StringValidation =
   | { endsWith: string }
 
 export type ZodInvalidStringIssue = {
-  code: typeof ZodIssueCode.invalid_string
+  code: 'invalid_string'
   validation: StringValidation
 } & ZodIssueBase
 
 export type ZodTooSmallIssue = {
-  code: typeof ZodIssueCode.too_small
+  code: 'too_small'
   minimum: number | bigint
   inclusive: boolean
   exact?: boolean
@@ -122,7 +83,7 @@ export type ZodTooSmallIssue = {
 } & ZodIssueBase
 
 export type ZodTooBigIssue = {
-  code: typeof ZodIssueCode.too_big
+  code: 'too_big'
   maximum: number | bigint
   inclusive: boolean
   exact?: boolean
@@ -130,29 +91,30 @@ export type ZodTooBigIssue = {
 } & ZodIssueBase
 
 export type ZodInvalidIntersectionTypesIssue = {
-  code: typeof ZodIssueCode.invalid_intersection_types
+  code: 'invalid_intersection_types'
 } & ZodIssueBase
 
 export type ZodNotMultipleOfIssue = {
-  code: typeof ZodIssueCode.not_multiple_of
+  code: 'not_multiple_of'
   multipleOf: number | bigint
 } & ZodIssueBase
 
 export type ZodNotFiniteIssue = {
-  code: typeof ZodIssueCode.not_finite
+  code: 'not_finite'
 } & ZodIssueBase
 
 export type ZodUnresolvedReferenceIssue = {
-  code: typeof ZodIssueCode.unresolved_reference
+  code: 'unresolved_reference'
 } & ZodIssueBase
 
 export type ZodCustomIssue = {
-  code: typeof ZodIssueCode.custom
+  code: 'custom'
   params?: { [k: string]: any }
 } & ZodIssueBase
 
 export type DenormalizedError = { [k: string]: DenormalizedError | string[] }
 
+export type ZodIssueCode = ZodIssueOptionalMessage['code']
 export type ZodIssueOptionalMessage =
   | ZodInvalidTypeIssue
   | ZodInvalidLiteralIssue

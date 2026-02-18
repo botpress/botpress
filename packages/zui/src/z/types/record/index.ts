@@ -70,10 +70,10 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodType 
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.object) {
+    if (ctx.parsedType !== 'object') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         received: ctx.parsedType,
       })
       return INVALID

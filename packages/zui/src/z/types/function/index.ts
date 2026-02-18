@@ -59,10 +59,10 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
 
   _parse(input: ParseInput): ParseReturnType<any> {
     const { ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.function) {
+    if (ctx.parsedType !== 'function') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.function,
+        code: 'invalid_type',
+        expected: 'function',
         received: ctx.parsedType,
       })
       return INVALID
@@ -76,7 +76,7 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
           (x) => !!x
         ) as ZodErrorMap[],
         issueData: {
-          code: ZodIssueCode.invalid_arguments,
+          code: 'invalid_arguments',
           argumentsError: error,
         },
       })
@@ -90,7 +90,7 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
           (x) => !!x
         ) as ZodErrorMap[],
         issueData: {
-          code: ZodIssueCode.invalid_return_type,
+          code: 'invalid_return_type',
           returnTypeError: error,
         },
       })

@@ -25,7 +25,7 @@ export class ZodDefault<T extends ZodType = ZodType> extends ZodType<
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     let data = ctx.data
-    if (ctx.parsedType === ZodParsedType.undefined) {
+    if (ctx.parsedType === 'undefined') {
       data = this._def.defaultValue()
     }
     return this._def.innerType._parse({

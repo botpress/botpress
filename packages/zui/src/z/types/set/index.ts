@@ -46,10 +46,10 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.set) {
+    if (ctx.parsedType !== 'set') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.set,
+        code: 'invalid_type',
+        expected: 'set',
         received: ctx.parsedType,
       })
       return INVALID
@@ -60,7 +60,7 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     if (def.minSize !== null) {
       if (ctx.data.size < def.minSize.value) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.too_small,
+          code: 'too_small',
           minimum: def.minSize.value,
           type: 'set',
           inclusive: true,
@@ -74,7 +74,7 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     if (def.maxSize !== null) {
       if (ctx.data.size > def.maxSize.value) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.too_big,
+          code: 'too_big',
           maximum: def.maxSize.value,
           type: 'set',
           inclusive: true,

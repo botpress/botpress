@@ -115,10 +115,10 @@ export class ZodDiscriminatedUnion<
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
 
-    if (ctx.parsedType !== ZodParsedType.object) {
+    if (ctx.parsedType !== 'object') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         received: ctx.parsedType,
       })
       return INVALID
@@ -132,7 +132,7 @@ export class ZodDiscriminatedUnion<
 
     if (!option) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_union_discriminator,
+        code: 'invalid_union_discriminator',
         options: Array.from(this.optionsMap.keys()),
         path: [discriminator],
       })

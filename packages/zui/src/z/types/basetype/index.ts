@@ -320,7 +320,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       const result = check(val)
       const setError = () =>
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           ...getIssueProperties(val),
         })
       if (typeof Promise !== 'undefined' && result instanceof Promise) {

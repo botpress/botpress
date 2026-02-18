@@ -19,11 +19,11 @@ export type ZodNullDef = {
 export class ZodNull extends ZodType<null, ZodNullDef> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.null) {
+    if (parsedType !== 'null') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.null,
+        code: 'invalid_type',
+        expected: 'null',
         received: ctx.parsedType,
       })
       return INVALID

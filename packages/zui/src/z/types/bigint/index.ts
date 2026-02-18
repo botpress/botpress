@@ -31,11 +31,11 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
       input.data = BigInt(input.data)
     }
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.bigint) {
+    if (parsedType !== 'bigint') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.bigint,
+        code: 'invalid_type',
+        expected: 'bigint',
         received: ctx.parsedType,
       })
       return INVALID
@@ -50,7 +50,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
         if (tooSmall) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_small,
+            code: 'too_small',
             type: 'bigint',
             minimum: check.value,
             inclusive: check.inclusive,
@@ -63,7 +63,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
         if (tooBig) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_big,
+            code: 'too_big',
             type: 'bigint',
             maximum: check.value,
             inclusive: check.inclusive,
@@ -75,7 +75,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
         if (input.data % check.value !== BigInt(0)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.not_multiple_of,
+            code: 'not_multiple_of',
             multipleOf: check.value,
             message: check.message,
           })

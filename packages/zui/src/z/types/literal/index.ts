@@ -23,7 +23,7 @@ export class ZodLiteral<T extends utils.types.Primitive = utils.types.Primitive>
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
         received: ctx.data,
-        code: ZodIssueCode.invalid_literal,
+        code: 'invalid_literal',
         expected: this._def.value,
       })
       return INVALID

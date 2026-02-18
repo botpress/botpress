@@ -30,11 +30,11 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     }
     const parsedType = this._getType(input)
 
-    if (parsedType !== ZodParsedType.date) {
+    if (parsedType !== 'date') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.date,
+        code: 'invalid_type',
+        expected: 'date',
         received: ctx.parsedType,
       })
       return INVALID
@@ -43,7 +43,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     if (isNaN(input.data.getTime())) {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_date,
+        code: 'invalid_date',
       })
       return INVALID
     }
@@ -56,7 +56,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
         if (input.data.getTime() < check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_small,
+            code: 'too_small',
             message: check.message,
             inclusive: true,
             exact: false,
@@ -69,7 +69,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
         if (input.data.getTime() > check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_big,
+            code: 'too_big',
             message: check.message,
             inclusive: true,
             exact: false,

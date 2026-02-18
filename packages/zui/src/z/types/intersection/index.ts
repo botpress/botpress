@@ -28,7 +28,7 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
 
   if (a === b) {
     return { valid: true, data: a }
-  } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
+  } else if (aType === 'object' && bType === 'object') {
     const bKeys = Object.keys(b)
     const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1)
 
@@ -42,7 +42,7 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
     }
 
     return { valid: true, data: newObj }
-  } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
+  } else if (aType === 'array' && bType === 'array') {
     if (a.length !== b.length) {
       return { valid: false }
     }
@@ -61,7 +61,7 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
     }
 
     return { valid: true, data: newArray }
-  } else if (aType === ZodParsedType.date && bType === ZodParsedType.date && +a === +b) {
+  } else if (aType === 'date' && bType === 'date' && +a === +b) {
     return { valid: true, data: a }
   } else {
     return { valid: false }
@@ -107,7 +107,7 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
 
       if (!merged.valid) {
         addIssueToContext(ctx, {
-          code: ZodIssueCode.invalid_intersection_types,
+          code: 'invalid_intersection_types',
         })
         return INVALID
       }
