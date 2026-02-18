@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { util } from '../utils'
+import * as utils from '../../utils'
 
 const minTwo = z.string().array().min(2)
 const maxTwo = z.string().array().max(2)
@@ -9,10 +9,10 @@ const intNum = z.string().array().nonempty()
 const nonEmptyMax = z.string().array().nonempty().max(2)
 
 type t1 = z.infer<typeof nonEmptyMax>
-util.assertEqual<[string, ...string[]], t1>(true)
+utils.assert.assertEqual<[string, ...string[]], t1>(true)
 
 type t2 = z.infer<typeof minTwo>
-util.assertEqual<string[], t2>(true)
+utils.assert.assertEqual<string[], t2>(true)
 
 test('passing validations', () => {
   minTwo.parse(['a', 'a'])

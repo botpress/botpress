@@ -1,5 +1,5 @@
 import { ZodError, ZodIssue, ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -15,7 +15,6 @@ import {
   ZodUndefined,
   ZodNever,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
@@ -38,7 +37,7 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
   }
 
   getReferences(): string[] {
-    return unique(
+    return utils.fn.unique(
       this._def.options.reduce<string[]>((acc, option) => {
         return [...acc, ...option.getReferences()]
       }, [])
@@ -167,8 +166,8 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
     if (!(schema instanceof ZodUnion)) return false
 
     const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisOptions = new CustomSet<ZodType>([...this._def.options], { compare })
-    const thatOptions = new CustomSet<ZodType>([...schema._def.options], { compare })
+    const thisOptions = new utils.ds.CustomSet<ZodType>([...this._def.options], { compare })
+    const thatOptions = new utils.ds.CustomSet<ZodType>([...schema._def.options], { compare })
 
     return thisOptions.isEqual(thatOptions)
   }

@@ -1,4 +1,5 @@
 import z from '../../z'
+import * as utils from '../../z/utils'
 import * as err from '../common/errors'
 import * as json from '../common/json-schema'
 import { zodArrayToJsonArray } from './type-processors/array'
@@ -190,7 +191,7 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
       } else if (s.value === undefined) {
         return undefinedSchema(s._def)
       } else {
-        z.util.assertEqual<bigint | symbol, typeof s.value>(true)
+        utils.assert.assertEqual<bigint | symbol, typeof s.value>(true)
         const unsupportedLiteral = typeof s.value
         throw new err.ZuiToJSONSchemaError(`Unsupported literal type: "${unsupportedLiteral}"`)
       }
@@ -266,7 +267,7 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
       }
 
     default:
-      z.util.assertNever(s)
+      utils.assert.assertNever(s)
   }
 }
 

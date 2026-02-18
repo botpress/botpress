@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../utils'
+import * as utils from '../../utils'
 import * as z from '../../index'
 import { ZodIssueCode } from '../../index'
 
@@ -7,7 +7,7 @@ const stringMap = z.map(z.string(), z.string())
 type stringMap = z.infer<typeof stringMap>
 
 test('type inference', () => {
-  util.assertEqual<stringMap, Map<string, string>>(true)
+  utils.assert.assertEqual<stringMap, Map<string, string>>(true)
 })
 
 test('valid parse', () => {

@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 import * as z from '../index'
-import { util } from './utils'
+import * as utils from '../utils'
 
 test('first party switch', () => {
   const myType = z.ZodString.create() as z.ZodNativeSchema
@@ -118,6 +118,6 @@ test('first party switch', () => {
       myType satisfies z.ZodReadonly
       break
     default:
-      util.assertNever(myType)
+      utils.assert.assertNever(myType)
   }
 })

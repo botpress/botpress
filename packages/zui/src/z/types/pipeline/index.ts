@@ -1,4 +1,4 @@
-import { unique } from '../../utils'
+import * as utils from '../../utils'
 import { ZodType, ZodTypeDef, DIRTY, INVALID, ParseInput, ParseReturnType } from '../index'
 
 export type ZodPipelineDef<A extends ZodType = ZodType, B extends ZodType = ZodType> = {
@@ -21,7 +21,7 @@ export class ZodPipeline<A extends ZodType = ZodType, B extends ZodType = ZodTyp
   }
 
   getReferences(): string[] {
-    return unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
+    return utils.fn.unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
   }
 
   clone(): ZodPipeline<A, B> {

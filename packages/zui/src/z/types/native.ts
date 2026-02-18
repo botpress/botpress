@@ -36,7 +36,7 @@ import {
   ZodUnion,
   ZodUnknown,
   ZodVoid,
-} from '.'
+} from './index'
 
 /**
  * @deprecated - use ZodNativeSchema instead

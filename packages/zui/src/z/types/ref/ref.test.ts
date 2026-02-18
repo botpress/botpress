@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { util } from '../utils'
+import * as utils from '../../utils'
 
 const T = z.ref('T')
 
@@ -20,5 +20,5 @@ test('type inference', () => {
     data: NonNullable<unknown>
   }
   type Actual = z.infer<typeof schema>
-  util.assertEqual<Actual, Expected>(true)
+  utils.assert.assertEqual<Actual, Expected>(true)
 })

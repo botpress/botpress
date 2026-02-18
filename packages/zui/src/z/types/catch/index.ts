@@ -1,4 +1,5 @@
 import { ZodError } from '../../error'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
@@ -8,7 +9,6 @@ import {
   ParseContext,
   ParseInput,
   ParseReturnType,
-  util,
 } from '../index'
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
@@ -96,7 +96,7 @@ export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
     if (!(schema instanceof ZodCatch)) return false
     return (
       this._def.innerType.isEqual(schema._def.innerType) &&
-      util.compareFunctions(this._def.catchValue, schema._def.catchValue)
+      utils.others.compareFunctions(this._def.catchValue, schema._def.catchValue)
     )
   }
 

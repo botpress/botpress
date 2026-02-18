@@ -1,13 +1,13 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { util } from '../utils'
+import * as utils from '../../utils'
 
 test('check any inference', () => {
   const t1 = z.any()
   t1.optional()
   t1.nullable()
   type t1 = z.infer<typeof t1>
-  util.assertEqual<t1, any>(true)
+  utils.assert.assertEqual<t1, any>(true)
 })
 
 test('check unknown inference', () => {
@@ -15,7 +15,7 @@ test('check unknown inference', () => {
   t1.optional()
   t1.nullable()
   type t1 = z.infer<typeof t1>
-  util.assertEqual<t1, unknown>(true)
+  utils.assert.assertEqual<t1, unknown>(true)
 })
 
 test('check never inference', () => {

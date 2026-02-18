@@ -1,12 +1,11 @@
 import { ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   ZodParsedType,
-  errorUtil,
   addIssueToContext,
   INVALID,
   ParseContext,
@@ -14,7 +13,6 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }
@@ -59,7 +57,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
 
     for (const check of this._def.checks) {
       if (check.kind === 'int') {
-        if (!util.isInteger(input.data)) {
+        if (!Number.isInteger(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             code: ZodIssueCode.invalid_type,
@@ -117,7 +115,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -133,22 +131,22 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
     })
   }
 
-  gte(value: number, message?: errorUtil.ErrMessage) {
-    return this.setLimit('min', value, true, errorUtil.toString(message))
+  gte(value: number, message?: utils.errors.ErrMessage) {
+    return this.setLimit('min', value, true, utils.errors.toString(message))
   }
   min = this.gte
 
-  gt(value: number, message?: errorUtil.ErrMessage) {
-    return this.setLimit('min', value, false, errorUtil.toString(message))
+  gt(value: number, message?: utils.errors.ErrMessage) {
+    return this.setLimit('min', value, false, utils.errors.toString(message))
   }
 
-  lte(value: number, message?: errorUtil.ErrMessage) {
-    return this.setLimit('max', value, true, errorUtil.toString(message))
+  lte(value: number, message?: utils.errors.ErrMessage) {
+    return this.setLimit('max', value, true, utils.errors.toString(message))
   }
   max = this.lte
 
-  lt(value: number, message?: errorUtil.ErrMessage) {
-    return this.setLimit('max', value, false, errorUtil.toString(message))
+  lt(value: number, message?: utils.errors.ErrMessage) {
+    return this.setLimit('max', value, false, utils.errors.toString(message))
   }
 
   protected setLimit(kind: 'min' | 'max', value: number, inclusive: boolean, message?: string) {
@@ -160,7 +158,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
           kind,
           value,
           inclusive,
-          message: errorUtil.toString(message),
+          message: utils.errors.toString(message),
         },
       ],
     })
@@ -173,76 +171,76 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
     })
   }
 
-  int(message?: errorUtil.ErrMessage) {
+  int(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'int',
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  positive(message?: errorUtil.ErrMessage) {
+  positive(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: 0,
       inclusive: false,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  negative(message?: errorUtil.ErrMessage) {
+  negative(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: 0,
       inclusive: false,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  nonpositive(message?: errorUtil.ErrMessage) {
+  nonpositive(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: 0,
       inclusive: true,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  nonnegative(message?: errorUtil.ErrMessage) {
+  nonnegative(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: 0,
       inclusive: true,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  multipleOf(value: number, message?: errorUtil.ErrMessage) {
+  multipleOf(value: number, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'multipleOf',
       value,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
   step = this.multipleOf
 
-  finite(message?: errorUtil.ErrMessage) {
+  finite(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'finite',
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  safe(message?: errorUtil.ErrMessage) {
+  safe(message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       inclusive: true,
       value: Number.MIN_SAFE_INTEGER,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })._addCheck({
       kind: 'max',
       inclusive: true,
       value: Number.MAX_SAFE_INTEGER,
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
@@ -267,7 +265,9 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   }
 
   get isInt() {
-    return !!this._def.checks.find((ch) => ch.kind === 'int' || (ch.kind === 'multipleOf' && util.isInteger(ch.value)))
+    return !!this._def.checks.find(
+      (ch) => ch.kind === 'int' || (ch.kind === 'multipleOf' && Number.isInteger(ch.value))
+    )
   }
 
   get isFinite() {
@@ -287,8 +287,8 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodNumber)) return false
-    const thisChecks = new CustomSet<ZodNumberCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodNumberCheck>(schema._def.checks)
+    const thisChecks = new utils.ds.CustomSet<ZodNumberCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodNumberCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)
   }
 }

@@ -32,3 +32,7 @@ const _customizerWithVisitedTracking =
 
     return undefined // Offload to default lodash isEqual comparison
   }
+
+export const unique = <T>(arr: T[]): T[] => {
+  return Array.from(new Set(arr))
+}

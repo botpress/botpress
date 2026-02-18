@@ -1,5 +1,6 @@
 import { isEqual } from 'lodash-es'
 import { ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
   RawCreateParams,
@@ -7,7 +8,6 @@ import {
   ZodTypeDef,
   processCreateParams,
   ZodParsedType,
-  errorUtil,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -145,28 +145,28 @@ export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCard
     return this._def.type
   }
 
-  min(minLength: number, message?: errorUtil.ErrMessage): this {
+  min(minLength: number, message?: utils.errors.ErrMessage): this {
     return new ZodArray({
       ...this._def,
-      minLength: { value: minLength, message: errorUtil.toString(message) },
+      minLength: { value: minLength, message: utils.errors.toString(message) },
     }) as this
   }
 
-  max(maxLength: number, message?: errorUtil.ErrMessage): this {
+  max(maxLength: number, message?: utils.errors.ErrMessage): this {
     return new ZodArray({
       ...this._def,
-      maxLength: { value: maxLength, message: errorUtil.toString(message) },
+      maxLength: { value: maxLength, message: utils.errors.toString(message) },
     }) as this
   }
 
-  length(len: number, message?: errorUtil.ErrMessage): this {
+  length(len: number, message?: utils.errors.ErrMessage): this {
     return new ZodArray({
       ...this._def,
-      exactLength: { value: len, message: errorUtil.toString(message) },
+      exactLength: { value: len, message: utils.errors.toString(message) },
     }) as this
   }
 
-  nonempty(message?: errorUtil.ErrMessage): ZodArray<T, 'atleastone'> {
+  nonempty(message?: utils.errors.ErrMessage): ZodArray<T, 'atleastone'> {
     return this.min(1, message) as ZodArray<T, 'atleastone'>
   }
 

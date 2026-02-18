@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
+import * as utils from '../../z/utils'
 import z from '../index'
 
 test('preprocess', () => {
@@ -7,7 +7,7 @@ test('preprocess', () => {
 
   const value = schema.parse('asdf')
   expect(value).toEqual(['asdf'])
-  util.assertEqual<(typeof schema)['_input'], unknown>(true)
+  utils.assert.assertEqual<(typeof schema)['_input'], unknown>(true)
 })
 
 test('async preprocess', async () => {
@@ -132,7 +132,7 @@ test('z.NEVER in preprocess', () => {
   }, z.number())
 
   type foo = z.infer<typeof foo>
-  util.assertEqual<foo, number>(true)
+  utils.assert.assertEqual<foo, number>(true)
   const arg = foo.safeParse(undefined)
   if (!arg.success) {
     expect(arg.error.issues[0]?.message).toEqual('bad')

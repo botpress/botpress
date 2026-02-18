@@ -1,4 +1,6 @@
-import { type ZodErrorMap, util, ZodIssueCode, ZodParsedType } from '../../index'
+import { ZodParsedType } from '../../types'
+import * as utils from '../../utils'
+import { type ZodErrorMap, ZodIssueCode } from '../index'
 
 export const errorMap: ZodErrorMap = (issue, _ctx) => {
   let message: string
@@ -11,19 +13,19 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
       }
       break
     case ZodIssueCode.invalid_literal:
-      message = `Invalid literal value, expected ${JSON.stringify(issue.expected, util.jsonStringifyReplacer)}`
+      message = `Invalid literal value, expected ${JSON.stringify(issue.expected, utils.others.jsonStringifyReplacer)}`
       break
     case ZodIssueCode.unrecognized_keys:
-      message = `Unrecognized key(s) in object: ${util.joinValues(issue.keys, ', ')}`
+      message = `Unrecognized key(s) in object: ${utils.others.joinValues(issue.keys, ', ')}`
       break
     case ZodIssueCode.invalid_union:
       message = 'Invalid input'
       break
     case ZodIssueCode.invalid_union_discriminator:
-      message = `Invalid discriminator value. Expected ${util.joinValues(issue.options)}`
+      message = `Invalid discriminator value. Expected ${utils.others.joinValues(issue.options)}`
       break
     case ZodIssueCode.invalid_enum_value:
-      message = `Invalid enum value. Expected ${util.joinValues(issue.options)}, received '${issue.received}'`
+      message = `Invalid enum value. Expected ${utils.others.joinValues(issue.options)}, received '${issue.received}'`
       break
     case ZodIssueCode.invalid_arguments:
       message = 'Invalid function arguments'
@@ -47,7 +49,7 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
         } else if ('endsWith' in issue.validation) {
           message = `Invalid input: must end with "${issue.validation.endsWith}"`
         } else {
-          util.assertNever(issue.validation)
+          utils.assert.assertNever(issue.validation)
         }
       } else if (issue.validation !== 'regex') {
         message = `Invalid ${issue.validation}`
@@ -114,7 +116,7 @@ export const errorMap: ZodErrorMap = (issue, _ctx) => {
       break
     default:
       message = _ctx.defaultError
-      util.assertNever(issue)
+      utils.assert.assertNever(issue)
   }
   return { message }
 }

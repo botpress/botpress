@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { util } from '../utils'
+import * as utils from '../../utils'
 
 const args1 = z.tuple([z.string()])
 const returns1 = z.number()
@@ -23,7 +23,7 @@ test('parsed function fail 2', () => {
 
 test('function inference 1', () => {
   type func1 = z.TypeOf<typeof func1>
-  util.assertEqual<func1, (k: string) => number>(true)
+  utils.assert.assertEqual<func1, (k: string) => number>(true)
 })
 
 test('method parsing', () => {
@@ -59,15 +59,15 @@ test('async method parsing', async () => {
 test('args method', () => {
   const t1 = z.function()
   type t1 = z.infer<typeof t1>
-  util.assertEqual<t1, (...args_1: unknown[]) => unknown>(true)
+  utils.assert.assertEqual<t1, (...args_1: unknown[]) => unknown>(true)
 
   const t2 = t1.args(z.string())
   type t2 = z.infer<typeof t2>
-  util.assertEqual<t2, (arg: string, ...args_1: unknown[]) => unknown>(true)
+  utils.assert.assertEqual<t2, (arg: string, ...args_1: unknown[]) => unknown>(true)
 
   const t3 = t2.returns(z.boolean())
   type t3 = z.infer<typeof t3>
-  util.assertEqual<t3, (arg: string, ...args_1: unknown[]) => boolean>(true)
+  utils.assert.assertEqual<t3, (arg: string, ...args_1: unknown[]) => boolean>(true)
 })
 
 const args2 = z.tuple([
@@ -83,7 +83,7 @@ const func2 = z.function(args2, returns2)
 
 test('function inference 2', () => {
   type func2 = z.TypeOf<typeof func2>
-  util.assertEqual<
+  utils.assert.assertEqual<
     func2,
     (arg: { f1: number; f2: string | null; f3?: (boolean | undefined)[] | undefined }) => string | number
   >(true)
@@ -234,7 +234,7 @@ test('inference with transforms', () => {
   })
   myFunc('asdf')
 
-  util.assertEqual<typeof myFunc, (arg: string, ...args_1: unknown[]) => { val: number; extra: string }>(true)
+  utils.assert.assertEqual<typeof myFunc, (arg: string, ...args_1: unknown[]) => { val: number; extra: string }>(true)
 })
 
 test('fallback to OuterTypeOfFunction', () => {
@@ -247,5 +247,5 @@ test('fallback to OuterTypeOfFunction', () => {
     return { arg: val, arg2: false }
   })
 
-  util.assertEqual<typeof myFunc, (arg: string, ...args_1: unknown[]) => number>(true)
+  utils.assert.assertEqual<typeof myFunc, (arg: string, ...args_1: unknown[]) => number>(true)
 })

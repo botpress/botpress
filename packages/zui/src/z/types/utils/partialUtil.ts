@@ -8,6 +8,7 @@ import type {
   ZodRawShape,
   ZodType,
 } from '../index'
+
 export namespace partialUtil {
   export type DeepPartial<T extends ZodType> =
     T extends ZodObject<ZodRawShape>

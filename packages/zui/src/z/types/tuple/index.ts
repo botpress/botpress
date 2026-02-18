@@ -1,5 +1,5 @@
 import { ZodIssueCode } from '../../error'
-import { unique } from '../../utils'
+import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
   RawCreateParams,
@@ -14,7 +14,6 @@ import {
   ParseStatus,
   SyncParseReturnType,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ZodTupleItems = [ZodType, ...ZodType[]]
 export type AssertArray<T> = T extends any[] ? T : never
@@ -56,7 +55,7 @@ export class ZodTuple<
   }
 
   getReferences(): string[] {
-    return unique([
+    return utils.fn.unique([
       ...this._def.items.flatMap((item) => item.getReferences()),
       ...(this._def.rest ? this._def.rest.getReferences() : []),
     ])
@@ -153,8 +152,8 @@ export class ZodTuple<
     if (!this._restEquals(schema)) return false
 
     const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisItems = new CustomSet<ZodType>(this._def.items, { compare })
-    const schemaItems = new CustomSet<ZodType>(schema._def.items, { compare })
+    const thisItems = new utils.ds.CustomSet<ZodType>(this._def.items, { compare })
+    const schemaItems = new utils.ds.CustomSet<ZodType>(schema._def.items, { compare })
     return thisItems.isEqual(schemaItems)
   }
 

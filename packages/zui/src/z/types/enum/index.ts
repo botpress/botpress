@@ -1,17 +1,16 @@
 import { ZodIssueCode } from '../../error'
+import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
   processCreateParams,
-  util,
   addIssueToContext,
   INVALID,
   OK,
   ParseInput,
   ParseReturnType,
 } from '../index'
-import { CustomSet } from '../utils/custom-set'
 
 export type ArrayKeys = keyof any[]
 export type Indices<T> = Exclude<keyof T, ArrayKeys>
@@ -63,7 +62,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
       const ctx = this._getOrReturnCtx(input)
       const expectedValues = this._def.values
       addIssueToContext(ctx, {
-        expected: util.joinValues(expectedValues) as 'string',
+        expected: utils.others.joinValues(expectedValues) as 'string',
         received: ctx.parsedType,
         code: ZodIssueCode.invalid_type,
       })
@@ -136,8 +135,8 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodEnum)) return false
-    const thisValues = new CustomSet<string>(this._def.values)
-    const thatValues = new CustomSet<string>(schema._def.values)
+    const thisValues = new utils.ds.CustomSet<string>(this._def.values)
+    const thatValues = new utils.ds.CustomSet<string>(schema._def.values)
     return thisValues.isEqual(thatValues)
   }
 }

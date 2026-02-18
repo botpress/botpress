@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isEqual } from './is-equal'
+import { isEqual } from './fn-utils'
 import * as lodash from 'lodash-es'
 
 describe.concurrent('custom isEqual', () => {
