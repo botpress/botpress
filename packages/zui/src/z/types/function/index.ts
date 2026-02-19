@@ -13,13 +13,10 @@ import {
   ParseReturnType,
 } from '../basetype'
 
-import {
-  //
-  ZodPromise,
-  ZodTuple,
-  ZodUnknown,
-  AnyZodTuple,
-} from '../index' // TODO(circle): adress circular dependency
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodPromise } from '../promise'
+import { ZodTuple, type AnyZodTuple } from '../tuple'
+import { ZodUnknown } from '../unknown'
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
   args: Args

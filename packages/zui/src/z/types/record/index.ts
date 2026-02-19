@@ -12,11 +12,9 @@ import {
   ParseStatus,
 } from '../basetype'
 
-import {
-  //
-  ZodString,
-  BRAND,
-} from '../index' // TODO(circle): adress circular dependency
+// TODO(circle): these may potentially cause circular dependencies errors
+import { BRAND } from '../branded'
+import { ZodString } from '../string'
 
 export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {
   valueType: Value

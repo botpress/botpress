@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodDateDef } from '../../../z/index'
+import { ZodDateDef } from '../../../z'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
 import { JsonSchema7NumberType } from './number'

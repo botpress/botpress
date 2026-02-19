@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodLiteralDef } from '../../../z/index'
+import { ZodLiteralDef } from '../../../z'
 import { Refs } from '../Refs'
 
 export type JsonSchema7LiteralType =

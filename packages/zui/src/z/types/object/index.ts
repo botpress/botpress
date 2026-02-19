@@ -1,4 +1,6 @@
 import * as utils from '../../utils'
+import { ZodAny } from '../any'
+import { ZodArray } from '../array'
 import {
   addIssueToContext,
   INVALID,
@@ -13,17 +15,12 @@ import {
   processCreateParams,
 } from '../basetype'
 
-import {
-  //
-  ZodArray,
-  ZodEnum,
-  ZodNullable,
-  ZodOptional,
-  ZodTuple,
-  ZodNever,
-  ZodAny,
-  ZodTupleItems,
-} from '../index' // TODO(circle): adress circular dependency
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodEnum } from '../enum'
+import { ZodNever } from '../never'
+import { ZodNullable } from '../nullable'
+import { ZodOptional } from '../optional'
+import { ZodTuple, type ZodTupleItems } from '../tuple'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 

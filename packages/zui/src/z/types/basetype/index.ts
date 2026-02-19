@@ -13,23 +13,20 @@ import type {
 } from '../../../ui/types'
 import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
 import * as utils from '../../utils'
-import type { CatchFn } from '../catch'
 
-import {
-  ZodArray,
-  ZodBranded,
-  ZodCatch,
-  ZodDefault,
-  ZodEffects,
-  ZodIntersection,
-  ZodNullable,
-  ZodOptional,
-  ZodPipeline,
-  ZodPromise,
-  ZodReadonly,
-  ZodUnion,
-  RefinementEffect,
-} from '../index' // TODO(circle): adress circular dependency
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodArray } from '../array'
+import { ZodBranded } from '../branded'
+import { ZodCatch, type CatchFn } from '../catch'
+import { ZodDefault } from '../default'
+import { ZodIntersection } from '../intersection'
+import { ZodNullable } from '../nullable'
+import { ZodOptional } from '../optional'
+import { ZodPipeline } from '../pipeline'
+import { ZodPromise } from '../promise'
+import { ZodReadonly } from '../readonly'
+import { ZodEffects, type RefinementEffect } from '../transformer'
+import { ZodUnion } from '../union'
 
 import {
   AsyncParseReturnType,
