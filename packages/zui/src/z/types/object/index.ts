@@ -86,6 +86,11 @@ export type deoptional<T extends ZodType> =
  */
 export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
 
+/**
+ * @deprecated use ZodObject instead
+ */
+export type AnyZodObject = ZodObject<any, any>
+
 export type noUnrecognized<Obj extends object, Shape extends object> = {
   [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never
 }
@@ -687,8 +692,3 @@ export class ZodObject<
     })
   }
 }
-
-/**
- * @deprecated use ZodObject instead
- */
-export type AnyZodObject = ZodObject<any, any>
