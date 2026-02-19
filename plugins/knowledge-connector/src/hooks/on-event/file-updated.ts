@@ -12,22 +12,20 @@ export const handleEvent: bp.EventHandlers['*'] = async (props) => {
     return
   }
 
-  const folderSyncSettingsState = await props.client.getState({
-    type: 'bot',
-    id: props.ctx.botId,
-    name: 'folderSyncSettings',
-  })
-
-  if (!folderSyncSettingsState?.state?.payload?.settings) {
+  let settings
+  try {
+    settings = await props.states.bot.folderSyncSettings.get(props.ctx.botId)
+  } catch {
     return
   }
 
-  const folderMatch = findFolderByPath(folderSyncSettingsState.state.payload.settings, updatedFile.absolutePath)
+  if (!settings?.settings) {
+    return
+  }
+
+  const folderMatch = findFolderByPath(settings.settings, updatedFile.absolutePath)
 
   if (!folderMatch || !folderMatch.syncNewFiles) {
-    props.logger.debug(
-      `File ${updatedFile.absolutePath} does not match any folder with syncNewFiles enabled. Skipping.`
-    )
     return
   }
 

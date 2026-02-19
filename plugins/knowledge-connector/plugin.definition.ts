@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import filesReadonly from './bp_modules/files-readonly'
 
 export default new sdk.PluginDefinition({
   name: 'knowledge-connector',
@@ -179,6 +180,9 @@ export default new sdk.PluginDefinition({
         }),
       },
     },
+  },
+  interfaces: {
+    'files-readonly': sdk.version.allWithinMajorOf(filesReadonly),
   },
   workflows: {
     processQueue: {

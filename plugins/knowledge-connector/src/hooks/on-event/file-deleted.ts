@@ -20,7 +20,6 @@ export const handleEvent: bp.EventHandlers['*'] = async (props) => {
 
     for (const filesApiFile of files) {
       await props.client.deleteFile({ id: filesApiFile.id })
-      props.logger.info(`File ${deletedFile.absolutePath} has been deleted`)
     }
   } catch (error) {
     props.logger.error(`Error deleting file ${deletedFile.absolutePath}:`, error)

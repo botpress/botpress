@@ -1,5 +1,5 @@
 export function findFolderByPath(
-  settings: Record<string, Record<string, { syncNewFiles: boolean; path?: string }>>,
+  settings: Record<string, Record<string, { syncNewFiles?: boolean; path?: string }>>,
   filePath: string
 ): { kbId: string; folderId: string; syncNewFiles: boolean } | undefined {
   for (const [kbId, folders] of Object.entries(settings)) {

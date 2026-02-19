@@ -13,5 +13,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/sdk": "workspace:*"
+  },
+  "bpDependencies": {
+    "files-readonly": "../../interfaces/files-readonly"
   }
 }

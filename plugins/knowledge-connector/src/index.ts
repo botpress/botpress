@@ -10,52 +10,71 @@ import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
   actions: {
-    async syncFilesToBotpress(props) {
-      props.logger.info('Called action syncFilesToBotpress')
-      return await actions.syncFilesToBotpress.callAction(props)
-    },
-    async listSynchronizationOperations(props) {
-      props.logger.info('Called action listSynchronizationOperations')
-      return await actions.listSynchronizationOperations.callAction(props)
-    },
-    async checkSynchronizationStatus(props) {
-      props.logger.info('Called action checkSynchronizationStatus')
-      return await actions.checkSynchronizationStatus.callAction(props)
-    },
+    syncFilesToBotpress: (props) => actions.syncFilesToBotpress.callAction(props),
+    listSynchronizationOperations: (props) => actions.listSynchronizationOperations.callAction(props),
+    checkSynchronizationStatus: (props) => actions.checkSynchronizationStatus.callAction(props),
   },
 })
 
-plugin.on.event('*', async (props) => {
-  const folderSyncSettingsState = await props.client.getState({
-    type: 'bot',
-    id: props.ctx.botId,
-    name: 'folderSyncSettings',
-  })
-
-  if (!folderSyncSettingsState?.state?.payload?.settings) {
-    return
+plugin.on.event('files-readonly:fileDeleted', async (props) => {
+  try {
+    await onEventFileDeleted.handleEvent(props as any)
+  } catch (error) {
+    props.logger.error(`fileDeleted error: ${error instanceof Error ? error.message : String(error)}`)
   }
+})
 
-  if (!hasEnabledFolders(folderSyncSettingsState.state.payload.settings)) {
-    return
+plugin.on.event('files-readonly:folderDeletedRecursive', async (props) => {
+  try {
+    await onEventFolderDeleted.handleEvent(props as any)
+  } catch (error) {
+    props.logger.error(`folderDeletedRecursive error: ${error instanceof Error ? error.message : String(error)}`)
   }
+})
 
-  const eventType = props.event.type
-  if (eventType.endsWith(':fileCreated')) {
-    props.logger.info('File created event triggered', props.event.payload.file)
-    await onEventFileCreated.handleEvent(props)
-  } else if (eventType.endsWith(':fileDeleted')) {
-    props.logger.info('File deleted event triggered', props.event.payload.file)
-    await onEventFileDeleted.handleEvent(props)
-  } else if (eventType.endsWith(':fileUpdated')) {
-    props.logger.info('File updated event triggered', props.event.payload.file)
-    await onEventFileUpdated.handleEvent(props)
-  } else if (eventType.endsWith(':folderDeletedRecursive')) {
-    props.logger.info('Folder deleted event triggered', props.event.payload.folder)
-    await onEventFolderDeleted.handleEvent(props)
-  } else if (eventType.endsWith(':aggregateFileChanges')) {
-    props.logger.info('Aggregate file changes event triggered', props.event.payload.modifiedItems)
-    await onEventAggregate.handleEvent(props)
+plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
+  try {
+    await onEventAggregate.handleEvent(props as any)
+  } catch (error) {
+    props.logger.error(`aggregateFileChanges error: ${error instanceof Error ? error.message : String(error)}`)
+  }
+})
+
+plugin.on.event('files-readonly:fileCreated', async (props) => {
+  try {
+    let settings
+    try {
+      settings = await props.states.bot.folderSyncSettings.get(props.ctx.botId)
+    } catch {
+      return
+    }
+
+    if (!settings?.settings || !hasEnabledFolders(settings.settings)) {
+      return
+    }
+
+    await onEventFileCreated.handleEvent(props as any)
+  } catch (error) {
+    props.logger.error(`fileCreated error: ${error instanceof Error ? error.message : String(error)}`)
+  }
+})
+
+plugin.on.event('files-readonly:fileUpdated', async (props) => {
+  try {
+    let settings
+    try {
+      settings = await props.states.bot.folderSyncSettings.get(props.ctx.botId)
+    } catch {
+      return
+    }
+
+    if (!settings?.settings || !hasEnabledFolders(settings.settings)) {
+      return
+    }
+
+    await onEventFileUpdated.handleEvent(props as any)
+  } catch (error) {
+    props.logger.error(`fileUpdated error: ${error instanceof Error ? error.message : String(error)}`)
   }
 })
 
