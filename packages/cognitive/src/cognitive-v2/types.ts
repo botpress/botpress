@@ -136,6 +136,11 @@ export type CognitiveRequest = {
      * Maximum time to wait for the first token before falling back to the next provider
      */
     maxTimeToFirstToken?: number
+    /**
+     * Client-provided request ID. Acts as an idempotency key — if provided, the result is stored
+     * server-side and a retry with the same ID returns the stored result instead of re-running generation.
+     */
+    requestId?: string
   }
   meta?: {
     /**
@@ -155,6 +160,7 @@ export type CognitiveStreamChunk = {
   created: number
   finished?: boolean
   metadata?: {
+    requestId?: string
     provider: string
     model?: string
     usage: {
@@ -193,6 +199,7 @@ export type CognitiveResponse = {
   output: string
   reasoning?: string
   metadata: {
+    requestId?: string
     provider: string
     model?: string
     usage: {
