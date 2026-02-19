@@ -72,14 +72,18 @@ const _authenticateManual = async (props: RegisterProps): Promise<boolean> => {
   }
 
   logger?.forBot().info('Using authorization code from context')
-  return _authenticateWithAuthorizationCode(props).catch((err) => {
-    logger?.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
-    return _authenticateWithRefreshToken(props).catch((fallbackErr) => {
-      logger?.forBot().error({ err: fallbackErr }, 'Failed to authenticate with fallback')
-      return false
-    })
+let isAuthenticated = false
+isAuthenticated = await _authenticateWithAuthorizationCode(props).catch((err) => {
+  logger?.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
+  return false
+})
+if (!isAuthenticated) {
+  isAuthenticated = await _authenticateWithAuthorizationCode(props).catch((err) => {
+    logger?.forBot().error({ err: fallbackErr }, 'Failed to authenticate with fallback')
+    return false
   })
 }
+return isAuthenticated
 
 const _authenticateOAuth = async (props: RegisterProps): Promise<boolean> => {
   const { logger } = props
