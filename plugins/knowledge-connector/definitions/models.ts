@@ -1,7 +1,5 @@
 import * as sdk from '@botpress/sdk'
 
-// TODO: add a way to deduplicate files based on content hash.
-
 const _baseItem = (itemType: 'file' = 'file') =>
   sdk.z.object({
     id: sdk.z
@@ -20,6 +18,7 @@ const _baseItem = (itemType: 'file' = 'file') =>
 export const FILE = _baseItem().extend({
   type: sdk.z.literal('file'),
   sizeInBytes: sdk.z.number().optional().describe('The file size in bytes, if available'),
+  contentHash: sdk.z.string().optional().describe('A content hash provided by the external service for deduplication'),
 })
 
 export const FILE_WITH_PATH = FILE.extend({

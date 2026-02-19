@@ -23,7 +23,7 @@ export type ProcessFileProps = {
 export const processQueueFile = async (props: ProcessFileProps): Promise<types.SyncQueueItem> => {
   const fileToSync = structuredClone(props.fileToSync) as types.SyncQueueItem
   const existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
-  const shouldUploadFile = await _shouldUploadFile(props, fileToSync, existingFile)
+  const shouldUploadFile = _shouldUploadFile(props, fileToSync, existingFile)
 
   if (!shouldUploadFile) {
     fileToSync.status = 'already-synced'
@@ -54,32 +54,33 @@ const _getExistingFileFromFilesApi = async (
     return
   }
 
-  // Unfortunately, we cannot assume that there is only one file on Files API
-  // with the same externalId, because there is no unique constraint on the tag.
-
-  // However, the implementation would be more complicated if we take this into
-  // account, so we will naively assume that we have full control over the
-  // externalId tag and that it is unique. If users go out of their way to use
-  // the API to create files with the same externalId, we will not be able to
-  // handle this case correctly.
-
   return existingFiles[0]!
 }
 
-const _shouldUploadFile = async (
-  props: ProcessFileProps,
+const _shouldUploadFile = (
+  _props: ProcessFileProps,
   fileToSync: models.FileWithPath,
   existingFile?: types.FilesApiFile
 ) => {
   if (!existingFile) {
-    props.logger.debug(`No existing file found. Uploading ${fileToSync.absolutePath} ...`)
     return true
   }
 
-  // TODO: deduplicate by content hash and modified date
+  const existingHash = existingFile.tags['externalContentHash']
+  const newHash = fileToSync.contentHash
 
-  props.logger.debug(`Ignoring ${fileToSync.absolutePath} ...`)
-  return false
+  if (existingHash && newHash) {
+    return existingHash !== newHash
+  }
+
+  const existingSize = existingFile.tags['externalSize']
+  const newSize = fileToSync.sizeInBytes?.toString()
+
+  if (existingSize && newSize) {
+    return existingSize !== newSize
+  }
+
+  return true
 }
 
 const _deleteExistingFileFromFilesApi = async (props: ProcessFileProps, existingFile?: types.FilesApiFile) => {
@@ -106,6 +107,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
         integrationAlias: props.integration.alias,
         externalId: fileToSync.id,
         externalSize: fileToSync.sizeInBytes?.toString() ?? null,
+        externalContentHash: fileToSync.contentHash ?? null,
         externalPath: fileToSync.absolutePath,
         ...(fileToSync.addToKbId !== undefined
           ? { kbId: fileToSync.addToKbId, source: 'knowledge-base', title: fileToSync.name, modalities: '["text"]' }

@@ -7,7 +7,6 @@ import * as bp from '.botpress'
 
 export const handleEvent: bp.EventHandlers['*'] = async (props) => {
   const modifiedItems = (props.event.payload as { modifiedItems: any }).modifiedItems
-  // Extract the real integration alias from the original event (e.g. "dropbox" from "dropbox:aggregateFileChanges")
   const integrationAlias = extractIntegrationAlias(props.event.type, props.logger)
   if (!integrationAlias) {
     return
