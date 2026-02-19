@@ -1,5 +1,8 @@
 export {
   ZodType,
+  Schema,
+  ZodSchema,
+  type ZodTypeAny,
   type ZodTypeDef,
   type SafeParseReturnType,
   type SafeParseError,

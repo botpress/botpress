@@ -146,6 +146,13 @@ export type SafeParseError<Input> = {
 
 export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
 
+export { ZodType as Schema, ZodType as ZodSchema }
+
+/**
+ * @deprecated - use ZodType instead
+ */
+export type ZodTypeAny = ZodType<any, any, any>
+
 export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
   implements __ZodType<Output, Input>
 {
@@ -478,7 +485,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     })
   }
 
-  catch(def: Output | CatchFn<Output>) {
+  catch(def: Output | CatchFn<Output>): ZodCatch<this> {
     const catchValueFunc = typeof def === 'function' ? (def as CatchFn<Output>) : () => def
 
     return new ZodCatch({
