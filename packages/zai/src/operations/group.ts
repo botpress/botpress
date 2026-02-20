@@ -33,6 +33,7 @@ export type Options = {
   chunkLength?: number
   initialGroups?: Array<InitialGroup>
   maxGroups?: number
+  minElements?: number
 }
 
 const _Options = z.object({
@@ -41,6 +42,7 @@ const _Options = z.object({
   chunkLength: z.number().min(100).max(100_000).optional().default(16_000),
   initialGroups: z.array(_InitialGroup).optional().default([]),
   maxGroups: z.number().min(2).optional(),
+  minElements: z.number().min(1).optional(),
 })
 
 declare module '@botpress/zai' {
@@ -55,6 +57,7 @@ declare module '@botpress/zai' {
      * @param input - Array of items to group
      * @param options - Configuration for grouping behavior, instructions, and initial categories
      * @param options.maxGroups - Maximum number of groups allowed (minimum 2). When set, groups are merged at the end until within limit.
+     * @param options.minElements - Minimum elements per group (minimum 1). Groups below this threshold have their elements redistributed via AI.
      * @returns Response with groups array (simplified to Record<groupLabel, items[]>)
      *
      * @example Automatic grouping
@@ -738,6 +741,145 @@ ${END}`.trim()
         sourceSet.clear()
 
         currentIds = nonEmptyGroupIds()
+      }
+    }
+  }
+
+  // Phase 5: Redistribute undersized groups if minElements is set
+  // Reuses processChunk so orphans see the valid groups as available buckets
+  if (options.minElements !== undefined && options.minElements > 1) {
+    const getNonEmptyGroupIds = () =>
+      Array.from(groupElements.entries())
+        .filter(([, s]) => s.size > 0)
+        .map(([id]) => id)
+
+    // Collect orphan elements from all undersized groups
+    const orphanIndices: number[] = []
+
+    for (const gid of getNonEmptyGroupIds()) {
+      const elemSet = groupElements.get(gid)!
+      if (elemSet.size > 0 && elemSet.size < options.minElements) {
+        for (const idx of elemSet) {
+          orphanIndices.push(idx)
+        }
+        elemSet.clear()
+      }
+    }
+
+    if (orphanIndices.length > 0) {
+      // Valid groups = everything that's still non-empty (i.e. above minElements)
+      const validGroupIds = getNonEmptyGroupIds()
+
+      // Chunk orphans and run them through processChunk with only valid groups visible
+      const orphanChunks: number[][] = []
+      let currentOrphanChunk: number[] = []
+      let currentOrphanTokens = 0
+
+      for (const elemIdx of orphanIndices) {
+        const elem = elements[elemIdx]
+        const truncated = tokenizer.truncate(elem.stringified, options.tokensPerElement)
+        const elemTokens = tokenizer.count(truncated)
+
+        if (
+          (currentOrphanTokens + elemTokens > TOKENS_FOR_ELEMENTS_MAX ||
+            currentOrphanChunk.length >= MAX_ELEMENTS_PER_CHUNK) &&
+          currentOrphanChunk.length > 0
+        ) {
+          orphanChunks.push(currentOrphanChunk)
+          currentOrphanChunk = []
+          currentOrphanTokens = 0
+        }
+
+        currentOrphanChunk.push(elemIdx)
+        currentOrphanTokens += elemTokens
+      }
+
+      if (currentOrphanChunk.length > 0) {
+        orphanChunks.push(currentOrphanChunk)
+      }
+
+      // Process orphan chunks against valid groups (reuses the same processChunk as Phase 1)
+      const orphanResults = await Promise.all(
+        orphanChunks.map((chunk) =>
+          elementLimit(async () => {
+            // If there are valid groups, chunk them; otherwise pass empty so LLM creates new groups
+            const groupChunksForOrphans = validGroupIds.length > 0 ? getGroupChunks() : [[]]
+
+            const allAssignments = await Promise.all(
+              groupChunksForOrphans
+                .filter((gc) => gc.length === 0 || gc.some((gid) => validGroupIds.includes(gid)))
+                .map((groupChunk) => {
+                  // Only show valid groups (exclude the orphaned/undersized ones)
+                  const filteredGroupChunk = groupChunk.filter((gid) => validGroupIds.includes(gid))
+                  return groupLimit(() => processChunk(chunk, filteredGroupChunk))
+                })
+            )
+
+            return allAssignments.flat()
+          })
+        )
+      )
+
+      // Apply assignments
+      for (const assignments of orphanResults) {
+        for (const { elementIndex, label } of assignments) {
+          const normalized = normalizeLabel(label)
+          let groupId = labelToGroupId.get(normalized)
+
+          if (!groupId) {
+            groupId = `group_${groupIdCounter++}`
+            groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
+            groupElements.set(groupId, new Set())
+            labelToGroupId.set(normalized, groupId)
+          }
+          groupElements.get(groupId)!.add(elementIndex)
+        }
+      }
+
+      // Safety: any orphans the LLM missed get placed into the largest group
+      const unassigned = orphanIndices.filter((idx) => {
+        for (const [, elemSet] of groupElements) {
+          if (elemSet.has(idx)) return false
+        }
+        return true
+      })
+
+      if (unassigned.length > 0) {
+        const allNonEmpty = getNonEmptyGroupIds()
+        if (allNonEmpty.length > 0) {
+          const largestGid = allNonEmpty.reduce((a, b) =>
+            groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
+          )
+          for (const idx of unassigned) {
+            groupElements.get(largestGid)!.add(idx)
+          }
+        }
+      }
+
+      // Second pass: if any groups are still undersized after redistribution,
+      // merge their elements into the largest group
+      let stillUndersized = true
+      while (stillUndersized) {
+        stillUndersized = false
+        const allNonEmpty = getNonEmptyGroupIds()
+        if (allNonEmpty.length <= 1) break
+
+        const largestGid = allNonEmpty.reduce((a, b) =>
+          groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
+        )
+
+        for (const gid of allNonEmpty) {
+          if (gid === largestGid) continue
+          const elemSet = groupElements.get(gid)!
+          if (elemSet.size > 0 && elemSet.size < options.minElements) {
+            const targetSet = groupElements.get(largestGid)!
+            for (const idx of elemSet) {
+              targetSet.add(idx)
+            }
+            elemSet.clear()
+            stillUndersized = true
+          }
+        }
       }
     }
   }

@@ -457,6 +457,137 @@ describe('group', () => {
     })
   })
 
+  describe('minElements', () => {
+    it('should redistribute elements from undersized groups into larger ones', async () => {
+      // 5 fruits, 5 vegetables, 2 grains — grains group (2) is below minElements: 3
+      const items = [
+        'apple',
+        'banana',
+        'orange',
+        'mango',
+        'grape',
+        'carrot',
+        'broccoli',
+        'spinach',
+        'celery',
+        'kale',
+        'rice',
+        'wheat',
+      ]
+
+      const result = await zai.group(items, {
+        instructions: 'Group by food type',
+        minElements: 3,
+      })
+
+      // Every group must have at least 3 elements
+      for (const [label, elements] of Object.entries(result)) {
+        expect(elements.length, `Group "${label}" has fewer than 3 elements`).toBeGreaterThanOrEqual(3)
+      }
+      // All elements preserved
+      expect(Object.values(result).flat().length).toBe(12)
+      expect(Object.keys(result).length).toBeGreaterThanOrEqual(2)
+      console.log(result)
+    })
+
+    it('should work when all groups already meet minElements', async () => {
+      const items = ['apple', 'banana', 'orange', 'carrot', 'broccoli', 'spinach']
+
+      const result = await zai.group(items, {
+        instructions: 'Group into fruits and vegetables',
+        minElements: 2,
+      })
+
+      for (const [, elements] of Object.entries(result)) {
+        expect(elements.length).toBeGreaterThanOrEqual(2)
+      }
+      expect(Object.values(result).flat().length).toBe(6)
+      console.log(result)
+    })
+
+    it('should re-group from scratch when all groups are undersized', async () => {
+      // 6 completely different items — LLM might create 6 groups of 1
+      // minElements: 3 forces consolidation into 2 groups
+      const items = ['laptop', 'pizza', 'guitar', 'sunglasses', 'novel', 'basketball']
+
+      const result = await zai.group(items, {
+        instructions: 'Group these items',
+        minElements: 3,
+      })
+
+      for (const [label, elements] of Object.entries(result)) {
+        expect(elements.length, `Group "${label}" has fewer than 3 elements`).toBeGreaterThanOrEqual(3)
+      }
+      expect(Object.values(result).flat().length).toBe(6)
+    })
+
+    it('should preserve all elements when redistributing', async () => {
+      const items = Array.from({ length: 30 }, (_, i) => {
+        if (i < 15) return `fruit-${i}`
+        if (i < 28) return `vegetable-${i}`
+        return `oddball-${i}` // only 2 oddballs — below minElements
+      })
+
+      const result = await zai.group(items, {
+        instructions: 'Group by food category',
+        minElements: 3,
+      })
+
+      for (const [label, elements] of Object.entries(result)) {
+        expect(elements.length, `Group "${label}" has fewer than 3 elements`).toBeGreaterThanOrEqual(3)
+      }
+      expect(Object.values(result).flat().length).toBe(30)
+    })
+
+    it('should work together with maxGroups', async () => {
+      const items = [
+        'apple',
+        'banana',
+        'orange',
+        'mango',
+        'grape',
+        'carrot',
+        'broccoli',
+        'spinach',
+        'chicken',
+        'beef',
+        'salmon',
+        'rice',
+      ]
+
+      const result = await zai.group(items, {
+        instructions: 'Group by food type',
+        maxGroups: 3,
+        minElements: 3,
+      })
+
+      expect(Object.keys(result).length).toBeLessThanOrEqual(3)
+      for (const [label, elements] of Object.entries(result)) {
+        expect(elements.length, `Group "${label}" has fewer than 3 elements`).toBeGreaterThanOrEqual(3)
+      }
+      expect(Object.values(result).flat().length).toBe(12)
+    })
+
+    it('should return detailed result respecting minElements', async () => {
+      const items = ['apple', 'banana', 'orange', 'mango', 'carrot', 'rice']
+
+      const { output } = await zai
+        .group(items, {
+          instructions: 'Group by food type',
+          minElements: 2,
+        })
+        .result()
+
+      for (const group of output) {
+        expect(group.elements.length).toBeGreaterThanOrEqual(2)
+        expect(group).toHaveProperty('id')
+        expect(group).toHaveProperty('label')
+      }
+      const totalElements = output.reduce((sum, g) => sum + g.elements.length, 0)
+      expect(totalElements).toBe(6)
+    })
+  })
+
   describe('no instructions provided', () => {
     it('should group by natural similarity without instructions', async () => {
       const items = ['cat', 'dog', 'lion', 'tiger', 'parrot', 'eagle']
