@@ -650,6 +650,7 @@ Zai.prototype.patch = function (
     taskId: this.taskId,
     taskType: 'zai.patch',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<File>>(context, patch(files, instructions, _options, context), (result) => result)

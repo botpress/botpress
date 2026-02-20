@@ -1,6 +1,8 @@
 import { Cognitive, Model, GenerateContentInput, GenerateContentOutput } from '@botpress/cognitive'
 import { Adapter } from './adapters/adapter'
 import { EventEmitter } from './emitter'
+import { fastHash } from './utils'
+import type { Memoizer } from './zai'
 
 type Meta = Awaited<ReturnType<Cognitive['generateContent']>>['meta']
 
@@ -16,6 +18,7 @@ export type ZaiContextProps = {
   modelId: string
   adapter?: Adapter
   source?: GenerateContentInput['meta']
+  memoizer?: Memoizer
 }
 
 /**
@@ -94,9 +97,12 @@ export class ZaiContext {
   public source?: GenerateContentInput['meta']
 
   private _eventEmitter: EventEmitter<ContextEvents>
+  private _memoizer: Memoizer
 
   public controller: AbortController = new AbortController()
   private _client: Cognitive
+
+  private static _noopMemoizer: Memoizer = { run: (_id, fn) => fn() }
 
   public constructor(props: ZaiContextProps) {
     this._client = props.client.clone()
@@ -105,6 +111,7 @@ export class ZaiContext {
     this.adapter = props.adapter
     this.source = props.source
     this.taskType = props.taskType
+    this._memoizer = props.memoizer ?? ZaiContext._noopMemoizer
     this._eventEmitter = new EventEmitter<ContextEvents>()
 
     this._client.on('request', () => {
@@ -147,6 +154,20 @@ export class ZaiContext {
   }
 
   public async generateContent<Out = string>(
+    props: GenerateContentProps<Out>
+  ): Promise<{ meta: Meta; output: GenerateContentOutput; text: string | undefined; extracted: Out }> {
+    const memoKey = `zai:memo:${this.taskType}:${this.taskId || 'default'}:${fastHash(
+      JSON.stringify({
+        s: props.systemPrompt,
+        m: props.messages?.map((m) => ('content' in m ? m.content : '')),
+        st: props.stopSequences,
+      })
+    )}`
+
+    return this._memoizer.run(memoKey, () => this._generateContentInner(props))
+  }
+
+  private async _generateContentInner<Out = string>(
     props: GenerateContentProps<Out>
   ): Promise<{ meta: Meta; output: GenerateContentOutput; text: string | undefined; extracted: Out }> {
     const maxRetries = Math.max(props.maxRetries ?? 3, 0)
