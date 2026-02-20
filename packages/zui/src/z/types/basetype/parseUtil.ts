@@ -76,6 +76,12 @@ export type ParseInput = {
   parent: ParseContext
 }
 
+export type MergeObjectPair = {
+  key: SyncParseReturnType<any>
+  value: SyncParseReturnType<any>
+  alwaysSet?: boolean
+}
+
 export function addIssueToContext(ctx: ParseContext, issueData: IssueData): void {
   const issue = makeIssue({
     issueData,
@@ -129,14 +135,7 @@ export class ParseStatus {
     return ParseStatus.mergeObjectSync(status, syncPairs)
   }
 
-  static mergeObjectSync(
-    status: ParseStatus,
-    pairs: {
-      key: SyncParseReturnType<any>
-      value: SyncParseReturnType<any>
-      alwaysSet?: boolean
-    }[]
-  ): SyncParseReturnType {
+  static mergeObjectSync(status: ParseStatus, pairs: MergeObjectPair[]): SyncParseReturnType {
     const finalObject: any = {}
     for (const pair of pairs) {
       const { key, value } = pair

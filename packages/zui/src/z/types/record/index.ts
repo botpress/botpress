@@ -10,6 +10,7 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
+  type MergeObjectPair,
 } from '../basetype'
 
 // TODO(circle): these may potentially cause circular dependencies errors
@@ -97,7 +98,7 @@ export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType
     if (ctx.common.async) {
       return ParseStatus.mergeObjectAsync(status, pairs)
     } else {
-      return ParseStatus.mergeObjectSync(status, pairs as any)
+      return ParseStatus.mergeObjectSync(status, pairs as MergeObjectPair[])
     }
   }
 

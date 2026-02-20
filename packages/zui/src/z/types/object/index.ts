@@ -12,6 +12,7 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
+  type MergeObjectPair,
 } from '../basetype'
 
 // TODO(circle): these may potentially cause circular dependencies errors
@@ -243,7 +244,7 @@ export class ZodObject<
           return ParseStatus.mergeObjectSync(status, syncPairs)
         })
     } else {
-      return ParseStatus.mergeObjectSync(status, pairs as any)
+      return ParseStatus.mergeObjectSync(status, pairs as MergeObjectPair[])
     }
   }
 
@@ -598,7 +599,8 @@ export class ZodObject<
   }
 
   keyof(): ZodEnum<_KeyOfObject<T>> {
-    return ZodEnum.create(Object.keys(this.shape) as [string, ...string[]]) as any
+    const keys = Object.keys(this.shape) as _KeyOfObject<T>
+    return ZodEnum.create(keys) as ZodEnum<_KeyOfObject<T>>
   }
 
   isEqual(schema: ZodType): boolean {
