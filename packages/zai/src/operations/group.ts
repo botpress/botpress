@@ -721,9 +721,7 @@ ${END}`.trim()
         for (let i = 1; i < sourceGroupIds.length; i++) {
           const sourceGid = sourceGroupIds[i]
           const sourceSet = groupElements.get(sourceGid)!
-          for (const elemIdx of sourceSet) {
-            targetSet.add(elemIdx)
-          }
+          sourceSet.forEach((elemIdx) => targetSet.add(elemIdx))
           sourceSet.clear()
         }
       }
