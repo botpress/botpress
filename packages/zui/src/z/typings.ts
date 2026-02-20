@@ -9,7 +9,7 @@ import {
   SafeOmit,
   Writeable,
   ValueOf,
-} from '../utils/type-utils'
+} from './utils/type-utils'
 
 /**
  * ### UI & Metadata
