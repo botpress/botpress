@@ -11,25 +11,26 @@ import {
   ParseReturnType,
   ParseStatus,
   SyncParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodTupleItems = [ZodType, ...ZodType[]]
-export type AssertArray<T> = T extends any[] ? T : never
-export type OutputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
+
+type _AssertArray<T> = T extends any[] ? T : never
+type _OutputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_output'] : never
 }>
-export type OutputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends ZodType | null = null,
-> = Rest extends ZodType ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
 
-export type InputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
+type _OutputTypeOfTupleWithRest<T extends ZodTupleItems | [], Rest extends ZodType | null = null> = Rest extends ZodType
+  ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]]
+  : _OutputTypeOfTuple<T>
+
+type _InputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_input'] : never
 }>
-export type InputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends ZodType | null = null,
-> = Rest extends ZodType ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
+
+type _InputTypeOfTupleWithRest<T extends ZodTupleItems | [], Rest extends ZodType | null = null> = Rest extends ZodType
+  ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]]
+  : _InputTypeOfTuple<T>
 
 export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodType | null = null> = {
   items: T
@@ -37,11 +38,15 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
   typeName: 'ZodTuple'
 } & ZodTypeDef
 
+/**
+ * @deprecated use ZodTuple instead
+ */
 export type AnyZodTuple = ZodTuple<[ZodType, ...ZodType[]] | [], ZodType | null>
+
 export class ZodTuple<
   T extends [ZodType, ...ZodType[]] | [] = [ZodType, ...ZodType[]],
   Rest extends ZodType | null = null,
-> extends ZodType<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>> {
+> extends ZodType<_OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, _InputTypeOfTupleWithRest<T, Rest>> {
   dereference(defs: Record<string, ZodType>): ZodType {
     const items = this._def.items.map((item) => item.dereference(defs)) as [ZodType, ...ZodType[]]
     const rest = this._def.rest ? this._def.rest.dereference(defs) : null

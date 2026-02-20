@@ -10,7 +10,7 @@ import {
   ZodType,
   ZodTypeDef,
   processCreateParams,
-} from '../index'
+} from '../basetype'
 
 export type ZodBigIntCheck =
   | { kind: 'min'; value: bigint; inclusive: boolean; message?: string }

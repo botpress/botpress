@@ -9,7 +9,7 @@ import {
   INVALID,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodLiteralDef<T extends utils.types.Primitive = utils.types.Primitive> = {
   value: T

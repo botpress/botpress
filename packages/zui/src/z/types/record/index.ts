@@ -1,28 +1,30 @@
 import * as utils from '../../utils'
 import {
-  BRAND,
   ParseInputLazyPath,
   RawCreateParams,
   ZodType,
   ZodTypeDef,
-  ZodString,
   processCreateParams,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
   ParseStatus,
-} from '../index'
+} from '../basetype'
 
-export type ZodRecordDef<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> = {
+// TODO(circle): these may potentially cause circular dependencies errors
+import { BRAND } from '../branded'
+import { ZodString } from '../string'
+
+export type ZodRecordDef<Key extends _KeySchema = ZodString, Value extends ZodType = ZodType> = {
   valueType: Value
   keyType: Key
   typeName: 'ZodRecord'
 } & ZodTypeDef
 
-export type KeySchema = ZodType<string | number | symbol, any, any>
+type _KeySchema = ZodType<string | number | symbol, any, any>
 
-export type RecordType<K extends string | number | symbol, V> = [string] extends [K]
+type _RecordType<K extends string | number | symbol, V> = [string] extends [K]
   ? Record<K, V>
   : [number] extends [K]
     ? Record<K, V>
@@ -32,10 +34,10 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         ? Record<K, V>
         : Partial<Record<K, V>>
 
-export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodType = ZodType> extends ZodType<
-  RecordType<Key['_output'], Value['_output']>,
+export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType = ZodType> extends ZodType<
+  _RecordType<Key['_output'], Value['_output']>,
   ZodRecordDef<Key, Value>,
-  RecordType<Key['_input'], Value['_input']>
+  _RecordType<Key['_input'], Value['_input']>
 > {
   get keySchema() {
     return this._def.keyType
@@ -104,7 +106,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodType 
   }
 
   static create<Value extends ZodType>(valueType: Value, params?: RawCreateParams): ZodRecord<ZodString, Value>
-  static create<Keys extends KeySchema, Value extends ZodType>(
+  static create<Keys extends _KeySchema, Value extends ZodType>(
     keySchema: Keys,
     valueType: Value,
     params?: RawCreateParams

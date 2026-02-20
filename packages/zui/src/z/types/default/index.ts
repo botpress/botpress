@@ -9,7 +9,7 @@ import {
   processCreateParams,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodDefaultDef<T extends ZodType = ZodType> = {
   innerType: T

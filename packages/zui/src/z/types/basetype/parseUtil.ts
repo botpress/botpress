@@ -1,6 +1,22 @@
 import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { type IssueData, type ZodIssue, type ZodErrorMap, defaultErrorMap, getErrorMap } from '../../error'
-import type { ProcessedCreateParams, RawCreateParams } from '../index'
+
+export type RawCreateParams =
+  | {
+      errorMap?: ZodErrorMap
+      invalid_type_error?: string
+      required_error?: string
+      description?: string
+      [zuiKey]?: ZuiExtensionObject
+    }
+  | undefined
+
+export type ProcessedCreateParams = {
+  errorMap?: ZodErrorMap
+  description?: string
+  [zuiKey]?: ZuiExtensionObject
+}
 
 export const makeIssue = (params: {
   data: any
@@ -274,4 +290,29 @@ export function processCreateParams(
     return { message: invalid_type_error ?? ctx.defaultError }
   }
   return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
+}
+
+export class ParseInputLazyPath implements ParseInput {
+  parent: ParseContext
+  data: any
+  _path: ParsePath
+  _key: string | number | (string | number)[]
+  _cachedPath: ParsePath = []
+  constructor(parent: ParseContext, value: any, path: ParsePath, key: string | number | (string | number)[]) {
+    this.parent = parent
+    this.data = value
+    this._path = path
+    this._key = key
+  }
+  get path() {
+    if (!this._cachedPath.length) {
+      if (this._key instanceof Array) {
+        this._cachedPath.push(...this._path, ...this._key)
+      } else {
+        this._cachedPath.push(...this._path, this._key)
+      }
+    }
+
+    return this._cachedPath
+  }
 }

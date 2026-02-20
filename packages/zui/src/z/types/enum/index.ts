@@ -9,14 +9,11 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
-
-export type ArrayKeys = keyof any[]
-export type Indices<T> = Exclude<keyof T, ArrayKeys>
+} from '../basetype'
 
 export type EnumValues = [string, ...string[]]
 
-export type Values<T extends EnumValues> = {
+export type EnumValuesMap<T extends EnumValues> = {
   [k in T[number]]: k
 }
 
@@ -25,32 +22,15 @@ export type ZodEnumDef<T extends EnumValues = EnumValues> = {
   typeName: 'ZodEnum'
 } & ZodTypeDef
 
-export type Writeable<T> = {
-  -readonly [P in keyof T]: T[P]
-}
-
-export type FilterEnum<Values, ToExclude> = Values extends []
+type _FilterEnum<Values, ToExclude> = Values extends []
   ? []
   : Values extends [infer Head, ...infer Rest]
     ? Head extends ToExclude
-      ? FilterEnum<Rest, ToExclude>
-      : [Head, ...FilterEnum<Rest, ToExclude>]
+      ? _FilterEnum<Rest, ToExclude>
+      : [Head, ..._FilterEnum<Rest, ToExclude>]
     : never
 
-export type typecast<A, T> = A extends T ? A : never
-
-export function createZodEnum<U extends string, T extends Readonly<[U, ...U[]]>>(
-  values: T,
-  params?: RawCreateParams
-): ZodEnum<Writeable<T>>
-export function createZodEnum<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
-export function createZodEnum(values: [string, ...string[]], params?: RawCreateParams) {
-  return new ZodEnum({
-    values,
-    typeName: 'ZodEnum',
-    ...processCreateParams(params),
-  })
-}
+type _NeverCast<A, T> = A extends T ? A : never
 
 export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> extends ZodType<
   T[number],
@@ -86,7 +66,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     return this._def.values
   }
 
-  get enum(): Values<T> {
+  get enum(): EnumValuesMap<T> {
     const enumValues: any = {}
     for (const val of this._def.values) {
       enumValues[val] = val
@@ -94,7 +74,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     return enumValues
   }
 
-  get Values(): Values<T> {
+  get Values(): EnumValuesMap<T> {
     const enumValues: any = {}
     for (const val of this._def.values) {
       enumValues[val] = val
@@ -102,7 +82,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
     return enumValues
   }
 
-  get Enum(): Values<T> {
+  get Enum(): EnumValuesMap<T> {
     const enumValues: any = {}
     for (const val of this._def.values) {
       enumValues[val] = val
@@ -113,7 +93,7 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
     newDef: RawCreateParams = this._def
-  ): ZodEnum<Writeable<ToExtract>> {
+  ): ZodEnum<utils.types.Writeable<ToExtract>> {
     return ZodEnum.create(values, {
       ...this._def,
       ...newDef,
@@ -123,14 +103,25 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
     newDef: RawCreateParams = this._def
-  ): ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
-    return ZodEnum.create(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
+  ): ZodEnum<_NeverCast<utils.types.Writeable<_FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
+    return ZodEnum.create(this.options.filter((opt) => !values.includes(opt)) as _FilterEnum<T, ToExclude[number]>, {
       ...this._def,
       ...newDef,
-    }) as ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
+    }) as ZodEnum<_NeverCast<utils.types.Writeable<_FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
   }
 
-  static create = createZodEnum
+  static create<U extends string, T extends Readonly<[U, ...U[]]>>(
+    values: T,
+    params?: RawCreateParams
+  ): ZodEnum<utils.types.Writeable<T>>
+  static create<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
+  static create(values: [string, ...string[]], params?: RawCreateParams) {
+    return new ZodEnum({
+      values,
+      typeName: 'ZodEnum',
+      ...processCreateParams(params),
+    })
+  }
 
   isEqual(schema: ZodType): boolean {
     if (!(schema instanceof ZodEnum)) return false

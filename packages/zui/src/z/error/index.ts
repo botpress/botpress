@@ -139,6 +139,8 @@ export type ZodIssue = ZodIssueOptionalMessage & {
   message: string
 }
 
+export type CustomErrorParams = Partial<utils.types.SafeOmit<ZodCustomIssue, 'code'>>
+
 export const quotelessJson = (obj: any) => {
   const json = JSON.stringify(obj, null, 2)
   return json.replace(/"([^"]+)":/g, '$1:')

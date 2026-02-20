@@ -12,18 +12,21 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ZodUndefined,
-  ZodNever,
-} from '../index'
+} from '../basetype'
 
-type DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodNever } from '../never'
+import { ZodUndefined } from '../undefined'
+
+type _DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
+
 export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
-export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
+export type ZodUnionDef<T extends ZodUnionOptions = _DefaultZodUnionOptions> = {
   options: T
   typeName: 'ZodUnion'
 } & ZodTypeDef
 
-export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodType<
+export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> extends ZodType<
   T[number]['_output'],
   ZodUnionDef<T>,
   T[number]['_input']

@@ -8,7 +8,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodSymbolDef = {
   typeName: 'ZodSymbol'

@@ -10,7 +10,7 @@ import {
   ParseInput,
   ParseReturnType,
   ParseStatus,
-} from '../index'
+} from '../basetype'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }
@@ -19,14 +19,6 @@ export type ZodNumberCheck =
   | { kind: 'multipleOf'; value: number; message?: string }
   | { kind: 'finite'; message?: string }
 // https://stackoverflow.com/questions/3966484/why-does-modulus-operator-return-fractional-number-in-javascript/31711034#31711034
-function floatSafeRemainder(val: number, step: number) {
-  const valDecCount = (val.toString().split('.')[1] || '').length
-  const stepDecCount = (step.toString().split('.')[1] || '').length
-  const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount
-  const valInt = parseInt(val.toFixed(decCount).replace('.', ''))
-  const stepInt = parseInt(step.toFixed(decCount).replace('.', ''))
-  return (valInt % stepInt) / Math.pow(10, decCount)
-}
 
 export type ZodNumberDef = {
   checks: ZodNumberCheck[]
@@ -94,7 +86,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
           status.dirty()
         }
       } else if (check.kind === 'multipleOf') {
-        if (floatSafeRemainder(input.data, check.value) !== 0) {
+        if (this._floatSafeRemainder(input.data, check.value) !== 0) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
             code: 'not_multiple_of',
@@ -288,5 +280,14 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
     const thisChecks = new utils.ds.CustomSet<ZodNumberCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodNumberCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)
+  }
+
+  private _floatSafeRemainder(val: number, step: number) {
+    const valDecCount = (val.toString().split('.')[1] || '').length
+    const stepDecCount = (step.toString().split('.')[1] || '').length
+    const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount
+    const valInt = parseInt(val.toFixed(decCount).replace('.', ''))
+    const stepInt = parseInt(step.toFixed(decCount).replace('.', ''))
+    return (valInt % stepInt) / Math.pow(10, decCount)
   }
 }

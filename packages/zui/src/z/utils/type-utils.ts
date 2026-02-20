@@ -7,6 +7,10 @@ export type SafeOmit<T, K extends keyof T> = Omit<T, K>
 export type Primitive = string | number | bigint | boolean | symbol | null | undefined
 export type Cast<A, B> = A extends B ? A : B
 
+export type Writeable<T> = {
+  -readonly [P in keyof T]: T[P]
+}
+
 type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: Normalize<O[K]> } : never
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>

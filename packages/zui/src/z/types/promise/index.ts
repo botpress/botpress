@@ -8,7 +8,7 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodPromiseDef<T extends ZodType = ZodType> = {
   type: T

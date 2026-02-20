@@ -1,5 +1,5 @@
+import type { CustomErrorParams } from './error'
 import {
-  CustomErrorParams,
   ZodAny,
   ZodArray,
   ZodBigInt,

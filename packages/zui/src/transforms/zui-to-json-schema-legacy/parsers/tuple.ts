@@ -1,6 +1,6 @@
 import { zuiKey } from '../../../ui/constants'
 import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodTupleDef, ZodTupleItems, ZodType, ZodTypeAny } from '../../../z/index'
+import { ZodTupleDef, ZodTupleItems, ZodType, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

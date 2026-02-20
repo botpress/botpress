@@ -14,10 +14,7 @@ import {
   isValid,
   ParseInput,
   ParseReturnType,
-} from '../index'
-
-export type Refinement<T> = (arg: T, ctx: RefinementCtx) => any
-export type SuperRefinement<T> = (arg: T, ctx: RefinementCtx) => void | Promise<void>
+} from '../basetype'
 
 export type RefinementEffect<T> = {
   type: 'refinement'

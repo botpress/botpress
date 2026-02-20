@@ -11,24 +11,25 @@ import type {
   ZuiExtensionObject,
   ZuiMetadata,
 } from '../../../ui/types'
-import { IssueData, ZodCustomIssue, ZodError, ZodErrorMap } from '../../error'
+import { type CustomErrorParams, type IssueData, type ZodErrorMap, ZodError } from '../../error'
 import * as utils from '../../utils'
-import { CatchFn } from '../catch'
 
+// TODO(circle): these may potentially cause circular dependencies errors
 import {
   ZodArray,
   ZodBranded,
   ZodCatch,
+  type CatchFn,
   ZodDefault,
-  ZodEffects,
   ZodIntersection,
   ZodNullable,
   ZodOptional,
   ZodPipeline,
   ZodPromise,
   ZodReadonly,
+  ZodEffects,
+  type RefinementEffect,
   ZodUnion,
-  RefinementEffect,
 } from '../index'
 
 import {
@@ -39,7 +40,6 @@ import {
   ParseContext,
   ParseInput,
   ParseParams,
-  ParsePath,
   ParseReturnType,
   ParseStatus,
   processCreateParams,
@@ -70,14 +70,13 @@ export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
   path: (string | number)[]
 }
-export type ZodRawShape = { [k: string]: ZodType }
+
 export type TypeOf<T extends __ZodType> = T['_output']
 export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
 export type input<T extends __ZodType> = T['_input']
 export type output<T extends __ZodType> = T['_output']
 export type { TypeOf as infer }
-export type Maskable<T = any> = boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
-export type CustomErrorParams = Partial<utils.types.SafeOmit<ZodCustomIssue, 'code'>>
+
 export type ZodTypeDef = {
   typeName: string
   errorMap?: ZodErrorMap
@@ -85,72 +84,12 @@ export type ZodTypeDef = {
   [zuiKey]?: ZuiExtensionObject
 }
 
-export class ParseInputLazyPath implements ParseInput {
-  parent: ParseContext
-  data: any
-  _path: ParsePath
-  _key: string | number | (string | number)[]
-  _cachedPath: ParsePath = []
-  constructor(parent: ParseContext, value: any, path: ParsePath, key: string | number | (string | number)[]) {
-    this.parent = parent
-    this.data = value
-    this._path = path
-    this._key = key
-  }
-  get path() {
-    if (!this._cachedPath.length) {
-      if (this._key instanceof Array) {
-        this._cachedPath.push(...this._path, ...this._key)
-      } else {
-        this._cachedPath.push(...this._path, this._key)
-      }
-    }
-
-    return this._cachedPath
-  }
-}
-const handleResult = <Input, Output>(
-  ctx: ParseContext,
-  result: SyncParseReturnType<Output>
-): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
-  if (isValid(result)) {
-    return { success: true, data: result.value }
-  } else {
-    if (!ctx.common.issues.length) {
-      throw new Error('Validation failed but no issues detected.')
-    }
-
-    return {
-      success: false,
-      get error() {
-        if ((this as any)._error) return (this as any)._error as Error
-        const error = new ZodError(ctx.common.issues)
-        ;(this as any)._error = error
-        return (this as any)._error
-      },
-    }
-  }
-}
-
-export type RawCreateParams =
-  | {
-      errorMap?: ZodErrorMap
-      invalid_type_error?: string
-      required_error?: string
-      description?: string
-      [zuiKey]?: ZuiExtensionObject
-    }
-  | undefined
-export type ProcessedCreateParams = {
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
 export type SafeParseSuccess<Output> = {
   success: true
   data: Output
   error?: never
 }
+
 export type SafeParseError<Input> = {
   success: false
   error: ZodError<Input>
@@ -158,6 +97,13 @@ export type SafeParseError<Input> = {
 }
 
 export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
+
+export { ZodType as Schema, ZodType as ZodSchema }
+
+/**
+ * @deprecated - use ZodType instead
+ */
+export type ZodTypeAny = ZodType<any, any, any>
 
 export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
   implements __ZodType<Output, Input>
@@ -270,7 +216,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     }
     const result = this._parseSync({ data, path: ctx.path, parent: ctx })
 
-    return handleResult(ctx, result)
+    return this._handleResult(ctx, result)
   }
 
   async parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<Output> {
@@ -295,7 +241,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
     const maybeAsyncResult = this._parse({ data, path: ctx.path, parent: ctx })
     const result = await (isAsync(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult))
-    return handleResult(ctx, result)
+    return this._handleResult(ctx, result)
   }
 
   /** Alias of safeParseAsync */
@@ -491,7 +437,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     })
   }
 
-  catch(def: Output | CatchFn<Output>) {
+  catch(def: Output | CatchFn<Output>): ZodCatch<this> {
     const catchValueFunc = typeof def === 'function' ? (def as CatchFn<Output>) : () => def
 
     return new ZodCatch({
@@ -660,5 +606,28 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    */
   naked(): ZodType {
     return this
+  }
+
+  private _handleResult = <Input, Output>(
+    ctx: ParseContext,
+    result: SyncParseReturnType<Output>
+  ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
+    if (isValid(result)) {
+      return { success: true, data: result.value }
+    } else {
+      if (!ctx.common.issues.length) {
+        throw new Error('Validation failed but no issues detected.')
+      }
+
+      return {
+        success: false,
+        get error() {
+          if ((this as any)._error) return (this as any)._error as Error
+          const error = new ZodError(ctx.common.issues)
+          ;(this as any)._error = error
+          return (this as any)._error
+        },
+      }
+    }
   }
 }

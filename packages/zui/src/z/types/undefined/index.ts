@@ -8,8 +8,10 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-  ZodNever,
-} from '../index'
+} from '../basetype'
+
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodNever } from '../never'
 
 export type ZodUndefinedDef = {
   typeName: 'ZodUndefined'

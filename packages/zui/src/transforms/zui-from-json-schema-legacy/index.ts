@@ -20,7 +20,7 @@ import {
   ZodEnumDef,
   ZodDefaultDef,
   z,
-} from '../../z/index'
+} from '../../z'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
 import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'

@@ -1,11 +1,4 @@
-/**
- * DO NOT CHANGE IMPORT ORDER
- * Internal pattern to get rid of circular dependencies
- * @see https://medium.com/p/a04c987cf0de
- */
-
 export * from './basetype'
-export * from './native'
 export * from './any'
 export * from './array'
 export * from './bigint'
@@ -17,7 +10,6 @@ export * from './default'
 export * from './discriminatedUnion'
 export * from './enum'
 export * from './function'
-export * from './index'
 export * from './intersection'
 export * from './lazy'
 export * from './literal'
@@ -44,3 +36,4 @@ export * from './undefined'
 export * from './union'
 export * from './unknown'
 export * from './void'
+export * from './native'

@@ -12,59 +12,13 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../index'
+} from '../basetype'
 
 export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
   left: T
   right: U
   typeName: 'ZodIntersection'
 } & ZodTypeDef
-
-function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
-  const aType = getParsedType(a)
-  const bType = getParsedType(b)
-
-  if (a === b) {
-    return { valid: true, data: a }
-  } else if (aType === 'object' && bType === 'object') {
-    const bKeys = Object.keys(b)
-    const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1)
-
-    const newObj: any = { ...a, ...b }
-    for (const key of sharedKeys) {
-      const sharedValue = mergeValues(a[key], b[key])
-      if (!sharedValue.valid) {
-        return { valid: false }
-      }
-      newObj[key] = sharedValue.data
-    }
-
-    return { valid: true, data: newObj }
-  } else if (aType === 'array' && bType === 'array') {
-    if (a.length !== b.length) {
-      return { valid: false }
-    }
-
-    const newArray: unknown[] = []
-    for (let index = 0; index < a.length; index++) {
-      const itemA = a[index]
-      const itemB = b[index]
-      const sharedValue = mergeValues(itemA, itemB)
-
-      if (!sharedValue.valid) {
-        return { valid: false }
-      }
-
-      newArray.push(sharedValue.data)
-    }
-
-    return { valid: true, data: newArray }
-  } else if (aType === 'date' && bType === 'date' && +a === +b) {
-    return { valid: true, data: a }
-  } else {
-    return { valid: false }
-  }
-}
 
 export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = ZodType> extends ZodType<
   T['_output'] & U['_output'],
@@ -101,7 +55,7 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
         return INVALID
       }
 
-      const merged = mergeValues(parsedLeft.value, parsedRight.value)
+      const merged = this._mergeValues(parsedLeft.value, parsedRight.value)
 
       if (!merged.valid) {
         addIssueToContext(ctx, {
@@ -166,5 +120,51 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
     const thisItems = new utils.ds.CustomSet<ZodType>([this._def.left, this._def.right], { compare })
     const thatItems = new utils.ds.CustomSet<ZodType>([schema._def.left, schema._def.right], { compare })
     return thisItems.isEqual(thatItems)
+  }
+
+  private _mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
+    const aType = getParsedType(a)
+    const bType = getParsedType(b)
+
+    if (a === b) {
+      return { valid: true, data: a }
+    } else if (aType === 'object' && bType === 'object') {
+      const bKeys = Object.keys(b)
+      const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1)
+
+      const newObj: any = { ...a, ...b }
+      for (const key of sharedKeys) {
+        const sharedValue = this._mergeValues(a[key], b[key])
+        if (!sharedValue.valid) {
+          return { valid: false }
+        }
+        newObj[key] = sharedValue.data
+      }
+
+      return { valid: true, data: newObj }
+    } else if (aType === 'array' && bType === 'array') {
+      if (a.length !== b.length) {
+        return { valid: false }
+      }
+
+      const newArray: unknown[] = []
+      for (let index = 0; index < a.length; index++) {
+        const itemA = a[index]
+        const itemB = b[index]
+        const sharedValue = this._mergeValues(itemA, itemB)
+
+        if (!sharedValue.valid) {
+          return { valid: false }
+        }
+
+        newArray.push(sharedValue.data)
+      }
+
+      return { valid: true, data: newArray }
+    } else if (aType === 'date' && bType === 'date' && +a === +b) {
+      return { valid: true, data: a }
+    } else {
+      return { valid: false }
+    }
   }
 }

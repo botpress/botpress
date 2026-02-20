@@ -1,13 +1,4 @@
-// Adapted from https://stackoverflow.com/a/3143231
-
-const DATETIME_REGEX_BASE = '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}'
-const DATETIME_REGEX_OFFSET = '(([+-]\\d{2}(:?\\d{2})?)|Z)'
-const DATETIME_REGEX_OFFSET_NONE = 'Z'
-const DATETIME_REGEX_PRECISION_ARBITRARY = '(\\.\\d+)?'
-const DATETIME_REGEX_PRECISION_SPECIFIC_BEGIN = '\\.\\d{'
-const DATETIME_REGEX_PRECISION_SPECIFIC_END = '}'
-
-type DateTimeArgs = { precision: number | null; offset: boolean }
+export type DateTimeArgs = { precision: number | null; offset: boolean }
 
 export const generateDatetimeRegex = (args: DateTimeArgs) => {
   const precision = args.precision
@@ -25,6 +16,15 @@ export const extractPrecisionAndOffset = (regexSource: string): DateTimeArgs => 
   precision: _extractPrecision(regexSource),
   offset: regexSource.endsWith(`${DATETIME_REGEX_OFFSET}$`),
 })
+
+// Adapted from https://stackoverflow.com/a/3143231
+
+const DATETIME_REGEX_BASE = '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}'
+const DATETIME_REGEX_OFFSET = '(([+-]\\d{2}(:?\\d{2})?)|Z)'
+const DATETIME_REGEX_OFFSET_NONE = 'Z'
+const DATETIME_REGEX_PRECISION_ARBITRARY = '(\\.\\d+)?'
+const DATETIME_REGEX_PRECISION_SPECIFIC_BEGIN = '\\.\\d{'
+const DATETIME_REGEX_PRECISION_SPECIFIC_END = '}'
 
 const _extractPrecision = (regexSource: string): DateTimeArgs['precision'] => {
   const slicedRegex = regexSource.slice(1 + DATETIME_REGEX_BASE.length)

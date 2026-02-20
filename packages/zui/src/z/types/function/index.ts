@@ -4,10 +4,6 @@ import {
   RawCreateParams,
   ZodType,
   ZodTypeDef,
-  ZodPromise,
-  AnyZodTuple,
-  ZodTuple,
-  ZodUnknown,
   processCreateParams,
   addIssueToContext,
   INVALID,
@@ -15,7 +11,12 @@ import {
   OK,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
+
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodPromise } from '../promise'
+import { ZodTuple, type AnyZodTuple } from '../tuple'
+import { ZodUnknown } from '../unknown'
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
   args: Args
@@ -23,16 +24,16 @@ export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns e
   typeName: 'ZodFunction'
 } & ZodTypeDef
 
-export type OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
+type _OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
   Args['_input'] extends Array<any> ? (...args: Args['_input']) => Returns['_output'] : never
 
-export type InnerTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
+type _InnerTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
   Args['_output'] extends Array<any> ? (...args: Args['_output']) => Returns['_input'] : never
 
 export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> extends ZodType<
-  OuterTypeOfFunction<Args, Returns>,
+  _OuterTypeOfFunction<Args, Returns>,
   ZodFunctionDef<Args, Returns>,
-  InnerTypeOfFunction<Args, Returns>
+  _InnerTypeOfFunction<Args, Returns>
 > {
   dereference(defs: Record<string, ZodType>): ZodType {
     const args = this._def.args.dereference(defs) as ZodTuple<[], ZodUnknown>
@@ -163,16 +164,16 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
     })
   }
 
-  implement<F extends InnerTypeOfFunction<Args, Returns>>(
+  implement<F extends _InnerTypeOfFunction<Args, Returns>>(
     func: F
   ): ReturnType<F> extends Returns['_output']
     ? (...args: Args['_input']) => ReturnType<F>
-    : OuterTypeOfFunction<Args, Returns> {
+    : _OuterTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
     return validatedFunc
   }
 
-  strictImplement(func: InnerTypeOfFunction<Args, Returns>): InnerTypeOfFunction<Args, Returns> {
+  strictImplement(func: _InnerTypeOfFunction<Args, Returns>): _InnerTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
     return validatedFunc
   }

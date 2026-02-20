@@ -1,32 +1,32 @@
 import * as utils from '../../utils'
 import {
-  ZodBranded,
-  ZodCatch,
-  ZodDefault,
-  ZodEnum,
   input,
   output,
   RawCreateParams,
-  ZodRawShape,
   ZodType,
   ZodTypeDef,
-  ZodLazy,
-  ZodLiteral,
-  ZodNativeEnum,
-  ZodNull,
-  ZodNullable,
-  UnknownKeysParam,
-  ZodObject,
-  ZodOptional,
-  ZodReadonly,
-  ZodEffects,
-  ZodUndefined,
   processCreateParams,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
+
+// TODO(circle): these may potentially cause circular dependencies errors
+import { ZodBranded } from '../branded'
+import { ZodCatch } from '../catch'
+import { ZodDefault } from '../default'
+import { ZodEnum } from '../enum'
+import { ZodLazy } from '../lazy'
+import { ZodLiteral } from '../literal'
+import { ZodNativeEnum } from '../nativeEnum'
+import { ZodNull } from '../null'
+import { ZodNullable } from '../nullable'
+import { ZodObject, type ZodRawShape, type UnknownKeysParam } from '../object'
+import { ZodOptional } from '../optional'
+import { ZodReadonly } from '../readonly'
+import { ZodEffects } from '../transformer'
+import { ZodUndefined } from '../undefined'
 
 const getDiscriminator = <T extends ZodType>(type: T): utils.types.Primitive[] => {
   if (type instanceof ZodLazy) {

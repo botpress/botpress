@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { z } from '../../z/index'
+import { z } from '../../z'
 import { Options } from './Options'
 import { zodToJsonSchema } from './zodToJsonSchema'
 

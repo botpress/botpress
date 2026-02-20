@@ -1,5 +1,5 @@
 import { zuiKey } from '../../ui/constants'
-import { ZodFirstPartyTypeKind, ZodDef } from '../../z/index'
+import { ZodFirstPartyTypeKind, ZodDef } from '../../z'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
 import { JsonSchema7BigintType, parseBigintDef } from './parsers/bigint'

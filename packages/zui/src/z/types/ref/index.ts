@@ -6,16 +6,14 @@ import {
   ParseInput,
   ParseReturnType,
   addIssueToContext,
-} from '../index'
+} from '../basetype'
 
 export type ZodRefDef = {
   typeName: 'ZodRef'
   uri: string
 } & ZodTypeDef
 
-type ZodRefOutput = NonNullable<unknown>
-
-export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
+export class ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {
   dereference(defs: Record<string, ZodType>): ZodType {
     const def = defs[this._def.uri]
     if (!def) {

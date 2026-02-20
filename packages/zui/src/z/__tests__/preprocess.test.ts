@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import * as utils from '../../z/utils'
 import z from '../index'
+import { NEVER } from '../types/basetype'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())
@@ -126,7 +127,7 @@ test('z.NEVER in preprocess', () => {
   const foo = z.preprocess((val, ctx) => {
     if (!val) {
       ctx.addIssue({ code: 'custom', message: 'bad' })
-      return z.NEVER
+      return NEVER
     }
     return val
   }, z.number())

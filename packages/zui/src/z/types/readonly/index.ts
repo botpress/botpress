@@ -6,9 +6,9 @@ import {
   isValid,
   ParseInput,
   ParseReturnType,
-} from '../index'
+} from '../basetype'
 
-type BuiltIn =
+type _BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))
   | { readonly [Symbol.toStringTag]: string }
   | Date
@@ -17,7 +17,7 @@ type BuiltIn =
   | Promise<unknown>
   | RegExp
 
-type MakeReadonly<T> =
+type _MakeReadonly<T> =
   T extends Map<infer K, infer V>
     ? ReadonlyMap<K, V>
     : T extends Set<infer V>
@@ -26,7 +26,7 @@ type MakeReadonly<T> =
         ? readonly [Head, ...Tail]
         : T extends Array<infer V>
           ? ReadonlyArray<V>
-          : T extends BuiltIn
+          : T extends _BuiltIn
             ? T
             : Readonly<T>
 
@@ -36,9 +36,9 @@ export type ZodReadonlyDef<T extends ZodType = ZodType> = {
 } & ZodTypeDef
 
 export class ZodReadonly<T extends ZodType = ZodType> extends ZodType<
-  MakeReadonly<T['_output']>,
+  _MakeReadonly<T['_output']>,
   ZodReadonlyDef<T>,
-  MakeReadonly<T['_input']>
+  _MakeReadonly<T['_input']>
 > {
   dereference(defs: Record<string, ZodType>): ZodType {
     return new ZodReadonly({
