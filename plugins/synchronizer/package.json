@@ -9,7 +9,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
