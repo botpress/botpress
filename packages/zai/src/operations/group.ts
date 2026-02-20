@@ -819,65 +819,69 @@ ${END}`.trim()
       )
 
       // Apply assignments
-      for (const assignments of orphanResults) {
-        for (const { elementIndex, label } of assignments) {
-          const normalized = normalizeLabel(label)
-          let groupId = labelToGroupId.get(normalized)
+      const flatAssignments = orphanResults.flat()
+      for (const { elementIndex, label } of flatAssignments) {
+        const normalized = normalizeLabel(label)
+        let groupId = labelToGroupId.get(normalized)
 
-          if (!groupId) {
-            groupId = `group_${groupIdCounter++}`
-            groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
-            groupElements.set(groupId, new Set())
-            labelToGroupId.set(normalized, groupId)
-          }
-          groupElements.get(groupId)!.add(elementIndex)
+        if (!groupId) {
+          groupId = `group_${groupIdCounter++}`
+          groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
+          groupElements.set(groupId, new Set())
+          labelToGroupId.set(normalized, groupId)
         }
+        groupElements.get(groupId)!.add(elementIndex)
       }
 
       // Safety: any orphans the LLM missed get placed into the largest group
-      const unassigned = orphanIndices.filter((idx) => {
+      const isAssigned = (idx: number) => {
         for (const [, elemSet] of groupElements) {
-          if (elemSet.has(idx)) return false
+          if (elemSet.has(idx)) return true
         }
-        return true
-      })
+        return false
+      }
+      const unassigned = orphanIndices.filter((idx) => !isAssigned(idx))
+      const placeIntoLargest = (indices: number[]) => {
+        const allNonEmpty = getNonEmptyGroupIds()
+        if (allNonEmpty.length === 0) return
+        const largestGid = allNonEmpty.reduce((a, b) =>
+          groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
+        )
+        for (const idx of indices) {
+          groupElements.get(largestGid)!.add(idx)
+        }
+      }
 
       if (unassigned.length > 0) {
-        const allNonEmpty = getNonEmptyGroupIds()
-        if (allNonEmpty.length > 0) {
-          const largestGid = allNonEmpty.reduce((a, b) =>
-            groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
-          )
-          for (const idx of unassigned) {
-            groupElements.get(largestGid)!.add(idx)
-          }
-        }
+        placeIntoLargest(unassigned)
       }
 
       // Second pass: if any groups are still undersized after redistribution,
       // merge their elements into the largest group
-      let stillUndersized = true
-      while (stillUndersized) {
-        stillUndersized = false
+      const mergeUndersizedGroups = () => {
         const allNonEmpty = getNonEmptyGroupIds()
-        if (allNonEmpty.length <= 1) break
+        if (allNonEmpty.length <= 1) return false
 
         const largestGid = allNonEmpty.reduce((a, b) =>
           groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
         )
+        const targetSet = groupElements.get(largestGid)!
+        let merged = false
 
         for (const gid of allNonEmpty) {
           if (gid === largestGid) continue
           const elemSet = groupElements.get(gid)!
           if (elemSet.size > 0 && elemSet.size < options.minElements) {
-            const targetSet = groupElements.get(largestGid)!
-            for (const idx of elemSet) {
-              targetSet.add(idx)
-            }
+            elemSet.forEach((idx) => targetSet.add(idx))
             elemSet.clear()
-            stillUndersized = true
+            merged = true
           }
         }
+        return merged
+      }
+
+      while (mergeUndersizedGroups()) {
+        // keep merging until no undersized groups remain
       }
     }
   }
