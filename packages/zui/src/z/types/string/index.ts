@@ -13,7 +13,6 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../basetype'
-import { generateDatetimeRegex } from './datetime'
 
 export type IpVersion = 'v4' | 'v6'
 export type ZodStringCheck =
@@ -279,7 +278,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           status.dirty()
         }
       } else if (check.kind === 'datetime') {
-        const regex = generateDatetimeRegex(check)
+        const regex = utils.strings.generateDatetimeRegex(check)
 
         if (!regex.test(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)

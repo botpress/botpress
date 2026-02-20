@@ -291,3 +291,28 @@ export function processCreateParams(
   }
   return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
 }
+
+export class ParseInputLazyPath implements ParseInput {
+  parent: ParseContext
+  data: any
+  _path: ParsePath
+  _key: string | number | (string | number)[]
+  _cachedPath: ParsePath = []
+  constructor(parent: ParseContext, value: any, path: ParsePath, key: string | number | (string | number)[]) {
+    this.parent = parent
+    this.data = value
+    this._path = path
+    this._key = key
+  }
+  get path() {
+    if (!this._cachedPath.length) {
+      if (this._key instanceof Array) {
+        this._cachedPath.push(...this._path, ...this._key)
+      } else {
+        this._cachedPath.push(...this._path, this._key)
+      }
+    }
+
+    return this._cachedPath
+  }
+}

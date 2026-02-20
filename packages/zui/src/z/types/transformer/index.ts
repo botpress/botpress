@@ -16,9 +16,6 @@ import {
   ParseReturnType,
 } from '../basetype'
 
-export type Refinement<T> = (arg: T, ctx: RefinementCtx) => any
-export type SuperRefinement<T> = (arg: T, ctx: RefinementCtx) => void | Promise<void>
-
 export type RefinementEffect<T> = {
   type: 'refinement'
   refinement: (arg: T, ctx: RefinementCtx) => any

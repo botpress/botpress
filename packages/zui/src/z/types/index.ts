@@ -7,7 +7,6 @@ export {
   type SafeParseReturnType,
   type SafeParseError,
   type SafeParseSuccess,
-  type ZodRawShape,
   type TypeOf,
   type infer,
   type input,
@@ -29,7 +28,7 @@ export { ZodArray, type ZodArrayDef } from './array'
 export { ZodBigInt, type ZodBigIntDef } from './bigint'
 export { ZodBoolean, type ZodBooleanDef } from './boolean'
 export { ZodBranded, type ZodBrandedDef, BRAND } from './branded'
-export { ZodCatch, type ZodCatchDef } from './catch'
+export { ZodCatch, type ZodCatchDef, type CatchFn } from './catch'
 export { ZodDate, type ZodDateDef } from './date'
 export { ZodDefault, type ZodDefaultDef } from './default'
 export { ZodDiscriminatedUnion, type ZodDiscriminatedUnionDef } from './discriminatedUnion'
@@ -45,7 +44,14 @@ export { ZodNever, type ZodNeverDef } from './never'
 export { ZodNull, type ZodNullDef } from './null'
 export { ZodNullable, type ZodNullableDef } from './nullable'
 export { ZodNumber, type ZodNumberDef } from './number'
-export { ZodObject, type ZodObjectDef, type UnknownKeysParam, type SomeZodObject, type AnyZodObject } from './object'
+export {
+  ZodObject,
+  type ZodObjectDef,
+  type UnknownKeysParam,
+  type SomeZodObject,
+  type AnyZodObject,
+  type ZodRawShape,
+} from './object'
 export { ZodOptional, type ZodOptionalDef } from './optional'
 export { ZodPipeline, type ZodPipelineDef } from './pipeline'
 export { ZodPromise, type ZodPromiseDef } from './promise'

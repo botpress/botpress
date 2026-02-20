@@ -9,7 +9,6 @@ import {
   ParseStatus,
   ParseInputLazyPath,
   RawCreateParams,
-  ZodRawShape,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -22,6 +21,8 @@ import { ZodNullable } from '../nullable'
 import { ZodOptional } from '../optional'
 import { ZodTuple, type ZodTupleItems } from '../tuple'
 
+export type ZodRawShape = { [k: string]: ZodType }
+
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | ZodType
 
 export type ZodObjectDef<
@@ -33,41 +34,38 @@ export type ZodObjectDef<
   unknownKeys: UnknownKeys
 } & ZodTypeDef
 
-export type mergeTypes<A, B> = {
-  [k in keyof A | keyof B]: k extends keyof B ? B[k] : k extends keyof A ? A[k] : never
-}
-
-export type objectOutputType<
+type _ObjectOutputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & utils.types.Flatten<utils.types.AddQuestionMarks<baseObjectOutputType<Shape>>>
+> = _UnknownKeysOutputType<UnknownKeys> &
+  utils.types.Flatten<utils.types.AddQuestionMarks<_BaseObjectOutputType<Shape>>>
 
-export type baseObjectOutputType<Shape extends ZodRawShape> = {
+type _BaseObjectOutputType<Shape extends ZodRawShape> = {
   [k in keyof Shape]: Shape[k]['_output']
 }
 
-export type objectInputType<
+type _ObjectInputType<
   Shape extends ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = utils.types.Flatten<baseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+> = utils.types.Flatten<_BaseObjectInputType<Shape>> & _UnknownKeysInputType<UnknownKeys>
 
-export type baseObjectInputType<Shape extends ZodRawShape> = utils.types.AddQuestionMarks<{
+type _BaseObjectInputType<Shape extends ZodRawShape> = utils.types.AddQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
-export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodType
+type _UnknownKeysInputType<T extends UnknownKeysParam> = T extends ZodType
   ? { [k: string]: T['_input'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodType
+type _UnknownKeysOutputType<T extends UnknownKeysParam> = T extends ZodType
   ? { [k: string]: T['_output'] | unknown } // extra properties cannot contradict the main properties
   : T extends 'passthrough'
     ? { [k: string]: unknown }
     : {}
 
-export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
+type _AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
   ? T
   : T extends 'passthrough'
     ? ZodAny
@@ -75,8 +73,8 @@ export type AdditionalProperties<T extends UnknownKeysParam> = T extends ZodType
       ? ZodNever
       : undefined
 
-export type deoptional<T extends ZodType> =
-  T extends ZodOptional<infer U> ? deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<deoptional<U>> : T
+type _Deoptional<T extends ZodType> =
+  T extends ZodOptional<infer U> ? _Deoptional<U> : T extends ZodNullable<infer U> ? ZodNullable<_Deoptional<U>> : T
 
 /**
  * @deprecated use ZodObject instead
@@ -88,26 +86,19 @@ export type SomeZodObject = ZodObject<ZodRawShape, UnknownKeysParam>
  */
 export type AnyZodObject = ZodObject<any, any>
 
-export type noUnrecognized<Obj extends object, Shape extends object> = {
-  [k in keyof Obj]: k extends keyof Shape ? Obj[k] : never
-}
+type _KeyOfObject<T extends ZodRawShape> = utils.types.Cast<utils.types.UnionToTuple<keyof T>, [string, ...string[]]>
 
-export type KeyOfObject<T extends ZodRawShape> = utils.types.Cast<
-  utils.types.UnionToTuple<keyof T>,
-  [string, ...string[]]
->
-
-export type DeepPartial<T extends ZodType> = T extends ZodObject
-  ? ZodObject<{ [k in keyof T['shape']]: ZodOptional<DeepPartial<T['shape'][k]>> }, T['_def']['unknownKeys']>
+type _DeepPartial<T extends ZodType> = T extends ZodObject
+  ? ZodObject<{ [k in keyof T['shape']]: ZodOptional<_DeepPartial<T['shape'][k]>> }, T['_def']['unknownKeys']>
   : T extends ZodArray<infer Type, infer Card>
-    ? ZodArray<DeepPartial<Type>, Card>
+    ? ZodArray<_DeepPartial<Type>, Card>
     : T extends ZodOptional<infer Type>
-      ? ZodOptional<DeepPartial<Type>>
+      ? ZodOptional<_DeepPartial<Type>>
       : T extends ZodNullable<infer Type>
-        ? ZodNullable<DeepPartial<Type>>
+        ? ZodNullable<_DeepPartial<Type>>
         : T extends ZodTuple<infer Items>
           ? {
-              [k in keyof Items]: Items[k] extends ZodType ? DeepPartial<Items[k]> : never
+              [k in keyof Items]: Items[k] extends ZodType ? _DeepPartial<Items[k]> : never
             } extends infer PI
             ? PI extends ZodTupleItems
               ? ZodTuple<PI>
@@ -115,39 +106,11 @@ export type DeepPartial<T extends ZodType> = T extends ZodObject
             : never
           : T
 
-function deepPartialify(schema: ZodType): any {
-  if (schema instanceof ZodObject) {
-    const newShape: any = {}
-
-    for (const key in schema.shape) {
-      const fieldSchema = schema.shape[key]
-      newShape[key] = ZodOptional.create(deepPartialify(fieldSchema))
-    }
-    return new ZodObject({
-      ...schema._def,
-      shape: () => newShape,
-    })
-  } else if (schema instanceof ZodArray) {
-    return new ZodArray({
-      ...schema._def,
-      type: deepPartialify(schema.element),
-    })
-  } else if (schema instanceof ZodOptional) {
-    return ZodOptional.create(deepPartialify(schema.unwrap()))
-  } else if (schema instanceof ZodNullable) {
-    return ZodNullable.create(deepPartialify(schema.unwrap()))
-  } else if (schema instanceof ZodTuple) {
-    return ZodTuple.create(schema.items.map((item: any) => deepPartialify(item)))
-  } else {
-    return schema
-  }
-}
-
 export class ZodObject<
   T extends ZodRawShape = ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-  Output = objectOutputType<T, UnknownKeys>,
-  Input = objectInputType<T, UnknownKeys>,
+  Output = _ObjectOutputType<T, UnknownKeys>,
+  Input = _ObjectInputType<T, UnknownKeys>,
 > extends ZodType<Output, ZodObjectDef<T, UnknownKeys>, Input> {
   private _cached: { shape: T; keys: string[] } | null = null
 
@@ -328,17 +291,17 @@ export class ZodObject<
   /**
    * @returns The ZodType that is used to validate additional properties or undefined if extra keys are stripped.
    */
-  additionalProperties(): AdditionalProperties<UnknownKeys> {
+  additionalProperties(): _AdditionalProperties<UnknownKeys> {
     if (this._def.unknownKeys instanceof ZodType) {
-      return this._def.unknownKeys as AdditionalProperties<UnknownKeys>
+      return this._def.unknownKeys as _AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'passthrough') {
-      return ZodAny.create() as AdditionalProperties<UnknownKeys>
+      return ZodAny.create() as _AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'strict') {
-      return ZodNever.create() as AdditionalProperties<UnknownKeys>
+      return ZodNever.create() as _AdditionalProperties<UnknownKeys>
     }
-    return undefined as AdditionalProperties<UnknownKeys>
+    return undefined as _AdditionalProperties<UnknownKeys>
   }
 
   /**
@@ -551,8 +514,8 @@ export class ZodObject<
   /**
    * @deprecated
    */
-  deepPartial(): DeepPartial<this> {
-    return deepPartialify(this)
+  deepPartial(): _DeepPartial<this> {
+    return this._deepPartialify(this)
   }
 
   partial(): ZodObject<
@@ -594,7 +557,7 @@ export class ZodObject<
 
   required(): ZodObject<
     {
-      [k in keyof T]: deoptional<T[k]>
+      [k in keyof T]: _Deoptional<T[k]>
     },
     UnknownKeys
   >
@@ -606,7 +569,7 @@ export class ZodObject<
     mask: Mask
   ): ZodObject<
     utils.types.NoNever<{
-      [k in keyof T]: k extends keyof Mask ? deoptional<T[k]> : T[k]
+      [k in keyof T]: k extends keyof Mask ? _Deoptional<T[k]> : T[k]
     }>,
     UnknownKeys
   >
@@ -634,7 +597,7 @@ export class ZodObject<
     })
   }
 
-  keyof(): ZodEnum<KeyOfObject<T>> {
+  keyof(): ZodEnum<_KeyOfObject<T>> {
     return ZodEnum.create(Object.keys(this.shape) as [string, ...string[]]) as any
   }
 
@@ -687,5 +650,33 @@ export class ZodObject<
       typeName: 'ZodObject',
       ...processCreateParams(params),
     })
+  }
+
+  private _deepPartialify(schema: ZodType): any {
+    if (schema instanceof ZodObject) {
+      const newShape: any = {}
+
+      for (const key in schema.shape) {
+        const fieldSchema = schema.shape[key]
+        newShape[key] = ZodOptional.create(this._deepPartialify(fieldSchema))
+      }
+      return new ZodObject({
+        ...schema._def,
+        shape: () => newShape,
+      })
+    } else if (schema instanceof ZodArray) {
+      return new ZodArray({
+        ...schema._def,
+        type: this._deepPartialify(schema.element),
+      })
+    } else if (schema instanceof ZodOptional) {
+      return ZodOptional.create(this._deepPartialify(schema.unwrap()))
+    } else if (schema instanceof ZodNullable) {
+      return ZodNullable.create(this._deepPartialify(schema.unwrap()))
+    } else if (schema instanceof ZodTuple) {
+      return ZodTuple.create(schema.items.map((item: any) => this._deepPartialify(item)))
+    } else {
+      return schema
+    }
   }
 }

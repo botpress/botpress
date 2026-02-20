@@ -13,9 +13,7 @@ export type ZodRefDef = {
   uri: string
 } & ZodTypeDef
 
-type ZodRefOutput = NonNullable<unknown>
-
-export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
+export class ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {
   dereference(defs: Record<string, ZodType>): ZodType {
     const def = defs[this._def.uri]
     if (!def) {

@@ -3,7 +3,6 @@ import {
   input,
   output,
   RawCreateParams,
-  ZodRawShape,
   ZodType,
   ZodTypeDef,
   processCreateParams,
@@ -23,7 +22,7 @@ import { ZodLiteral } from '../literal'
 import { ZodNativeEnum } from '../nativeEnum'
 import { ZodNull } from '../null'
 import { ZodNullable } from '../nullable'
-import { ZodObject, type UnknownKeysParam } from '../object'
+import { ZodObject, type ZodRawShape, type UnknownKeysParam } from '../object'
 import { ZodOptional } from '../optional'
 import { ZodReadonly } from '../readonly'
 import { ZodEffects } from '../transformer'

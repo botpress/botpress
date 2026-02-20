@@ -21,14 +21,15 @@ export type ZodArrayDef<T extends ZodType = ZodType> = {
   maxLength: { value: number; message?: string } | null
 } & ZodTypeDef
 
-export type ArrayCardinality = 'many' | 'atleastone'
-export type arrayOutputType<
+type _ArrayCardinality = 'many' | 'atleastone'
+
+type _ArrayOutputType<
   T extends ZodType,
-  Cardinality extends ArrayCardinality = 'many',
+  Cardinality extends _ArrayCardinality = 'many',
 > = Cardinality extends 'atleastone' ? [T['_output'], ...T['_output'][]] : T['_output'][]
 
-export class ZodArray<T extends ZodType = ZodType, Cardinality extends ArrayCardinality = 'many'> extends ZodType<
-  arrayOutputType<T, Cardinality>,
+export class ZodArray<T extends ZodType = ZodType, Cardinality extends _ArrayCardinality = 'many'> extends ZodType<
+  _ArrayOutputType<T, Cardinality>,
   ZodArrayDef<T>,
   Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]
 > {
