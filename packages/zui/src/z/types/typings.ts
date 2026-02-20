@@ -1,5 +1,15 @@
 import { JSONSchema7 } from 'json-schema'
-import { Cast, UnionToTuple, NoNever, Flatten, NoUndefined, Primitive, SafeOmit, Writeable } from '../utils/type-utils'
+import {
+  Cast,
+  UnionToTuple,
+  NoNever,
+  Flatten,
+  NoUndefined,
+  Primitive,
+  SafeOmit,
+  Writeable,
+  ValueOf,
+} from '../utils/type-utils'
 
 /**
  * ### UI & Metadata
@@ -28,77 +38,39 @@ export type ZuiExtensionObject = {
   [key: string]: ZuiMetadata
 }
 
-type BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array' | 'discriminatedUnion'
+type _BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array' | 'discriminatedUnion'
 export type UIComponentDefinitions = {
-  [T in BaseType]: {
+  [T in _BaseType]: {
     [K: string]: {
       id: string
       params: ZodObject<any>
     }
   }
 }
-type ZodKindToBaseType<T extends ZodTypeDef> = T extends infer U
-  ? U extends {
-      typeName: 'ZodString'
-    }
-    ? 'string'
-    : U extends {
-          typeName: 'ZodNumber'
-        }
-      ? 'number'
-      : U extends {
-            typeName: 'ZodBoolean'
-          }
-        ? 'boolean'
-        : U extends {
-              typeName: 'ZodArray'
-            }
-          ? 'array'
-          : U extends {
-                typeName: 'ZodObject'
-              }
-            ? 'object'
-            : U extends {
-                  typeName: 'ZodTuple'
-                }
-              ? never
-              : U extends {
-                    typeName: 'ZodEnum'
-                  }
-                ? 'string'
-                : U extends {
-                      typeName: 'ZodDefault'
-                      innerType: ZodType
-                    }
-                  ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends {
-                        typeName: 'ZodOptional'
-                        innerType: ZodType
-                      }
-                    ? ZodKindToBaseType<U['innerType']['_def']>
-                    : U extends {
-                          typeName: 'ZodNullable'
-                          innerType: ZodType
-                        }
-                      ? ZodKindToBaseType<U['innerType']['_def']>
-                      : U extends {
-                            typeName: 'ZodDiscriminatedUnion'
-                          }
-                        ? 'discriminatedUnion'
-                        : never
-  : never
 
-export type DisplayAsOptions<I> = I extends infer U
-  ? U extends {
-      id: string
-      params: ZodObject
-    }
-    ? {
-        id: U['id']
-        params: TypeOf<U['params']>
-      }
-    : object
-  : never
+type _ZodKindToBaseType<U extends ZodTypeDef> = U extends ZodStringDef
+  ? 'string'
+  : U extends ZodNumberDef
+    ? 'number'
+    : U extends ZodBooleanDef
+      ? 'boolean'
+      : U extends ZodArrayDef
+        ? 'array'
+        : U extends ZodObjectDef
+          ? 'object'
+          : U extends ZodTupleDef
+            ? never
+            : U extends ZodEnumDef
+              ? 'string'
+              : U extends ZodDefaultDef
+                ? _ZodKindToBaseType<U['innerType']['_def']>
+                : U extends ZodOptionalDef
+                  ? _ZodKindToBaseType<U['innerType']['_def']>
+                  : U extends ZodNullableDef
+                    ? _ZodKindToBaseType<U['innerType']['_def']>
+                    : U extends ZodDiscriminatedUnionDef
+                      ? 'discriminatedUnion'
+                      : never
 
 /**
  * ### Errors & Issues
@@ -536,9 +508,9 @@ export interface ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inpu
    */
   displayAs<
     UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseType = ZodKindToBaseType<this['_def']>,
+    Type extends _BaseType = _ZodKindToBaseType<this['_def']>,
   >(
-    options: DisplayAsOptions<UI[Type][keyof UI[Type]]>
+    options: ValueOf<UI[Type]>
   ): this
   /**
    * The title of the field. Defaults to the field name.
@@ -548,16 +520,12 @@ export interface ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inpu
    * Whether the field is hidden in the UI. Useful for internal fields.
    * @default false
    */
-  hidden<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
-  ): this
+  hidden<T = this['_output']>(value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)): this
   /**
    * Whether the field is disabled
    * @default false
    */
-  disabled<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
-  ): this
+  disabled<T = this['_output']>(value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)): this
   /**
    * Placeholder text for the field
    */
