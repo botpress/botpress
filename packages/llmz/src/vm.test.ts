@@ -988,6 +988,66 @@ return {
       expect(result.return_value).toBe(105)
     })
 
+    it('does not leak QuickJS handles on multiple sequential async calls', async () => {
+      // This test reproduces the QuickJS GC assertion failure:
+      //   Assertion failed: list_empty(&rt->gc_obj_list), at quickjs.c JS_FreeRuntime
+      // which occurs when handles from toVmValue are not disposed after deferredPromise.resolve()
+      const code = `
+        const results = []
+        for (let i = 0; i < 10; i++) {
+          const res = await fetchData(i)
+          results.push(res.value)
+        }
+        return results
+      `
+
+      const result = await runAsyncFunction(
+        {
+          fetchData: async (id: number) => {
+            return { value: `item_${id}`, nested: { deep: true } }
+          },
+        },
+        code
+      )
+
+      assert(result.success)
+      expect(result.return_value).toHaveLength(10)
+      expect(result.return_value[0]).toBe('item_0')
+      expect(result.return_value[9]).toBe('item_9')
+    })
+
+    it('does not leak QuickJS handles when async calls throw errors', async () => {
+      // Reproduces handle leak in the error recovery path where
+      // vmValue/errValue handles are not disposed after resolve/reject
+      const code = `
+        const results = []
+        for (let i = 0; i < 5; i++) {
+          try {
+            const res = await riskyCall(i)
+            results.push(res.value)
+          } catch (e) {
+            results.push('error')
+          }
+        }
+        return results
+      `
+
+      const result = await runAsyncFunction(
+        {
+          riskyCall: async (id: number) => {
+            if (id % 2 === 0) {
+              return { value: `ok_${id}`, extra: { data: [1, 2, 3] } }
+            }
+            throw new Error(`fail_${id}`)
+          },
+        },
+        code
+      )
+
+      assert(result.success)
+      expect(result.return_value).toEqual(['ok_0', 'error', 'ok_2', 'error', 'ok_4'])
+    })
+
     it('aborting execution', async () => {
       const code = `
       await longFn()
