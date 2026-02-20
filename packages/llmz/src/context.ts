@@ -26,6 +26,7 @@ export type IterationParameters = {
   components: Component[]
   model: Models | Models[]
   temperature: number
+  reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
 }
 
 export type IterationStatus =
@@ -352,6 +353,7 @@ export namespace Iteration {
     traces: Trace[]
     model: Models | Models[]
     temperature: number
+    reasoningEffort?: 'low' | 'medium' | 'high' | 'dynamic' | 'none'
     variables: Record<string, any>
     started_ts: number
     ended_ts?: number
@@ -423,6 +425,10 @@ export class Iteration implements Serializable<Iteration.JSON> {
 
   public get temperature() {
     return this._parameters.temperature
+  }
+
+  public get reasoningEffort() {
+    return this._parameters.reasoningEffort
   }
 
   public get exits() {
@@ -555,6 +561,7 @@ export class Iteration implements Serializable<Iteration.JSON> {
       code: this.code,
       model: this.model,
       temperature: this.temperature,
+      reasoningEffort: this.reasoningEffort,
       traces: [...this.traces],
       variables: this.variables,
       started_ts: this.started_ts,
@@ -596,6 +603,7 @@ export class Context implements Serializable<Context.JSON> {
   public exits?: ValueOrGetter<Exit[], Context>
   public model?: ValueOrGetter<Models | Models[], Context>
   public temperature: ValueOrGetter<number, Context>
+  public reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
 
   public version: Prompt = DualModePrompt
   public timeout: number = 60_000 // Default timeout of 60 seconds
@@ -804,6 +812,7 @@ export class Context implements Serializable<Context.JSON> {
     const components = await getValue(this.chat?.components ?? [], this)
     const model = (await getValue(this.model, this)) ?? 'best'
     const temperature = await getValue(this.temperature, this)
+    const reasoningEffort = await getValue(this.reasoningEffort, this)
 
     if (objects && objects.length > 100) {
       throw new Error('Too many objects. Expected at most 100 objects.')
@@ -917,6 +926,7 @@ export class Context implements Serializable<Context.JSON> {
       components,
       model,
       temperature,
+      reasoningEffort,
     }
   }
 
@@ -928,6 +938,7 @@ export class Context implements Serializable<Context.JSON> {
     exits?: ValueOrGetter<Exit[], Context>
     loop?: number
     temperature?: ValueOrGetter<number, Context>
+    reasoningEffort?: ValueOrGetter<'low' | 'medium' | 'high' | 'dynamic' | 'none', Context>
     model?: ValueOrGetter<Models | Models[], Context>
     metadata?: Record<string, any>
     snapshot?: Snapshot
@@ -943,6 +954,7 @@ export class Context implements Serializable<Context.JSON> {
     this.timeout = Math.min(999_999_999, Math.max(0, props.timeout ?? 60_000)) // Default timeout of 60 seconds
     this.loop = props.loop ?? 3
     this.temperature = props.temperature ?? 0.7
+    this.reasoningEffort = props.reasoningEffort
     this.model = props.model ?? 'best'
     this.iterations = []
     this.metadata = props.metadata ?? {}
