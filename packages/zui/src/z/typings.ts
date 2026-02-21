@@ -11,9 +11,7 @@ import {
   ValueOf,
 } from './utils/type-utils'
 
-/**
- * ### UI & Metadata
- */
+//* ─────────────────────────── UI & Metadata ───────────────────────────────
 
 export type ZuiMetadata =
   | string
@@ -72,67 +70,65 @@ type _ZodKindToBaseType<U extends ZodTypeDef> = U extends ZodStringDef
                       ? 'discriminatedUnion'
                       : never
 
-/**
- * ### Errors & Issues
- */
+//* ─────────────────────────── Errors & Issues ───────────────────────────────
 
-type ErrMessage =
+type _ErrMessage =
   | string
   | {
       message?: string
     }
 
-type ZodIssueBase = {
+type _ZodIssueBase = {
   path: (string | number)[]
   message?: string
 }
 
 export type ZodInvalidTypeIssue = {
   code: 'invalid_type'
-  expected: ZodParsedType
-  received: ZodParsedType
-} & ZodIssueBase
+  expected: _ZodParsedType
+  received: _ZodParsedType
+} & _ZodIssueBase
 
 export type ZodInvalidLiteralIssue = {
   code: 'invalid_literal'
   expected: unknown
   received: unknown
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodUnrecognizedKeysIssue = {
   code: 'unrecognized_keys'
   keys: string[]
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidUnionIssue = {
   code: 'invalid_union'
   unionErrors: ZodError[]
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidUnionDiscriminatorIssue = {
   code: 'invalid_union_discriminator'
   options: Primitive[]
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidEnumValueIssue = {
   received: string | number
   code: 'invalid_enum_value'
   options: (string | number)[]
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidArgumentsIssue = {
   code: 'invalid_arguments'
   argumentsError: ZodError
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidReturnTypeIssue = {
   code: 'invalid_return_type'
   returnTypeError: ZodError
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidDateIssue = {
   code: 'invalid_date'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidStringIssue = {
   code: 'invalid_string'
@@ -157,7 +153,7 @@ export type ZodInvalidStringIssue = {
     | {
         endsWith: string
       }
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodTooSmallIssue = {
   code: 'too_small'
@@ -165,7 +161,7 @@ export type ZodTooSmallIssue = {
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodTooBigIssue = {
   code: 'too_big'
@@ -173,33 +169,33 @@ export type ZodTooBigIssue = {
   inclusive: boolean
   exact?: boolean
   type: 'array' | 'string' | 'number' | 'set' | 'date' | 'bigint'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodInvalidIntersectionTypesIssue = {
   code: 'invalid_intersection_types'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodNotMultipleOfIssue = {
   code: 'not_multiple_of'
   multipleOf: number | bigint
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodNotFiniteIssue = {
   code: 'not_finite'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodUnresolvedReferenceIssue = {
   code: 'unresolved_reference'
-} & ZodIssueBase
+} & _ZodIssueBase
 
 export type ZodCustomIssue = {
   code: 'custom'
   params?: {
     [k: string]: any
   }
-} & ZodIssueBase
+} & _ZodIssueBase
 
-type ZodIssueOptionalMessage =
+type _ZodIssueOptionalMessage =
   | ZodInvalidTypeIssue
   | ZodInvalidLiteralIssue
   | ZodUnrecognizedKeysIssue
@@ -218,11 +214,12 @@ type ZodIssueOptionalMessage =
   | ZodUnresolvedReferenceIssue
   | ZodCustomIssue
 
-export type ZodIssue = ZodIssueOptionalMessage & {
+export type ZodIssue = _ZodIssueOptionalMessage & {
   fatal?: boolean
   message: string
 }
-type CustomErrorParams = Partial<SafeOmit<ZodCustomIssue, 'code'>>
+
+type _CustomErrorParams = Partial<SafeOmit<ZodCustomIssue, 'code'>>
 
 type _RecursiveZodFormattedError<T> = T extends [any, ...any[]]
   ? {
@@ -254,8 +251,7 @@ export interface ZodError<T = any> extends Error {
   addIssues: (subs?: ZodIssue[]) => void
 }
 
-type _StripPath<T extends object> = T extends any ? Omit<T, 'path'> : never
-type _IssueData = _StripPath<ZodIssueOptionalMessage> & {
+type _IssueData = SafeOmit<_ZodIssueOptionalMessage, 'path'> & {
   path?: (string | number)[]
   fatal?: boolean
 }
@@ -266,17 +262,15 @@ type _ErrorMapCtx = {
 }
 
 export type ZodErrorMap = (
-  issue: ZodIssueOptionalMessage,
+  issue: _ZodIssueOptionalMessage,
   _ctx: _ErrorMapCtx
 ) => {
   message: string
 }
 
-/**
- * ### Parsing
- */
+//* ─────────────────────────── Parsing ──────────────────────────────────────
 
-type ZodParsedType =
+type _ZodParsedType =
   | 'string'
   | 'nan'
   | 'number'
@@ -298,7 +292,7 @@ type ZodParsedType =
   | 'map'
   | 'set'
 
-type ParseContext = {
+type _ParseContext = {
   common: {
     issues: ZodIssue[]
     contextualErrorMap?: ZodErrorMap
@@ -306,65 +300,63 @@ type ParseContext = {
   }
   path: (string | number)[]
   schemaErrorMap?: ZodErrorMap
-  parent: ParseContext | null
+  parent: _ParseContext | null
   data: any
-  parsedType: ZodParsedType
+  parsedType: _ZodParsedType
 }
 
-type ParseInput = {
+type _ParseInput = {
   data: any
   path: (string | number)[]
-  parent: ParseContext
+  parent: _ParseContext
 }
 
-type INVALID = {
+type _INVALID = {
   status: 'aborted'
 }
 
-type DIRTY<T> = {
+type _DIRTY<T> = {
   status: 'dirty'
   value: T
 }
 
-type OK<T> = {
+type _OK<T> = {
   status: 'valid'
   value: T
 }
 
-type SyncParseReturnType<T> = OK<T> | DIRTY<T> | INVALID
-type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
-type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
+type _SyncParseReturnType<T> = _OK<T> | _DIRTY<T> | _INVALID
+type _AsyncParseReturnType<T> = Promise<_SyncParseReturnType<T>>
+type _ParseReturnType<T> = _SyncParseReturnType<T> | _AsyncParseReturnType<T>
 
-type SafeParseSuccess<Output> = {
+type _SafeParseSuccess<Output> = {
   success: true
   data: Output
   error?: never
 }
 
-type SafeParseError<Input> = {
+type _SafeParseError<Input> = {
   success: false
   error: ZodError<Input>
   data?: never
 }
 
-type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
+type _SafeParseReturnType<Input, Output> = _SafeParseSuccess<Output> | _SafeParseError<Input>
 
-type ParseParams = {
+type _ParseParams = {
   path: (string | number)[]
   errorMap: ZodErrorMap
   async: boolean
 }
 
-type RefinementCtx = {
+type _RefinementCtx = {
   addIssue: (arg: _IssueData) => void
   path: (string | number)[]
 }
 
-/**
- * Base Type
- */
+//* ─────────────────────────── Base Type ───────────────────────────────────
 
-export type RawCreateParams =
+type _RawCreateParams =
   | {
       errorMap?: ZodErrorMap
       invalid_type_error?: string
@@ -430,34 +422,34 @@ export interface ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inpu
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
   clone(): ZodType<Output, Def, Input>
-  parse(data: unknown, params?: Partial<ParseParams>): Output
-  safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<Input, Output>
-  parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<Output>
-  safeParseAsync(data: unknown, params?: Partial<ParseParams>): Promise<SafeParseReturnType<Input, Output>>
+  parse(data: unknown, params?: Partial<_ParseParams>): Output
+  safeParse(data: unknown, params?: Partial<_ParseParams>): _SafeParseReturnType<Input, Output>
+  parseAsync(data: unknown, params?: Partial<_ParseParams>): Promise<Output>
+  safeParseAsync(data: unknown, params?: Partial<_ParseParams>): Promise<_SafeParseReturnType<Input, Output>>
   /** Alias of safeParseAsync */
-  spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<Input, Output>>
+  spa: (data: unknown, params?: Partial<_ParseParams>) => Promise<_SafeParseReturnType<Input, Output>>
   refine<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
+    message?: string | _CustomErrorParams | ((arg: Output) => _CustomErrorParams)
   ): ZodEffects<this, RefinedOutput, Input>
   refine(
     check: (arg: Output) => unknown | Promise<unknown>,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
+    message?: string | _CustomErrorParams | ((arg: Output) => _CustomErrorParams)
   ): ZodEffects<this, Output, Input>
   refinement<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
-    refinementData: _IssueData | ((arg: Output, ctx: RefinementCtx) => _IssueData)
+    refinementData: _IssueData | ((arg: Output, ctx: _RefinementCtx) => _IssueData)
   ): ZodEffects<this, RefinedOutput, Input>
   refinement(
     check: (arg: Output) => boolean,
-    refinementData: _IssueData | ((arg: Output, ctx: RefinementCtx) => _IssueData)
+    refinementData: _IssueData | ((arg: Output, ctx: _RefinementCtx) => _IssueData)
   ): ZodEffects<this, Output, Input>
-  _refinement(refinement: RefinementEffect<Output>['refinement']): ZodEffects<this, Output, Input>
+  _refinement(refinement: _RefinementEffect<Output>['refinement']): ZodEffects<this, Output, Input>
   superRefine<RefinedOutput extends Output>(
-    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
+    refinement: (arg: Output, ctx: _RefinementCtx) => arg is RefinedOutput
   ): ZodEffects<this, RefinedOutput, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): ZodEffects<this, Output, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): ZodEffects<this, Output, Input>
+  superRefine(refinement: (arg: Output, ctx: _RefinementCtx) => void): ZodEffects<this, Output, Input>
+  superRefine(refinement: (arg: Output, ctx: _RefinementCtx) => Promise<void>): ZodEffects<this, Output, Input>
   optional(): ZodOptional<this>
   nullable(): ZodNullable<this>
   nullish(): ZodOptional<ZodNullable<this>>
@@ -480,7 +472,7 @@ export interface ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inpu
   mandatory(): ZodType
   or<T extends ZodType>(option: T): ZodUnion<[this, T]>
   and<T extends ZodType>(incoming: T): ZodIntersection<this, T>
-  transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): ZodEffects<this, NewOut>
+  transform<NewOut>(transform: (arg: Output, ctx: _RefinementCtx) => NewOut | Promise<NewOut>): ZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): ZodDefault<this>
   default(def: () => NoUndefined<Input>): ZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): ZodBranded<this, B>
@@ -558,9 +550,7 @@ export interface ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inpu
   naked(): ZodType
 }
 
-/**
- * ### ZodAny
- */
+//* ─────────────────────────── ZodAny ───────────────────────────────────────
 
 export type ZodAnyDef = {
   typeName: 'ZodAny'
@@ -568,9 +558,7 @@ export type ZodAnyDef = {
 
 export interface ZodAny extends ZodType<any, ZodAnyDef> {}
 
-/**
- * ### ZodArray
- */
+//* ─────────────────────────── ZodArray ─────────────────────────────────────
 
 export type ZodArrayDef<T extends ZodType = ZodType> = {
   type: T
@@ -602,15 +590,13 @@ export interface ZodArray<T extends ZodType = ZodType, Cardinality extends _Arra
     Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]
   > {
   element: T
-  min(minLength: number, message?: ErrMessage): this
-  max(maxLength: number, message?: ErrMessage): this
-  length(len: number, message?: ErrMessage): this
-  nonempty(message?: ErrMessage): ZodArray<T, 'atleastone'>
+  min(minLength: number, message?: _ErrMessage): this
+  max(maxLength: number, message?: _ErrMessage): this
+  length(len: number, message?: _ErrMessage): this
+  nonempty(message?: _ErrMessage): ZodArray<T, 'atleastone'>
 }
 
-/**
- * ### ZodBigInt
- */
+//* ─────────────────────────── ZodBigInt ────────────────────────────────────
 
 export type ZodBigIntCheck =
   | {
@@ -638,24 +624,22 @@ export type ZodBigIntDef = {
 } & ZodTypeDef
 
 export interface ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
-  gte(value: bigint, message?: ErrMessage): ZodBigInt
-  min: (value: bigint, message?: ErrMessage) => ZodBigInt
-  gt(value: bigint, message?: ErrMessage): ZodBigInt
-  lte(value: bigint, message?: ErrMessage): ZodBigInt
-  max: (value: bigint, message?: ErrMessage) => ZodBigInt
-  lt(value: bigint, message?: ErrMessage): ZodBigInt
-  positive(message?: ErrMessage): ZodBigInt
-  negative(message?: ErrMessage): ZodBigInt
-  nonpositive(message?: ErrMessage): ZodBigInt
-  nonnegative(message?: ErrMessage): ZodBigInt
-  multipleOf(value: bigint, message?: ErrMessage): ZodBigInt
+  gte(value: bigint, message?: _ErrMessage): ZodBigInt
+  min: (value: bigint, message?: _ErrMessage) => ZodBigInt
+  gt(value: bigint, message?: _ErrMessage): ZodBigInt
+  lte(value: bigint, message?: _ErrMessage): ZodBigInt
+  max: (value: bigint, message?: _ErrMessage) => ZodBigInt
+  lt(value: bigint, message?: _ErrMessage): ZodBigInt
+  positive(message?: _ErrMessage): ZodBigInt
+  negative(message?: _ErrMessage): ZodBigInt
+  nonpositive(message?: _ErrMessage): ZodBigInt
+  nonnegative(message?: _ErrMessage): ZodBigInt
+  multipleOf(value: bigint, message?: _ErrMessage): ZodBigInt
   minValue: bigint | null
   maxValue: bigint | null
 }
 
-/**
- * ### ZodBoolean
- */
+//* ─────────────────────────── ZodBoolean ───────────────────────────────────
 
 export type ZodBooleanDef = {
   typeName: 'ZodBoolean'
@@ -664,9 +648,7 @@ export type ZodBooleanDef = {
 
 export interface ZodBoolean extends ZodType<boolean, ZodBooleanDef> {}
 
-/**
- * ### ZodBranded
- */
+//* ─────────────────────────── ZodBranded ───────────────────────────────────
 
 type _Key = string | number | symbol
 
@@ -687,9 +669,7 @@ export interface ZodBranded<T extends ZodType = ZodType, B extends _Key = _Key>
   unwrap(): T
 }
 
-/**
- * ### ZodCatch
- */
+//* ─────────────────────────── ZodCatch ────────────────────────────────────
 
 export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
 export type ZodCatchDef<T extends ZodType = ZodType> = {
@@ -702,9 +682,7 @@ export interface ZodCatch<T extends ZodType = ZodType> extends ZodType<T['_outpu
   removeCatch(): T
 }
 
-/**
- * ### ZodDate
- */
+//* ─────────────────────────── ZodDate ─────────────────────────────────────
 
 export type ZodDateCheck =
   | {
@@ -725,15 +703,13 @@ export type ZodDateDef = {
 } & ZodTypeDef
 
 export interface ZodDate extends ZodType<Date, ZodDateDef> {
-  min(minDate: Date, message?: ErrMessage): ZodDate
-  max(maxDate: Date, message?: ErrMessage): ZodDate
+  min(minDate: Date, message?: _ErrMessage): ZodDate
+  max(maxDate: Date, message?: _ErrMessage): ZodDate
   minDate: Date | null
   maxDate: Date | null
 }
 
-/**
- * ### ZodDefault
- */
+//* ─────────────────────────── ZodDefault ───────────────────────────────────
 
 export type ZodDefaultDef<T extends ZodType = ZodType> = {
   innerType: T
@@ -747,9 +723,7 @@ export interface ZodDefault<T extends ZodType = ZodType>
   unwrap(): T
 }
 
-/**
- * ### ZodEnum
- */
+//* ─────────────────────────── ZodEnum ─────────────────────────────────────
 
 export type EnumValues = [string, ...string[]]
 
@@ -780,17 +754,15 @@ export interface ZodEnum<T extends [string, ...string[]] = [string, ...string[]]
   Enum: EnumValuesMap<T>
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
-    newDef?: RawCreateParams
+    newDef?: _RawCreateParams
   ): ZodEnum<Writeable<ToExtract>>
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
-    newDef?: RawCreateParams
+    newDef?: _RawCreateParams
   ): ZodEnum<_NeverCast<Writeable<_FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
 }
 
-/**
- * ### ZodNever
- */
+//* ─────────────────────────── ZodNever ────────────────────────────────────
 
 export type ZodNeverDef = {
   typeName: 'ZodNever'
@@ -798,9 +770,7 @@ export type ZodNeverDef = {
 
 export interface ZodNever extends ZodType<never, ZodNeverDef> {}
 
-/**
- * ### ZodNullable
- */
+//* ─────────────────────────── ZodNullable ─────────────────────────────────
 
 export type ZodNullableDef<T extends ZodType = ZodType> = {
   innerType: T
@@ -810,9 +780,7 @@ export type ZodNullableDef<T extends ZodType = ZodType> = {
 export interface ZodNullable<T extends ZodType = ZodType>
   extends ZodType<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null> {}
 
-/**
- * ### ZodOptional
- */
+//* ─────────────────────────── ZodOptional ────────────────────────────────
 
 export type ZodOptionalDef<T extends ZodType = ZodType> = {
   innerType: T
@@ -824,30 +792,29 @@ export interface ZodOptional<T extends ZodType = ZodType>
   unwrap(): T
 }
 
-/**
- * ### ZodTuple
- */
+//* ─────────────────────────── ZodTuple ────────────────────────────────────
 
-type ZodTupleItems = [ZodType, ...ZodType[]]
+type _ZodTupleItems = [ZodType, ...ZodType[]]
 
 type _AssertArray<T> = T extends any[] ? T : never
-type _OutputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
+type _OutputTypeOfTuple<T extends _ZodTupleItems | []> = _AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_output'] : never
 }>
 
-type _OutputTypeOfTupleWithRest<T extends ZodTupleItems | [], Rest extends ZodType | null = null> = Rest extends ZodType
-  ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]]
-  : _OutputTypeOfTuple<T>
+type _OutputTypeOfTupleWithRest<
+  T extends _ZodTupleItems | [],
+  Rest extends ZodType | null = null,
+> = Rest extends ZodType ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]] : _OutputTypeOfTuple<T>
 
-type _InputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
+type _InputTypeOfTuple<T extends _ZodTupleItems | []> = _AssertArray<{
   [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_input'] : never
 }>
 
-type _InputTypeOfTupleWithRest<T extends ZodTupleItems | [], Rest extends ZodType | null = null> = Rest extends ZodType
+type _InputTypeOfTupleWithRest<T extends _ZodTupleItems | [], Rest extends ZodType | null = null> = Rest extends ZodType
   ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]]
   : _InputTypeOfTuple<T>
 
-export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodType | null = null> = {
+export type ZodTupleDef<T extends _ZodTupleItems | [] = _ZodTupleItems, Rest extends ZodType | null = null> = {
   items: T
   rest: Rest
   typeName: 'ZodTuple'
@@ -861,9 +828,7 @@ export interface ZodTuple<
   rest<Rest extends ZodType>(rest: Rest): ZodTuple<T, Rest>
 }
 
-/**
- * ### ZodObject
- */
+//* ─────────────────────────── ZodObject ────────────────────────────────────
 
 type _OptionalKeys<T extends object> = {
   [k in keyof T]: undefined extends T[k] ? k : never
@@ -965,7 +930,7 @@ type _DeepPartial<T extends ZodType> = T extends ZodObject
           ? {
               [k in keyof Items]: Items[k] extends ZodType ? _DeepPartial<Items[k]> : never
             } extends infer PI
-            ? PI extends ZodTupleItems
+            ? PI extends _ZodTupleItems
               ? ZodTuple<PI>
               : never
             : never
@@ -978,7 +943,7 @@ export interface ZodObject<
   Input = _ObjectInputType<T, UnknownKeys>,
 > extends ZodType<Output, ZodObjectDef<T, UnknownKeys>, Input> {
   shape: T
-  strict(message?: ErrMessage): ZodObject<T, 'strict'>
+  strict(message?: _ErrMessage): ZodObject<T, 'strict'>
   strip(): ZodObject<T, 'strip'>
   passthrough(): ZodObject<T, 'passthrough'>
   /**
@@ -1074,9 +1039,7 @@ export interface ZodObject<
   keyof(): ZodEnum<_KeyOfObject<T>>
 }
 
-/**
- * ### ZodDiscriminatedUnion
- */
+//* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
 export type ZodDiscriminatedUnionOption<Discriminator extends string> = ZodObject<
   {
@@ -1104,9 +1067,7 @@ export interface ZodDiscriminatedUnion<
   optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
 }
 
-/**
- * ### ZodUnknown
- */
+//* ─────────────────────────── ZodUnknown ───────────────────────────────────
 
 export type ZodUnknownDef = {
   typeName: 'ZodUnknown'
@@ -1114,9 +1075,7 @@ export type ZodUnknownDef = {
 
 export interface ZodUnknown extends ZodType<unknown, ZodUnknownDef> {}
 
-/**
- * ### ZodFunction
- */
+//* ─────────────────────────── ZodFunction ───────────────────────────────────
 
 export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
   args: Args
@@ -1153,9 +1112,7 @@ export interface ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns
     : _OuterTypeOfFunction<Args, Returns>
 }
 
-/**
- * ### ZodIntersection
- */
+//* ─────────────────────────── ZodIntersection ──────────────────────────────
 
 export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
   left: T
@@ -1166,9 +1123,7 @@ export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = 
 export interface ZodIntersection<T extends ZodType = ZodType, U extends ZodType = ZodType>
   extends ZodType<T['_output'] & U['_output'], ZodIntersectionDef<T, U>, T['_input'] & U['_input']> {}
 
-/**
- * ### ZodLazy
- */
+//* ─────────────────────────── ZodLazy ─────────────────────────────────────
 
 export type ZodLazyDef<T extends ZodType = ZodType> = {
   getter: () => T
@@ -1179,9 +1134,7 @@ export interface ZodLazy<T extends ZodType = ZodType> extends ZodType<output<T>,
   schema: T
 }
 
-/**
- * ### ZodLiteral
- */
+//* ─────────────────────────── ZodLiteral ───────────────────────────────────
 
 export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T
@@ -1192,9 +1145,7 @@ export interface ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, 
   value: T
 }
 
-/**
- * ### ZodMap
- */
+//* ─────────────────────────── ZodMap ───────────────────────────────────────
 
 export type ZodMapDef<Key extends ZodType = ZodType, Value extends ZodType = ZodType> = {
   valueType: Value
@@ -1208,9 +1159,7 @@ export interface ZodMap<Key extends ZodType = ZodType, Value extends ZodType = Z
   valueSchema: Value
 }
 
-/**
- * ### ZodNaN
- */
+//* ─────────────────────────── ZodNaN ───────────────────────────────────────
 
 export type ZodNaNDef = {
   typeName: 'ZodNaN'
@@ -1218,26 +1167,23 @@ export type ZodNaNDef = {
 
 export interface ZodNaN extends ZodType<number, ZodNaNDef> {}
 
-/**
- * ### ZodNativeEnum
- */
+//* ─────────────────────────── ZodNativeEnum ────────────────────────────────
 
-export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
-  values: T
-  typeName: 'ZodNativeEnum'
-} & ZodTypeDef
-type EnumLike = {
+type _EnumLike = {
   [k: string]: string | number
   [nu: number]: string
 }
 
-export interface ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyof T], ZodNativeEnumDef<T>> {
+export type ZodNativeEnumDef<T extends _EnumLike = _EnumLike> = {
+  values: T
+  typeName: 'ZodNativeEnum'
+} & ZodTypeDef
+
+export interface ZodNativeEnum<T extends _EnumLike = _EnumLike> extends ZodType<T[keyof T], ZodNativeEnumDef<T>> {
   enum: T
 }
 
-/**
- * ### ZodNull
- */
+//* ─────────────────────────── ZodNull ─────────────────────────────────────
 
 export type ZodNullDef = {
   typeName: 'ZodNull'
@@ -1245,9 +1191,7 @@ export type ZodNullDef = {
 
 export interface ZodNull extends ZodType<null, ZodNullDef> {}
 
-/**
- * ### ZodNumber
- */
+//* ─────────────────────────── ZodNumber ────────────────────────────────────
 
 export type ZodNumberCheck =
   | {
@@ -1283,30 +1227,28 @@ export type ZodNumberDef = {
 } & ZodTypeDef
 
 export interface ZodNumber extends ZodType<number, ZodNumberDef> {
-  gte(value: number, message?: ErrMessage): ZodNumber
-  min: (value: number, message?: ErrMessage) => ZodNumber
-  gt(value: number, message?: ErrMessage): ZodNumber
-  lte(value: number, message?: ErrMessage): ZodNumber
-  max: (value: number, message?: ErrMessage) => ZodNumber
-  lt(value: number, message?: ErrMessage): ZodNumber
-  int(message?: ErrMessage): ZodNumber
-  positive(message?: ErrMessage): ZodNumber
-  negative(message?: ErrMessage): ZodNumber
-  nonpositive(message?: ErrMessage): ZodNumber
-  nonnegative(message?: ErrMessage): ZodNumber
-  multipleOf(value: number, message?: ErrMessage): ZodNumber
-  step: (value: number, message?: ErrMessage) => ZodNumber
-  finite(message?: ErrMessage): ZodNumber
-  safe(message?: ErrMessage): ZodNumber
+  gte(value: number, message?: _ErrMessage): ZodNumber
+  min: (value: number, message?: _ErrMessage) => ZodNumber
+  gt(value: number, message?: _ErrMessage): ZodNumber
+  lte(value: number, message?: _ErrMessage): ZodNumber
+  max: (value: number, message?: _ErrMessage) => ZodNumber
+  lt(value: number, message?: _ErrMessage): ZodNumber
+  int(message?: _ErrMessage): ZodNumber
+  positive(message?: _ErrMessage): ZodNumber
+  negative(message?: _ErrMessage): ZodNumber
+  nonpositive(message?: _ErrMessage): ZodNumber
+  nonnegative(message?: _ErrMessage): ZodNumber
+  multipleOf(value: number, message?: _ErrMessage): ZodNumber
+  step: (value: number, message?: _ErrMessage) => ZodNumber
+  finite(message?: _ErrMessage): ZodNumber
+  safe(message?: _ErrMessage): ZodNumber
   minValue: number | null
   maxValue: number | null
   isInt: boolean
   isFinite: boolean
 }
 
-/**
- * ### ZodObject
- */
+//* ─────────────────────────── ZodPipeline ──────────────────────────────────
 
 export type ZodPipelineDef<A extends ZodType = ZodType, B extends ZodType = ZodType> = {
   in: A
@@ -1317,9 +1259,7 @@ export type ZodPipelineDef<A extends ZodType = ZodType, B extends ZodType = ZodT
 export interface ZodPipeline<A extends ZodType = ZodType, B extends ZodType = ZodType>
   extends ZodType<B['_output'], ZodPipelineDef<A, B>, A['_input']> {}
 
-/**
- * ### ZodPromise
- */
+//* ─────────────────────────── ZodPromise ───────────────────────────────────
 
 export type ZodPromiseDef<T extends ZodType = ZodType> = {
   type: T
@@ -1331,9 +1271,7 @@ export interface ZodPromise<T extends ZodType = ZodType>
   unwrap(): T
 }
 
-/**
- * ### ZodReadonly
- */
+//* ─────────────────────────── ZodReadonly ───────────────────────────────────
 
 type _BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))
@@ -1369,9 +1307,7 @@ export interface ZodReadonly<T extends ZodType = ZodType>
   unwrap(): T
 }
 
-/**
- * ### ZodString
- */
+//* ─────────────────────────── ZodString ────────────────────────────────────
 
 export type ZodStringCheck =
   | {
@@ -1469,13 +1405,13 @@ export type ZodStringDef = {
 } & ZodTypeDef
 
 export interface ZodString extends ZodType<string, ZodStringDef> {
-  email(message?: ErrMessage): ZodString
-  url(message?: ErrMessage): ZodString
-  emoji(message?: ErrMessage): ZodString
-  uuid(message?: ErrMessage): ZodString
-  cuid(message?: ErrMessage): ZodString
-  cuid2(message?: ErrMessage): ZodString
-  ulid(message?: ErrMessage): ZodString
+  email(message?: _ErrMessage): ZodString
+  url(message?: _ErrMessage): ZodString
+  emoji(message?: _ErrMessage): ZodString
+  uuid(message?: _ErrMessage): ZodString
+  cuid(message?: _ErrMessage): ZodString
+  cuid2(message?: _ErrMessage): ZodString
+  ulid(message?: _ErrMessage): ZodString
   ip(
     options?:
       | string
@@ -1493,7 +1429,7 @@ export interface ZodString extends ZodType<string, ZodStringDef> {
           offset?: boolean
         }
   ): ZodString
-  regex(regex: RegExp, message?: ErrMessage): ZodString
+  regex(regex: RegExp, message?: _ErrMessage): ZodString
   includes(
     value: string,
     options?: {
@@ -1501,16 +1437,16 @@ export interface ZodString extends ZodType<string, ZodStringDef> {
       position?: number
     }
   ): ZodString
-  startsWith(value: string, message?: ErrMessage): ZodString
-  endsWith(value: string, message?: ErrMessage): ZodString
-  min(minLength: number, message?: ErrMessage): ZodString
-  max(maxLength: number, message?: ErrMessage): ZodString
-  length(len: number, message?: ErrMessage): ZodString
+  startsWith(value: string, message?: _ErrMessage): ZodString
+  endsWith(value: string, message?: _ErrMessage): ZodString
+  min(minLength: number, message?: _ErrMessage): ZodString
+  max(maxLength: number, message?: _ErrMessage): ZodString
+  length(len: number, message?: _ErrMessage): ZodString
   /**
    * @deprecated Use z.string().min(1) instead.
    * @see {@link ZodString.min}
    */
-  nonempty(message?: ErrMessage): ZodString
+  nonempty(message?: _ErrMessage): ZodString
   trim(): ZodString
   secret(): this
   toLowerCase(): ZodString
@@ -1556,9 +1492,7 @@ export interface ZodRecord<Key extends _KeySchema = ZodString, Value extends Zod
   element: Value
 }
 
-/**
- * ### ZodRef
- */
+//* ─────────────────────────── ZodRef ───────────────────────────────────────
 
 export type ZodRefDef = {
   typeName: 'ZodRef'
@@ -1567,9 +1501,7 @@ export type ZodRefDef = {
 
 export interface ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {}
 
-/**
- * ### ZodSet
- */
+//* ─────────────────────────── ZodSet ───────────────────────────────────────
 
 export type ZodSetDef<Value extends ZodType = ZodType> = {
   valueType: Value
@@ -1586,15 +1518,13 @@ export type ZodSetDef<Value extends ZodType = ZodType> = {
 
 export interface ZodSet<Value extends ZodType = ZodType>
   extends ZodType<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>> {
-  min(minSize: number, message?: ErrMessage): this
-  max(maxSize: number, message?: ErrMessage): this
-  size(size: number, message?: ErrMessage): this
-  nonempty(message?: ErrMessage): ZodSet<Value>
+  min(minSize: number, message?: _ErrMessage): this
+  max(maxSize: number, message?: _ErrMessage): this
+  size(size: number, message?: _ErrMessage): this
+  nonempty(message?: _ErrMessage): ZodSet<Value>
 }
 
-/**
- * ZodSymbol
- */
+//* ─────────────────────────── ZodSymbol ────────────────────────────────────
 
 export type ZodSymbolDef = {
   typeName: 'ZodSymbol'
@@ -1602,30 +1532,28 @@ export type ZodSymbolDef = {
 
 export interface ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {}
 
-/**
- * ### ZodEffects
- */
+//* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect<T> = {
+export type _RefinementEffect<T> = {
   type: 'refinement'
-  refinement: (arg: T, ctx: RefinementCtx) => any
+  refinement: (arg: T, ctx: _RefinementCtx) => any
 }
 
-export type TransformEffect<T> = {
+export type _TransformEffect<T> = {
   type: 'transform'
-  transform: (arg: T, ctx: RefinementCtx) => any
+  transform: (arg: T, ctx: _RefinementCtx) => any
 }
 
-export type PreprocessEffect<T> = {
+export type _PreprocessEffect<T> = {
   type: 'preprocess'
-  transform: (arg: T, ctx: RefinementCtx) => any
+  transform: (arg: T, ctx: _RefinementCtx) => any
 }
 
-export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
+export type _Effect<T> = _RefinementEffect<T> | _TransformEffect<T> | _PreprocessEffect<T>
 export type ZodEffectsDef<T extends ZodType = ZodType> = {
   schema: T
   typeName: 'ZodEffects'
-  effect: Effect<any>
+  effect: _Effect<any>
 } & ZodTypeDef
 
 export interface ZodEffects<T extends ZodType = ZodType, Output = output<T>, Input = input<T>>
@@ -1637,9 +1565,7 @@ export interface ZodEffects<T extends ZodType = ZodType, Output = output<T>, Inp
   sourceType(): T
 }
 
-/**
- * ### ZodUndefined
- */
+//* ─────────────────────────── ZodUndefined ─────────────────────────────────
 
 export type ZodUndefinedDef = {
   typeName: 'ZodUndefined'
@@ -1647,25 +1573,21 @@ export type ZodUndefinedDef = {
 
 export interface ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {}
 
-/**
- * ### ZodUnion
- */
+//* ─────────────────────────── ZodUnion ────────────────────────────────────
 
 type _DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
-type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
-type ZodUnionDef<T extends ZodUnionOptions = _DefaultZodUnionOptions> = {
+type _ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
+type ZodUnionDef<T extends _ZodUnionOptions = _DefaultZodUnionOptions> = {
   options: T
   typeName: 'ZodUnion'
 } & ZodTypeDef
 
-export interface ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions>
+export interface ZodUnion<T extends _ZodUnionOptions = _DefaultZodUnionOptions>
   extends ZodType<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']> {
   options: T
 }
 
-/**
- * ### ZodVoid
- */
+//* ─────────────────────────── ZodVoid ─────────────────────────────────────
 
 export type ZodVoidDef = {
   typeName: 'ZodVoid'
