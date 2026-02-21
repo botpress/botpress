@@ -31,7 +31,6 @@ export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
     }
     return OK(input.data)
   }
-  params?: RawCreateParams
 
   static create = (params?: RawCreateParams): ZodUndefined => {
     return new ZodUndefined({
