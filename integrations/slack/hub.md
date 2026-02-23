@@ -180,7 +180,7 @@ If you prefer to manually configure the integration, you can provide a bot token
 
 1. In Botpress, navigate to the integration's settings.
 2. Select the "Manual" configuration mode.
-3. Paste the "Bot Token" (or "Refresh Token"), "Client ID", "Client Secret", "Signing Secret", you copied from the Slack API portal into the corresponding fields in Botpress.
+3. Paste the "Bot Token" (or "Refresh Token"), "Client ID", "Client Secret", and "Signing Secret" you copied from the Slack API portal into the corresponding fields in Botpress.
 4. Click "Save" to save the configuration.
 
 #### Step 3 - Enabling webhooks
