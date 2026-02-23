@@ -14,9 +14,10 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  /** An integer percentage between 1 and 100 which determines
-   *  what percentage of events are allowed through. */
-  rateLimitPercentage?: number
+  /** A map of function names to their rate limit percentage (1-100).
+   *  Use '*' as a wildcard key to set a default for all unlisted functions.
+   *  Functions not listed (and no '*' key) default to 100 (no rate limiting). */
+  rateLimitByFunction?: Record<string, number>
 }
 
 type WrapFunctionProps = {
@@ -24,6 +25,16 @@ type WrapFunctionProps = {
   fn: Function
   functionName: string
   functionArea: string
+}
+
+const getRateLimitPercentage = (config: PostHogConfig, functionName?: string): number => {
+  if (functionName && config.rateLimitByFunction?.[functionName] !== undefined) {
+    return config.rateLimitByFunction[functionName]
+  }
+  if (config.rateLimitByFunction?.['*'] !== undefined) {
+    return config.rateLimitByFunction['*']
+  }
+  return 100
 }
 
 const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
@@ -36,8 +47,13 @@ const createPostHogClient = (key: string, rateLimitPercentage: number = 100): Po
   })
 }
 
-export const sendPosthogEvent = async (props: EventMessage, config: PostHogConfig): Promise<void> => {
-  const { key, integrationName, integrationVersion, rateLimitPercentage } = config
+export const sendPosthogEvent = async (
+  props: EventMessage,
+  config: PostHogConfig,
+  functionName?: string
+): Promise<void> => {
+  const { key, integrationName, integrationVersion } = config
+  const rateLimitPercentage = getRateLimitPercentage(config, functionName)
   const client = createPostHogClient(key, rateLimitPercentage)
   try {
     const signedProps: EventMessage = {
@@ -126,7 +142,8 @@ function wrapFunction(props: WrapFunctionProps) {
             integrationVersion: config.integrationVersion,
           },
         },
-        config
+        config,
+        functionName
       )
 
       return await fn(...args)
@@ -151,7 +168,8 @@ function wrapFunction(props: WrapFunctionProps) {
             ...additionalProps,
           },
         },
-        config
+        config,
+        functionName
       )
       throw thrown
     }
@@ -182,7 +200,8 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
               ...additionalProps,
             },
           },
-          config
+          config,
+          'handler'
         )
         return resp
       }
@@ -198,7 +217,8 @@ function wrapHandler(fn: Function, config: PostHogConfig) {
             ...additionalProps,
           },
         },
-        config
+        config,
+        'handler'
       )
       return resp
     }

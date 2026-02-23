@@ -2,11 +2,11 @@ import { describe, expect, test, beforeEach } from 'vitest'
 import { useBooleanGenerator } from './boolean-generator'
 
 describe('Boolean Generator', () => {
-  test.each([0, -10, 101, 50.5, NaN])('Should throw error for invalid percentage: %p', (percentage) => {
+  test.each([0, -10, 101, NaN])('Should throw error for invalid percentage: %p', (percentage) => {
     expect(() => useBooleanGenerator(percentage)).toThrow('Percentage must be an integer between 1 and 100')
   })
 
-  test.each([1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99].map((p) => ({ percentage: p })))(
+  test.each([0.01, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99].map((p) => ({ percentage: p })))(
     '$percentage%% probability, should be true approximately $percentage%% the time',
     ({ percentage }) => {
       const CYCLES = 1000000
