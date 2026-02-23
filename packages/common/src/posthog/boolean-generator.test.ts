@@ -3,7 +3,9 @@ import { useBooleanGenerator } from './boolean-generator'
 
 describe('Boolean Generator', () => {
   test.each([0, -10, 101, NaN])('Should throw error for invalid percentage: %p', (percentage) => {
-    expect(() => useBooleanGenerator(percentage)).toThrow('Percentage must be a number between 1 and 100')
+    expect(() => useBooleanGenerator(percentage)).toThrow(
+      'Percentage must be a number between 0 and 100 (exclusive of 0)'
+    )
   })
 
   test.each([0.01, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99].map((p) => ({ percentage: p })))(
