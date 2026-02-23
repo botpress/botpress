@@ -52,16 +52,16 @@ export const configurations = {
         .secret()
         .title('Slack Refresh Token or Bot Token')
         .describe('Available in the app admin panel under OAuth & Permissions'),
-      signingSecret: sdk.z
-        .string()
-        .secret()
-        .title('Slack Signing Secret')
-        .describe('Available in the app admin panel under Basic Info'),
       clientId: sdk.z.string().title('Slack Client ID').describe('Available in the app admin panel under Basic Info'),
       clientSecret: sdk.z
         .string()
         .secret()
         .title('Slack Client Secret')
+        .describe('Available in the app admin panel under Basic Info'),
+      signingSecret: sdk.z
+        .string()
+        .secret()
+        .title('Slack Signing Secret')
         .describe('Available in the app admin panel under Basic Info'),
       ...SHARED_CONFIGURATION,
     }),
