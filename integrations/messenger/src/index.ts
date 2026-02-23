@@ -19,6 +19,7 @@ export default posthogHelper.wrapIntegration(
     integrationName: INTEGRATION_NAME,
     key: bp.secrets.POSTHOG_KEY,
     integrationVersion: INTEGRATION_VERSION,
+    rateLimitByFunction: { handler: 0.1 },
   },
   integrationConfig
 )
