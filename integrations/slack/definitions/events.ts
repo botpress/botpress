@@ -36,9 +36,17 @@ export const events = {
       conversationId: sdk.z.string().optional().title('Conversation ID').describe('The ID of the conversation'),
       targets: sdk.z
         .object({
-          dm: sdk.z.record(sdk.z.string()).optional(),
-          channel: sdk.z.record(sdk.z.string()).optional(),
-          thread: sdk.z.record(sdk.z.string()).optional(),
+          dm: sdk.z.record(sdk.z.string()).optional().title('DMs').describe('The DMs targeted by the reaction'),
+          channel: sdk.z
+            .record(sdk.z.string())
+            .optional()
+            .title('Channels')
+            .describe('The channels targeted by the reaction'),
+          thread: sdk.z
+            .record(sdk.z.string())
+            .optional()
+            .title('Threads')
+            .describe('The threads targeted by the reaction'),
         })
         .title('Targets')
         .describe('The targets of the reaction'),

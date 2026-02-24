@@ -26,16 +26,16 @@ export const states = {
     schema: sdk.z.object({
       shortLivedAccessToken: sdk.z
         .object({
-          currentAccessToken: sdk.z.string().secret().describe('The Bot User OAuth Access Token'),
-          issuedAt: sdk.z.string().datetime().describe('The timestamp of when the access token was issued'),
-          expiresAt: sdk.z.string().datetime().describe('The timestamp of when the access token expires'),
+          currentAccessToken: sdk.z.string().secret().title('Current Access Token').describe('The Bot User OAuth Access Token'),
+          issuedAt: sdk.z.string().datetime().title('Issued At').describe('The timestamp of when the access token was issued'),
+          expiresAt: sdk.z.string().datetime().title('Expires At').describe('The timestamp of when the access token expires'),
         })
         .title('Short-lived access token')
         .describe('Access token that expires after 12 hours'),
       rotatingRefreshToken: sdk.z
         .object({
-          token: sdk.z.string().secret().describe('The Bot User OAuth Refresh Token'),
-          issuedAt: sdk.z.string().datetime().describe('The timestamp of when the refresh token was issued'),
+          token: sdk.z.string().secret().title('Token').describe('The Bot User OAuth Refresh Token'),
+          issuedAt: sdk.z.string().datetime().title('Issued At').describe('The timestamp of when the refresh token was issued'),
         })
         .title('Rotating refresh token')
         .describe('Refresh token that does not expire but can be used only once to get a new access token'),
