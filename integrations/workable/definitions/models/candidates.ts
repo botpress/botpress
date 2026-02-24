@@ -434,7 +434,10 @@ export const updateCandidateInputSchema = z.object({
   id: z.string().title('ID').describe("The candidate to update's id"),
   candidate: postCandidateInTalentPoolSchema
     .extend({
-      textingConsent: z.enum(['forced', 'declined']).title('Texting Consent').describe("The candidate's consent to receive text messages"),
+      textingConsent: z
+        .enum(['forced', 'declined'])
+        .title('Texting Consent')
+        .describe("The candidate's consent to receive text messages"),
       imageUrl: z.string().title('Image Url').describe("A url pointing to the candidate's image"),
       imageSource: imageSource
         .title('Image Source')

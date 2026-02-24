@@ -18,7 +18,11 @@ export const states = {
         .object({
           token: z.string().secret().title('Token').describe('The refresh token string'),
           issuedAt: z.number().title('Issued At').describe('Unix timestamp of when the refresh token was issued'),
-          expiresAt: z.number().optional().title('Expires At').describe('Unix timestamp of when the refresh token expires'),
+          expiresAt: z
+            .number()
+            .optional()
+            .title('Expires At')
+            .describe('Unix timestamp of when the refresh token expires'),
         })
         .optional()
         .title('Refresh Token')
