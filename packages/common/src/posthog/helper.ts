@@ -14,9 +14,9 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  /** A map of function names to their rate limit percentage (0-100 exclusive of 0).
+  /** A map of function names to their rate limit ratio (0-1 exclusive of 0).
    *  Use '*' as a wildcard key to set a default for all unlisted functions.
-   *  Functions not listed (and no '*' key) default to 100 (no rate limiting). */
+   *  Functions not listed (and no '*' key) default to 1 (no rate limiting). */
   rateLimitByFunction?: Record<string, number>
 }
 
@@ -27,18 +27,18 @@ type WrapFunctionProps = {
   functionArea: string
 }
 
-const getRateLimitPercentage = (config: PostHogConfig, functionName?: string): number => {
+const getRateLimitRatio = (config: PostHogConfig, functionName?: string): number => {
   if (functionName && config.rateLimitByFunction?.[functionName] !== undefined) {
     return config.rateLimitByFunction[functionName]
   }
   if (config.rateLimitByFunction?.['*'] !== undefined) {
     return config.rateLimitByFunction['*']
   }
-  return 100
+  return 1
 }
 
-const createPostHogClient = (key: string, rateLimitPercentage: number = 100): PostHog => {
-  const shouldAllow = useBooleanGenerator(rateLimitPercentage)
+const createPostHogClient = (key: string, rateLimitRatio: number = 1): PostHog => {
+  const shouldAllow = useBooleanGenerator(rateLimitRatio)
   return new PostHog(key, {
     host: 'https://us.i.posthog.com',
     before_send: (event) => {
@@ -53,7 +53,7 @@ export const sendPosthogEvent = async (
   functionName?: string
 ): Promise<void> => {
   const { key, integrationName, integrationVersion } = config
-  const rateLimitPercentage = getRateLimitPercentage(config, functionName)
+  const rateLimitPercentage = getRateLimitRatio(config, functionName)
   const client = createPostHogClient(key, rateLimitPercentage)
   try {
     const signedProps: EventMessage = {

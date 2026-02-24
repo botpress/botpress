@@ -12,8 +12,8 @@ describe('Boolean Generator', () => {
     '$ratio should be true approximately $ratio the time',
     ({ ratio: percentage }) => {
       const CYCLES = 1000000
-      /** In percentage */
-      const TOLERANCE = 1
+      /** In Ratio */
+      const TOLERANCE = 0.01
 
       let shouldAllow = useBooleanGenerator(percentage)
       let trueCount = 0
