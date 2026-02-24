@@ -14,7 +14,7 @@ export type PostHogConfig = {
   key: string
   integrationName: string
   integrationVersion: string
-  /** A map of function names to their rate limit percentage (1-100).
+  /** A map of function names to their rate limit percentage (0-100 exclusive of 0).
    *  Use '*' as a wildcard key to set a default for all unlisted functions.
    *  Functions not listed (and no '*' key) default to 100 (no rate limiting). */
   rateLimitByFunction?: Record<string, number>
