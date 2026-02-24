@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'charts',
   title: 'Charts',
   description: 'Easily generate a variety of charts, including line, bar, pie, and scatter plots, etc.',
-  version: '0.2.6',
+  version: '0.2.7',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: actionDefinitions,
