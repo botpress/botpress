@@ -14,7 +14,7 @@ const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx).catch((err) => {
+    return handleOauth(req, client, ctx, logger).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
       throw err
     })
