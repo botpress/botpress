@@ -306,19 +306,19 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   optional(): IZodOptional<this> {
-    return builders.optional(this)
+    return builders.optional(this, this._def) // TODO(why): find out why def is passed as second argument
   }
   nullable(): IZodNullable<this> {
-    return builders.nullable(this)
+    return builders.nullable(this, this._def) // TODO(why): find out why def is passed as second argument
   }
   nullish(): IZodOptional<IZodNullable<this>> {
     return this.nullable().optional()
   }
   array(): IZodArray<this> {
-    return builders.array(this)
+    return builders.array(this, this._def) // TODO(why): find out why def is passed as second argument
   }
   promise(): IZodPromise<this> {
-    return builders.promise(this)
+    return builders.promise(this, this._def) // TODO(why): find out why def is passed as second argument
   }
   /**
    * # \#\#\# Experimental \#\#\#

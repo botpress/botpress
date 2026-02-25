@@ -74,7 +74,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
     values: ToExtract,
     newDef: RawCreateParams = this._def
   ): IZodEnum<utils.types.Writeable<ToExtract>> {
-    // TODO: use the ctor directly (find out why it was always done like that)
+    // TODO(why): find out why the ctor is not used directly
     return builders.enum(values, {
       ...this._def,
       ...newDef,
@@ -85,7 +85,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
     values: ToExclude,
     newDef: RawCreateParams = this._def
   ): IZodEnum<NeverCast<utils.types.Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
-    // TODO: use the ctor directly (find out why it was always done like that)
+    // TODO(why): find out why the ctor is not used directly
     return builders.enum(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
       ...this._def,
       ...newDef,
