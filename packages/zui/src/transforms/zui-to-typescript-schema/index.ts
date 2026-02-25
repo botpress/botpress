@@ -146,10 +146,7 @@ function sUnwrapZod(schema: z.ZodType): string {
     case 'ZodDefault':
       const defaultValue = unknownToTypescriptValue(s._def.defaultValue())
       // TODO: use z.default() notation
-      return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(
-        s._def,
-        s._def.innerType
-      )}`.trim()
+      return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
     case 'ZodCatch':
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodCatch')
@@ -194,10 +191,7 @@ const _maybeDescribe = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
 }
 
 const _addZuiExtensions = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) =>
-  `${_maybeTitle(def, innerDef)}${_maybeDisplayAs(def, innerDef)}${_maybeDisabled(def, innerDef)}${_maybeHidden(
-    def,
-    innerDef
-  )}${_maybePlaceholder(def, innerDef)}${_maybeSecret(def, innerDef)}${_maybeSetMetadata(def, innerDef)}`
+  `${_maybeTitle(def, innerDef)}${_maybeDisplayAs(def, innerDef)}${_maybeDisabled(def, innerDef)}${_maybeHidden(def, innerDef)}${_maybePlaceholder(def, innerDef)}${_maybeSecret(def, innerDef)}${_maybeSetMetadata(def, innerDef)}`
 
 const _maybeTitle = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   const title = def[zuiKey]?.title

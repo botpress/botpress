@@ -27,8 +27,6 @@ export const parseString = (schema: JsonSchemaObject & { type: 'string' }) => {
         return ['.uuid(', ')']
       case 'date-time':
         return ['.datetime(', ')']
-      default:
-        return
     }
   })
 
