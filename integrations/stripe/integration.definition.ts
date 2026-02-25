@@ -34,7 +34,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.5.4',
+  version: '0.5.5',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -234,4 +234,7 @@ export default new IntegrationDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
   },
+  attributes: {
+    category: "E-commerce & Payments"
+  }
 })

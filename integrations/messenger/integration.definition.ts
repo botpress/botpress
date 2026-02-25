@@ -8,7 +8,7 @@ import { actions } from './definitions/actions'
 import { messages } from './definitions/channels/channel/messages'
 
 export const INTEGRATION_NAME = 'messenger'
-export const INTEGRATION_VERSION = '5.1.5'
+export const INTEGRATION_VERSION = '5.1.6'
 
 const commonConfigSchema = z.object({
   downloadMedia: z
@@ -234,6 +234,9 @@ export default new IntegrationDefinition({
       description: 'A conversation with a Messenger user',
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveUser, ({ entities }) => ({

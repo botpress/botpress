@@ -5,7 +5,7 @@ import { telegramMessageChannels } from './definitions/channels'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '1.0.2',
+  version: '1.0.3',
   title: 'Telegram',
   description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
@@ -45,6 +45,9 @@ export default new IntegrationDefinition({
       id: { title: 'ID', description: 'The id of the user' },
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 }).extend(typingIndicator, () => ({
   entities: {},
 }))

@@ -93,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.8.2'
+export const INTEGRATION_VERSION = '4.8.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -432,6 +432,9 @@ export default new IntegrationDefinition({
       schema: startConversationProps.input.schema.shape['conversation'],
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveConversation, ({ entities }) => ({

@@ -5,7 +5,7 @@ import proactiveUser from 'bp_modules/proactive-user'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '1.0.2',
+  version: '1.0.3',
   title: 'Vonage',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
@@ -60,6 +60,9 @@ export default new IntegrationDefinition({
       }),
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 })
   .extend(proactiveConversation, ({ entities }) => ({
     entities: {

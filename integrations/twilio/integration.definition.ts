@@ -6,7 +6,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 import { channels, configuration, entities, user } from './definitions'
 
 export const INTEGRATION_NAME = 'twilio'
-export const INTEGRATION_VERSION = '1.3.0'
+export const INTEGRATION_VERSION = '1.3.1'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -27,6 +27,9 @@ export default new IntegrationDefinition({
       description: 'Posthog key for error dashboards',
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveConversation, ({ entities }) => ({

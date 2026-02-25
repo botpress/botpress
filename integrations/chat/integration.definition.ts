@@ -111,4 +111,7 @@ export default new sdk.IntegrationDefinition({
       optional: true,
     },
   },
+  attributes: {
+    category: "Communication & Channels"
+  }
 })

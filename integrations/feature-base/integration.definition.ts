@@ -5,7 +5,7 @@ import { postCreated, postUpdated, postDeleted, postVoted } from 'definitions/ev
 
 export default new IntegrationDefinition({
   name: 'feature-base',
-  version: '1.0.1',
+  version: '1.0.2',
   title: 'Feature Base',
   description: 'Integration with Feature Base for Botpress',
   readme: 'hub.md',
@@ -48,5 +48,8 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Project Management',
   },
 })

@@ -2,7 +2,7 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'pdf-generator',
-  version: '0.0.5',
+  version: '0.0.6',
   readme: 'hub.md',
   title: 'PDF Generator',
   icon: 'icon.svg',
@@ -63,4 +63,7 @@ export default new IntegrationDefinition({
       description: 'The API key to use PDFShift (https://app.pdfshift.io/env/apikeys)',
     },
   },
+  attributes: {
+    category: "Business Operations"
+  }
 })

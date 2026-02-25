@@ -13,7 +13,7 @@ import {
 export default new IntegrationDefinition({
   name: 'calcom',
   title: 'Cal.com',
-  version: '0.4.0',
+  version: '0.4.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Schedule meetings and manage events using the Cal.com scheduling platform.',
@@ -61,4 +61,7 @@ export default new IntegrationDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
   },
+  attributes: {
+    category: "Business Operations"
+  }
 })

@@ -39,7 +39,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'zoho',
-  version: '3.1.2',
+  version: '3.1.3',
   title: 'Zoho',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -176,4 +176,7 @@ export default new IntegrationDefinition({
       output: { schema: getFileOutputSchema },
     },
   },
+  attributes: {
+    category: "Business Operations"
+  }
 })

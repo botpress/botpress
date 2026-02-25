@@ -3,7 +3,7 @@ import { actions, states, events } from './definitions'
 
 export default new IntegrationDefinition({
   name: 'attio',
-  version: '1.0.1',
+  version: '1.0.2',
 
   title: 'Attio',
   readme: 'hub.md',
@@ -20,4 +20,7 @@ export default new IntegrationDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
   },
+  attributes: {
+    category: "CRM & Sales"
+  }
 })
