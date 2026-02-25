@@ -38,7 +38,7 @@ describe('Boolean Generator', () => {
       }
     }
 
-    const truthyRatio = (trueCount / CYCLES) * 100
-    expect(truthyRatio).toBe(100)
+    const truthyRatio = trueCount / CYCLES
+    expect(truthyRatio).toBe(1)
   })
 })
