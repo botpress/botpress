@@ -47,12 +47,6 @@ export const lintIssue = (issue: lin.Issue, state: types.StateKey): IssueLint[] 
     )
   }
 
-  const hasProject = issue.project
-  const hasGoal = _hasLabelOfCategory(issue, 'goal')
-  if (!hasProject && !hasGoal) {
-    lints.push(`Issue ${issue.identifier} is missing both a project and a goal label.`)
-  }
-
   if (!isIssueTitleFormatValid(issue.title)) {
     lints.push(
       `Issue ${issue.identifier} has unconventional commit syntax in the title. Issue title should not attempt to follow a formal syntax.`

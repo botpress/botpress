@@ -542,6 +542,7 @@ Zai.prototype.label = function <T extends string>(
     taskId: this.taskId,
     taskType: 'zai.label',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<
