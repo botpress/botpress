@@ -177,6 +177,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Business Operations"
-  }
+    category: 'Business Operations',
+  },
 })

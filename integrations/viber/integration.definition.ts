@@ -41,6 +41,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 })

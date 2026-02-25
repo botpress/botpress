@@ -225,8 +225,8 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 })
   .extend(proactiveUser, ({ entities }) => ({
     entities: {

@@ -24,6 +24,6 @@ export default new IntegrationDefinition({
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 }).extend(typingIndicator, () => ({ entities: {} }))

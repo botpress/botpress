@@ -40,6 +40,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "AI Models"
-  }
+    category: 'AI Models',
+  },
 })

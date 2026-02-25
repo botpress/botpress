@@ -401,6 +401,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Project Management"
-  }
+    category: 'Project Management',
+  },
 })

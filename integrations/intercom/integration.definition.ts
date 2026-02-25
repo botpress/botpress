@@ -115,8 +115,8 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Customer Support"
-  }
+    category: 'Customer Support',
+  },
 })
   .extend(proactiveUser, ({ entities }) => ({
     entities: {

@@ -27,6 +27,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Developer Tools"
-  }
+    category: 'Developer Tools',
+  },
 })

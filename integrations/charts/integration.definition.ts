@@ -18,6 +18,6 @@ export default new IntegrationDefinition({
     useLegacyZuiTransformer: true,
   },
   attributes: {
-    category: "Other"
-  }
+    category: 'Other',
+  },
 })

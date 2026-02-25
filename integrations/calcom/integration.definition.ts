@@ -62,6 +62,6 @@ export default new IntegrationDefinition({
     useLegacyZuiTransformer: true,
   },
   attributes: {
-    category: "Business Operations"
-  }
+    category: 'Business Operations',
+  },
 })

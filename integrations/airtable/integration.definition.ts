@@ -103,6 +103,6 @@ export default new IntegrationDefinition({
   events: {},
   states: {},
   attributes: {
-    category: "Project Management"
-  }
+    category: 'Project Management',
+  },
 })

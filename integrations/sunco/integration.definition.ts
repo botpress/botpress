@@ -131,8 +131,8 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 })
   .extend(typingIndicator, () => ({ entities: {} }))
   .extend(proactiveUser, ({ entities }) => ({

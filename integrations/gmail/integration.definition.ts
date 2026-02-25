@@ -31,6 +31,6 @@ export default new sdk.IntegrationDefinition({
   states,
   secrets,
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 })

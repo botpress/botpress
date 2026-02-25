@@ -51,6 +51,6 @@ export default new IntegrationDefinition({
     useLegacyZuiTransformer: true,
   },
   attributes: {
-    category: "CRM & Sales"
-  }
+    category: 'CRM & Sales',
+  },
 })

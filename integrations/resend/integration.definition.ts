@@ -94,6 +94,6 @@ export default new IntegrationDefinition({
     useLegacyZuiTransformer: true,
   },
   attributes: {
-    category: "Marketing & Email"
-  }
+    category: 'Marketing & Email',
+  },
 })

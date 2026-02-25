@@ -151,6 +151,6 @@ export default new IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Marketing & Email"
-  }
+    category: 'Marketing & Email',
+  },
 })

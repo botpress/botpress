@@ -65,8 +65,8 @@ export default new sdk.IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Customer Support"
-  }
+    category: 'Customer Support',
+  },
 }).extend(hitl, (self) => ({
   entities: {
     hitlSession: self.entities.hitlTicket,

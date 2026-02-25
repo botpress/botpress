@@ -14,6 +14,6 @@ export default new IntegrationDefinition({
   },
   states,
   attributes: {
-    category: "CRM & Sales"
-  }
+    category: 'CRM & Sales',
+  },
 })

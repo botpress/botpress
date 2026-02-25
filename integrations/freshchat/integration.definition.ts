@@ -29,8 +29,8 @@ export default new sdk.IntegrationDefinition({
     },
   },
   attributes: {
-    category: "Communication & Channels"
-  }
+    category: 'Communication & Channels',
+  },
 }).extend(hitl, (self) => ({
   entities: { hitlSession: self.entities.hitlConversation },
   channels: {

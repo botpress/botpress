@@ -235,6 +235,6 @@ export default new IntegrationDefinition({
     useLegacyZuiTransformer: true,
   },
   attributes: {
-    category: "E-commerce & Payments"
-  }
+    category: 'E-commerce & Payments',
+  },
 })

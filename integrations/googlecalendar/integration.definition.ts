@@ -20,6 +20,6 @@ export default new sdk.IntegrationDefinition({
   secrets,
   states,
   attributes: {
-    category: "Business Operations"
-  }
+    category: 'Business Operations',
+  },
 })
