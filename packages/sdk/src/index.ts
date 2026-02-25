@@ -38,6 +38,7 @@ export {
 } from './integration/server'
 
 export {
+  BaseBot,
   DefaultBot,
   BotDefinition,
   BotDefinitionProps,
