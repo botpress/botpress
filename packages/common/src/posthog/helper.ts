@@ -53,8 +53,8 @@ export const sendPosthogEvent = async (
   functionName?: string
 ): Promise<void> => {
   const { key, integrationName, integrationVersion } = config
-  const rateLimitPercentage = getRateLimitRatio(config, functionName)
-  const client = createPostHogClient(key, rateLimitPercentage)
+  const rateLimitRatio = getRateLimitRatio(config, functionName)
+  const client = createPostHogClient(key, rateLimitRatio)
   try {
     const signedProps: EventMessage = {
       ...props,
