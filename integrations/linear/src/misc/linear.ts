@@ -73,7 +73,7 @@ const oauthHeaders = {
 
 const oauthSchema = z.object({
   access_token: z.string(),
-  refresh_token: z.string().optional(),
+  refresh_token: z.string(),
   expires_in: z.number(),
 })
 
@@ -103,15 +103,13 @@ type OAuthRequestParams =
 export class LinearOauthClient {
   private _clientId: string
   private _clientSecret: string
-  private _redirectUri: string
 
   public constructor() {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
-    this._redirectUri = `${process.env.BP_WEBHOOK_URL}/oauth`
   }
 
-  private async _postOAuth<T extends z.ZodSchema>(
+  private async _handleOAuthRequest<T extends z.ZodSchema>(
     url: string,
     body: OAuthRequestParams,
     schema: T
@@ -124,24 +122,23 @@ export class LinearOauthClient {
 
     const { data, error } = schema.safeParse(res.data)
     if (error) {
-      throw new Error(`Failed to parse OAuth token response: ${error.message}`)
+      throw new RuntimeError(`Failed to parse OAuth token response: ${error.message}`)
     }
 
     return data
   }
 
-  private async _getAccessToken<T extends z.ZodSchema>(
-    params: GetAccessTokenParams | RefreshTokenRequestParams,
-    schema: T
-  ): Promise<z.infer<T>> {
-    return this._postOAuth(
+  private async _getAccessToken(
+    params: GetAccessTokenParams | RefreshTokenRequestParams
+  ): Promise<z.infer<typeof oauthSchema>> {
+    return this._handleOAuthRequest(
       `${linearEndpoint}/oauth/token`,
       {
-        redirect_uri: this._redirectUri,
+        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
         actor: 'application',
         ...params,
       },
-      schema
+      oauthSchema
     )
   }
 
@@ -157,7 +154,7 @@ export class LinearOauthClient {
   }
 
   public async migrateOldToken(oldAccessToken: string): Promise<Credentials> {
-    const data = await this._postOAuth(
+    const data = await this._handleOAuthRequest(
       `${linearEndpoint}/oauth/migrate_old_token`,
       {
         access_token: oldAccessToken,
@@ -168,15 +165,12 @@ export class LinearOauthClient {
   }
 
   public async refreshAccessToken(oldRefreshToken: string): Promise<Credentials> {
-    const data = await this._getAccessToken(
-      { grant_type: 'refresh_token', refresh_token: oldRefreshToken },
-      oauthSchema
-    )
+    const data = await this._getAccessToken({ grant_type: 'refresh_token', refresh_token: oldRefreshToken })
     return this._toCredentials(data)
   }
 
-  public async getAccessToken(code: string) {
-    const data = await this._getAccessToken({ grant_type: 'authorization_code', code }, oauthSchema)
+  public async getAccessTokenFromOAuthCode(code: string) {
+    const data = await this._getAccessToken({ grant_type: 'authorization_code', code })
     return this._toCredentials(data)
   }
 
@@ -228,8 +222,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  const tokenResponse = await linearOauthClient.getAccessToken(code)
-  const credentials = await linearOauthClient.resolveValidCredentials(tokenResponse)
+  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
 
   await client.setState({
     type: 'integration',
