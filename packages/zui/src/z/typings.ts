@@ -1,4 +1,5 @@
 import { Cast, UnionToTuple, NoNever, Flatten, NoUndefined, Primitive, SafeOmit, Writeable } from './utils/type-utils'
+import type * as transforms from '../transforms'
 
 //* ─────────────────────────── UI & Metadata ───────────────────────────────
 
@@ -348,6 +349,15 @@ export type ZodTypeDef = {
  */
 export type ZodTypeAny = IZodType<any, any, any>
 
+/**
+ * @deprecated use ZodType instead
+ */
+export type ZodSchema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> = IZodType<Output, Def, Input>
+/**
+ * @deprecated use ZodType instead
+ */
+export type Schema<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> = IZodType<Output, Def, Input>
+
 export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output> {
   readonly __type__: 'ZuiType'
   _type: Output
@@ -481,6 +491,26 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   >(
     options: DisplayAsOptions<UI[Type][keyof UI[Type]]>
   ): this
+
+  /**
+   *
+   * @returns a JSON Schema equivalent to the Zui schema
+   */
+  toJSONSchema(): transforms.ZuiJSONSchema
+
+  /**
+   *
+   * @param options generation options
+   * @returns a string of the TypeScript type representing the schema
+   */
+  toTypescriptType(opts?: transforms.TypescriptGenerationOptions): string
+
+  /**
+   *
+   * @param options generation options
+   * @returns a typescript program (a string) that would construct the given schema if executed
+   */
+  toTypescriptSchema(): string
 }
 
 //* ─────────────────────────── ZodAny ───────────────────────────────────────
@@ -872,6 +902,16 @@ export type DeepPartial<T extends IZodType> = T extends IZodObject
               : never
             : never
           : T
+
+/**
+ * @deprecated use ZodObject instead
+ */
+export type SomeZodObject = IZodObject<ZodRawShape, UnknownKeysParam>
+
+/**
+ * @deprecated use ZodObject instead
+ */
+export type AnyZodObject = IZodObject<any, any>
 
 export interface IZodObject<
   T extends ZodRawShape = ZodRawShape,

@@ -28,16 +28,6 @@ import { ZodNativeType } from '../../native'
 
 import { builders } from '../../internal-builders'
 
-/**
- * @deprecated use ZodObject instead
- */
-export type SomeZodObject = ZodObjectImpl<ZodRawShape, UnknownKeysParam>
-
-/**
- * @deprecated use ZodObject instead
- */
-export type AnyZodObject = ZodObjectImpl<any, any>
-
 export class ZodObjectImpl<
     T extends ZodRawShape = ZodRawShape,
     UnknownKeys extends UnknownKeysParam = UnknownKeysParam,

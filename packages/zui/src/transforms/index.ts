@@ -7,4 +7,5 @@ export { toJSONSchema } from './zui-to-json-schema'
 export { toTypescriptType, type TypescriptGenerationOptions } from './zui-to-typescript-type'
 export { toTypescriptSchema } from './zui-to-typescript-schema'
 
+export type { Schema as ZuiJSONSchema } from './common/json-schema'
 export * as errors from './common/errors'

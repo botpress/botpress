@@ -22,6 +22,7 @@ export type {
   ZodTypeDef as ZodTypeDef,
   IZodType as ZodType,
   ZodTypeAny,
+  ZodSchema,
 
   // any
   ZodAnyDef,
@@ -85,6 +86,8 @@ export type {
   IZodObject as ZodObject,
   ZodRawShape,
   UnknownKeysParam,
+  AnyZodObject,
+  SomeZodObject,
 
   // discriminatedUnion
   ZodDiscriminatedUnionDef,

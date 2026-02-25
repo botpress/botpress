@@ -7,8 +7,10 @@ import type {
 } from '../../typings'
 import { ZodError } from '../../error'
 import * as utils from '../../utils'
-
 import { builders } from '../../internal-builders'
+
+// TODO(circle): get rid of circular dependency between zui core and transforms
+import * as transforms from '../../../transforms'
 
 import type {
   DeepPartialBoolean,
@@ -436,15 +438,12 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.naked()
   }
 
-  // /**
-  //  * The type of component to use to display the field and its options
-  //  */
-  // displayAs<
-  //   UI extends UIComponentDefinitions = UIComponentDefinitions,
-  //   Type extends BaseType = ZodKindToBaseType<this['_def']>,
-  // >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
-  //   return this.metadata({ displayAs: [options.id, options.params] })
-  // }
+  displayAs<
+    UI extends UIComponentDefinitions = UIComponentDefinitions,
+    Type extends BaseDisplayAsType = ZodKindToBaseType<this['_def']>,
+  >(options: DisplayAsOptions<UI[Type][keyof UI[Type]]>): this {
+    return this.metadata({ displayAs: [options.id, options.params] })
+  }
 
   /**
    * The title of the field. Defaults to the field name.
@@ -497,6 +496,32 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   /**
+   *
+   * @returns a JSON Schema equivalent to the Zui schema
+   */
+  toJSONSchema(): transforms.ZuiJSONSchema {
+    return transforms.toJSONSchema(this)
+  }
+
+  /**
+   *
+   * @param options generation options
+   * @returns a string of the TypeScript type representing the schema
+   */
+  toTypescriptType(opts?: transforms.TypescriptGenerationOptions): string {
+    return transforms.toTypescriptType(this, opts)
+  }
+
+  /**
+   *
+   * @param options generation options
+   * @returns a typescript program (a string) that would construct the given schema if executed
+   */
+  toTypescriptSchema(): string {
+    return transforms.toTypescriptSchema(this)
+  }
+
+  /**
    * Allows removing all wrappers around the schema
    * @returns either this or the closest children schema that represents the actual data
    */
@@ -527,16 +552,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     }
   }
 
-  /**
-   * The type of component to use to display the field and its options
-   */
-  displayAs<
-    UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseDisplayAsType = ZodKindToBaseType<this['_def']>,
-  >(options: DisplayAsOptions<UI[Type][keyof UI[Type]]>): this {
-    return this.metadata({ displayAs: [options.id, options.params] })
-  }
-
+  // TODO: this is an ugly workaround to prevent from exposing internal methods in the public API. We should find something better.
   protected static fromInterface(t: IZodType): ZodBaseTypeImpl {
     return t as ZodBaseTypeImpl
   }
