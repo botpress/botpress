@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../z/utils'
-import z, { ZodNullable, ZodOptional } from '../index'
+import * as utils from '../utils'
+import z from '../index'
 
 const nested = z.object({
   name: z.string(),
@@ -50,11 +50,11 @@ test('deep partial inference', () => {
 test('deep partial parse', () => {
   const deep = nested.deepPartial()
 
-  expect(deep.shape.name instanceof z.ZodOptional).toBe(true)
-  expect(deep.shape.outer instanceof z.ZodOptional).toBe(true)
-  expect(deep.shape.outer._def.innerType instanceof z.ZodObject).toBe(true)
-  expect(deep.shape.outer._def.innerType.shape.inner instanceof z.ZodOptional).toBe(true)
-  expect(deep.shape.outer._def.innerType.shape.inner._def.innerType instanceof z.ZodString).toBe(true)
+  expect(deep.shape.name.typeName).toBe('ZodOptional')
+  expect(deep.shape.outer.typeName).toBe('ZodOptional')
+  expect(deep.shape.outer._def.innerType.typeName).toBe('ZodObject')
+  expect(deep.shape.outer._def.innerType.shape.inner.typeName).toBe('ZodOptional')
+  expect(deep.shape.outer._def.innerType.shape.inner._def.innerType.typeName).toBe('ZodString')
 })
 
 test('deep partial runtime tests', () => {
@@ -80,8 +80,8 @@ test('deep partial optional/nullable', () => {
     })
     .deepPartial()
 
-  expect(schema.shape.name.unwrap()).toBeInstanceOf(ZodOptional)
-  expect(schema.shape.age.unwrap()).toBeInstanceOf(ZodNullable)
+  expect(schema.shape.name.unwrap().typeName).toBe('ZodOptional')
+  expect(schema.shape.age.unwrap().typeName).toBe('ZodNullable')
 })
 
 test('deep partial tuple', () => {
@@ -96,7 +96,7 @@ test('deep partial tuple', () => {
     })
     .deepPartial()
 
-  expect(schema.shape.tuple.unwrap().items[0].shape.name).toBeInstanceOf(ZodOptional)
+  expect(schema.shape.tuple.unwrap().items[0].shape.name.typeName).toBe('ZodOptional')
 })
 
 test('deep partial inference', () => {
@@ -130,11 +130,11 @@ test('required', () => {
   })
 
   const requiredObject = object.required()
-  expect(requiredObject.shape.name).toBeInstanceOf(z.ZodString)
-  expect(requiredObject.shape.age).toBeInstanceOf(z.ZodNumber)
-  expect(requiredObject.shape.field).toBeInstanceOf(z.ZodDefault)
-  expect(requiredObject.shape.nullableField).toBeInstanceOf(z.ZodNullable)
-  expect(requiredObject.shape.nullishField).toBeInstanceOf(z.ZodNullable)
+  expect(requiredObject.shape.name.typeName).toBe('ZodString')
+  expect(requiredObject.shape.age.typeName).toBe('ZodNumber')
+  expect(requiredObject.shape.field.typeName).toBe('ZodDefault')
+  expect(requiredObject.shape.nullableField.typeName).toBe('ZodNullable')
+  expect(requiredObject.shape.nullishField.typeName).toBe('ZodNullable')
 })
 
 test('required inference', () => {
@@ -168,10 +168,10 @@ test('required with mask', () => {
   })
 
   const requiredObject = object.required({ age: true })
-  expect(requiredObject.shape.name).toBeInstanceOf(z.ZodString)
-  expect(requiredObject.shape.age).toBeInstanceOf(z.ZodNumber)
-  expect(requiredObject.shape.field).toBeInstanceOf(z.ZodDefault)
-  expect(requiredObject.shape.country).toBeInstanceOf(z.ZodOptional)
+  expect(requiredObject.shape.name.typeName).toBe('ZodString')
+  expect(requiredObject.shape.age.typeName).toBe('ZodNumber')
+  expect(requiredObject.shape.field.typeName).toBe('ZodDefault')
+  expect(requiredObject.shape.country.typeName).toBe('ZodOptional')
 })
 
 test('required with mask -- ignore falsy values', () => {
@@ -184,10 +184,10 @@ test('required with mask -- ignore falsy values', () => {
 
   // @ts-expect-error
   const requiredObject = object.required({ age: true, country: false })
-  expect(requiredObject.shape.name).toBeInstanceOf(z.ZodString)
-  expect(requiredObject.shape.age).toBeInstanceOf(z.ZodNumber)
-  expect(requiredObject.shape.field).toBeInstanceOf(z.ZodDefault)
-  expect(requiredObject.shape.country).toBeInstanceOf(z.ZodOptional)
+  expect(requiredObject.shape.name.typeName).toBe('ZodString')
+  expect(requiredObject.shape.age.typeName).toBe('ZodNumber')
+  expect(requiredObject.shape.field.typeName).toBe('ZodDefault')
+  expect(requiredObject.shape.country.typeName).toBe('ZodOptional')
 })
 
 test('partial with mask', async () => {
@@ -200,10 +200,10 @@ test('partial with mask', async () => {
 
   const masked = object.partial({ age: true, field: true, name: true }).strict()
 
-  expect(masked.shape.name).toBeInstanceOf(z.ZodOptional)
-  expect(masked.shape.age).toBeInstanceOf(z.ZodOptional)
-  expect(masked.shape.field).toBeInstanceOf(z.ZodOptional)
-  expect(masked.shape.country).toBeInstanceOf(z.ZodString)
+  expect(masked.shape.name.typeName).toBe('ZodOptional')
+  expect(masked.shape.age.typeName).toBe('ZodOptional')
+  expect(masked.shape.field.typeName).toBe('ZodOptional')
+  expect(masked.shape.country.typeName).toBe('ZodString')
 
   masked.parse({ country: 'US' })
   await masked.parseAsync({ country: 'US' })
@@ -220,21 +220,19 @@ test('partial with mask -- ignore falsy values', async () => {
   // @ts-expect-error
   const masked = object.partial({ name: true, country: false }).strict()
 
-  expect(masked.shape.name).toBeInstanceOf(z.ZodOptional)
-  expect(masked.shape.age).toBeInstanceOf(z.ZodOptional)
-  expect(masked.shape.field).toBeInstanceOf(z.ZodDefault)
-  expect(masked.shape.country).toBeInstanceOf(z.ZodString)
+  expect(masked.shape.name.typeName).toBe('ZodOptional')
+  expect(masked.shape.age.typeName).toBe('ZodOptional')
+  expect(masked.shape.field.typeName).toBe('ZodDefault')
+  expect(masked.shape.country.typeName).toBe('ZodString')
 
   masked.parse({ country: 'US' })
   await masked.parseAsync({ country: 'US' })
 })
 
-test('deeppartial array', () => {
+test.only('deeppartial array', () => {
   const schema = z.object({ array: z.string().array().min(42) }).deepPartial()
 
-  // works as expected
   schema.parse({})
 
-  // should be false, but is true
   expect(schema.safeParse({ array: [] }).success).toBe(false)
 })

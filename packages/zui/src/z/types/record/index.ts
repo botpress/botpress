@@ -1,10 +1,8 @@
+import type { IZodRecord, IZodString, IZodType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -13,33 +11,14 @@ import {
   type MergeObjectPair,
 } from '../basetype'
 
-// TODO(circle): these may potentially cause circular dependencies errors
-import { BRAND } from '../branded'
-import { ZodString } from '../string'
-
-export type ZodRecordDef<Key extends _KeySchema = ZodString, Value extends ZodType = ZodType> = {
-  valueType: Value
-  keyType: Key
-  typeName: 'ZodRecord'
-} & ZodTypeDef
-
-type _KeySchema = ZodType<string | number | symbol, any, any>
-
-type _RecordType<K extends string | number | symbol, V> = [string] extends [K]
-  ? Record<K, V>
-  : [number] extends [K]
-    ? Record<K, V>
-    : [symbol] extends [K]
-      ? Record<K, V>
-      : [BRAND<string | number | symbol>] extends [K]
-        ? Record<K, V>
-        : Partial<Record<K, V>>
-
-export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType = ZodType> extends ZodType<
-  _RecordType<Key['_output'], Value['_output']>,
-  ZodRecordDef<Key, Value>,
-  _RecordType<Key['_input'], Value['_input']>
-> {
+export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<
+    RecordType<Key['_output'], Value['_output']>,
+    ZodRecordDef<Key, Value>,
+    RecordType<Key['_input'], Value['_input']>
+  >
+  implements IZodRecord<Key, Value>
+{
   get keySchema() {
     return this._def.keyType
   }
@@ -47,10 +26,10 @@ export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, ZodType>): ZodType {
+  dereference(defs: Record<string, IZodType>): IZodType {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
-    return new ZodRecord({
+    return new ZodRecordImpl({
       ...this._def,
       keyType,
       valueType,
@@ -61,12 +40,12 @@ export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType
     return utils.fn.unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
-  clone(): ZodRecord<Key, Value> {
-    return new ZodRecord({
+  clone(): IZodRecord<Key, Value> {
+    return new ZodRecordImpl({
       ...this._def,
-      keyType: this._def.keyType.clone(),
-      valueType: this._def.valueType.clone(),
-    }) as ZodRecord<Key, Value>
+      keyType: this._def.keyType.clone() as Key,
+      valueType: this._def.valueType.clone() as Value,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -90,8 +69,10 @@ export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType
 
     for (const key in ctx.data) {
       pairs.push({
-        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
-        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
+        key: ZodBaseTypeImpl.fromInterface(keyType)._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
+        value: ZodBaseTypeImpl.fromInterface(valueType)._parse(
+          new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)
+        ),
       })
     }
 
@@ -106,32 +87,8 @@ export class ZodRecord<Key extends _KeySchema = ZodString, Value extends ZodType
     return this._def.valueType
   }
 
-  static create<Value extends ZodType>(valueType: Value, params?: RawCreateParams): ZodRecord<ZodString, Value>
-  static create<Keys extends _KeySchema, Value extends ZodType>(
-    keySchema: Keys,
-    valueType: Value,
-    params?: RawCreateParams
-  ): ZodRecord<Keys, Value>
-  static create(first: any, second?: any, third?: any): ZodRecord<any, any> {
-    if (second instanceof ZodType) {
-      return new ZodRecord({
-        keyType: first,
-        valueType: second,
-        typeName: 'ZodRecord',
-        ...processCreateParams(third),
-      })
-    }
-
-    return new ZodRecord({
-      keyType: ZodString.create(),
-      valueType: first,
-      typeName: 'ZodRecord',
-      ...processCreateParams(second),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodRecord)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodRecordImpl)) return false
     if (!this._def.keyType.isEqual(schema._def.keyType)) return false
     if (!this._def.valueType.isEqual(schema._def.valueType)) return false
     return true

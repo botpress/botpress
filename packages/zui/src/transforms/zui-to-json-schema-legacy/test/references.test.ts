@@ -4,7 +4,7 @@ import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 const ajv = new Ajv()
 import deref from 'local-ref-resolver'
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 
 describe('Pathing', () => {
   test('should handle recurring properties with paths', () => {

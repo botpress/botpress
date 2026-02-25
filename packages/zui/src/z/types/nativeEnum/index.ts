@@ -1,25 +1,12 @@
 import { isEqual } from 'lodash-es'
+import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef } from '../../typings'
 import * as utils from '../../utils'
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodNativeEnumDef<T extends EnumLike = EnumLike> = {
-  values: T
-  typeName: 'ZodNativeEnum'
-} & ZodTypeDef
-
-export type EnumLike = { [k: string]: string | number; [nu: number]: string }
-
-export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyof T], ZodNativeEnumDef<T>> {
+export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
+  extends ZodBaseTypeImpl<T[keyof T], ZodNativeEnumDef<T>>
+  implements IZodNativeEnum<T>
+{
   _parse(input: ParseInput): ParseReturnType<T[keyof T]> {
     const nativeEnumValues = this._getValidEnumValues(this._def.values)
 
@@ -51,16 +38,8 @@ export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyo
     return this._def.values
   }
 
-  static create = <T extends EnumLike>(values: T, params?: RawCreateParams): ZodNativeEnum<T> => {
-    return new ZodNativeEnum({
-      values,
-      typeName: 'ZodNativeEnum',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodNativeEnum)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodNativeEnumImpl)) return false
     return isEqual(this._def.values, schema._def.values)
   }
 

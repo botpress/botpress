@@ -1,22 +1,27 @@
 import { describe, test, expect } from 'vitest'
-import { z } from './index'
+import { z } from '../index'
+import * as transforms from '../../transforms'
 
-const expectZui = (actual: z.Schema) => ({
+const expectZui = (actual: z.ZodType) => ({
   not: {
-    toEqual: (expected: z.Schema) => {
+    toEqual: (expected: z.ZodType) => {
       const result = actual.isEqual(expected)
       let msg: string | undefined = undefined
       try {
-        msg = `Expected ${actual.toTypescriptSchema()} not to equal ${expected.toTypescriptSchema()}`
+        msg = `Expected ${transforms.toTypescriptSchema(
+          actual as z.ZodNativeType
+        )} not to equal ${transforms.toTypescriptSchema(expected as z.ZodNativeType)}`
       } catch {}
       expect(result, msg).toBe(true)
     },
   },
-  toEqual: (expected: z.Schema) => {
+  toEqual: (expected: z.ZodType) => {
     const result = actual.isEqual(expected)
     let msg: string | undefined = undefined
     try {
-      msg = `Expected ${actual.toTypescriptSchema()} to equal ${expected.toTypescriptSchema()}`
+      msg = `Expected ${transforms.toTypescriptSchema(actual as z.ZodNativeType)} to equal ${transforms.toTypescriptSchema(
+        expected as z.ZodNativeType
+      )}`
     } catch {}
     expect(result, msg).toBe(true)
   },

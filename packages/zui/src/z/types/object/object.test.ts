@@ -32,10 +32,10 @@ test('shape() should return schema of particular key', () => {
   const f3Schema = Test.shape.f3
   const f4Schema = Test.shape.f4
 
-  expect(f1Schema).toBeInstanceOf(z.ZodNumber)
-  expect(f2Schema).toBeInstanceOf(z.ZodOptional)
-  expect(f3Schema).toBeInstanceOf(z.ZodNullable)
-  expect(f4Schema).toBeInstanceOf(z.ZodArray)
+  expect(f1Schema.typeName).toBe('ZodNumber')
+  expect(f2Schema.typeName).toBe('ZodOptional')
+  expect(f3Schema.typeName).toBe('ZodNullable')
+  expect(f4Schema.typeName).toBe('ZodArray')
 })
 
 test('correct parsing', () => {
@@ -369,7 +369,7 @@ test('unknownkeys merging', () => {
   type mergedSchema = typeof mergedSchema
 
   utils.assert.assertEqual<mergedSchema['_def']['unknownKeys'], z.ZodString>(true)
-  expect(mergedSchema._def.unknownKeys instanceof z.ZodString).toEqual(true)
+  expect(mergedSchema._def.unknownKeys.typeName).toBe('ZodString')
 })
 
 const personToExtend = z.object({

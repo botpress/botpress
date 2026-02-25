@@ -1,11 +1,12 @@
 import { test, expect } from 'vitest'
 import z from '../index'
+import { ZodError } from '../error'
 const stringSchema = z.string()
 
 test('safeparse fail', () => {
   const safe = stringSchema.safeParse(12)
   expect(safe.success).toEqual(false)
-  expect(safe.error).toBeInstanceOf(z.ZodError)
+  expect(safe.error).toBeInstanceOf(ZodError)
 })
 
 test('safeparse pass', () => {

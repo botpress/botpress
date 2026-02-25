@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../z/utils'
+import * as utils from '../utils'
 import z from '../index'
 
 const fish = z.object({

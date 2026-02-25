@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
 import * as utils from '../../utils'
 import * as z from '../../index'
-import { ZodIssueCode } from '../../index'
 
 const stringMap = z.map(z.string(), z.string())
 type stringMap = z.infer<typeof stringMap>

@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../z/utils'
+import * as utils from '../utils'
 import * as z from '../index'
-import { ZodIssueCode } from '../index'
 
 const stringSet = z.set(z.string())
 type stringSet = z.infer<typeof stringSet>

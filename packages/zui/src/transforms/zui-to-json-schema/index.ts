@@ -13,8 +13,8 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.Schema): json.Schema {
-  const s = schema as z.ZodNativeSchema
+export function toJSONSchema(schema: z.ZodType): json.Schema {
+  const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
     case 'ZodString':
@@ -83,7 +83,7 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
         .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
       let additionalProperties: json.ObjectSchema['additionalProperties'] = false
-      if (s._def.unknownKeys instanceof z.ZodType) {
+      if (z.isZuiType(s._def.unknownKeys)) {
         additionalProperties = toJSONSchema(s._def.unknownKeys)
       } else if (s._def.unknownKeys === 'passthrough') {
         additionalProperties = true

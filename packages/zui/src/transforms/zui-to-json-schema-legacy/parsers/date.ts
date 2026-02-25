@@ -1,5 +1,5 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
+import { zuiKey } from '../../../z'
+import { ZuiExtensionObject } from '../../../z'
 import { ZodDateDef } from '../../../z'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'

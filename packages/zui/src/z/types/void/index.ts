@@ -1,20 +1,7 @@
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodVoid, ZodVoidDef } from '../../typings'
 
-export type ZodVoidDef = {
-  typeName: 'ZodVoid'
-} & ZodTypeDef
-
-export class ZodVoid extends ZodType<void, ZodVoidDef> {
+export class ZodVoidImpl extends ZodBaseTypeImpl<void, ZodVoidDef> implements IZodVoid {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType !== 'undefined') {
@@ -29,14 +16,7 @@ export class ZodVoid extends ZodType<void, ZodVoidDef> {
     return OK(input.data)
   }
 
-  static create = (params?: RawCreateParams): ZodVoid => {
-    return new ZodVoid({
-      typeName: 'ZodVoid',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodVoid
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodVoidImpl
   }
 }

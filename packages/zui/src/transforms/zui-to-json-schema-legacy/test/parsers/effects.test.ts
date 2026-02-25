@@ -3,7 +3,7 @@ import { JSONSchema7Type } from 'json-schema'
 import { z } from '../../../../z/index'
 import { parseEffectsDef } from '../../parsers/effects'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 describe('effects', () => {
   it('should be possible to use refine', () => {

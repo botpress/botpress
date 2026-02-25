@@ -1,6 +1,6 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { type IssueData, type ZodIssue, type ZodErrorMap, defaultErrorMap, getErrorMap } from '../../error'
+import { zuiKey } from '../../consts'
+import { defaultErrorMap, getErrorMap } from '../../error'
+import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap } from '../../typings'
 
 export type RawCreateParams =
   | {
@@ -11,12 +11,6 @@ export type RawCreateParams =
       [zuiKey]?: ZuiExtensionObject
     }
   | undefined
-
-export type ProcessedCreateParams = {
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
 
 export const makeIssue = (params: {
   data: any
@@ -152,10 +146,6 @@ export class ParseStatus {
     return { status: status.value, value: finalObject }
   }
 }
-export type ParseResult = {
-  status: 'aborted' | 'dirty' | 'valid'
-  data: any
-}
 
 export type INVALID = { status: 'aborted' }
 export const INVALID: INVALID = Object.freeze({
@@ -181,28 +171,6 @@ export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> =>
 export const isValid = <T>(x: ParseReturnType<T>): x is OK<T> => (x as SyncParseReturnType).status === 'valid'
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
-
-export type ZodParsedType =
-  | 'string'
-  | 'nan'
-  | 'number'
-  | 'integer'
-  | 'float'
-  | 'boolean'
-  | 'date'
-  | 'bigint'
-  | 'symbol'
-  | 'function'
-  | 'undefined'
-  | 'null'
-  | 'array'
-  | 'object'
-  | 'unknown'
-  | 'promise'
-  | 'void'
-  | 'never'
-  | 'map'
-  | 'set'
 
 export const getParsedType = (data: any): ZodParsedType => {
   const t = typeof data
@@ -253,42 +221,6 @@ export const getParsedType = (data: any): ZodParsedType => {
     default:
       return 'unknown'
   }
-}
-
-export function processCreateParams(
-  params: RawCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)
-): ProcessedCreateParams {
-  if (!params) return {}
-
-  const {
-    errorMap,
-    invalid_type_error,
-    required_error,
-    description,
-    supportsExtensions,
-    [zuiKey]: zuiExtensions,
-  } = params
-
-  if (errorMap && (invalid_type_error || required_error)) {
-    throw new Error('Can\'t use "invalid_type_error" or "required_error" in conjunction with custom error map.')
-  }
-
-  const filteredZuiExtensions = zuiExtensions
-    ? Object.fromEntries(
-        Object.entries(zuiExtensions).filter(([key]) => key !== 'secret' || supportsExtensions?.includes('secret'))
-      )
-    : undefined
-
-  if (errorMap) return { errorMap, description, [zuiKey]: filteredZuiExtensions }
-
-  const customMap: ZodErrorMap = (iss, ctx) => {
-    if (iss.code !== 'invalid_type') return { message: ctx.defaultError }
-    if (typeof ctx.data === 'undefined') {
-      return { message: required_error ?? ctx.defaultError }
-    }
-    return { message: invalid_type_error ?? ctx.defaultError }
-  }
-  return { errorMap: customMap, description, [zuiKey]: filteredZuiExtensions }
 }
 
 export class ParseInputLazyPath implements ParseInput {

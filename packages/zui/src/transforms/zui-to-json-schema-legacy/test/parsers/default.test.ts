@@ -3,7 +3,7 @@ import { JSONSchema7Type } from 'json-schema'
 import { z } from '../../../../z/index'
 import { parseDefaultDef } from '../../parsers/default'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 describe('promise', () => {
   it('should be possible to use default on objects', () => {

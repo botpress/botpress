@@ -1,6 +1,6 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodType, ZodTypeAny } from '../../../z'
+import { zuiKey } from '../../../z'
+import { ZuiExtensionObject } from '../../../z'
+import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7EnumType } from './enum'
@@ -16,7 +16,7 @@ export type JsonSchema7RecordType = {
   [zuiKey]?: ZuiExtensionObject
 }
 
-export function parseRecordDef(def: ZodRecordDef<ZodType, ZodType> | ZodMapDef, refs: Refs): JsonSchema7RecordType {
+export function parseRecordDef(def: ZodRecordDef | ZodMapDef, refs: Refs): JsonSchema7RecordType {
   if (refs.target === 'openApi3' && def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodEnum) {
     return {
       type: 'object',

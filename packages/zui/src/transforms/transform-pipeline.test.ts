@@ -3,15 +3,16 @@ import z from '../z'
 import { toJSONSchema } from './zui-to-json-schema'
 import { fromJSONSchema } from './zui-from-json-schema'
 import * as errors from './common/errors'
+import * as transforms from '../transforms'
 
-const assert = (src: z.Schema) => ({
+const assert = (src: z.ZodType) => ({
   toTransformBackToItself: () => {
     const jsonSchema = toJSONSchema(src)
     const actual = fromJSONSchema(jsonSchema)
     const expected = src
     let msg: string | undefined = undefined
     try {
-      msg = `Expected ${actual.toTypescriptSchema()} to equal ${expected.toTypescriptSchema()}`
+      msg = `Expected ${transforms.toTypescriptSchema(actual)} to equal ${transforms.toTypescriptSchema(expected)}`
     } catch {}
     const result = actual.isEqual(expected)
     expect(result, msg).toBe(true)

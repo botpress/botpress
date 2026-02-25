@@ -1,4 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 import { JsonSchemaObject } from '../types'
 import { withMessage } from '../utils'
 
@@ -27,6 +27,8 @@ export const parseString = (schema: JsonSchemaObject & { type: 'string' }) => {
         return ['.uuid(', ')']
       case 'date-time':
         return ['.datetime(', ')']
+      default:
+        return
     }
   })
 

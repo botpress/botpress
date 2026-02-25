@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
 import z from '../index'
+import { ZodError } from '../error'
 
 /// string
 const stringSchema = z.string()
@@ -14,7 +15,7 @@ test('string async parse', async () => {
 
   const badResult = await stringSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// number
@@ -29,7 +30,7 @@ test('number async parse', async () => {
 
   const badResult = await numberSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// bigInt
@@ -44,7 +45,7 @@ test('bigInt async parse', async () => {
 
   const badResult = await bigIntSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// boolean
@@ -59,7 +60,7 @@ test('boolean async parse', async () => {
 
   const badResult = await booleanSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// date
@@ -74,7 +75,7 @@ test('date async parse', async () => {
 
   const badResult = await dateSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// undefined
@@ -89,7 +90,7 @@ test('undefined async parse', async () => {
 
   const badResult = await undefinedSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// null
@@ -104,7 +105,7 @@ test('null async parse', async () => {
 
   const badResult = await nullSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// any
@@ -119,7 +120,7 @@ test('any async parse', async () => {
 
   // const badResult = await anySchema.safeParseAsync(badData);
   // expect(badResult.success).toBe(false);
-  // if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError);
+  // if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError);
 })
 
 /// unknown
@@ -134,7 +135,7 @@ test('unknown async parse', async () => {
 
   // const badResult = await unknownSchema.safeParseAsync(badData);
   // expect(badResult.success).toBe(false);
-  // if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError);
+  // if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError);
 })
 
 /// void
@@ -149,7 +150,7 @@ test('void async parse', async () => {
 
   const badResult = await voidSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// array
@@ -164,7 +165,7 @@ test('array async parse', async () => {
 
   const badResult = await arraySchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// object
@@ -179,7 +180,7 @@ test('object async parse', async () => {
 
   const badResult = await objectSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// union
@@ -194,7 +195,7 @@ test('union async parse', async () => {
 
   const badResult = await unionSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// record
@@ -209,7 +210,7 @@ test('record async parse', async () => {
 
   const badResult = await recordSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// function
@@ -224,7 +225,7 @@ test('function async parse', async () => {
 
   const badResult = await functionSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// literal
@@ -239,7 +240,7 @@ test('literal async parse', async () => {
 
   const badResult = await literalSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// enum
@@ -254,7 +255,7 @@ test('enum async parse', async () => {
 
   const badResult = await enumSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// nativeEnum
@@ -273,7 +274,7 @@ test('nativeEnum async parse', async () => {
 
   const badResult = await nativeEnumSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(false)
-  if (!badResult.success) expect(badResult.error).toBeInstanceOf(z.ZodError)
+  if (!badResult.success) expect(badResult.error).toBeInstanceOf(ZodError)
 })
 
 /// promise
@@ -299,7 +300,7 @@ test('promise async parse bad', async () => {
   const badResult = await promiseSchema.safeParseAsync(badData)
   expect(badResult.success).toBe(true)
   if (badResult.success) {
-    await expect(badResult.data).rejects.toBeInstanceOf(z.ZodError)
+    await expect(badResult.data).rejects.toBeInstanceOf(ZodError)
   } else {
     throw new Error('success should be true')
   }

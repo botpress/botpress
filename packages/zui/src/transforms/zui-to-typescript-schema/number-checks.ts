@@ -1,4 +1,4 @@
-import { ZodNumberCheck, ZodNumberDef } from '../../z/types/number'
+import { ZodNumberCheck, ZodNumberDef } from '../../z/'
 import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 

@@ -4,7 +4,7 @@ import { z } from '../../../../z/index'
 import { parseMapDef } from '../../parsers/map'
 import Ajv from 'ajv'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 const ajv = new Ajv({ strict: false })
 describe('map', () => {

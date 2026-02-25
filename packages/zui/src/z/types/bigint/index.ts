@@ -1,29 +1,16 @@
+import { type IZodBigInt, ZodBigIntCheck, ZodBigIntDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   addIssueToContext,
   INVALID,
   ParseContext,
   ParseInput,
-  ParseReturnType,
   ParseStatus,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
+  ParseReturnType,
 } from '../basetype'
 
-export type ZodBigIntCheck =
-  | { kind: 'min'; value: bigint; inclusive: boolean; message?: string }
-  | { kind: 'max'; value: bigint; inclusive: boolean; message?: string }
-  | { kind: 'multipleOf'; value: bigint; message?: string }
-
-export type ZodBigIntDef = {
-  checks: ZodBigIntCheck[]
-  typeName: 'ZodBigInt'
-  coerce: boolean
-} & ZodTypeDef
-
-export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
+export class ZodBigIntImpl extends ZodBaseTypeImpl<bigint, ZodBigIntDef> implements IZodBigInt {
   _parse(input: ParseInput): ParseReturnType<bigint> {
     if (this._def.coerce) {
       input.data = BigInt(input.data)
@@ -87,17 +74,8 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
     return { status: status.value, value: input.data }
   }
 
-  static create = (params?: RawCreateParams & { coerce?: boolean }): ZodBigInt => {
-    return new ZodBigInt({
-      checks: [],
-      typeName: 'ZodBigInt',
-      coerce: params?.coerce ?? false,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodBigInt)) {
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodBigIntImpl)) {
       return false
     }
     if (this._def.coerce !== schema._def.coerce) return false
@@ -127,7 +105,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
   }
 
   protected setLimit(kind: 'min' | 'max', value: bigint, inclusive: boolean, message?: string) {
-    return new ZodBigInt({
+    return new ZodBigIntImpl({
       ...this._def,
       checks: [
         ...this._def.checks,
@@ -142,7 +120,7 @@ export class ZodBigInt extends ZodType<bigint, ZodBigIntDef> {
   }
 
   _addCheck(check: ZodBigIntCheck) {
-    return new ZodBigInt({
+    return new ZodBigIntImpl({
       ...this._def,
       checks: [...this._def.checks, check],
     })

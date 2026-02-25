@@ -1,22 +1,12 @@
 import { isEqual } from 'lodash-es'
+import type { IZodLiteral, ZodLiteralDef } from '../../typings'
 import * as utils from '../../utils'
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodLiteralDef<T extends utils.types.Primitive = utils.types.Primitive> = {
-  value: T
-  typeName: 'ZodLiteral'
-} & ZodTypeDef
-
-export class ZodLiteral<T extends utils.types.Primitive = utils.types.Primitive> extends ZodType<T, ZodLiteralDef<T>> {
+export class ZodLiteralImpl<T extends utils.types.Primitive = utils.types.Primitive>
+  extends ZodBaseTypeImpl<T, ZodLiteralDef<T>>
+  implements IZodLiteral<T>
+{
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (input.data !== this._def.value) {
       const ctx = this._getOrReturnCtx(input)
@@ -34,16 +24,8 @@ export class ZodLiteral<T extends utils.types.Primitive = utils.types.Primitive>
     return this._def.value
   }
 
-  static create = <T extends utils.types.Primitive>(value: T, params?: RawCreateParams): ZodLiteral<T> => {
-    return new ZodLiteral({
-      value,
-      typeName: 'ZodLiteral',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodLiteral)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodLiteralImpl)) return false
     return isEqual(this._def.value, schema._def.value)
   }
 }

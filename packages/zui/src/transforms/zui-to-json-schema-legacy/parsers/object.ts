@@ -1,6 +1,6 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodObjectDef, ZodType, ZodTypeAny } from '../../../z'
+import z, { zuiKey } from '../../../z'
+import { ZuiExtensionObject } from '../../../z'
+import { ZodObjectDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
@@ -13,7 +13,7 @@ export type JsonSchema7ObjectType = {
 }
 
 const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
-  if (def.unknownKeys instanceof ZodType) {
+  if (z.isZuiType(def.unknownKeys)) {
     return (
       parseDef((def.unknownKeys as ZodTypeAny)._def, {
         ...refs,

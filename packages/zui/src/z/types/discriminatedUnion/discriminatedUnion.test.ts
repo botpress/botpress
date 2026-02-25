@@ -128,7 +128,7 @@ test('wrong schema - missing discriminator', () => {
     ])
     throw new Error()
   } catch (e: any) {
-    expect(e.message.includes('could not be extracted')).toBe(true)
+    expect(e.message).toContain('could not be extracted')
   }
 })
 

@@ -1,5 +1,5 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
+import { zuiKey } from '../../../z'
+import { ZuiExtensionObject } from '../../../z'
 import { ZodEnumDef } from '../../../z'
 
 export type JsonSchema7EnumType = {

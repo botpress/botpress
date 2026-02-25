@@ -4,7 +4,7 @@ import { z } from '../../../z/index'
 import { parseDef } from '../parseDef'
 import Ajv from 'ajv'
 import { getRefs } from '../Refs'
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 
 const ajv = new Ajv()
 

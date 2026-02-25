@@ -1,28 +1,16 @@
 import { ZodError } from '../../error'
 import * as utils from '../../utils'
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  isAsync,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import { ZodBaseTypeImpl, isAsync, ParseContext, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodCatch, IZodType, ZodCatchDef, CatchFn } from '../../typings'
 
-export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
-export type ZodCatchDef<T extends ZodType = ZodType> = {
-  innerType: T
-  catchValue: CatchFn<T['_output']>
-  typeName: 'ZodCatch'
-} & ZodTypeDef
-
-export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
-  T['_output'],
-  ZodCatchDef<T>,
-  unknown // any input will pass validation // T["_input"]
-> {
+export class ZodCatchImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<
+    T['_output'],
+    ZodCatchDef<T>,
+    unknown // any input will pass validation // T["_input"]
+  >
+  implements IZodCatch<T>
+{
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
 
@@ -35,7 +23,7 @@ export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
       },
     }
 
-    const result = this._def.innerType._parse({
+    const result = ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse({
       data: newCtx.data,
       path: newCtx.path,
       parent: {
@@ -78,30 +66,16 @@ export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType
   }
 
-  static create = <T extends ZodType>(
-    type: T,
-    params: RawCreateParams & {
-      catch: T['_output'] | CatchFn<T['_output']>
-    }
-  ): ZodCatch<T> => {
-    return new ZodCatch({
-      innerType: type,
-      typeName: 'ZodCatch',
-      catchValue: typeof params.catch === 'function' ? params.catch : () => params.catch,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodCatch)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodCatchImpl)) return false
     return (
       this._def.innerType.isEqual(schema._def.innerType) &&
       utils.others.compareFunctions(this._def.catchValue, schema._def.catchValue)
     )
   }
 
-  dereference(defs: Record<string, ZodType>): ZodType {
-    return new ZodCatch({
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodCatchImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
     })
@@ -111,21 +85,21 @@ export class ZodCatch<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
-  clone(): ZodCatch<T> {
-    return new ZodCatch({
+  clone(): IZodCatch<T> {
+    return new ZodCatchImpl({
       ...this._def,
-      innerType: this._def.innerType.clone(),
-    }) as ZodCatch<T>
+      innerType: this._def.innerType.clone() as T,
+    })
   }
 
   naked() {
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodCatch<ZodType> {
-    return new ZodCatch({
+  mandatory(): IZodCatch<IZodType> {
+    return new ZodCatchImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),
-    })
+    }) as IZodCatch<IZodType>
   }
 }

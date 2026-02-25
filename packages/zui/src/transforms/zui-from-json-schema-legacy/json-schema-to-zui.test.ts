@@ -1,12 +1,12 @@
 import { describe, expect, test, it } from 'vitest'
-import { ZodType, z } from '../../z/index'
-import { zuiKey } from '../../ui/constants'
+import { ZodNativeType, z, zuiKey } from '../../z'
 import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from '.'
 import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension'
 import { JSONSchema7 } from 'json-schema'
 import { assert } from '../../assertions.utils.test'
+import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'
 
-const testZuiConversion = (zuiObject: ZodType) => {
+const testZuiConversion = (zuiObject: ZodNativeType) => {
   const jsonSchema = toJSONSchemaLegacy(zuiObject)
   const asZui = fromJSONSchemaLegacy(jsonSchema)
   const convertedJsonSchema = toJSONSchemaLegacy(asZui)

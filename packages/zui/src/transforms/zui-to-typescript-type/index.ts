@@ -34,16 +34,16 @@ const stripSpaces = (typings: string) => typings.replace(/ +/g, ' ').trim()
 class KeyValue {
   constructor(
     public key: string,
-    public value: z.Schema
+    public value: z.ZodType
   ) {}
 }
 
 class FnParameters {
-  constructor(public schema: z.Schema) {}
+  constructor(public schema: z.ZodType) {}
 }
 
 class FnReturn {
-  constructor(public schema: z.Schema) {}
+  constructor(public schema: z.ZodType) {}
 }
 
 class Declaration {
@@ -53,18 +53,18 @@ class Declaration {
 type DeclarationProps =
   | {
       type: 'variable'
-      schema: z.Schema
+      schema: z.ZodType
       identifier: string
     }
   | {
       type: 'type'
-      schema: z.Schema
+      schema: z.ZodType
       identifier: string
       args: string[] // type arguments / generics
     }
   | {
       type: 'none'
-      schema: z.Schema
+      schema: z.ZodType
     }
 
 export type TypescriptDeclarationType = DeclarationProps['type']
@@ -79,7 +79,7 @@ export type TypescriptGenerationOptions = {
   treatDefaultAsOptional?: boolean
 }
 
-type SchemaTypes = z.Schema | KeyValue | FnParameters | Declaration | null
+type SchemaTypes = z.ZodType | KeyValue | FnParameters | Declaration | null
 
 type InternalOptions = {
   parent?: SchemaTypes
@@ -94,7 +94,7 @@ type InternalOptions = {
  * @param options generation options
  * @returns a string of the TypeScript **type** representing the schema
  */
-export function toTypescriptType(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
+export function toTypescriptType(schema: z.ZodType, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
   let dts = sUnwrapZod(wrappedSchema, options)
@@ -108,7 +108,7 @@ export function toTypescriptType(schema: z.Schema, options: TypescriptGeneration
 
 const _optionalKey = (key: string): string => (key.endsWith('?') ? key : `${key}?`)
 
-function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
+function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
   const newConfig: InternalOptions = {
     ...config,
     declaration: false,
@@ -125,15 +125,17 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
   if (schema instanceof KeyValue) {
     let optionalValue: z.ZodOptional | undefined = undefined
-    if (schema.value instanceof z.ZodOptional) {
-      optionalValue = schema.value
-    } else if (schema.value instanceof z.ZodDefault && config.treatDefaultAsOptional) {
-      optionalValue = schema.value._def.innerType.optional()
+
+    const schemaValue = schema.value as z.ZodNativeType
+    if (schemaValue.typeName === 'ZodOptional') {
+      optionalValue = schemaValue
+    } else if (schemaValue.typeName === 'ZodDefault' && config.treatDefaultAsOptional) {
+      optionalValue = schemaValue._def.innerType.optional()
     }
 
     if (optionalValue) {
       let innerType = optionalValue._def.innerType
-      if (innerType instanceof z.Schema && !innerType.description && optionalValue.description) {
+      if (z.isZuiType(innerType) && !innerType.description && optionalValue.description) {
         innerType = innerType?.describe(optionalValue.description)
       }
 
@@ -144,24 +146,27 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    const isOptional = schema.value instanceof z.ZodAny // any is treated as optional for backwards compatibility
+    const isOptional = (schema.value as z.ZodNativeType).typeName === 'ZodAny' // any is treated as optional for backwards compatibility
     const key = isOptional ? _optionalKey(schema.key) : schema.key
     return `${delimiter}${description}${delimiter}${key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {
-    if (schema.schema instanceof z.ZodTuple) {
+    const schemaSchema = schema.schema as z.ZodNativeType
+    if (schemaSchema.typeName === 'ZodTuple') {
       let args = ''
-      for (let i = 0; i < schema.schema.items.length; i++) {
-        const argName = schema.schema.items[i]?.ui?.title ?? `arg${i}`
-        const item = schema.schema.items[i]
-        args += `${sUnwrapZod(new KeyValue(toPropertyKey(argName), item), newConfig)}${i < schema.schema.items.length - 1 ? ', ' : ''} `
+      for (let i = 0; i < schemaSchema.items.length; i++) {
+        const argName = (schemaSchema.items[i]?.ui?.title as string) ?? `arg${i}`
+        const item = schemaSchema.items[i]!
+        args += `${sUnwrapZod(new KeyValue(toPropertyKey(argName), item), newConfig)}${
+          i < schemaSchema.items.length - 1 ? ', ' : ''
+        } `
       }
 
       return args
     }
 
-    const isLiteral = schema.schema.naked() instanceof z.ZodLiteral
+    const isLiteral = (schema.schema.naked() as z.ZodNativeType).typeName === 'ZodLiteral'
 
     const typings = sUnwrapZod(schema.schema, newConfig).trim()
     const startsWithPairs =
@@ -180,11 +185,12 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
   }
 
   if (schema instanceof FnReturn) {
-    if (schema.schema instanceof z.ZodOptional) {
-      return `${sUnwrapZod(schema.schema.unwrap(), newConfig)} | undefined`
+    const schemaSchema = schema.schema as z.ZodNativeType
+    if (schemaSchema.typeName === 'ZodOptional') {
+      return `${sUnwrapZod(schemaSchema.unwrap(), newConfig)} | undefined`
     }
 
-    return sUnwrapZod(schema.schema, newConfig)
+    return sUnwrapZod(schemaSchema, newConfig)
   }
 
   const s = schema as z.ZodFirstPartySchemaTypes
@@ -233,7 +239,7 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
     case 'ZodObject':
       const props = Object.entries(s._def.shape()).map(([key, value]) => {
-        if (value instanceof z.Schema) {
+        if (z.isZuiType(value)) {
           return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
         }
         return `${key}: unknown`
@@ -357,7 +363,7 @@ const unwrapDeclaration = (declaration: Declaration, options: InternalOptions): 
   const isLargeDeclaration = typings.split('\n').length >= LARGE_DECLARATION_LINES
   const closingTag = isLargeDeclaration && options.includeClosingTags ? `// end of ${identifier}` : ''
 
-  if (declaration.props.type !== 'type' && schema instanceof z.ZodFunction) {
+  if (declaration.props.type !== 'type' && schema.typeName === 'ZodFunction') {
     return stripSpaces(`${description}
 declare function ${identifier}${typings};${closingTag}`)
   }
@@ -381,7 +387,7 @@ const getDeclarationType = (options: TypescriptGenerationOptions): TypescriptDec
   return options.declaration
 }
 
-const getDeclarationProps = (schema: z.Schema, options: TypescriptGenerationOptions): Declaration => {
+const getDeclarationProps = (schema: z.ZodType, options: TypescriptGenerationOptions): Declaration => {
   const declarationType = getDeclarationType(options)
   const args = schema.getReferences()
 

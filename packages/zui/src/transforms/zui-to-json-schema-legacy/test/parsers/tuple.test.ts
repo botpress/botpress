@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 import { z } from '../../../../z/index'
 import { parseTupleDef } from '../../parsers/tuple'
 import { getRefs } from '../../Refs'

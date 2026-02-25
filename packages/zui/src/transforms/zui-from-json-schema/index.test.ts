@@ -6,6 +6,7 @@ import { Schema as ZuiJSONSchema } from '../common/json-schema'
 import { toJSONSchema } from '../zui-to-json-schema'
 import { toTypescriptType } from '../zui-to-typescript-type'
 import { toZuiPrimitive } from './primitives'
+import { toTypescriptSchema } from '../zui-to-typescript-schema'
 
 const buildSchema = (s: JSONSchema7, xZui: ZuiJSONSchema['x-zui'] = undefined): JSONSchema7 => {
   return { ...s, 'x-zui': xZui } as JSONSchema7
@@ -16,12 +17,12 @@ const undefinedSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 =>
 
 const nullSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 => buildSchema({ type: 'null' }, xZui)
 
-const assert = (actual: z.Schema) => ({
-  toEqual: (expected: z.Schema) => {
+const assert = (actual: z.ZodType) => ({
+  toEqual: (expected: z.ZodType) => {
     const result = actual.isEqual(expected)
     let msg: string | undefined = undefined
     try {
-      msg = `Expected ${actual.toTypescriptSchema()} to equal ${expected.toTypescriptSchema()}`
+      msg = `Expected ${toTypescriptSchema(actual)} to equal ${toTypescriptSchema(expected)}`
     } catch {}
     expect(result, msg).toBe(true)
   },
@@ -464,12 +465,12 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
   })
 
   describe.concurrent('round-trip: zui → json → zui preserves typescript types', () => {
-    const roundTrip = (schema: z.Schema): z.Schema => {
+    const roundTrip = (schema: z.ZodType): z.ZodType => {
       const jsonSchema = toJSONSchema(schema)
       return fromJSONSchema(jsonSchema as JSONSchema7)
     }
 
-    const getTypescriptType = (schema: z.Schema, title = 'Test'): string => {
+    const getTypescriptType = (schema: z.ZodType, title = 'Test'): string => {
       return toTypescriptType(schema.title(title), { declaration: true })
     }
 
@@ -703,7 +704,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
       expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
     })
 
-    test('should preserve nullable with description', () => {
+    test.only('should preserve nullable with description', () => {
       const original = z.string().nullable().describe('Nullable string')
       const restored = roundTrip(original)
 

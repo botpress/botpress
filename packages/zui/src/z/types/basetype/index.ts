@@ -1,112 +1,58 @@
-import { Schema as ZuiJSONSchema } from '../../../transforms/common/json-schema'
-import { toJSONSchema } from '../../../transforms/zui-to-json-schema'
-import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
-import { toTypescriptType, TypescriptGenerationOptions } from '../../../transforms/zui-to-typescript-type'
-import { zuiKey } from '../../../ui/constants'
 import type {
-  BaseType,
+  BaseDisplayAsType,
+  DisplayAsOptions,
   UIComponentDefinitions,
   ZodKindToBaseType,
-  ParseSchema,
-  ZuiExtensionObject,
   ZuiMetadata,
-} from '../../../ui/types'
-import { type CustomErrorParams, type IssueData, type ZodErrorMap, ZodError } from '../../error'
+} from '../../typings'
+import { ZodError } from '../../error'
 import * as utils from '../../utils'
 
-// TODO(circle): these may potentially cause circular dependencies errors
-import {
-  ZodArray,
-  ZodBranded,
-  ZodCatch,
-  type CatchFn,
-  ZodDefault,
-  ZodIntersection,
-  ZodNullable,
-  ZodOptional,
-  ZodPipeline,
-  ZodPromise,
-  ZodReadonly,
-  ZodEffects,
-  type RefinementEffect,
-  ZodUnion,
-} from '../index'
+import { builders } from '../../internal-builders'
+
+import type {
+  DeepPartialBoolean,
+  IZodType,
+  ZodTypeDef,
+  SafeParseReturnType,
+  CatchFn,
+  IZodArray,
+  IZodBranded,
+  IZodCatch,
+  IZodDefault,
+  IZodIntersection,
+  IZodNullable,
+  IZodOptional,
+  IZodPipeline,
+  IZodPromise,
+  IZodReadonly,
+  IZodEffects,
+  IZodUnion,
+  RefinementEffect,
+  RefinementCtx,
+  CustomErrorParams,
+  IssueData,
+} from '../../typings'
 
 import {
-  AsyncParseReturnType,
   getParsedType,
   isAsync,
   isValid,
   ParseContext,
   ParseInput,
   ParseParams,
-  ParseReturnType,
   ParseStatus,
-  processCreateParams,
+  ParseReturnType,
+  AsyncParseReturnType,
   SyncParseReturnType,
 } from './parseUtil'
 
+import { zuiKey } from '../../consts'
+
 export * from './parseUtil'
 
-/**
- * This type is not part of the original Zod library, it's been added in Zui to:
- * - Brand the type as a ZuiType and avoid conflicts with 'zod' types
- * - Simplify the type checks and inference for `infer`, `input`, and `output`
- *
- * The original `infer` type inference on ZodType takes a lot of compute because the TS compiler has to check all the methods and properties of the class.
- * The fact that we add __type__ here allows the TS compiler to shortcircuit the type inference when it's not present and prevents infinite circular inferences
- */
-type __ZodType<Output = any, Input = Output> = {
-  readonly __type__: 'ZuiType'
-  readonly _output: Output
-  readonly _input: Input
-}
-
-type _DeepPartialBoolean<T> = {
-  [K in keyof T]?: T[K] extends object ? _DeepPartialBoolean<T[K]> | boolean : boolean
-}
-
-export type RefinementCtx = {
-  addIssue: (arg: IssueData) => void
-  path: (string | number)[]
-}
-
-export type TypeOf<T extends __ZodType> = T['_output']
-export type OfType<O, T extends __ZodType> = T extends __ZodType<O> ? T : never
-export type input<T extends __ZodType> = T['_input']
-export type output<T extends __ZodType> = T['_output']
-export type { TypeOf as infer }
-
-export type ZodTypeDef = {
-  typeName: string
-  errorMap?: ZodErrorMap
-  description?: string
-  [zuiKey]?: ZuiExtensionObject
-}
-
-export type SafeParseSuccess<Output> = {
-  success: true
-  data: Output
-  error?: never
-}
-
-export type SafeParseError<Input> = {
-  success: false
-  error: ZodError<Input>
-  data?: never
-}
-
-export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
-
-export { ZodType as Schema, ZodType as ZodSchema }
-
-/**
- * @deprecated - use ZodType instead
- */
-export type ZodTypeAny = ZodType<any, any, any>
-
-export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
-  implements __ZodType<Output, Input>
+export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
+  implements IZodType<Output, Def, Input>
 {
   readonly __type__ = 'ZuiType'
   readonly _type!: Output
@@ -125,7 +71,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
   /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, ZodType>): ZodType {
+  dereference(_defs: Record<string, IZodType>): IZodType {
     return this
   }
 
@@ -134,7 +80,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return []
   }
 
-  clone(): ZodType<Output, Def, Input> {
+  clone(): IZodType<Output, Def, Input> {
     const This = (this as any).constructor
     return new This({
       ...this._def,
@@ -142,7 +88,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   /** checks if a schema is equal to another */
-  abstract isEqual(schema: ZodType): boolean
+  abstract isEqual(schema: IZodType): boolean
 
   _getType(input: ParseInput): string {
     return getParsedType(input.data)
@@ -250,15 +196,15 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   refine<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): ZodEffects<this, RefinedOutput, Input>
+  ): IZodEffects<this, RefinedOutput, Input>
   refine(
     check: (arg: Output) => unknown | Promise<unknown>,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): ZodEffects<this, Output, Input>
+  ): IZodEffects<this, Output, Input>
   refine(
     check: (arg: Output) => unknown,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): ZodEffects<this, Output, Input> {
+  ): IZodEffects<this, Output, Input> {
     const getIssueProperties = (val: Output) => {
       if (typeof message === 'string' || typeof message === 'undefined') {
         return { message }
@@ -268,7 +214,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
         return message
       }
     }
-    return this._refinement((val, ctx) => {
+    return this._refinement((val: Output, ctx: RefinementCtx) => {
       const result = check(val)
       const setError = () =>
         ctx.addIssue({
@@ -297,16 +243,16 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   refinement<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
     refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): ZodEffects<this, RefinedOutput, Input>
+  ): IZodEffects<this, RefinedOutput, Input>
   refinement(
     check: (arg: Output) => boolean,
     refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): ZodEffects<this, Output, Input>
+  ): IZodEffects<this, Output, Input>
   refinement(
     check: (arg: Output) => unknown,
     refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): ZodEffects<this, Output, Input> {
-    return this._refinement((val, ctx) => {
+  ): IZodEffects<this, Output, Input> {
+    return this._refinement((val: Output, ctx: RefinementCtx) => {
       if (!check(val)) {
         ctx.addIssue(typeof refinementData === 'function' ? refinementData(val, ctx) : refinementData)
         return false
@@ -316,22 +262,18 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     })
   }
 
-  _refinement(refinement: RefinementEffect<Output>['refinement']): ZodEffects<this, Output, Input> {
-    return new ZodEffects({
-      schema: this,
-      typeName: 'ZodEffects',
-      effect: { type: 'refinement', refinement },
-    })
+  _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
+    return builders.effects(this, { type: 'refinement', refinement })
   }
 
   superRefine<RefinedOutput extends Output>(
     refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
-  ): ZodEffects<this, RefinedOutput, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): ZodEffects<this, Output, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): ZodEffects<this, Output, Input>
+  ): IZodEffects<this, RefinedOutput, Input>
+  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
+  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
   superRefine(
     refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
-  ): ZodEffects<this, Output, Input> {
+  ): IZodEffects<this, Output, Input> {
     return this._refinement(refinement)
   }
 
@@ -363,20 +305,20 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     this.isOptional = this.isOptional.bind(this)
   }
 
-  optional(): ZodOptional<this> {
-    return ZodOptional.create(this, this._def)
+  optional(): IZodOptional<this> {
+    return builders.optional(this)
   }
-  nullable(): ZodNullable<this> {
-    return ZodNullable.create(this, this._def)
+  nullable(): IZodNullable<this> {
+    return builders.nullable(this)
   }
-  nullish(): ZodOptional<ZodNullable<this>> {
+  nullish(): IZodOptional<IZodNullable<this>> {
     return this.nullable().optional()
   }
-  array(): ZodArray<this> {
-    return ZodArray.create(this, this._def)
+  array(): IZodArray<this> {
+    return builders.array(this)
   }
-  promise(): ZodPromise<this> {
-    return ZodPromise.create(this, this._def)
+  promise(): IZodPromise<this> {
+    return builders.promise(this)
   }
   /**
    * # \#\#\# Experimental \#\#\#
@@ -392,60 +334,40 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @example z.string().or(z.undefined()).mandatory() // z.string()
    * @example z.union([z.string(), z.number(), z.undefined()]).mandatory() // z.union([z.string(), z.number()])
    */
-  mandatory(): ZodType {
+  mandatory(): IZodType {
     return this
   }
 
-  or<T extends ZodType>(option: T): ZodUnion<[this, T]> {
-    return ZodUnion.create([this, option], this._def)
+  or<T extends IZodType>(option: T): IZodUnion<[this, T]> {
+    return builders.union([this, option])
   }
 
-  and<T extends ZodType>(incoming: T): ZodIntersection<this, T> {
-    return ZodIntersection.create(this, incoming, this._def)
+  and<T extends IZodType>(incoming: T): IZodIntersection<this, T> {
+    return builders.intersection(this, incoming)
   }
 
   transform<NewOut>(
     transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
-  ): ZodEffects<this, NewOut> {
-    return new ZodEffects({
-      ...processCreateParams(this._def),
-      schema: this,
-      typeName: 'ZodEffects',
-      effect: { type: 'transform', transform },
+  ): IZodEffects<this, NewOut> {
+    return builders.effects(this, {
+      type: 'transform',
+      transform,
     })
   }
 
-  default(def: utils.types.NoUndefined<Input>): ZodDefault<this>
-  default(def: () => utils.types.NoUndefined<Input>): ZodDefault<this>
+  default(def: utils.types.NoUndefined<Input>): IZodDefault<this>
+  default(def: () => utils.types.NoUndefined<Input>): IZodDefault<this>
   default(def: any) {
     const defaultValueFunc = typeof def === 'function' ? def : () => def
-
-    return new ZodDefault({
-      ...processCreateParams(this._def),
-      innerType: this,
-      defaultValue: defaultValueFunc,
-      typeName: 'ZodDefault',
-    })
+    return builders.default(this, defaultValueFunc)
   }
 
-  brand<B extends string | number | symbol>(brand?: B): ZodBranded<this, B>
-  brand<B extends string | number | symbol>(): ZodBranded<this, B> {
-    return new ZodBranded({
-      typeName: 'ZodBranded',
-      type: this,
-      ...processCreateParams(this._def),
-    })
+  brand(): IZodBranded<this> {
+    return builders.branded(this)
   }
 
-  catch(def: Output | CatchFn<Output>): ZodCatch<this> {
-    const catchValueFunc = typeof def === 'function' ? (def as CatchFn<Output>) : () => def
-
-    return new ZodCatch({
-      ...processCreateParams(this._def),
-      innerType: this,
-      catchValue: catchValueFunc,
-      typeName: 'ZodCatch',
-    })
+  catch(catcher: Output | CatchFn<Output>): IZodCatch<this> {
+    return builders.catch(this, catcher)
   }
 
   describe(description: string): this {
@@ -454,12 +376,12 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return clone
   }
 
-  pipe<T extends ZodType>(target: T): ZodPipeline<this, T> {
-    return ZodPipeline.create(this, target)
+  pipe<T extends IZodType>(target: T): IZodPipeline<this, T> {
+    return builders.pipeline(this, target)
   }
 
-  readonly(): ZodReadonly<this> {
-    return ZodReadonly.create(this)
+  readonly(): IZodReadonly<this> {
+    return builders.readonly(this)
   }
 
   isOptional(): boolean {
@@ -510,19 +432,19 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * Also, in JSON-Schema, default is not a data-type like it is in Zui, but an annotation added on the schema itself. Therefore, only one metadata can apply to both the schema and the default value.
    * This property is used to get the root schema that should contain the metadata.
    */
-  get _metadataRoot(): ZodType {
+  get _metadataRoot(): IZodType {
     return this.naked()
   }
 
-  /**
-   * The type of component to use to display the field and its options
-   */
-  displayAs<
-    UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseType = ZodKindToBaseType<this['_def']>,
-  >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
-    return this.metadata({ displayAs: [options.id, options.params] })
-  }
+  // /**
+  //  * The type of component to use to display the field and its options
+  //  */
+  // displayAs<
+  //   UI extends UIComponentDefinitions = UIComponentDefinitions,
+  //   Type extends BaseType = ZodKindToBaseType<this['_def']>,
+  // >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
+  //   return this.metadata({ displayAs: [options.id, options.params] })
+  // }
 
   /**
    * The title of the field. Defaults to the field name.
@@ -536,7 +458,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   hidden<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
+    value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -554,7 +476,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   disabled<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => _DeepPartialBoolean<T> | boolean)
+    value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)
   ): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -575,36 +497,10 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   /**
-   *
-   * @returns a JSON Schema equivalent to the Zui schema
-   */
-  toJSONSchema(): ZuiJSONSchema {
-    return toJSONSchema(this)
-  }
-
-  /**
-   *
-   * @param options generation options
-   * @returns a string of the TypeScript type representing the schema
-   */
-  toTypescriptType(opts?: TypescriptGenerationOptions): string {
-    return toTypescriptType(this, opts)
-  }
-
-  /**
-   *
-   * @param options generation options
-   * @returns a typescript program (a string) that would construct the given schema if executed
-   */
-  toTypescriptSchema(): string {
-    return toTypescriptSchema(this)
-  }
-
-  /**
    * Allows removing all wrappers around the schema
    * @returns either this or the closest children schema that represents the actual data
    */
-  naked(): ZodType {
+  naked(): IZodType {
     return this
   }
 
@@ -629,5 +525,19 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
         },
       }
     }
+  }
+
+  /**
+   * The type of component to use to display the field and its options
+   */
+  displayAs<
+    UI extends UIComponentDefinitions = UIComponentDefinitions,
+    Type extends BaseDisplayAsType = ZodKindToBaseType<this['_def']>,
+  >(options: DisplayAsOptions<UI[Type][keyof UI[Type]]>): this {
+    return this.metadata({ displayAs: [options.id, options.params] })
+  }
+
+  protected static fromInterface(t: IZodType): ZodBaseTypeImpl {
+    return t as ZodBaseTypeImpl
   }
 }

@@ -3,7 +3,7 @@ import { JSONSchema7Type } from 'json-schema'
 import { z } from '../../../../z/index'
 import { parsePromiseDef } from '../../parsers/promise'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 describe('promise', () => {
   it('should be possible to use promise', () => {

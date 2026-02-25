@@ -1,4 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
+import { zuiKey } from '../../../z'
 import z from '../../../z'
 import * as json from '../../common/json-schema'
 

@@ -1,6 +1,6 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import { zuiKey } from '../../ui/constants'
+import { zuiKey } from '../../z'
 import z from '../../z'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
@@ -22,15 +22,14 @@ import { generateStringChecks } from './string-checks'
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.Schema): string {
-  const wrappedSchema: z.Schema = schema
+export function toTypescriptSchema(schema: z.ZodType): string {
+  const wrappedSchema: z.ZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts
 }
 
-function sUnwrapZod(schema: z.Schema): string {
-  const s = schema as z.ZodNativeSchema
-
+function sUnwrapZod(schema: z.ZodType): string {
+  const s = schema as z.ZodNativeType
   switch (s.typeName) {
     case 'ZodString':
       return `z.string()${generateStringChecks(s._def)}${_addMetadata(s._def)}`.trim()
@@ -147,7 +146,10 @@ function sUnwrapZod(schema: z.Schema): string {
     case 'ZodDefault':
       const defaultValue = unknownToTypescriptValue(s._def.defaultValue())
       // TODO: use z.default() notation
-      return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
+      return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(
+        s._def,
+        s._def.innerType
+      )}`.trim()
 
     case 'ZodCatch':
       throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodCatch')
@@ -192,7 +194,10 @@ const _maybeDescribe = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
 }
 
 const _addZuiExtensions = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) =>
-  `${_maybeTitle(def, innerDef)}${_maybeDisplayAs(def, innerDef)}${_maybeDisabled(def, innerDef)}${_maybeHidden(def, innerDef)}${_maybePlaceholder(def, innerDef)}${_maybeSecret(def, innerDef)}${_maybeSetMetadata(def, innerDef)}`
+  `${_maybeTitle(def, innerDef)}${_maybeDisplayAs(def, innerDef)}${_maybeDisabled(def, innerDef)}${_maybeHidden(
+    def,
+    innerDef
+  )}${_maybePlaceholder(def, innerDef)}${_maybeSecret(def, innerDef)}${_maybeSetMetadata(def, innerDef)}`
 
 const _maybeTitle = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   const title = def[zuiKey]?.title

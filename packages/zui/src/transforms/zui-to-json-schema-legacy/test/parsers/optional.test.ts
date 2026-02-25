@@ -3,7 +3,7 @@ import { JSONSchema7Type } from 'json-schema'
 import { z } from '../../../../z/index'
 import { parseDef } from '../../parseDef'
 import { getRefs } from '../../Refs'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 describe('Standalone optionals', () => {
   it('should work as unions with undefined', () => {

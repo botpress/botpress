@@ -5,7 +5,7 @@ import { parseArrayDef } from '../../parsers/array'
 import { getRefs } from '../../Refs'
 import { errorReferences } from './errorReferences'
 import deref from 'local-ref-resolver'
-import { zuiKey } from '../../../../ui/constants'
+import { zuiKey } from '../../../../z'
 
 describe('Arrays and array validations', () => {
   it('should be possible to describe a simple array', () => {

@@ -1,44 +1,36 @@
-import { defaultErrorMap, getErrorMap, ZodError, ZodErrorMap, ZodIssue } from '../../error'
+import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
+import type {
+  IZodType,
+  IZodFunction,
+  ZodFunctionDef,
+  IZodTuple,
+  ZodErrorMap,
+  ZodIssue,
+  OuterTypeOfFunction,
+  InnerTypeOfFunction,
+  IZodUnknown,
+  IZodPromise,
+} from '../../typings'
+
 import * as utils from '../../utils'
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  makeIssue,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
 
-// TODO(circle): these may potentially cause circular dependencies errors
-import { ZodPromise } from '../promise'
-import { ZodTuple, type AnyZodTuple } from '../tuple'
-import { ZodUnknown } from '../unknown'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { ZodNativeType } from '../../native'
 
-export type ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> = {
-  args: Args
-  returns: Returns
-  typeName: 'ZodFunction'
-} & ZodTypeDef
+import { builders } from '../../internal-builders'
 
-type _OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
-  Args['_input'] extends Array<any> ? (...args: Args['_input']) => Returns['_output'] : never
-
-type _InnerTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodType> =
-  Args['_output'] extends Array<any> ? (...args: Args['_output']) => Returns['_input'] : never
-
-export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodType = ZodType> extends ZodType<
-  _OuterTypeOfFunction<Args, Returns>,
-  ZodFunctionDef<Args, Returns>,
-  _InnerTypeOfFunction<Args, Returns>
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    const args = this._def.args.dereference(defs) as ZodTuple<[], ZodUnknown>
+export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<
+    OuterTypeOfFunction<Args, Returns>,
+    ZodFunctionDef<Args, Returns>,
+    InnerTypeOfFunction<Args, Returns>
+  >
+  implements IZodFunction<Args, Returns>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    const args = this._def.args.dereference(defs) as IZodTuple<[], IZodUnknown>
     const returns = this._def.returns.dereference(defs)
-    return new ZodFunction({
+    return new ZodFunctionImpl({
       ...this._def,
       args,
       returns,
@@ -49,12 +41,12 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
     return utils.fn.unique([...this._def.args.getReferences(), ...this._def.returns.getReferences()])
   }
 
-  clone(): ZodFunction<Args, Returns> {
-    return new ZodFunction({
+  clone(): IZodFunction<Args, Returns> {
+    return new ZodFunctionImpl({
       ...this._def,
-      args: this._def.args.clone() as ZodTuple<any, any>,
-      returns: this._def.returns.clone(),
-    }) as ZodFunction<Args, Returns>
+      args: this._def.args.clone() as Args,
+      returns: this._def.returns.clone() as Returns,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<any> {
@@ -99,7 +91,8 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
     const params = { errorMap: ctx.common.contextualErrorMap }
     const fn = ctx.data
 
-    if (this._def.returns instanceof ZodPromise) {
+    const returns = this._def.returns as ZodNativeType
+    if (returns.typeName === 'ZodPromise') {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 
@@ -111,7 +104,7 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
           throw error
         })
         const result = await Reflect.apply(fn, this, parsedArgs)
-        const parsedReturns = await (me._def.returns as unknown as ZodPromise<ZodType>)._def.type
+        const parsedReturns = await (me._def.returns as unknown as IZodPromise<IZodType>)._def.type
           .parseAsync(result, params)
           .catch((e: any) => {
             // TODO: type e properly
@@ -148,58 +141,41 @@ export class ZodFunction<Args extends ZodTuple<any, any> = ZodTuple, Returns ext
     return this._def.returns
   }
 
-  args<Items extends Parameters<(typeof ZodTuple)['create']>[0]>(
+  args<Items extends [IZodType, ...IZodType[]] | []>(
     ...items: Items
-  ): ZodFunction<ZodTuple<Items, ZodUnknown>, Returns> {
-    return new ZodFunction({
+  ): IZodFunction<IZodTuple<Items, IZodUnknown>, Returns> {
+    return new ZodFunctionImpl({
       ...this._def,
-      args: ZodTuple.create(items).rest(ZodUnknown.create()),
-    })
+      args: builders.tuple(items).rest(builders.unknown()),
+    }) as IZodFunction<IZodTuple<Items, IZodUnknown>, Returns>
   }
 
-  returns<NewReturnType extends ZodType<any, any>>(returnType: NewReturnType): ZodFunction<Args, NewReturnType> {
-    return new ZodFunction({
+  returns<NewReturnType extends IZodType<any, any>>(returnType: NewReturnType): IZodFunction<Args, NewReturnType> {
+    return new ZodFunctionImpl({
       ...this._def,
       returns: returnType,
     })
   }
 
-  implement<F extends _InnerTypeOfFunction<Args, Returns>>(
+  implement<F extends InnerTypeOfFunction<Args, Returns>>(
     func: F
   ): ReturnType<F> extends Returns['_output']
     ? (...args: Args['_input']) => ReturnType<F>
-    : _OuterTypeOfFunction<Args, Returns> {
+    : OuterTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
     return validatedFunc
   }
 
-  strictImplement(func: _InnerTypeOfFunction<Args, Returns>): _InnerTypeOfFunction<Args, Returns> {
+  strictImplement(func: InnerTypeOfFunction<Args, Returns>): InnerTypeOfFunction<Args, Returns> {
     const validatedFunc = this.parse(func)
     return validatedFunc
   }
 
   validate = this.implement
 
-  static create(): ZodFunction<ZodTuple<[], ZodUnknown>, ZodUnknown>
-  static create<T extends AnyZodTuple = ZodTuple<[], ZodUnknown>>(args: T): ZodFunction<T, ZodUnknown>
-  static create<T extends AnyZodTuple, U extends ZodType>(args: T, returns: U): ZodFunction<T, U>
-  static create<T extends AnyZodTuple = ZodTuple<[], ZodUnknown>, U extends ZodType = ZodUnknown>(
-    args: T,
-    returns: U,
-    params?: RawCreateParams
-  ): ZodFunction<T, U>
-  static create(args?: AnyZodTuple, returns?: ZodType, params?: RawCreateParams) {
-    return new ZodFunction({
-      args: args ? args : ZodTuple.create([]).rest(ZodUnknown.create()),
-      returns: returns || ZodUnknown.create(),
-      typeName: 'ZodFunction',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
+  isEqual(schema: IZodType): boolean {
     return (
-      schema instanceof ZodFunction &&
+      schema instanceof ZodFunctionImpl &&
       this._def.args.isEqual(schema._def.args) &&
       this._def.returns.isEqual(schema._def.returns)
     )
