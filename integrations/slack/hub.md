@@ -59,7 +59,7 @@ If you configured the integration using manual configuration, you will need to u
 1. Go to the Slack API portal and navigate to your app.
 2. In the "OAuth & Permissions" section, scroll down to the "Advanced token security via token rotation" section.
 3. Click "Opt In" to enable token rotation. Confirm you wish to opt in.
-4. Copy the Refresh Token (starts with `xoxe-1-`) or legacy Bot Token (starts with `xoxb-`) and paste it into the integration settings in Botpress. You may need to refresh the page in the Slack API portal to see the new token.
+4. Copy the legacy Bot Token (starts with `xoxb-`) or Refresh Token (starts with `xoxe-1-`) and paste it into the integration settings in Botpress. Initially, your Slack app will have a legacy token (`xoxb-`), but after the initial authorization (when you press "Save Configuration"), it will be exchanged for a Refresh Token (`xoxe-1`). The refresh token will automatically be added to your configuration, so you should not need to add anything after the initial Bot Token (`xoxb-`). If you need to access your Refresh Token for any reason after the initial authorization, you will be able to see it in your Slack API portal.
 
 ## Configuration
 
@@ -76,13 +76,79 @@ If you prefer to manually configure the integration, you can provide a bot token
 #### Step 1 - Creating your Slack application
 
 1. In your browser, navigate to the Slack API portal and log in.
-2. From the Slack API portal, create a new Slack app.
-3. Navigate to the "OAuth & Permissions" section of your Slack app.
-4. Scroll down to the "Redirect URLs" section and add the following URL:
+2. From the Slack API portal, select "Create New App"
+3. Select "From a manifest" and select the Slack workplace you would like to install the app to
+4. Replace the JSON with the following content (you may update the app name, display name, always online status, event subscription request_url, and scopes, as needed, or you can edit them after the app has been created):
+
+```JSON
+{
+    "display_information": {
+        "name": "Bot (powered by Botpress)"
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "Bot (powered by Botpress)",
+            "always_online": false
+        }
+    },
+    "oauth_config": {
+        "redirect_urls": [
+            "https://webhook.botpress.cloud/oauth"
+        ],
+        "scopes": {
+            "bot": [
+                "channels:history",
+                "channels:manage",
+                "channels:read",
+                "chat:write",
+                "groups:history",
+                "groups:read",
+                "groups:write",
+                "im:write",
+                "im:read",
+                "im:history",
+                "mpim:history",
+                "mpim:read",
+                "mpim:write",
+                "reactions:read",
+                "reactions:write",
+                "team:read",
+                "users.profile:read",
+                "users:read",
+                "users:read.email",
+                "app_mentions:read"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://webhook.botpress.cloud/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "bot_events": [
+                "member_joined_channel",
+                "member_left_channel",
+                "message.channels",
+                "message.groups",
+                "message.im",
+                "message.mpim",
+                "reaction_added",
+                "reaction_removed",
+                "team_join",
+                "app_mention"
+            ]
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+}
+```
+
+5. Navigate to the "OAuth & Permissions" section of your Slack app.
+6. Scroll down to the "Redirect URLs" section and add the following URL:
    ```
    https://webhook.botpress.cloud/oauth
    ```
-5. Still in the "OAuth & Permissions" section, add the following _Bot Token Scopes_ to your bot token:
+7. Still in the "OAuth & Permissions" section, add the following _Bot Token Scopes_ to your bot token. These should already be set up if you created the app from manifest:
    - `channels:history`: needed to receive incoming messages and to fetch the history of channels the bot gets invited into.
    - `channels:manage`: needed to open new DMs and to set the current topic.
    - `channels:read`: needed to obtain a list of all available channels, to retrieve details about conversations, and to receive notifications when a user joins or leaves a channel.
@@ -102,17 +168,19 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `users.profile:read`: needed to retrieve profile information for channel and DM members.
    - `users:read`: needed to obtain a list of all members of the workspace and to receive notifications when new members join the workspace.
    - `users:read.email`: needed for the `Get User Profile` action.
-6. **IMPORTANT:** install your Slack app to your workspace. This is a crucial step to ensure that the bot can send and receive messages. To do this, scroll up to the "OAuth Tokens for Your Workspace" section and click "Install App to Workspace". Follow the on-screen instructions to authorize the app.
-7. Scroll up to the "Advanced token security via token rotation " section and click "Opt In" to enable token rotation. Confirm you wish to opt in.
-8. Copy the Refresh Token (starts with `xoxe-1-`) or legacy Bot Token (starts with `xoxb-`). You will need it to set up the integration on Botpress. You may need to refresh the page in the Slack API portal to see the token.
-9. Navigate to the "Basic Information" section of your Slack app.
-10. Copy the "Client ID", "Client Secret", and "Signing Secret". You will need them to set up the integration on Botpress.
+   - `app_mentions:read`: needed for the app to receive mentions.
+8. If you would like to be able to send messages to the bot directly, go to "App Home", scroll down to "Show Tabs", and enable "Allow users to send Slash commands and messages from the messages tab".
+9. **IMPORTANT:** install your Slack app to your workspace. This is a crucial step to ensure that the bot can send and receive messages. To do this, scroll up to the "OAuth Tokens for Your Workspace" section and click "Install App to Workspace". Follow the on-screen instructions to authorize the app.
+10. Scroll up to the "Advanced token security via token rotation " section and click "Opt In" to enable token rotation. Confirm you wish to opt in.
+11. Copy the Bot Token (starts with `xoxb-`) or Refresh Token (starts with `xoxe-1-`). Initially, your Slack app will have a legacy token (`xoxb-`), but after the initial authorization (when you press "Save Configuration"), it will be exchanged for a Refresh Token (`xoxe-1`). The refresh token will automatically be added to your configuration, so you should not need to add anything after the initial Bot Token (`xoxb-`). If you need to access your Refresh Token for any reason after the initial authorization, you will be able to see it in your Slack API portal.
+12. Navigate to the "Basic Information" section of your Slack app.
+13. Copy the "Client ID", "Client Secret", and "Signing Secret". You will need them to set up the integration on Botpress.
 
 #### Step 2 - Setting up the integration in Botpress
 
 1. In Botpress, navigate to the integration's settings.
 2. Select the "Manual" configuration mode.
-3. Paste the "Refresh Token", "Client ID", "Client Secret", and "Signing Secret" you copied from the Slack API portal into the corresponding fields in Botpress.
+3. Paste the "Bot Token" (or "Refresh Token"), "Client ID", "Client Secret", and "Signing Secret" you copied from the Slack API portal into the corresponding fields in Botpress.
 4. Click "Save" to save the configuration.
 
 #### Step 3 - Enabling webhooks
@@ -131,6 +199,7 @@ If you prefer to manually configure the integration, you can provide a bot token
    - `member_joined_channel`: Subscribe to these events to allow the bot to know when members join channels.
    - `member_left_channel`: Subscribe to these events to allow the bot to know when members leave channels.
    - `team_join`: Subscribe to these events to allow the bot to know when new members join the workspace.
+   - `app_mention`: Subscribe to these events to allow the bot to know when it is mentioned directly in a Slack message.
 6. Save the changes on Slack.
 
 ### Optional: Set a custom Display Name and Avatar
