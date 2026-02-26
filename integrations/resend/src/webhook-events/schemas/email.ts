@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { emailHeaderSchema, emailTagSchema } from 'definitions/events'
 
 // Check if events exist for "queued", "scheduled" & "canceled" (It's not documented in the webhook events doc, but might exist in the wild)
 // Suspicion comes from: https://resend.com/docs/dashboard/emails/introduction#understand-email-events
@@ -11,16 +12,6 @@ import { z } from '@botpress/sdk'
 //    - "email.opened"
 //    - "email.clicked"
 //    - "email.failed"
-
-export const emailHeaderSchema = z.object({
-  name: z.string().title('Name').describe('The name of the header'),
-  value: z.string().title('Value').describe('The value of the header'),
-})
-
-export const emailTagSchema = z.object({
-  name: z.string().title('Name').describe('The name of the tag'),
-  value: z.string().title('Value').describe('The value of the tag'),
-})
 
 // Check if "cc" & "bcc" are included in the "to" field (It's included in an optional "headers" field)
 export type BaseEmailWebhookData = z.infer<typeof _baseEmailWebhookDataSchema>
