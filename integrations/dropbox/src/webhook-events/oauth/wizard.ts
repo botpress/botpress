@@ -50,6 +50,7 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
   }
 
   const redirectUri = _getOAuthRedirectUri()
+  console.log('OAuth redirect URI:', redirectUri)
 
   const dropboxAuthUrl =
     'https://www.dropbox.com/oauth2/authorize?' +
@@ -62,7 +63,7 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
   return responses.redirectToExternalUrl(dropboxAuthUrl)
 }
 
-const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
+const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
   const { responses, query, client, ctx, logger } = props

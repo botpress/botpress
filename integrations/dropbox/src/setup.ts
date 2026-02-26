@@ -112,11 +112,17 @@ const _getAuthFailureMessage = (configurationType: string): string => {
 }
 
 const _authenticate = async (props: RegisterProps): Promise<void> => {
-  const { ctx } = props
-  const isManual = ctx.configurationType === 'manual'
+  const { ctx, logger } = props
 
-  const authenticationSucceeded = isManual ? await _authenticateManual(props) : await _authenticateOAuth(props)
+  if (ctx.configurationType !== 'manual') {
+    const authenticationSucceeded = await _authenticateOAuth(props)
+    if (!authenticationSucceeded) {
+      logger.forBot().info('No existing OAuth credentials found. Please complete the OAuth wizard to authenticate.')
+    }
+    return
+  }
 
+  const authenticationSucceeded = await _authenticateManual(props)
   if (!authenticationSucceeded) {
     throw new sdk.RuntimeError(_getAuthFailureMessage(ctx.configurationType ?? ''))
   }
