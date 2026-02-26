@@ -1,10 +1,8 @@
+import type { IZodSet, IZodType, ZodSetDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -12,20 +10,12 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-export type ZodSetDef<Value extends ZodType = ZodType> = {
-  valueType: Value
-  typeName: 'ZodSet'
-  minSize: { value: number; message?: string } | null
-  maxSize: { value: number; message?: string } | null
-} & ZodTypeDef
-
-export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
-  Set<Value['_output']>,
-  ZodSetDef<Value>,
-  Set<Value['_input']>
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    return new ZodSet({
+export class ZodSetImpl<Value extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>>
+  implements IZodSet<Value>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodSetImpl({
       ...this._def,
       valueType: this._def.valueType.dereference(defs),
     })
@@ -35,11 +25,11 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     return this._def.valueType.getReferences()
   }
 
-  clone(): ZodSet<Value> {
-    return new ZodSet({
+  clone(): IZodSet<Value> {
+    return new ZodSetImpl({
       ...this._def,
-      valueType: this._def.valueType.clone(),
-    }) as ZodSet<Value>
+      valueType: this._def.valueType.clone() as Value,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -96,25 +86,25 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     }
 
     const elements = [...(ctx.data as Set<unknown>).values()].map((item, i) =>
-      valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i))
+      ZodBaseTypeImpl.fromInterface(valueType)._parse(new ParseInputLazyPath(ctx, item, ctx.path, i))
     )
 
     if (ctx.common.async) {
       return Promise.all(elements).then((elements) => finalizeSet(elements))
     } else {
-      return finalizeSet(elements as SyncParseReturnType[])
+      return finalizeSet(elements as SyncParseReturnType<any>[])
     }
   }
 
   min(minSize: number, message?: utils.errors.ErrMessage): this {
-    return new ZodSet({
+    return new ZodSetImpl({
       ...this._def,
       minSize: { value: minSize, message: utils.errors.toString(message) },
     }) as this
   }
 
   max(maxSize: number, message?: utils.errors.ErrMessage): this {
-    return new ZodSet({
+    return new ZodSetImpl({
       ...this._def,
       maxSize: { value: maxSize, message: utils.errors.toString(message) },
     }) as this
@@ -124,22 +114,12 @@ export class ZodSet<Value extends ZodType = ZodType> extends ZodType<
     return this.min(size, message).max(size, message) as this
   }
 
-  nonempty(message?: utils.errors.ErrMessage): ZodSet<Value> {
+  nonempty(message?: utils.errors.ErrMessage): IZodSet<Value> {
     return this.min(1, message) as this
   }
 
-  static create = <Value extends ZodType = ZodType>(valueType: Value, params?: RawCreateParams): ZodSet<Value> => {
-    return new ZodSet({
-      valueType,
-      minSize: null,
-      maxSize: null,
-      typeName: 'ZodSet',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodSet)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodSetImpl)) return false
 
     const thisMin = this._def.minSize?.value
     const thatMin = schema._def.minSize?.value

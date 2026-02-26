@@ -1,10 +1,7 @@
+import type { IZodIntersection, IZodType, ZodIntersectionDef } from '../../typings'
 import * as utils from '../../utils'
 import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
   getParsedType,
-  processCreateParams,
   addIssueToContext,
   INVALID,
   isAborted,
@@ -12,21 +9,17 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
+  ZodBaseTypeImpl,
 } from '../basetype'
 
-export type ZodIntersectionDef<T extends ZodType = ZodType, U extends ZodType = ZodType> = {
-  left: T
-  right: U
-  typeName: 'ZodIntersection'
-} & ZodTypeDef
+export type { ZodIntersectionDef }
 
-export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = ZodType> extends ZodType<
-  T['_output'] & U['_output'],
-  ZodIntersectionDef<T, U>,
-  T['_input'] & U['_input']
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    return new ZodIntersection({
+export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<T['_output'] & U['_output'], ZodIntersectionDef<T, U>, T['_input'] & U['_input']>
+  implements IZodIntersection<T, U>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodIntersectionImpl({
       ...this._def,
       left: this._def.left.dereference(defs),
       right: this._def.right.dereference(defs),
@@ -37,19 +30,19 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
     return utils.fn.unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
   }
 
-  clone(): ZodIntersection<T, U> {
-    return new ZodIntersection({
+  clone(): IZodIntersection<T, U> {
+    return new ZodIntersectionImpl({
       ...this._def,
-      left: this._def.left.clone(),
-      right: this._def.right.clone(),
-    }) as ZodIntersection<T, U>
+      left: this._def.left.clone() as T,
+      right: this._def.right.clone() as U,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (
-      parsedLeft: SyncParseReturnType,
-      parsedRight: SyncParseReturnType
+      parsedLeft: SyncParseReturnType<any>,
+      parsedRight: SyncParseReturnType<any>
     ): SyncParseReturnType<T & U> => {
       if (isAborted(parsedLeft) || isAborted(parsedRight)) {
         return INVALID
@@ -73,12 +66,12 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
 
     if (ctx.common.async) {
       return Promise.all([
-        this._def.left._parseAsync({
+        ZodBaseTypeImpl.fromInterface(this._def.left)._parseAsync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
         }),
-        this._def.right._parseAsync({
+        ZodBaseTypeImpl.fromInterface(this._def.right)._parseAsync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -86,12 +79,12 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
       ]).then(([left, right]: any) => handleParsed(left, right))
     } else {
       return handleParsed(
-        this._def.left._parseSync({
+        ZodBaseTypeImpl.fromInterface(this._def.left)._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
         }),
-        this._def.right._parseSync({
+        ZodBaseTypeImpl.fromInterface(this._def.right)._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -100,25 +93,12 @@ export class ZodIntersection<T extends ZodType = ZodType, U extends ZodType = Zo
     }
   }
 
-  static create = <T extends ZodType, U extends ZodType>(
-    left: T,
-    right: U,
-    params?: RawCreateParams
-  ): ZodIntersection<T, U> => {
-    return new ZodIntersection({
-      left,
-      right,
-      typeName: 'ZodIntersection',
-      ...processCreateParams(params),
-    })
-  }
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodIntersectionImpl)) return false
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodIntersection)) return false
-
-    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisItems = new utils.ds.CustomSet<ZodType>([this._def.left, this._def.right], { compare })
-    const thatItems = new utils.ds.CustomSet<ZodType>([schema._def.left, schema._def.right], { compare })
+    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
+    const thisItems = new utils.ds.CustomSet<IZodType>([this._def.left, this._def.right], { compare })
+    const thatItems = new utils.ds.CustomSet<IZodType>([schema._def.left, schema._def.right], { compare })
     return thisItems.isEqual(thatItems)
   }
 

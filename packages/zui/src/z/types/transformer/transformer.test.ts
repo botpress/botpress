@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import * as utils from '../../utils'
 import * as z from '../../index'
-import { NEVER } from '../basetype'
+import { NEVER } from '..'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
 // const numberToString = z
@@ -60,6 +60,7 @@ test('transform ctx.addIssue with parseAsync', async () => {
   expect(JSON.parse(JSON.stringify(result))).toEqual({
     success: false,
     error: {
+      __type__: 'ZuiError',
       issues: [
         {
           code: 'custom',

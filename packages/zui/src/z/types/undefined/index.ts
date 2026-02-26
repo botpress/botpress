@@ -1,23 +1,8 @@
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import { builders } from '../../internal-builders'
+import type { IZodNever, IZodUndefined, ZodUndefinedDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
-// TODO(circle): these may potentially cause circular dependencies errors
-import { ZodNever } from '../never'
-
-export type ZodUndefinedDef = {
-  typeName: 'ZodUndefined'
-} & ZodTypeDef
-
-export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
+export class ZodUndefinedImpl extends ZodBaseTypeImpl<undefined, ZodUndefinedDef> implements IZodUndefined {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType !== 'undefined') {
@@ -31,21 +16,13 @@ export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
     }
     return OK(input.data)
   }
-  params?: RawCreateParams
 
-  static create = (params?: RawCreateParams): ZodUndefined => {
-    return new ZodUndefined({
-      typeName: 'ZodUndefined',
-      ...processCreateParams(params),
-    })
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodUndefinedImpl
   }
 
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodUndefined
-  }
-
-  mandatory(): ZodNever {
-    return ZodNever.create({
+  mandatory(): IZodNever {
+    return builders.never({
       ...this._def,
     })
   }

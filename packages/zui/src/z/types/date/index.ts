@@ -1,27 +1,16 @@
+import { type IZodDate, ZodDateCheck, ZodDateDef } from '../../typings'
 import * as utils from '../../utils'
 import {
-  processCreateParams,
-  ZodTypeDef,
   addIssueToContext,
   INVALID,
   ParseContext,
   ParseInput,
   ParseReturnType,
   ParseStatus,
-  ZodType,
-  RawCreateParams,
+  ZodBaseTypeImpl,
 } from '../basetype'
 
-export type ZodDateCheck =
-  | { kind: 'min'; value: number; message?: string }
-  | { kind: 'max'; value: number; message?: string }
-export type ZodDateDef = {
-  checks: ZodDateCheck[]
-  coerce: boolean
-  typeName: 'ZodDate'
-} & ZodTypeDef
-
-export class ZodDate extends ZodType<Date, ZodDateDef> {
+export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZodDate {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (this._def.coerce) {
       input.data = new Date(input.data)
@@ -88,7 +77,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
   }
 
   _addCheck(check: ZodDateCheck) {
-    return new ZodDate({
+    return new ZodDateImpl({
       ...this._def,
       checks: [...this._def.checks, check],
     })
@@ -132,17 +121,8 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     return max != null ? new Date(max) : null
   }
 
-  static create = (params?: RawCreateParams & { coerce?: boolean }): ZodDate => {
-    return new ZodDate({
-      checks: [],
-      coerce: params?.coerce || false,
-      typeName: 'ZodDate',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodDate)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodDateImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodDateCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodDateCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks) && this._def.coerce === schema._def.coerce

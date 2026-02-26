@@ -1,5 +1,5 @@
-import { test, describe, it, expect } from 'vitest'
-import * as zui from './z/index'
+import { test } from 'vitest'
+import * as zui from '../z'
 
 type ExampleSchema = {
   schema: zui.ZodObject<any>
@@ -94,7 +94,7 @@ test('Discriminated Unions', () => {
 })
 
 test('ZuiTypeAny', () => {
-  const func = (type: zui.ZodType) => {
+  const func = (type: zui.ZodNativeType) => {
     return type
   }
 

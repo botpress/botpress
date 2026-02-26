@@ -1,6 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import z from '../../z'
-import type { ZodDiscriminatedUnionOption } from '../../z/types/discriminatedUnion'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
@@ -103,8 +102,8 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'integer') {
-    const zSchema = toZuiPrimitive('number', schema)
-    if (zSchema instanceof z.ZodNumber) {
+    const zSchema = toZuiPrimitive('number', schema) as z.ZodNativeType
+    if (zSchema.typeName === 'ZodNumber') {
       return zSchema.int()
     }
 
@@ -175,9 +174,9 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (guards.isDiscriminatedUnionSchema(schema) && schema['x-zui']?.def?.discriminator) {
       const { discriminator } = schema['x-zui'].def
       const options = schema.anyOf.map(_fromJSONSchema) as [
-        ZodDiscriminatedUnionOption<string>,
-        ZodDiscriminatedUnionOption<string>,
-        ...ZodDiscriminatedUnionOption<string>[],
+        z.ZodDiscriminatedUnionOption<string>,
+        z.ZodDiscriminatedUnionOption<string>,
+        ...z.ZodDiscriminatedUnionOption<string>[],
       ]
       return z.discriminatedUnion(discriminator, options)
     }

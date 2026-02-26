@@ -1,7 +1,8 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../z/utils'
+import * as utils from '../utils'
 import z from '../index'
 import { NEVER } from '../types/basetype'
+import { ZodError } from '../error'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())
@@ -52,7 +53,7 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
       return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(2)
   }
 })
@@ -68,7 +69,7 @@ test('preprocess ctx.addIssue fatal true', () => {
       return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(1)
   }
 })
@@ -111,6 +112,7 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
   expect(JSON.parse(JSON.stringify(result))).toEqual({
     success: false,
     error: {
+      __type__: 'ZuiError',
       issues: [
         {
           code: 'custom',

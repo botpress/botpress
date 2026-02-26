@@ -1,10 +1,10 @@
-import { ZodError, ZodIssue } from '../../error'
+import { ZodError } from '../../error'
+import { builders } from '../../internal-builders'
+import type { ZodNativeType } from '../../native'
+import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
 import * as utils from '../../utils'
 import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   DIRTY,
   INVALID,
@@ -14,26 +14,13 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-// TODO(circle): these may potentially cause circular dependencies errors
-import { ZodNever } from '../never'
-import { ZodUndefined } from '../undefined'
-
-type _DefaultZodUnionOptions = Readonly<[ZodType, ZodType, ...ZodType[]]>
-
-export type ZodUnionOptions = Readonly<[ZodType, ...ZodType[]]>
-export type ZodUnionDef<T extends ZodUnionOptions = _DefaultZodUnionOptions> = {
-  options: T
-  typeName: 'ZodUnion'
-} & ZodTypeDef
-
-export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> extends ZodType<
-  T[number]['_output'],
-  ZodUnionDef<T>,
-  T[number]['_input']
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    const options = this._def.options.map((option) => option.dereference(defs)) as [ZodType, ZodType, ...ZodType[]]
-    return new ZodUnion({
+export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
+  extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
+  implements IZodUnion<T>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    const options = this._def.options.map((option) => option.dereference(defs)) as [IZodType, IZodType, ...IZodType[]]
+    return new ZodUnionImpl({
       ...this._def,
       options,
     })
@@ -47,12 +34,12 @@ export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> exten
     )
   }
 
-  clone(): ZodUnion<T> {
-    const options = this._def.options.map((option) => option.clone()) as [ZodType, ...ZodType[]]
-    return new ZodUnion({
+  clone(): IZodUnion<T> {
+    const options = this._def.options.map((option) => option.clone()) as utils.types.Writeable<T>
+    return new ZodUnionImpl({
       ...this._def,
-      options,
-    }) as ZodUnion<any>
+      options: options as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -97,7 +84,7 @@ export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> exten
             parent: null,
           }
           return {
-            result: await option._parseAsync({
+            result: await ZodBaseTypeImpl.fromInterface(option)._parseAsync({
               data: ctx.data,
               path: ctx.path,
               parent: childCtx,
@@ -118,7 +105,7 @@ export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> exten
           },
           parent: null,
         }
-        const result = option._parseSync({
+        const result = ZodBaseTypeImpl.fromInterface(option)._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: childCtx,
@@ -154,39 +141,31 @@ export class ZodUnion<T extends ZodUnionOptions = _DefaultZodUnionOptions> exten
     return this._def.options
   }
 
-  static create = <T extends Readonly<[ZodType, ZodType, ...ZodType[]]>>(
-    types: T,
-    params?: RawCreateParams
-  ): ZodUnion<T> => {
-    return new ZodUnion({
-      options: types,
-      typeName: 'ZodUnion',
-      ...processCreateParams(params),
-    })
-  }
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodUnionImpl)) return false
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodUnion)) return false
-
-    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisOptions = new utils.ds.CustomSet<ZodType>([...this._def.options], { compare })
-    const thatOptions = new utils.ds.CustomSet<ZodType>([...schema._def.options], { compare })
+    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
+    const thisOptions = new utils.ds.CustomSet<IZodType>([...this._def.options], { compare })
+    const thatOptions = new utils.ds.CustomSet<IZodType>([...schema._def.options], { compare })
 
     return thisOptions.isEqual(thatOptions)
   }
 
-  mandatory(): ZodType {
-    const options = this._def.options.filter((o) => !(o instanceof ZodUndefined)).map((option) => option.mandatory())
+  mandatory(): IZodType {
+    const options = this._def.options
+      .filter((o) => !((o as ZodNativeType).typeName === 'ZodUndefined'))
+      .map((option) => option.mandatory())
+
     const [first, second, ...others] = options
     if (!first) {
-      return ZodNever.create({
+      return builders.never({
         ...this._def,
       })
     }
     if (!second) {
       return first
     }
-    return new ZodUnion({
+    return new ZodUnionImpl({
       ...this._def,
       options: [first, second, ...others],
     })

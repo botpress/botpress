@@ -1,5 +1,4 @@
 import { JSONSchema7 } from 'json-schema'
-import { ZuiExtensionObject } from '../../ui/types'
 import z from '../../z'
 import * as utils from '../../z/utils/type-utils'
 
@@ -24,9 +23,9 @@ type DiscriminatedUnionDef = utils.Satisfies<
  * A ZUI flavored subset of JSONSchema7
  */
 
-type ZuiExtension<Def extends Partial<z.ZodDef> = {}> = { def?: Def } & ZuiExtensionObject
+type ZuiExtension<Def extends Partial<z.ZodTypeDef> = {}> = { def?: Def } & z.ZuiExtensionObject
 type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData }
-type BaseZuiJSONSchema<Def extends Partial<z.ZodDef> = {}> = utils.Satisfies<
+type BaseZuiJSONSchema<Def extends Partial<z.ZodTypeDef> = {}> = utils.Satisfies<
   {
     description?: string
     readOnly?: boolean

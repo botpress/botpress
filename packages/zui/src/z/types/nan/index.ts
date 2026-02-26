@@ -1,19 +1,7 @@
-import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import type { IZodNaN, ZodNaNDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodNaNDef = {
-  typeName: 'ZodNaN'
-} & ZodTypeDef
-
-export class ZodNaN extends ZodType<number, ZodNaNDef> {
+export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZodNaN {
   _parse(input: ParseInput): ParseReturnType<any> {
     const parsedType = this._getType(input)
     if (parsedType !== 'nan') {
@@ -29,14 +17,7 @@ export class ZodNaN extends ZodType<number, ZodNaNDef> {
     return { status: 'valid', value: input.data }
   }
 
-  static create = (params?: RawCreateParams): ZodNaN => {
-    return new ZodNaN({
-      typeName: 'ZodNaN',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodNaN
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodNaNImpl
   }
 }

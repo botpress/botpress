@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../z/index'
+import { z, zuiKey } from '../../../z'
 import { parseDef } from '../parseDef'
 import Ajv from 'ajv'
 import { getRefs } from '../Refs'
-import { zuiKey } from '../../../ui/constants'
 
 const ajv = new Ajv()
 

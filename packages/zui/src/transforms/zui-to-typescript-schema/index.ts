@@ -1,7 +1,6 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import { zuiKey } from '../../ui/constants'
-import z from '../../z'
+import z, { zuiKey } from '../../z'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {
@@ -22,15 +21,14 @@ import { generateStringChecks } from './string-checks'
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.Schema): string {
-  const wrappedSchema: z.Schema = schema
+export function toTypescriptSchema(schema: z.ZodType): string {
+  const wrappedSchema: z.ZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts
 }
 
-function sUnwrapZod(schema: z.Schema): string {
-  const s = schema as z.ZodNativeSchema
-
+function sUnwrapZod(schema: z.ZodType): string {
+  const s = schema as z.ZodNativeType
   switch (s.typeName) {
     case 'ZodString':
       return `z.string()${generateStringChecks(s._def)}${_addMetadata(s._def)}`.trim()

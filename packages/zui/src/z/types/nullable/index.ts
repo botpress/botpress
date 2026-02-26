@@ -1,26 +1,12 @@
-import {
-  //
-  OK,
-  ParseInput,
-  ParseReturnType,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-} from '../basetype'
+import type { IZodNullable, IZodType, ZodNullableDef } from '../../typings'
+import { OK, ParseInput, ParseReturnType, ZodBaseTypeImpl } from '../basetype'
 
-export type ZodNullableDef<T extends ZodType = ZodType> = {
-  innerType: T
-  typeName: 'ZodNullable'
-} & ZodTypeDef
-
-export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
-  T['_output'] | null,
-  ZodNullableDef<T>,
-  T['_input'] | null
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    return new ZodNullable({
+export class ZodNullableImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null>
+  implements IZodNullable<T>
+{
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+    return new ZodNullableImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
     })
@@ -30,11 +16,11 @@ export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
-  clone(): ZodNullable<T> {
-    return new ZodNullable({
+  clone(): IZodNullable<T> {
+    return new ZodNullableImpl({
       ...this._def,
-      innerType: this._def.innerType.clone(),
-    }) as ZodNullable<T>
+      innerType: this._def.innerType.clone() as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -42,23 +28,15 @@ export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
     if (parsedType === 'null') {
       return OK(null)
     }
-    return this._def.innerType._parse(input)
+    return ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse(input)
   }
 
   unwrap() {
     return this._def.innerType
   }
 
-  static create = <T extends ZodType>(type: T, params?: RawCreateParams): ZodNullable<T> => {
-    return new ZodNullable({
-      innerType: type,
-      typeName: 'ZodNullable',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodNullable)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodNullableImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
 
@@ -66,8 +44,8 @@ export class ZodNullable<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodNullable<ZodType> {
-    return new ZodNullable({
+  mandatory(): IZodNullable<IZodType> {
+    return new ZodNullableImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),
     })

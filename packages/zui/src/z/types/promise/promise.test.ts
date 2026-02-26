@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import * as utils from '../../utils'
 import * as z from '../../index'
+import { ZodError } from '../../error'
 
 const promSchema = z.promise(
   z.object({
@@ -38,13 +39,13 @@ test('promise parsing success 2', () => {
 test('promise parsing fail', async () => {
   const bad = promSchema.parse(Promise.resolve({ name: 'Bobby', age: '10' }))
   // return await expect(bad).resolves.toBe({ name: 'Bobby', age: '10' });
-  return await expect(bad).rejects.toBeInstanceOf(z.ZodError)
+  return await expect(bad).rejects.toBeInstanceOf(ZodError)
   // done();
 })
 
 test('promise parsing fail 2', async () => {
   const failPromise = promSchema.parse(Promise.resolve({ name: 'Bobby', age: '10' }))
-  await expect(failPromise).rejects.toBeInstanceOf(z.ZodError)
+  await expect(failPromise).rejects.toBeInstanceOf(ZodError)
   // done();/z
 })
 
@@ -73,7 +74,7 @@ test('async function fail', async () => {
   const validatedFunction = asyncFunction.implement(() => {
     return Promise.resolve('asdf' as any)
   })
-  await expect(validatedFunction()).rejects.toBeInstanceOf(z.ZodError)
+  await expect(validatedFunction()).rejects.toBeInstanceOf(ZodError)
 })
 
 test('async promise parsing', () => {

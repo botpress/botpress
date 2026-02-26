@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { z } from './index'
+import { z } from '../index'
 
 const foo = z.ref('foo')
 const bar = z.ref('bar')
@@ -11,7 +11,7 @@ const deref = {
   baz: z.boolean(),
 }
 
-const intersect = (...schemas: z.ZodType[]) => {
+const intersect = (...schemas: z.ZodNativeType[]) => {
   if (schemas.length === 0) {
     throw new Error('Intersection expects at least one schema')
   }

@@ -1,11 +1,8 @@
-import { zuiKey } from '../../../ui/constants'
-import { StringValidation } from '../../error'
+import { zuiKey } from '../../consts'
+import { type IZodString, ZodStringCheck, ZodStringDef } from '../../typings'
 import * as utils from '../../utils'
 import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
   ParseContext,
@@ -14,38 +11,9 @@ import {
   ParseStatus,
 } from '../basetype'
 
-export type IpVersion = 'v4' | 'v6'
-export type ZodStringCheck =
-  | { kind: 'min'; value: number; message?: string }
-  | { kind: 'max'; value: number; message?: string }
-  | { kind: 'length'; value: number; message?: string }
-  | { kind: 'email'; message?: string }
-  | { kind: 'url'; message?: string }
-  | { kind: 'emoji'; message?: string }
-  | { kind: 'uuid'; message?: string }
-  | { kind: 'cuid'; message?: string }
-  | { kind: 'includes'; value: string; position?: number; message?: string }
-  | { kind: 'cuid2'; message?: string }
-  | { kind: 'ulid'; message?: string }
-  | { kind: 'startsWith'; value: string; message?: string }
-  | { kind: 'endsWith'; value: string; message?: string }
-  | { kind: 'regex'; regex: RegExp; message?: string }
-  | { kind: 'trim'; message?: string }
-  | { kind: 'toLowerCase'; message?: string }
-  | { kind: 'toUpperCase'; message?: string }
-  | {
-      kind: 'datetime'
-      offset: boolean
-      precision: number | null
-      message?: string
-    }
-  | { kind: 'ip'; version?: IpVersion; message?: string }
+export type { ZodStringCheck, ZodStringDef }
+export type IpVersion = NonNullable<Extract<ZodStringCheck, { kind: 'ip' }>['version']>
 
-export type ZodStringDef = {
-  checks: ZodStringCheck[]
-  typeName: 'ZodString'
-  coerce: boolean
-} & ZodTypeDef
 export const cuidRegex = /^c[^\s-]{8,}$/i
 export const cuid2Regex = /^[a-z][a-z0-9]*$/
 export const ulidRegex = /^[0-9A-HJKMNP-TV-Z]{26}$/
@@ -77,7 +45,7 @@ function isValidIP(ip: string, version?: IpVersion) {
   return false
 }
 
-export class ZodString extends ZodType<string, ZodStringDef> {
+export class ZodStringImpl extends ZodBaseTypeImpl<string, ZodStringDef> implements IZodString {
   _parse(input: ParseInput): ParseReturnType<string> {
     if (this._def.coerce) {
       input.data = String(input.data)
@@ -278,7 +246,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
           status.dirty()
         }
       } else if (check.kind === 'datetime') {
-        const regex = utils.strings.generateDatetimeRegex(check)
+        const regex = utils.datestring.generateDatetimeRegex(check)
 
         if (!regex.test(input.data)) {
           ctx = this._getOrReturnCtx(input, ctx)
@@ -307,16 +275,8 @@ export class ZodString extends ZodType<string, ZodStringDef> {
     return { status: status.value, value: input.data }
   }
 
-  protected _regex(regex: RegExp, validation: StringValidation, message?: utils.errors.ErrMessage) {
-    return this.refinement((data) => regex.test(data), {
-      validation,
-      code: 'invalid_string',
-      ...utils.errors.errToObj(message),
-    })
-  }
-
   _addCheck(check: ZodStringCheck) {
-    return new ZodString({
+    return new ZodStringImpl({
       ...this._def,
       checks: [...this._def.checks, check],
     })
@@ -439,7 +399,7 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   }
 
   trim() {
-    return new ZodString({
+    return new ZodStringImpl({
       ...this._def,
       checks: [...this._def.checks, { kind: 'trim' }],
     })
@@ -451,14 +411,14 @@ export class ZodString extends ZodType<string, ZodStringDef> {
   }
 
   toLowerCase() {
-    return new ZodString({
+    return new ZodStringImpl({
       ...this._def,
       checks: [...this._def.checks, { kind: 'toLowerCase' }],
     })
   }
 
   toUpperCase() {
-    return new ZodString({
+    return new ZodStringImpl({
       ...this._def,
       checks: [...this._def.checks, { kind: 'toUpperCase' }],
     })
@@ -512,17 +472,8 @@ export class ZodString extends ZodType<string, ZodStringDef> {
     return max
   }
 
-  static create = (params?: RawCreateParams & { coerce?: true }): ZodString => {
-    return new ZodString({
-      checks: [],
-      typeName: 'ZodString',
-      coerce: params?.coerce ?? false,
-      ...processCreateParams({ ...params, supportsExtensions: ['secret'] }),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodString)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodStringImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodStringCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodStringCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)

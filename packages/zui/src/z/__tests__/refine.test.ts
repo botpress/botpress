@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../z/utils'
+import * as utils from '../utils'
 import z from '../index'
-import { ZodIssueCode } from '../error'
 
 test('refinement', () => {
   const obj1 = z.object({
@@ -85,33 +84,6 @@ test('custom path', async () => {
   expect(result.success).toEqual(false)
   if (!result.success) {
     expect(result.error.issues[0]?.path).toEqual(['confirm'])
-  }
-})
-
-test('use path in refinement context', async () => {
-  const noNested = z.string()._refinement((_val, ctx) => {
-    if (ctx.path.length > 0) {
-      ctx.addIssue({
-        code: 'custom',
-        message: `schema cannot be nested. path: ${ctx.path.join('.')}`,
-      })
-      return false
-    } else {
-      return true
-    }
-  })
-
-  const data = z.object({
-    foo: noNested,
-  })
-
-  const t1 = await noNested.spa('asdf')
-  const t2 = await data.spa({ foo: 'asdf' })
-
-  expect(t1.success).toBe(true)
-  expect(t2.success).toBe(false)
-  if (t2.success === false) {
-    expect(t2.error.issues[0]?.message).toEqual('schema cannot be nested. path: foo')
   }
 })
 

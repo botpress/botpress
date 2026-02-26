@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
-import { z } from '../..'
+import { z } from '../../../index'
 import * as utils from '../../utils'
+import { ZodError } from '../../error'
 
 test('basic catch', () => {
   expect(z.string().catch('default').parse(undefined)).toBe('default')
@@ -38,9 +39,9 @@ test('catch with transform', () => {
     .catch('default')
   expect(stringWithDefault.parse(undefined)).toBe('default')
   expect(stringWithDefault.parse(15)).toBe('default')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodCatch)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodEffects)
-  expect(stringWithDefault._def.innerType._def.schema).toBeInstanceOf(z.ZodSchema)
+  expect(stringWithDefault.typeName).toBe('ZodCatch')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodEffects')
+  expect(stringWithDefault._def.innerType._def.schema.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
   utils.assert.assertEqual<inp, unknown>(true)
@@ -52,9 +53,9 @@ test('catch on existing optional', () => {
   const stringWithDefault = z.string().optional().catch('asdf')
   expect(stringWithDefault.parse(undefined)).toBe(undefined)
   expect(stringWithDefault.parse(15)).toBe('asdf')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodCatch)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodOptional)
-  expect(stringWithDefault._def.innerType._def.innerType).toBeInstanceOf(z.ZodString)
+  expect(stringWithDefault.typeName).toBe('ZodCatch')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodOptional')
+  expect(stringWithDefault._def.innerType._def.innerType.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
   utils.assert.assertEqual<inp, unknown>(true)
@@ -117,9 +118,7 @@ test('chained catch', () => {
 })
 
 test('factory', () => {
-  z.ZodCatch.create(z.string(), {
-    catch: 'asdf',
-  }).parse(undefined)
+  z.catch(z.string(), 'asdf').parse(undefined)
 })
 
 test('native enum', () => {
@@ -204,7 +203,7 @@ test('catch error', () => {
   expect(!result.success && result.error.issues.length).toEqual(1)
   expect(!result.success && result.error.issues[0]?.message).toMatch('number')
 
-  expect(catchError).toBeInstanceOf(z.ZodError)
+  expect(catchError).toBeInstanceOf(ZodError)
   expect(catchError !== undefined && (catchError as z.ZodError).issues.length).toEqual(1)
   expect(catchError !== undefined && (catchError as z.ZodError).issues[0]?.message).toMatch('string')
 })

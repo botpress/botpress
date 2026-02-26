@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7 } from 'json-schema'
-import { ZodError } from '../../../z'
 import { parseObject } from './parseObject'
+import { ZodError } from '../../../z/error'
 
 describe('parseObject', () => {
   it('With properties - should handle optional and required properties', () => {

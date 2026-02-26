@@ -1,9 +1,7 @@
+import { type IZodNumber, ZodNumberCheck, ZodNumberDef } from '../../typings'
 import * as utils from '../../utils'
 import {
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
   ParseContext,
@@ -12,21 +10,9 @@ import {
   ParseStatus,
 } from '../basetype'
 
-export type ZodNumberCheck =
-  | { kind: 'min'; value: number; inclusive: boolean; message?: string }
-  | { kind: 'max'; value: number; inclusive: boolean; message?: string }
-  | { kind: 'int'; message?: string }
-  | { kind: 'multipleOf'; value: number; message?: string }
-  | { kind: 'finite'; message?: string }
 // https://stackoverflow.com/questions/3966484/why-does-modulus-operator-return-fractional-number-in-javascript/31711034#31711034
 
-export type ZodNumberDef = {
-  checks: ZodNumberCheck[]
-  typeName: 'ZodNumber'
-  coerce: boolean
-} & ZodTypeDef
-
-export class ZodNumber extends ZodType<number, ZodNumberDef> {
+export class ZodNumberImpl extends ZodBaseTypeImpl<number, ZodNumberDef> implements IZodNumber {
   _parse(input: ParseInput): ParseReturnType<number> {
     if (this._def.coerce) {
       input.data = Number(input.data)
@@ -112,15 +98,6 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
     return { status: status.value, value: input.data }
   }
 
-  static create = (params?: RawCreateParams & { coerce?: boolean }): ZodNumber => {
-    return new ZodNumber({
-      checks: [],
-      typeName: 'ZodNumber',
-      coerce: params?.coerce || false,
-      ...processCreateParams(params),
-    })
-  }
-
   gte(value: number, message?: utils.errors.ErrMessage) {
     return this.setLimit('min', value, true, utils.errors.toString(message))
   }
@@ -140,7 +117,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   }
 
   protected setLimit(kind: 'min' | 'max', value: number, inclusive: boolean, message?: string) {
-    return new ZodNumber({
+    return new ZodNumberImpl({
       ...this._def,
       checks: [
         ...this._def.checks,
@@ -155,7 +132,7 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
   }
 
   _addCheck(check: ZodNumberCheck) {
-    return new ZodNumber({
+    return new ZodNumberImpl({
       ...this._def,
       checks: [...this._def.checks, check],
     })
@@ -275,8 +252,8 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
     return Number.isFinite(min) && Number.isFinite(max)
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodNumber)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodNumberImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodNumberCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodNumberCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks)

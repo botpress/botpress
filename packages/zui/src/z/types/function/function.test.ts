@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 import * as utils from '../../utils'
+import { ZodError } from '../../error'
 
 const args1 = z.tuple([z.string()])
 const returns1 = z.number()
@@ -133,16 +134,18 @@ test('output validation error', () => {
   expect(checker).toThrow()
 })
 
-z.function(z.tuple([z.string()])).args()._def.args
+const singleStringTuple = z.tuple([z.string()])
+z.function(singleStringTuple).args()._def.args
 
 test('special function error codes', () => {
-  const checker = z.function(z.tuple([z.string()]), z.boolean()).implement((arg) => {
-    return arg.length as any
+  const s = z.function(z.tuple([z.string()]), z.boolean())
+  const checker = s.implement((arg) => {
+    return !!arg.length
   })
   try {
     checker('12' as any)
   } catch (err) {
-    const zerr = err as z.ZodError
+    const zerr = err as ZodError
     const first = zerr.issues[0]
     if (first?.code !== 'invalid_return_type') throw new Error()
   }
@@ -150,10 +153,10 @@ test('special function error codes', () => {
   try {
     checker(12 as any)
   } catch (err) {
-    const zerr = err as z.ZodError
+    const zerr = err as ZodError
     const first = zerr.issues[0]
     if (first?.code !== 'invalid_arguments') throw new Error()
-    expect(first?.argumentsError).toBeInstanceOf(z.ZodError)
+    expect(first?.argumentsError).toBeInstanceOf(ZodError)
   }
 })
 

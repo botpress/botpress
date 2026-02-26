@@ -1,26 +1,12 @@
-import {
-  //
-  processCreateParams,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../basetype'
+import type { IZodOptional, IZodType, ZodOptionalDef } from '../../typings'
+import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodOptionalDef<T extends ZodType = ZodType> = {
-  innerType: T
-  typeName: 'ZodOptional'
-} & ZodTypeDef
-
-export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
-  T['_output'] | undefined,
-  ZodOptionalDef<T>,
-  T['_input'] | undefined
-> {
-  dereference(defs: Record<string, ZodType>): ZodType {
-    return new ZodOptional({
+export class ZodOptionalImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined>
+  implements IZodOptional<T>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodOptionalImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
     })
@@ -30,11 +16,11 @@ export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
-  clone(): ZodOptional<T> {
-    return new ZodOptional({
+  clone(): IZodOptional<T> {
+    return new ZodOptionalImpl({
       ...this._def,
-      innerType: this._def.innerType.clone(),
-    }) as ZodOptional<T>
+      innerType: this._def.innerType.clone() as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -42,23 +28,15 @@ export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
     if (parsedType === 'undefined') {
       return OK(undefined)
     }
-    return this._def.innerType._parse(input)
+    return ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse(input)
   }
 
   unwrap() {
     return this._def.innerType
   }
 
-  static create = <T extends ZodType>(type: T, params?: RawCreateParams): ZodOptional<T> => {
-    return new ZodOptional({
-      innerType: type,
-      typeName: 'ZodOptional',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodOptional)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodOptionalImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
 
@@ -66,7 +44,7 @@ export class ZodOptional<T extends ZodType = ZodType> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodType {
+  mandatory(): IZodType {
     return this._def.innerType.mandatory()
   }
 }

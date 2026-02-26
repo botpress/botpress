@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import z from '../index'
-import * as utils from '../../z/utils'
+import * as utils from '../utils'
 import { Mocker } from './Mocker'
 
 const literalStringSchema = z.literal('asdf')

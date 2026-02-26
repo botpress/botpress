@@ -1,14 +1,14 @@
 import { describe, test, expect } from 'vitest'
-import { z } from './index'
+import { z } from '../index'
 
-const expectZui = (actual: z.Schema) => ({
+const expectZui = (actual: z.ZodType) => ({
   not: {
-    toEqual: (expected: z.Schema) => {
+    toEqual: (expected: z.ZodType) => {
       const result = actual.isEqual(expected)
       expect(result).toBe(false)
     },
   },
-  toEqual: (expected: z.Schema) => {
+  toEqual: (expected: z.ZodType) => {
     const result = actual.isEqual(expected)
     expect(result).toBe(true)
   },

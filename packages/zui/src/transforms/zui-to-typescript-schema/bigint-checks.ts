@@ -1,4 +1,4 @@
-import { ZodBigIntCheck, ZodBigIntDef } from '../../z/types/bigint'
+import { ZodBigIntCheck, ZodBigIntDef } from '../../z'
 import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 

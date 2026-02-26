@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { z } from '../..'
+import { z } from '../../..'
 import * as utils from '../../utils'
 
 test('basic defaults', () => {
@@ -12,9 +12,9 @@ test('default with transform', () => {
     .transform((val) => val.toUpperCase())
     .default('default')
   expect(stringWithDefault.parse(undefined)).toBe('DEFAULT')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodDefault)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodEffects)
-  expect(stringWithDefault._def.innerType._def.schema).toBeInstanceOf(z.ZodSchema)
+  expect(stringWithDefault.typeName).toBe('ZodDefault')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodEffects')
+  expect(stringWithDefault._def.innerType._def.schema.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
   utils.assert.assertEqual<inp, string | undefined>(true)
@@ -25,9 +25,9 @@ test('default with transform', () => {
 test('default on existing optional', () => {
   const stringWithDefault = z.string().optional().default('asdf')
   expect(stringWithDefault.parse(undefined)).toBe('asdf')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodDefault)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodOptional)
-  expect(stringWithDefault._def.innerType._def.innerType).toBeInstanceOf(z.ZodString)
+  expect(stringWithDefault.typeName).toBe('ZodDefault')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodOptional')
+  expect(stringWithDefault._def.innerType._def.innerType.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
   utils.assert.assertEqual<inp, string | undefined>(true)
@@ -85,7 +85,7 @@ test('chained defaults', () => {
 })
 
 test('factory', () => {
-  expect(z.ZodDefault.create(z.string(), 'asdf').parse(undefined)).toEqual('asdf')
+  expect(z.default(z.string(), 'asdf').parse(undefined)).toEqual('asdf')
 })
 
 test('native enum', () => {

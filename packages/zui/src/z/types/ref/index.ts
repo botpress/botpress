@@ -1,25 +1,21 @@
+import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
 import {
   //
-  ZodType,
-  ZodTypeDef,
+  ZodBaseTypeImpl,
   INVALID,
   ParseInput,
   ParseReturnType,
   addIssueToContext,
 } from '../basetype'
+export type { ZodRefDef }
 
-export type ZodRefDef = {
-  typeName: 'ZodRef'
-  uri: string
-} & ZodTypeDef
-
-export class ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {
-  dereference(defs: Record<string, ZodType>): ZodType {
+export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
     const def = defs[this._def.uri]
     if (!def) {
       return this
     }
-    return def
+    return def as ZodBaseTypeImpl
   }
 
   getReferences(): string[] {
@@ -35,13 +31,6 @@ export class ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {
     return INVALID
   }
 
-  static create = (uri: string): ZodRef => {
-    return new ZodRef({
-      typeName: 'ZodRef',
-      uri,
-    })
-  }
-
   public override isOptional(): boolean {
     return false
   }
@@ -50,8 +39,8 @@ export class ZodRef extends ZodType<NonNullable<unknown>, ZodRefDef> {
     return false
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodRef)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodRefImpl)) return false
     return this._def.uri === schema._def.uri
   }
 }

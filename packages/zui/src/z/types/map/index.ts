@@ -1,10 +1,8 @@
+import type { IZodMap, IZodType, ZodMapDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
-  RawCreateParams,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
+  ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
   ParseInput,
@@ -12,17 +10,14 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-export type ZodMapDef<Key extends ZodType = ZodType, Value extends ZodType = ZodType> = {
-  valueType: Value
-  keyType: Key
-  typeName: 'ZodMap'
-} & ZodTypeDef
-
-export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodType> extends ZodType<
-  Map<Key['_output'], Value['_output']>,
-  ZodMapDef<Key, Value>,
-  Map<Key['_input'], Value['_input']>
-> {
+export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<
+    Map<Key['_output'], Value['_output']>,
+    ZodMapDef<Key, Value>,
+    Map<Key['_input'], Value['_input']>
+  >
+  implements IZodMap<Key, Value>
+{
   get keySchema() {
     return this._def.keyType
   }
@@ -30,10 +25,10 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, ZodType>): ZodType {
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
-    return new ZodMap({
+    return new ZodMapImpl({
       ...this._def,
       keyType,
       valueType,
@@ -44,12 +39,12 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
     return utils.fn.unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
-  clone(): ZodMap<Key, Value> {
-    return new ZodMap({
+  clone(): IZodMap<Key, Value> {
+    return new ZodMapImpl({
       ...this._def,
-      keyType: this._def.keyType.clone(),
-      valueType: this._def.valueType.clone(),
-    }) as ZodMap<Key, Value>
+      keyType: this._def.keyType.clone() as Key,
+      valueType: this._def.valueType.clone() as Value,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -68,8 +63,10 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
 
     const pairs = [...(ctx.data as Map<unknown, unknown>).entries()].map(([key, value], index) => {
       return {
-        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, 'key'])),
-        value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, 'value'])),
+        key: ZodBaseTypeImpl.fromInterface(keyType)._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, 'key'])),
+        value: ZodBaseTypeImpl.fromInterface(valueType)._parse(
+          new ParseInputLazyPath(ctx, value, ctx.path, [index, 'value'])
+        ),
       }
     })
 
@@ -93,8 +90,8 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
     } else {
       const finalMap = new Map()
       for (const pair of pairs) {
-        const key = pair.key as SyncParseReturnType
-        const value = pair.value as SyncParseReturnType
+        const key = pair.key as SyncParseReturnType<any>
+        const value = pair.value as SyncParseReturnType<any>
         if (key.status === 'aborted' || value.status === 'aborted') {
           return INVALID
         }
@@ -107,21 +104,8 @@ export class ZodMap<Key extends ZodType = ZodType, Value extends ZodType = ZodTy
       return { status: status.value, value: finalMap }
     }
   }
-  static create = <Key extends ZodType = ZodType, Value extends ZodType = ZodType>(
-    keyType: Key,
-    valueType: Value,
-    params?: RawCreateParams
-  ): ZodMap<Key, Value> => {
-    return new ZodMap({
-      valueType,
-      keyType,
-      typeName: 'ZodMap',
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodMap)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodMapImpl)) return false
     if (!this._def.keyType.isEqual(schema._def.keyType)) return false
     if (!this._def.valueType.isEqual(schema._def.valueType)) return false
     return true

@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
 import * as z from '../index'
-import { ZodError } from './index'
+import { defaultErrorMap, setErrorMap, ZodError } from './index'
+import { ZodErrorMap } from '../typings'
 
 test('error creation', () => {
   const err1 = ZodError.create([])
@@ -23,7 +24,7 @@ test('error creation', () => {
   err3.message
 })
 
-const errorMap: z.ZodErrorMap = (error, ctx) => {
+const errorMap: ZodErrorMap = (error, ctx) => {
   if (error.code === 'invalid_type') {
     if (error.expected === 'string') {
       return { message: 'bad type!' }
@@ -136,7 +137,7 @@ test('custom path in custom error map', () => {
     }),
   })
 
-  const errorMap: z.ZodErrorMap = (error) => {
+  const errorMap: ZodErrorMap = (error) => {
     expect(error.path.length).toBe(2)
     return { message: 'doesnt matter' }
   }
@@ -360,13 +361,13 @@ test('schema-bound error map', () => {
 
 test('overrideErrorMap', () => {
   // support overrideErrorMap
-  z.setErrorMap(() => ({ message: 'OVERRIDE' }))
+  setErrorMap(() => ({ message: 'OVERRIDE' }))
   const result4 = stringWithCustomError.min(10).safeParse('tooshort')
   expect(result4.success).toEqual(false)
   if (!result4.success) {
     expect(result4.error.issues[0]?.message).toEqual('OVERRIDE')
   }
-  z.setErrorMap(z.defaultErrorMap)
+  setErrorMap(defaultErrorMap)
 })
 
 test('invalid and required', () => {
