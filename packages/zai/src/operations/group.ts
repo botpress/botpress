@@ -32,6 +32,8 @@ export type Options = {
   tokensPerElement?: number
   chunkLength?: number
   initialGroups?: Array<InitialGroup>
+  maxGroups?: number
+  minElements?: number
 }
 
 const _Options = z.object({
@@ -39,6 +41,8 @@ const _Options = z.object({
   tokensPerElement: z.number().min(1).max(100_000).optional().default(250),
   chunkLength: z.number().min(100).max(100_000).optional().default(16_000),
   initialGroups: z.array(_InitialGroup).optional().default([]),
+  maxGroups: z.number().min(2).optional(),
+  minElements: z.number().min(1).optional(),
 })
 
 declare module '@botpress/zai' {
@@ -52,6 +56,8 @@ declare module '@botpress/zai' {
      *
      * @param input - Array of items to group
      * @param options - Configuration for grouping behavior, instructions, and initial categories
+     * @param options.maxGroups - Maximum number of groups allowed (minimum 2). When set, groups are merged at the end until within limit.
+     * @param options.minElements - Minimum elements per group (minimum 1). Groups below this threshold have their elements redistributed via AI.
      * @returns Response with groups array (simplified to Record<groupLabel, items[]>)
      *
      * @example Automatic grouping
@@ -191,6 +197,18 @@ declare module '@botpress/zai' {
      *     { id: 'performance', label: 'Performance', elements: [] }
      *   ]
      * })
+     * ```
+     */
+    /**
+     * @example Limiting number of groups
+     * ```typescript
+     * const items = ['apple', 'banana', 'carrot', 'chicken', 'rice', 'bread', 'salmon', 'milk']
+     *
+     * const groups = await zai.group(items, {
+     *   instructions: 'Group by food type',
+     *   maxGroups: 3 // At most 3 groups — smallest groups get merged if exceeded
+     * })
+     * // Guarantees no more than 3 groups in the result
      * ```
      */
     group<T>(input: Array<T>, options?: Options): Response<Array<Group<T>>, Record<string, T[]>>
@@ -609,6 +627,265 @@ ${END}`.trim()
     }
   }
 
+  // Phase 4: Merge groups if maxGroups is set (AI-driven)
+  if (options.maxGroups !== undefined) {
+    const nonEmptyGroupIds = () =>
+      Array.from(groupElements.entries())
+        .filter(([, s]) => s.size > 0)
+        .map(([id]) => id)
+
+    let currentIds = nonEmptyGroupIds()
+
+    if (currentIds.length > options.maxGroups) {
+      // Build a summary of each group: label + element count + sample elements
+      const groupSummaries = currentIds.map((gid, idx) => {
+        const info = groups.get(gid)!
+        const elemIndices = Array.from(groupElements.get(gid)!)
+        const sampleElements = elemIndices
+          .slice(0, 3)
+          .map((i) => tokenizer.truncate(elements[i].stringified, 60))
+          .join(', ')
+        return `■${idx}:${info.label} (${elemIndices.length} elements, e.g. ${sampleElements})■`
+      })
+
+      const mergeSystemPrompt = `You are consolidating groups into fewer, broader categories.
+
+${options.instructions ? `**Original instructions:** ${options.instructions}\n` : ''}
+**Task:** Merge ${currentIds.length} groups down to at most ${options.maxGroups} groups.
+Combine the most semantically related groups together. Give each merged group a new descriptive label.
+
+**Output Format:**
+For each input group (■0 to ■${currentIds.length - 1}), output which target label it maps to:
+■0:Merged Label■
+■1:Merged Label■
+${END}
+
+Use the EXACT SAME label for groups that should be merged together.`.trim()
+
+      const mergeUserPrompt = `**Current groups:**
+${groupSummaries.join('\n')}
+
+Merge into at most ${options.maxGroups} groups.
+${END}`.trim()
+
+      const { extracted: mergeAssignments } = await ctx.generateContent({
+        systemPrompt: mergeSystemPrompt,
+        stopSequences: [END],
+        messages: [{ type: 'text', role: 'user', content: mergeUserPrompt }],
+        transform: (text) => {
+          const assignments: Array<{ sourceIdx: number; label: string }> = []
+          const regex = /■(\d+):([^■]+)■/g
+          let match: RegExpExecArray | null
+
+          while ((match = regex.exec(text)) !== null) {
+            const idx = parseInt(match[1] ?? '', 10)
+            if (isNaN(idx) || idx < 0 || idx >= currentIds.length) continue
+
+            const label = (match[2] ?? '').trim()
+            if (!label) continue
+
+            assignments.push({ sourceIdx: idx, label: label.slice(0, 250) })
+          }
+
+          return assignments
+        },
+      })
+
+      // Build merge map: normalized merge label → list of source group IDs
+      const mergeMap = new Map<string, { label: string; sourceGroupIds: string[] }>()
+
+      for (const { sourceIdx, label } of mergeAssignments) {
+        const sourceGid = currentIds[sourceIdx]
+        if (!sourceGid) continue
+
+        const normalized = normalizeLabel(label)
+        if (!mergeMap.has(normalized)) {
+          mergeMap.set(normalized, { label, sourceGroupIds: [] })
+        }
+        mergeMap.get(normalized)!.sourceGroupIds.push(sourceGid)
+      }
+
+      // Apply merges: for each merge target, pick the first source group as the target
+      // and move all elements from other source groups into it
+      for (const [, { label, sourceGroupIds }] of mergeMap) {
+        if (sourceGroupIds.length <= 1) continue
+
+        const targetGid = sourceGroupIds[0]
+        const targetSet = groupElements.get(targetGid)!
+
+        // Update label on the target group
+        const targetInfo = groups.get(targetGid)!
+        targetInfo.label = label
+        targetInfo.normalizedLabel = normalizeLabel(label)
+
+        for (let i = 1; i < sourceGroupIds.length; i++) {
+          const sourceGid = sourceGroupIds[i]
+          const sourceSet = groupElements.get(sourceGid)!
+          sourceSet.forEach((elemIdx) => targetSet.add(elemIdx))
+          sourceSet.clear()
+        }
+      }
+
+      // Safety: if LLM still produced too many groups, fall back to merging smallest pairs
+      currentIds = nonEmptyGroupIds()
+      while (currentIds.length > options.maxGroups) {
+        currentIds.sort((a, b) => groupElements.get(a)!.size - groupElements.get(b)!.size)
+
+        const sourceSet = groupElements.get(currentIds[0])!
+        const targetSet = groupElements.get(currentIds[1])!
+        for (const elemIdx of sourceSet) {
+          targetSet.add(elemIdx)
+        }
+        sourceSet.clear()
+
+        currentIds = nonEmptyGroupIds()
+      }
+    }
+  }
+
+  // Phase 5: Redistribute undersized groups if minElements is set
+  // Reuses processChunk so orphans see the valid groups as available buckets
+  if (options.minElements !== undefined && options.minElements > 1) {
+    const getNonEmptyGroupIds = () =>
+      Array.from(groupElements.entries())
+        .filter(([, s]) => s.size > 0)
+        .map(([id]) => id)
+
+    // Collect orphan elements from all undersized groups
+    const orphanIndices: number[] = []
+
+    for (const gid of getNonEmptyGroupIds()) {
+      const elemSet = groupElements.get(gid)!
+      if (elemSet.size > 0 && elemSet.size < options.minElements) {
+        for (const idx of elemSet) {
+          orphanIndices.push(idx)
+        }
+        elemSet.clear()
+      }
+    }
+
+    if (orphanIndices.length > 0) {
+      // Valid groups = everything that's still non-empty (i.e. above minElements)
+      const validGroupIds = getNonEmptyGroupIds()
+
+      // Chunk orphans and run them through processChunk with only valid groups visible
+      const orphanChunks: number[][] = []
+      let currentOrphanChunk: number[] = []
+      let currentOrphanTokens = 0
+
+      for (const elemIdx of orphanIndices) {
+        const elem = elements[elemIdx]
+        const truncated = tokenizer.truncate(elem.stringified, options.tokensPerElement)
+        const elemTokens = tokenizer.count(truncated)
+
+        if (
+          (currentOrphanTokens + elemTokens > TOKENS_FOR_ELEMENTS_MAX ||
+            currentOrphanChunk.length >= MAX_ELEMENTS_PER_CHUNK) &&
+          currentOrphanChunk.length > 0
+        ) {
+          orphanChunks.push(currentOrphanChunk)
+          currentOrphanChunk = []
+          currentOrphanTokens = 0
+        }
+
+        currentOrphanChunk.push(elemIdx)
+        currentOrphanTokens += elemTokens
+      }
+
+      if (currentOrphanChunk.length > 0) {
+        orphanChunks.push(currentOrphanChunk)
+      }
+
+      // Process orphan chunks against valid groups (reuses the same processChunk as Phase 1)
+      const orphanResults = await Promise.all(
+        orphanChunks.map((chunk) =>
+          elementLimit(async () => {
+            // If there are valid groups, chunk them; otherwise pass empty so LLM creates new groups
+            const groupChunksForOrphans = validGroupIds.length > 0 ? getGroupChunks() : [[]]
+
+            const allAssignments = await Promise.all(
+              groupChunksForOrphans
+                .filter((gc) => gc.length === 0 || gc.some((gid) => validGroupIds.includes(gid)))
+                .map((groupChunk) => {
+                  // Only show valid groups (exclude the orphaned/undersized ones)
+                  const filteredGroupChunk = groupChunk.filter((gid) => validGroupIds.includes(gid))
+                  return groupLimit(() => processChunk(chunk, filteredGroupChunk))
+                })
+            )
+
+            return allAssignments.flat()
+          })
+        )
+      )
+
+      // Apply assignments
+      const flatAssignments = orphanResults.flat()
+      for (const { elementIndex, label } of flatAssignments) {
+        const normalized = normalizeLabel(label)
+        let groupId = labelToGroupId.get(normalized)
+
+        if (!groupId) {
+          groupId = `group_${groupIdCounter++}`
+          groups.set(groupId, { id: groupId, label, normalizedLabel: normalized })
+          groupElements.set(groupId, new Set())
+          labelToGroupId.set(normalized, groupId)
+        }
+        groupElements.get(groupId)!.add(elementIndex)
+      }
+
+      // Safety: any orphans the LLM missed get placed into the largest group
+      const isAssigned = (idx: number) => {
+        for (const [, elemSet] of groupElements) {
+          if (elemSet.has(idx)) return true
+        }
+        return false
+      }
+      const unassigned = orphanIndices.filter((idx) => !isAssigned(idx))
+      const placeIntoLargest = (indices: number[]) => {
+        const allNonEmpty = getNonEmptyGroupIds()
+        if (allNonEmpty.length === 0) return
+        const largestGid = allNonEmpty.reduce((a, b) =>
+          groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
+        )
+        for (const idx of indices) {
+          groupElements.get(largestGid)!.add(idx)
+        }
+      }
+
+      if (unassigned.length > 0) {
+        placeIntoLargest(unassigned)
+      }
+
+      // Second pass: if any groups are still undersized after redistribution,
+      // merge their elements into the largest group
+      const mergeUndersizedGroups = () => {
+        const allNonEmpty = getNonEmptyGroupIds()
+        if (allNonEmpty.length <= 1) return false
+
+        const largestGid = allNonEmpty.reduce((a, b) =>
+          groupElements.get(a)!.size >= groupElements.get(b)!.size ? a : b
+        )
+        const targetSet = groupElements.get(largestGid)!
+        let merged = false
+
+        for (const gid of allNonEmpty) {
+          if (gid === largestGid) continue
+          const elemSet = groupElements.get(gid)!
+          if (elemSet.size > 0 && elemSet.size < options.minElements) {
+            elemSet.forEach((idx) => targetSet.add(idx))
+            elemSet.clear()
+            merged = true
+          }
+        }
+        return merged
+      }
+
+      while (mergeUndersizedGroups()) {
+        // keep merging until no undersized groups remain
+      }
+    }
+  }
+
   // Build final result
   const result: Array<Group<T>> = []
 
@@ -678,6 +955,7 @@ Zai.prototype.group = function <T>(
     taskId: this.taskId,
     taskType: 'zai.group',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<Group<T>>, Record<string, T[]>>(context, group(input, _options, context), (result) => {

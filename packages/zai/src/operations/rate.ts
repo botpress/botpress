@@ -611,6 +611,7 @@ Zai.prototype.rate = function <T, I extends RatingInstructions>(
     taskId: this.taskId,
     taskType: 'zai.rate',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<Array<RatingResult<I>>, Array<SimplifiedRatingResult<I>>>(

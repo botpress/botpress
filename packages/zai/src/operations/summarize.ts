@@ -306,6 +306,7 @@ Zai.prototype.summarize = function (this: Zai, original, _options): Response<str
     taskId: this.taskId,
     taskType: 'summarize',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<string, string>(context, summarize(original, options, context), (value) => value)

@@ -167,7 +167,7 @@ const _handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Response>
 const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) =>
   'https://accounts.google.com/o/oauth2/v2/auth?scope=' +
   'https%3A//www.googleapis.com/auth/drive.file&access_type=offline' +
-  '&include_granted_scopes=true&response_type=code&prompt=consent' +
+  '&include_granted_scopes=true&response_type=code&prompt=consent&trigger_onepick=true' +
   `&state=${ctx.webhookId}&redirect_uri=${encodeURI(_getOAuthRedirectUri().href)}` +
   `&client_id=${bp.secrets.CLIENT_ID}`
 
