@@ -9,34 +9,42 @@ export const startDmConversation = wrapActionAndInjectSlackClient(
       },
     })
 
+    let conversationId: string | undefined
+
     if (user.tags.dm_conversation_id) {
-      return {
-        conversationId: user.tags.dm_conversation_id,
-        userId: user.id,
+      try {
+        await client.getConversation({ id: user.tags.dm_conversation_id })
+        conversationId = user.tags.dm_conversation_id
+      } catch {
+        // NOTE: Cached conversation no longer exists (e.g. bot was re-deployed), fall through to create a new one
       }
     }
 
-    const channelId = await slackClient.startDmWithUser(slackUserId)
+    if (!conversationId) {
+      const channelId = await slackClient.startDmWithUser(slackUserId)
 
-    const { conversation } = await client.getOrCreateConversation({
-      channel: 'dm',
-      tags: {
-        id: channelId,
-        title: `DM with ${user.name}`,
-      },
-      discriminateByTags: ['id'],
-    })
+      const { conversation } = await client.getOrCreateConversation({
+        channel: 'dm',
+        tags: {
+          id: channelId,
+          title: `DM with ${user.name}`,
+        },
+        discriminateByTags: ['id'],
+      })
 
-    await client.updateUser({
-      id: user.id,
-      tags: {
-        dm_conversation_id: conversation.id,
-        id: slackUserId,
-      },
-    })
+      conversationId = conversation.id
+
+      await client.updateUser({
+        id: user.id,
+        tags: {
+          dm_conversation_id: conversation.id,
+          id: slackUserId,
+        },
+      })
+    }
 
     return {
-      conversationId: conversation.id,
+      conversationId,
       userId: user.id,
     }
   }

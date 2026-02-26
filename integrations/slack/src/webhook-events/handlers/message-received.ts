@@ -1,4 +1,3 @@
-import { z } from '@botpress/sdk'
 import { slackToMarkdown } from '@bpinternal/slackdown'
 import {
   ActionsBlockElement,
@@ -10,15 +9,13 @@ import {
   RichTextElement,
   RichTextSection,
 } from '@slack/types'
-import { textSchema } from 'definitions/channels/text-input-schema'
+import { Mention, MessageOrigin, MessageTag } from 'definitions/schemas/messages'
 import {
   getBotpressConversationFromSlackThread,
   getBotpressUserFromSlackUser,
   updateBotpressUserFromSlackUser,
 } from 'src/misc/utils'
 import * as bp from '.botpress'
-
-type Mention = NonNullable<z.infer<typeof textSchema>['mentions']>[number]
 
 type BlocItem =
   | bp.channels.channel.bloc.Bloc['items'][number]
@@ -29,8 +26,6 @@ type BlocItem =
         text: string
       }
     }
-
-type MessageTag = keyof bp.ClientRequests['getOrCreateMessage']['tags']
 
 export type HandleEventProps = {
   slackEvent: AllMessageEvents
@@ -51,6 +46,7 @@ export const handleEvent = async (props: HandleEventProps) => {
   await updateBotpressUserFromSlackUser(slackEvent.user, botpressUser, client, ctx, logger)
 
   const mentionsBot = await _isBotMentionedInMessage({ slackEvent, client, ctx })
+  const origin = _classifyMessageOrigin(slackEvent)
   const isSentInChannel = !slackEvent.thread_ts
   const replyLocation = ctx.configuration.replyBehaviour?.location ?? 'channel'
   const replyOnlyOnBotMention = ctx.configuration.replyBehaviour?.onlyOnBotMention ?? false
@@ -77,6 +73,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         ts: slackEvent.ts,
         userId: slackEvent.user,
         channelId: slackEvent.channel,
+        channelOrigin: origin,
         mentionsBot: mentionsBot ? 'true' : undefined,
         forkedToThread: 'false',
       },
@@ -104,6 +101,7 @@ export const handleEvent = async (props: HandleEventProps) => {
         ts: slackEvent.ts,
         userId: slackEvent.user,
         channelId: slackEvent.channel,
+        channelOrigin: origin,
         mentionsBot: mentionsBot ? 'true' : undefined,
         forkedToThread: isSentInChannel ? 'true' : 'false',
       },
@@ -114,6 +112,19 @@ export const handleEvent = async (props: HandleEventProps) => {
       logger,
     })
   }
+}
+
+const _classifyMessageOrigin = (slackEvent: AllMessageEvents): MessageOrigin => {
+  const isDm = slackEvent.channel.startsWith('D')
+  const isThread = 'thread_ts' in slackEvent && !!slackEvent.thread_ts
+
+  if (isDm) {
+    return 'dm'
+  }
+  if (isThread) {
+    return 'thread'
+  }
+  return 'channel'
 }
 
 type _SendMessageProps = HandleEventProps & {
