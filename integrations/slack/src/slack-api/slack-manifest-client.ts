@@ -1,5 +1,5 @@
-import * as sdk from '@botpress/sdk'
-import axios from 'axios'
+import { z, RuntimeError } from '@botpress/sdk'
+import { WebClient as SlackApiClient } from '@slack/web-api'
 import { REQUIRED_SLACK_SCOPES } from '../setup'
 import * as bp from '.botpress'
 
@@ -17,56 +17,58 @@ const BOT_EVENTS = [
   'team_join',
 ]
 
-const slackErrorSchema = sdk.z.object({
-  message: sdk.z.string(),
-  pointer: sdk.z.string(),
+const slackErrorSchema = z.object({
+  message: z.string(),
+  pointer: z.string(),
 })
 
-const manifestCreateResponseSchema = sdk.z.object({
-  ok: sdk.z.literal(true),
-  app_id: sdk.z.string(),
-  credentials: sdk.z.object({
-    client_id: sdk.z.string(),
-    client_secret: sdk.z.string(),
-    signing_secret: sdk.z.string(),
-    verification_token: sdk.z.string(),
+const manifestCreateResponseSchema = z.object({
+  ok: z.literal(true),
+  app_id: z.string(),
+  credentials: z.object({
+    client_id: z.string(),
+    client_secret: z.string(),
+    signing_secret: z.string(),
+    verification_token: z.string(),
   }),
-  oauth_authorize_url: sdk.z.string(),
+  oauth_authorize_url: z.string(),
 })
 
-const manifestErrorResponseSchema = sdk.z.object({
-  ok: sdk.z.literal(false),
-  error: sdk.z.string().optional(),
-  errors: sdk.z.array(slackErrorSchema).optional(),
+const manifestErrorResponseSchema = z.object({
+  ok: z.literal(false),
+  error: z.string().optional(),
+  errors: z.array(slackErrorSchema).optional(),
 })
 
-const manifestValidateSuccessSchema = sdk.z.object({
-  ok: sdk.z.literal(true),
+const manifestValidateSuccessSchema = z.object({
+  ok: z.literal(true),
 })
 
-const manifestUpdateSuccessSchema = sdk.z.object({
-  ok: sdk.z.literal(true),
+const manifestUpdateSuccessSchema = z.object({
+  ok: z.literal(true),
 })
 
-export type ManifestCreateResponse = sdk.z.infer<typeof manifestCreateResponseSchema>
+export type ManifestCreateResponse = z.infer<typeof manifestCreateResponseSchema>
 
 export class SlackManifestClient {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
   private readonly _logger: bp.Logger
-  private readonly _configToken: string
+  private readonly _appConfigToken: string
+  private readonly _slackApiClient: SlackApiClient
 
-  public constructor({ client, ctx, logger, configToken }: bp.CommonHandlerProps & { configToken: string }) {
+  public constructor({ client, ctx, logger, appConfigToken }: bp.CommonHandlerProps & { appConfigToken: string }) {
     this._client = client
     this._ctx = ctx
     this._logger = logger
-    this._configToken = configToken
-    this._logger.forBot().debug('Initialized SlackManifestClient with config token', configToken)
+    this._appConfigToken = appConfigToken
+    this._slackApiClient = new SlackApiClient(appConfigToken)
+    this._logger.forBot().debug('Initialized SlackManifestClient with config token', appConfigToken)
   }
 
   public async validateManifest(manifest: object): Promise<{ ok: true } | { ok: false; errorMessage: string }> {
-    const { data } = await axios.post(`${SLACK_API_BASE}/apps.manifest.validate`, {
-      token: this._configToken,
+    const { data } = await this._slackApiClient.apiCall('apps.manifest.validate', {
+      token: this._appConfigToken,
       manifest: JSON.stringify(manifest),
     })
 
@@ -84,12 +86,12 @@ export class SlackManifestClient {
       return { ok: false, errorMessage }
     }
 
-    throw new sdk.RuntimeError(`Unexpected response from Slack manifest validate API: ${JSON.stringify(data)}`)
+    throw new RuntimeError(`Unexpected response from Slack manifest validate API: ${JSON.stringify(data)}`)
   }
 
   public async createApp(manifest: object): Promise<ManifestCreateResponse> {
-    const { data } = await axios.post(`${SLACK_API_BASE}/apps.manifest.create`, {
-      token: this._configToken,
+    const { data } = await this._slackApiClient.apiCall('apps.manifest.create', {
+      token: this._appConfigToken,
       manifest: JSON.stringify(manifest),
     })
 
@@ -102,15 +104,15 @@ export class SlackManifestClient {
     if (errorResult.success) {
       const errorDetails =
         errorResult.data.errors?.map((e) => e.message).join(', ') || errorResult.data.error || 'Unknown error'
-      throw new sdk.RuntimeError(`Failed to create Slack app: ${errorDetails}`)
+      throw new RuntimeError(`Failed to create Slack app: ${errorDetails}`)
     }
 
-    throw new sdk.RuntimeError(`Unexpected response from Slack manifest create API: ${JSON.stringify(data)}`)
+    throw new RuntimeError(`Unexpected response from Slack manifest create API: ${JSON.stringify(data)}`)
   }
 
   public async updateApp(appId: string, manifest: object): Promise<void> {
-    const { data } = await axios.post(`${SLACK_API_BASE}/apps.manifest.update`, {
-      token: this._configToken,
+    const { data } = await this._slackApiClient.apiCall('apps.manifest.update', {
+      token: this._appConfigToken,
       app_id: appId,
       manifest: JSON.stringify(manifest),
     })
@@ -124,10 +126,10 @@ export class SlackManifestClient {
     if (errorResult.success) {
       const errorDetails =
         errorResult.data.errors?.map((e) => e.message).join(', ') || errorResult.data.error || 'Unknown error'
-      throw new sdk.RuntimeError(`Failed to update Slack app manifest: ${errorDetails}`)
+      throw new RuntimeError(`Failed to update Slack app manifest: ${errorDetails}`)
     }
 
-    throw new sdk.RuntimeError(`Unexpected response from Slack manifest update API: ${JSON.stringify(data)}`)
+    throw new RuntimeError(`Unexpected response from Slack manifest update API: ${JSON.stringify(data)}`)
   }
 }
 

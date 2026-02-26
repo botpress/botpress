@@ -1,11 +1,7 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { WebClient as SlackWebClient } from '@slack/web-api'
-import {
-  SlackManifestClient,
-  buildSlackAppManifest,
-  type ManifestCreateResponse,
-} from '../slack-api/slack-manifest-client'
+import { SlackManifestClient, buildSlackAppManifest } from '../slack-api/slack-manifest-client'
 import * as bp from '.botpress'
 
 const oauthResponseSchema = sdk.z.object({
@@ -87,7 +83,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   const webhookUrl = process.env.BP_WEBHOOK_URL!
   const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
   const manifest = buildSlackAppManifest(webhookUrl, redirectUri, appName)
-  const manifestClient = new SlackManifestClient({ client, ctx, logger, configToken })
+  const manifestClient = new SlackManifestClient({ client, ctx, logger, appConfigToken: configToken })
 
   logger.forBot().debug('Validating Slack app manifest...')
   const validation = await manifestClient.validateManifest(manifest)
@@ -99,20 +95,23 @@ const _createAppHandler: WizardHandler = async (props) => {
   }
 
   logger.forBot().debug('Creating Slack app from manifest...')
-  const result: ManifestCreateResponse = await manifestClient.createApp(manifest)
+  const {
+    app_id,
+    credentials: { client_id, client_secret, signing_secret },
+  } = await manifestClient.createApp(manifest)
 
   await _patchManifestState(client, ctx, {
     configToken,
-    appId: result.app_id,
-    clientId: result.credentials.client_id,
-    clientSecret: result.credentials.client_secret,
-    signingSecret: result.credentials.signing_secret,
+    appId: app_id,
+    clientId: client_id,
+    clientSecret: client_secret,
+    signingSecret: signing_secret,
   })
 
   const scopes = manifest.oauth_config.scopes.bot.join(',')
   const oauthUrl =
     'https://slack.com/oauth/v2/authorize' +
-    `?client_id=${encodeURIComponent(result.credentials.client_id)}` +
+    `?client_id=${encodeURIComponent(client_id)}` +
     `&scope=${encodeURIComponent(scopes)}` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&state=${encodeURIComponent(ctx.webhookId)}`
