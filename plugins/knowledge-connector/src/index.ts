@@ -5,6 +5,7 @@ import * as onEventFileCreated from './hooks/on-event/file-created'
 import * as onEventFileDeleted from './hooks/on-event/file-deleted'
 import * as onEventFileUpdated from './hooks/on-event/file-updated'
 import * as onEventFolderDeleted from './hooks/on-event/folder-deleted-recursive'
+import * as onEventScheduledSync from './hooks/on-event/scheduled-sync'
 import { hasEnabledFolders } from './utils/has-enabled-folders'
 import * as bp from '.botpress'
 
@@ -75,6 +76,18 @@ plugin.on.event('files-readonly:fileUpdated', async (props) => {
     await onEventFileUpdated.handleEvent(props as any)
   } catch (error) {
     props.logger.error(`fileUpdated error: ${error instanceof Error ? error.message : String(error)}`)
+  }
+})
+
+plugin.on.event('scheduledSync', async (props) => {
+  props.logger.info('[scheduledSync] Event received', {
+    configuration: props.configuration,
+    botId: props.ctx.botId,
+  })
+  try {
+    await onEventScheduledSync.handleEvent(props)
+  } catch (error) {
+    props.logger.error(`scheduledSync error: ${error instanceof Error ? error.message : String(error)}`)
   }
 })
 

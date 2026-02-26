@@ -12,6 +12,31 @@ export default new sdk.PluginDefinition({
     // This plugin should be invisible to users:
     ...sdk.WELL_KNOWN_ATTRIBUTES.HIDDEN_IN_STUDIO,
   },
+  configuration: {
+    schema: sdk.z.object({
+      scheduledSyncIntervalHours: sdk.z
+        .number()
+        .default(0)
+        .title('Scheduled Sync Interval (hours)')
+        .describe(
+          'The interval in hours between scheduled re-syncs. Set to 0 to disable. The plugin checks every hour and triggers a sync if enough time has elapsed since the last one.'
+        ),
+    }),
+  },
+  events: {
+    scheduledSync: {
+      schema: sdk.z.object({}),
+    },
+  },
+  recurringEvents: {
+    triggerScheduledSync: {
+      type: 'scheduledSync',
+      payload: {},
+      schedule: {
+        cron: '* * * * *', // every minute (for testing); handler checks actual interval from configuration
+      },
+    },
+  },
   states: {
     folderSyncSettings: {
       type: 'bot',
@@ -35,9 +60,34 @@ export default new sdk.PluginDefinition({
                 .describe(
                   'The absolute path of the folder in the integration tree structure. Used to identify and locate the folder for synchronization.'
                 ),
+              integrationInstanceAlias: sdk.z
+                .string()
+                .optional()
+                .title('Integration Instance Alias')
+                .describe('The alias of the integration instance (e.g. "dropbox") used for this folder sync.'),
+              integrationDefinitionName: sdk.z
+                .string()
+                .optional()
+                .title('Integration Definition Name')
+                .describe('The name of the integration definition (e.g. "dropbox") used for this folder sync.'),
+              transferFileToBotpressAlias: sdk.z
+                .string()
+                .optional()
+                .title('Transfer File Action Alias')
+                .describe('The alias of the transferFileToBotpress action for this integration.'),
             })
           )
         ),
+      }),
+    },
+    lastScheduledSync: {
+      type: 'bot',
+      schema: sdk.z.object({
+        lastSyncAt: sdk.z
+          .string()
+          .optional()
+          .title('Last Sync At')
+          .describe('ISO timestamp of the last scheduled sync execution.'),
       }),
     },
   },
