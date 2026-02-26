@@ -59,6 +59,7 @@ const choiceSchema = z.object({
     z.object({
       label: NonEmptyString,
       value: NonEmptyString,
+      description: z.string().optional(),
     })
   ),
 })
