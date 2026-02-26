@@ -816,6 +816,7 @@ Zai.prototype.answer = function <T>(
     taskId: this.taskId,
     taskType: 'zai.answer',
     adapter: this.adapter,
+    memoizer: this._resolveMemoizer(),
   })
 
   return new Response<AnswerResult<T>, AnswerResult<T>>(

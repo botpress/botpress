@@ -7,7 +7,7 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/cognitive": "0.3.11",
+    "@botpress/cognitive": "0.3.14",
     "@botpress/sdk": "workspace:*",
     "browser-or-node": "^2.1.1",
     "jsonrepair": "^3.10.0"

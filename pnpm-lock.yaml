@@ -17,8 +17,8 @@ importers:
         specifier: ^3.564.0
         version: 3.709.0
       '@botpress/api':
-        specifier: 1.71.1
-        version: 1.71.1
+        specifier: 1.73.0
+        version: 1.73.0
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
@@ -2502,10 +2502,10 @@ importers:
         specifier: 0.5.4
         version: link:../chat-client
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.1.0
@@ -2626,10 +2626,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2642,10 +2642,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2658,7 +2658,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2671,10 +2671,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2687,10 +2687,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 5.4.0
+        specifier: 5.4.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2841,16 +2841,16 @@ importers:
         specifier: ^7.26.3
         version: 7.26.9
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../client
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.14
         version: link:../cognitive
       '@bpinternal/thicktoken':
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^2.0.0
+        version: 2.0.0
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       '@jitl/quickjs-singlefile-browser-release-sync':
         specifier: ^0.31.0
@@ -2947,10 +2947,10 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       browser-or-node:
         specifier: ^2.1.1
@@ -2984,13 +2984,13 @@ importers:
   packages/vai:
     dependencies:
       '@botpress/client':
-        specifier: 1.33.0
+        specifier: 1.35.0
         version: link:../client
       '@bpinternal/thicktoken':
         specifier: ^1.0.1
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3030,13 +3030,13 @@ importers:
   packages/zai:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.14
         version: link:../cognitive
       '@bpinternal/thicktoken':
         specifier: ^1.0.0
         version: 1.0.2
       '@bpinternal/zui':
-        specifier: ^1.3.2
+        specifier: ^1.3.3
         version: link:../zui
       json5:
         specifier: ^2.2.3
@@ -3149,7 +3149,7 @@ importers:
   plugins/conversation-insights:
     dependencies:
       '@botpress/cognitive':
-        specifier: 0.3.11
+        specifier: 0.3.14
         version: link:../../packages/cognitive
       '@botpress/sdk':
         specifier: workspace:*
@@ -3991,8 +3991,8 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
-  '@botpress/api@1.71.1':
-    resolution: {integrity: sha512-vg/7/Hcy1sX9jWWiz/BlkdXPAq8+wktL9ZNqYaSvOit0nSSBtLn64BHngdzp14dIapuAVM6CJLW045rbxWojog==}
+  '@botpress/api@1.73.0':
+    resolution: {integrity: sha512-7Z3WGx8hVhc5JcN9DwdWA6lLsA4b/qcBoEHM0RWuqVQacEcFbdFgedaR4FDh7qdGxVQxEhHpwPjJv0CNbndpGA==}
 
   '@bpinternal/const@0.1.0':
     resolution: {integrity: sha512-iIQg9oYYXOt+LSK34oNhJVQTcgRdtLmLZirEUaE+R9hnmbKONA5reR2kTewxZmekGyxej+5RtDK9xrC/0hmeAw==}
@@ -4035,8 +4035,9 @@ packages:
   '@bpinternal/thicktoken@1.0.2':
     resolution: {integrity: sha512-3PJXxIPkoFwFl+RmZMoMj0usHchP2krMKUlGyvDSd/sEHf+qA1rJjRJq7em/Y+lXDNlzis7k6j3QBYudGPvLAQ==}
 
-  '@bpinternal/thicktoken@1.0.5':
-    resolution: {integrity: sha512-5eJuf5b0BwjT+PKGTtXP5XYy27ZOPhYWj9RbSWZdQLIRGobnBaRmlJ6SguLAhVXeQNinyAanDs3uWAXjNqRX+A==}
+  '@bpinternal/thicktoken@2.0.0':
+    resolution: {integrity: sha512-K0HmBei6I9wY/jLq0xTgvPJ2hcdhv5lBMB8Vb00cUXFmMwjapzO53mKdHeQzyMC5E9mlwtFSN7ylcTlQDNf5Jw==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
 
   '@bpinternal/tunnel@0.1.1':
     resolution: {integrity: sha512-B1ryt5n3/PSMFuoOkW4h2zHNF9rcsOB5nDBcCPQtmO2Mrz7c6kAtMBHBMhBe8DWIvqeasZYhDgxYwDh8wivFsw==}
@@ -13166,7 +13167,7 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@botpress/api@1.71.1':
+  '@botpress/api@1.73.0':
     dependencies:
       '@bpinternal/opapi': 1.0.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -13257,7 +13258,7 @@ snapshots:
     dependencies:
       tiktoken: 1.0.19
 
-  '@bpinternal/thicktoken@1.0.5': {}
+  '@bpinternal/thicktoken@2.0.0': {}
 
   '@bpinternal/tunnel@0.1.1':
     dependencies:

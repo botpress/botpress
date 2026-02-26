@@ -9,6 +9,17 @@ import { TableAdapter } from './adapters/botpress-table'
 import { MemoryAdapter } from './adapters/memory'
 
 /**
+ * A memoizer that caches the result of async operations by a unique key.
+ *
+ * When used with the Botpress ADK workflow `step` function, this enables
+ * Zai operations to resume where they left off if a workflow is interrupted.
+ *
+ */
+export type Memoizer = {
+  run: <T>(id: string, fn: () => Promise<T>) => Promise<T>
+}
+
+/**
  * Active learning configuration for improving AI operations over time.
  *
  * When enabled, Zai stores successful operation results in a table and uses them as examples
@@ -86,6 +97,16 @@ type ZaiConfig = {
   activeLearning?: ActiveLearning
   /** Namespace for organizing tasks (default: 'zai') */
   namespace?: string
+  /**
+   * Memoizer (or factory returning one) for caching cognitive call results.
+   *
+   * When provided, all LLM calls are wrapped in the memoizer, allowing results
+   * to be cached and replayed. This is useful for resuming workflow runs where
+   * Zai operations have already completed their cognitive calls.
+   *
+   * If a factory function is provided, it is called once per Zai operation invocation.
+   */
+  memoize?: Memoizer | (() => Memoizer)
 }
 
 const _ZaiConfig = z.object({
@@ -195,6 +216,7 @@ export class Zai {
   protected namespace: string
   protected adapter: Adapter
   protected activeLearning: ActiveLearning
+  protected _memoize?: Memoizer | (() => Memoizer)
 
   /**
    * Creates a new Zai instance with the specified configuration.
@@ -236,6 +258,8 @@ export class Zai {
           tableName: parsed.activeLearning.tableName,
         })
       : new MemoryAdapter([])
+
+    this._memoize = config.memoize
   }
 
   /** @internal */
@@ -248,6 +272,14 @@ export class Zai {
       model: this.Model as Required<Parameters<Cognitive['generateContent']>[0]>['model'],
       userId: this._userId,
     })
+  }
+
+  /** @internal */
+  protected _resolveMemoizer(): Memoizer | undefined {
+    if (!this._memoize) {
+      return undefined
+    }
+    return typeof this._memoize === 'function' ? this._memoize() : this._memoize
   }
 
   protected async getTokenizer() {

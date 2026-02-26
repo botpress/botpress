@@ -1,4 +1,5 @@
-import { createClient } from '../sunshine-api'
+import { getStoredCredentials } from 'src/get-stored-credentials'
+import { createClient } from '../api/sunshine-api'
 import { getSuncoConversationId } from '../util'
 import * as bp from '.botpress'
 
@@ -9,18 +10,18 @@ type SendActivityProps = Pick<bp.AnyMessageProps, 'ctx' | 'client'> & {
 }
 
 async function sendActivity({ client, ctx, conversationId, typingStatus, markAsRead }: SendActivityProps) {
+  const credentials = await getStoredCredentials(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
   const suncoConversationId = getSuncoConversationId(conversation)
-  const { appId, keyId, keySecret } = ctx.configuration
-  const suncoClient = createClient(keyId, keySecret)
+  const suncoClient = createClient(credentials)
   if (markAsRead) {
-    await suncoClient.activities.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(credentials.appId, suncoConversationId, {
       type: 'conversation:read',
       author: { type: 'business' },
     })
   }
   if (typingStatus) {
-    await suncoClient.activities.postActivity(appId, suncoConversationId, {
+    await suncoClient.activities.postActivity(credentials.appId, suncoConversationId, {
       type: `typing:${typingStatus}`,
       author: { type: 'business' },
     })

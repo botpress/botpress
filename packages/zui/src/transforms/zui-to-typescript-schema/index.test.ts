@@ -152,6 +152,15 @@ describe.concurrent('toTypescriptSchema', () => {
       const evaluated = generate(schema)
       expect(evaluated._def.checks).toEqual([{ kind: 'ip', message: undefined }])
     })
+    test('props with innertype only add keys once', () => {
+      const schema = z.string().describe('some desc').optional()
+      assert(schema).toGenerateItself()
+
+      const ts = toTypescript(schema)
+      const count = (ts.match(/\.describe\(/g) || []).length
+      expect(count).toBe(1)
+      expect(ts).toContain(".describe('some desc')")
+    })
 
     describe.concurrent('optional', () => {
       it('should preserve .secret modifier', () => {

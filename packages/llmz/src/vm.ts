@@ -267,19 +267,18 @@ export async function runAsyncFunction(
             if (typeof v !== 'function') {
               const propHandle = toVmValue(v)
               vm.setProp(obj, k, propHandle)
-              if (
-                propHandle !== vm.true &&
-                propHandle !== vm.false &&
-                propHandle !== vm.null &&
-                propHandle !== vm.undefined
-              ) {
-                propHandle.dispose()
-              }
+              disposeIfNeeded(propHandle)
             }
           }
           return obj
         }
         return vm.undefined
+      }
+
+      const disposeIfNeeded = (handle: any) => {
+        if (handle !== vm.true && handle !== vm.false && handle !== vm.null && handle !== vm.undefined) {
+          handle.dispose()
+        }
       }
 
       // Helper to bridge functions - handles both sync and async
@@ -399,14 +398,7 @@ export async function runAsyncFunction(
             trackedProperties.add(key)
             const arrayHandle = toVmValue(value)
             vm.setProp(vm.global, key, arrayHandle)
-            const shouldDispose =
-              arrayHandle !== vm.true &&
-              arrayHandle !== vm.false &&
-              arrayHandle !== vm.null &&
-              arrayHandle !== vm.undefined
-            if (shouldDispose) {
-              arrayHandle.dispose()
-            }
+            disposeIfNeeded(arrayHandle)
           } else if (typeof value === 'object' && value !== null) {
             trackedProperties.add(key)
 
@@ -433,14 +425,7 @@ export async function runAsyncFunction(
               } else {
                 const propHandle = toVmValue((value as any)[prop])
                 vm.setProp(objHandle, prop, propHandle)
-                const shouldDispose =
-                  propHandle !== vm.true &&
-                  propHandle !== vm.false &&
-                  propHandle !== vm.null &&
-                  propHandle !== vm.undefined
-                if (shouldDispose) {
-                  propHandle.dispose()
-                }
+                disposeIfNeeded(propHandle)
               }
             }
 
@@ -525,14 +510,7 @@ export async function runAsyncFunction(
             trackedProperties.add(key)
             const valueHandle = toVmValue(value)
             vm.setProp(vm.global, key, valueHandle)
-            const shouldDispose =
-              valueHandle !== vm.true &&
-              valueHandle !== vm.false &&
-              valueHandle !== vm.null &&
-              valueHandle !== vm.undefined
-            if (shouldDispose) {
-              valueHandle.dispose()
-            }
+            disposeIfNeeded(valueHandle)
           }
         }
 
@@ -741,6 +719,7 @@ ${transformed.code}
                     }
                     const vmValue = toVmValue(value)
                     deferredPromise.resolve(vmValue)
+                    disposeIfNeeded(vmValue)
                   } catch (err: any) {
                     // If abort was triggered, the abort listener already rejected the promise
                     if (signal?.aborted) {
@@ -886,10 +865,12 @@ ${transformed.code}
               const value = await hostPromise
               const vmValue = toVmValue(value)
               deferredPromise.resolve(vmValue)
+              disposeIfNeeded(vmValue)
             } catch (err2: any) {
               const serialized = err2 instanceof Error ? err2.message : String(err2)
               const errValue = vm.newString(serialized)
               deferredPromise.reject(errValue)
+              errValue.dispose()
             }
           })
         ).catch(() => {})
