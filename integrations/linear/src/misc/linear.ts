@@ -84,12 +84,12 @@ const tokenRequestSchema = z.object({
   redirect_uri: z.string(),
 })
 
-const getAccessTokenRequestSchema = tokenResquestSchema.extend({
+const getAccessTokenRequestSchema = tokenRequestSchema.extend({
   grant_type: z.literal('authorization_code'),
   code: z.string(),
 })
 
-const refreshTokenRequestSchema = tokenResquestSchema.extend({
+const refreshTokenRequestSchema = tokenRequestSchema.extend({
   grant_type: z.literal('refresh_token'),
   refresh_token: z.string(),
 })
@@ -146,7 +146,7 @@ export class LinearOauthClient {
     return this._parseCredentials(data)
   }
 
-  public async refreshAccessToken(oldRefreshToken: string): Promise<Credentials> {
+  public async getAccessTokenFromRefreshToken(oldRefreshToken: string): Promise<Credentials> {
     const data = await this._handleOAuthRequest<typeof refreshTokenRequestSchema>(`${linearEndpoint}/oauth/token`, {
       grant_type: 'refresh_token',
       refresh_token: oldRefreshToken,
@@ -174,7 +174,7 @@ export class LinearOauthClient {
     const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
 
     if (isExpired) {
-      return this.refreshAccessToken(current.refreshToken)
+      return this.getAccessTokenFromRefreshToken(current.refreshToken)
     }
 
     return current
