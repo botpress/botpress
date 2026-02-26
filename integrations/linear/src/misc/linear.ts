@@ -6,6 +6,8 @@ import * as bp from '.botpress'
 
 type Credentials = bp.states.States['credentials']['payload']
 
+type Credentials = bp.states.States['credentials']['payload']
+
 type BaseEvent = {
   action: 'create' | 'update' | 'remove' | 'restore'
   type: string
