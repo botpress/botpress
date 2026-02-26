@@ -53,6 +53,7 @@ export const states = {
   manifestAppCredentials: {
     type: 'integration',
     schema: sdk.z.object({
+      appName: sdk.z.string().optional().title('Slack App Name').describe('The display name of the created Slack app'),
       configToken: sdk.z
         .string()
         .secret()
@@ -60,11 +61,7 @@ export const states = {
         .title('Slack Configuration Token')
         .describe('The Slack app configuration token used to create the app'),
       appId: sdk.z.string().optional().title('Slack App ID').describe('The ID of the created Slack app'),
-      clientId: sdk.z
-        .string()
-        .optional()
-        .title('Client ID')
-        .describe('OAuth Client ID from the manifest-created app'),
+      clientId: sdk.z.string().optional().title('Client ID').describe('OAuth Client ID from the manifest-created app'),
       clientSecret: sdk.z
         .string()
         .secret()

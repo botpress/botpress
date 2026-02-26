@@ -49,8 +49,7 @@ export class SlackOAuthClient {
     clientSecretOverride?: string
   }) {
     this._clientId =
-      clientIdOverride ??
-      (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID)
+      clientIdOverride ?? (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID)
     this._clientSecret =
       clientSecretOverride ??
       (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET)

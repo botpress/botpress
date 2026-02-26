@@ -1,7 +1,11 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import { WebClient as SlackWebClient } from '@slack/web-api'
-import { SlackManifestClient, buildSlackAppManifest, type ManifestCreateResponse } from '../slack-api/slack-manifest-client'
+import {
+  SlackManifestClient,
+  buildSlackAppManifest,
+  type ManifestCreateResponse,
+} from '../slack-api/slack-manifest-client'
 import * as bp from '.botpress'
 
 const oauthResponseSchema = sdk.z.object({
@@ -21,7 +25,8 @@ type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 export const handler = async (props: bp.HandlerProps): Promise<sdk.Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startHandler })
-    .addStep({ id: 'get-config-token', handler: _getConfigTokenHandler })
+    .addStep({ id: 'get-app-name', handler: _getAppNameHandler })
+    .addStep({ id: 'save-app-name', handler: _saveAppNameHandler })
     .addStep({ id: 'create-app', handler: _createAppHandler })
     .addStep({ id: 'oauth-callback', handler: _oauthCallbackHandler })
     .addStep({ id: 'end', handler: _endHandler })
@@ -35,37 +40,54 @@ const _startHandler: WizardHandler = (props) => {
     pageTitle: 'Slack App Setup',
     htmlOrMarkdownPageContents:
       'This wizard will create a dedicated Slack app for your bot using the Slack App Manifest API.<br><br>' +
-      'You will need a <strong>Slack App Configuration Token</strong>, which you can generate from ' +
-      '<a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a> ' +
-      '(scroll to the bottom of the page and look for "Your App Configuration Tokens").<br><br>' +
-      '<em>Note: Configuration tokens expire after 12 hours.</em>',
+      'A Slack app will be automatically created and configured with all the required permissions and settings.',
     buttons: [
-      { action: 'navigate', label: 'Continue', navigateToStep: 'get-config-token', buttonType: 'primary' },
+      { action: 'navigate', label: 'Continue', navigateToStep: 'get-app-name', buttonType: 'primary' },
       { action: 'close', label: 'Cancel', buttonType: 'secondary' },
     ],
   })
 }
 
-const _getConfigTokenHandler: WizardHandler = (props) => {
+const _getAppNameHandler: WizardHandler = (props) => {
   return props.responses.displayInput({
-    pageTitle: 'Enter Configuration Token',
-    htmlOrMarkdownPageContents: 'Paste your Slack App Configuration Token below.',
-    input: { label: 'Slack Configuration Token', type: 'password' },
-    nextStepId: 'create-app',
+    pageTitle: 'Name Your Slack App',
+    htmlOrMarkdownPageContents: 'Choose a name for the Slack app that will be created (max 35 characters).',
+    input: { label: 'e.g. My Botpress Bot', type: 'text' },
+    nextStepId: 'save-app-name',
   })
 }
 
-const _createAppHandler: WizardHandler = async (props) => {
-  const { client, ctx, responses, inputValue, logger } = props
+const _saveAppNameHandler: WizardHandler = async (props) => {
+  const { client, ctx, responses, inputValue } = props
 
-  if (!inputValue) {
-    throw new sdk.RuntimeError('Configuration token is required')
+  if (!inputValue?.trim()) {
+    throw new sdk.RuntimeError('App name is required')
   }
+
+  await _patchManifestState(client, ctx, { appName: inputValue.trim() })
+
+  return responses.redirectToStep('create-app')
+}
+
+const _createAppHandler: WizardHandler = async (props) => {
+  const { client, ctx, responses, logger } = props
+
+  if (ctx.configurationType !== 'manifestAppCredentials') {
+    throw new sdk.RuntimeError('This wizard is only available for the App Manifest configuration type')
+  }
+
+  const configToken = ctx.configuration.appConfigurationToken
+  if (!configToken) {
+    throw new sdk.RuntimeError('Slack App Configuration Token is required in the integration configuration')
+  }
+
+  const manifestState = await _getManifestState(client, ctx)
+  const appName = manifestState.appName || 'Botpress Bot'
 
   const webhookUrl = process.env.BP_WEBHOOK_URL!
   const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
-  const manifest = buildSlackAppManifest(webhookUrl, redirectUri)
-  const manifestClient = new SlackManifestClient(inputValue)
+  const manifest = buildSlackAppManifest(webhookUrl, redirectUri, appName)
+  const manifestClient = new SlackManifestClient({ client, ctx, logger, configToken })
 
   logger.forBot().debug('Validating Slack app manifest...')
   const validation = await manifestClient.validateManifest(manifest)
@@ -80,7 +102,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   const result: ManifestCreateResponse = await manifestClient.createApp(manifest)
 
   await _patchManifestState(client, ctx, {
-    configToken: inputValue,
+    configToken,
     appId: result.app_id,
     clientId: result.credentials.client_id,
     clientSecret: result.credentials.client_secret,
@@ -89,7 +111,7 @@ const _createAppHandler: WizardHandler = async (props) => {
 
   const scopes = manifest.oauth_config.scopes.bot.join(',')
   const oauthUrl =
-    `https://slack.com/oauth/v2/authorize` +
+    'https://slack.com/oauth/v2/authorize' +
     `?client_id=${encodeURIComponent(result.credentials.client_id)}` +
     `&scope=${encodeURIComponent(scopes)}` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +

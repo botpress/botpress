@@ -2,8 +2,7 @@ import * as sdk from '@botpress/sdk'
 import { SlackClient } from 'src/slack-api'
 import * as bp from '.botpress'
 
-export const isOAuthCallback = (req: sdk.Request): req is sdk.Request & { path: '/oauth' } =>
-  req.path === '/oauth' || req.path.startsWith('/oauth?')
+export const isOAuthCallback = (req: sdk.Request): req is sdk.Request & { path: '/oauth' } => req.path === '/oauth'
 
 export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   const query = new URLSearchParams(req.query)

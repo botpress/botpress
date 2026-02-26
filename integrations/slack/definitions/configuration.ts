@@ -33,6 +33,7 @@ const SHARED_CONFIGURATION = {
 export const configuration = {
   identifier: {
     linkTemplateScript: 'linkTemplate.vrl',
+    // linkTemplateScript: 'manifestHandler.vrl',
   },
   schema: sdk.z.object(SHARED_CONFIGURATION),
 } as const satisfies sdk.IntegrationDefinitionProps['configuration']
@@ -66,10 +67,18 @@ export const configurations = {
       ...SHARED_CONFIGURATION,
     }),
   },
-  appManifest: {
+  manifestAppCredentials: {
     title: 'App Manifest (Automatic Setup)',
     description: 'Automatically create a dedicated Slack app using a Configuration Token',
+    identifier: {
+      linkTemplateScript: 'manifestHandler.vrl',
+    },
     schema: sdk.z.object({
+      appConfigurationToken: sdk.z
+        .string()
+        .secret()
+        .title('Slack App Configuration Token')
+        .describe('Generated from api.slack.com/apps'),
       ...SHARED_CONFIGURATION,
     }),
   },

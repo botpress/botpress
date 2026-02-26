@@ -30,6 +30,25 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
 
   await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
+  if (ctx.configurationType === 'manifestAppCredentials') {
+    if (!ctx.configuration.appConfigurationToken)
+      throw new sdk.RuntimeError(
+        'Missing configuration: App Configuration Token is required when using app manifest configuration'
+      )
+    await client.setState({
+      type: 'integration',
+      id: ctx.integrationId,
+      name: 'manifestAppCredentials',
+      payload: {
+        configToken: ctx.configuration.appConfigurationToken,
+      },
+    })
+    logger
+      .forBot()
+      .info('Registered using app manifest configuration using token', ctx.configuration.appConfigurationToken)
+    return
+  }
+
   let slackClient: SlackClient
 
   if (ctx.configurationType === 'refreshToken') {
@@ -70,9 +89,6 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
           refreshToken: ctx.configuration.refreshToken,
         })
     await _saveOriginalRefreshToken(client, ctx, ctx.configuration.refreshToken)
-  } else if (ctx.configurationType === 'appManifest') {
-    // The wizard already set up oAuthCredentialsV2 and manifestAppCredentials states
-    slackClient = await SlackClient.createFromStates({ client, ctx, logger })
   } else {
     slackClient = await SlackClient.createFromStates({ client, ctx, logger })
   }
@@ -158,6 +174,21 @@ const _saveOriginalRefreshToken = async (client: bp.Client, ctx: bp.Context, ref
     id: ctx.integrationId,
     name: 'oAuthCredentialsV2',
     payload: { ...state.payload, originalRefreshToken: refreshToken },
+  })
+}
+
+const _saveAppConfigurationToken = async (client: bp.Client, ctx: bp.Context, configToken: string) => {
+  const { state } = await client.getState({
+    type: 'integration',
+    name: 'manifestAppCredentials',
+    id: ctx.integrationId,
+  })
+
+  await client.setState({
+    type: 'integration',
+    id: ctx.integrationId,
+    name: 'manifestAppCredentials',
+    payload: { ...state.payload, appConfigurationToken: configToken },
   })
 }
 

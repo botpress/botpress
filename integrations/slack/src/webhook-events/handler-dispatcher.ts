@@ -1,5 +1,5 @@
-import * as sdk from '@botpress/sdk'
 import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
+import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
 import { safeParseBody } from 'src/misc/utils'
 import { oauthWizardHandler } from '../oauth-wizard'
@@ -117,7 +117,7 @@ const _getSigningSecret = async (ctx: bp.Context, client: bp.Client): Promise<st
   if (ctx.configurationType === 'refreshToken') {
     return ctx.configuration.signingSecret
   }
-  if (ctx.configurationType === 'appManifest') {
+  if (ctx.configurationType === 'manifestAppCredentials') {
     const { state } = await client.getState({
       type: 'integration',
       name: 'manifestAppCredentials',

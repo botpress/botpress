@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import axios from 'axios'
 import { REQUIRED_SLACK_SCOPES } from '../setup'
+import * as bp from '.botpress'
 
 const SLACK_API_BASE = 'https://slack.com/api'
 
@@ -50,7 +51,18 @@ const manifestUpdateSuccessSchema = sdk.z.object({
 export type ManifestCreateResponse = sdk.z.infer<typeof manifestCreateResponseSchema>
 
 export class SlackManifestClient {
-  public constructor(private readonly _configToken: string) {}
+  private readonly _client: bp.Client
+  private readonly _ctx: bp.Context
+  private readonly _logger: bp.Logger
+  private readonly _configToken: string
+
+  public constructor({ client, ctx, logger, configToken }: bp.CommonHandlerProps & { configToken: string }) {
+    this._client = client
+    this._ctx = ctx
+    this._logger = logger
+    this._configToken = configToken
+    this._logger.forBot().debug('Initialized SlackManifestClient with config token', configToken)
+  }
 
   public async validateManifest(manifest: object): Promise<{ ok: true } | { ok: false; errorMessage: string }> {
     const { data } = await axios.post(`${SLACK_API_BASE}/apps.manifest.validate`, {
@@ -66,7 +78,9 @@ export class SlackManifestClient {
     const errorResult = manifestErrorResponseSchema.safeParse(data)
     if (errorResult.success) {
       const errorMessage =
-        errorResult.data.errors?.map((e) => e.message).join(', ') || errorResult.data.error || 'Unknown validation error'
+        errorResult.data.errors?.map((e) => e.message).join(', ') ||
+        errorResult.data.error ||
+        'Unknown validation error'
       return { ok: false, errorMessage }
     }
 
@@ -117,13 +131,13 @@ export class SlackManifestClient {
   }
 }
 
-export const buildSlackAppManifest = (webhookUrl: string, redirectUri: string) => ({
+export const buildSlackAppManifest = (webhookUrl: string, redirectUri: string, appName: string) => ({
   display_information: {
-    name: 'Botpress Bot',
+    name: appName,
   },
   features: {
     bot_user: {
-      display_name: 'Botpress Bot',
+      display_name: appName,
       always_online: true,
     },
   },
