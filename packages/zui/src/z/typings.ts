@@ -319,7 +319,7 @@ export type RefinementCtx = {
 
 //* ─────────────────────────── Base Type ───────────────────────────────────
 
-export type RawCreateParams =
+export type ZodCreateParams =
   | {
       errorMap?: ZodErrorMap
       invalid_type_error?: string
@@ -728,11 +728,11 @@ export interface IZodEnum<T extends [string, ...string[]] = [string, ...string[]
   Enum: EnumValuesMap<T>
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
-    newDef?: RawCreateParams
+    newDef?: ZodCreateParams
   ): IZodEnum<Writeable<ToExtract>>
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
-    newDef?: RawCreateParams
+    newDef?: ZodCreateParams
   ): IZodEnum<NeverCast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
 }
 
@@ -1630,86 +1630,86 @@ export declare function createInstanceOf<T extends abstract new (...args: any[])
   cls: T,
   params?: _CustomParams
 ): IZodType<InstanceType<T>>
-export declare function createAny(params?: RawCreateParams): IZodAny
-export declare function createUnknown(params?: RawCreateParams): IZodUnknown
-export declare function createNever(params?: RawCreateParams): IZodNever
-export declare function createVoid(params?: RawCreateParams): IZodVoid
-export declare function createNull(params?: RawCreateParams): IZodNull
-export declare function createUndefined(params?: RawCreateParams): IZodUndefined
-export declare function createSymbol(params?: RawCreateParams): IZodSymbol
-export declare function createNan(params?: RawCreateParams): IZodNaN
-export declare function createString(params?: RawCreateParams & { coerce?: true }): IZodString
-export declare function createNumber(params?: RawCreateParams & { coerce?: boolean }): IZodNumber
-export declare function createBoolean(params?: RawCreateParams & { coerce?: boolean }): IZodBoolean
-export declare function createBigInt(params?: RawCreateParams & { coerce?: boolean }): IZodBigInt
-export declare function createDate(params?: RawCreateParams & { coerce?: boolean }): IZodDate
+export declare function createAny(params?: ZodCreateParams): IZodAny
+export declare function createUnknown(params?: ZodCreateParams): IZodUnknown
+export declare function createNever(params?: ZodCreateParams): IZodNever
+export declare function createVoid(params?: ZodCreateParams): IZodVoid
+export declare function createNull(params?: ZodCreateParams): IZodNull
+export declare function createUndefined(params?: ZodCreateParams): IZodUndefined
+export declare function createSymbol(params?: ZodCreateParams): IZodSymbol
+export declare function createNan(params?: ZodCreateParams): IZodNaN
+export declare function createString(params?: ZodCreateParams & { coerce?: true }): IZodString
+export declare function createNumber(params?: ZodCreateParams & { coerce?: boolean }): IZodNumber
+export declare function createBoolean(params?: ZodCreateParams & { coerce?: boolean }): IZodBoolean
+export declare function createBigInt(params?: ZodCreateParams & { coerce?: boolean }): IZodBigInt
+export declare function createDate(params?: ZodCreateParams & { coerce?: boolean }): IZodDate
 export declare function createRef(uri: string): IZodRef
-export declare function createLiteral<T extends Primitive>(value: T, params?: RawCreateParams): IZodLiteral<T>
+export declare function createLiteral<T extends Primitive>(value: T, params?: ZodCreateParams): IZodLiteral<T>
 
 export declare function createEnum<U extends string, T extends Readonly<[U, ...U[]]>>(
   values: T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodEnum<Writeable<T>>
 export declare function createEnum<U extends string, T extends [U, ...U[]]>(
   values: T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodEnum<T>
 export declare function createEnum(
   values: [string, ...string[]],
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodEnum<[string, ...string[]]>
 
-export declare function createNativeEnum<T extends EnumLike>(values: T, params?: RawCreateParams): IZodNativeEnum<T>
-export declare function createArray<T extends IZodType>(schema: T, params?: RawCreateParams): IZodArray<T>
-export declare function createObject<T extends ZodRawShape>(shape: T, params?: RawCreateParams): IZodObject<T, 'strip'>
+export declare function createNativeEnum<T extends EnumLike>(values: T, params?: ZodCreateParams): IZodNativeEnum<T>
+export declare function createArray<T extends IZodType>(schema: T, params?: ZodCreateParams): IZodArray<T>
+export declare function createObject<T extends ZodRawShape>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
 export declare function createStrictObject<T extends ZodRawShape>(
   shape: T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodObject<T, 'strict'>
 export declare function createLazyObject<T extends ZodRawShape>(
   shape: () => T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodObject<T, 'strip'>
 export declare function createUnion<T extends Readonly<[IZodType, IZodType, ...IZodType[]]>>(
   types: T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodUnion<T>
 export declare function createDiscriminatedUnion<
   Discriminator extends string,
   Types extends [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],
->(discriminator: Discriminator, options: Types, params?: RawCreateParams): IZodDiscriminatedUnion<Discriminator, Types>
+>(discriminator: Discriminator, options: Types, params?: ZodCreateParams): IZodDiscriminatedUnion<Discriminator, Types>
 export declare function createIntersection<T extends IZodType, U extends IZodType>(
   left: T,
   right: U,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodIntersection<T, U>
 
 export declare function createTuple<T extends [IZodType, ...IZodType[]] | []>(
   schemas: T,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodTuple<T, null>
 export declare function createRecord<Value extends IZodType>(
   valueType: Value,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodRecord<IZodString, Value>
 export declare function createRecord<Keys extends KeySchema, Value extends IZodType>(
   keySchema: Keys,
   valueType: Value,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodRecord<Keys, Value>
 export declare function createRecord(
   first: KeySchema | IZodType,
-  second?: RawCreateParams | IZodType,
-  third?: RawCreateParams
+  second?: ZodCreateParams | IZodType,
+  third?: ZodCreateParams
 ): IZodRecord<any, any>
 export declare function createMap<Key extends IZodType, Value extends IZodType>(
   keyType: Key,
   valueType: Value,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodMap<Key, Value>
-export declare function createSet<Value extends IZodType>(valueType: Value, params?: RawCreateParams): IZodSet<Value>
-export declare function createLazy<T extends IZodType>(getter: () => T, params?: RawCreateParams): IZodLazy<T>
-export declare function createPromise<T extends IZodType>(schema: T, params?: RawCreateParams): IZodPromise<T>
+export declare function createSet<Value extends IZodType>(valueType: Value, params?: ZodCreateParams): IZodSet<Value>
+export declare function createLazy<T extends IZodType>(getter: () => T, params?: ZodCreateParams): IZodLazy<T>
+export declare function createPromise<T extends IZodType>(schema: T, params?: ZodCreateParams): IZodPromise<T>
 export declare function createFunction(): IZodFunction<IZodTuple<[], IZodUnknown>, IZodUnknown>
 export declare function createFunction<T extends IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>>(
   args: T
@@ -1721,35 +1721,35 @@ export declare function createFunction<T extends IZodTuple<[IZodType, ...IZodTyp
 export declare function createFunction<
   T extends IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>,
   U extends IZodType,
->(args: T, returns: U, params: RawCreateParams): IZodFunction<T, U>
+>(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(
   args?: IZodTuple<any, any>,
   returns?: IZodType,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodFunction<any, any>
 
 export declare function createEffects<I extends IZodType, O extends IZodType>(
   schema: I,
   effect: Effect<O['_output']>,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodEffects<I, O['_output']>
 export declare function createPreprocess<I extends IZodType>(
   preprocess: (arg: unknown, ctx: RefinementCtx) => unknown,
   schema: I,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodEffects<I, I['_output'], unknown>
-export declare function createOptional<T extends IZodType>(type: T, params?: RawCreateParams): IZodOptional<T>
-export declare function createNullable<T extends IZodType>(type: T, params?: RawCreateParams): IZodNullable<T>
-export declare function createReadonly<T extends IZodType>(type: T, params?: RawCreateParams): IZodReadonly<T>
+export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>
+export declare function createNullable<T extends IZodType>(type: T, params?: ZodCreateParams): IZodNullable<T>
+export declare function createReadonly<T extends IZodType>(type: T, params?: ZodCreateParams): IZodReadonly<T>
 export declare function createDefault<T extends IZodType>(
   type: T,
   value: T['_input'] | (() => NoUndefined<T['_input']>),
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodDefault<T>
 export declare function createCatch<T extends IZodType>(
   type: T,
   catcher: T['_output'] | CatchFn<T['_output']>,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ): IZodCatch<T>
 export declare function createPipeline<A extends IZodType, B extends IZodType>(a: A, b: B): IZodPipeline<A, B>
 export declare function createBranded<T extends IZodType>(type: T): IZodBranded<T>

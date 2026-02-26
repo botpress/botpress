@@ -47,7 +47,7 @@ import type {
   IZodTuple,
   IZodType,
   KeySchema,
-  RawCreateParams,
+  ZodCreateParams,
   ZodErrorMap,
   ZuiExtensionObject,
   ZodBuilders,
@@ -60,7 +60,7 @@ type _ProcessedCreateParams = {
 }
 
 const _processCreateParams = (
-  params: RawCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)
+  params: ZodCreateParams & ({ supportsExtensions?: 'secret'[] } | undefined)
 ): _ProcessedCreateParams => {
   if (!params) return {}
 
@@ -187,7 +187,7 @@ export const refType: ZodBuilders['ref'] = (uri) => new ZodRefImpl({ typeName: '
 export const literalType: ZodBuilders['literal'] = (value, params) =>
   new ZodLiteralImpl({ value, typeName: 'ZodLiteral', ..._processCreateParams(params) })
 
-export const enumType: ZodBuilders['enum'] = ((values: [string, ...string[]], params?: RawCreateParams) =>
+export const enumType: ZodBuilders['enum'] = ((values: [string, ...string[]], params?: ZodCreateParams) =>
   new ZodEnumImpl({ values, typeName: 'ZodEnum', ..._processCreateParams(params) })) as ZodBuilders['enum']
 
 export const nativeEnumType: ZodBuilders['nativeEnum'] = (values, params) =>
@@ -242,8 +242,8 @@ export const tupleType: ZodBuilders['tuple'] = (schemas, params) => {
 
 export const recordType: ZodBuilders['record'] = (
   first: KeySchema | IZodType,
-  second?: RawCreateParams | IZodType,
-  third?: RawCreateParams
+  second?: ZodCreateParams | IZodType,
+  third?: ZodCreateParams
 ): IZodRecord<any, any> => {
   if (second instanceof ZodBaseTypeImpl) {
     return new ZodRecordImpl({
@@ -276,7 +276,7 @@ export const promiseType: ZodBuilders['promise'] = (schema, params) =>
 export const functionType: ZodBuilders['function'] = (
   args?: IZodTuple<any, any>,
   returns?: IZodType<any, any>,
-  params?: RawCreateParams
+  params?: ZodCreateParams
 ) => {
   return new ZodFunctionImpl({
     args: args ? args : tupleType([]).rest(unknownType()),
@@ -378,19 +378,19 @@ setBuilders({
 })
 
 export const coerce = {
-  string(arg?: RawCreateParams & { coerce?: true }): ReturnType<ZodBuilders['string']> {
+  string(arg?: ZodCreateParams & { coerce?: true }): ReturnType<ZodBuilders['string']> {
     return stringType({ ...arg, coerce: true })
   },
-  number(arg?: RawCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['number']> {
+  number(arg?: ZodCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['number']> {
     return numberType({ ...arg, coerce: true })
   },
-  boolean(arg?: RawCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['boolean']> {
+  boolean(arg?: ZodCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['boolean']> {
     return booleanType({ ...arg, coerce: true })
   },
-  bigint(arg?: RawCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['bigint']> {
+  bigint(arg?: ZodCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['bigint']> {
     return bigIntType({ ...arg, coerce: true })
   },
-  date(arg?: RawCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['date']> {
+  date(arg?: ZodCreateParams & { coerce?: boolean }): ReturnType<ZodBuilders['date']> {
     return dateType({ ...arg, coerce: true })
   },
 }
