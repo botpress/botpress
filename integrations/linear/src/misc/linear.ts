@@ -181,7 +181,8 @@ export class LinearOauthClient {
     return current
   }
 
-  public async getLinearClient(client: bp.Client, ctx: bp.Context, integrationId: string) {
+  public static async create(props: { client: bp.Client; ctx: bp.Context }) {
+    const { ctx, client } = props
     if (ctx.configurationType === 'apiKey') {
       return new LinearClient({ apiKey: ctx.configuration.apiKey })
     }
@@ -191,13 +192,14 @@ export class LinearOauthClient {
     } = await client.getState({
       type: 'integration',
       name: 'credentials',
-      id: integrationId,
+      id: ctx.integrationId,
     })
 
-    const credentials = await this.resolveValidCredentials(payload)
+    const linearOauthClient = new LinearOauthClient()
+    const credentials = await linearOauthClient.resolveValidCredentials(payload)
 
-    if (credentials !== payload) {
-      await client.setState({ type: 'integration', name: 'credentials', id: integrationId, payload: credentials })
+    if (credentials.accessToken !== payload.accessToken) {
+      await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
     }
 
     return new LinearClient({ accessToken: credentials.accessToken })
@@ -226,5 +228,5 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
 
   const linearClient = new LinearClient({ accessToken: credentials.accessToken })
   const organization = await linearClient.organization
-  await client.configureIntegration({ identifier: organization.id })
+  await client.configureIntegration({ identifier: organization.id, scheduleRegisterCall: 'monthly' })
 }
