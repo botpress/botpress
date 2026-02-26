@@ -1,0 +1,17 @@
+{
+  "name": "@botpresshub/wechat",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*"
+  }
+}

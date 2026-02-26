@@ -2070,6 +2070,22 @@ importers:
         specifier: ^6.9.7
         version: 6.9.7
 
+  integrations/wechat:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.6.8
+        version: 1.13.1
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/whatsapp:
     dependencies:
       '@botpress/client':
