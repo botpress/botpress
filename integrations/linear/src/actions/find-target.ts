@@ -23,8 +23,9 @@ const findIssues = async (issues: IssueConnection, targets: Target[]) => {
 export const findTarget: bp.IntegrationProps['actions']['findTarget'] = async (args) => {
   const targets: Target[] = []
 
-  const { input, ctx } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const { input } = args
+
+  const linearClient = await getLinearClient(args)
   const issues = await linearClient.issues({
     filter: {
       or: [

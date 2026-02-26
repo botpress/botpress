@@ -4,10 +4,10 @@ import * as bp from '.botpress'
 
 export const deleteIssue: bp.IntegrationProps['actions']['deleteIssue'] = async (args) => {
   const {
-    ctx,
     input: { id: issueId },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+
+  const linearClient = await getLinearClient(args)
 
   const existingIssue = await linearClient.issue(issueId).catch((thrown) => {
     if (thrown instanceof LinearError && thrown.type === LinearErrorType.InvalidInput) {
