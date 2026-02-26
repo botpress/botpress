@@ -35,10 +35,25 @@ export class SlackOAuthClient {
   private readonly _slackClient: SlackWebClient
   private _currentAuthState: PrivateAuthState | undefined = undefined
 
-  public constructor({ ctx, client, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) {
-    this._clientId = ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID
+  public constructor({
+    ctx,
+    client,
+    logger,
+    clientIdOverride,
+    clientSecretOverride,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+    clientIdOverride?: string
+    clientSecretOverride?: string
+  }) {
+    this._clientId =
+      clientIdOverride ??
+      (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID)
     this._clientSecret =
-      ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET
+      clientSecretOverride ??
+      (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET)
     this._slackClient = new SlackWebClient()
     this._client = client
     this._ctx = ctx

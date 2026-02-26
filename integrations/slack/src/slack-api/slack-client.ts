@@ -36,7 +36,20 @@ export class SlackClient {
     ctx: bp.Context
     logger: bp.Logger
   }) {
-    const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
+    let clientIdOverride: string | undefined
+    let clientSecretOverride: string | undefined
+
+    if (ctx.configurationType === 'appManifest') {
+      const { state } = await client.getState({
+        type: 'integration',
+        name: 'manifestAppCredentials',
+        id: ctx.integrationId,
+      })
+      clientIdOverride = state.payload.clientId
+      clientSecretOverride = state.payload.clientSecret
+    }
+
+    const oAuthClient = new SlackOAuthClient({ ctx, client, logger, clientIdOverride, clientSecretOverride })
 
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }

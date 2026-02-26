@@ -3,7 +3,7 @@ import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
 import type * as bp from '.botpress'
 
-const REQUIRED_SLACK_SCOPES = [
+export const REQUIRED_SLACK_SCOPES = [
   'channels:history',
   'channels:manage',
   'channels:read',
@@ -70,6 +70,9 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
           refreshToken: ctx.configuration.refreshToken,
         })
     await _saveOriginalRefreshToken(client, ctx, ctx.configuration.refreshToken)
+  } else if (ctx.configurationType === 'appManifest') {
+    // The wizard already set up oAuthCredentialsV2 and manifestAppCredentials states
+    slackClient = await SlackClient.createFromStates({ client, ctx, logger })
   } else {
     slackClient = await SlackClient.createFromStates({ client, ctx, logger })
   }

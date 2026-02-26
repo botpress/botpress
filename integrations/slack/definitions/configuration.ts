@@ -66,4 +66,11 @@ export const configurations = {
       ...SHARED_CONFIGURATION,
     }),
   },
+  appManifest: {
+    title: 'App Manifest (Automatic Setup)',
+    description: 'Automatically create a dedicated Slack app using a Configuration Token',
+    schema: sdk.z.object({
+      ...SHARED_CONFIGURATION,
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['configurations']

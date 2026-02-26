@@ -1,6 +1,8 @@
 import * as sdk from '@botpress/sdk'
+import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import type { SlackEvent } from '@slack/types'
 import { safeParseBody } from 'src/misc/utils'
+import { oauthWizardHandler } from '../oauth-wizard'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
 import { isOAuthCallback, handleOAuthCallback } from './handlers/oauth-callback'
@@ -10,6 +12,10 @@ import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
+
+  if (isOAuthWizardUrl(req.path)) {
+    return await oauthWizardHandler({ req, client, logger, ctx })
+  }
 
   if (isOAuthCallback(req)) {
     return await handleOAuthCallback({ req, client, logger, ctx })
@@ -53,8 +59,8 @@ function _verifyBodyIsPresent(req: sdk.Request): asserts req is sdk.Request & { 
   }
 }
 
-const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ctx }: bp.HandlerProps) => {
-  const signingSecret = _getSigningSecret(ctx)
+const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ctx, client }: bp.HandlerProps) => {
+  const signingSecret = await _getSigningSecret(ctx, client)
   const isSignatureValid = new SlackEventSignatureValidator(signingSecret, req, logger).isEventProperlyAuthenticated()
 
   if (!isSignatureValid) {
@@ -107,5 +113,20 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
   }
 }
 
-const _getSigningSecret = (ctx: bp.Context) =>
-  ctx.configurationType === 'refreshToken' ? ctx.configuration.signingSecret : bp.secrets.SIGNING_SECRET
+const _getSigningSecret = async (ctx: bp.Context, client: bp.Client): Promise<string> => {
+  if (ctx.configurationType === 'refreshToken') {
+    return ctx.configuration.signingSecret
+  }
+  if (ctx.configurationType === 'appManifest') {
+    const { state } = await client.getState({
+      type: 'integration',
+      name: 'manifestAppCredentials',
+      id: ctx.integrationId,
+    })
+    if (!state.payload.signingSecret) {
+      throw new sdk.RuntimeError('Signing secret not found. Please re-run the app manifest wizard.')
+    }
+    return state.payload.signingSecret
+  }
+  return bp.secrets.SIGNING_SECRET
+}

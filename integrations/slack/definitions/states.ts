@@ -50,4 +50,33 @@ export const states = {
         .describe('The now-revoked refresh token that was used to set up the integration'),
     }),
   },
+  manifestAppCredentials: {
+    type: 'integration',
+    schema: sdk.z.object({
+      configToken: sdk.z
+        .string()
+        .secret()
+        .optional()
+        .title('Slack Configuration Token')
+        .describe('The Slack app configuration token used to create the app'),
+      appId: sdk.z.string().optional().title('Slack App ID').describe('The ID of the created Slack app'),
+      clientId: sdk.z
+        .string()
+        .optional()
+        .title('Client ID')
+        .describe('OAuth Client ID from the manifest-created app'),
+      clientSecret: sdk.z
+        .string()
+        .secret()
+        .optional()
+        .title('Client Secret')
+        .describe('OAuth Client Secret from the manifest-created app'),
+      signingSecret: sdk.z
+        .string()
+        .secret()
+        .optional()
+        .title('Signing Secret')
+        .describe('Signing secret from the manifest-created app'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
