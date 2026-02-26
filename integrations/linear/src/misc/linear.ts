@@ -79,7 +79,7 @@ const oauthSchema = z.object({
 
 type OAuthResponse = z.infer<typeof oauthSchema>
 
-const tokenResquestSchema = z.object({
+const tokenRequestSchema = z.object({
   actor: z.literal('application'),
   redirect_uri: z.string(),
 })
