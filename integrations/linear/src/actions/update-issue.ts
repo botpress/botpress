@@ -4,10 +4,9 @@ import * as bp from '.botpress'
 
 export const updateIssue: bp.IntegrationProps['actions']['updateIssue'] = async (args) => {
   const {
-    ctx,
     input: { issueId, teamName, labels, project, priority },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
 
   const existingIssue = await linearClient.issue(issueId)
   const team = await getTeam(linearClient, await existingIssue.team, teamName)

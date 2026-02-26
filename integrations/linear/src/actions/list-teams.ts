@@ -6,7 +6,7 @@ export const listTeams: bp.IntegrationProps['actions']['listTeams'] = async (arg
     ctx,
     input: {},
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
   const teams = await linearClient.teams()
 
   return {

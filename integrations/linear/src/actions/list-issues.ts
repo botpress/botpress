@@ -9,7 +9,7 @@ export const listIssues: bp.IntegrationProps['actions']['listIssues'] = async (a
     ctx,
     input: { count, startCursor, startDate, teamId },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
 
   const query = await linearClient.issues({
     orderBy: LinearDocument.PaginationOrderBy.UpdatedAt,
