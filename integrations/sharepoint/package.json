@@ -1,0 +1,27 @@
+{
+  "name": "sharepoint",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "start": "nodemon --watch \"./*\" --ext \"ts\" --exec \"bp deploy -y\"",
+    "version": "bp --version",
+    "login": "bp login",
+    "gen": "bp gen",
+    "deploy": "bp deploy"
+  },
+  "private": true,
+  "dependencies": {
+    "@azure/msal-node": "^3.6.2",
+    "@botpress/client": "1.16.1",
+    "@botpress/sdk": "4.15.2",
+    "axios": "^1.10.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@botpress/cli": "^4.11.0",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.0.10",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
