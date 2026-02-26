@@ -62,10 +62,7 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
   return responses.redirectToExternalUrl(dropboxAuthUrl)
 }
 
-const _getOAuthRedirectUri = () => {
-  const baseUrl = process.env.BP_WEBHOOK_URL || 'https://webhook.botpress.cloud'
-  return `${baseUrl}/oauth/wizard/oauth-callback`
-}
+const _getOAuthRedirectUri = (ctx?: bp.Context) => oauthWizard.getWizardStepUrl('get-access-token', ctx).toString()
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
   const { responses, query, client, ctx, logger } = props

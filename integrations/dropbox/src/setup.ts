@@ -54,7 +54,7 @@ const _authenticateWithAuthorizationCode = async (props: RegisterProps): Promise
   const dropboxClient = await DropboxClient.create(props)
   const authenticated = await dropboxClient.isProperlyAuthenticated()
   if (authenticated) {
-    logger?.forBot().info('Successfully created Dropbox client from authorization code')
+    logger.forBot().info('Successfully created Dropbox client from authorization code')
   }
   return authenticated
 }
@@ -64,18 +64,18 @@ const _authenticateManual = async (props: RegisterProps): Promise<boolean> => {
   const authorizationCode = getAuthorizationCode({ ctx })
 
   if (!authorizationCode) {
-    logger?.forBot().info('No authorization code provided, using existing refresh token from state')
+    logger.forBot().info('No authorization code provided, using existing refresh token from state')
     return _authenticateWithRefreshToken(props).catch((err) => {
-      logger?.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
+      logger.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
       return false
     })
   }
 
-  logger?.forBot().info('Using authorization code from context')
+  logger.forBot().info('Using authorization code from context')
   return _authenticateWithAuthorizationCode(props).catch((err) => {
-    logger?.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
-    return _authenticateWithRefreshToken(props).catch((fallbackErr) => {
-      logger?.forBot().error({ err: fallbackErr }, 'Failed to authenticate with fallback')
+    logger.forBot().warn({ err }, 'Failed to create Dropbox client from authorization code; falling back')
+    return _authenticateWithRefreshToken(props).catch((err) => {
+      logger.forBot().error({ err }, 'Failed to authenticate with fallback')
       return false
     })
   })
@@ -83,9 +83,9 @@ const _authenticateManual = async (props: RegisterProps): Promise<boolean> => {
 
 const _authenticateOAuth = async (props: RegisterProps): Promise<boolean> => {
   const { logger } = props
-  logger?.forBot().info('Using refresh token from state')
+  logger.forBot().info('Using refresh token from state')
   return _authenticateWithRefreshToken(props).catch((err) => {
-    logger?.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
+    logger.forBot().warn({ err }, 'Failed to authenticate with existing refresh token')
     return false
   })
 }
