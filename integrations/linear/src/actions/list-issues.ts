@@ -6,7 +6,6 @@ import * as bp from '.botpress'
 
 export const listIssues: bp.IntegrationProps['actions']['listIssues'] = async (args) => {
   const {
-    ctx,
     input: { count, startCursor, startDate, teamId },
   } = args
   const linearClient = await getLinearClient(args)

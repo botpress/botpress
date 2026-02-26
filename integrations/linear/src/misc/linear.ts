@@ -1,4 +1,4 @@
-import { Request, RuntimeError, z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
@@ -73,7 +73,7 @@ const oauthHeaders = {
 
 const oauthSchema = z.object({
   access_token: z.string(),
-  refresh_token: z.string().optional(),
+  refresh_token: z.string(),
   expires_in: z.number(),
 })
 
@@ -163,14 +163,13 @@ export class LinearOauthClient {
       actor: 'application',
       redirect_uri: this._redirectUri,
     })
+    if (!data.refresh_token) {
+      return this.migrateOldToken(data.access_token)
+    }
     return this._parseCredentials(data)
   }
 
   public async resolveValidCredentials(current: Credentials): Promise<Credentials> {
-    if (!current.refreshToken) {
-      return this.migrateOldToken(current.accessToken)
-    }
-
     const FIVE_MINUTES_MS = 5 * 60 * 1000
     const isExpired = new Date(current.expiresAt).getTime() <= Date.now() + FIVE_MINUTES_MS
 
@@ -206,7 +205,7 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
+export const handleOauth = async ({ req, ctx, client, logger }: bp.HandlerProps) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)
@@ -216,9 +215,10 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
     throw new RuntimeError('Handler received an empty code')
   }
 
-  const oAuthResponse = await linearOauthClient.getAccessTokenFromOAuthCode(code)
-  const credentials = await linearOauthClient.resolveValidCredentials(oAuthResponse)
-
+  const credentials = await linearOauthClient.getAccessTokenFromOAuthCode(code)
+  // const oAuthResponse = await linearOauthClient.getAccessTokenFromOAuthCode(code)
+  // const credentials = await linearOauthClient.resolveValidCredentials(oAuthResponse)
+  logger.forBot().info('Obtained credentials from OAuth flow, saving to state...')
   await client.setState({
     type: 'integration',
     name: 'credentials',
