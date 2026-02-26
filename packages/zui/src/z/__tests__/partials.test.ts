@@ -229,7 +229,7 @@ test('partial with mask -- ignore falsy values', async () => {
   await masked.parseAsync({ country: 'US' })
 })
 
-test.only('deeppartial array', () => {
+test('deeppartial array', () => {
   const schema = z.object({ array: z.string().array().min(42) }).deepPartial()
 
   schema.parse({})

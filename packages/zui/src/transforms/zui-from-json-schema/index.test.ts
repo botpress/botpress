@@ -704,7 +704,7 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
       expect(getTypescriptType(original)).toBe(getTypescriptType(restored))
     })
 
-    test.only('should preserve nullable with description', () => {
+    test('should preserve nullable with description', () => {
       const original = z.string().nullable().describe('Nullable string')
       const restored = roundTrip(original)
 
