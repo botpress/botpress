@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { z } from '../../../z/index'
+import { z, zuiKey } from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
-import { zuiKey } from '../../../z'
 
 describe('Meta data', () => {
   it('should be possible to use description', () => {

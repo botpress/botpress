@@ -1,4 +1,4 @@
-import * as transforms from '../../../transforms'
+import type * as transforms from '../../../transforms'
 import { zuiKey } from '../../consts'
 import { ZodError } from '../../error'
 import { builders } from '../../internal-builders'
@@ -48,6 +48,14 @@ import {
 } from './parseUtil'
 
 export * from './parseUtil'
+
+class _CircularDependencyError extends Error {
+  public constructor(private _propName: keyof IZodType) {
+    super(
+      `Cannot access property ${_propName} before initialization. You're probably importing ZUI incorrectly. If not, reach out to the maintainers.`
+    )
+  }
+}
 
 export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
   implements IZodType<Output, Def, Input>
@@ -496,7 +504,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * @returns a JSON Schema equivalent to the Zui schema
    */
   toJSONSchema(): transforms.ZuiJSONSchema {
-    return transforms.toJSONSchema(this)
+    throw new _CircularDependencyError('toJSONSchema')
   }
 
   /**
@@ -504,8 +512,8 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * @param options generation options
    * @returns a string of the TypeScript type representing the schema
    */
-  toTypescriptType(opts?: transforms.TypescriptGenerationOptions): string {
-    return transforms.toTypescriptType(this, opts)
+  toTypescriptType(_opts?: transforms.TypescriptGenerationOptions): string {
+    throw new _CircularDependencyError('toTypescriptType')
   }
 
   /**
@@ -514,7 +522,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * @returns a typescript program (a string) that would construct the given schema if executed
    */
   toTypescriptSchema(): string {
-    return transforms.toTypescriptSchema(this)
+    throw new _CircularDependencyError('toTypescriptSchema')
   }
 
   /**

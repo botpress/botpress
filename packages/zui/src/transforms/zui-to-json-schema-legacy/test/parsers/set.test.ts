@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../../z/index'
+import { z, zuiKey } from '../../../../z'
 import { parseSetDef } from '../../parsers/set'
 import { getRefs } from '../../Refs'
 import { errorReferences } from './errorReferences'
-import { zuiKey } from '../../../../z'
 
 describe('set', () => {
   it("should include min and max size error messages if they're passed.", () => {

@@ -1,6 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { zuiKey } from '../../../z'
-import { z } from '../../../z/index'
+import { z, zuiKey } from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
 describe('Issue tests', () => {
