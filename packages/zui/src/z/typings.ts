@@ -1266,7 +1266,9 @@ export type ZodPipelineDef<A extends IZodType = IZodType, B extends IZodType = I
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodPipeline<A extends IZodType = IZodType, B extends IZodType = IZodType>
-  extends IZodType<B['_output'], ZodPipelineDef<A, B>, A['_input']> {}
+  extends IZodType<B['_output'], ZodPipelineDef<A, B>, A['_input']> {
+  // TODO: allow access to A and B types without accessing _def
+}
 
 //* ─────────────────────────── ZodPromise ───────────────────────────────────
 
@@ -1539,6 +1541,7 @@ export interface IZodSet<Value extends IZodType = IZodType>
   max(maxSize: number, message?: ErrMessage): this
   size(size: number, message?: ErrMessage): this
   nonempty(message?: ErrMessage): IZodSet<Value>
+  // TODO: allow access to Value type without accessing _def
 }
 
 //* ─────────────────────────── ZodSymbol ────────────────────────────────────
