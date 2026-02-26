@@ -1,5 +1,16 @@
 import type * as transforms from '../transforms'
-import { Cast, UnionToTuple, NoNever, Flatten, NoUndefined, Primitive, SafeOmit, Writeable } from './utils/type-utils'
+import {
+  Cast,
+  UnionToTuple,
+  NoNever,
+  Flatten,
+  NoUndefined,
+  Primitive,
+  SafeOmit,
+  Writeable,
+  AddQuestionMarks,
+  ExtendShape,
+} from './utils/type-utils'
 
 //* ─────────────────────────── UI & Metadata ───────────────────────────────
 
@@ -819,17 +830,6 @@ export type OptionalKeys<T extends object> = {
 export type RequiredKeys<T extends object> = {
   [k in keyof T]: undefined extends T[k] ? never : k
 }[keyof T]
-
-export type AddQuestionMarks<
-  T extends object,
-  R extends keyof T = RequiredKeys<T>,
-  O extends keyof T = OptionalKeys<T>,
-> = Pick<T, R> &
-  Partial<Pick<T, O>> & {
-    [k in keyof T]?: unknown
-  }
-
-export type ExtendShape<A, B> = Flatten<Omit<A, keyof B> & B>
 
 export type ZodRawShape = {
   [k: string]: IZodType
