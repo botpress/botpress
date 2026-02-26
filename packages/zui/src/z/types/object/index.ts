@@ -1,3 +1,5 @@
+import { builders } from '../../internal-builders'
+import { ZodNativeType } from '../../native'
 import type {
   IZodObject,
   IZodType,
@@ -23,10 +25,6 @@ import {
   type MergeObjectPair,
   ParseReturnType,
 } from '../basetype'
-
-import { ZodNativeType } from '../../native'
-
-import { builders } from '../../internal-builders'
 
 export class ZodObjectImpl<
     T extends ZodRawShape = ZodRawShape,

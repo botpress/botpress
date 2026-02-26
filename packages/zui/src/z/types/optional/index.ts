@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodOptional, IZodType, ZodOptionalDef } from '../../typings'
+import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodOptionalImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined>

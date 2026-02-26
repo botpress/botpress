@@ -1,5 +1,4 @@
-import { zuiKey } from '../../../z'
-import z from '../../../z'
+import z, { zuiKey } from '../../../z'
 import { generateDatetimeRegex } from '../../../z/utils/datestring-utils'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'

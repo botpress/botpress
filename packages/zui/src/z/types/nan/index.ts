@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodNaN, ZodNaNDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZodNaN {
   _parse(input: ParseInput): ParseReturnType<any> {

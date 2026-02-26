@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodSymbol, ZodSymbolDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> implements IZodSymbol {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

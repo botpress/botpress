@@ -1,3 +1,4 @@
+import type { IZodSet, IZodType, ZodSetDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -8,7 +9,6 @@ import {
   ParseReturnType,
   SyncParseReturnType,
 } from '../basetype'
-import type { IZodSet, IZodType, ZodSetDef } from '../../typings'
 
 export class ZodSetImpl<Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>>

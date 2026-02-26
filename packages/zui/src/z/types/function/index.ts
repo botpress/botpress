@@ -1,4 +1,6 @@
 import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
+import { builders } from '../../internal-builders'
+import type { ZodNativeType } from '../../native'
 import type {
   IZodType,
   IZodFunction,
@@ -15,9 +17,6 @@ import type {
 import * as utils from '../../utils'
 
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
-import type { ZodNativeType } from '../../native'
-
-import { builders } from '../../internal-builders'
 
 export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType>
   extends ZodBaseTypeImpl<

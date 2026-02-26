@@ -1,6 +1,6 @@
+import type { ZodIssue, ZodFormattedError, ZodErrorMap, IZodError } from '../typings'
 import * as utils from '../utils'
 import { errorMap as defaultErrorMap } from './locales/en'
-import type { ZodIssue, ZodFormattedError, ZodErrorMap, IZodError } from '../typings'
 
 export class ZodError<T = any> extends Error implements IZodError<T> {
   readonly __type__ = 'ZuiError'

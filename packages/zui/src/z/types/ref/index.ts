@@ -1,3 +1,4 @@
+import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
 import {
   //
   ZodBaseTypeImpl,
@@ -6,7 +7,6 @@ import {
   ParseReturnType,
   addIssueToContext,
 } from '../basetype'
-import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
 export type { ZodRefDef }
 
 export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {

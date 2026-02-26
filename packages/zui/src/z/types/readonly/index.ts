@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, isValid, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodReadonly, IZodType, MakeReadonly, ZodReadonlyDef } from '../../typings'
+import { ZodBaseTypeImpl, isValid, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodReadonlyImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>>

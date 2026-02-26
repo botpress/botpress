@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodNever, ZodNeverDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
 export type { ZodNeverDef }
 

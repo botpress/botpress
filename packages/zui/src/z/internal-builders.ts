@@ -23,7 +23,7 @@ import type { ZodBuilders } from './typings'
  *       Internals --> Typings
  * ```
  */
-export let builders = {} as ZodBuilders
+export const builders = {} as ZodBuilders
 
 export function setBuilders(b: ZodBuilders): void {
   Object.assign(builders, b)

@@ -1,6 +1,6 @@
+import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, DIRTY, INVALID, ParseInput, ParseReturnType } from '../basetype'
-import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
 export type { ZodPipelineDef }
 
 export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType = IZodType>

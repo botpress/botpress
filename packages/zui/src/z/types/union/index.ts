@@ -1,4 +1,6 @@
 import { ZodError } from '../../error'
+import { builders } from '../../internal-builders'
+import type { ZodNativeType } from '../../native'
 import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
 import * as utils from '../../utils'
 import {
@@ -11,9 +13,6 @@ import {
   ParseReturnType,
   SyncParseReturnType,
 } from '../basetype'
-import type { ZodNativeType } from '../../native'
-
-import { builders } from '../../internal-builders'
 
 export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>

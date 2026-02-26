@@ -1,6 +1,4 @@
-import { zuiKey } from '../../../z'
-import { ZuiExtensionObject } from '../../../z'
-import { ZodEnumDef } from '../../../z'
+import { zuiKey, ZuiExtensionObject, ZodEnumDef } from '../../../z'
 
 export type JsonSchema7EnumType = {
   type: 'string'

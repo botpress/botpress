@@ -1,5 +1,4 @@
-import { zuiKey } from '../../../z'
-import { ZuiExtensionObject } from '../../../z'
+import { zuiKey, ZuiExtensionObject } from '../../../z'
 
 export type JsonSchema7UnknownType = {
   [zuiKey]?: ZuiExtensionObject

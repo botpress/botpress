@@ -1,3 +1,5 @@
+import { zuiKey } from './consts'
+import { setBuilders } from './internal-builders'
 import {
   ZodAnyImpl,
   ZodArrayImpl,
@@ -39,8 +41,6 @@ import {
 } from './types'
 
 import { ZodBaseTypeImpl } from './types/basetype'
-import { setBuilders } from './internal-builders'
-import { zuiKey } from './consts'
 
 import type {
   IZodRecord,

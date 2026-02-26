@@ -1,5 +1,4 @@
-import type { IZodBranded, IZodType, ZodBrandedDef } from '../../typings'
-import { BRAND } from '../../typings'
+import type { IZodBranded, IZodType, ZodBrandedDef, BRAND } from '../../typings'
 import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
 
 type Key = string | number | symbol

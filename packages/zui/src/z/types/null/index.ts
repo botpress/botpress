@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodNull, ZodNullDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodNullImpl extends ZodBaseTypeImpl<null, ZodNullDef> implements IZodNull {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodPromise, IZodType, ZodPromiseDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 export type { ZodPromiseDef }
 
 export class ZodPromiseImpl<T extends IZodType = IZodType>

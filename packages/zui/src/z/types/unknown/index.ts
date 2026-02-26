@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodUnknown, ZodUnknownDef } from '../../typings'
+import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodUnknownImpl extends ZodBaseTypeImpl<unknown, ZodUnknownDef> implements IZodUnknown {
   // required

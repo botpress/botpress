@@ -1,4 +1,4 @@
-import type { ZodTypeDef as ZodDef, ZodNativeTypeDef, ZodType } from '../../z'
+import type { ZodNativeTypeDef, ZodType } from '../../z'
 import { Options, Targets } from './Options'
 import { JsonSchema7Type, parseDef } from './parseDef'
 import { getRefs } from './Refs'

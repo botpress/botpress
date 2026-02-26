@@ -1,5 +1,5 @@
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 import type { IZodBoolean, ZodBooleanDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> implements IZodBoolean {
   _parse(input: ParseInput): ParseReturnType<boolean> {

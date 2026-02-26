@@ -1,3 +1,4 @@
+import { builders } from '../../internal-builders'
 import type { FilterEnum, IZodEnum, EnumValuesMap, NeverCast, ZodEnumDef, EnumValues } from '../../typings'
 import * as utils from '../../utils'
 import {
@@ -9,8 +10,6 @@ import {
   ParseInput,
   ParseReturnType,
 } from '../basetype'
-
-import { builders } from '../../internal-builders'
 
 export class ZodEnumImpl<T extends EnumValues = EnumValues>
   extends ZodBaseTypeImpl<T[number], ZodEnumDef<T>>

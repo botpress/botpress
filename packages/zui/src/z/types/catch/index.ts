@@ -1,7 +1,7 @@
 import { ZodError } from '../../error'
+import type { IZodCatch, IZodType, ZodCatchDef } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, isAsync, ParseContext, ParseInput, ParseReturnType } from '../basetype'
-import type { IZodCatch, IZodType, ZodCatchDef, CatchFn } from '../../typings'
 
 export class ZodCatchImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<

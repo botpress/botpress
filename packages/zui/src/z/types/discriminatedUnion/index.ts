@@ -1,3 +1,4 @@
+import type { ZodNativeType } from '../../native'
 import type {
   IZodType,
   IZodDiscriminatedUnion,
@@ -9,7 +10,6 @@ import type {
 } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
-import type { ZodNativeType } from '../../native'
 
 const getDiscriminator = (_type: IZodType | undefined): utils.types.Primitive[] => {
   const type = _type as ZodNativeType | undefined

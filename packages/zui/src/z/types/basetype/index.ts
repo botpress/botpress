@@ -1,18 +1,13 @@
+import * as transforms from '../../../transforms'
+import { zuiKey } from '../../consts'
+import { ZodError } from '../../error'
+import { builders } from '../../internal-builders'
 import type {
   BaseDisplayAsType,
   DisplayAsOptions,
   UIComponentDefinitions,
   ZodKindToBaseType,
   ZuiMetadata,
-} from '../../typings'
-import { ZodError } from '../../error'
-import * as utils from '../../utils'
-import { builders } from '../../internal-builders'
-
-// TODO(circle): get rid of circular dependency between zui core and transforms
-import * as transforms from '../../../transforms'
-
-import type {
   DeepPartialBoolean,
   IZodType,
   ZodTypeDef,
@@ -35,6 +30,9 @@ import type {
   CustomErrorParams,
   IssueData,
 } from '../../typings'
+import * as utils from '../../utils'
+
+// TODO(circle): get rid of circular dependency between zui core and transforms
 
 import {
   getParsedType,
@@ -48,8 +46,6 @@ import {
   AsyncParseReturnType,
   SyncParseReturnType,
 } from './parseUtil'
-
-import { zuiKey } from '../../consts'
 
 export * from './parseUtil'
 

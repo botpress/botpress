@@ -1,7 +1,6 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import { zuiKey } from '../../z'
-import z from '../../z'
+import z, { zuiKey } from '../../z'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {

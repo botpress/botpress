@@ -1,5 +1,5 @@
-import { OK, ParseInput, ParseReturnType, ZodBaseTypeImpl } from '../basetype'
 import type { IZodNullable, IZodType, ZodNullableDef } from '../../typings'
+import { OK, ParseInput, ParseReturnType, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodNullableImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null>
