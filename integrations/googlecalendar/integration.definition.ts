@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import { actions, entities, configuration, configurations, identifier, events, secrets, states } from './definitions'
 
 export const INTEGRATION_NAME = 'googlecalendar'
-export const INTEGRATION_VERSION = '2.0.6'
+export const INTEGRATION_VERSION = '2.0.7'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -19,4 +19,7 @@ export default new sdk.IntegrationDefinition({
   events,
   secrets,
   states,
+  attributes: {
+    category: 'Business Operations',
+  },
 })

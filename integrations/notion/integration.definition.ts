@@ -3,7 +3,7 @@ import filesReadonly from './bp_modules/files-readonly'
 import { actions, configuration, configurations, events, identifier, secrets, states, user } from './definitions'
 
 export const INTEGRATION_NAME = 'notion'
-export const INTEGRATION_VERSION = '3.0.1'
+export const INTEGRATION_VERSION = '3.0.2'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -12,6 +12,9 @@ export default new sdk.IntegrationDefinition({
   description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  attributes: {
+    category: 'File Management',
+  },
   actions,
   configuration,
   configurations,

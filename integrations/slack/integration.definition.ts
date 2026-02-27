@@ -29,6 +29,9 @@ export default new IntegrationDefinition({
   events,
   secrets,
   user,
+  attributes: {
+    category: 'Communication & Channels',
+  },
 }).extend(typingIndicator, () => ({
   entities: {},
 }))

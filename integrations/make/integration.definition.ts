@@ -4,7 +4,7 @@ const INTEGRATION_NAME = 'make'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.7',
+  version: '0.3.8',
   title: 'Make.com (Deprecated)',
   icon: 'icon.svg',
   description:
@@ -44,5 +44,8 @@ export default new IntegrationDefinition({
         }),
       },
     },
+  },
+  attributes: {
+    category: 'Developer Tools',
   },
 })
