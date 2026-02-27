@@ -32,17 +32,17 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
   const infosStr = `${phoneStr} and ${emailStr}`
-  const propertyKeys = await _getContactPropertyKeys(hsClient)
+  // Don't fetch all properties to avoid 414 URI Too Long errors
   logger
     .forBot()
     .debug(
-      `Searching for contact with ${infosStr} ${propertyKeys?.length ? `and properties ${propertyKeys?.join(', ')}` : ''}`
+      `Searching for contact with ${infosStr}`
     )
 
   const contact = await hsClient.searchContact({
     phone: input.phone,
     email: input.email,
-    propertiesToReturn: propertyKeys,
+    propertiesToReturn: [], // Empty array = only default properties
   })
 
   if (!contact) {
@@ -81,10 +81,11 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
-  const propertyKeys = await _getContactPropertyKeys(hsClient)
+  // Don't fetch all properties to avoid 414 URI Too Long errors
+  // Only use default properties
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
-    propertiesToReturn: propertyKeys,
+    propertiesToReturn: [], // Empty array = only default properties
   })
   return {
     contact: _mapHsContactToBpContact(contact),
@@ -130,9 +131,10 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-  const propertyKeys = await _getContactPropertyKeys(hsClient)
+  // Don't fetch all properties to avoid 414 URI Too Long errors
+  // Only use default properties defined in hubspot-client.ts
   const { contacts, nextToken } = await hsClient.listContacts({
-    properties: propertyKeys,
+    properties: [], // Empty array = only default properties
     nextToken: input.meta.nextToken,
   })
   return {
