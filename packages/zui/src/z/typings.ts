@@ -9,6 +9,8 @@ import {
   Writeable,
   AddQuestionMarks,
   ExtendShape,
+  NonEmptyArray,
+  Dict,
 } from './utils/type-utils'
 
 //* ─────────────────────────── UI & Metadata ───────────────────────────────
@@ -41,7 +43,7 @@ export type UIComponentDefinitions = {
   [T in BaseDisplayAsType]: {
     [K: string]: {
       id: string
-      params: IZodObject<any>
+      params: AnyZodObject
     }
   }
 }
@@ -204,19 +206,20 @@ export type ZodIssue = _ZodIssueOptionalMessage & {
 
 export type CustomErrorParams = Partial<SafeOmit<ZodCustomIssue, 'code'>>
 
-type _RecursiveZodFormattedError<T> = T extends [any, ...any[]]
-  ? {
-      [K in keyof T]?: ZodFormattedError<T[K]>
-    }
-  : T extends any[]
+type _RecursiveZodFormattedError<T> =
+  T extends NonEmptyArray<any>
     ? {
-        [k: number]: ZodFormattedError<T[number]>
+        [K in keyof T]?: ZodFormattedError<T[K]>
       }
-    : T extends object
+    : T extends any[]
       ? {
-          [K in keyof T]?: ZodFormattedError<T[K]>
+          [k: number]: ZodFormattedError<T[number]>
         }
-      : unknown
+      : T extends object
+        ? {
+            [K in keyof T]?: ZodFormattedError<T[K]>
+          }
+        : unknown
 
 export type ZodFormattedError<T, U = string> = {
   _errors: U[]
@@ -363,10 +366,10 @@ export interface IZodBaseType<Output = any, Def extends ZodBaseTypeDef = ZodBase
   description: string | undefined
   typeName: Def['typeName']
   /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, IZodBaseType>): IZodBaseType
+  dereference(_defs: Record<string, ZodType>): ZodType
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
-  clone(): IZodBaseType<Output, Def, Input>
+  clone(): this
   parse(data: unknown, params?: Partial<_ParseParams>): Output
   safeParse(data: unknown, params?: Partial<_ParseParams>): SafeParseReturnType<Input, Output>
   parseAsync(data: unknown, params?: Partial<_ParseParams>): Promise<Output>
@@ -413,16 +416,16 @@ export interface IZodBaseType<Output = any, Def extends ZodBaseTypeDef = ZodBase
    * @example z.string().or(z.undefined()).mandatory() // z.string()
    * @example z.union([z.string(), z.number(), z.undefined()]).mandatory() // z.union([z.string(), z.number()])
    */
-  mandatory(): IZodBaseType
-  or<T extends IZodBaseType>(option: T): IZodUnion<[this, T]>
-  and<T extends IZodBaseType>(incoming: T): IZodIntersection<this, T>
+  mandatory(): ZodType
+  or<T extends ZodType>(option: T): IZodUnion<[this, T]>
+  and<T extends ZodType>(incoming: T): IZodIntersection<this, T>
   transform<NewOut>(transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>): IZodEffects<this, NewOut>
   default(def: NoUndefined<Input>): IZodDefault<this>
   default(def: () => NoUndefined<Input>): IZodDefault<this>
   brand<B extends string | number | symbol>(brand?: B): IZodBranded<this, B>
   catch(def: Output | CatchFn<Output>): IZodCatch<this>
   describe(description: string): this
-  pipe<T extends IZodBaseType>(target: T): IZodPipeline<this, T>
+  pipe<T extends ZodType>(target: T): IZodPipeline<this, T>
   readonly(): IZodReadonly<this>
   isOptional(): boolean
   isNullable(): boolean
@@ -473,10 +476,10 @@ export interface IZodBaseType<Output = any, Def extends ZodBaseTypeDef = ZodBase
    * TLDR: Allows removing all wrappers around the schema
    * @returns either this or the closest children schema that represents the actual data
    */
-  naked(): IZodBaseType
+  naked(): ZodType
 
   /** checks if a schema is equal to another */
-  isEqual(schema: IZodBaseType): boolean
+  isEqual(schema: ZodType): boolean
 
   /**
    * The type of component to use to display the field and its options
@@ -520,7 +523,7 @@ export interface IZodAny extends IZodBaseType<any, ZodAnyDef> {}
 
 //* ─────────────────────────── ZodArray ─────────────────────────────────────
 
-export type ZodArrayDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodArrayDef<T extends IZodBaseType = ZodType> = {
   type: T
   typeName: 'ZodArray'
   exactLength: {
@@ -540,15 +543,15 @@ export type ZodArrayDef<T extends IZodBaseType = IZodBaseType> = {
 export type ArrayCardinality = 'many' | 'atleastone'
 export type ArrayOutputType<
   T extends IZodBaseType,
-  Cardinality extends ArrayCardinality = 'many',
-> = Cardinality extends 'atleastone' ? [T['_output'], ...T['_output'][]] : T['_output'][]
+  Cardinality extends ArrayCardinality,
+> = Cardinality extends 'atleastone' ? NonEmptyArray<T['_output']> : T['_output'][]
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodArray<T extends IZodBaseType = IZodBaseType, Cardinality extends ArrayCardinality = 'many'>
+export interface IZodArray<T extends IZodBaseType = ZodType, Cardinality extends ArrayCardinality = 'many'>
   extends IZodBaseType<
     ArrayOutputType<T, Cardinality>,
     ZodArrayDef<T>,
-    Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]
+    Cardinality extends 'atleastone' ? NonEmptyArray<T['_input']> : T['_input'][]
   > {
   element: T
   min(minLength: number, message?: ErrMessage): this
@@ -615,7 +618,7 @@ export interface IZodBoolean extends IZodBaseType<boolean, ZodBooleanDef> {}
 
 type _Key = string | number | symbol
 
-export type ZodBrandedDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodBrandedDef<T extends IZodBaseType = ZodType> = {
   type: T
   typeName: 'ZodBranded'
 } & ZodBaseTypeDef
@@ -628,7 +631,7 @@ export type BRAND<T extends _Key = _Key> = {
 }
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodBranded<T extends IZodBaseType = IZodBaseType, B extends _Key = _Key>
+export interface IZodBranded<T extends IZodBaseType = ZodType, B extends _Key = _Key>
   extends IZodBaseType<T['_output'] & BRAND<B>, ZodBrandedDef<T>, T['_input']> {
   unwrap(): T
 }
@@ -636,14 +639,14 @@ export interface IZodBranded<T extends IZodBaseType = IZodBaseType, B extends _K
 //* ─────────────────────────── ZodCatch ────────────────────────────────────
 
 export type CatchFn<Y> = (ctx: { error: IZodError; input: unknown }) => Y
-export type ZodCatchDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodCatchDef<T extends IZodBaseType = ZodType> = {
   innerType: T
   catchValue: CatchFn<T['_output']>
   typeName: 'ZodCatch'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodCatch<T extends IZodBaseType = IZodBaseType>
+export interface IZodCatch<T extends IZodBaseType = ZodType>
   extends IZodBaseType<T['_output'], ZodCatchDef<T>, unknown> {
   removeCatch(): T
 }
@@ -678,14 +681,14 @@ export interface IZodDate extends IZodBaseType<Date, ZodDateDef> {
 
 //* ─────────────────────────── ZodDefault ───────────────────────────────────
 
-export type ZodDefaultDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodDefaultDef<T extends IZodBaseType = ZodType> = {
   innerType: T
   defaultValue: () => NoUndefined<T['_input']>
   typeName: 'ZodDefault'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodDefault<T extends IZodBaseType = IZodBaseType>
+export interface IZodDefault<T extends IZodBaseType = ZodType>
   extends IZodBaseType<NoUndefined<T['_output']>, ZodDefaultDef<T>, T['_input'] | undefined> {
   removeDefault(): T
   unwrap(): T
@@ -693,7 +696,7 @@ export interface IZodDefault<T extends IZodBaseType = IZodBaseType>
 
 //* ─────────────────────────── ZodEnum ─────────────────────────────────────
 
-export type EnumValues = [string, ...string[]]
+export type EnumValues = NonEmptyArray<string>
 
 export type EnumValuesMap<T extends EnumValues> = {
   [k in T[number]]: k
@@ -715,7 +718,7 @@ export type FilterEnum<Values, ToExclude> = Values extends []
 export type NeverCast<A, T> = A extends T ? A : never
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodEnum<T extends [string, ...string[]] = [string, ...string[]]>
+export interface IZodEnum<T extends NonEmptyArray<string> = NonEmptyArray<string>>
   extends IZodBaseType<T[number], ZodEnumDef<T>> {
   options: T
   enum: EnumValuesMap<T>
@@ -728,7 +731,7 @@ export interface IZodEnum<T extends [string, ...string[]] = [string, ...string[]
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
     newDef?: ZodCreateParams
-  ): IZodEnum<NeverCast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
+  ): IZodEnum<NeverCast<Writeable<FilterEnum<T, ToExclude[number]>>, NonEmptyArray<string>>>
 }
 
 //* ─────────────────────────── ZodNever ────────────────────────────────────
@@ -742,55 +745,57 @@ export interface IZodNever extends IZodBaseType<never, ZodNeverDef> {}
 
 //* ─────────────────────────── ZodNullable ─────────────────────────────────
 
-export type ZodNullableDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodNullableDef<T extends IZodBaseType = ZodType> = {
   innerType: T
   typeName: 'ZodNullable'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodNullable<T extends IZodBaseType = IZodBaseType>
+export interface IZodNullable<T extends IZodBaseType = ZodType>
   extends IZodBaseType<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null> {
   unwrap(): T
 }
 
 //* ─────────────────────────── ZodOptional ────────────────────────────────
 
-export type ZodOptionalDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodOptionalDef<T extends IZodBaseType = ZodType> = {
   innerType: T
   typeName: 'ZodOptional'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodOptional<T extends IZodBaseType = IZodBaseType>
+export interface IZodOptional<T extends IZodBaseType = ZodType>
   extends IZodBaseType<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined> {
   unwrap(): T
 }
 
 //* ─────────────────────────── ZodTuple ────────────────────────────────────
 
-export type ZodTupleItems = [IZodBaseType, ...IZodBaseType[]]
-
+export type ZodTupleItems = NonEmptyArray<IZodBaseType>
 export type AssertArray<T> = T extends any[] ? T : never
 
-export type OutputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
+export type OutputTypeOfTuple<T extends NonEmptyArray<IZodBaseType> | []> = AssertArray<{
   [k in keyof T]: T[k] extends IZodBaseType<any, any> ? T[k]['_output'] : never
 }>
 
 export type OutputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends IZodBaseType | null = null,
+  T extends NonEmptyArray<IZodBaseType> | [],
+  Rest extends IZodBaseType | null,
 > = Rest extends IZodBaseType ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
 
-export type InputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
+export type InputTypeOfTuple<T extends NonEmptyArray<IZodBaseType> | []> = AssertArray<{
   [k in keyof T]: T[k] extends IZodBaseType<any, any> ? T[k]['_input'] : never
 }>
 
 export type InputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends IZodBaseType | null = null,
+  T extends NonEmptyArray<IZodBaseType> | [],
+  Rest extends IZodBaseType | null,
 > = Rest extends IZodBaseType ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
 
-export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends IZodBaseType | null = null> = {
+export type ZodTupleDef<
+  T extends NonEmptyArray<IZodBaseType> | [] = NonEmptyArray<ZodType> | [],
+  Rest extends IZodBaseType | null = null,
+> = {
   items: T
   rest: Rest
   typeName: 'ZodTuple'
@@ -798,14 +803,17 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodTuple<
-  T extends [IZodBaseType, ...IZodBaseType[]] | [] = [IZodBaseType, ...IZodBaseType[]] | [],
-  Rest extends IZodBaseType | null = IZodBaseType | null,
+  T extends NonEmptyArray<IZodBaseType> | [] = NonEmptyArray<ZodType> | [],
+  Rest extends IZodBaseType | null = ZodType | null,
 > extends IZodBaseType<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>> {
   items: T
   rest<Rest extends IZodBaseType>(rest: Rest): IZodTuple<T, Rest>
 }
 
 //* ─────────────────────────── ZodObject ────────────────────────────────────
+
+export type UnknownKeysParam = UnknownKeysEnum | IZodBaseType
+export type ZodRawShape = Dict<IZodBaseType>
 
 export type OptionalKeys<T extends object> = {
   [k in keyof T]: undefined extends T[k] ? k : never
@@ -815,14 +823,10 @@ export type RequiredKeys<T extends object> = {
   [k in keyof T]: undefined extends T[k] ? never : k
 }[keyof T]
 
-export type ZodRawShape = {
-  [k: string]: IZodBaseType
-}
-
-export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip' | IZodBaseType
+type UnknownKeysEnum = 'passthrough' | 'strict' | 'strip'
 export type ZodObjectDef<
-  T extends ZodRawShape = ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
+  T extends Dict<IZodBaseType> = Dict<ZodType>,
+  UnknownKeys extends UnknownKeysEnum | IZodBaseType = UnknownKeysEnum | ZodType,
 > = {
   typeName: 'ZodObject'
   shape: () => T
@@ -830,23 +834,27 @@ export type ZodObjectDef<
 } & ZodBaseTypeDef
 
 export type ObjectOutputType<
-  Shape extends ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = UnknownKeysOutputType<UnknownKeys> & Flatten<AddQuestionMarks<BaseObjectOutputType<Shape>>>
+  Shape extends Dict<IZodBaseType>,
+  UnknownKeys extends UnknownKeysEnum | IZodBaseType,
+> = string extends keyof Shape
+  ? object
+  : UnknownKeysOutputType<UnknownKeys> & Flatten<AddQuestionMarks<BaseObjectOutputType<Shape>>>
 
-export type BaseObjectOutputType<Shape extends ZodRawShape> = {
+export type BaseObjectOutputType<Shape extends Dict<IZodBaseType>> = {
   [k in keyof Shape]: Shape[k]['_output']
 }
 export type ObjectInputType<
-  Shape extends ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
-> = Flatten<BaseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
+  Shape extends Dict<IZodBaseType>,
+  UnknownKeys extends UnknownKeysEnum | IZodBaseType,
+> = string extends keyof Shape //
+  ? object
+  : Flatten<BaseObjectInputType<Shape>> & UnknownKeysInputType<UnknownKeys>
 
-export type BaseObjectInputType<Shape extends ZodRawShape> = AddQuestionMarks<{
+export type BaseObjectInputType<Shape extends Dict<IZodBaseType>> = AddQuestionMarks<{
   [k in keyof Shape]: Shape[k]['_input']
 }>
 
-export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends IZodBaseType
+export type UnknownKeysInputType<T extends UnknownKeysEnum | IZodBaseType> = T extends IZodBaseType
   ? {
       [k: string]: T['_input'] | unknown
     }
@@ -856,7 +864,7 @@ export type UnknownKeysInputType<T extends UnknownKeysParam> = T extends IZodBas
       }
     : {}
 
-export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends IZodBaseType
+export type UnknownKeysOutputType<T extends UnknownKeysEnum | IZodBaseType> = T extends IZodBaseType
   ? {
       [k: string]: T['_output'] | unknown
     }
@@ -866,7 +874,7 @@ export type UnknownKeysOutputType<T extends UnknownKeysParam> = T extends IZodBa
       }
     : {}
 
-export type AdditionalProperties<T extends UnknownKeysParam> = T extends IZodBaseType
+export type AdditionalProperties<T extends UnknownKeysEnum | IZodBaseType> = T extends IZodBaseType
   ? T
   : T extends 'passthrough'
     ? IZodAny
@@ -877,35 +885,12 @@ export type AdditionalProperties<T extends UnknownKeysParam> = T extends IZodBas
 export type Deoptional<T extends IZodBaseType> =
   T extends IZodOptional<infer U> ? Deoptional<U> : T extends IZodNullable<infer U> ? IZodNullable<Deoptional<U>> : T
 
-export type KeyOfObject<T extends ZodRawShape> = Cast<UnionToTuple<keyof T>, [string, ...string[]]>
-
-export type DeepPartial<T extends IZodBaseType> = T extends IZodObject
-  ? IZodObject<
-      {
-        [k in keyof T['shape']]: IZodOptional<DeepPartial<T['shape'][k]>>
-      },
-      T['_def']['unknownKeys']
-    >
-  : T extends IZodArray<infer Type, infer Card>
-    ? IZodArray<DeepPartial<Type>, Card>
-    : T extends IZodOptional<infer Type>
-      ? IZodOptional<DeepPartial<Type>>
-      : T extends IZodNullable<infer Type>
-        ? IZodNullable<DeepPartial<Type>>
-        : T extends IZodTuple<infer Items>
-          ? {
-              [k in keyof Items]: Items[k] extends IZodBaseType ? DeepPartial<Items[k]> : never
-            } extends infer PI
-            ? PI extends ZodTupleItems
-              ? IZodTuple<PI, null>
-              : never
-            : never
-          : T
+export type KeyOfObject<T extends Dict<IZodBaseType>> = Cast<UnionToTuple<keyof T>, NonEmptyArray<string>>
 
 /**
  * @deprecated use ZodObject instead
  */
-export type SomeZodObject = IZodObject<ZodRawShape, UnknownKeysParam>
+export type SomeZodObject = IZodObject
 
 /**
  * @deprecated use ZodObject instead
@@ -914,8 +899,8 @@ export type AnyZodObject = IZodObject<any, any>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodObject<
-  T extends ZodRawShape = ZodRawShape,
-  UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
+  T extends Dict<IZodBaseType> = Dict<ZodType>,
+  UnknownKeys extends UnknownKeysEnum | IZodBaseType = UnknownKeysEnum | ZodType,
   Output = ObjectOutputType<T, UnknownKeys>,
   Input = ObjectInputType<T, UnknownKeys>,
 > extends IZodBaseType<Output, ZodObjectDef<T, UnknownKeys>, Input> {
@@ -932,13 +917,13 @@ export interface IZodObject<
    * If you want to pass through unknown properties, use `.passthrough()` instead.
    */
   nonstrict: () => IZodObject<T, 'passthrough'>
-  extend<Augmentation extends ZodRawShape>(
+  extend<Augmentation extends Dict<ZodType>>(
     augmentation: Augmentation
   ): IZodObject<ExtendShape<T, Augmentation>, UnknownKeys>
   /**
    * @deprecated Use `.extend` instead
    *  */
-  augment: <Augmentation extends ZodRawShape>(
+  augment: <Augmentation extends Dict<ZodType>>(
     augmentation: Augmentation
   ) => IZodObject<ExtendShape<T, Augmentation>, UnknownKeys>
   /**
@@ -949,7 +934,7 @@ export interface IZodObject<
   merge<Incoming extends IZodObject<any>, Augmentation extends Incoming['shape']>(
     merging: Incoming
   ): IZodObject<ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
-  setKey<Key extends string, Schema extends IZodBaseType>(
+  setKey<Key extends string, Schema extends ZodType>(
     key: Key,
     schema: Schema
   ): IZodObject<
@@ -958,7 +943,7 @@ export interface IZodObject<
     },
     UnknownKeys
   >
-  catchall<Index extends IZodBaseType>(index: Index): IZodObject<T, Index>
+  catchall<Index extends ZodType>(index: Index): IZodObject<T, Index>
   pick<
     Mask extends {
       [k in keyof T]?: true
@@ -1014,27 +999,30 @@ export interface IZodObject<
 
 //* ─────────────────────────── ZodDiscriminatedUnion ──────────────────────────
 
-export type ZodDiscriminatedUnionOption<Discriminator extends string> = IZodObject<
+export type ZodDiscriminatedUnionOption<Discriminator extends string, Z extends IZodBaseType> = IZodObject<
   {
-    [key in Discriminator]: IZodBaseType
-  } & ZodRawShape,
-  UnknownKeysParam
+    [key in Discriminator]: Z
+  } & { [k: string]: Z },
+  UnknownKeysEnum | Z
 >
 
 export type ZodDiscriminatedUnionDef<
   Discriminator extends string = string,
-  Options extends ZodDiscriminatedUnionOption<string>[] = ZodDiscriminatedUnionOption<string>[],
+  Options extends ZodDiscriminatedUnionOption<string, IZodBaseType>[] = ZodDiscriminatedUnionOption<string, ZodType>[],
 > = {
   discriminator: Discriminator
   options: Options
-  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
+  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any, any>> // TODO: properly type this
   typeName: 'ZodDiscriminatedUnion'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodDiscriminatedUnion<
   Discriminator extends string = string,
-  Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
+  Options extends ZodDiscriminatedUnionOption<Discriminator, IZodBaseType>[] = ZodDiscriminatedUnionOption<
+    Discriminator,
+    ZodType
+  >[],
 > extends IZodBaseType<
     output<Options[number]>,
     ZodDiscriminatedUnionDef<Discriminator, Options>,
@@ -1042,7 +1030,7 @@ export interface IZodDiscriminatedUnion<
   > {
   discriminator: Discriminator
   options: Options
-  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
+  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any, any>> // TODO: properly type this
 }
 
 //* ─────────────────────────── ZodUnknown ───────────────────────────────────
@@ -1056,10 +1044,7 @@ export interface IZodUnknown extends IZodBaseType<unknown, ZodUnknownDef> {}
 
 //* ─────────────────────────── ZodFunction ───────────────────────────────────
 
-export type ZodFunctionDef<
-  Args extends IZodTuple<any, any> = IZodTuple,
-  Returns extends IZodBaseType = IZodBaseType,
-> = {
+export type ZodFunctionDef<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodBaseType = ZodType> = {
   args: Args
   returns: Returns
   typeName: 'ZodFunction'
@@ -1073,8 +1058,11 @@ export type InnerTypeOfFunction<Args extends IZodTuple<any, any>, Returns extend
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodFunction<
-  Args extends IZodTuple<any, any> = IZodTuple<any, any>,
-  Returns extends IZodBaseType = IZodBaseType,
+  Args extends IZodTuple<NonEmptyArray<IZodBaseType> | [], IZodBaseType> = IZodTuple<
+    NonEmptyArray<ZodType> | [],
+    ZodType
+  >,
+  Returns extends IZodBaseType = ZodType,
 > extends IZodBaseType<
     OuterTypeOfFunction<Args, Returns>,
     ZodFunctionDef<Args, Returns>,
@@ -1082,10 +1070,8 @@ export interface IZodFunction<
   > {
   parameters(): Args
   returnType(): Returns
-  args<Items extends [IZodBaseType, ...IZodBaseType[]] | []>(
-    ...items: Items
-  ): IZodFunction<IZodTuple<Items, IZodUnknown>, Returns>
-  returns<NewReturnType extends IZodBaseType<any, any>>(returnType: NewReturnType): IZodFunction<Args, NewReturnType>
+  args<Items extends NonEmptyArray<ZodType> | []>(...items: Items): IZodFunction<IZodTuple<Items, IZodUnknown>, Returns>
+  returns<NewReturnType extends ZodType>(returnType: NewReturnType): IZodFunction<Args, NewReturnType>
   implement<F extends InnerTypeOfFunction<Args, Returns>>(
     func: F
   ): ReturnType<F> extends Returns['_output']
@@ -1101,32 +1087,30 @@ export interface IZodFunction<
 
 //* ─────────────────────────── ZodIntersection ──────────────────────────────
 
-export type ZodIntersectionDef<T extends IZodBaseType = IZodBaseType, U extends IZodBaseType = IZodBaseType> = {
+export type ZodIntersectionDef<T extends IZodBaseType = ZodType, U extends IZodBaseType = ZodType> = {
   left: T
   right: U
   typeName: 'ZodIntersection'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodIntersection<T extends IZodBaseType = IZodBaseType, U extends IZodBaseType = IZodBaseType>
+export interface IZodIntersection<T extends IZodBaseType = ZodType, U extends IZodBaseType = ZodType>
   extends IZodBaseType<T['_output'] & U['_output'], ZodIntersectionDef<T, U>, T['_input'] & U['_input']> {}
 
 //* ─────────────────────────── ZodLazy ─────────────────────────────────────
 
-export type ZodLazyDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodLazyDef<T extends IZodBaseType = ZodType> = {
   getter: () => T
   typeName: 'ZodLazy'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodLazy<T extends IZodBaseType = IZodBaseType>
-  extends IZodBaseType<output<T>, ZodLazyDef<T>, input<T>> {
+export interface IZodLazy<T extends IZodBaseType = ZodType> extends IZodBaseType<output<T>, ZodLazyDef<T>, input<T>> {
   schema: T
 }
 
 //* ─────────────────────────── ZodLiteral ───────────────────────────────────
 
-export type Primitive = string | number | bigint | boolean | symbol | null | undefined
 export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T
   typeName: 'ZodLiteral'
@@ -1139,14 +1123,15 @@ export interface IZodLiteral<T extends Primitive = Primitive> extends IZodBaseTy
 
 //* ─────────────────────────── ZodMap ───────────────────────────────────────
 
-export type ZodMapDef<Key extends IZodBaseType = IZodBaseType, Value extends IZodBaseType = IZodBaseType> = {
+export type Primitive = string | number | bigint | boolean | symbol | null | undefined
+export type ZodMapDef<Key extends IZodBaseType = ZodType, Value extends IZodBaseType = ZodType> = {
   valueType: Value
   keyType: Key
   typeName: 'ZodMap'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodMap<Key extends IZodBaseType = IZodBaseType, Value extends IZodBaseType = IZodBaseType>
+export interface IZodMap<Key extends IZodBaseType = ZodType, Value extends IZodBaseType = ZodType>
   extends IZodBaseType<
     Map<Key['_output'], Value['_output']>,
     ZodMapDef<Key, Value>,
@@ -1251,27 +1236,25 @@ export interface IZodNumber extends IZodBaseType<number, ZodNumberDef> {
 
 //* ─────────────────────────── ZodPipeline ──────────────────────────────────
 
-export type ZodPipelineDef<A extends IZodBaseType = IZodBaseType, B extends IZodBaseType = IZodBaseType> = {
+export type ZodPipelineDef<A extends IZodBaseType = ZodType, B extends IZodBaseType = ZodType> = {
   in: A
   out: B
   typeName: 'ZodPipeline'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodPipeline<A extends IZodBaseType = IZodBaseType, B extends IZodBaseType = IZodBaseType>
-  extends IZodBaseType<B['_output'], ZodPipelineDef<A, B>, A['_input']> {
-  // TODO: allow access to A and B types without accessing _def
-}
+export interface IZodPipeline<A extends IZodBaseType = ZodType, B extends IZodBaseType = ZodType>
+  extends IZodBaseType<B['_output'], ZodPipelineDef<A, B>, A['_input']> {}
 
 //* ─────────────────────────── ZodPromise ───────────────────────────────────
 
-export type ZodPromiseDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodPromiseDef<T extends IZodBaseType = ZodType> = {
   type: T
   typeName: 'ZodPromise'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodPromise<T extends IZodBaseType = IZodBaseType>
+export interface IZodPromise<T extends IZodBaseType = ZodType>
   extends IZodBaseType<Promise<T['_output']>, ZodPromiseDef<T>, Promise<T['_input']>> {
   unwrap(): T
 }
@@ -1302,13 +1285,13 @@ export type MakeReadonly<T> =
             ? T
             : Readonly<T>
 
-export type ZodReadonlyDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodReadonlyDef<T extends IZodBaseType = ZodType> = {
   innerType: T
   typeName: 'ZodReadonly'
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodReadonly<T extends IZodBaseType = IZodBaseType>
+export interface IZodReadonly<T extends IZodBaseType = ZodType>
   extends IZodBaseType<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>> {
   unwrap(): T
 }
@@ -1473,13 +1456,23 @@ export interface IZodString extends IZodBaseType<string, ZodStringDef> {
 
 //* ─────────────────────────── ZodRecord ────────────────────────────────────
 
-export type ZodRecordDef<Key extends KeySchema = KeySchema, Value extends IZodBaseType = IZodBaseType> = {
+export type ZodRecordDef<Key extends KeySchema = KeySchema, Value extends IZodBaseType = ZodType> = {
   valueType: Value
   keyType: Key
   typeName: 'ZodRecord'
 } & ZodBaseTypeDef
 
-export type KeySchema = IZodBaseType<string | number | symbol, any, any>
+export type KeySchema = IZodBaseType<string | number | symbol>
+export type DefaultKeySchema =
+  | IZodAny
+  | IZodEnum
+  | IZodNaN
+  | IZodNativeEnum
+  | IZodNever
+  | IZodNumber
+  | IZodString
+  | IZodSymbol
+  | IZodEffects
 export type RecordType<K extends string | number | symbol, V> = [string] extends [K]
   ? Record<K, V>
   : [number] extends [K]
@@ -1491,7 +1484,7 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         : Partial<Record<K, V>>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodRecord<Key extends KeySchema = IZodString, Value extends IZodBaseType = IZodBaseType>
+export interface IZodRecord<Key extends KeySchema = DefaultKeySchema, Value extends IZodBaseType = ZodType>
   extends IZodBaseType<
     RecordType<Key['_output'], Value['_output']>,
     ZodRecordDef<Key, Value>,
@@ -1514,7 +1507,7 @@ export interface IZodRef extends IZodBaseType<NonNullable<unknown>, ZodRefDef> {
 
 //* ─────────────────────────── ZodSet ───────────────────────────────────────
 
-export type ZodSetDef<Value extends IZodBaseType = IZodBaseType> = {
+export type ZodSetDef<Value extends IZodBaseType = ZodType> = {
   valueType: Value
   typeName: 'ZodSet'
   minSize: {
@@ -1528,13 +1521,12 @@ export type ZodSetDef<Value extends IZodBaseType = IZodBaseType> = {
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodSet<Value extends IZodBaseType = IZodBaseType>
+export interface IZodSet<Value extends IZodBaseType = ZodType>
   extends IZodBaseType<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>> {
   min(minSize: number, message?: ErrMessage): this
   max(maxSize: number, message?: ErrMessage): this
   size(size: number, message?: ErrMessage): this
   nonempty(message?: ErrMessage): IZodSet<Value>
-  // TODO: allow access to Value type without accessing _def
 }
 
 //* ─────────────────────────── ZodSymbol ────────────────────────────────────
@@ -1564,14 +1556,14 @@ export type PreprocessEffect<T> = {
 }
 
 export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
-export type ZodEffectsDef<T extends IZodBaseType = IZodBaseType> = {
+export type ZodEffectsDef<T extends IZodBaseType = ZodType> = {
   schema: T
   typeName: 'ZodEffects'
   effect: Effect<any>
 } & ZodBaseTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodEffects<T extends IZodBaseType = IZodBaseType, Output = output<T>, Input = input<T>>
+export interface IZodEffects<T extends IZodBaseType = ZodType, Output = any, Input = any>
   extends IZodBaseType<Output, ZodEffectsDef<T>, Input> {
   innerType(): T
   /**
@@ -1591,8 +1583,8 @@ export interface IZodUndefined extends IZodBaseType<undefined, ZodUndefinedDef> 
 
 //* ─────────────────────────── ZodUnion ────────────────────────────────────
 
-export type DefaultZodUnionOptions = Readonly<[IZodBaseType, IZodBaseType, ...IZodBaseType[]]>
-export type ZodUnionOptions = Readonly<[IZodBaseType, ...IZodBaseType[]]>
+export type ZodUnionOptions = Readonly<NonEmptyArray<IZodBaseType>>
+export type DefaultZodUnionOptions = Readonly<NonEmptyArray<ZodType>>
 export type ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> = {
   options: T
   typeName: 'ZodUnion'
@@ -1613,12 +1605,8 @@ export type ZodVoidDef = {
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodVoid extends IZodBaseType<void, ZodVoidDef> {}
 
-//* ─────────────────────────── ZodNativeType ───────────────────────────────
+//* ─────────────────────────── ZodType ─────────────────────────────────
 
-/**
- * @deprecated - use ZodNativeType instead
- */
-export type ZodFirstPartySchemaTypes = ZodType
 export type ZodType =
   | IZodAny
   | IZodArray
@@ -1658,7 +1646,16 @@ export type ZodType =
   | IZodUnknown
   | IZodVoid
 
+/**
+ * @deprecated - use ZodNativeSchema instead
+ */
+export type ZodFirstPartySchemaTypes = ZodType
 export type ZodTypeDef = ZodType['_def']
+
+/**
+ * @deprecated - use ZodNativeSchemaType instead
+ */
+export type ZodFirstPartyTypeKind = ZodTypeName
 export type ZodTypeName = ZodTypeDef['typeName']
 
 //* ─────────────────────────── Builders ──────────────────────────────
@@ -1705,12 +1702,15 @@ export declare function createEnum(
 
 export declare function createNativeEnum<T extends EnumLike>(values: T, params?: ZodCreateParams): IZodNativeEnum<T>
 export declare function createArray<T extends IZodBaseType>(schema: T, params?: ZodCreateParams): IZodArray<T>
-export declare function createObject<T extends ZodRawShape>(shape: T, params?: ZodCreateParams): IZodObject<T, 'strip'>
-export declare function createStrictObject<T extends ZodRawShape>(
+export declare function createObject<T extends Dict<IZodBaseType>>(
+  shape: T,
+  params?: ZodCreateParams
+): IZodObject<T, 'strip'>
+export declare function createStrictObject<T extends Dict<IZodBaseType>>(
   shape: T,
   params?: ZodCreateParams
 ): IZodObject<T, 'strict'>
-export declare function createLazyObject<T extends ZodRawShape>(
+export declare function createLazyObject<T extends Dict<IZodBaseType>>(
   shape: () => T,
   params?: ZodCreateParams
 ): IZodObject<T, 'strip'>
@@ -1720,7 +1720,10 @@ export declare function createUnion<T extends Readonly<[IZodBaseType, IZodBaseTy
 ): IZodUnion<T>
 export declare function createDiscriminatedUnion<
   Discriminator extends string,
-  Types extends [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],
+  Types extends [
+    ZodDiscriminatedUnionOption<Discriminator, IZodBaseType>,
+    ...ZodDiscriminatedUnionOption<Discriminator, IZodBaseType>[],
+  ],
 >(discriminator: Discriminator, options: Types, params?: ZodCreateParams): IZodDiscriminatedUnion<Discriminator, Types>
 export declare function createIntersection<T extends IZodBaseType, U extends IZodBaseType>(
   left: T,
@@ -1758,15 +1761,15 @@ export declare function createSet<Value extends IZodBaseType>(
 export declare function createLazy<T extends IZodBaseType>(getter: () => T, params?: ZodCreateParams): IZodLazy<T>
 export declare function createPromise<T extends IZodBaseType>(schema: T, params?: ZodCreateParams): IZodPromise<T>
 export declare function createFunction(): IZodFunction<IZodTuple<[], IZodUnknown>, IZodUnknown>
+export declare function createFunction<T extends IZodTuple<NonEmptyArray<IZodBaseType> | [], IZodBaseType>>(
+  args: T
+): IZodFunction<T, IZodUnknown>
 export declare function createFunction<
-  T extends IZodTuple<[IZodBaseType, ...IZodBaseType[]] | [], IZodBaseType | null>,
->(args: T): IZodFunction<T, IZodUnknown>
-export declare function createFunction<
-  T extends IZodTuple<[IZodBaseType, ...IZodBaseType[]] | []>,
+  T extends IZodTuple<NonEmptyArray<IZodBaseType> | [], IZodBaseType>,
   U extends IZodBaseType,
 >(args: T, returns: U): IZodFunction<T, U>
 export declare function createFunction<
-  T extends IZodTuple<[IZodBaseType, ...IZodBaseType[]] | [], IZodBaseType | null>,
+  T extends IZodTuple<NonEmptyArray<IZodBaseType> | [], IZodBaseType>,
   U extends IZodBaseType,
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
 export declare function createFunction(

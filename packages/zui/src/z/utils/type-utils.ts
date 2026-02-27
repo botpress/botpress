@@ -63,3 +63,7 @@ export type NoNever<T> = Identity<{
 }>
 
 export type ExtendShape<A, B> = Flatten<Omit<A, keyof B> & B>
+
+export type NonEmptyArray<First, Rest = First> = [First, ...Rest[]]
+
+export type Dict<T> = { [K: string]: T }
