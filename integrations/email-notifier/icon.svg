@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Email with notification">
+  <!-- Envelope -->
+  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke">
+    <rect x="8" y="16" width="48" height="32" rx="4" fill="#ffffff"/>
+    <path d="M12 20 L32 35 L52 20"/>
+    <path d="M12 44 L26 33"/>
+    <path d="M52 44 L38 33"/>
+  </g>
+
+  <!-- Notification dot (no text) -->
+  <circle cx="54.5" cy="9.5" r="8" fill="#EF4444" stroke="#ffffff" stroke-width="3"/>
+</svg>
