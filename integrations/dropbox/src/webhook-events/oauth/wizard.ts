@@ -50,7 +50,6 @@ const _redirectToDropboxHandler: WizardHandler = async (props) => {
   }
 
   const redirectUri = _getOAuthRedirectUri()
-  console.log('OAuth redirect URI:', redirectUri)
 
   const dropboxAuthUrl =
     'https://www.dropbox.com/oauth2/authorize?' +
@@ -94,8 +93,6 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
       errorMessage,
     })
   }
-
-  logger.forBot().info(`Authorization code: ${authorizationCode.substring(0, 5)}...`)
 
   try {
     const redirectUri = _getOAuthRedirectUri()
