@@ -12,9 +12,10 @@ import * as bp from '.botpress'
 const LINEAR_WEBHOOK_SIGNATURE_HEADER = 'linear-signature'
 const LINEAR_WEBHOOK_TS_FIELD = 'webhookTimestamp'
 
-export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  const { req, ctx, client, logger } = props
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx).catch((err) => {
+    return await handleOauth(props).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
       throw err
     })
@@ -130,7 +131,7 @@ const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
   ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
 
 const _getLinearBotId = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
-  const linearClient = await getLinearClient({ client, ctx }, ctx.integrationId)
+  const linearClient = await getLinearClient({ client, ctx })
   const me = await linearClient.viewer
   return me.id
 }

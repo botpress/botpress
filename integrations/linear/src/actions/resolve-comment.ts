@@ -3,11 +3,10 @@ import * as bp from '.botpress'
 
 export const resolveComment: bp.IntegrationProps['actions']['resolveComment'] = async (args) => {
   const {
-    ctx,
     input: { id },
   } = args
 
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
 
   try {
     const { success } = await linearClient.commentResolve(id)
