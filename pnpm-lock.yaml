@@ -1298,6 +1298,22 @@ importers:
         specifier: ^2.39.1
         version: 2.39.1
 
+  integrations/kommo:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.3
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   integrations/line:
     dependencies:
       '@botpress/cli':
@@ -6714,6 +6730,9 @@ packages:
 
   axios@1.13.1:
     resolution: {integrity: sha512-hU4EGxxt+j7TQijx1oYdAjw4xuIp1wRQSsbMFwSthCWeBQur1eF+qJ5iQ5sN3Tw8YRzQNKb8jszgBdMDVqwJcw==}
+
+  axios@1.13.3:
+    resolution: {integrity: sha512-ERT8kdX7DZjtUm7IitEyV7InTHAF42iJuMArIiDIV5YtPanJkgw4hw5Dyg9fh0mihdWNn1GKaeIWErfe56UQ1g==}
 
   axios@1.2.5:
     resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
@@ -13343,8 +13362,8 @@ snapshots:
 
   '@doist/todoist-api-typescript@3.0.3(type-fest@4.41.0)':
     dependencies:
-      axios: 1.13.1
-      axios-case-converter: 1.1.1(axios@1.13.1)
+      axios: 1.13.3
+      axios-case-converter: 1.1.1(axios@1.13.3)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -14024,7 +14043,7 @@ snapshots:
     dependencies:
       '@types/node': 22.16.4
     optionalDependencies:
-      axios: 1.13.1
+      axios: 1.13.3
     transitivePeerDependencies:
       - debug
 
@@ -14647,7 +14666,7 @@ snapshots:
   '@sendgrid/client@8.1.5':
     dependencies:
       '@sendgrid/helpers': 8.0.0
-      axios: 1.13.1
+      axios: 1.13.3
     transitivePeerDependencies:
       - debug
 
@@ -15486,7 +15505,7 @@ snapshots:
 
   '@types/axios@0.14.4':
     dependencies:
-      axios: 1.13.1
+      axios: 1.13.3
     transitivePeerDependencies:
       - debug
 
@@ -16200,9 +16219,9 @@ snapshots:
 
   aws4@1.12.0: {}
 
-  axios-case-converter@1.1.1(axios@1.13.1):
+  axios-case-converter@1.1.1(axios@1.13.3):
     dependencies:
-      axios: 1.13.1
+      axios: 1.13.3
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -16266,6 +16285,14 @@ snapshots:
       - debug
 
   axios@1.13.1:
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.4.1)
+      form-data: 4.0.4
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
+  axios@1.13.3:
     dependencies:
       follow-redirects: 1.15.6(debug@4.4.1)
       form-data: 4.0.4
@@ -16532,7 +16559,7 @@ snapshots:
     dependencies:
       '@azure/core-rest-pipeline': 1.22.0
       '@azure/msal-node': 2.16.3
-      axios: 1.13.1
+      axios: 1.13.3
       botbuilder-core: 4.23.3
       botbuilder-stdlib: 4.23.3-internal
       botframework-connector: 4.23.3
@@ -16557,7 +16584,7 @@ snapshots:
       '@azure/identity': 4.10.2
       '@azure/msal-node': 2.16.3
       '@types/jsonwebtoken': 9.0.6
-      axios: 1.13.1
+      axios: 1.13.3
       base64url: 3.0.1
       botbuilder-stdlib: 4.23.3-internal
       botframework-schema: 4.23.3
@@ -21738,7 +21765,7 @@ snapshots:
 
   trello.js@1.2.7:
     dependencies:
-      axios: 1.13.1
+      axios: 1.13.3
       form-data: 4.0.4
       tslib: 2.6.2
     transitivePeerDependencies:
@@ -21911,7 +21938,7 @@ snapshots:
 
   twilio@5.11.2:
     dependencies:
-      axios: 1.13.1
+      axios: 1.13.3
       dayjs: 1.11.19
       https-proxy-agent: 5.0.1
       jsonwebtoken: 9.0.2
