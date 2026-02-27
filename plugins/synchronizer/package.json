@@ -21,7 +21,7 @@
     "@botpresshub/updatable": "workspace:*",
     "@types/lodash": "^4.14.191",
     "@types/semver": "^7.3.11",
-    "semver": "^7.3.8"
+    "semver": "^7.5.2"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable",
