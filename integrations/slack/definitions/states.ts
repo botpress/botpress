@@ -54,7 +54,7 @@ export const states = {
     type: 'integration',
     schema: sdk.z.object({
       appName: sdk.z.string().optional().title('Slack App Name').describe('The display name of the created Slack app'),
-      configToken: sdk.z
+      appConfigurationToken: sdk.z
         .string()
         .secret()
         .optional()

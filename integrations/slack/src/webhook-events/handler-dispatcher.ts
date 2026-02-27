@@ -14,6 +14,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
 
   if (isOAuthWizardUrl(req.path)) {
+    logger.forBot().debug('Handler received request for OAuth wizard URL, delegating to OAuth wizard handler', req.path)
     return await oauthWizardHandler({ req, client, logger, ctx })
   }
 

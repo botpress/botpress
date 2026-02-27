@@ -80,15 +80,18 @@ export class SlackOAuthClient {
      * Exchanges an OAuth callback authorization code for short-lived rotating
      * credentials. This code path is used once when the user selects automatic
      * configuration using our Botpress Slack app.
+     *
+     * @param authorizationCode - The authorization code from Slack's OAuth callback
+     * @param redirectUri - Optional custom redirect URI. Defaults to `${process.env.BP_WEBHOOK_URL}/oauth`
      */
-    fromAuthorizationCode: async (authorizationCode: string) => {
+    fromAuthorizationCode: async (authorizationCode: string, redirectUri?: string) => {
       this._logger.forBot().debug('Exchanging authorization code for short-lived credentials...')
 
       const response = await this._slackClient.oauth.v2
         .access({
           client_id: this._clientId,
           client_secret: this._clientSecret,
-          redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+          redirect_uri: redirectUri ?? `${process.env.BP_WEBHOOK_URL}/oauth`,
           grant_type: 'authorization_code',
           code: authorizationCode,
         })

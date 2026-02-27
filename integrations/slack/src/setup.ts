@@ -35,17 +35,7 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
       throw new RuntimeError(
         'Missing configuration: App Configuration Token is required when using app manifest configuration'
       )
-    await client.setState({
-      type: 'integration',
-      id: ctx.integrationId,
-      name: 'manifestAppCredentials',
-      payload: {
-        configToken: ctx.configuration.appConfigurationToken,
-      },
-    })
-    logger
-      .forBot()
-      .info('Registered using app manifest configuration using token', ctx.configuration.appConfigurationToken)
+    await _saveAppConfigurationToken({ client, ctx })
     return
   }
 
@@ -175,7 +165,11 @@ const _saveOriginalRefreshToken = async (client: bp.Client, ctx: bp.Context, ref
   })
 }
 
-const _saveAppConfigurationToken = async (client: bp.Client, ctx: bp.Context, configToken: string) => {
+const _saveAppConfigurationToken = async ({ client, ctx }: Omit<bp.CommonHandlerProps, 'logger'>) => {
+  if (ctx.configurationType !== 'manifestAppCredentials' || !ctx.configuration.appConfigurationToken) {
+    throw new RuntimeError('App Configuration Token is required to save app configuration token in state')
+  }
+
   const { state } = await client.getState({
     type: 'integration',
     name: 'manifestAppCredentials',
@@ -186,7 +180,7 @@ const _saveAppConfigurationToken = async (client: bp.Client, ctx: bp.Context, co
     type: 'integration',
     id: ctx.integrationId,
     name: 'manifestAppCredentials',
-    payload: { ...state.payload, configToken },
+    payload: { ...state.payload, appConfigurationToken: ctx.configuration.appConfigurationToken },
   })
 }
 
