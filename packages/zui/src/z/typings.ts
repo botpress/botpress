@@ -5,7 +5,6 @@ import {
   NoNever,
   Flatten,
   NoUndefined,
-  Primitive,
   SafeOmit,
   Writeable,
   AddQuestionMarks,
@@ -1134,6 +1133,7 @@ export interface IZodLazy<T extends IZodType = IZodType> extends IZodType<output
 
 //* ─────────────────────────── ZodLiteral ───────────────────────────────────
 
+export type Primitive = string | number | bigint | boolean | symbol | null | undefined
 export type ZodLiteralDef<T extends Primitive = Primitive> = {
   value: T
   typeName: 'ZodLiteral'

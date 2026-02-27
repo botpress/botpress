@@ -4,7 +4,6 @@ export type IsAny<T> = 0 extends 1 & T ? true : false
 export type NoUndefined<T> = T extends undefined ? never : T
 export type Satisfies<X extends Y, Y> = X
 export type SafeOmit<T, K extends keyof T> = Omit<T, K>
-export type Primitive = string | number | bigint | boolean | symbol | null | undefined
 export type Cast<A, B> = A extends B ? A : B
 
 export type Writeable<T> = {

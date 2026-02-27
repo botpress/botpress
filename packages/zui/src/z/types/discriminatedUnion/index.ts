@@ -7,11 +7,12 @@ import type {
   input,
   output,
   IZodObject,
+  Primitive,
 } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
-const getDiscriminator = (_type: IZodType | undefined): utils.types.Primitive[] => {
+const getDiscriminator = (_type: IZodType | undefined): Primitive[] => {
   const type = _type as ZodNativeType | undefined
   if (!type) return []
   if (type.typeName === 'ZodLazy') {
@@ -154,7 +155,7 @@ export class ZodDiscriminatedUnionImpl<
     Options extends ZodDiscriminatedUnionOption<Discriminator>[] = ZodDiscriminatedUnionOption<Discriminator>[],
   >(discriminator: Discriminator, options: Options) {
     // Get all the valid discriminator values
-    const optionsMap: Map<utils.types.Primitive, Options[number]> = new Map()
+    const optionsMap: Map<Primitive, Options[number]> = new Map()
 
     // try {
     for (const type of options) {
