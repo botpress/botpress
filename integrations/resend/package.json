@@ -10,7 +10,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "markdown-it": "^14.1.0",
+    "markdown-it": "^14.1.1",
     "resend": "^4.6.0",
     "svix": "^1.69.0"
   },
