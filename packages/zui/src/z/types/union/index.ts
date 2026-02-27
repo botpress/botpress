@@ -1,7 +1,14 @@
 import { ZodError } from '../../error'
 import { builders } from '../../internal-builders'
-import type { ZodNativeType } from '../../native'
-import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
+import type {
+  DefaultZodUnionOptions,
+  IZodUnion,
+  IZodType,
+  ZodUnionDef,
+  ZodUnionOptions,
+  ZodIssue,
+  ZodNativeType,
+} from '../../typings'
 import * as utils from '../../utils'
 import {
   ZodBaseTypeImpl,

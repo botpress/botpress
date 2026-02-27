@@ -1616,7 +1616,55 @@ export type ZodVoidDef = {
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodVoid extends IZodType<void, ZodVoidDef> {}
 
-//* ─────────────────────────── BuilderRegistry ──────────────────────────────
+//* ─────────────────────────── ZodNativeType ───────────────────────────────
+
+/**
+ * @deprecated - use ZodNativeType instead
+ */
+export type ZodFirstPartySchemaTypes = ZodNativeType
+export type ZodNativeType =
+  | IZodAny
+  | IZodArray
+  | IZodBigInt
+  | IZodBoolean
+  | IZodBranded
+  | IZodCatch
+  | IZodDate
+  | IZodDefault
+  | IZodDiscriminatedUnion
+  | IZodEnum
+  | IZodFunction
+  | IZodIntersection
+  | IZodLazy
+  | IZodLiteral
+  | IZodMap
+  | IZodNaN
+  | IZodNativeEnum
+  | IZodNever
+  | IZodNull
+  | IZodNullable
+  | IZodNumber
+  | IZodObject
+  | IZodOptional
+  | IZodPipeline
+  | IZodPromise
+  | IZodReadonly
+  | IZodRecord
+  | IZodRef
+  | IZodSet
+  | IZodString
+  | IZodSymbol
+  | IZodEffects
+  | IZodTuple
+  | IZodUndefined
+  | IZodUnion
+  | IZodUnknown
+  | IZodVoid
+
+export type ZodNativeTypeDef = ZodNativeType['_def']
+export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
+
+//* ─────────────────────────── Builders ──────────────────────────────
 
 type _CustomParams = CustomErrorParams & { fatal?: boolean }
 

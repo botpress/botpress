@@ -1,5 +1,4 @@
 import { builders } from '../../internal-builders'
-import { ZodNativeType } from '../../native'
 import type {
   IZodObject,
   IZodType,
@@ -13,6 +12,7 @@ import type {
   KeyOfObject,
   IZodOptional,
   IZodEnum,
+  ZodNativeType,
 } from '../../typings'
 import * as utils from '../../utils'
 import {

@@ -1,7 +1,6 @@
 import { ZodError } from './error'
-import { ZodNativeType } from './native'
 import { ZodBaseTypeImpl } from './types'
-import { IZodError } from './typings'
+import { IZodError, ZodNativeType } from './typings'
 
 export const isZuiError = (thrown: unknown): thrown is IZodError =>
   thrown instanceof ZodError || (thrown instanceof Error && '__type__' in thrown && thrown.__type__ === 'ZuiError')

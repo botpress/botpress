@@ -1,6 +1,5 @@
 import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
 import { builders } from '../../internal-builders'
-import type { ZodNativeType } from '../../native'
 import type {
   IZodType,
   IZodFunction,
@@ -12,6 +11,7 @@ import type {
   InnerTypeOfFunction,
   IZodUnknown,
   IZodPromise,
+  ZodNativeType,
 } from '../../typings'
 
 import * as utils from '../../utils'

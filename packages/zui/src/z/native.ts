@@ -1,96 +1,11 @@
-import {
-  IZodAny,
-  IZodArray,
-  IZodBigInt,
-  IZodBoolean,
-  IZodBranded,
-  IZodCatch,
-  IZodDate,
-  IZodDefault,
-  IZodDiscriminatedUnion,
-  IZodEnum,
-  IZodFunction,
-  IZodIntersection,
-  IZodLazy,
-  IZodLiteral,
-  IZodMap,
-  IZodNaN,
-  IZodNativeEnum,
-  IZodNever,
-  IZodNull,
-  IZodNullable,
-  IZodNumber,
-  IZodObject,
-  IZodOptional,
-  IZodPipeline,
-  IZodPromise,
-  IZodReadonly,
-  IZodRecord,
-  IZodRef,
-  IZodSet,
-  IZodString,
-  IZodSymbol,
-  IZodEffects,
-  IZodTuple,
-  IZodUndefined,
-  IZodUnion,
-  IZodUnknown,
-  IZodVoid,
-} from './typings'
+import { ZodNativeTypeName } from './typings'
 
 /**
- * @deprecated - use ZodNativeSchema instead
- */
-export type ZodFirstPartySchemaTypes = ZodNativeType
-export type ZodNativeType =
-  | IZodAny
-  | IZodArray
-  | IZodBigInt
-  | IZodBoolean
-  | IZodBranded
-  | IZodCatch
-  | IZodDate
-  | IZodDefault
-  | IZodDiscriminatedUnion
-  | IZodEnum
-  | IZodFunction
-  | IZodIntersection
-  | IZodLazy
-  | IZodLiteral
-  | IZodMap
-  | IZodNaN
-  | IZodNativeEnum
-  | IZodNever
-  | IZodNull
-  | IZodNullable
-  | IZodNumber
-  | IZodObject
-  | IZodOptional
-  | IZodPipeline
-  | IZodPromise
-  | IZodReadonly
-  | IZodRecord
-  | IZodRef
-  | IZodSet
-  | IZodString
-  | IZodSymbol
-  | IZodEffects
-  | IZodTuple
-  | IZodUndefined
-  | IZodUnion
-  | IZodUnknown
-  | IZodVoid
-
-export type ZodNativeTypeDef = ZodNativeType['_def']
-
-/**
- * @deprecated - use ZodNativeSchemaType instead
+ * @deprecated - use ZodNativeTypeName instead
  */
 export type ZodFirstPartyTypeKind = ZodNativeTypeName
-export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
-
 /**
- * @deprecated - use ZodNativeSchemaType instead
+ * @deprecated - use ZodNativeTypeName instead
  */
 export const ZodFirstPartyTypeKind = {
   ZodString: 'ZodString',

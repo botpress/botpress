@@ -1,4 +1,3 @@
-import type { ZodNativeType } from '../../native'
 import type {
   IZodType,
   IZodDiscriminatedUnion,
@@ -8,6 +7,7 @@ import type {
   output,
   IZodObject,
   Primitive,
+  ZodNativeType,
 } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'

@@ -187,17 +187,15 @@ export type {
   // void
   ZodVoidDef,
   IZodVoid as ZodVoid,
+
+  // native
+  ZodNativeType,
+  ZodNativeTypeDef,
+  ZodNativeTypeName,
+  ZodFirstPartySchemaTypes,
 } from './typings'
 
-export {
-  type ZodNativeType,
-  type ZodNativeTypeDef,
-  type ZodNativeTypeName,
-
-  // deprecated
-  type ZodFirstPartySchemaTypes,
-  ZodFirstPartyTypeKind,
-} from './native'
+export { ZodFirstPartyTypeKind } from './native'
 
 export {
   coerce,
