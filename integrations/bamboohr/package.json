@@ -11,7 +11,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "jsonwebtoken": "^9.0.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
