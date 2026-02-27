@@ -1,9 +1,9 @@
-import { ZodNativeTypeName } from './typings'
+import { ZodTypeName } from './typings'
 
 /**
  * @deprecated - use ZodNativeTypeName instead
  */
-export type ZodFirstPartyTypeKind = ZodNativeTypeName
+export type ZodFirstPartyTypeKind = ZodTypeName
 /**
  * @deprecated - use ZodNativeTypeName instead
  */
@@ -46,5 +46,5 @@ export const ZodFirstPartyTypeKind = {
   ZodPipeline: 'ZodPipeline',
   ZodReadonly: 'ZodReadonly',
 } satisfies {
-  [K in ZodNativeTypeName]: K
+  [K in ZodTypeName]: K
 }

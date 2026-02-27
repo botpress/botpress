@@ -7,7 +7,7 @@ import type {
   ZodUnionDef,
   ZodUnionOptions,
   ZodIssue,
-  ZodNativeType,
+  ZodType,
 } from '../../typings'
 import * as utils from '../../utils'
 import {
@@ -164,7 +164,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
 
   mandatory(): IZodBaseType {
     const options = this._def.options
-      .filter((o) => !((o as ZodNativeType).typeName === 'ZodUndefined'))
+      .filter((o) => !((o as ZodType).typeName === 'ZodUndefined'))
       .map((option) => option.mandatory())
 
     const [first, second, ...others] = options

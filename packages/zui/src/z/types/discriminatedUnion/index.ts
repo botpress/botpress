@@ -7,13 +7,13 @@ import type {
   output,
   IZodObject,
   Primitive,
-  ZodNativeType,
+  ZodType,
 } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
 const getDiscriminator = (_type: IZodBaseType | undefined): Primitive[] => {
-  const type = _type as ZodNativeType | undefined
+  const type = _type as ZodType | undefined
   if (!type) return []
   if (type.typeName === 'ZodLazy') {
     return getDiscriminator(type.schema)

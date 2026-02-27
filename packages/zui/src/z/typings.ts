@@ -1642,8 +1642,8 @@ export interface IZodVoid extends IZodBaseType<void, ZodVoidDef> {}
 /**
  * @deprecated - use ZodNativeType instead
  */
-export type ZodFirstPartySchemaTypes = ZodNativeType
-export type ZodNativeType =
+export type ZodFirstPartySchemaTypes = ZodType
+export type ZodType =
   | IZodAny
   | IZodArray
   | IZodBigInt
@@ -1682,8 +1682,8 @@ export type ZodNativeType =
   | IZodUnknown
   | IZodVoid
 
-export type ZodNativeTypeDef = ZodNativeType['_def']
-export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
+export type ZodTypeDef = ZodType['_def']
+export type ZodTypeName = ZodTypeDef['typeName']
 
 //* ─────────────────────────── Builders ──────────────────────────────
 

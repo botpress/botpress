@@ -12,7 +12,7 @@ import type {
   KeyOfObject,
   IZodOptional,
   IZodEnum,
-  ZodNativeType,
+  ZodType,
 } from '../../typings'
 import * as utils from '../../utils'
 import {
@@ -507,7 +507,7 @@ export class ZodObjectImpl<
         newShape[key] = this.shape[key]
       } else {
         const fieldSchema = this.shape[key]
-        let newField = fieldSchema as ZodNativeType
+        let newField = fieldSchema as ZodType
 
         while (newField.typeName === 'ZodOptional') {
           newField = (newField as IZodOptional<any>)._def.innerType

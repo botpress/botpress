@@ -11,7 +11,7 @@ import type {
   InnerTypeOfFunction,
   IZodUnknown,
   IZodPromise,
-  ZodNativeType,
+  ZodType,
 } from '../../typings'
 
 import * as utils from '../../utils'
@@ -90,7 +90,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     const params = { errorMap: ctx.common.contextualErrorMap }
     const fn = ctx.data
 
-    const returns = this._def.returns as ZodNativeType
+    const returns = this._def.returns as ZodType
     if (returns.typeName === 'ZodPromise') {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
