@@ -442,13 +442,6 @@ export class ZodObjectImpl<
     return objSchema
   }
 
-  /**
-   * @deprecated
-   */
-  deepPartial(): any {
-    return this._deepPartialify(this)
-  }
-
   partial(): IZodObject<
     {
       [k in keyof T]: IZodOptional<T[k]>
@@ -557,35 +550,5 @@ export class ZodObjectImpl<
       return thisAdditionalProperties === thatAdditionalProperties
     }
     return thisAdditionalProperties.isEqual(thatAdditionalProperties)
-  }
-
-  private _deepPartialify(_schema: IZodType): IZodType {
-    const schema = _schema as ZodNativeType
-    if (schema.typeName === 'ZodObject') {
-      const newShape: Record<string, IZodType> = {}
-
-      for (const [key, fieldSchema] of Object.entries(schema.shape)) {
-        newShape[key] = builders.optional(this._deepPartialify(fieldSchema))
-      }
-
-      return new ZodObjectImpl({
-        ...schema._def,
-        shape: () => newShape,
-      })
-    } else if (schema.typeName === 'ZodArray') {
-      const element = this._deepPartialify(schema.element)
-      const newArray = schema.clone()
-      newArray._def.type = element // TODO: allow cloning with modifications to avoid this mutation
-      return newArray
-    } else if (schema.typeName === 'ZodOptional') {
-      return builders.optional(this._deepPartialify(schema.unwrap()))
-    } else if (schema.typeName === 'ZodNullable') {
-      return builders.nullable(this._deepPartialify(schema.unwrap()))
-    } else if (schema.typeName === 'ZodTuple') {
-      const partialItems = schema.items.map((item) => this._deepPartialify(item)) as [IZodType, ...IZodType[]]
-      return builders.tuple(partialItems)
-    } else {
-      return schema
-    }
   }
 }

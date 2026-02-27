@@ -32,94 +32,6 @@ test('shallow partial parse', () => {
   })
 })
 
-test('deep partial inference', () => {
-  const deep = nested.deepPartial()
-  const asdf = deep.shape.array.unwrap().element.shape.asdf.unwrap()
-  asdf.parse('asdf')
-  type deep = z.infer<typeof deep>
-  type correct = {
-    array?: { asdf?: string }[]
-    name?: string | undefined
-    age?: number | undefined
-    outer?: { inner?: string | undefined } | undefined
-  }
-
-  utils.assert.assertEqual<deep, correct>(true)
-})
-
-test('deep partial parse', () => {
-  const deep = nested.deepPartial()
-
-  expect(deep.shape.name.typeName).toBe('ZodOptional')
-  expect(deep.shape.outer.typeName).toBe('ZodOptional')
-  expect(deep.shape.outer._def.innerType.typeName).toBe('ZodObject')
-  expect(deep.shape.outer._def.innerType.shape.inner.typeName).toBe('ZodOptional')
-  expect(deep.shape.outer._def.innerType.shape.inner._def.innerType.typeName).toBe('ZodString')
-})
-
-test('deep partial runtime tests', () => {
-  const deep = nested.deepPartial()
-  deep.parse({})
-  deep.parse({
-    outer: {},
-  })
-  deep.parse({
-    name: 'asdf',
-    age: 23143,
-    outer: {
-      inner: 'adsf',
-    },
-  })
-})
-
-test('deep partial optional/nullable', () => {
-  const schema = z
-    .object({
-      name: z.string().optional(),
-      age: z.number().nullable(),
-    })
-    .deepPartial()
-
-  expect(schema.shape.name.unwrap().typeName).toBe('ZodOptional')
-  expect(schema.shape.age.unwrap().typeName).toBe('ZodNullable')
-})
-
-test('deep partial tuple', () => {
-  const schema = z
-    .object({
-      tuple: z.tuple([
-        z.object({
-          name: z.string().optional(),
-          age: z.number().nullable(),
-        }),
-      ]),
-    })
-    .deepPartial()
-
-  expect(schema.shape.tuple.unwrap().items[0].shape.name.typeName).toBe('ZodOptional')
-})
-
-test('deep partial inference', () => {
-  const mySchema = z.object({
-    name: z.string(),
-    array: z.array(z.object({ asdf: z.string() })),
-    tuple: z.tuple([z.object({ value: z.string() })]),
-  })
-
-  const partialed = mySchema.deepPartial()
-  type partialed = z.infer<typeof partialed>
-  type expected = {
-    name?: string | undefined
-    array?:
-      | {
-          asdf?: string | undefined
-        }[]
-      | undefined
-    tuple?: [{ value?: string }] | undefined
-  }
-  utils.assert.assertEqual<expected, partialed>(true)
-})
-
 test('required', () => {
   const object = z.object({
     name: z.string(),
@@ -227,12 +139,4 @@ test('partial with mask -- ignore falsy values', async () => {
 
   masked.parse({ country: 'US' })
   await masked.parseAsync({ country: 'US' })
-})
-
-test('deeppartial array', () => {
-  const schema = z.object({ array: z.string().array().min(42) }).deepPartial()
-
-  schema.parse({})
-
-  expect(schema.safeParse({ array: [] }).success).toBe(false)
 })

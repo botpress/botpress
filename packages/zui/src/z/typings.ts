@@ -989,10 +989,6 @@ export interface IZodObject<
   >(
     mask: Mask
   ): IZodObject<Omit<T, keyof Mask>, UnknownKeys>
-  /**
-   * @deprecated
-   */
-  deepPartial(): DeepPartial<this>
   partial(): IZodObject<
     {
       [k in keyof T]: IZodOptional<T[k]>
