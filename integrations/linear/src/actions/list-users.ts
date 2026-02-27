@@ -5,10 +5,9 @@ import * as bp from '.botpress'
 
 export const listUsers: bp.IntegrationProps['actions']['listUsers'] = async (args) => {
   const {
-    ctx,
     input: { count, startCursor },
   } = args
-  const linearClient = await getLinearClient(args, ctx.integrationId)
+  const linearClient = await getLinearClient(args)
 
   const query = await linearClient.users({
     orderBy: LinearDocument.PaginationOrderBy.UpdatedAt,

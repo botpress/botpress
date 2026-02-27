@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
   description: 'Access a curated list of Claude models to set as your chosen LLM.',
-  version: '13.0.0',
+  version: '13.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -20,6 +20,9 @@ export default new IntegrationDefinition({
     ANTHROPIC_API_KEY: {
       description: 'Anthropic API key',
     },
+  },
+  attributes: {
+    category: 'AI Models',
   },
 }).extend(llm, ({ entities }) => ({
   entities: { modelRef: entities.modelRef },

@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '5.2.0',
+  version: '5.2.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -49,5 +49,8 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'CRM & Sales',
   },
 })

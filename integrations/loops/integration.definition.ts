@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'loops',
   title: 'Loops',
   description: 'Handle transactional emails from your chatbot.',
-  version: '0.1.3',
+  version: '0.1.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
@@ -13,5 +13,8 @@ export default new IntegrationDefinition({
   events,
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Marketing & Email',
   },
 })
