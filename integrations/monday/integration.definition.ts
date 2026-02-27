@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'monday',
   title: 'Monday',
   description: 'Manage items in Monday boards.',
-  version: '1.0.0',
+  version: '1.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   states: {},
@@ -21,5 +21,8 @@ export default new IntegrationDefinition({
   },
   configuration: {
     schema: configurationSchema,
+  },
+  attributes: {
+    category: 'Project Management',
   },
 })

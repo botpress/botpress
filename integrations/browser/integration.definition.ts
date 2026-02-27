@@ -3,7 +3,7 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
 export const INTEGRATION_NAME = 'browser'
-export const INTEGRATION_VERSION = '0.8.3'
+export const INTEGRATION_VERSION = '0.8.4'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -25,5 +25,8 @@ export default new IntegrationDefinition({
     LOGO_API_KEY: {
       description: 'Logo key',
     },
+  },
+  attributes: {
+    category: 'Developer Tools',
   },
 })
