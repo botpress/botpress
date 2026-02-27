@@ -6,7 +6,6 @@ import type {
   BaseDisplayAsType,
   DisplayAsOptions,
   UIComponentDefinitions,
-  ZodKindToBaseType,
   ZuiMetadata,
   DeepPartialBoolean,
   IZodBaseType,
@@ -444,7 +443,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodBaseTypeDef =
 
   displayAs<
     UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseDisplayAsType = ZodKindToBaseType<this['_def']>,
+    Type extends BaseDisplayAsType = BaseDisplayAsType,
   >(options: DisplayAsOptions<UI[Type][keyof UI[Type]]>): this {
     return this.metadata({ displayAs: [options.id, options.params] })
   }

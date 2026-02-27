@@ -46,30 +46,6 @@ export type UIComponentDefinitions = {
   }
 }
 
-export type ZodKindToBaseType<U extends ZodBaseTypeDef> = U extends ZodStringDef
-  ? 'string'
-  : U extends ZodNumberDef
-    ? 'number'
-    : U extends ZodBooleanDef
-      ? 'boolean'
-      : U extends ZodArrayDef
-        ? 'array'
-        : U extends ZodObjectDef
-          ? 'object'
-          : U extends ZodTupleDef
-            ? never
-            : U extends ZodEnumDef
-              ? 'string'
-              : U extends ZodDefaultDef
-                ? ZodKindToBaseType<U['innerType']['_def']>
-                : U extends ZodOptionalDef
-                  ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends ZodNullableDef
-                    ? ZodKindToBaseType<U['innerType']['_def']>
-                    : U extends ZodDiscriminatedUnionDef
-                      ? 'discriminatedUnion'
-                      : never
-
 export type DisplayAsOptions<U> = U extends { id: string; params: IZodObject }
   ? {
       id: U['id']
@@ -507,7 +483,7 @@ export interface IZodBaseType<Output = any, Def extends ZodBaseTypeDef = ZodBase
    */
   displayAs<
     UI extends UIComponentDefinitions = UIComponentDefinitions,
-    Type extends BaseDisplayAsType = ZodKindToBaseType<this['_def']>,
+    Type extends BaseDisplayAsType = BaseDisplayAsType,
   >(
     options: DisplayAsOptions<UI[Type][keyof UI[Type]]>
   ): this

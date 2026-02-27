@@ -589,7 +589,10 @@ describe.concurrent('toTypescriptSchema', () => {
       } as const satisfies UIComponentDefinitions
       const schema = z
         .string()
-        .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } })
+        .displayAs<
+          typeof testComponentDefinitions,
+          'string'
+        >({ id: 'customstringcomponent', params: { multiline: true } })
 
       // Act & Assert
       const evaluated = evalZui(toTypescript(schema))
