@@ -9,6 +9,20 @@ type ProfileEntry = ProfileCredentials & {
   name: string
 }
 
+const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntry => {
+  // Using both "floor" & "ceil" to handle cases where the token has an odd number length
+  const maxHalfTokenLength = Math.ceil(token.length / 2)
+  const minHalfTokenLength = Math.floor(token.length / 2)
+  const firstHalf = token.slice(0, maxHalfTokenLength)
+
+  const maskedToken = firstHalf + '*'.repeat(minHalfTokenLength)
+
+  return {
+    ...restProfile,
+    token: maskedToken,
+  }
+}
+
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
@@ -21,7 +35,8 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    const profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+    let profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+    if (!this.argv.json) profileEntry = _maskProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -39,7 +54,7 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
     }
     const activeProfileName = await this.globalCache.get('activeProfile')
     this.logger.log(`Active profile: '${chalk.bold(activeProfileName)}'`)
-    this.logger.json(profileEntries)
+    this.logger.json(this.argv.json ? profileEntries : profileEntries.map(_maskProfileToken))
   }
 }
 
