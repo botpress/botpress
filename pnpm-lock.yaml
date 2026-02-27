@@ -3258,6 +3258,19 @@ importers:
         specifier: ^7.3.8
         version: 7.5.1
 
+  plugins/knowledge-connector:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   plugins/logger:
     dependencies:
       '@botpress/client':
