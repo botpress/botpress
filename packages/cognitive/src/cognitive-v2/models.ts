@@ -3,6 +3,9 @@ import { Model } from 'src/schemas.gen'
 export type RemoteModel = Model & {
   aliases?: string[]
   lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'
+  capabilities?: {
+    supportsImages?: boolean
+  }
 }
 
 export const models: Record<string, RemoteModel> = {
@@ -21,6 +24,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:gpt-5.1-2025-11-13': {
     id: 'openai:gpt-5.1-2025-11-13',
@@ -37,6 +43,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:gpt-5-2025-08-07': {
     id: 'openai:gpt-5-2025-08-07',
@@ -53,6 +62,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-5'],
   },
   'openai:gpt-5-mini-2025-08-07': {
@@ -70,6 +82,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-5-mini'],
   },
   'openai:gpt-5-nano-2025-08-07': {
@@ -87,6 +102,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'reasoning', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-5-nano'],
   },
   'openai:o4-mini-2025-04-16': {
@@ -104,6 +122,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['o4-mini'],
   },
   'openai:o3-2025-04-16': {
@@ -121,6 +142,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['o3'],
   },
   'openai:gpt-4.1-2025-04-14': {
@@ -138,6 +162,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-4.1'],
   },
   'openai:gpt-4.1-mini-2025-04-14': {
@@ -155,6 +182,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-4.1-mini'],
   },
   'openai:gpt-4.1-nano-2025-04-14': {
@@ -171,6 +201,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-4.1-nano'],
   },
   'openai:o3-mini-2025-01-31': {
@@ -188,6 +221,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['o3-mini'],
   },
   'openai:o1-2024-12-17': {
@@ -205,6 +241,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:o1-mini-2024-09-12': {
     id: 'openai:o1-mini-2024-09-12',
@@ -221,6 +260,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'vision', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['o1-mini'],
   },
   'openai:gpt-4o-mini-2024-07-18': {
@@ -238,6 +280,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-4o-mini'],
   },
   'openai:gpt-4o-2024-11-20': {
@@ -255,6 +300,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['gpt-4o'],
   },
   'openai:gpt-4o-2024-08-06': {
@@ -272,6 +320,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:gpt-4o-2024-05-13': {
     id: 'openai:gpt-4o-2024-05-13',
@@ -288,6 +339,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:gpt-4-turbo-2024-04-09': {
     id: 'openai:gpt-4-turbo-2024-04-09',
@@ -304,6 +358,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose', 'coding', 'agents'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openai:gpt-3.5-turbo-0125': {
     id: 'openai:gpt-3.5-turbo-0125',
@@ -320,6 +377,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose', 'low-cost'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'anthropic:claude-sonnet-4-5-20250929': {
     id: 'anthropic:claude-sonnet-4-5-20250929',
@@ -336,6 +396,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['claude-sonnet-4-5'],
   },
   'anthropic:claude-sonnet-4-20250514': {
@@ -353,6 +416,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['claude-sonnet-4'],
   },
   'anthropic:claude-sonnet-4-reasoning-20250514': {
@@ -370,6 +436,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
     lifecycle: 'deprecated',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['claude-sonnet-4-reasoning'],
   },
   'anthropic:claude-haiku-4-5-20251001': {
@@ -387,6 +456,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['claude-haiku-4-5'],
   },
   'anthropic:claude-haiku-4-5-reasoning-20251001': {
@@ -404,6 +476,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['claude-haiku-4-5-reasoning'],
   },
   'anthropic:claude-3-7-sonnet-20250219': {
@@ -420,7 +495,10 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['recommended', 'reasoning', 'agents', 'vision', 'general-purpose', 'coding'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'anthropic:claude-3-7-sonnet-reasoning-20250219': {
     id: 'anthropic:claude-3-7-sonnet-reasoning-20250219',
@@ -436,7 +514,10 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 15,
     },
     tags: ['deprecated', 'vision', 'reasoning', 'general-purpose', 'agents', 'coding'],
-    lifecycle: 'deprecated',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'anthropic:claude-3-5-haiku-20241022': {
     id: 'anthropic:claude-3-5-haiku-20241022',
@@ -452,7 +533,10 @@ export const models: Record<string, RemoteModel> = {
       costPer1MTokens: 4,
     },
     tags: ['general-purpose', 'low-cost'],
-    lifecycle: 'production',
+    lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'anthropic:claude-3-5-sonnet-20241022': {
     id: 'anthropic:claude-3-5-sonnet-20241022',
@@ -469,6 +553,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'anthropic:claude-3-5-sonnet-20240620': {
     id: 'anthropic:claude-3-5-sonnet-20240620',
@@ -485,6 +572,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'agents', 'coding', 'storytelling'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'anthropic:claude-3-haiku-20240307': {
     id: 'anthropic:claude-3-haiku-20240307',
@@ -501,6 +591,48 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
+  },
+  'google-ai:gemini-3-pro': {
+    id: 'google-ai:gemini-3-pro',
+    name: 'Gemini 3 Pro',
+    description:
+      "One of the best models for multimodal understanding, and Google's most powerful agentic and vibe-coding model yet, delivering richer visuals and deeper interactivity, built on a foundation of state-of-the-art reasoning.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 2,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 12,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+    },
+    aliases: ['gemini-3-pro-preview'],
+  },
+  'google-ai:gemini-3-flash': {
+    id: 'google-ai:gemini-3-flash',
+    name: 'Gemini 3 Flash',
+    description: "Google's most balanced model built for speed, scale, and frontier intelligence.",
+    input: {
+      maxTokens: 1048576,
+      costPer1MTokens: 0.5,
+    },
+    output: {
+      maxTokens: 65536,
+      costPer1MTokens: 3,
+    },
+    tags: ['reasoning', 'agents', 'general-purpose', 'vision'],
+    lifecycle: 'preview',
+    capabilities: {
+      supportsImages: true,
+    },
+    aliases: ['gemini-3-flash-preview'],
   },
   'google-ai:gemini-2.5-flash': {
     id: 'google-ai:gemini-2.5-flash',
@@ -517,6 +649,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'google-ai:gemini-2.5-pro': {
     id: 'google-ai:gemini-2.5-pro',
@@ -533,6 +668,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'agents', 'general-purpose', 'vision', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'google-ai:gemini-2.0-flash': {
     id: 'google-ai:gemini-2.0-flash',
@@ -549,6 +687,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['models/gemini-2.0-flash'],
   },
   'cerebras:gpt-oss-120b': {
@@ -566,6 +707,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'cerebras:qwen-3-32b': {
     id: 'cerebras:qwen-3-32b',
@@ -582,6 +726,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'cerebras:llama-4-scout-17b-16e-instruct': {
     id: 'cerebras:llama-4-scout-17b-16e-instruct',
@@ -598,6 +745,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'cerebras:llama3.1-8b': {
     id: 'cerebras:llama3.1-8b',
@@ -614,6 +764,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'cerebras:llama3.3-70b': {
     id: 'cerebras:llama3.3-70b',
@@ -630,6 +783,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:gpt-oss-20b': {
     id: 'groq:gpt-oss-20b',
@@ -646,6 +802,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['openai/gpt-oss-20b'],
   },
   'groq:gpt-oss-120b': {
@@ -663,6 +822,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['openai/gpt-oss-120b'],
   },
   'groq:deepseek-r1-distill-llama-70b': {
@@ -680,6 +842,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning', 'preview'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama-3.3-70b-versatile': {
     id: 'groq:llama-3.3-70b-versatile',
@@ -696,6 +861,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama-3.2-1b-preview': {
     id: 'groq:llama-3.2-1b-preview',
@@ -712,6 +880,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama-3.2-3b-preview': {
     id: 'groq:llama-3.2-3b-preview',
@@ -728,6 +899,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama-3.2-11b-vision-preview': {
     id: 'groq:llama-3.2-11b-vision-preview',
@@ -744,6 +918,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'vision', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'groq:llama-3.2-90b-vision-preview': {
     id: 'groq:llama-3.2-90b-vision-preview',
@@ -760,6 +937,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['vision', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'groq:llama-3.1-8b-instant': {
     id: 'groq:llama-3.1-8b-instant',
@@ -775,6 +955,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama3-8b-8192': {
     id: 'groq:llama3-8b-8192',
@@ -791,6 +974,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:llama3-70b-8192': {
     id: 'groq:llama3-70b-8192',
@@ -807,6 +993,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'deprecated'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'groq:gemma2-9b-it': {
     id: 'groq:gemma2-9b-it',
@@ -823,6 +1012,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'xai:grok-code-fast-1': {
     id: 'xai:grok-code-fast-1',
@@ -838,6 +1030,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['coding', 'general-purpose', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'xai:grok-4-fast-reasoning': {
     id: 'xai:grok-4-fast-reasoning',
@@ -853,6 +1048,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'recommended', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'xai:grok-4-fast-non-reasoning': {
     id: 'xai:grok-4-fast-non-reasoning',
@@ -868,6 +1066,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'recommended', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'xai:grok-4-0709': {
     id: 'xai:grok-4-0709',
@@ -883,6 +1084,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'xai:grok-3-mini': {
     id: 'xai:grok-3-mini',
@@ -898,6 +1102,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'xai:grok-3': {
     id: 'xai:grok-3',
@@ -913,6 +1120,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
   },
   'openrouter:gpt-oss-120b': {
     id: 'openrouter:gpt-oss-120b',
@@ -929,6 +1139,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['preview', 'general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
   },
   'fireworks-ai:gpt-oss-20b': {
     id: 'fireworks-ai:gpt-oss-20b',
@@ -945,6 +1158,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning', 'low-cost'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/gpt-oss-20b'],
   },
   'fireworks-ai:gpt-oss-120b': {
@@ -962,6 +1178,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'reasoning'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/gpt-oss-120b'],
   },
   'fireworks-ai:deepseek-r1-0528': {
@@ -979,6 +1198,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'reasoning', 'general-purpose', 'coding'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1-0528'],
   },
   'fireworks-ai:deepseek-v3-0324': {
@@ -996,6 +1218,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['recommended', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-v3-0324'],
   },
   'fireworks-ai:llama4-maverick-instruct-basic': {
@@ -1013,6 +1238,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['accounts/fireworks/models/llama4-maverick-instruct-basic'],
   },
   'fireworks-ai:llama4-scout-instruct-basic': {
@@ -1030,6 +1258,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose', 'vision'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: true,
+    },
     aliases: ['accounts/fireworks/models/llama4-scout-instruct-basic'],
   },
   'fireworks-ai:llama-v3p3-70b-instruct': {
@@ -1047,6 +1278,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p3-70b-instruct'],
   },
   'fireworks-ai:deepseek-r1': {
@@ -1064,6 +1298,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1'],
   },
   'fireworks-ai:deepseek-r1-basic': {
@@ -1081,6 +1318,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['reasoning', 'general-purpose', 'coding'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-r1-basic'],
   },
   'fireworks-ai:deepseek-v3': {
@@ -1098,6 +1338,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/deepseek-v3'],
   },
   'fireworks-ai:llama-v3p1-405b-instruct': {
@@ -1115,6 +1358,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-405b-instruct'],
   },
   'fireworks-ai:llama-v3p1-70b-instruct': {
@@ -1132,6 +1378,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-70b-instruct'],
   },
   'fireworks-ai:llama-v3p1-8b-instruct': {
@@ -1149,6 +1398,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'production',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/llama-v3p1-8b-instruct'],
   },
   'fireworks-ai:mixtral-8x22b-instruct': {
@@ -1166,6 +1418,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/mixtral-8x22b-instruct'],
   },
   'fireworks-ai:mixtral-8x7b-instruct': {
@@ -1183,6 +1438,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/mixtral-8x7b-instruct'],
   },
   'fireworks-ai:mythomax-l2-13b': {
@@ -1200,6 +1458,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['roleplay', 'storytelling', 'low-cost'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/mythomax-l2-13b'],
   },
   'fireworks-ai:gemma2-9b-it': {
@@ -1217,6 +1478,9 @@ export const models: Record<string, RemoteModel> = {
     },
     tags: ['deprecated', 'low-cost', 'general-purpose'],
     lifecycle: 'discontinued',
+    capabilities: {
+      supportsImages: false,
+    },
     aliases: ['accounts/fireworks/models/gemma2-9b-it'],
   },
 }

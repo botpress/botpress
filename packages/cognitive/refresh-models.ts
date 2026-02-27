@@ -9,7 +9,7 @@ const filteredLifecycles = ['deprecated', 'discontinued']
 const modelsListPath = path.resolve(__dirname, 'src/cognitive-v2', 'models.ts')
 const typesPath = path.resolve(__dirname, 'src/cognitive-v2', 'types.ts')
 
-type RemoteModel = Model & { lifecycle?: string; aliases?: string[] }
+type RemoteModel = Model & { lifecycle?: string; aliases?: string[]; capabilities?: { supportsImages?: boolean } }
 
 const toRef = (m: RemoteModel | string | null | undefined): string | null => {
   if (!m) return null
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
   }
 
   const newFile = `import { Model } from 'src/schemas.gen'\n
-export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued' }\n
+export type RemoteModel = Model & { aliases?: string[]; lifecycle: 'production' | 'preview' | 'deprecated' | 'discontinued'; capabilities?: { supportsImages?: boolean } }\n
 export const models: Record<string, RemoteModel>  = ${JSON.stringify(modelsObj, null, 2)}\n
 export const defaultModel: RemoteModel = ${JSON.stringify(defaultModel, undefined, 2)}
 `
