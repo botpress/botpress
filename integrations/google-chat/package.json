@@ -1,0 +1,22 @@
+{
+  "name": "@bp-templates/empty-integration",
+  "scripts": {
+    "version": "bp --version",
+    "login": "bp login",
+    "gen": "bp gen",
+    "deploy": "bp deploy"
+  },
+  "private": true,
+  "dependencies": {
+    "axios": "^1.7.2",
+    "@botpress/client": "1.9.0",
+    "@botpress/cli": "^3.3.0",
+    "@botpress/sdk": "4.3.4",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^133.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "typescript": "^5.6.3"
+  }
+}
