@@ -10,7 +10,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.12.2",
+    "axios": "^0.30.3",
     "docusign-esign": "^8.4.0"
   },
   "devDependencies": {

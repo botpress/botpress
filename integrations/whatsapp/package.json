@@ -14,7 +14,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "awesome-phonenumber": "^7.5.0",
-    "axios": "^1.6.2",
+    "axios": "^0.30.3",
     "marked": "^15.0.1",
     "preact": "^10.26.6",
     "preact-render-to-string": "^6.5.13",
