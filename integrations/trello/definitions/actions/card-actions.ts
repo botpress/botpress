@@ -1,6 +1,6 @@
 import { ActionDefinition, z } from '@botpress/sdk'
 import { cardSchema, listSchema, trelloIdSchema } from 'definitions/schemas'
-import { hasCardId, hasListId, hasMessage, outputsCard, outputsCards } from './common'
+import { hasCardId, hasListId, hasMessage } from './common'
 
 export const getCardById = {
   title: 'Get card by ID',
@@ -9,7 +9,9 @@ export const getCardById = {
     schema: hasCardId.describe('Input schema for getting a card from its ID'),
   },
   output: {
-    schema: outputsCard.describe('Output schema for getting a card from its ID'),
+    schema: z.object({
+      card: cardSchema.title('Trello Card').describe("The Trello card that's associated with the given card ID"),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -24,7 +26,9 @@ export const getCardsByDisplayName = {
       .describe('Input schema for getting a card ID from its name'),
   },
   output: {
-    schema: outputsCards.describe('Output schema for getting a card ID from its name'),
+    schema: z.object({
+      cards: z.array(cardSchema).title('Trello Cards').describe('A list of cards that match the given card name'),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -35,7 +39,12 @@ export const getCardsInList = {
     schema: hasListId.describe('Input schema for getting all cards in a list'),
   },
   output: {
-    schema: outputsCards.describe('Output schema for getting all cards in a list'),
+    schema: z.object({
+      cards: z
+        .array(cardSchema)
+        .title('Trello Cards')
+        .describe('An array of cards that are contained within the given list'),
+    }),
   },
 } as const satisfies ActionDefinition
 
@@ -73,8 +82,11 @@ export const createCard = {
       .describe('Input schema for creating a new card'),
   },
   output: {
-    schema: hasMessage
-      .extend({
+    schema: z
+      .object({
+        message: hasMessage.shape.message
+          .title('Action message')
+          .describe('A message that says if the card was successfully created or not'),
         newCardId: cardSchema.shape.id.describe('Unique identifier of the new card'),
       })
       .describe('Output schema for creating a card'),
@@ -201,11 +213,13 @@ export const addCardComment = {
       .describe('Input schema for adding a comment to a card'),
   },
   output: {
-    schema: hasMessage
-      .extend({
-        newCommentId: trelloIdSchema.describe('Unique identifier of the newly created comment'),
-      })
-      .describe('Output schema for adding a comment to a card'),
+    schema: z.object({
+      message: z
+        .string()
+        .title('Action message')
+        .describe('A message that says if the comment was successfully created or not'),
+      newCommentId: trelloIdSchema.title('New Comment ID').describe('Unique identifier of the newly created comment'),
+    }),
   },
 } as const satisfies ActionDefinition
 
