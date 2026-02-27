@@ -78,7 +78,7 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        const def: z.ZodNativeTypeDef = zodField._def
+        const def: z.ZodTypeDef = zodField._def
 
         if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
           applyZuiPropsRecursively(def.items[index]!, item)

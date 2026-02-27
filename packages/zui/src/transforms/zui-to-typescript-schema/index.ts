@@ -28,7 +28,7 @@ export function toTypescriptSchema(schema: z.ZodBaseType): string {
 }
 
 function sUnwrapZod(schema: z.ZodBaseType): string {
-  const s = schema as z.ZodNativeType
+  const s = schema as z.ZodType
   switch (s.typeName) {
     case 'ZodString':
       return `z.string()${generateStringChecks(s._def)}${_addMetadata(s._def)}`.trim()

@@ -189,9 +189,9 @@ export type {
   IZodVoid as ZodVoid,
 
   // native
-  ZodType as ZodNativeType,
-  ZodTypeDef as ZodNativeTypeDef,
-  ZodTypeName as ZodNativeTypeName,
+  ZodType,
+  ZodTypeDef,
+  ZodTypeName,
   ZodFirstPartySchemaTypes,
 } from './typings'
 

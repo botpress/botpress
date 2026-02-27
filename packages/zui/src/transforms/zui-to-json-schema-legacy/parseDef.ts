@@ -1,4 +1,4 @@
-import { ZodNativeTypeDef, zuiKey, ZodFirstPartyTypeKind } from '../../z'
+import { ZodTypeDef, zuiKey, ZodFirstPartyTypeKind } from '../../z'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
 import { JsonSchema7BigintType, parseBigintDef } from './parsers/bigint'
@@ -67,7 +67,7 @@ export type JsonSchema7TypeUnion =
 export type JsonSchema7Type = JsonSchema7TypeUnion & JsonSchema7Meta
 
 export function parseDef(
-  def: ZodNativeTypeDef,
+  def: ZodTypeDef,
   refs: Refs,
   forceResolution = false // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
 ): JsonSchema7Type | undefined {
@@ -211,7 +211,7 @@ const selectParser = (def: any, typeName: ZodFirstPartyTypeKind, refs: Refs): Js
   }
 }
 
-export const addMeta = <S extends JsonSchema7Type>(def: ZodNativeTypeDef, refs: Refs, jsonSchema: S): S => {
+export const addMeta = <S extends JsonSchema7Type>(def: ZodTypeDef, refs: Refs, jsonSchema: S): S => {
   if (def.description) {
     jsonSchema.description = def.description
 

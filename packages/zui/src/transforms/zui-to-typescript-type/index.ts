@@ -129,7 +129,7 @@ function sUnwrapZod(
   if (schema instanceof KeyValue) {
     let optionalValue: z.ZodOptional | undefined = undefined
 
-    const schemaValue = schema.value as z.ZodNativeType
+    const schemaValue = schema.value as z.ZodType
     if (schemaValue.typeName === 'ZodOptional') {
       optionalValue = schemaValue
     } else if (schemaValue.typeName === 'ZodDefault' && config.treatDefaultAsOptional) {
@@ -149,13 +149,13 @@ function sUnwrapZod(
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    const isOptional = (schema.value as z.ZodNativeType).typeName === 'ZodAny' // any is treated as optional for backwards compatibility
+    const isOptional = (schema.value as z.ZodType).typeName === 'ZodAny' // any is treated as optional for backwards compatibility
     const key = isOptional ? _optionalKey(schema.key) : schema.key
     return `${delimiter}${description}${delimiter}${key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {
-    const schemaSchema = schema.schema as z.ZodNativeType
+    const schemaSchema = schema.schema as z.ZodType
     if (schemaSchema.typeName === 'ZodTuple') {
       let args = ''
       for (let i = 0; i < schemaSchema.items.length; i++) {
@@ -169,7 +169,7 @@ function sUnwrapZod(
       return args
     }
 
-    const isLiteral = (schema.schema.naked() as z.ZodNativeType).typeName === 'ZodLiteral'
+    const isLiteral = (schema.schema.naked() as z.ZodType).typeName === 'ZodLiteral'
 
     const typings = sUnwrapZod(schema.schema, newConfig).trim()
     const startsWithPairs =
@@ -188,7 +188,7 @@ function sUnwrapZod(
   }
 
   if (schema instanceof FnReturn) {
-    const schemaSchema = schema.schema as z.ZodNativeType
+    const schemaSchema = schema.schema as z.ZodType
     if (schemaSchema.typeName === 'ZodOptional') {
       return `${sUnwrapZod(schemaSchema.unwrap(), newConfig)} | undefined`
     }

@@ -9,8 +9,8 @@ const expectZui = (actual: z.ZodBaseType) => ({
       let msg: string | undefined = undefined
       try {
         msg = `Expected ${transforms.toTypescriptSchema(
-          actual as z.ZodNativeType
-        )} not to equal ${transforms.toTypescriptSchema(expected as z.ZodNativeType)}`
+          actual as z.ZodType
+        )} not to equal ${transforms.toTypescriptSchema(expected as z.ZodType)}`
       } catch {}
       expect(result, msg).toBe(true)
     },
@@ -19,8 +19,8 @@ const expectZui = (actual: z.ZodBaseType) => ({
     const result = actual.isEqual(expected)
     let msg: string | undefined = undefined
     try {
-      msg = `Expected ${transforms.toTypescriptSchema(actual as z.ZodNativeType)} to equal ${transforms.toTypescriptSchema(
-        expected as z.ZodNativeType
+      msg = `Expected ${transforms.toTypescriptSchema(actual as z.ZodType)} to equal ${transforms.toTypescriptSchema(
+        expected as z.ZodType
       )}`
     } catch {}
     expect(result, msg).toBe(true)

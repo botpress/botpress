@@ -14,7 +14,7 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @returns ZUI flavored JSON schema
  */
 export function toJSONSchema(schema: z.ZodBaseType): json.Schema {
-  const s = schema as z.ZodNativeType
+  const s = schema as z.ZodType
 
   switch (s.typeName) {
     case 'ZodString':
