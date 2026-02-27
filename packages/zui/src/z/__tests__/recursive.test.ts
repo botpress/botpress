@@ -27,7 +27,7 @@ const testCategory: Category = {
 }
 
 test('recursion with lazy object', () => {
-  const Category: z.ZodType<Category> = z.lazy(() =>
+  const Category: z.ZodBaseType<Category> = z.lazy(() =>
     z.object({
       name: z.string(),
       subcategories: z.array(Category),
@@ -37,7 +37,7 @@ test('recursion with lazy object', () => {
 })
 
 test('recursion with z.lazy', () => {
-  const Category: z.ZodType<Category> = z.lazy(() =>
+  const Category: z.ZodBaseType<Category> = z.lazy(() =>
     z.object({
       name: z.string(),
       subcategories: z.array(Category),
@@ -67,7 +67,7 @@ const linkedListExample = {
 }
 
 test('recursion involving union type', () => {
-  const LinkedListSchema: z.ZodType<LinkedList> = z.lazy(() =>
+  const LinkedListSchema: z.ZodBaseType<LinkedList> = z.lazy(() =>
     z.union([
       z.null(),
       z.object({

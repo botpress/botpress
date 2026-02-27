@@ -23,9 +23,9 @@ type DiscriminatedUnionDef = utils.Satisfies<
  * A ZUI flavored subset of JSONSchema7
  */
 
-type ZuiExtension<Def extends Partial<z.ZodTypeDef> = {}> = { def?: Def } & z.ZuiExtensionObject
+type ZuiExtension<Def extends Partial<z.ZodBaseTypeDef> = {}> = { def?: Def } & z.ZuiExtensionObject
 type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData }
-type BaseZuiJSONSchema<Def extends Partial<z.ZodTypeDef> = {}> = utils.Satisfies<
+type BaseZuiJSONSchema<Def extends Partial<z.ZodBaseTypeDef> = {}> = utils.Satisfies<
   {
     description?: string
     readOnly?: boolean

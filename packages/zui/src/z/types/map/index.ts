@@ -1,4 +1,4 @@
-import type { IZodMap, IZodType, ZodMapDef } from '../../typings'
+import type { IZodMap, IZodBaseType, ZodMapDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -10,7 +10,7 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType = IZodType>
+export class ZodMapImpl<Key extends IZodBaseType = IZodBaseType, Value extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<
     Map<Key['_output'], Value['_output']>,
     ZodMapDef<Key, Value>,
@@ -25,7 +25,7 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
     return new ZodMapImpl({
@@ -104,7 +104,7 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
       return { status: status.value, value: finalMap }
     }
   }
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodMapImpl)) return false
     if (!this._def.keyType.isEqual(schema._def.keyType)) return false
     if (!this._def.valueType.isEqual(schema._def.valueType)) return false

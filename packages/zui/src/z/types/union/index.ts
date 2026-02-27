@@ -3,7 +3,7 @@ import { builders } from '../../internal-builders'
 import type {
   DefaultZodUnionOptions,
   IZodUnion,
-  IZodType,
+  IZodBaseType,
   ZodUnionDef,
   ZodUnionOptions,
   ZodIssue,
@@ -25,8 +25,12 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
   implements IZodUnion<T>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const options = this._def.options.map((option) => option.dereference(defs)) as [IZodType, IZodType, ...IZodType[]]
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
+    const options = this._def.options.map((option) => option.dereference(defs)) as [
+      IZodBaseType,
+      IZodBaseType,
+      ...IZodBaseType[],
+    ]
     return new ZodUnionImpl({
       ...this._def,
       options,
@@ -148,17 +152,17 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
     return this._def.options
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodUnionImpl)) return false
 
-    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
-    const thisOptions = new utils.ds.CustomSet<IZodType>([...this._def.options], { compare })
-    const thatOptions = new utils.ds.CustomSet<IZodType>([...schema._def.options], { compare })
+    const compare = (a: IZodBaseType, b: IZodBaseType) => a.isEqual(b)
+    const thisOptions = new utils.ds.CustomSet<IZodBaseType>([...this._def.options], { compare })
+    const thatOptions = new utils.ds.CustomSet<IZodBaseType>([...schema._def.options], { compare })
 
     return thisOptions.isEqual(thatOptions)
   }
 
-  mandatory(): IZodType {
+  mandatory(): IZodBaseType {
     const options = this._def.options
       .filter((o) => !((o as ZodNativeType).typeName === 'ZodUndefined'))
       .map((option) => option.mandatory())

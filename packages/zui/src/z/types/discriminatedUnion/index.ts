@@ -1,5 +1,5 @@
 import type {
-  IZodType,
+  IZodBaseType,
   IZodDiscriminatedUnion,
   ZodDiscriminatedUnionDef,
   ZodDiscriminatedUnionOption,
@@ -12,7 +12,7 @@ import type {
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
 
-const getDiscriminator = (_type: IZodType | undefined): Primitive[] => {
+const getDiscriminator = (_type: IZodBaseType | undefined): Primitive[] => {
   const type = _type as ZodNativeType | undefined
   if (!type) return []
   if (type.typeName === 'ZodLazy') {
@@ -65,7 +65,7 @@ export class ZodDiscriminatedUnionImpl<
     })
   }
 
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     const options = this.options.map((option) => option.dereference(defs)) as [
       ZodDiscriminatedUnionOption<Discriminator>,
       ...ZodDiscriminatedUnionOption<Discriminator>[],
@@ -177,7 +177,7 @@ export class ZodDiscriminatedUnionImpl<
     return optionsMap
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodDiscriminatedUnionImpl)) return false
     if (this._def.discriminator !== schema._def.discriminator) return false
 

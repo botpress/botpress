@@ -19,8 +19,8 @@ export type {
   input,
   output,
   TypeOf,
-  ZodTypeDef as ZodTypeDef,
-  IZodType as ZodType,
+  ZodBaseTypeDef as ZodBaseTypeDef,
+  IZodBaseType as ZodBaseType,
   ZodTypeAny,
   ZodSchema,
 

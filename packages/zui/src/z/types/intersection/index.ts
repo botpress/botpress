@@ -1,4 +1,4 @@
-import type { IZodIntersection, IZodType, ZodIntersectionDef } from '../../typings'
+import type { IZodIntersection, IZodBaseType, ZodIntersectionDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   getParsedType,
@@ -14,11 +14,11 @@ import {
 
 export type { ZodIntersectionDef }
 
-export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodType = IZodType>
+export class ZodIntersectionImpl<T extends IZodBaseType = IZodBaseType, U extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<T['_output'] & U['_output'], ZodIntersectionDef<T, U>, T['_input'] & U['_input']>
   implements IZodIntersection<T, U>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodIntersectionImpl({
       ...this._def,
       left: this._def.left.dereference(defs),
@@ -93,12 +93,12 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
     }
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodIntersectionImpl)) return false
 
-    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
-    const thisItems = new utils.ds.CustomSet<IZodType>([this._def.left, this._def.right], { compare })
-    const thatItems = new utils.ds.CustomSet<IZodType>([schema._def.left, schema._def.right], { compare })
+    const compare = (a: IZodBaseType, b: IZodBaseType) => a.isEqual(b)
+    const thisItems = new utils.ds.CustomSet<IZodBaseType>([this._def.left, this._def.right], { compare })
+    const thatItems = new utils.ds.CustomSet<IZodBaseType>([schema._def.left, schema._def.right], { compare })
     return thisItems.isEqual(thatItems)
   }
 

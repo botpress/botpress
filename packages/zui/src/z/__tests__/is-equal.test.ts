@@ -1,14 +1,14 @@
 import { describe, test, expect } from 'vitest'
 import { z } from '../index'
 
-const expectZui = (actual: z.ZodType) => ({
+const expectZui = (actual: z.ZodBaseType) => ({
   not: {
-    toEqual: (expected: z.ZodType) => {
+    toEqual: (expected: z.ZodBaseType) => {
       const result = actual.isEqual(expected)
       expect(result).toBe(false)
     },
   },
-  toEqual: (expected: z.ZodType) => {
+  toEqual: (expected: z.ZodBaseType) => {
     const result = actual.isEqual(expected)
     expect(result).toBe(true)
   },

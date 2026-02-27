@@ -1,15 +1,15 @@
-import type { ZodTypeDef } from '../../z'
+import type { ZodBaseTypeDef } from '../../z'
 import { getDefaultOptions, Options, Targets } from './Options'
 import { JsonSchema7Type } from './parseDef'
 
 export type Refs = {
-  seen: Map<ZodTypeDef, Seen>
+  seen: Map<ZodBaseTypeDef, Seen>
   currentPath: string[]
   propertyPath: string[] | undefined
 } & Options<Targets>
 
 export type Seen = {
-  def: ZodTypeDef
+  def: ZodBaseTypeDef
   path: string[]
   jsonSchema: JsonSchema7Type | undefined
 }

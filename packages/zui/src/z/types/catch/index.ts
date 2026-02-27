@@ -1,9 +1,9 @@
 import { ZodError } from '../../error'
-import type { IZodCatch, IZodType, ZodCatchDef } from '../../typings'
+import type { IZodCatch, IZodBaseType, ZodCatchDef } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, isAsync, ParseContext, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodCatchImpl<T extends IZodType = IZodType>
+export class ZodCatchImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<
     T['_output'],
     ZodCatchDef<T>,
@@ -66,7 +66,7 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodCatchImpl)) return false
     return (
       this._def.innerType.isEqual(schema._def.innerType) &&
@@ -74,7 +74,7 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
     )
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodCatchImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -96,10 +96,10 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
     return this._def.innerType.naked()
   }
 
-  mandatory(): IZodCatch<IZodType> {
+  mandatory(): IZodCatch<IZodBaseType> {
     return new ZodCatchImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),
-    }) as IZodCatch<IZodType>
+    }) as IZodCatch<IZodBaseType>
   }
 }

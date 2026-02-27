@@ -1,11 +1,11 @@
-import type { IZodNullable, IZodType, ZodNullableDef } from '../../typings'
+import type { IZodNullable, IZodBaseType, ZodNullableDef } from '../../typings'
 import { OK, ParseInput, ParseReturnType, ZodBaseTypeImpl } from '../basetype'
 
-export class ZodNullableImpl<T extends IZodType = IZodType>
+export class ZodNullableImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null>
   implements IZodNullable<T>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     return new ZodNullableImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -35,7 +35,7 @@ export class ZodNullableImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodNullableImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
@@ -44,7 +44,7 @@ export class ZodNullableImpl<T extends IZodType = IZodType>
     return this._def.innerType.naked()
   }
 
-  mandatory(): IZodNullable<IZodType> {
+  mandatory(): IZodNullable<IZodBaseType> {
     return new ZodNullableImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

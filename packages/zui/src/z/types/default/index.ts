@@ -1,9 +1,9 @@
 import { isEqual } from 'lodash-es'
-import type { IZodType, IZodDefault, ZodDefaultDef } from '../../typings'
+import type { IZodBaseType, IZodDefault, ZodDefaultDef } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodDefaultImpl<T extends IZodType = IZodType>
+export class ZodDefaultImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<utils.types.NoUndefined<T['_output']>, ZodDefaultDef<T>, T['_input'] | undefined>
   implements IZodDefault<T>
 {
@@ -24,7 +24,7 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodDefaultImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -42,7 +42,7 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     })
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodDefaultImpl)) return false
     return (
       this._def.innerType.isEqual(schema._def.innerType) &&
@@ -58,7 +58,7 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     return this._def.innerType.naked()
   }
 
-  mandatory(): IZodDefault<IZodType> {
+  mandatory(): IZodDefault<IZodBaseType> {
     return new ZodDefaultImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

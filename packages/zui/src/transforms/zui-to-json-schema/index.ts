@@ -13,7 +13,7 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType): json.Schema {
+export function toJSONSchema(schema: z.ZodBaseType): json.Schema {
   const s = schema as z.ZodNativeType
 
   switch (s.typeName) {
@@ -79,7 +79,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       const requiredProperties = shape.filter(([_, value]) => !value.isOptional())
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
-        .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
+        .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodBaseType])
         .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
       let additionalProperties: json.ObjectSchema['additionalProperties'] = false
@@ -271,13 +271,13 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
   }
 }
 
-const undefinedSchema = (def?: z.ZodTypeDef): json.UndefinedSchema => ({
+const undefinedSchema = (def?: z.ZodBaseTypeDef): json.UndefinedSchema => ({
   not: true,
   description: def?.description,
   'x-zui': { ...def?.['x-zui'], def: { typeName: 'ZodUndefined' } },
 })
 
-const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
+const nullSchema = (def?: z.ZodBaseTypeDef): json.NullSchema => ({
   type: 'null',
   description: def?.description,
   'x-zui': def?.['x-zui'],

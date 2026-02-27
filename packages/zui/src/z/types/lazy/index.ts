@@ -1,7 +1,7 @@
-import type { IZodLazy, IZodType, ZodLazyDef, input, output } from '../../typings'
+import type { IZodLazy, IZodBaseType, ZodLazyDef, input, output } from '../../typings'
 import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodLazyImpl<T extends IZodType = IZodType>
+export class ZodLazyImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<output<T>, ZodLazyDef<T>, input<T>>
   implements IZodLazy<T>
 {
@@ -9,7 +9,7 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return this._def.getter()
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodLazyImpl({
       ...this._def,
       getter: () => this._def.getter().dereference(defs),
@@ -33,7 +33,7 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return ZodBaseTypeImpl.fromInterface(lazySchema)._parse({ data: ctx.data, path: ctx.path, parent: ctx })
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodLazyImpl)) return false
     return this._def.getter().isEqual(schema._def.getter())
   }
@@ -42,7 +42,7 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
     return this._def.getter().naked()
   }
 
-  mandatory(): IZodLazy<IZodType> {
+  mandatory(): IZodLazy<IZodBaseType> {
     return new ZodLazyImpl({
       ...this._def,
       getter: () => this._def.getter().mandatory(),

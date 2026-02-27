@@ -1,8 +1,8 @@
-import type { IZodEffects, IZodType, ZodEffectsDef, input, output, RefinementCtx, IssueData } from '../../typings'
+import type { IZodEffects, IZodBaseType, ZodEffectsDef, input, output, RefinementCtx, IssueData } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
+export class ZodEffectsImpl<T extends IZodBaseType = IZodBaseType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
   implements IZodEffects<T, Output, Input>
 {
@@ -19,7 +19,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       : (this._def.schema as T)
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.dereference(defs),
@@ -161,7 +161,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     utils.assert.assertNever(effect)
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodEffectsImpl)) return false
     if (!this._def.schema.isEqual(schema._def.schema)) return false
 
@@ -188,7 +188,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     return this._def.schema.naked()
   }
 
-  mandatory(): IZodEffects<IZodType> {
+  mandatory(): IZodEffects<IZodBaseType> {
     return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.mandatory(),

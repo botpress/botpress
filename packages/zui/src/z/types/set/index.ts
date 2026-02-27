@@ -1,4 +1,4 @@
-import type { IZodSet, IZodType, ZodSetDef } from '../../typings'
+import type { IZodSet, IZodBaseType, ZodSetDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -10,11 +10,11 @@ import {
   SyncParseReturnType,
 } from '../basetype'
 
-export class ZodSetImpl<Value extends IZodType = IZodType>
+export class ZodSetImpl<Value extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>>
   implements IZodSet<Value>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodSetImpl({
       ...this._def,
       valueType: this._def.valueType.dereference(defs),
@@ -118,7 +118,7 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     return this.min(1, message) as this
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodSetImpl)) return false
 
     const thisMin = this._def.minSize?.value

@@ -419,7 +419,7 @@ test('xor', () => {
   type B = { name: string; b: number }
   type C = XOR<A, B>
   type Outer = { data: C }
-  const Outer: z.ZodType<Outer> = z.object({
+  const Outer: z.ZodBaseType<Outer> = z.object({
     data: z.union([z.object({ name: z.string(), a: z.number() }), z.object({ name: z.string(), b: z.number() })]),
   })
 })

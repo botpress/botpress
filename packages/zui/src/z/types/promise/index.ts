@@ -1,8 +1,8 @@
-import type { IZodPromise, IZodType, ZodPromiseDef } from '../../typings'
+import type { IZodPromise, IZodBaseType, ZodPromiseDef } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 export type { ZodPromiseDef }
 
-export class ZodPromiseImpl<T extends IZodType = IZodType>
+export class ZodPromiseImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<Promise<T['_output']>, ZodPromiseDef<T>, Promise<T['_input']>>
   implements IZodPromise<T>
 {
@@ -10,7 +10,7 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
     return this._def.type
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodPromiseImpl({
       ...this._def,
       type: this._def.type.dereference(defs),
@@ -51,7 +51,7 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
     )
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodPromiseImpl)) return false
     return this._def.type.isEqual(schema._def.type)
   }

@@ -1,11 +1,11 @@
-import type { IZodReadonly, IZodType, MakeReadonly, ZodReadonlyDef } from '../../typings'
+import type { IZodReadonly, IZodBaseType, MakeReadonly, ZodReadonlyDef } from '../../typings'
 import { ZodBaseTypeImpl, isValid, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodReadonlyImpl<T extends IZodType = IZodType>
+export class ZodReadonlyImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>>
   implements IZodReadonly<T>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     return new ZodReadonlyImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -35,7 +35,7 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodReadonlyImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
@@ -44,7 +44,7 @@ export class ZodReadonlyImpl<T extends IZodType = IZodType>
     return this._def.innerType.naked()
   }
 
-  mandatory(): IZodReadonly<IZodType> {
+  mandatory(): IZodReadonly<IZodBaseType> {
     return new ZodReadonlyImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),

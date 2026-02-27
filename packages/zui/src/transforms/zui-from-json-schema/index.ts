@@ -14,11 +14,11 @@ const DEFAULT_TYPE = z.any()
  * @param schema json schema
  * @returns ZUI Schema
  */
-export function fromJSONSchema(schema: JSONSchema7): z.ZodType {
+export function fromJSONSchema(schema: JSONSchema7): z.ZodBaseType {
   return _fromJSONSchema(schema)
 }
 
-function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
+function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodBaseType {
   if (schema === undefined) {
     return DEFAULT_TYPE
   }
@@ -90,7 +90,11 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return _fromJSONSchema({ ...schema, type: schema.type[0] })
     }
     const { type: _, ...tmp } = schema
-    const types = schema.type.map((t) => _fromJSONSchema({ ...tmp, type: t })) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const types = schema.type.map((t) => _fromJSONSchema({ ...tmp, type: t })) as [
+      z.ZodBaseType,
+      z.ZodBaseType,
+      ...z.ZodBaseType[],
+    ]
     return z.union(types)
   }
 
@@ -134,9 +138,9 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     }
 
     if (schema.properties !== undefined) {
-      const properties: Record<string, z.ZodType> = {}
+      const properties: Record<string, z.ZodBaseType> = {}
       for (const [key, value] of Object.entries(schema.properties)) {
-        const mapped: z.ZodType = _fromJSONSchema(value)
+        const mapped: z.ZodBaseType = _fromJSONSchema(value)
         const required: string[] = schema.required ?? []
         // If the property is already optional (e.g., has a default value), don't wrap it again
         properties[key] = required.includes(key) ? mapped : mapped.isOptional() ? mapped : mapped.optional()
@@ -181,7 +185,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return z.discriminatedUnion(discriminator, options)
     }
 
-    const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodBaseType, z.ZodBaseType, ...z.ZodBaseType[]]
     return z.union(options)
   }
 

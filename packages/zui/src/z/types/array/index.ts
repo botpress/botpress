@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash-es'
-import type { ArrayCardinality, ArrayOutputType, IZodArray, IZodType, ZodArrayDef } from '../../typings'
+import type { ArrayCardinality, ArrayOutputType, IZodArray, IZodBaseType, ZodArrayDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -11,7 +11,7 @@ import {
   ParseStatus,
 } from '../basetype'
 
-export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends ArrayCardinality = 'many'>
+export class ZodArrayImpl<T extends IZodBaseType = IZodBaseType, Cardinality extends ArrayCardinality = 'many'>
   extends ZodBaseTypeImpl<
     ArrayOutputType<T, Cardinality>,
     ZodArrayDef<T>,
@@ -19,7 +19,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
   >
   implements IZodArray<T, Cardinality>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodArrayImpl({
       ...this._def,
       type: this._def.type.dereference(defs),
@@ -37,7 +37,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     })
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodArrayImpl)) {
       return false
     }

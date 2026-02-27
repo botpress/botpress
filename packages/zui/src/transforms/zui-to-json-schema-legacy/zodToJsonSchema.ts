@@ -1,10 +1,10 @@
-import type { ZodNativeTypeDef, ZodType } from '../../z'
+import type { ZodNativeTypeDef, ZodBaseType } from '../../z'
 import { Options, Targets } from './Options'
 import { JsonSchema7Type, parseDef } from './parseDef'
 import { getRefs } from './Refs'
 
 const zodToJsonSchema = <Target extends Targets = 'jsonSchema7'>(
-  schema: ZodType<any>,
+  schema: ZodBaseType<any>,
   options?: Partial<Options<Target>> | string
 ): (Target extends 'jsonSchema7' ? JsonSchema7Type : object) & {
   $schema?: string

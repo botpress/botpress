@@ -3,7 +3,7 @@ import * as json from '../../common/json-schema'
 
 export const zodArrayToJsonArray = (
   zodArray: z.ZodArray,
-  toSchema: (x: z.ZodType) => json.Schema
+  toSchema: (x: z.ZodBaseType) => json.Schema
 ): json.ArraySchema => {
   const schema: json.ArraySchema = {
     type: 'array',

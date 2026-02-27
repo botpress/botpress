@@ -1,4 +1,4 @@
-import type { IZodTuple, IZodType, ZodTupleDef } from '../../typings'
+import type { IZodTuple, IZodBaseType, ZodTupleDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -11,41 +11,41 @@ import {
   ZodBaseTypeImpl,
 } from '../basetype'
 
-export type ZodTupleItems = [IZodType, ...IZodType[]]
+export type ZodTupleItems = [IZodBaseType, ...IZodBaseType[]]
 
 type _AssertArray<T> = T extends any[] ? T : never
 type _OutputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_output'] : never
+  [k in keyof T]: T[k] extends IZodBaseType<any, any> ? T[k]['_output'] : never
 }>
 
 type _OutputTypeOfTupleWithRest<
   T extends ZodTupleItems | [],
-  Rest extends IZodType | null = null,
-> = Rest extends IZodType ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]] : _OutputTypeOfTuple<T>
+  Rest extends IZodBaseType | null = null,
+> = Rest extends IZodBaseType ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]] : _OutputTypeOfTuple<T>
 
 type _InputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_input'] : never
+  [k in keyof T]: T[k] extends IZodBaseType<any, any> ? T[k]['_input'] : never
 }>
 
 type _InputTypeOfTupleWithRest<
   T extends ZodTupleItems | [],
-  Rest extends IZodType | null = null,
-> = Rest extends IZodType ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]] : _InputTypeOfTuple<T>
+  Rest extends IZodBaseType | null = null,
+> = Rest extends IZodBaseType ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]] : _InputTypeOfTuple<T>
 
 /**
  * @deprecated use ZodTuple instead
  */
-export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
+export type AnyZodTuple = IZodTuple<[IZodBaseType, ...IZodBaseType[]] | [], IZodBaseType | null>
 
 export class ZodTupleImpl<
-    T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
-    Rest extends IZodType | null = null,
+    T extends [IZodBaseType, ...IZodBaseType[]] | [] = [IZodBaseType, ...IZodBaseType[]],
+    Rest extends IZodBaseType | null = null,
   >
   extends ZodBaseTypeImpl<_OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, _InputTypeOfTupleWithRest<T, Rest>>
   implements IZodTuple<T, Rest>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
-    const items = this._def.items.map((item) => item.dereference(defs)) as [IZodType, ...IZodType[]]
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
+    const items = this._def.items.map((item) => item.dereference(defs)) as [IZodBaseType, ...IZodBaseType[]]
     const rest = this._def.rest ? this._def.rest.dereference(defs) : null
     return new ZodTupleImpl({
       ...this._def,
@@ -62,7 +62,7 @@ export class ZodTupleImpl<
   }
 
   clone(): IZodTuple<T, Rest> {
-    const items = this._def.items.map((item) => item.clone()) as [IZodType, ...IZodType[]]
+    const items = this._def.items.map((item) => item.clone()) as [IZodBaseType, ...IZodBaseType[]]
     const rest = this._def.rest ? this._def.rest.clone() : null
     return new ZodTupleImpl({
       ...this._def,
@@ -128,20 +128,20 @@ export class ZodTupleImpl<
     return this._def.items
   }
 
-  rest<Rest extends IZodType>(rest: Rest): IZodTuple<T, Rest> {
+  rest<Rest extends IZodBaseType>(rest: Rest): IZodTuple<T, Rest> {
     return new ZodTupleImpl({
       ...this._def,
       rest,
     })
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodTupleImpl)) return false
     if (!this._restEquals(schema)) return false
 
-    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
-    const thisItems = new utils.ds.CustomSet<IZodType>(this._def.items, { compare })
-    const schemaItems = new utils.ds.CustomSet<IZodType>(schema._def.items, { compare })
+    const compare = (a: IZodBaseType, b: IZodBaseType) => a.isEqual(b)
+    const thisItems = new utils.ds.CustomSet<IZodBaseType>(this._def.items, { compare })
+    const schemaItems = new utils.ds.CustomSet<IZodBaseType>(schema._def.items, { compare })
     return thisItems.isEqual(schemaItems)
   }
 

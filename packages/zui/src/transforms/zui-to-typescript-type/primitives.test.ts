@@ -3,7 +3,7 @@ import { toTypescriptType as toTs } from '.'
 import z from '../../z'
 import { assert } from '../../assertions.utils.test'
 
-const toTypescriptType = (schema: z.ZodType) => toTs(schema, { declaration: 'variable' })
+const toTypescriptType = (schema: z.ZodBaseType) => toTs(schema, { declaration: 'variable' })
 
 test('string', async () => {
   const schema = z.string().title('x')

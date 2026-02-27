@@ -1,4 +1,4 @@
-import { ZodType, zuiKey, ZuiExtensionObject, ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z'
+import { ZodBaseType, zuiKey, ZuiExtensionObject, ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
@@ -16,7 +16,10 @@ export type JsonSchema7TupleType = {
     }
 )
 
-export function parseTupleDef(def: ZodTupleDef<ZodTupleItems | [], ZodType | null>, refs: Refs): JsonSchema7TupleType {
+export function parseTupleDef(
+  def: ZodTupleDef<ZodTupleItems | [], ZodBaseType | null>,
+  refs: Refs
+): JsonSchema7TupleType {
   if (def.rest) {
     return {
       type: 'array',

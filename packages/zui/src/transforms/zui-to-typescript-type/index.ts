@@ -34,16 +34,16 @@ const stripSpaces = (typings: string) => typings.replace(/ +/g, ' ').trim()
 class KeyValue {
   constructor(
     public key: string,
-    public value: z.ZodType
+    public value: z.ZodBaseType
   ) {}
 }
 
 class FnParameters {
-  constructor(public schema: z.ZodType) {}
+  constructor(public schema: z.ZodBaseType) {}
 }
 
 class FnReturn {
-  constructor(public schema: z.ZodType) {}
+  constructor(public schema: z.ZodBaseType) {}
 }
 
 class Declaration {
@@ -53,18 +53,18 @@ class Declaration {
 type DeclarationProps =
   | {
       type: 'variable'
-      schema: z.ZodType
+      schema: z.ZodBaseType
       identifier: string
     }
   | {
       type: 'type'
-      schema: z.ZodType
+      schema: z.ZodBaseType
       identifier: string
       args: string[] // type arguments / generics
     }
   | {
       type: 'none'
-      schema: z.ZodType
+      schema: z.ZodBaseType
     }
 
 export type TypescriptDeclarationType = DeclarationProps['type']
@@ -79,7 +79,7 @@ export type TypescriptGenerationOptions = {
   treatDefaultAsOptional?: boolean
 }
 
-type SchemaTypes = z.ZodType | KeyValue | FnParameters | Declaration | null
+type SchemaTypes = z.ZodBaseType | KeyValue | FnParameters | Declaration | null
 
 type InternalOptions = {
   parent?: SchemaTypes
@@ -94,7 +94,7 @@ type InternalOptions = {
  * @param options generation options
  * @returns a string of the TypeScript **type** representing the schema
  */
-export function toTypescriptType(schema: z.ZodType, options: TypescriptGenerationOptions = {}): string {
+export function toTypescriptType(schema: z.ZodBaseType, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
   let dts = sUnwrapZod(wrappedSchema, options)
@@ -108,7 +108,10 @@ export function toTypescriptType(schema: z.ZodType, options: TypescriptGeneratio
 
 const _optionalKey = (key: string): string => (key.endsWith('?') ? key : `${key}?`)
 
-function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
+function sUnwrapZod(
+  schema: z.ZodBaseType | KeyValue | FnParameters | Declaration | null,
+  config: InternalOptions
+): string {
   const newConfig: InternalOptions = {
     ...config,
     declaration: false,
@@ -387,7 +390,7 @@ const getDeclarationType = (options: TypescriptGenerationOptions): TypescriptDec
   return options.declaration
 }
 
-const getDeclarationProps = (schema: z.ZodType, options: TypescriptGenerationOptions): Declaration => {
+const getDeclarationProps = (schema: z.ZodBaseType, options: TypescriptGenerationOptions): Declaration => {
   const declarationType = getDeclarationType(options)
   const args = schema.getReferences()
 

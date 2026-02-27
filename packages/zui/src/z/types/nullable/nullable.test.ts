@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 
-function checkErrors(a: z.ZodType, bad: any) {
+function checkErrors(a: z.ZodBaseType, bad: any) {
   let expected: z.ZodError | undefined = undefined
   try {
     a.parse(bad)

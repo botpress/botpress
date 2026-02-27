@@ -2,9 +2,9 @@ import { test, expect } from 'vitest'
 import { z } from '../index'
 import * as transforms from '../../transforms'
 
-const expectZui = (actual: z.ZodType) => ({
+const expectZui = (actual: z.ZodBaseType) => ({
   not: {
-    toEqual: (expected: z.ZodType) => {
+    toEqual: (expected: z.ZodBaseType) => {
       const result = actual.isEqual(expected)
       let msg: string | undefined = undefined
       try {
@@ -15,7 +15,7 @@ const expectZui = (actual: z.ZodType) => ({
       expect(result, msg).toBe(true)
     },
   },
-  toEqual: (expected: z.ZodType) => {
+  toEqual: (expected: z.ZodBaseType) => {
     const result = actual.isEqual(expected)
     let msg: string | undefined = undefined
     try {

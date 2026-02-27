@@ -1,4 +1,4 @@
-import type { IZodAny, IZodType, ZodAnyDef } from '../../typings'
+import type { IZodAny, IZodBaseType, ZodAnyDef } from '../../typings'
 import { ParseReturnType, ZodBaseTypeImpl, OK, ParseInput } from '../basetype'
 
 export class ZodAnyImpl extends ZodBaseTypeImpl<any, ZodAnyDef> implements IZodAny {
@@ -7,7 +7,7 @@ export class ZodAnyImpl extends ZodBaseTypeImpl<any, ZodAnyDef> implements IZodA
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     return OK(input.data)
   }
-  public isEqual(schema: IZodType) {
+  public isEqual(schema: IZodBaseType) {
     return schema instanceof ZodAnyImpl
   }
 }

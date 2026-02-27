@@ -1,7 +1,7 @@
 import { builders } from '../../internal-builders'
 import type {
   IZodObject,
-  IZodType,
+  IZodBaseType,
   ZodObjectDef,
   UnknownKeysParam,
   ZodRawShape,
@@ -46,9 +46,9 @@ export class ZodObjectImpl<
     return (this._cached = { shape, keys })
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     const currentShape = this._def.shape()
-    const shape: Record<string, IZodType> = {}
+    const shape: Record<string, IZodBaseType> = {}
     for (const key in currentShape) {
       shape[key] = currentShape[key]!.dereference(defs)
     }
@@ -68,7 +68,7 @@ export class ZodObjectImpl<
   }
 
   clone(): IZodObject<T, UnknownKeys, Output, Input> {
-    const newShape: Record<string, IZodType> = {}
+    const newShape: Record<string, IZodBaseType> = {}
     const currentShape = this._def.shape()
     for (const [key, value] of Object.entries(currentShape)) {
       newShape[key] = value.clone()
@@ -356,7 +356,7 @@ export class ZodObjectImpl<
   //   });
   //   return merged;
   // }
-  setKey<Key extends string, Schema extends IZodType>(
+  setKey<Key extends string, Schema extends IZodBaseType>(
     key: Key,
     schema: Schema
   ): IZodObject<
@@ -393,7 +393,7 @@ export class ZodObjectImpl<
   //   });
   //   return merged;
   // }
-  catchall<Index extends IZodType>(index: Index): IZodObject<T, Index> {
+  catchall<Index extends IZodBaseType>(index: Index): IZodObject<T, Index> {
     return new ZodObjectImpl({
       ...this._def,
       unknownKeys: index,
@@ -461,7 +461,7 @@ export class ZodObjectImpl<
     UnknownKeys
   >
   partial(mask?: any): IZodObject<any, UnknownKeys> {
-    const newShape: Record<string, IZodType | undefined> = {}
+    const newShape: Record<string, IZodBaseType | undefined> = {}
 
     Object.keys(this.shape).forEach((key) => {
       const fieldSchema = this.shape[key]
@@ -528,14 +528,14 @@ export class ZodObjectImpl<
     return builders.enum(keys) as IZodEnum<any>
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodObjectImpl)) return false
     if (!this._unknownKeysEqual(schema)) return false
 
     const thisShape = this._def.shape()
     const thatShape = schema._def.shape()
 
-    type Property = [string, IZodType]
+    type Property = [string, IZodBaseType]
     const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
     const thisProps = new utils.ds.CustomSet<Property>(Object.entries(thisShape), { compare })
     const thatProps = new utils.ds.CustomSet<Property>(Object.entries(thatShape), { compare })

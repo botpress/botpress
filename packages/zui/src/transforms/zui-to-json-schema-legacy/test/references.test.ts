@@ -868,7 +868,7 @@ describe('Pathing', () => {
       headUser?: User
     }
 
-    const userSchema: z.ZodType<User> = z.lazy(() =>
+    const userSchema: z.ZodBaseType<User> = z.lazy(() =>
       z.object({
         id: z.string(),
         headUser: userSchema.optional(),
@@ -918,7 +918,7 @@ describe('Pathing', () => {
       prop: z.string(),
     })
 
-    let nodeChildSchema: z.ZodType
+    let nodeChildSchema: z.ZodBaseType
 
     const nodeSchema = z.object({
       children: z.lazy(() => z.array(nodeChildSchema)),

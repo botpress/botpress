@@ -1,4 +1,4 @@
-import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
+import type { IZodRef, IZodBaseType, ZodRefDef } from '../../typings'
 import {
   //
   ZodBaseTypeImpl,
@@ -10,7 +10,7 @@ import {
 export type { ZodRefDef }
 
 export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     const def = defs[this._def.uri]
     if (!def) {
       return this

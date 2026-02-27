@@ -9,8 +9,8 @@ import type {
   ZodKindToBaseType,
   ZuiMetadata,
   DeepPartialBoolean,
-  IZodType,
-  ZodTypeDef,
+  IZodBaseType,
+  ZodBaseTypeDef,
   SafeParseReturnType,
   CatchFn,
   IZodArray,
@@ -50,15 +50,15 @@ import {
 export * from './parseUtil'
 
 class _CircularDependencyError extends Error {
-  public constructor(private _propName: keyof IZodType) {
+  public constructor(private _propName: keyof IZodBaseType) {
     super(
       `Cannot access property ${_propName} before initialization. You're probably importing ZUI incorrectly. If not, reach out to the maintainers.`
     )
   }
 }
 
-export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = ZodTypeDef, Input = Output>
-  implements IZodType<Output, Def, Input>
+export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodBaseTypeDef = ZodBaseTypeDef, Input = Output>
+  implements IZodBaseType<Output, Def, Input>
 {
   readonly __type__ = 'ZuiType'
   readonly _type!: Output
@@ -77,7 +77,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
   /** deeply replace all references in the schema */
-  dereference(_defs: Record<string, IZodType>): IZodType {
+  dereference(_defs: Record<string, IZodBaseType>): IZodBaseType {
     return this
   }
 
@@ -86,7 +86,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return []
   }
 
-  clone(): IZodType<Output, Def, Input> {
+  clone(): IZodBaseType<Output, Def, Input> {
     const This = (this as any).constructor
     return new This({
       ...this._def,
@@ -94,7 +94,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   /** checks if a schema is equal to another */
-  abstract isEqual(schema: IZodType): boolean
+  abstract isEqual(schema: IZodBaseType): boolean
 
   _getType(input: ParseInput): string {
     return getParsedType(input.data)
@@ -340,15 +340,15 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * @example z.string().or(z.undefined()).mandatory() // z.string()
    * @example z.union([z.string(), z.number(), z.undefined()]).mandatory() // z.union([z.string(), z.number()])
    */
-  mandatory(): IZodType {
+  mandatory(): IZodBaseType {
     return this
   }
 
-  or<T extends IZodType>(option: T): IZodUnion<[this, T]> {
+  or<T extends IZodBaseType>(option: T): IZodUnion<[this, T]> {
     return builders.union([this, option])
   }
 
-  and<T extends IZodType>(incoming: T): IZodIntersection<this, T> {
+  and<T extends IZodBaseType>(incoming: T): IZodIntersection<this, T> {
     return builders.intersection(this, incoming)
   }
 
@@ -382,7 +382,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return clone
   }
 
-  pipe<T extends IZodType>(target: T): IZodPipeline<this, T> {
+  pipe<T extends IZodBaseType>(target: T): IZodPipeline<this, T> {
     return builders.pipeline(this, target)
   }
 
@@ -438,7 +438,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * Also, in JSON-Schema, default is not a data-type like it is in Zui, but an annotation added on the schema itself. Therefore, only one metadata can apply to both the schema and the default value.
    * This property is used to get the root schema that should contain the metadata.
    */
-  get _metadataRoot(): IZodType {
+  get _metadataRoot(): IZodBaseType {
     return this.naked()
   }
 
@@ -529,7 +529,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * Allows removing all wrappers around the schema
    * @returns either this or the closest children schema that represents the actual data
    */
-  naked(): IZodType {
+  naked(): IZodBaseType {
     return this
   }
 
@@ -557,7 +557,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   // TODO: this is an ugly workaround to prevent from exposing internal methods in the public API. We should find something better.
-  protected static fromInterface(t: IZodType): ZodBaseTypeImpl {
+  protected static fromInterface(t: IZodBaseType): ZodBaseTypeImpl {
     return t as ZodBaseTypeImpl
   }
 }

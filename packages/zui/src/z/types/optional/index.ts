@@ -1,11 +1,11 @@
-import type { IZodOptional, IZodType, ZodOptionalDef } from '../../typings'
+import type { IZodOptional, IZodBaseType, ZodOptionalDef } from '../../typings'
 import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodOptionalImpl<T extends IZodType = IZodType>
+export class ZodOptionalImpl<T extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined>
   implements IZodOptional<T>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     return new ZodOptionalImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
@@ -35,7 +35,7 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
     return this._def.innerType
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodOptionalImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
@@ -44,7 +44,7 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
     return this._def.innerType.naked()
   }
 
-  mandatory(): IZodType {
+  mandatory(): IZodBaseType {
     return this._def.innerType.mandatory()
   }
 }

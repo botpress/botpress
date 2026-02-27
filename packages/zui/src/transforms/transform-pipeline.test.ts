@@ -5,7 +5,7 @@ import { fromJSONSchema } from './zui-from-json-schema'
 import * as errors from './common/errors'
 import * as transforms from '../transforms'
 
-const assert = (src: z.ZodType) => ({
+const assert = (src: z.ZodBaseType) => ({
   toTransformBackToItself: () => {
     const jsonSchema = toJSONSchema(src)
     const actual = fromJSONSchema(jsonSchema)

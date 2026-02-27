@@ -13,9 +13,9 @@ const evalZui = (source: string): z.ZodNativeType => {
   return evalResult.value
 }
 
-const generate = <Z extends z.ZodType>(source: Z): Z => evalZui(toTypescript(source)) as Z
+const generate = <Z extends z.ZodBaseType>(source: Z): Z => evalZui(toTypescript(source)) as Z
 
-const assert = (source: z.ZodType) => ({
+const assert = (source: z.ZodBaseType) => ({
   toGenerateItself() {
     const destination = generate(source)
     let msg: string | undefined

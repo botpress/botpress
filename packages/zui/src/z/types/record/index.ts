@@ -1,4 +1,4 @@
-import type { IZodRecord, IZodString, IZodType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
+import type { IZodRecord, IZodString, IZodBaseType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
 import * as utils from '../../utils'
 import {
   ParseInputLazyPath,
@@ -11,7 +11,7 @@ import {
   type MergeObjectPair,
 } from '../basetype'
 
-export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
+export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<
     RecordType<Key['_output'], Value['_output']>,
     ZodRecordDef<Key, Value>,
@@ -26,7 +26,7 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
     return this._def.valueType
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     const keyType = this._def.keyType.dereference(defs)
     const valueType = this._def.valueType.dereference(defs)
     return new ZodRecordImpl({
@@ -87,7 +87,7 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
     return this._def.valueType
   }
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     if (!(schema instanceof ZodRecordImpl)) return false
     if (!this._def.keyType.isEqual(schema._def.keyType)) return false
     if (!this._def.valueType.isEqual(schema._def.valueType)) return false

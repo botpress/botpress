@@ -17,8 +17,8 @@ const undefinedSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 =>
 
 const nullSchema = (xZui?: ZuiJSONSchema['x-zui']): JSONSchema7 => buildSchema({ type: 'null' }, xZui)
 
-const assert = (actual: z.ZodType) => ({
-  toEqual: (expected: z.ZodType) => {
+const assert = (actual: z.ZodBaseType) => ({
+  toEqual: (expected: z.ZodBaseType) => {
     const result = actual.isEqual(expected)
     let msg: string | undefined = undefined
     try {
@@ -465,12 +465,12 @@ describe.concurrent('zuifromJSONSchemaNext', () => {
   })
 
   describe.concurrent('round-trip: zui → json → zui preserves typescript types', () => {
-    const roundTrip = (schema: z.ZodType): z.ZodType => {
+    const roundTrip = (schema: z.ZodBaseType): z.ZodBaseType => {
       const jsonSchema = toJSONSchema(schema)
       return fromJSONSchema(jsonSchema as JSONSchema7)
     }
 
-    const getTypescriptType = (schema: z.ZodType, title = 'Test'): string => {
+    const getTypescriptType = (schema: z.ZodBaseType, title = 'Test'): string => {
       return toTypescriptType(schema.title(title), { declaration: true })
     }
 

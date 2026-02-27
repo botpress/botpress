@@ -45,7 +45,7 @@ import { ZodBaseTypeImpl } from './types/basetype'
 import type {
   IZodRecord,
   IZodTuple,
-  IZodType,
+  IZodBaseType,
   KeySchema,
   ZodCreateParams,
   ZodErrorMap,
@@ -241,8 +241,8 @@ export const tupleType: ZodBuilders['tuple'] = (schemas, params) => {
 }
 
 export const recordType: ZodBuilders['record'] = (
-  first: KeySchema | IZodType,
-  second?: ZodCreateParams | IZodType,
+  first: KeySchema | IZodBaseType,
+  second?: ZodCreateParams | IZodBaseType,
   third?: ZodCreateParams
 ): IZodRecord<any, any> => {
   if (second instanceof ZodBaseTypeImpl) {
@@ -275,7 +275,7 @@ export const promiseType: ZodBuilders['promise'] = (schema, params) =>
 
 export const functionType: ZodBuilders['function'] = (
   args?: IZodTuple<any, any>,
-  returns?: IZodType<any, any>,
+  returns?: IZodBaseType<any, any>,
   params?: ZodCreateParams
 ) => {
   return new ZodFunctionImpl({

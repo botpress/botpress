@@ -3,7 +3,7 @@ import z from '../index'
 import * as utils from '../utils'
 
 test('generics', () => {
-  async function stripOuter<TData extends z.ZodType>(schema: TData, data: unknown) {
+  async function stripOuter<TData extends z.ZodBaseType>(schema: TData, data: unknown) {
     return z
       .object({
         nested: schema,

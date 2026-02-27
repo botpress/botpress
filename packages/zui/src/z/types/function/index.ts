@@ -1,7 +1,7 @@
 import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
 import { builders } from '../../internal-builders'
 import type {
-  IZodType,
+  IZodBaseType,
   IZodFunction,
   ZodFunctionDef,
   IZodTuple,
@@ -18,7 +18,7 @@ import * as utils from '../../utils'
 
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType>
+export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<
     OuterTypeOfFunction<Args, Returns>,
     ZodFunctionDef<Args, Returns>,
@@ -26,7 +26,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
   >
   implements IZodFunction<Args, Returns>
 {
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodBaseType>): IZodBaseType {
     const args = this._def.args.dereference(defs) as IZodTuple<[], IZodUnknown>
     const returns = this._def.returns.dereference(defs)
     return new ZodFunctionImpl({
@@ -103,7 +103,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
           throw error
         })
         const result = await Reflect.apply(fn, this, parsedArgs)
-        const parsedReturns = await (me._def.returns as unknown as IZodPromise<IZodType>)._def.type
+        const parsedReturns = await (me._def.returns as unknown as IZodPromise<IZodBaseType>)._def.type
           .parseAsync(result, params)
           .catch((e: any) => {
             // TODO: type e properly
@@ -140,7 +140,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     return this._def.returns
   }
 
-  args<Items extends [IZodType, ...IZodType[]] | []>(
+  args<Items extends [IZodBaseType, ...IZodBaseType[]] | []>(
     ...items: Items
   ): IZodFunction<IZodTuple<Items, IZodUnknown>, Returns> {
     return new ZodFunctionImpl({
@@ -149,7 +149,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     }) as IZodFunction<IZodTuple<Items, IZodUnknown>, Returns>
   }
 
-  returns<NewReturnType extends IZodType<any, any>>(returnType: NewReturnType): IZodFunction<Args, NewReturnType> {
+  returns<NewReturnType extends IZodBaseType<any, any>>(returnType: NewReturnType): IZodFunction<Args, NewReturnType> {
     return new ZodFunctionImpl({
       ...this._def,
       returns: returnType,
@@ -172,7 +172,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
 
   validate = this.implement
 
-  isEqual(schema: IZodType): boolean {
+  isEqual(schema: IZodBaseType): boolean {
     return (
       schema instanceof ZodFunctionImpl &&
       this._def.args.isEqual(schema._def.args) &&

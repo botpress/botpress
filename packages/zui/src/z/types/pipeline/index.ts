@@ -1,13 +1,13 @@
-import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
+import type { IZodPipeline, IZodBaseType, ZodPipelineDef } from '../../typings'
 import * as utils from '../../utils'
 import { ZodBaseTypeImpl, DIRTY, INVALID, ParseInput, ParseReturnType } from '../basetype'
 export type { ZodPipelineDef }
 
-export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType = IZodType>
+export class ZodPipelineImpl<A extends IZodBaseType = IZodBaseType, B extends IZodBaseType = IZodBaseType>
   extends ZodBaseTypeImpl<B['_output'], ZodPipelineDef<A, B>, A['_input']>
   implements IZodPipeline<A, B>
 {
-  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+  dereference(defs: Record<string, IZodBaseType>): ZodBaseTypeImpl {
     return new ZodPipelineImpl({
       ...this._def,
       in: this._def.in.dereference(defs),
