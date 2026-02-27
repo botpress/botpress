@@ -9,7 +9,7 @@
   "private": true,
   "dependencies": {
     "@botpress/sdk": "workspace:*",
-    "axios": "1.8.4",
+    "axios": "1.13.5",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
