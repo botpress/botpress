@@ -9,20 +9,6 @@ type ProfileEntry = ProfileCredentials & {
   name: string
 }
 
-const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntry => {
-  // Using both "floor" & "ceil" to handle cases where the token has an odd number length
-  const maxHalfTokenLength = Math.ceil(token.length / 2)
-  const minHalfTokenLength = Math.floor(token.length / 2)
-  const firstHalf = token.slice(0, maxHalfTokenLength)
-
-  const maskedToken = firstHalf + '*'.repeat(minHalfTokenLength)
-
-  return {
-    ...restProfile,
-    token: maskedToken,
-  }
-}
-
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
@@ -103,4 +89,18 @@ const _updateGlobalCache = async (props: {
   await props.globalCache.set('apiUrl', props.profile.apiUrl)
   await props.globalCache.set('token', props.profile.token)
   await props.globalCache.set('workspaceId', props.profile.workspaceId)
+}
+
+const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntry => {
+  // Using both "floor" & "ceil" to handle cases where the token has an odd number length
+  const maxHalfTokenLength = Math.ceil(token.length / 2)
+  const minHalfTokenLength = Math.floor(token.length / 2)
+  const firstHalf = token.slice(0, maxHalfTokenLength)
+
+  const maskedToken = firstHalf + '*'.repeat(minHalfTokenLength)
+
+  return {
+    ...restProfile,
+    token: maskedToken,
+  }
 }
