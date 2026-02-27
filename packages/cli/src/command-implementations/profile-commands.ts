@@ -21,7 +21,8 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    const profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+    let profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+    if (_shouldMaskToken(this.argv)) profileEntry = _maskProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -38,8 +39,11 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
       return
     }
     const activeProfileName = await this.globalCache.get('activeProfile')
-    this.logger.log(`Active profile: '${chalk.bold(activeProfileName)}'`)
-    this.logger.json(profileEntries)
+    const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
+
+    this.logger.log(activeProfileMsg)
+    this.logger.json(!_shouldMaskToken(this.argv) ? profileEntries : profileEntries.map(_maskProfileToken))
+    this.logger.log(activeProfileMsg)
   }
 }
 
@@ -86,3 +90,19 @@ const _updateGlobalCache = async (props: {
   await props.globalCache.set('token', props.profile.token)
   await props.globalCache.set('workspaceId', props.profile.workspaceId)
 }
+
+const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntry => {
+  // Using both "floor" & "ceil" to handle cases where the token has an odd number length
+  const maxHalfTokenLength = Math.ceil(token.length / 2)
+  const minHalfTokenLength = Math.floor(token.length / 2)
+  const firstHalf = token.slice(0, maxHalfTokenLength)
+
+  const maskedToken = firstHalf + '*'.repeat(minHalfTokenLength)
+
+  return {
+    ...restProfile,
+    token: maskedToken,
+  }
+}
+
+const _shouldMaskToken = (argv: { unmaskToken: boolean; json: boolean }) => !argv.json && !argv.unmaskToken
