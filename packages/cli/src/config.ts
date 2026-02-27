@@ -381,10 +381,12 @@ const chatSchema = {
 
 const listProfilesSchema = {
   ...globalSchema,
+  unmaskToken: { type: 'boolean', description: 'Remove the mask from the bp tokens', default: false },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
+  unmaskToken: { type: 'boolean', description: 'Remove the mask from the bp tokens', default: false },
 } satisfies CommandSchema
 
 const useProfileSchema = {

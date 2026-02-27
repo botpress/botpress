@@ -22,7 +22,7 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
 
     const profile = await this.readProfileFromFS(activeProfileName)
     let profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
-    if (!this.argv.json) profileEntry = _maskProfileToken(profileEntry)
+    if (_shouldMaskToken(this.argv)) profileEntry = _maskProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -42,7 +42,7 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
     const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
 
     this.logger.log(activeProfileMsg)
-    this.logger.json(this.argv.json ? profileEntries : profileEntries.map(_maskProfileToken))
+    this.logger.json(!_shouldMaskToken(this.argv) ? profileEntries : profileEntries.map(_maskProfileToken))
     this.logger.log(activeProfileMsg)
   }
 }
@@ -104,3 +104,5 @@ const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntr
     token: maskedToken,
   }
 }
+
+const _shouldMaskToken = (argv: { unmaskToken: boolean; json: boolean }) => !argv.json && !argv.unmaskToken
