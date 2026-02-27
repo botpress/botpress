@@ -71,13 +71,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   const manifestClient = new SlackManifestClient({ client, ctx, logger, appConfigurationToken })
 
   logger.forBot().debug('Validating Slack app manifest...')
-  const validation = await manifestClient.validateManifest(manifest)
-  if (!validation.ok) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: `Manifest validation failed: ${validation.errorMessage}`,
-    })
-  }
+  await manifestClient.validateManifest(manifest)
 
   logger.forBot().debug('Creating Slack app from manifest...')
   const {

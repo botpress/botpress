@@ -1,9 +1,8 @@
 import { z, RuntimeError } from '@botpress/sdk'
-import { WebClient as SlackApiClient } from '@slack/web-api'
+import * as SlackApiClient from '@slack/web-api'
 import { REQUIRED_SLACK_SCOPES } from '../setup'
+import { surfaceSlackErrors } from './error-handling'
 import * as bp from '.botpress'
-
-const SLACK_API_BASE = 'https://slack.com/api'
 
 const BOT_EVENTS = [
   'message.im',
@@ -16,11 +15,6 @@ const BOT_EVENTS = [
   'member_left_channel',
   'team_join',
 ]
-
-const slackErrorSchema = z.object({
-  message: z.string(),
-  pointer: z.string(),
-})
 
 const manifestSchema = z.object({
   display_information: z.object({
@@ -65,114 +59,44 @@ const manifestCreateResponseSchema = z.object({
   oauth_authorize_url: z.string(),
 })
 
-const manifestErrorResponseSchema = z.object({
-  ok: z.literal(false),
-  error: z.string().optional(),
-  errors: z.array(slackErrorSchema).optional(),
-})
-
-const manifestValidateSuccessSchema = z.object({
-  ok: z.literal(true),
-})
-
-const manifestUpdateSuccessSchema = z.object({
-  ok: z.literal(true),
-})
-
 export type ManifestCreateResponse = z.infer<typeof manifestCreateResponseSchema>
 export type SlackAppManifest = z.infer<typeof manifestSchema>
 
 export class SlackManifestClient {
-  private readonly _client: bp.Client
-  private readonly _ctx: bp.Context
   private readonly _logger: bp.Logger
   private readonly _appConfigurationToken: string
-  private readonly _slackApiClient: SlackApiClient
+  private readonly _slackApiClient: SlackApiClient.WebClient
 
-  public constructor({
-    client,
-    ctx,
-    logger,
-    appConfigurationToken,
-  }: bp.CommonHandlerProps & { appConfigurationToken: string }) {
-    this._client = client
-    this._ctx = ctx
+  public constructor({ logger, appConfigurationToken }: bp.CommonHandlerProps & { appConfigurationToken: string }) {
     this._logger = logger
     this._appConfigurationToken = appConfigurationToken
-    this._slackApiClient = new SlackApiClient(appConfigurationToken)
+    this._slackApiClient = new SlackApiClient.WebClient(appConfigurationToken)
   }
 
-  public async validateManifest(
-    manifest: SlackAppManifest
-  ): Promise<{ ok: true } | { ok: false; errorMessage: string }> {
-    if (manifest === null || manifest === undefined) {
-      throw new RuntimeError('Error in manifest validation: Manifest cannot be null or undefined')
-    }
-    this._logger.forBot().debug(this._slackApiClient.apps)
-    const { data } = await this._slackApiClient.apiCall('apps.manifest.validate', {
-      token: this._appConfigurationToken,
-      manifest: JSON.stringify(manifest),
+  public async validateManifest(manifest: SlackAppManifest) {
+    surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackApiClient.apps.manifest.validate({
+        token: this._appConfigurationToken,
+        manifest: JSON.stringify(manifest),
+      }),
     })
-    this._logger.forBot().debug('Received response from Slack manifest validation API', { response: data })
-
-    const successResult = manifestValidateSuccessSchema.safeParse(data)
-    if (successResult.success) {
-      return { ok: true }
-    }
-
-    const errorResult = manifestErrorResponseSchema.safeParse(data)
-    if (errorResult.success) {
-      const errorMessage =
-        errorResult.data.errors?.map((e) => e.message).join(', ') ||
-        errorResult.data.error ||
-        'Unknown validation error'
-      return { ok: false, errorMessage }
-    }
-
-    throw new RuntimeError(`Unexpected response from Slack manifest validate API: ${JSON.stringify(data)}`)
   }
 
   public async createApp(manifest: SlackAppManifest): Promise<ManifestCreateResponse> {
-    const { data } = await this._slackApiClient.apiCall('apps.manifest.create', {
-      token: this._appConfigurationToken,
-      manifest: JSON.stringify(manifest),
+    const response = surfaceSlackErrors<SlackApiClient.AppsManifestCreateResponse>({
+      logger: this._logger,
+      response: await this._slackApiClient.apps.manifest.create({
+        token: this._appConfigurationToken,
+        manifest: JSON.stringify(manifest),
+      }),
     })
 
-    const successResult = manifestCreateResponseSchema.safeParse(data)
-    if (successResult.success) {
-      return successResult.data
+    const { data, success } = manifestCreateResponseSchema.safeParse(response)
+    if (!success) {
+      throw new RuntimeError(`Unexpected response from Slack manifest create API: ${JSON.stringify(response)}`)
     }
-
-    const errorResult = manifestErrorResponseSchema.safeParse(data)
-    if (errorResult.success) {
-      const errorDetails =
-        errorResult.data.errors?.map((e) => e.message).join(', ') || errorResult.data.error || 'Unknown error'
-      throw new RuntimeError(`Failed to create Slack app: ${errorDetails}`)
-    }
-
-    throw new RuntimeError(`Unexpected response from Slack manifest create API: ${JSON.stringify(data)}`)
-  }
-
-  public async updateApp(appId: string, manifest: SlackAppManifest): Promise<void> {
-    const { data } = await this._slackApiClient.apiCall('apps.manifest.update', {
-      token: this._appConfigurationToken,
-      app_id: appId,
-      manifest: JSON.stringify(manifest),
-    })
-
-    const successResult = manifestUpdateSuccessSchema.safeParse(data)
-    if (successResult.success) {
-      return
-    }
-
-    const errorResult = manifestErrorResponseSchema.safeParse(data)
-    if (errorResult.success) {
-      const errorDetails =
-        errorResult.data.errors?.map((e) => e.message).join(', ') || errorResult.data.error || 'Unknown error'
-      throw new RuntimeError(`Failed to update Slack app manifest: ${errorDetails}`)
-    }
-
-    throw new RuntimeError(`Unexpected response from Slack manifest update API: ${JSON.stringify(data)}`)
+    return data
   }
 }
 

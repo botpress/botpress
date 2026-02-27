@@ -1,6 +1,7 @@
 import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 import * as slackWebApi from '@slack/web-api'
+import { Logger as BPLogger } from '.botpress'
 
 export const redactSlackError = (thrown: unknown, genericErrorMessage: string): sdk.RuntimeError => {
   const error = thrown instanceof Error ? thrown : new Error(String(thrown))
@@ -46,3 +47,25 @@ export const redactSlackError = (thrown: unknown, genericErrorMessage: string): 
 export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction(redactSlackError)
 
 export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)
+
+export const surfaceSlackErrors = <TResponse extends slackWebApi.WebAPICallResult>({
+  logger,
+  response,
+}: {
+  logger: BPLogger
+  response: TResponse
+}): TResponse => {
+  if (response.response_metadata?.warnings?.length) {
+    logger.forBot().warn('Slack API emitted warnings', response.response_metadata.warnings)
+  }
+
+  if (response.error) {
+    throw new sdk.RuntimeError(`Slack API error: ${response.error}`)
+  }
+
+  if (!response.ok) {
+    throw new sdk.RuntimeError('Slack API returned an unspecified error')
+  }
+
+  return response
+}
