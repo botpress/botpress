@@ -14,7 +14,7 @@
     "@sendgrid/eventwebhook": "^8.0.0",
     "@sendgrid/helpers": "^8.0.0",
     "@sendgrid/mail": "^8.1.5",
-    "markdown-it": "^14.1.0"
+    "markdown-it": "^14.1.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
