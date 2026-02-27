@@ -362,6 +362,18 @@ const initSchema = {
 
 const lintSchema = {
   ...projectSchema,
+  /** "checkNested" is a temporary flag so we can gradually fix the issues without causing the CI to fail.
+   *  Once all issues are fixed, we can remove this flag and always check nested fields.
+   *
+   *  @see https://github.com/botpress/botpress/pull/14686
+   *  @remark The removal criteria if the "given" value for each of the base rules
+   *   matches the "given" value in each of the nested field check rule overrides
+   *   without having to add "bplint-disable" or causing the CI lint check to fail. */
+  checkNested: {
+    type: 'boolean',
+    default: false,
+    description: 'check nested fields recursively for missing titles & descriptions',
+  },
 } satisfies CommandSchema
 
 const chatSchema = {

@@ -145,28 +145,31 @@ const mockLogger = {
 const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
   const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
-  const linter = new IntegrationLinter({
-    ...integrationBody,
-    configuration: integrationDefinition.configuration
-      ? {
-          ...integrationDefinition.configuration,
-          schema: await utils.schema.mapZodToJsonSchema(integrationDefinition.configuration, {
-            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
-          }),
-        }
-      : undefined,
-    configurations: integrationDefinition.configurations
-      ? await utils.records.mapValuesAsync(integrationDefinition.configurations, async (configuration) => ({
-          ...configuration,
-          schema: await utils.schema.mapZodToJsonSchema(configuration, {
-            useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
-          }),
-        }))
-      : undefined,
-    readme: integrationDefinition.readme,
-    icon: integrationDefinition.icon,
-    secrets: integrationDefinition.secrets,
-  })
+  const linter = new IntegrationLinter(
+    {
+      ...integrationBody,
+      configuration: integrationDefinition.configuration
+        ? {
+            ...integrationDefinition.configuration,
+            schema: await utils.schema.mapZodToJsonSchema(integrationDefinition.configuration, {
+              useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            }),
+          }
+        : undefined,
+      configurations: integrationDefinition.configurations
+        ? await utils.records.mapValuesAsync(integrationDefinition.configurations, async (configuration) => ({
+            ...configuration,
+            schema: await utils.schema.mapZodToJsonSchema(configuration, {
+              useLegacyZuiTransformer: integrationDefinition.__advanced?.useLegacyZuiTransformer,
+            }),
+          }))
+        : undefined,
+      readme: integrationDefinition.readme,
+      icon: integrationDefinition.icon,
+      secrets: integrationDefinition.secrets,
+    },
+    false
+  )
   await linter.lint()
   return linter
 }
