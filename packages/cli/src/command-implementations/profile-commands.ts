@@ -53,8 +53,11 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
       return
     }
     const activeProfileName = await this.globalCache.get('activeProfile')
-    this.logger.log(`Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`)
+    const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
+
+    this.logger.log(activeProfileMsg)
     this.logger.json(this.argv.json ? profileEntries : profileEntries.map(_maskProfileToken))
+    this.logger.log(activeProfileMsg)
   }
 }
 
