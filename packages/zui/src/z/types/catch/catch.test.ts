@@ -1,6 +1,7 @@
 import { test, expect } from 'vitest'
-import { z } from '../..'
-import { util } from '../utils'
+import { z } from '../../../index'
+import * as utils from '../../utils'
+import { ZodError } from '../../error'
 
 test('basic catch', () => {
   expect(z.string().catch('default').parse(undefined)).toBe('default')
@@ -38,37 +39,37 @@ test('catch with transform', () => {
     .catch('default')
   expect(stringWithDefault.parse(undefined)).toBe('default')
   expect(stringWithDefault.parse(15)).toBe('default')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodCatch)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodEffects)
-  expect(stringWithDefault._def.innerType._def.schema).toBeInstanceOf(z.ZodSchema)
+  expect(stringWithDefault.typeName).toBe('ZodCatch')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodEffects')
+  expect(stringWithDefault._def.innerType._def.schema.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, unknown>(true)
+  utils.assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string>(true)
+  utils.assert.assertEqual<out, string>(true)
 })
 
 test('catch on existing optional', () => {
   const stringWithDefault = z.string().optional().catch('asdf')
   expect(stringWithDefault.parse(undefined)).toBe(undefined)
   expect(stringWithDefault.parse(15)).toBe('asdf')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodCatch)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodOptional)
-  expect(stringWithDefault._def.innerType._def.innerType).toBeInstanceOf(z.ZodString)
+  expect(stringWithDefault.typeName).toBe('ZodCatch')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodOptional')
+  expect(stringWithDefault._def.innerType._def.innerType.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, unknown>(true)
+  utils.assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string | undefined>(true)
+  utils.assert.assertEqual<out, string | undefined>(true)
 })
 
 test('optional on catch', () => {
   const stringWithDefault = z.string().catch('asdf').optional()
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, unknown>(true)
+  utils.assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string | undefined>(true)
+  utils.assert.assertEqual<out, string | undefined>(true)
 })
 
 test('complex chain example', () => {
@@ -91,7 +92,7 @@ test('removeCatch', () => {
   const stringWithRemovedDefault = z.string().catch('asdf').removeCatch()
 
   type out = z.output<typeof stringWithRemovedDefault>
-  util.assertEqual<out, string>(true)
+  utils.assert.assertEqual<out, string>(true)
 })
 
 test('nested', () => {
@@ -100,9 +101,9 @@ test('nested', () => {
     inner: 'asdf',
   })
   type input = z.input<typeof outer>
-  util.assertEqual<input, unknown>(true)
+  utils.assert.assertEqual<input, unknown>(true)
   type out = z.output<typeof outer>
-  util.assertEqual<out, { inner: string }>(true)
+  utils.assert.assertEqual<out, { inner: string }>(true)
   expect(outer.parse(undefined)).toEqual({ inner: 'asdf' })
   expect(outer.parse({})).toEqual({ inner: 'asdf' })
   expect(outer.parse({ inner: undefined })).toEqual({ inner: 'asdf' })
@@ -117,9 +118,7 @@ test('chained catch', () => {
 })
 
 test('factory', () => {
-  z.ZodCatch.create(z.string(), {
-    catch: 'asdf',
-  }).parse(undefined)
+  z.catch(z.string(), 'asdf').parse(undefined)
 })
 
 test('native enum', () => {
@@ -204,7 +203,7 @@ test('catch error', () => {
   expect(!result.success && result.error.issues.length).toEqual(1)
   expect(!result.success && result.error.issues[0]?.message).toMatch('number')
 
-  expect(catchError).toBeInstanceOf(z.ZodError)
+  expect(catchError).toBeInstanceOf(ZodError)
   expect(catchError !== undefined && (catchError as z.ZodError).issues.length).toEqual(1)
   expect(catchError !== undefined && (catchError as z.ZodError).issues[0]?.message).toMatch('string')
 })

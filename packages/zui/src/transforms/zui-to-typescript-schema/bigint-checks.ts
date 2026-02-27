@@ -1,5 +1,5 @@
-import { util } from '../../z'
-import { ZodBigIntCheck, ZodBigIntDef } from '../../z/types/bigint'
+import { ZodBigIntCheck, ZodBigIntDef } from '../../z'
+import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateBigIntChecks = (def: ZodBigIntDef): string => {
@@ -19,7 +19,7 @@ const _generateBigIntCheck = (check: ZodBigIntCheck): string => {
     case 'multipleOf':
       return `.multipleOf(${toTs(check.value)}, ${toTs(check.message)})`
     default:
-      type _assertion = util.AssertNever<typeof check>
+      type _assertion = utils.assert.AssertNever<typeof check>
       return ''
   }
 }

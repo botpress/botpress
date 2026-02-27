@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
+import * as utils from '../../utils'
 
 test('valid', () => {
   expect(
@@ -70,10 +71,10 @@ test('invalid - null', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.object,
+        code: 'invalid_type',
+        expected: 'object',
         message: 'Expected object, received null',
-        received: z.ZodParsedType.null,
+        received: 'null',
         path: [],
       },
     ])
@@ -90,7 +91,7 @@ test('invalid discriminator value', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_union_discriminator,
+        code: 'invalid_union_discriminator',
         options: ['a', 'b'],
         message: "Invalid discriminator value. Expected 'a' | 'b'",
         path: ['type'],
@@ -109,11 +110,11 @@ test('valid discriminator value, invalid data', () => {
   } catch (e: any) {
     expect(JSON.parse(e.message)).toEqual([
       {
-        code: z.ZodIssueCode.invalid_type,
-        expected: z.ZodParsedType.string,
+        code: 'invalid_type',
+        expected: 'string',
         message: 'Required',
         path: ['a'],
-        received: z.ZodParsedType.undefined,
+        received: 'undefined',
       },
     ])
   }
@@ -127,7 +128,7 @@ test('wrong schema - missing discriminator', () => {
     ])
     throw new Error()
   } catch (e: any) {
-    expect(e.message.includes('could not be extracted')).toBe(true)
+    expect(e.message).toContain('could not be extracted')
   }
 })
 
@@ -281,7 +282,7 @@ test('optional and nullable', () => {
   ])
 
   type schema = z.infer<typeof schema>
-  z.util.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
+  utils.assert.assertEqual<schema, { key?: 'a' | undefined; a: true } | { key: 'b' | null; b: true }>(true)
 
   schema.parse({ key: 'a', a: true })
   schema.parse({ key: undefined, a: true })

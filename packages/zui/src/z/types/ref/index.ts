@@ -1,29 +1,21 @@
+import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
 import {
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
+  //
+  ZodBaseTypeImpl,
   INVALID,
   ParseInput,
   ParseReturnType,
-  ZodTypeAny,
   addIssueToContext,
-  ZodIssueCode,
-} from '../index'
+} from '../basetype'
+export type { ZodRefDef }
 
-export type ZodRefDef = {
-  typeName: ZodFirstPartyTypeKind.ZodRef
-  uri: string
-} & ZodTypeDef
-
-type ZodRefOutput = NonNullable<unknown>
-
-export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef> implements IZodRef {
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
     const def = defs[this._def.uri]
     if (!def) {
       return this
     }
-    return def
+    return def as ZodBaseTypeImpl
   }
 
   getReferences(): string[] {
@@ -34,16 +26,9 @@ export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
     // a schema containing references should never be used to parse data
     const ctx = this._getOrReturnCtx(input)
     addIssueToContext(ctx, {
-      code: ZodIssueCode.unresolved_reference,
+      code: 'unresolved_reference',
     })
     return INVALID
-  }
-
-  static create = (uri: string): ZodRef => {
-    return new ZodRef({
-      typeName: ZodFirstPartyTypeKind.ZodRef,
-      uri,
-    })
   }
 
   public override isOptional(): boolean {
@@ -54,8 +39,8 @@ export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
     return false
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodRef)) return false
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodRefImpl)) return false
     return this._def.uri === schema._def.uri
   }
 }

@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import z from '../index'
-import { util } from '../types/utils'
+import * as utils from '../utils'
 
 test('type guard', () => {
   const stringToNumber = z.string().transform((arg) => arg.length)
@@ -13,7 +13,7 @@ test('type guard', () => {
   const data = { stringToNumber: 'asdf' }
   const parsed = s1.safeParse(data)
   if (parsed.success) {
-    util.assertEqual<typeof data, t1>(true)
+    utils.assert.assertEqual<typeof data, t1>(true)
   }
 })
 

@@ -1,56 +1,53 @@
-import { unique } from '../../utils'
+import type { IZodTuple, IZodType, ZodTupleDef } from '../../typings'
+import * as utils from '../../utils'
 import {
-  ZodIssueCode,
   ParseInputLazyPath,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
   ParseStatus,
   SyncParseReturnType,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+  ZodBaseTypeImpl,
+} from '../basetype'
 
-export type ZodTupleItems = [ZodTypeAny, ...ZodTypeAny[]]
-export type AssertArray<T> = T extends any[] ? T : never
-export type OutputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
-  [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_output'] : never
+export type ZodTupleItems = [IZodType, ...IZodType[]]
+
+type _AssertArray<T> = T extends any[] ? T : never
+type _OutputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
+  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_output'] : never
 }>
-export type OutputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends ZodTypeAny | null = null,
-> = Rest extends ZodTypeAny ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
 
-export type InputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
-  [k in keyof T]: T[k] extends ZodType<any, any> ? T[k]['_input'] : never
+type _OutputTypeOfTupleWithRest<
+  T extends ZodTupleItems | [],
+  Rest extends IZodType | null = null,
+> = Rest extends IZodType ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]] : _OutputTypeOfTuple<T>
+
+type _InputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
+  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_input'] : never
 }>
-export type InputTypeOfTupleWithRest<
+
+type _InputTypeOfTupleWithRest<
   T extends ZodTupleItems | [],
-  Rest extends ZodTypeAny | null = null,
-> = Rest extends ZodTypeAny ? [...InputTypeOfTuple<T>, ...Rest['_input'][]] : InputTypeOfTuple<T>
+  Rest extends IZodType | null = null,
+> = Rest extends IZodType ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]] : _InputTypeOfTuple<T>
 
-export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest extends ZodTypeAny | null = null> = {
-  items: T
-  rest: Rest
-  typeName: ZodFirstPartyTypeKind.ZodTuple
-} & ZodTypeDef
+/**
+ * @deprecated use ZodTuple instead
+ */
+export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
 
-export type AnyZodTuple = ZodTuple<[ZodTypeAny, ...ZodTypeAny[]] | [], ZodTypeAny | null>
-export class ZodTuple<
-  T extends [ZodTypeAny, ...ZodTypeAny[]] | [] = [ZodTypeAny, ...ZodTypeAny[]],
-  Rest extends ZodTypeAny | null = null,
-> extends ZodType<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    const items = this._def.items.map((item) => item.dereference(defs)) as [ZodTypeAny, ...ZodTypeAny[]]
+export class ZodTupleImpl<
+    T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
+    Rest extends IZodType | null = null,
+  >
+  extends ZodBaseTypeImpl<_OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, _InputTypeOfTupleWithRest<T, Rest>>
+  implements IZodTuple<T, Rest>
+{
+  dereference(defs: Record<string, IZodType>): IZodType {
+    const items = this._def.items.map((item) => item.dereference(defs)) as [IZodType, ...IZodType[]]
     const rest = this._def.rest ? this._def.rest.dereference(defs) : null
-    return new ZodTuple({
+    return new ZodTupleImpl({
       ...this._def,
       items,
       rest,
@@ -58,28 +55,28 @@ export class ZodTuple<
   }
 
   getReferences(): string[] {
-    return unique([
+    return utils.fn.unique([
       ...this._def.items.flatMap((item) => item.getReferences()),
       ...(this._def.rest ? this._def.rest.getReferences() : []),
     ])
   }
 
-  clone(): ZodTuple<T, Rest> {
-    const items = this._def.items.map((item) => item.clone()) as [ZodTypeAny, ...ZodTypeAny[]]
+  clone(): IZodTuple<T, Rest> {
+    const items = this._def.items.map((item) => item.clone()) as [IZodType, ...IZodType[]]
     const rest = this._def.rest ? this._def.rest.clone() : null
-    return new ZodTuple({
+    return new ZodTupleImpl({
       ...this._def,
-      items,
-      rest,
-    }) as ZodTuple<T, Rest>
+      items: items as T,
+      rest: rest as Rest,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.array) {
+    if (ctx.parsedType !== 'array') {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.array,
+        code: 'invalid_type',
+        expected: 'array',
         received: ctx.parsedType,
       })
       return INVALID
@@ -87,7 +84,7 @@ export class ZodTuple<
 
     if (ctx.data.length < this._def.items.length) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.too_small,
+        code: 'too_small',
         minimum: this._def.items.length,
         inclusive: true,
         exact: false,
@@ -101,7 +98,7 @@ export class ZodTuple<
 
     if (!rest && ctx.data.length > this._def.items.length) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.too_big,
+        code: 'too_big',
         maximum: this._def.items.length,
         inclusive: true,
         exact: false,
@@ -114,7 +111,7 @@ export class ZodTuple<
       .map((item, itemIndex) => {
         const schema = this._def.items[itemIndex] || this._def.rest
         if (!schema) return null
-        return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex))
+        return ZodBaseTypeImpl.fromInterface(schema)._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex))
       })
       .filter((x) => !!x) // filter nulls
 
@@ -123,7 +120,7 @@ export class ZodTuple<
         return ParseStatus.mergeArray(status, results)
       })
     } else {
-      return ParseStatus.mergeArray(status, items as SyncParseReturnType[])
+      return ParseStatus.mergeArray(status, items as SyncParseReturnType<any>[])
     }
   }
 
@@ -131,39 +128,24 @@ export class ZodTuple<
     return this._def.items
   }
 
-  rest<Rest extends ZodTypeAny>(rest: Rest): ZodTuple<T, Rest> {
-    return new ZodTuple({
+  rest<Rest extends IZodType>(rest: Rest): IZodTuple<T, Rest> {
+    return new ZodTupleImpl({
       ...this._def,
       rest,
     })
   }
 
-  static create = <T extends [ZodTypeAny, ...ZodTypeAny[]] | []>(
-    schemas: T,
-    params?: RawCreateParams
-  ): ZodTuple<T, null> => {
-    if (!Array.isArray(schemas)) {
-      throw new Error('You must pass an array of schemas to z.tuple([ ... ])')
-    }
-    return new ZodTuple({
-      items: schemas,
-      typeName: ZodFirstPartyTypeKind.ZodTuple,
-      rest: null,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodTuple)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodTupleImpl)) return false
     if (!this._restEquals(schema)) return false
 
-    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
-    const thisItems = new CustomSet<ZodType>(this._def.items, { compare })
-    const schemaItems = new CustomSet<ZodType>(schema._def.items, { compare })
+    const compare = (a: IZodType, b: IZodType) => a.isEqual(b)
+    const thisItems = new utils.ds.CustomSet<IZodType>(this._def.items, { compare })
+    const schemaItems = new utils.ds.CustomSet<IZodType>(schema._def.items, { compare })
     return thisItems.isEqual(schemaItems)
   }
 
-  private _restEquals(schema: ZodTuple) {
+  private _restEquals(schema: ZodTupleImpl) {
     if (this._def.rest === null) {
       return schema._def.rest === null
     }

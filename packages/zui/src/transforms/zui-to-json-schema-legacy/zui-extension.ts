@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { z } from '../../z/index'
+import { z } from '../../z'
 import { Options } from './Options'
 import { zodToJsonSchema } from './zodToJsonSchema'
 
@@ -23,10 +23,10 @@ export type ZuiSchemaOptions = {
  * @deprecated Use the new toJSONSchema function instead.
  */
 export const toJSONSchemaLegacy = (
-  zuiType: z.ZodTypeAny,
+  zuiType: z.ZodType,
   opts: ZuiSchemaOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
-  const jsonSchema = zodToJsonSchema(zuiType as z.ZodType, opts)
+  const jsonSchema = zodToJsonSchema(zuiType, opts)
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema
   } else if (typeof opts.$schemaUrl === 'string') {

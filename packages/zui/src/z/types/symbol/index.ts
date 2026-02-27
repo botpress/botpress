@@ -1,30 +1,14 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodSymbol, ZodSymbolDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodSymbolDef = {
-  typeName: ZodFirstPartyTypeKind.ZodSymbol
-} & ZodTypeDef
-
-export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
+export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> implements IZodSymbol {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.symbol) {
+    if (parsedType !== 'symbol') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.symbol,
+        code: 'invalid_type',
+        expected: 'symbol',
         received: ctx.parsedType,
       })
       return INVALID
@@ -33,14 +17,7 @@ export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
     return OK(input.data)
   }
 
-  static create = (params?: RawCreateParams): ZodSymbol => {
-    return new ZodSymbol({
-      typeName: ZodFirstPartyTypeKind.ZodSymbol,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodSymbol
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodSymbolImpl
   }
 }

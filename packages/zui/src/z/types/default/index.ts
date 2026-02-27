@@ -1,36 +1,19 @@
 import { isEqual } from 'lodash-es'
+import type { IZodType, IZodDefault, ZodDefaultDef } from '../../typings'
+import * as utils from '../../utils'
+import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
 
-import {
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
-
-export type ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> = {
-  innerType: T
-  defaultValue: () => util.noUndefined<T['_input']>
-  typeName: ZodFirstPartyTypeKind.ZodDefault
-} & ZodTypeDef
-
-export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
-  util.noUndefined<T['_output']>,
-  ZodDefaultDef<T>,
-  T['_input'] | undefined
-> {
+export class ZodDefaultImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<utils.types.NoUndefined<T['_output']>, ZodDefaultDef<T>, T['_input'] | undefined>
+  implements IZodDefault<T>
+{
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     let data = ctx.data
-    if (ctx.parsedType === ZodParsedType.undefined) {
+    if (ctx.parsedType === 'undefined') {
       data = this._def.defaultValue()
     }
-    return this._def.innerType._parse({
+    return ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse({
       data,
       path: ctx.path,
       parent: ctx,
@@ -41,8 +24,8 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    return new ZodDefault({
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodDefaultImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
     })
@@ -52,28 +35,15 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
-  clone(): ZodDefault<T> {
-    return new ZodDefault({
+  clone(): IZodDefault<T> {
+    return new ZodDefaultImpl({
       ...this._def,
-      innerType: this._def.innerType.clone(),
-    }) as ZodDefault<T>
-  }
-
-  static create = <T extends ZodTypeAny>(
-    type: T,
-    value: T['_input'] | (() => util.noUndefined<T['_input']>),
-    params?: RawCreateParams
-  ): ZodDefault<T> => {
-    return new ZodDefault({
-      innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodDefault,
-      defaultValue: typeof value === 'function' ? value : () => value,
-      ...processCreateParams(params),
+      innerType: this._def.innerType.clone() as T,
     })
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodDefault)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodDefaultImpl)) return false
     return (
       this._def.innerType.isEqual(schema._def.innerType) &&
       isEqual(this._def.defaultValue(), schema._def.defaultValue())
@@ -88,8 +58,8 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodDefault<ZodTypeAny> {
-    return new ZodDefault({
+  mandatory(): IZodDefault<IZodType> {
+    return new ZodDefaultImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),
     })

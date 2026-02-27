@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../../z/index'
+import { z, zuiKey } from '../../../../z'
 import { parseUnionDef } from '../../parsers/union'
 import { getRefs } from '../../Refs'
 import deref from 'local-ref-resolver'
-import { zuiKey } from '../../../../ui/constants'
 
 describe('Unions', () => {
   it('Should be possible to get a simple type array from a union of only unvalidated primitives', () => {

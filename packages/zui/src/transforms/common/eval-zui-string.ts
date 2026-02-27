@@ -20,7 +20,7 @@ export const evalZuiString = (zuiString: string): EvalZuiStringResult => {
     return { sucess: false, error: `Failed to evaluate schema: ${err.message}` }
   }
 
-  if (!(result instanceof z.ZodType)) {
+  if (!z.isZuiType(result)) {
     return { sucess: false, error: `String "${zuiString}" does not evaluate to a Zod schema` }
   }
 

@@ -1,6 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodNullableDef } from '../../../z/index'
+import { zuiKey, ZuiExtensionObject, ZodNullableDef, ZodTypeAny } from '../../../z'
 import { addMeta, JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7NullType } from './null'
@@ -17,11 +15,11 @@ export type JsonSchema7NullableType =
     }
 
 export function parseNullableDef(def: ZodNullableDef, refs: Refs): JsonSchema7NullableType | undefined {
+  const inner = def.innerType as ZodTypeAny
   if (
-    ['ZodString', 'ZodNumber', 'ZodBigInt', 'ZodBoolean', 'ZodNull'].includes(def.innerType._def.typeName) &&
-    (!def.innerType._def.checks || !def.innerType._def.checks.length)
+    ['ZodString', 'ZodNumber', 'ZodBigInt', 'ZodBoolean', 'ZodNull'].includes(inner._def.typeName) &&
+    (!inner._def.checks || !inner._def.checks.length)
   ) {
-    const inner = def.innerType
     if (refs.target === 'openApi3') {
       const schema = {
         type: primitiveMappings[inner._def.typeName as keyof typeof primitiveMappings],
@@ -37,7 +35,7 @@ export function parseNullableDef(def: ZodNullableDef, refs: Refs): JsonSchema7Nu
   }
 
   if (refs.target === 'openApi3') {
-    const base = parseDef(def.innerType._def, {
+    const base = parseDef(inner._def, {
       ...refs,
       currentPath: [...refs.currentPath],
     })
@@ -45,7 +43,7 @@ export function parseNullableDef(def: ZodNullableDef, refs: Refs): JsonSchema7Nu
     return base && ({ ...base, nullable: true } as any)
   }
 
-  const base = parseDef(def.innerType._def, {
+  const base = parseDef(inner._def, {
     ...refs,
     currentPath: [...refs.currentPath, 'anyOf', '0'],
   })

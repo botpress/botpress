@@ -1,49 +1,12 @@
-import {
-  processCreateParams,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  isValid,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodReadonly, IZodType, MakeReadonly, ZodReadonlyDef } from '../../typings'
+import { ZodBaseTypeImpl, isValid, ParseInput, ParseReturnType } from '../basetype'
 
-type BuiltIn =
-  | (((...args: any[]) => any) | (new (...args: any[]) => any))
-  | { readonly [Symbol.toStringTag]: string }
-  | Date
-  | Error
-  | Generator
-  | Promise<unknown>
-  | RegExp
-
-type MakeReadonly<T> =
-  T extends Map<infer K, infer V>
-    ? ReadonlyMap<K, V>
-    : T extends Set<infer V>
-      ? ReadonlySet<V>
-      : T extends [infer Head, ...infer Tail]
-        ? readonly [Head, ...Tail]
-        : T extends Array<infer V>
-          ? ReadonlyArray<V>
-          : T extends BuiltIn
-            ? T
-            : Readonly<T>
-
-export type ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> = {
-  innerType: T
-  typeName: ZodFirstPartyTypeKind.ZodReadonly
-} & ZodTypeDef
-
-export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
-  MakeReadonly<T['_output']>,
-  ZodReadonlyDef<T>,
-  MakeReadonly<T['_input']>
-> {
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    return new ZodReadonly({
+export class ZodReadonlyImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<MakeReadonly<T['_output']>, ZodReadonlyDef<T>, MakeReadonly<T['_input']>>
+  implements IZodReadonly<T>
+{
+  dereference(defs: Record<string, IZodType>): ZodBaseTypeImpl {
+    return new ZodReadonlyImpl({
       ...this._def,
       innerType: this._def.innerType.dereference(defs),
     })
@@ -53,35 +16,27 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.getReferences()
   }
 
-  clone(): ZodReadonly<T> {
-    return new ZodReadonly({
+  clone(): IZodReadonly<T> {
+    return new ZodReadonlyImpl({
       ...this._def,
-      innerType: this._def.innerType.clone(),
-    }) as ZodReadonly<T>
+      innerType: this._def.innerType.clone() as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
-    const result = this._def.innerType._parse(input)
+    const result = ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse(input)
     if (isValid(result)) {
       result.value = Object.freeze(result.value)
     }
     return result
   }
 
-  static create = <T extends ZodTypeAny>(type: T, params?: RawCreateParams): ZodReadonly<T> => {
-    return new ZodReadonly({
-      innerType: type,
-      typeName: ZodFirstPartyTypeKind.ZodReadonly,
-      ...processCreateParams(params),
-    })
-  }
-
   unwrap() {
     return this._def.innerType
   }
 
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodReadonly)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodReadonlyImpl)) return false
     return this._def.innerType.isEqual(schema._def.innerType)
   }
 
@@ -89,8 +44,8 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.innerType.naked()
   }
 
-  mandatory(): ZodReadonly<ZodTypeAny> {
-    return new ZodReadonly({
+  mandatory(): IZodReadonly<IZodType> {
+    return new ZodReadonlyImpl({
       ...this._def,
       innerType: this._def.innerType.mandatory(),
     })

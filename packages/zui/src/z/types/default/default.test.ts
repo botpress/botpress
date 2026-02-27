@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import { z } from '../..'
-import { util } from '../utils'
+import { z } from '../../..'
+import * as utils from '../../utils'
 
 test('basic defaults', () => {
   expect(z.string().default('default').parse(undefined)).toBe('default')
@@ -12,36 +12,36 @@ test('default with transform', () => {
     .transform((val) => val.toUpperCase())
     .default('default')
   expect(stringWithDefault.parse(undefined)).toBe('DEFAULT')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodDefault)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodEffects)
-  expect(stringWithDefault._def.innerType._def.schema).toBeInstanceOf(z.ZodSchema)
+  expect(stringWithDefault.typeName).toBe('ZodDefault')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodEffects')
+  expect(stringWithDefault._def.innerType._def.schema.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, string | undefined>(true)
+  utils.assert.assertEqual<inp, string | undefined>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string>(true)
+  utils.assert.assertEqual<out, string>(true)
 })
 
 test('default on existing optional', () => {
   const stringWithDefault = z.string().optional().default('asdf')
   expect(stringWithDefault.parse(undefined)).toBe('asdf')
-  expect(stringWithDefault).toBeInstanceOf(z.ZodDefault)
-  expect(stringWithDefault._def.innerType).toBeInstanceOf(z.ZodOptional)
-  expect(stringWithDefault._def.innerType._def.innerType).toBeInstanceOf(z.ZodString)
+  expect(stringWithDefault.typeName).toBe('ZodDefault')
+  expect(stringWithDefault._def.innerType.typeName).toBe('ZodOptional')
+  expect(stringWithDefault._def.innerType._def.innerType.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, string | undefined>(true)
+  utils.assert.assertEqual<inp, string | undefined>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string>(true)
+  utils.assert.assertEqual<out, string>(true)
 })
 
 test('optional on default', () => {
   const stringWithDefault = z.string().default('asdf').optional()
 
   type inp = z.input<typeof stringWithDefault>
-  util.assertEqual<inp, string | undefined>(true)
+  utils.assert.assertEqual<inp, string | undefined>(true)
   type out = z.output<typeof stringWithDefault>
-  util.assertEqual<out, string | undefined>(true)
+  utils.assert.assertEqual<out, string | undefined>(true)
 })
 
 test('complex chain example', () => {
@@ -61,7 +61,7 @@ test('removeDefault', () => {
   const stringWithRemovedDefault = z.string().default('asdf').removeDefault()
 
   type out = z.output<typeof stringWithRemovedDefault>
-  util.assertEqual<out, string>(true)
+  utils.assert.assertEqual<out, string>(true)
 })
 
 test('nested', () => {
@@ -70,9 +70,9 @@ test('nested', () => {
     inner: undefined,
   })
   type input = z.input<typeof outer>
-  util.assertEqual<input, { inner?: string | undefined } | undefined>(true)
+  utils.assert.assertEqual<input, { inner?: string | undefined } | undefined>(true)
   type out = z.output<typeof outer>
-  util.assertEqual<out, { inner: string }>(true)
+  utils.assert.assertEqual<out, { inner: string }>(true)
   expect(outer.parse(undefined)).toEqual({ inner: 'asdf' })
   expect(outer.parse({})).toEqual({ inner: 'asdf' })
   expect(outer.parse({ inner: undefined })).toEqual({ inner: 'asdf' })
@@ -85,7 +85,7 @@ test('chained defaults', () => {
 })
 
 test('factory', () => {
-  expect(z.ZodDefault.create(z.string(), 'asdf').parse(undefined)).toEqual('asdf')
+  expect(z.default(z.string(), 'asdf').parse(undefined)).toEqual('asdf')
 })
 
 test('native enum', () => {

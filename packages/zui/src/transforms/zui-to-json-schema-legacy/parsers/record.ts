@@ -1,6 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z/index'
+import { zuiKey, ZuiExtensionObject, ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7EnumType } from './enum'
@@ -16,19 +14,16 @@ export type JsonSchema7RecordType = {
   [zuiKey]?: ZuiExtensionObject
 }
 
-export function parseRecordDef(
-  def: ZodRecordDef<ZodTypeAny, ZodTypeAny> | ZodMapDef,
-  refs: Refs
-): JsonSchema7RecordType {
+export function parseRecordDef(def: ZodRecordDef | ZodMapDef, refs: Refs): JsonSchema7RecordType {
   if (refs.target === 'openApi3' && def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodEnum) {
     return {
       type: 'object',
-      required: def.keyType._def.values,
-      properties: def.keyType._def.values.reduce(
+      required: (def.keyType as ZodTypeAny)._def.values,
+      properties: (def.keyType as ZodTypeAny)._def.values.reduce(
         (acc: Record<string, JsonSchema7Type>, key: string) => ({
           ...acc,
           [key]:
-            parseDef(def.valueType._def, {
+            parseDef((def.valueType as ZodTypeAny)._def, {
               ...refs,
               currentPath: [...refs.currentPath, 'properties', key],
             }) ?? {},
@@ -42,7 +37,7 @@ export function parseRecordDef(
   const schema: JsonSchema7RecordType = {
     type: 'object',
     additionalProperties:
-      parseDef(def.valueType._def, {
+      parseDef((def.valueType as ZodTypeAny)._def, {
         ...refs,
         currentPath: [...refs.currentPath, 'additionalProperties'],
       }) ?? {},
@@ -52,11 +47,13 @@ export function parseRecordDef(
     return schema
   }
 
-  if (def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodString && def.keyType._def.checks?.length) {
-    const keyType: JsonSchema7RecordPropertyNamesType = Object.entries(parseStringDef(def.keyType._def, refs)).reduce(
-      (acc, [key, value]) => (key === 'type' ? acc : { ...acc, [key]: value }),
-      {}
-    )
+  if (
+    def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodString &&
+    (def.keyType as ZodTypeAny)._def.checks?.length
+  ) {
+    const keyType: JsonSchema7RecordPropertyNamesType = Object.entries(
+      parseStringDef((def.keyType as ZodTypeAny)._def, refs)
+    ).reduce((acc, [key, value]) => (key === 'type' ? acc : { ...acc, [key]: value }), {})
 
     return {
       ...schema,
@@ -66,7 +63,7 @@ export function parseRecordDef(
     return {
       ...schema,
       propertyNames: {
-        enum: def.keyType._def.values,
+        enum: (def.keyType as ZodTypeAny)._def.values,
       },
     }
   }

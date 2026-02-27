@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
+import * as utils from '../utils'
 import * as z from '../index'
-import { ZodIssueCode } from '../index'
 
 const stringSet = z.set(z.string())
 type stringSet = z.infer<typeof stringSet>
@@ -13,7 +12,7 @@ const nonEmpty = z.set(z.string()).nonempty()
 const nonEmptyMax = z.set(z.string()).nonempty().max(2)
 
 test('type inference', () => {
-  util.assertEqual<stringSet, Set<string>>(true)
+  utils.assert.assertEqual<stringSet, Set<string>>(true)
 })
 
 test('valid parse', () => {
@@ -78,7 +77,7 @@ test('failing when parsing empty set in nonempty ', () => {
 
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.too_small)
+    expect(result.error.issues[0]?.code).toEqual('too_small')
   }
 })
 
@@ -88,7 +87,7 @@ test('failing when set is smaller than min() ', () => {
 
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.too_small)
+    expect(result.error.issues[0]?.code).toEqual('too_small')
   }
 })
 
@@ -98,7 +97,7 @@ test('failing when set is bigger than max() ', () => {
 
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.too_big)
+    expect(result.error.issues[0]?.code).toEqual('too_big')
   }
 })
 
@@ -112,7 +111,7 @@ test('throws when a Map is given', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
   }
 })
 
@@ -121,7 +120,7 @@ test('throws when the given set has invalid input', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(1)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
     expect(result.error.issues[0]?.path).toEqual([0])
   }
 })
@@ -132,9 +131,9 @@ test('throws when the given set has multiple invalid entries', () => {
   expect(result.success).toEqual(false)
   if (result.success === false) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[0]?.code).toEqual('invalid_type')
     expect(result.error.issues[0]?.path).toEqual([0])
-    expect(result.error.issues[1]?.code).toEqual(ZodIssueCode.invalid_type)
+    expect(result.error.issues[1]?.code).toEqual('invalid_type')
     expect(result.error.issues[1]?.path).toEqual([1])
   }
 })

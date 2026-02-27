@@ -1,6 +1,4 @@
-import { zuiKey } from '../../../ui/constants'
-import { ZuiExtensionObject } from '../../../ui/types'
-import { ZodObjectDef, ZodType } from '../../../z/index'
+import z, { zuiKey, ZuiExtensionObject, ZodObjectDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
@@ -13,9 +11,9 @@ export type JsonSchema7ObjectType = {
 }
 
 const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
-  if (def.unknownKeys instanceof ZodType) {
+  if (z.isZuiType(def.unknownKeys)) {
     return (
-      parseDef(def.unknownKeys._def, {
+      parseDef((def.unknownKeys as ZodTypeAny)._def, {
         ...refs,
         currentPath: [...refs.currentPath, 'additionalProperties'],
       }) ?? true
@@ -30,7 +28,7 @@ const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonS
 export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
   Object.keys(def.shape()).reduce(
     (schema: JsonSchema7ObjectType, key) => {
-      let prop = def.shape()[key]
+      let prop = def.shape()[key] as ZodTypeAny
       if (typeof prop === 'undefined' || typeof prop._def === 'undefined') {
         return schema
       }
@@ -76,7 +74,7 @@ export function parseObjectDefX(def: ZodObjectDef, refs: Refs) {
           properties: Record<string, JsonSchema7Type>
           required: string[]
         },
-        [propName, propDef]
+        [propName, propDef]: [string, ZodTypeAny]
       ) => {
         if (propDef === undefined || propDef._def === undefined) return acc
         const parsedDef = parseDef(propDef._def, {
@@ -107,7 +105,7 @@ export function parseObjectDef(def: ZodObjectDef, refs: Refs) {
           properties: Record<string, JsonSchema7Type>
           required: string[]
         },
-        [propName, propDef]
+        [propName, propDef]: [string, ZodTypeAny]
       ) => {
         if (propDef === undefined || propDef._def === undefined) return acc
         const parsedDef = parseDef(propDef._def, {

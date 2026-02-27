@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { zuiKey } from '../../../../ui/constants'
-import { z } from '../../../../z/index'
+import { z, zuiKey } from '../../../../z'
 import { parseBrandedDef } from '../../parsers/branded'
 import { getRefs } from '../../Refs'
 

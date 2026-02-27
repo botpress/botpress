@@ -1,20 +1,19 @@
 import { test, assert } from 'vitest'
-
-import z, { ZodArray, ZodObject, ZodString, ZodUnion } from '../index'
+import z from '../index'
 
 test('naked object', () => {
-  assert.instanceOf(z.object({ name: z.string() }).naked(), ZodObject)
-  assert.instanceOf(z.object({ name: z.string() }).nullable().naked(), ZodObject)
-  assert.instanceOf(
+  assert.equal(z.object({ name: z.string() }).naked().typeName, 'ZodObject')
+  assert.equal(z.object({ name: z.string() }).nullable().naked().typeName, 'ZodObject')
+  assert.equal(
     z
       .object({ name: z.string() })
       .catch(() => ({ name: '' }))
-      .naked(),
-    ZodObject
+      .naked().typeName,
+    'ZodObject'
   )
-  assert.instanceOf(z.object({ name: z.string() }).optional().nullable().naked(), ZodObject)
-  assert.instanceOf(z.object({ name: z.string() }).promise().nullable().naked(), ZodObject)
-  assert.instanceOf(
+  assert.equal(z.object({ name: z.string() }).optional().nullable().naked().typeName, 'ZodObject')
+  assert.equal(z.object({ name: z.string() }).promise().nullable().naked().typeName, 'ZodObject')
+  assert.equal(
     z
       .object({ name: z.string() })
       .catch(() => ({ name: '' }))
@@ -22,68 +21,68 @@ test('naked object', () => {
       .promise()
       .optional()
       .nullable()
-      .naked(),
-    ZodObject
+      .naked().typeName,
+    'ZodObject'
   )
 
-  assert.instanceOf(z.object({ name: z.string() }).readonly().naked(), ZodObject)
+  assert.equal(z.object({ name: z.string() }).readonly().naked().typeName, 'ZodObject')
 })
 
 test('lazy', () => {
-  assert.instanceOf(z.lazy(() => z.string()).naked(), ZodString)
-  assert.instanceOf(
+  assert.equal(z.lazy(() => z.string()).naked().typeName, 'ZodString')
+  assert.equal(
     z
       .lazy(() => z.string())
       .nullable()
-      .naked(),
-    ZodString
+      .naked().typeName,
+    'ZodString'
   )
-  assert.instanceOf(
+  assert.equal(
     z
       .lazy(() => z.string())
       .optional()
       .nullable()
-      .naked(),
-    ZodString
+      .naked().typeName,
+    'ZodString'
   )
-  assert.instanceOf(
+  assert.equal(
     z
       .lazy(() => z.string())
       .promise()
       .nullable()
-      .naked(),
-    ZodString
+      .naked().typeName,
+    'ZodString'
   )
 
-  assert.instanceOf(z.lazy(() => z.object({ name: z.string() })).naked(), ZodObject)
-  assert.instanceOf(
+  assert.equal(z.lazy(() => z.object({ name: z.string() })).naked().typeName, 'ZodObject')
+  assert.equal(
     z
       .lazy(() => z.object({ name: z.string() }))
       .nullable()
-      .naked(),
-    ZodObject
+      .naked().typeName,
+    'ZodObject'
   )
 })
 
 test('naked array', () => {
-  assert.instanceOf(z.array(z.string()).naked(), ZodArray)
-  assert.instanceOf(z.array(z.string()).nullable().naked(), ZodArray)
-  assert.instanceOf(z.array(z.string()).optional().nullable().naked(), ZodArray)
-  assert.instanceOf(z.array(z.string()).promise().nullable().naked(), ZodArray)
+  assert.equal(z.array(z.string()).naked().typeName, 'ZodArray')
+  assert.equal(z.array(z.string()).nullable().naked().typeName, 'ZodArray')
+  assert.equal(z.array(z.string()).optional().nullable().naked().typeName, 'ZodArray')
+  assert.equal(z.array(z.string()).promise().nullable().naked().typeName, 'ZodArray')
 })
 
 test('naked string', () => {
-  assert.instanceOf(z.string().naked(), ZodString)
-  assert.instanceOf(z.string().nullable().naked(), ZodString)
-  assert.instanceOf(z.string().optional().nullable().naked(), ZodString)
-  assert.instanceOf(z.string().promise().nullable().naked(), ZodString)
+  assert.equal(z.string().naked().typeName, 'ZodString')
+  assert.equal(z.string().nullable().naked().typeName, 'ZodString')
+  assert.equal(z.string().optional().nullable().naked().typeName, 'ZodString')
+  assert.equal(z.string().promise().nullable().naked().typeName, 'ZodString')
 })
 
 test('naked union', () => {
-  assert.instanceOf(z.string().or(z.number()).naked(), ZodUnion)
-  assert.instanceOf(z.string().or(z.number()).nullable().naked(), ZodUnion)
-  assert.instanceOf(z.string().or(z.number()).optional().nullable().naked(), ZodUnion)
-  assert.instanceOf(z.string().or(z.number()).promise().nullable().naked(), ZodUnion)
+  assert.equal(z.string().or(z.number()).naked().typeName, 'ZodUnion')
+  assert.equal(z.string().or(z.number()).nullable().naked().typeName, 'ZodUnion')
+  assert.equal(z.string().or(z.number()).optional().nullable().naked().typeName, 'ZodUnion')
+  assert.equal(z.string().or(z.number()).promise().nullable().naked().typeName, 'ZodUnion')
 })
 
 test('get constructor names', () => {
@@ -91,7 +90,7 @@ test('get constructor names', () => {
     z
       .string()
       .catch(() => '')
-      .naked().constructor.name,
+      .naked().typeName,
     'ZodString'
   )
 
@@ -100,19 +99,19 @@ test('get constructor names', () => {
       .string()
       .catch(() => '')
       .nullable()
-      .naked().constructor.name,
+      .naked().typeName,
     'ZodString'
   )
 })
 
 test('not naked constructors', () => {
-  assert.equal(z.string().catch(() => '').constructor.name, 'ZodCatch')
+  assert.equal(z.string().catch(() => '').typeName, 'ZodCatch')
 
   assert.equal(
     z
       .string()
       .catch(() => '')
-      .nullable().constructor.name,
+      .nullable().typeName,
     'ZodNullable'
   )
 })

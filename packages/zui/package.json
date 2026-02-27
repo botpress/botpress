@@ -18,13 +18,11 @@
     "test": "vitest --run"
   },
   "devDependencies": {
-    "@types/benchmark": "^2.1.5",
     "@types/json-schema": "^7.0.12",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.16.4",
     "ajv": "^8.12.0",
     "ajv-formats": "^3.0.1",
-    "benchmark": "^2.1.4",
     "local-ref-resolver": "^0.2.0",
     "lodash-es": "^4.17.21",
     "tsup": "^8.0.2"

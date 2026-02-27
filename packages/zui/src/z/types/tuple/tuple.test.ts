@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
-import { util } from '../utils'
+import * as utils from '../../utils'
 import * as z from '../../index'
-import { ZodError } from '../error'
+import { ZodError } from '../../error'
 
 const testTuple = z.tuple([z.string(), z.object({ name: z.literal('Rudy') }), z.array(z.literal('blue'))])
 const testData = ['asdf', { name: 'Rudy' }, ['blue']]
@@ -12,7 +12,7 @@ test('tuple inference', () => {
   const returns1 = z.number()
   const func1 = z.function(args1, returns1)
   type func1 = z.TypeOf<typeof func1>
-  util.assertEqual<func1, (k: string) => number>(true)
+  utils.assert.assertEqual<func1, (k: string) => number>(true)
 })
 
 test('successful validation', () => {
@@ -58,9 +58,9 @@ test('tuple with transformers', () => {
   const val = z.tuple([stringToNumber])
 
   type t1 = z.input<typeof val>
-  util.assertEqual<t1, [string]>(true)
+  utils.assert.assertEqual<t1, [string]>(true)
   type t2 = z.output<typeof val>
-  util.assertEqual<t2, [number]>(true)
+  utils.assert.assertEqual<t2, [number]>(true)
   expect(val.parse(['1234'])).toEqual([4])
 })
 
@@ -73,7 +73,7 @@ test('tuple with rest schema', () => {
   expect(() => myTuple.parse(['asdf', 1234, 'asdf'])).toThrow()
   type t1 = z.output<typeof myTuple>
 
-  util.assertEqual<t1, [string, number, ...boolean[]]>(true)
+  utils.assert.assertEqual<t1, [string, number, ...boolean[]]>(true)
 })
 
 test('parse should fail given sparse array as tuple', () => {

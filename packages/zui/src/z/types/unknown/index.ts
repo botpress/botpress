@@ -1,33 +1,14 @@
-import {
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodUnknown, ZodUnknownDef } from '../../typings'
+import { ZodBaseTypeImpl, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodUnknownDef = {
-  typeName: ZodFirstPartyTypeKind.ZodUnknown
-} & ZodTypeDef
-
-export class ZodUnknown extends ZodType<unknown, ZodUnknownDef> {
+export class ZodUnknownImpl extends ZodBaseTypeImpl<unknown, ZodUnknownDef> implements IZodUnknown {
   // required
   _unknown = true as const
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     return OK(input.data)
   }
 
-  static create = (params?: RawCreateParams): ZodUnknown => {
-    return new ZodUnknown({
-      typeName: ZodFirstPartyTypeKind.ZodUnknown,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodUnknown
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodUnknownImpl
   }
 }

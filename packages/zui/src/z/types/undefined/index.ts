@@ -1,52 +1,28 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-  ZodNever,
-} from '../index'
+import { builders } from '../../internal-builders'
+import type { IZodNever, IZodUndefined, ZodUndefinedDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodUndefinedDef = {
-  typeName: ZodFirstPartyTypeKind.ZodUndefined
-} & ZodTypeDef
-
-export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
+export class ZodUndefinedImpl extends ZodBaseTypeImpl<undefined, ZodUndefinedDef> implements IZodUndefined {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.undefined) {
+    if (parsedType !== 'undefined') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.undefined,
+        code: 'invalid_type',
+        expected: 'undefined',
         received: ctx.parsedType,
       })
       return INVALID
     }
     return OK(input.data)
   }
-  params?: RawCreateParams
 
-  static create = (params?: RawCreateParams): ZodUndefined => {
-    return new ZodUndefined({
-      typeName: ZodFirstPartyTypeKind.ZodUndefined,
-      ...processCreateParams(params),
-    })
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodUndefinedImpl
   }
 
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodUndefined
-  }
-
-  mandatory(): ZodNever {
-    return ZodNever.create({
+  mandatory(): IZodNever {
+    return builders.never({
       ...this._def,
     })
   }

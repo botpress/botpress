@@ -76,13 +76,13 @@ test('invalid intersection types', async () => {
   const syncResult = numberIntersection.safeParse(1234)
   expect(syncResult.success).toEqual(false)
   if (!syncResult.success) {
-    expect(syncResult.error.issues[0]?.code).toEqual(z.ZodIssueCode.invalid_intersection_types)
+    expect(syncResult.error.issues[0]?.code).toEqual('invalid_intersection_types')
   }
 
   const asyncResult = await numberIntersection.spa(1234)
   expect(asyncResult.success).toEqual(false)
   if (!asyncResult.success) {
-    expect(asyncResult.error.issues[0]?.code).toEqual(z.ZodIssueCode.invalid_intersection_types)
+    expect(asyncResult.error.issues[0]?.code).toEqual('invalid_intersection_types')
   }
 })
 
@@ -97,12 +97,12 @@ test('invalid array merge', async () => {
   const syncResult = stringArrInt.safeParse(['asdf', 'qwer'])
   expect(syncResult.success).toEqual(false)
   if (!syncResult.success) {
-    expect(syncResult.error.issues[0]?.code).toEqual(z.ZodIssueCode.invalid_intersection_types)
+    expect(syncResult.error.issues[0]?.code).toEqual('invalid_intersection_types')
   }
 
   const asyncResult = await stringArrInt.spa(['asdf', 'qwer'])
   expect(asyncResult.success).toEqual(false)
   if (!asyncResult.success) {
-    expect(asyncResult.error.issues[0]?.code).toEqual(z.ZodIssueCode.invalid_intersection_types)
+    expect(asyncResult.error.issues[0]?.code).toEqual('invalid_intersection_types')
   }
 })

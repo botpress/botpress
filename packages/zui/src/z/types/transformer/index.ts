@@ -1,51 +1,11 @@
-import {
-  IssueData,
-  input,
-  output,
-  RawCreateParams,
-  RefinementCtx,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  addIssueToContext,
-  DIRTY,
-  INVALID,
-  isValid,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodEffects, IZodType, ZodEffectsDef, input, output, RefinementCtx, IssueData } from '../../typings'
+import * as utils from '../../utils'
+import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../basetype'
 
-export type Refinement<T> = (arg: T, ctx: RefinementCtx) => any
-export type SuperRefinement<T> = (arg: T, ctx: RefinementCtx) => void | Promise<void>
-
-export type RefinementEffect<T> = {
-  type: 'refinement'
-  refinement: (arg: T, ctx: RefinementCtx) => any
-}
-export type TransformEffect<T> = {
-  type: 'transform'
-  transform: (arg: T, ctx: RefinementCtx) => any
-}
-export type PreprocessEffect<T> = {
-  type: 'preprocess'
-  transform: (arg: T, ctx: RefinementCtx) => any
-}
-export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
-
-export type ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> = {
-  schema: T
-  typeName: ZodFirstPartyTypeKind.ZodEffects
-  effect: Effect<any>
-} & ZodTypeDef
-
-export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, Input = input<T>> extends ZodType<
-  Output,
-  ZodEffectsDef<T>,
-  Input
-> {
+export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
+  extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
+  implements IZodEffects<T, Output, Input>
+{
   innerType() {
     return this._def.schema
   }
@@ -54,13 +14,13 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
    * @deprecated use naked() instead
    */
   sourceType(): T {
-    return this._def.schema._def.typeName === ZodFirstPartyTypeKind.ZodEffects
-      ? (this._def.schema as unknown as ZodEffects<T>).sourceType()
+    return this._def.schema._def.typeName === 'ZodEffects'
+      ? (this._def.schema as unknown as IZodEffects<T>).sourceType()
       : (this._def.schema as T)
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    return new ZodEffects({
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.dereference(defs),
     })
@@ -70,11 +30,11 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return this._def.schema.getReferences()
   }
 
-  clone(): ZodEffects<T, Output, Input> {
-    return new ZodEffects({
+  clone(): IZodEffects<T, Output, Input> {
+    return new ZodEffectsImpl({
       ...this._def,
-      schema: this._def.schema.clone(),
-    }) as ZodEffects<T, Output, Input>
+      schema: this._def.schema.clone() as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -105,7 +65,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
         return Promise.resolve(processed).then(async (processed) => {
           if (status.value === 'aborted') return INVALID
 
-          const result = await this._def.schema._parseAsync({
+          const result = await ZodEffectsImpl.fromInterface(this._def.schema)._parseAsync({
             data: processed,
             path: ctx.path,
             parent: ctx,
@@ -117,7 +77,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
         })
       } else {
         if (status.value === 'aborted') return INVALID
-        const result = this._def.schema._parseSync({
+        const result = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
           data: processed,
           path: ctx.path,
           parent: ctx,
@@ -141,7 +101,7 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
       }
 
       if (ctx.common.async === false) {
-        const inner = this._def.schema._parseSync({
+        const inner = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -153,20 +113,22 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
         executeRefinement(inner.value)
         return { status: status.value, value: inner.value }
       } else {
-        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
-          if (inner.status === 'aborted') return INVALID
-          if (inner.status === 'dirty') status.dirty()
+        return ZodEffectsImpl.fromInterface(this._def.schema)
+          ._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx })
+          .then((inner) => {
+            if (inner.status === 'aborted') return INVALID
+            if (inner.status === 'dirty') status.dirty()
 
-          return executeRefinement(inner.value).then(() => {
-            return { status: status.value, value: inner.value }
+            return executeRefinement(inner.value).then(() => {
+              return { status: status.value, value: inner.value }
+            })
           })
-        })
       }
     }
 
     if (effect.type === 'transform') {
       if (ctx.common.async === false) {
-        const base = this._def.schema._parseSync({
+        const base = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -183,66 +145,42 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
 
         return { status: status.value, value: result }
       } else {
-        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
-          if (!isValid(base)) return base
+        return ZodEffectsImpl.fromInterface(this._def.schema)
+          ._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx })
+          .then((base) => {
+            if (!isValid(base)) return base
 
-          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-            status: status.value,
-            value: result,
-          }))
-        })
+            return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
+              status: status.value,
+              value: result,
+            }))
+          })
       }
     }
 
-    util.assertNever(effect)
+    utils.assert.assertNever(effect)
   }
 
-  static create = <I extends ZodType>(
-    schema: I,
-    effect: Effect<I['_output']>,
-    params?: RawCreateParams
-  ): ZodEffects<I, I['_output']> => {
-    return new ZodEffects({
-      schema,
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
-      effect,
-      ...processCreateParams(params),
-    })
-  }
-
-  static createWithPreprocess = <I extends ZodTypeAny>(
-    preprocess: (arg: unknown, ctx: RefinementCtx) => unknown,
-    schema: I,
-    params?: RawCreateParams
-  ): ZodEffects<I, I['_output'], unknown> => {
-    return new ZodEffects({
-      schema,
-      effect: { type: 'preprocess', transform: preprocess },
-      typeName: ZodFirstPartyTypeKind.ZodEffects,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodEffects)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodEffectsImpl)) return false
     if (!this._def.schema.isEqual(schema._def.schema)) return false
 
     if (this._def.effect.type === 'refinement') {
       if (schema._def.effect.type !== 'refinement') return false
-      return util.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
+      return utils.others.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
     }
 
     if (this._def.effect.type === 'transform') {
       if (schema._def.effect.type !== 'transform') return false
-      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
     if (this._def.effect.type === 'preprocess') {
       if (schema._def.effect.type !== 'preprocess') return false
-      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
-    type _assertion = util.AssertNever<typeof this._def.effect>
+    type _assertion = utils.assert.AssertNever<typeof this._def.effect>
     return false
   }
 
@@ -250,11 +188,10 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
     return this._def.schema.naked()
   }
 
-  mandatory(): ZodEffects<ZodTypeAny> {
-    return new ZodEffects({
+  mandatory(): IZodEffects<IZodType> {
+    return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.mandatory(),
     })
   }
 }
-export { ZodEffects as ZodTransformer }

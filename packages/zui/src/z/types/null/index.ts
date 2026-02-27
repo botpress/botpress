@@ -1,44 +1,21 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodNull, ZodNullDef } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
-export type ZodNullDef = {
-  typeName: ZodFirstPartyTypeKind.ZodNull
-} & ZodTypeDef
-
-export class ZodNull extends ZodType<null, ZodNullDef> {
+export class ZodNullImpl extends ZodBaseTypeImpl<null, ZodNullDef> implements IZodNull {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
-    if (parsedType !== ZodParsedType.null) {
+    if (parsedType !== 'null') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.null,
+        code: 'invalid_type',
+        expected: 'null',
         received: ctx.parsedType,
       })
       return INVALID
     }
     return OK(input.data)
   }
-  static create = (params?: RawCreateParams): ZodNull => {
-    return new ZodNull({
-      typeName: ZodFirstPartyTypeKind.ZodNull,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    return schema instanceof ZodNull
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    return schema instanceof ZodNullImpl
   }
 }

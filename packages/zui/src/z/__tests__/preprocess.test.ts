@@ -1,13 +1,15 @@
 import { test, expect } from 'vitest'
-import { util } from '../types/utils'
+import * as utils from '../utils'
 import z from '../index'
+import { NEVER } from '../types/basetype'
+import { ZodError } from '../error'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())
 
   const value = schema.parse('asdf')
   expect(value).toEqual(['asdf'])
-  util.assertEqual<(typeof schema)['_input'], unknown>(true)
+  utils.assert.assertEqual<(typeof schema)['_input'], unknown>(true)
 })
 
 test('async preprocess', async () => {
@@ -51,7 +53,7 @@ test('preprocess ctx.addIssue non-fatal by default', () => {
       return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(2)
   }
 })
@@ -67,7 +69,7 @@ test('preprocess ctx.addIssue fatal true', () => {
       return data
     }, z.string()).parse(1234)
   } catch (err) {
-    z.ZodError.assert(err)
+    ZodError.assert(err)
     expect(err.issues.length).toEqual(1)
   }
 })
@@ -110,6 +112,7 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
   expect(JSON.parse(JSON.stringify(result))).toEqual({
     success: false,
     error: {
+      __type__: 'ZuiError',
       issues: [
         {
           code: 'custom',
@@ -125,14 +128,14 @@ test('preprocess ctx.addIssue with parseAsync', async () => {
 test('z.NEVER in preprocess', () => {
   const foo = z.preprocess((val, ctx) => {
     if (!val) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'bad' })
-      return z.NEVER
+      ctx.addIssue({ code: 'custom', message: 'bad' })
+      return NEVER
     }
     return val
   }, z.number())
 
   type foo = z.infer<typeof foo>
-  util.assertEqual<foo, number>(true)
+  utils.assert.assertEqual<foo, number>(true)
   const arg = foo.safeParse(undefined)
   if (!arg.success) {
     expect(arg.error.issues[0]?.message).toEqual('bad')
@@ -150,8 +153,8 @@ test('preprocess as the second property of object', () => {
   expect(result.success).toEqual(false)
   if (!result.success) {
     expect(result.error.issues.length).toEqual(2)
-    expect(result.error.issues[0]?.code).toEqual(z.ZodIssueCode.too_small)
-    expect(result.error.issues[1]?.code).toEqual(z.ZodIssueCode.too_small)
+    expect(result.error.issues[0]?.code).toEqual('too_small')
+    expect(result.error.issues[1]?.code).toEqual('too_small')
   }
 })
 

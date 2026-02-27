@@ -192,7 +192,7 @@ describe('zuiToJSONSchemaNext', () => {
         },
       ],
       'x-zui': {
-        def: { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion, discriminator: 'type' },
+        def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' },
       },
     })
   })

@@ -1,4 +1,5 @@
 import z from '../../z'
+import * as utils from '../../z/utils'
 import * as err from '../common/errors'
 import * as json from '../common/json-schema'
 import { zodArrayToJsonArray } from './type-processors/array'
@@ -12,70 +13,69 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.Schema): json.Schema {
-  const schemaTyped = schema as z.ZodFirstPartySchemaTypes
-  const def = schemaTyped._def
+export function toJSONSchema(schema: z.ZodType): json.Schema {
+  const s = schema as z.ZodNativeType
 
-  switch (def.typeName) {
-    case z.ZodFirstPartyTypeKind.ZodString:
-      return zodStringToJsonString(schemaTyped as z.ZodString) satisfies json.StringSchema
+  switch (s.typeName) {
+    case 'ZodString':
+      return zodStringToJsonString(s) satisfies json.StringSchema
 
-    case z.ZodFirstPartyTypeKind.ZodNumber:
-      return zodNumberToJsonNumber(schemaTyped as z.ZodNumber) satisfies json.NumberSchema
+    case 'ZodNumber':
+      return zodNumberToJsonNumber(s) satisfies json.NumberSchema
 
-    case z.ZodFirstPartyTypeKind.ZodNaN:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodNaN)
+    case 'ZodNaN':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNaN')
 
-    case z.ZodFirstPartyTypeKind.ZodBigInt:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodBigInt, {
+    case 'ZodBigInt':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBigInt', {
         suggestedAlternative: 'serialize bigint to string',
       })
 
-    case z.ZodFirstPartyTypeKind.ZodBoolean:
+    case 'ZodBoolean':
       return {
         type: 'boolean',
-        description: def.description,
-        'x-zui': def['x-zui'],
+        description: s.description,
+        'x-zui': s._def['x-zui'],
       } satisfies json.BooleanSchema
 
-    case z.ZodFirstPartyTypeKind.ZodDate:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodDate, {
+    case 'ZodDate':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodDate', {
         suggestedAlternative: 'use z.string().datetime() instead',
       })
 
-    case z.ZodFirstPartyTypeKind.ZodUndefined:
-      return undefinedSchema(def)
+    case 'ZodUndefined':
+      return undefinedSchema(s)
 
-    case z.ZodFirstPartyTypeKind.ZodNull:
-      return nullSchema(def)
+    case 'ZodNull':
+      return nullSchema(s)
 
-    case z.ZodFirstPartyTypeKind.ZodAny:
+    case 'ZodAny':
       return {
-        description: def.description,
-        'x-zui': def['x-zui'],
+        description: s.description,
+        'x-zui': s._def['x-zui'],
       } satisfies json.AnySchema
 
-    case z.ZodFirstPartyTypeKind.ZodUnknown:
+    case 'ZodUnknown':
       return {
-        description: def.description,
-        'x-zui': { ...def['x-zui'], def: { typeName: z.ZodFirstPartyTypeKind.ZodUnknown } },
+        description: s.description,
+        'x-zui': { ...s._def['x-zui'], def: { typeName: 'ZodUnknown' } },
       }
 
-    case z.ZodFirstPartyTypeKind.ZodNever:
+    case 'ZodNever':
       return {
         not: true,
-        description: def.description,
-        'x-zui': def['x-zui'],
+        description: s.description,
+        'x-zui': s._def['x-zui'],
       } satisfies json.NeverSchema
 
-    case z.ZodFirstPartyTypeKind.ZodVoid:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodVoid)
+    case 'ZodVoid':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodVoid')
 
-    case z.ZodFirstPartyTypeKind.ZodArray:
-      return zodArrayToJsonArray(schemaTyped as z.ZodArray, toJSONSchema) satisfies json.ArraySchema
+    case 'ZodArray':
+      return zodArrayToJsonArray(s, toJSONSchema) satisfies json.ArraySchema
 
-    case z.ZodFirstPartyTypeKind.ZodObject:
-      const shape = Object.entries(def.shape())
+    case 'ZodObject':
+      const shape = Object.entries(s.shape)
       const requiredProperties = shape.filter(([_, value]) => !value.isOptional())
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
@@ -83,41 +83,41 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
         .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
       let additionalProperties: json.ObjectSchema['additionalProperties'] = false
-      if (def.unknownKeys instanceof z.ZodType) {
-        additionalProperties = toJSONSchema(def.unknownKeys)
-      } else if (def.unknownKeys === 'passthrough') {
+      if (z.isZuiType(s._def.unknownKeys)) {
+        additionalProperties = toJSONSchema(s._def.unknownKeys)
+      } else if (s._def.unknownKeys === 'passthrough') {
         additionalProperties = true
       }
 
       return {
         type: 'object',
-        description: def.description,
+        description: s.description,
         properties: Object.fromEntries(properties),
         required,
         additionalProperties,
-        'x-zui': def['x-zui'],
+        'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 
-    case z.ZodFirstPartyTypeKind.ZodUnion:
+    case 'ZodUnion':
       return {
-        description: def.description,
-        anyOf: def.options.map((option) => toJSONSchema(option)),
-        'x-zui': def['x-zui'],
+        description: s.description,
+        anyOf: s.options.map((option) => toJSONSchema(option)),
+        'x-zui': s._def['x-zui'],
       } satisfies json.UnionSchema
 
-    case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
+    case 'ZodDiscriminatedUnion':
       return {
-        description: def.description,
-        anyOf: def.options.map((option) => toJSONSchema(option)),
+        description: s.description,
+        anyOf: s.options.map((option) => toJSONSchema(option)),
         'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion, discriminator: def.discriminator },
+          ...s._def['x-zui'],
+          def: { typeName: 'ZodDiscriminatedUnion', discriminator: s.discriminator },
         },
       } satisfies json.DiscriminatedUnionSchema
 
-    case z.ZodFirstPartyTypeKind.ZodIntersection:
-      const left = toJSONSchema(def.left)
-      const right = toJSONSchema(def.right)
+    case 'ZodIntersection':
+      const left = toJSONSchema(s._def.left)
+      const right = toJSONSchema(s._def.right)
 
       /**
        * TODO: Potential conflict between `additionalProperties` in the left and right schemas.
@@ -136,145 +136,145 @@ export function toJSONSchema(schema: z.Schema): json.Schema {
       }
 
       return {
-        description: def.description,
+        description: s.description,
         allOf: [left, right],
-        'x-zui': def['x-zui'],
+        'x-zui': s._def['x-zui'],
       } satisfies json.IntersectionSchema
 
-    case z.ZodFirstPartyTypeKind.ZodTuple:
-      return zodTupleToJsonTuple(schemaTyped as z.ZodTuple, toJSONSchema) satisfies json.TupleSchema
+    case 'ZodTuple':
+      return zodTupleToJsonTuple(s, toJSONSchema) satisfies json.TupleSchema
 
-    case z.ZodFirstPartyTypeKind.ZodRecord:
+    case 'ZodRecord':
       return {
         type: 'object',
-        description: def.description,
-        additionalProperties: toJSONSchema(def.valueType),
-        'x-zui': def['x-zui'],
+        description: s.description,
+        additionalProperties: toJSONSchema(s._def.valueType),
+        'x-zui': s._def['x-zui'],
       } satisfies json.RecordSchema
 
-    case z.ZodFirstPartyTypeKind.ZodMap:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodMap)
+    case 'ZodMap':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodMap')
 
-    case z.ZodFirstPartyTypeKind.ZodSet:
-      return zodSetToJsonSet(schemaTyped as z.ZodSet, toJSONSchema) satisfies json.SetSchema
+    case 'ZodSet':
+      return zodSetToJsonSet(s, toJSONSchema) satisfies json.SetSchema
 
-    case z.ZodFirstPartyTypeKind.ZodFunction:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodFunction)
+    case 'ZodFunction':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodFunction')
 
-    case z.ZodFirstPartyTypeKind.ZodLazy:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodLazy)
+    case 'ZodLazy':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodLazy')
 
-    case z.ZodFirstPartyTypeKind.ZodLiteral:
-      if (typeof def.value === 'string') {
+    case 'ZodLiteral':
+      if (typeof s.value === 'string') {
         return {
           type: 'string',
-          description: def.description,
-          const: def.value,
-          'x-zui': def['x-zui'],
+          description: s.description,
+          const: s.value,
+          'x-zui': s._def['x-zui'],
         } satisfies json.LiteralStringSchema
-      } else if (typeof def.value === 'number') {
+      } else if (typeof s.value === 'number') {
         return {
           type: 'number',
-          description: def.description,
-          const: def.value,
-          'x-zui': def['x-zui'],
+          description: s.description,
+          const: s.value,
+          'x-zui': s._def['x-zui'],
         } satisfies json.LiteralNumberSchema
-      } else if (typeof def.value === 'boolean') {
+      } else if (typeof s.value === 'boolean') {
         return {
           type: 'boolean',
-          description: def.description,
-          const: def.value,
-          'x-zui': def['x-zui'],
+          description: s.description,
+          const: s.value,
+          'x-zui': s._def['x-zui'],
         } satisfies json.LiteralBooleanSchema
-      } else if (def.value === null) {
-        return nullSchema(def)
-      } else if (def.value === undefined) {
-        return undefinedSchema(def)
+      } else if (s.value === null) {
+        return nullSchema(s._def)
+      } else if (s.value === undefined) {
+        return undefinedSchema(s._def)
       } else {
-        z.util.assertEqual<bigint | symbol, typeof def.value>(true)
-        const unsupportedLiteral = typeof def.value
+        utils.assert.assertEqual<bigint | symbol, typeof s.value>(true)
+        const unsupportedLiteral = typeof s.value
         throw new err.ZuiToJSONSchemaError(`Unsupported literal type: "${unsupportedLiteral}"`)
       }
 
-    case z.ZodFirstPartyTypeKind.ZodEnum:
+    case 'ZodEnum':
       return {
         type: 'string',
-        description: def.description,
-        enum: def.values,
-        'x-zui': def['x-zui'],
+        description: s.description,
+        enum: s._def.values,
+        'x-zui': s._def['x-zui'],
       } satisfies json.EnumSchema
 
-    case z.ZodFirstPartyTypeKind.ZodEffects:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodEffects)
+    case 'ZodEffects':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodEffects')
 
-    case z.ZodFirstPartyTypeKind.ZodNativeEnum:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodNativeEnum)
+    case 'ZodNativeEnum':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodNativeEnum')
 
-    case z.ZodFirstPartyTypeKind.ZodOptional:
+    case 'ZodOptional':
       return {
-        description: def.description,
-        anyOf: [toJSONSchema(def.innerType), undefinedSchema()],
+        description: s.description,
+        anyOf: [toJSONSchema(s._def.innerType), undefinedSchema()],
         'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodOptional },
+          ...s._def['x-zui'],
+          def: { typeName: 'ZodOptional' },
         },
       } satisfies json.OptionalSchema
 
-    case z.ZodFirstPartyTypeKind.ZodNullable:
+    case 'ZodNullable':
       return {
-        anyOf: [toJSONSchema(def.innerType), nullSchema()],
+        anyOf: [toJSONSchema(s._def.innerType), nullSchema()],
         'x-zui': {
-          ...def['x-zui'],
-          def: { typeName: z.ZodFirstPartyTypeKind.ZodNullable },
+          ...s._def['x-zui'],
+          def: { typeName: 'ZodNullable' },
         },
       } satisfies json.NullableSchema
 
-    case z.ZodFirstPartyTypeKind.ZodDefault:
+    case 'ZodDefault':
       // ZodDefault is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(def.innerType),
-        default: def.defaultValue(),
+        ...toJSONSchema(s._def.innerType),
+        default: s._def.defaultValue(),
       }
 
-    case z.ZodFirstPartyTypeKind.ZodCatch:
+    case 'ZodCatch':
       // TODO: could be supported using if-else json schema
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodCatch)
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodCatch')
 
-    case z.ZodFirstPartyTypeKind.ZodPromise:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodPromise)
+    case 'ZodPromise':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPromise')
 
-    case z.ZodFirstPartyTypeKind.ZodBranded:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodBranded)
+    case 'ZodBranded':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodBranded')
 
-    case z.ZodFirstPartyTypeKind.ZodPipeline:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodPipeline)
+    case 'ZodPipeline':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline')
 
-    case z.ZodFirstPartyTypeKind.ZodSymbol:
-      throw new err.UnsupportedZuiToJSONSchemaError(z.ZodFirstPartyTypeKind.ZodPipeline)
+    case 'ZodSymbol':
+      throw new err.UnsupportedZuiToJSONSchemaError('ZodPipeline')
 
-    case z.ZodFirstPartyTypeKind.ZodReadonly:
+    case 'ZodReadonly':
       // ZodReadonly is not treated as a metadata root so we don't need to preserve x-zui
       return {
-        ...toJSONSchema(def.innerType),
+        ...toJSONSchema(s._def.innerType),
         readOnly: true,
       }
 
-    case z.ZodFirstPartyTypeKind.ZodRef:
+    case 'ZodRef':
       return {
-        $ref: def.uri,
-        description: def.description,
-        'x-zui': def['x-zui'],
+        $ref: s._def.uri,
+        description: s.description,
+        'x-zui': s._def['x-zui'],
       }
 
     default:
-      z.util.assertNever(def)
+      utils.assert.assertNever(s)
   }
 }
 
 const undefinedSchema = (def?: z.ZodTypeDef): json.UndefinedSchema => ({
   not: true,
   description: def?.description,
-  'x-zui': { ...def?.['x-zui'], def: { typeName: z.ZodFirstPartyTypeKind.ZodUndefined } },
+  'x-zui': { ...def?.['x-zui'], def: { typeName: 'ZodUndefined' } },
 })
 
 const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({

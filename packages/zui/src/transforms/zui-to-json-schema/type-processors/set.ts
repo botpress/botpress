@@ -1,8 +1,7 @@
-import { zuiKey } from '../../../ui/constants'
-import z from '../../../z'
+import z, { zuiKey } from '../../../z'
 import * as json from '../../common/json-schema'
 
-export const zodSetToJsonSet = (zodSet: z.ZodSet, toSchema: (x: z.ZodTypeAny) => json.Schema): json.SetSchema => {
+export const zodSetToJsonSet = (zodSet: z.ZodSet, toSchema: (x: z.ZodType) => json.Schema): json.SetSchema => {
   const schema: json.SetSchema = {
     type: 'array',
     description: zodSet.description,

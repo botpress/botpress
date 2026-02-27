@@ -1,43 +1,27 @@
+import { type IZodDate, ZodDateCheck, ZodDateDef } from '../../typings'
+import * as utils from '../../utils'
 import {
-  ZodIssueCode,
-  processCreateParams,
-  util,
-  ZodParsedType,
-  errorUtil,
-  ZodFirstPartyTypeKind,
-  ZodTypeDef,
   addIssueToContext,
   INVALID,
   ParseContext,
   ParseInput,
   ParseReturnType,
   ParseStatus,
-  ZodType,
-  RawCreateParams,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+  ZodBaseTypeImpl,
+} from '../basetype'
 
-export type ZodDateCheck =
-  | { kind: 'min'; value: number; message?: string }
-  | { kind: 'max'; value: number; message?: string }
-export type ZodDateDef = {
-  checks: ZodDateCheck[]
-  coerce: boolean
-  typeName: ZodFirstPartyTypeKind.ZodDate
-} & ZodTypeDef
-
-export class ZodDate extends ZodType<Date, ZodDateDef> {
+export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZodDate {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (this._def.coerce) {
       input.data = new Date(input.data)
     }
     const parsedType = this._getType(input)
 
-    if (parsedType !== ZodParsedType.date) {
+    if (parsedType !== 'date') {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.date,
+        code: 'invalid_type',
+        expected: 'date',
         received: ctx.parsedType,
       })
       return INVALID
@@ -46,7 +30,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     if (isNaN(input.data.getTime())) {
       const ctx = this._getOrReturnCtx(input)
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_date,
+        code: 'invalid_date',
       })
       return INVALID
     }
@@ -59,7 +43,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
         if (input.data.getTime() < check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_small,
+            code: 'too_small',
             message: check.message,
             inclusive: true,
             exact: false,
@@ -72,7 +56,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
         if (input.data.getTime() > check.value) {
           ctx = this._getOrReturnCtx(input, ctx)
           addIssueToContext(ctx, {
-            code: ZodIssueCode.too_big,
+            code: 'too_big',
             message: check.message,
             inclusive: true,
             exact: false,
@@ -82,7 +66,7 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
           status.dirty()
         }
       } else {
-        util.assertNever(check)
+        utils.assert.assertNever(check)
       }
     }
 
@@ -93,25 +77,25 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
   }
 
   _addCheck(check: ZodDateCheck) {
-    return new ZodDate({
+    return new ZodDateImpl({
       ...this._def,
       checks: [...this._def.checks, check],
     })
   }
 
-  min(minDate: Date, message?: errorUtil.ErrMessage) {
+  min(minDate: Date, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'min',
       value: minDate.getTime(),
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
-  max(maxDate: Date, message?: errorUtil.ErrMessage) {
+  max(maxDate: Date, message?: utils.errors.ErrMessage) {
     return this._addCheck({
       kind: 'max',
       value: maxDate.getTime(),
-      message: errorUtil.toString(message),
+      message: utils.errors.toString(message),
     })
   }
 
@@ -137,19 +121,10 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
     return max != null ? new Date(max) : null
   }
 
-  static create = (params?: RawCreateParams & { coerce?: boolean }): ZodDate => {
-    return new ZodDate({
-      checks: [],
-      coerce: params?.coerce || false,
-      typeName: ZodFirstPartyTypeKind.ZodDate,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodDate)) return false
-    const thisChecks = new CustomSet<ZodDateCheck>(this._def.checks)
-    const thatChecks = new CustomSet<ZodDateCheck>(schema._def.checks)
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodDateImpl)) return false
+    const thisChecks = new utils.ds.CustomSet<ZodDateCheck>(this._def.checks)
+    const thatChecks = new utils.ds.CustomSet<ZodDateCheck>(schema._def.checks)
     return thisChecks.isEqual(thatChecks) && this._def.coerce === schema._def.coerce
   }
 }

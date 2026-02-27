@@ -1,7 +1,7 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import { zuiKey } from '../../ui/constants'
-import z, { util } from '../../z'
+import z, { zuiKey } from '../../z'
+import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
@@ -21,162 +21,160 @@ import { generateStringChecks } from './string-checks'
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.Schema): string {
-  const wrappedSchema: z.Schema = schema
+export function toTypescriptSchema(schema: z.ZodType): string {
+  const wrappedSchema: z.ZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts
 }
 
-function sUnwrapZod(schema: z.Schema): string {
-  const schemaTyped = schema as z.ZodFirstPartySchemaTypes
-  const def = schemaTyped._def
+function sUnwrapZod(schema: z.ZodType): string {
+  const s = schema as z.ZodNativeType
+  switch (s.typeName) {
+    case 'ZodString':
+      return `z.string()${generateStringChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
-  switch (def.typeName) {
-    case z.ZodFirstPartyTypeKind.ZodString:
-      return `z.string()${generateStringChecks(def)}${_addMetadata(def)}`.trim()
+    case 'ZodNumber':
+      return `z.number()${generateNumberChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodNumber:
-      return `z.number()${generateNumberChecks(def)}${_addMetadata(def)}`.trim()
+    case 'ZodNaN':
+      return `z.nan()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodNaN:
-      return `z.nan()${_addMetadata(def)}`.trim()
+    case 'ZodBigInt':
+      return `z.bigint()${generateBigIntChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodBigInt:
-      return `z.bigint()${generateBigIntChecks(def)}${_addMetadata(def)}`.trim()
+    case 'ZodBoolean':
+      return `z.boolean()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodBoolean:
-      return `z.boolean()${_addMetadata(def)}`.trim()
+    case 'ZodDate':
+      return `z.date()${generateDateChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodDate:
-      return `z.date()${generateDateChecks(def)}${_addMetadata(def)}`.trim()
+    case 'ZodUndefined':
+      return `z.undefined()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodUndefined:
-      return `z.undefined()${_addMetadata(def)}`.trim()
+    case 'ZodNull':
+      return `z.null()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodNull:
-      return `z.null()${_addMetadata(def)}`.trim()
+    case 'ZodAny':
+      return `z.any()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodAny:
-      return `z.any()${_addMetadata(def)}`.trim()
+    case 'ZodUnknown':
+      return `z.unknown()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodUnknown:
-      return `z.unknown()${_addMetadata(def)}`.trim()
+    case 'ZodNever':
+      return `z.never()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodNever:
-      return `z.never()${_addMetadata(def)}`.trim()
+    case 'ZodVoid':
+      return `z.void()${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodVoid:
-      return `z.void()${_addMetadata(def)}`.trim()
+    case 'ZodArray':
+      return `z.array(${sUnwrapZod(s._def.type)})${generateArrayChecks(s._def)}${_addMetadata(s._def, s._def.type)}`
 
-    case z.ZodFirstPartyTypeKind.ZodArray:
-      return `z.array(${sUnwrapZod(def.type)})${generateArrayChecks(def)}${_addMetadata(def, def.type)}`
-
-    case z.ZodFirstPartyTypeKind.ZodObject:
-      const props = mapValues(def.shape(), sUnwrapZod)
-      const catchall = (schema as z.ZodObject).additionalProperties()
+    case 'ZodObject':
+      const props = mapValues(s.shape, sUnwrapZod)
+      const catchall = s.additionalProperties()
       const catchallString = catchall ? `.catchall(${sUnwrapZod(catchall)})` : ''
       return [
         //
         'z.object({',
         ...Object.entries(props).map(([key, value]) => `  ${key}: ${value},`),
-        `})${catchallString}${_addMetadata(def)}`,
+        `})${catchallString}${_addMetadata(s._def)}`,
       ]
         .join('\n')
         .trim()
 
-    case z.ZodFirstPartyTypeKind.ZodUnion:
-      const options = def.options.map(sUnwrapZod)
-      return `z.union([${options.join(', ')}])${_addMetadata(def)}`.trim()
+    case 'ZodUnion':
+      const options = s._def.options.map(sUnwrapZod)
+      return `z.union([${options.join(', ')}])${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      const opts = (def.options as z.ZodSchema[]).map(sUnwrapZod)
-      const discriminator = primitiveToTypescriptValue(def.discriminator)
-      return `z.discriminatedUnion(${discriminator}, [${opts.join(', ')}])${_addMetadata(def)}`.trim()
+    case 'ZodDiscriminatedUnion':
+      const opts = s._def.options.map(sUnwrapZod)
+      const discriminator = primitiveToTypescriptValue(s._def.discriminator)
+      return `z.discriminatedUnion(${discriminator}, [${opts.join(', ')}])${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodIntersection:
-      const left: string = sUnwrapZod(def.left)
-      const right: string = sUnwrapZod(def.right)
-      return `z.intersection(${left}, ${right})${_addMetadata(def)}`.trim()
+    case 'ZodIntersection':
+      const left: string = sUnwrapZod(s._def.left)
+      const right: string = sUnwrapZod(s._def.right)
+      return `z.intersection(${left}, ${right})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodTuple:
-      const items = def.items.map(sUnwrapZod)
-      return `z.tuple([${items.join(', ')}])${_addMetadata(def)}`.trim()
+    case 'ZodTuple':
+      const items = s._def.items.map(sUnwrapZod)
+      return `z.tuple([${items.join(', ')}])${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodRecord:
-      const keyType = sUnwrapZod(def.keyType)
-      const valueType = sUnwrapZod(def.valueType)
-      return `z.record(${keyType}, ${valueType})${_addMetadata(def)}`.trim()
+    case 'ZodRecord':
+      const keyType = sUnwrapZod(s._def.keyType)
+      const valueType = sUnwrapZod(s._def.valueType)
+      return `z.record(${keyType}, ${valueType})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodMap:
-      const mapKeyType = sUnwrapZod(def.keyType)
-      const mapValueType = sUnwrapZod(def.valueType)
-      return `z.map(${mapKeyType}, ${mapValueType})${_addMetadata(def)}`.trim()
+    case 'ZodMap':
+      const mapKeyType = sUnwrapZod(s._def.keyType)
+      const mapValueType = sUnwrapZod(s._def.valueType)
+      return `z.map(${mapKeyType}, ${mapValueType})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodSet:
-      return `z.set(${sUnwrapZod(def.valueType)})${generateSetChecks(def)}${_addMetadata(def)}`.trim()
+    case 'ZodSet':
+      return `z.set(${sUnwrapZod(s._def.valueType)})${generateSetChecks(s._def)}${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodFunction:
-      const args = def.args.items.map(sUnwrapZod)
+    case 'ZodFunction':
+      const args = s._def.args.items.map(sUnwrapZod)
       const argsString = args.length ? `.args(${args.join(', ')})` : ''
-      const returns = sUnwrapZod(def.returns)
-      return `z.function()${argsString}.returns(${returns})${_addMetadata(def)}`.trim()
+      const returns = sUnwrapZod(s._def.returns)
+      return `z.function()${argsString}.returns(${returns})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodLazy:
-      return `z.lazy(() => ${sUnwrapZod(def.getter())})${_addMetadata(def)}`.trim()
+    case 'ZodLazy':
+      return `z.lazy(() => ${sUnwrapZod(s._def.getter())})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodLiteral:
-      const value = primitiveToTypescriptValue(def.value)
-      return `z.literal(${value})${_addMetadata(def)}`.trim()
+    case 'ZodLiteral':
+      const value = primitiveToTypescriptValue(s._def.value)
+      return `z.literal(${value})${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodEnum:
-      const values = def.values.map(primitiveToTypescriptValue)
-      return `z.enum([${values.join(', ')}])${_addMetadata(def)}`.trim()
+    case 'ZodEnum':
+      const values = s._def.values.map(primitiveToTypescriptValue)
+      return `z.enum([${values.join(', ')}])${_addMetadata(s._def)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodEffects:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodEffects)
+    case 'ZodEffects':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodEffects')
 
-    case z.ZodFirstPartyTypeKind.ZodNativeEnum:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodNativeEnum)
+    case 'ZodNativeEnum':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodNativeEnum')
 
-    case z.ZodFirstPartyTypeKind.ZodOptional:
-      return `z.optional(${sUnwrapZod(def.innerType)})${_addMetadata(def, def.innerType)}`.trim()
+    case 'ZodOptional':
+      return `z.optional(${sUnwrapZod(s._def.innerType)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodNullable:
-      return `z.nullable(${sUnwrapZod(def.innerType)})${_addMetadata(def, def.innerType)}`.trim()
+    case 'ZodNullable':
+      return `z.nullable(${sUnwrapZod(s._def.innerType)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodDefault:
-      const defaultValue = unknownToTypescriptValue(def.defaultValue())
+    case 'ZodDefault':
+      const defaultValue = unknownToTypescriptValue(s._def.defaultValue())
       // TODO: use z.default() notation
-      return `z.default(${sUnwrapZod(def.innerType)}, ${defaultValue})${_addMetadata(def, def.innerType)}`.trim()
+      return `z.default(${sUnwrapZod(s._def.innerType)}, ${defaultValue})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodCatch:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodCatch)
+    case 'ZodCatch':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodCatch')
 
-    case z.ZodFirstPartyTypeKind.ZodPromise:
-      return `z.promise(${sUnwrapZod(def.type)})${_addMetadata(def, def.type)}`.trim()
+    case 'ZodPromise':
+      return `z.promise(${sUnwrapZod(s._def.type)})${_addMetadata(s._def, s._def.type)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodBranded:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodBranded)
+    case 'ZodBranded':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodBranded')
 
-    case z.ZodFirstPartyTypeKind.ZodPipeline:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodPipeline)
+    case 'ZodPipeline':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodPipeline')
 
-    case z.ZodFirstPartyTypeKind.ZodSymbol:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodSymbol)
+    case 'ZodSymbol':
+      throw new errors.UnsupportedZuiToTypescriptSchemaError('ZodSymbol')
 
-    case z.ZodFirstPartyTypeKind.ZodReadonly:
-      return `z.readonly(${sUnwrapZod(def.innerType)})${_addMetadata(def, def.innerType)}`.trim()
+    case 'ZodReadonly':
+      return `z.readonly(${sUnwrapZod(s._def.innerType)})${_addMetadata(s._def, s._def.innerType)}`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodRef:
-      const uri = primitiveToTypescriptValue(def.uri)
-      return `z.ref(${uri})${_addMetadata(def)}`.trim()
+    case 'ZodRef':
+      const uri = primitiveToTypescriptValue(s._def.uri)
+      return `z.ref(${uri})${_addMetadata(s._def)}`.trim()
 
     default:
-      util.assertNever(def)
+      utils.assert.assertNever(s)
   }
 }
 
-const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodTypeAny) => {
+const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodType) => {
   const innerDef = inner?._def
   return `${_addZuiExtensions(def, innerDef)}${_maybeDescribe(def, innerDef)}`
 }

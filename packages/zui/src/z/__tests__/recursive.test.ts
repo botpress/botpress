@@ -26,11 +26,13 @@ const testCategory: Category = {
   ],
 }
 
-test('recursion with z.late.object', () => {
-  const Category: z.ZodType<Category> = z.late.object(() => ({
-    name: z.string(),
-    subcategories: z.array(Category),
-  }))
+test('recursion with lazy object', () => {
+  const Category: z.ZodType<Category> = z.lazy(() =>
+    z.object({
+      name: z.string(),
+      subcategories: z.array(Category),
+    })
+  )
   Category.parse(testCategory)
 })
 

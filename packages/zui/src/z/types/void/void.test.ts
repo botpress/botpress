@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import { util } from '../utils'
+import * as utils from '../../utils'
 
 test('void', () => {
   const v = z.void()
@@ -10,5 +10,5 @@ test('void', () => {
   expect(() => v.parse('')).toThrow()
 
   type v = z.infer<typeof v>
-  util.assertEqual<v, void>(true)
+  utils.assert.assertEqual<v, void>(true)
 })
