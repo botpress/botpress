@@ -16,7 +16,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@microsoft/microsoft-graph-client": "^3.0.7",
-    "axios": "^1.5.1",
+    "axios": "^0.30.3",
     "botbuilder": "^4.23.3",
     "dedent": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
