@@ -85,7 +85,7 @@ export class ConversationManager {
     await this.respond({ type: 'text', text })
   }
 
-  public async respond(messagePayload: types.MessagePayload): Promise<void> {
+  public async respond(messagePayload: types.MessagePayload, tags: Record<string, string> = {}): Promise<void> {
     // FIXME: in the future, we should use the provided UserId so that messages
     //        on Botpress appear to come from the agent/user instead of the
     //        bot user. For now, this is not possible because of checks in the
@@ -99,7 +99,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       case 'image':
@@ -107,7 +107,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       case 'audio':
@@ -115,7 +115,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       case 'file':
@@ -123,7 +123,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       case 'video':
@@ -131,7 +131,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       case 'bloc':
@@ -139,7 +139,7 @@ export class ConversationManager {
           type: messagePayload.type,
           userId: this._props.ctx.botId,
           payload: messagePayload,
-          tags: {},
+          tags,
         })
         break
       default:
