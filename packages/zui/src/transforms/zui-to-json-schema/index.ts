@@ -82,19 +82,12 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
         .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
         .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
-      let additionalProperties: json.ObjectSchema['additionalProperties'] = false
-      if (z.isZuiType(s._def.unknownKeys)) {
-        additionalProperties = toJSONSchema(s._def.unknownKeys)
-      } else if (s._def.unknownKeys === 'passthrough') {
-        additionalProperties = true
-      }
-
       return {
         type: 'object',
         description: s.description,
         properties: Object.fromEntries(properties),
         required,
-        additionalProperties,
+        additionalProperties: additionalPropertiesSchema(s._def),
         'x-zui': s._def['x-zui'],
       } satisfies json.ObjectSchema
 
@@ -282,3 +275,23 @@ const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
   description: def?.description,
   'x-zui': def?.['x-zui'],
 })
+
+const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.ObjectSchema['additionalProperties']> => {
+  if (def.unknownKeys === 'passthrough') {
+    return true
+  }
+
+  if (def.unknownKeys === 'strict') {
+    return false
+  }
+
+  if (!z.isZuiType(def.unknownKeys)) {
+    return false
+  }
+
+  if (def.unknownKeys.typeName === 'ZodNever') {
+    return false
+  }
+
+  return toJSONSchema(def.unknownKeys)
+}
