@@ -102,7 +102,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   }
 
   if (schema.type === 'integer') {
-    const zSchema = toZuiPrimitive('number', schema) as z.ZodNativeType
+    const zSchema = toZuiPrimitive('number', schema)
     if (zSchema.typeName === 'ZodNumber') {
       return zSchema.int()
     }

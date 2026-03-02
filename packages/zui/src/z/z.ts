@@ -1,5 +1,5 @@
 export { zuiKey } from './consts'
-export { isZuiError, isZuiType } from './guards'
+export { is } from './guards'
 
 export type {
   // ui

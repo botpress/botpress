@@ -94,7 +94,7 @@ test('Discriminated Unions', () => {
 })
 
 test('ZuiTypeAny', () => {
-  const func = (type: zui.ZodNativeType) => {
+  const func = (type: zui.ZodType) => {
     return type
   }
 

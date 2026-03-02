@@ -5,7 +5,7 @@ import * as errors from '../common/errors'
 import z, { ZodLiteral } from '../../z'
 import { UIComponentDefinitions } from '../../z/typings'
 
-const evalZui = (source: string): z.ZodNativeType => {
+const evalZui = (source: string): z.ZodType => {
   const evalResult = evalZuiString(source)
   if (!evalResult.sucess) {
     throw new Error(`${evalResult.error}: ${source}`)

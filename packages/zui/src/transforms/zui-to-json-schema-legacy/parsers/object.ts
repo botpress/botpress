@@ -11,7 +11,7 @@ export type JsonSchema7ObjectType = {
 }
 
 const getAdditionalProperties = (def: ZodObjectDef, refs: Refs): boolean | JsonSchema7Type => {
-  if (z.isZuiType(def.unknownKeys)) {
+  if (z.is.zuiType(def.unknownKeys)) {
     return (
       parseDef((def.unknownKeys as ZodTypeAny)._def, {
         ...refs,
