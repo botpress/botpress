@@ -76,8 +76,11 @@ export const configurations = {
     schema: sdk.z.object({
       appConfigurationToken: sdk.z
         .string()
-        .secret()
         .title('Slack App Configuration Token')
+        .describe('Generated from api.slack.com/apps'),
+      appConfigurationRefreshToken: sdk.z
+        .string()
+        .title('Slack App Configuration Refresh Token')
         .describe('Generated from api.slack.com/apps'),
       ...SHARED_CONFIGURATION,
     }),

@@ -57,9 +57,13 @@ export const states = {
       appConfigurationToken: sdk.z
         .string()
         .secret()
-        .optional()
         .title('Slack Configuration Token')
         .describe('The Slack app configuration token used to create the app'),
+      appConfigurationRefreshToken: sdk.z
+        .string()
+        .secret()
+        .title('Slack App Configuration Refresh Token')
+        .describe('Generated from api.slack.com/apps'),
       appId: sdk.z.string().optional().title('Slack App ID').describe('The ID of the created Slack app'),
       clientId: sdk.z.string().optional().title('Client ID').describe('OAuth Client ID from the manifest-created app'),
       clientSecret: sdk.z

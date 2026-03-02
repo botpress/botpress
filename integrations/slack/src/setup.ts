@@ -31,10 +31,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
   if (ctx.configurationType === 'manifestAppCredentials') {
-    if (!ctx.configuration.appConfigurationToken)
+    if (!ctx.configuration.appConfigurationToken || !ctx.configuration.appConfigurationRefreshToken) {
       throw new RuntimeError(
-        'Missing configuration: App Configuration Token is required when using app manifest configuration'
+        'Missing configuration: App Configuration Token and Refresh Token are required when using app manifest configuration'
       )
+    }
     await _saveAppConfigurationToken({ client, ctx })
     return
   }

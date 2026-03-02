@@ -1,6 +1,11 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { RuntimeError, Response } from '@botpress/sdk'
-import { SlackManifestClient, buildSlackAppManifest } from '../slack-api/slack-manifest-client'
+import {
+  SlackManifestClient,
+  buildSlackAppManifest,
+  patchAppManifestConfigurationState,
+  getAppManifestConfigurationState,
+} from '../slack-api/slack-manifest-client'
 import { SlackOAuthClient } from '../slack-api/slack-oauth-client'
 import * as bp from '.botpress'
 
@@ -45,7 +50,7 @@ const _saveAppNameHandler: WizardHandler = async ({ client, ctx, responses, inpu
   if (!inputValue?.trim()) {
     throw new RuntimeError('App name is required')
   }
-  await _patchAppManifestConfigurationState(client, ctx, { appName: inputValue.trim() })
+  await patchAppManifestConfigurationState(client, ctx, { appName: inputValue.trim() })
 
   return responses.redirectToStep('create-app')
 }
@@ -58,17 +63,24 @@ const _createAppHandler: WizardHandler = async (props) => {
   }
 
   const appConfigurationToken = ctx.configuration.appConfigurationToken
-  if (!appConfigurationToken) {
-    throw new RuntimeError('Slack App Configuration Token is required in the integration configuration')
+  const appConfigurationRefreshToken = ctx.configuration.appConfigurationRefreshToken
+  if (!appConfigurationToken || !appConfigurationRefreshToken) {
+    throw new RuntimeError(
+      'Slack App Configuration Token and Refresh Token are required in the integration configuration'
+    )
   }
 
-  const manifestState = await _getAppManifestConfigurationState(client, ctx)
+  const manifestState = await getAppManifestConfigurationState(client, ctx)
   const appName = manifestState.appName || 'Botpress Bot'
 
   const webhookUrl = process.env.BP_WEBHOOK_URL!
-  const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
+  const redirectUri = `${webhookUrl}/oauth`
   const manifest = buildSlackAppManifest(webhookUrl, redirectUri, appName)
-  const manifestClient = new SlackManifestClient({ client, ctx, logger, appConfigurationToken })
+  const manifestClient = await SlackManifestClient.create({
+    client,
+    ctx,
+    logger,
+  })
 
   logger.forBot().debug('Validating Slack app manifest...')
   await manifestClient.validateManifest(manifest)
@@ -77,25 +89,17 @@ const _createAppHandler: WizardHandler = async (props) => {
   const {
     app_id,
     credentials: { client_id, client_secret, signing_secret },
+    oauth_authorize_url,
   } = await manifestClient.createApp(manifest)
 
-  await _patchAppManifestConfigurationState(client, ctx, {
-    appConfigurationToken,
+  await patchAppManifestConfigurationState(client, ctx, {
     appId: app_id,
     clientId: client_id,
     clientSecret: client_secret,
     signingSecret: signing_secret,
   })
 
-  const scopes = manifest.oauth_config.scopes.bot.join(',')
-  const oauthUrl =
-    'https://slack.com/oauth/v2/authorize' +
-    `?client_id=${encodeURIComponent(client_id)}` +
-    `&scope=${encodeURIComponent(scopes)}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&state=${encodeURIComponent(ctx.webhookId)}`
-
-  return responses.redirectToExternalUrl(oauthUrl)
+  return responses.redirectToExternalUrl(oauth_authorize_url)
 }
 
 const _oauthCallbackHandler: WizardHandler = async (props) => {
@@ -111,7 +115,7 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
     })
   }
 
-  const state = await _getAppManifestConfigurationState(client, ctx)
+  const state = await getAppManifestConfigurationState(client, ctx)
   if (!state.clientId || !state.clientSecret) {
     return responses.endWizard({
       success: false,
@@ -145,36 +149,4 @@ const _oauthCallbackHandler: WizardHandler = async (props) => {
 
 const _endHandler: WizardHandler = ({ responses }) => {
   return responses.endWizard({ success: true })
-}
-
-const _patchAppManifestConfigurationState = async (
-  client: bp.Client,
-  ctx: bp.Context,
-  newState: Partial<bp.states.manifestAppCredentials.ManifestAppCredentials['payload']>
-) => {
-  const currentState = await _getAppManifestConfigurationState(client, ctx)
-  await client.setState({
-    type: 'integration',
-    id: ctx.integrationId,
-    name: 'manifestAppCredentials',
-    payload: { ...currentState, ...newState },
-  })
-}
-
-const _getAppManifestConfigurationState = async (
-  client: bp.Client,
-  ctx: bp.Context
-): Promise<Partial<bp.states.manifestAppCredentials.ManifestAppCredentials['payload']>> => {
-  try {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'manifestAppCredentials',
-      id: ctx.integrationId,
-    })
-    return state.payload
-  } catch (error) {
-    throw new RuntimeError(
-      `Failed to get manifest app credentials state: ${error instanceof Error ? error.message : String(error)}`
-    )
-  }
 }
