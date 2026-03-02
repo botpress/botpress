@@ -32,17 +32,17 @@ export const searchContact: bp.IntegrationProps['actions']['searchContact'] = as
   const phoneStr = input.phone ? `phone ${input.phone}` : 'unknown phone'
   const emailStr = input.email ? `email ${input.email}` : 'unknown email'
   const infosStr = `${phoneStr} and ${emailStr}`
-  // Don't fetch all properties to avoid 414 URI Too Long errors
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   logger
     .forBot()
     .debug(
-      `Searching for contact with ${infosStr}`
+      `Searching for contact with ${infosStr} ${propertyKeys?.length ? `and properties ${propertyKeys?.join(', ')}` : ''}`
     )
 
   const contact = await hsClient.searchContact({
     phone: input.phone,
     email: input.email,
-    propertiesToReturn: [], // Empty array = only default properties
+    propertiesToReturn: propertyKeys,
   })
 
   if (!contact) {
@@ -81,11 +81,10 @@ export const createContact: bp.IntegrationProps['actions']['createContact'] = as
 export const getContact: bp.IntegrationProps['actions']['getContact'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
-  // Don't fetch all properties to avoid 414 URI Too Long errors
-  // Only use default properties
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const contact = await hsClient.getContact({
     contactId: input.contactIdOrEmail,
-    propertiesToReturn: [], // Empty array = only default properties
+    propertiesToReturn: propertyKeys,
   })
   return {
     contact: _mapHsContactToBpContact(contact),
@@ -131,10 +130,9 @@ export const deleteContact: bp.IntegrationProps['actions']['deleteContact'] = as
 
 export const listContacts: bp.IntegrationProps['actions']['listContacts'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-  // Don't fetch all properties to avoid 414 URI Too Long errors
-  // Only use default properties defined in hubspot-client.ts
+  const propertyKeys = await _getContactPropertyKeys(hsClient)
   const { contacts, nextToken } = await hsClient.listContacts({
-    properties: [], // Empty array = only default properties
+    properties: propertyKeys,
     nextToken: input.meta.nextToken,
   })
   return {

@@ -216,7 +216,7 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to get company by ID')
-  public async getCompanyById({ companyId, propertiesToReturn }: { companyId: string; propertiesToReturn?: string[] }) {
+  public async getCompanyById({ companyId, propertiesToReturn }: { companyId: number; propertiesToReturn?: string[] }) {
     const company = await this._hsClient.crm.companies.basicApi.getById(companyId.toString(), [
       ...DEFAULT_COMPANY_PROPERTIES,
       ...(propertiesToReturn ?? []),
@@ -369,7 +369,6 @@ export class HubspotClient {
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
     const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
     await this._validateProperties({ properties: allPropertiesToReturn ?? [], type: 'contact' })
-
     const idProperty = contactId.includes('@') ? 'email' : undefined
     const contact = await this._hsClient.crm.contacts.basicApi.getById(
       contactId,
