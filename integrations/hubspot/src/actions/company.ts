@@ -28,7 +28,10 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
   logger,
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
-  const propertyKeys = await _getCompanyPropertyKeys(hsClient)
+  const propertyKeys =
+    input.propertiesToReturn && input.propertiesToReturn.length > 0
+      ? input.propertiesToReturn
+      : await _getCompanyPropertyKeys(hsClient)
 
   const company = await hsClient.searchCompany({
     name: input.name,
@@ -43,10 +46,13 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
 
 export const getCompany: bp.IntegrationProps['actions']['getCompany'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
-  const propertyKeys = await _getCompanyPropertyKeys(hsClient)
+  const propertyKeys =
+    input.propertiesToReturn && input.propertiesToReturn.length > 0
+      ? input.propertiesToReturn
+      : await _getCompanyPropertyKeys(hsClient)
 
   const company = await hsClient.getCompanyById({
-    companyId: input.companyId,
+    companyId: Number(input.companyId),
     propertiesToReturn: propertyKeys,
   })
 
@@ -66,7 +72,7 @@ export const updateCompany: bp.IntegrationProps['actions']['updateCompany'] = as
   const additionalProperties = propertiesEntriesToRecord(input.properties ?? [])
 
   const updatedCompany = await hsClient.updateCompany({
-    companyId: input.companyId,
+    companyId: Number(input.companyId),
     additionalProperties,
   })
 

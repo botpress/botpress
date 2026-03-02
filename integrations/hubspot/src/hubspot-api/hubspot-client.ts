@@ -229,7 +229,7 @@ export class HubspotClient {
     companyId,
     additionalProperties,
   }: {
-    companyId: string
+    companyId: number
     additionalProperties: Record<string, string>
   }) {
     const resolvedProperties = await this._resolveAndCoerceProperties({
@@ -238,7 +238,7 @@ export class HubspotClient {
     })
 
     const updatedCompany = await this._hsClient.crm.companies.basicApi.update(
-      companyId,
+      companyId.toString(),
       {
         properties: resolvedProperties,
       }
