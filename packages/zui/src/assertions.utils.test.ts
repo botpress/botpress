@@ -1,6 +1,5 @@
 import { expect } from 'vitest'
 import { format } from 'prettier'
-import { IsEqual } from './z/utils/type-utils'
 
 const _formatTs = async (code: string): Promise<string> => {
   code = code.replace(/\s+/g, ' ')
@@ -9,6 +8,8 @@ const _formatTs = async (code: string): Promise<string> => {
 }
 
 export const assertIs = <T>(_arg: T): void => {}
+
+export type IsEqual<T, U> = (<V>() => V extends T ? 1 : 2) extends <V>() => V extends U ? 1 : 2 ? true : false
 export const assertEqual = <A, B>(val: IsEqual<A, B>) => val
 
 export const expectTypescript = (received: string) => ({
