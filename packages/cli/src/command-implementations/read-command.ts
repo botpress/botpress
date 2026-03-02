@@ -38,7 +38,7 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   }
 
   private _parseIntegration = async (integrationDef: sdk.IntegrationDefinition) => {
-    const parsed = await apiUtils.prepareCreateIntegrationBody(integrationDef)
+    const parsed = await this.prepareCreateIntegrationBody(integrationDef)
     parsed.interfaces = utils.records.mapValues(integrationDef.interfaces ?? {}, (iface) => ({
       ...iface,
       id: iface.id ?? '',
