@@ -28,10 +28,7 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
   logger,
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
-  const propertyKeys =
-    input.propertiesToReturn && input.propertiesToReturn.length > 0
-      ? input.propertiesToReturn
-      : await _getCompanyPropertyKeys(hsClient)
+  const propertyKeys = await _getCompanyPropertyKeys(hsClient)
 
   const company = await hsClient.searchCompany({
     name: input.name,
