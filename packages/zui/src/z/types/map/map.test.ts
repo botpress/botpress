@@ -1,12 +1,12 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../utils'
+import * as assert from '../../../assertions.utils.test'
 import * as z from '../../index'
 
 const stringMap = z.map(z.string(), z.string())
 type stringMap = z.infer<typeof stringMap>
 
 test('type inference', () => {
-  utils.assert.assertEqual<stringMap, Map<string, string>>(true)
+  assert.assertEqual<stringMap, Map<string, string>>(true)
 })
 
 test('valid parse', () => {

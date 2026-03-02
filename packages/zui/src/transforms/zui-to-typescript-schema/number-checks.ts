@@ -23,7 +23,7 @@ const _generateNumberCheck = (check: ZodNumberCheck): string => {
     case 'finite':
       return `.finite(${toTs(check.message)})`
     default:
-      type _assertion = utils.assert.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

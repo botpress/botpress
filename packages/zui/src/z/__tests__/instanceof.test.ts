@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../utils'
+import * as assert from '../../assertions.utils.test'
 import z from '../index'
 
 test('instanceof', async () => {
@@ -25,7 +25,7 @@ test('instanceof', async () => {
   await expect(() => SubtestSchema.parse(new Test())).toThrow(/Input not instance of Subtest/)
   await expect(() => TestSchema.parse(12)).toThrow(/Input not instance of Test/)
 
-  utils.assert.assertEqual<Test, z.infer<typeof TestSchema>>(true)
+  assert.assertEqual<Test, z.infer<typeof TestSchema>>(true)
 })
 
 test('instanceof fatal', () => {

@@ -19,7 +19,7 @@ const _generateDateCheck = (check: ZodDateCheck): string => {
       const maxDate = dateTs(check.value)
       return `.max(${maxDate}, ${toTs(check.message)})`
     default:
-      type _assertion = utils.assert.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

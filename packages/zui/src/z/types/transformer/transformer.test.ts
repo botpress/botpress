@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../utils'
 import * as z from '../../index'
+import * as assert from '../../../assertions.utils.test'
 import { NEVER } from '..'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
@@ -85,7 +85,7 @@ test('z.NEVER in transform', () => {
       return val
     })
   type foo = z.infer<typeof foo>
-  utils.assert.assertEqual<foo, number>(true)
+  assert.assertEqual<foo, number>(true)
   const arg = foo.safeParse(undefined)
   if (!arg.success) {
     expect(arg.error.issues[0]?.message).toEqual('bad')
@@ -177,8 +177,8 @@ test('object typing', () => {
   type t1 = z.input<typeof t1>
   type t2 = z.output<typeof t1>
 
-  utils.assert.assertEqual<t1, { stringToNumber: string }>(true)
-  utils.assert.assertEqual<t2, { stringToNumber: number }>(true)
+  assert.assertEqual<t1, { stringToNumber: string }>(true)
+  assert.assertEqual<t2, { stringToNumber: number }>(true)
 })
 
 test('transform method overloads', () => {

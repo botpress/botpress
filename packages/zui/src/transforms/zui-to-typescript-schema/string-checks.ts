@@ -60,7 +60,7 @@ const _generateStringCheck = (check: ZodStringCheck): string => {
       const ipOptions = unknownToTypescriptValue({ message: check.message, version: check.version })
       return `.ip(${ipOptions})`
     default:
-      type _assertion = utils.assert.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

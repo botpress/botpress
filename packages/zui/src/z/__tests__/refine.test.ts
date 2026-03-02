@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../utils'
+import * as assert from '../../assertions.utils.test'
 import z from '../index'
 
 test('refinement', () => {
@@ -47,11 +47,11 @@ test('refinement type guard', () => {
   type Input = z.input<typeof validationSchema>
   type Schema = z.infer<typeof validationSchema>
 
-  utils.assert.assertEqual<'a', Input['a']>(false)
-  utils.assert.assertEqual<string, Input['a']>(true)
+  assert.assertEqual<'a', Input['a']>(false)
+  assert.assertEqual<string, Input['a']>(true)
 
-  utils.assert.assertEqual<'a', Schema['a']>(true)
-  utils.assert.assertEqual<string, Schema['a']>(false)
+  assert.assertEqual<'a', Schema['a']>(true)
+  assert.assertEqual<string, Schema['a']>(false)
 })
 
 test('refinement Promise', async () => {
@@ -166,7 +166,7 @@ test('superRefine - type narrowing', () => {
       return true
     })
 
-  utils.assert.assertEqual<z.infer<typeof schema>, NarrowType>(true)
+  assert.assertEqual<z.infer<typeof schema>, NarrowType>(true)
 
   expect(schema.safeParse({ type: 'test', age: 0 }).success).toEqual(true)
   expect(schema.safeParse(null).success).toEqual(false)
@@ -185,7 +185,7 @@ test('chained mixed refining types', () => {
     .nullable()
     .refine((arg): arg is firstRefinement => !!arg?.third)
     .superRefine((arg, ctx): arg is secondRefinement => {
-      utils.assert.assertEqual<typeof arg, firstRefinement>(true)
+      assert.assertEqual<typeof arg, firstRefinement>(true)
       if (arg.first !== 'bob') {
         ctx.addIssue({
           code: 'custom',
@@ -196,11 +196,11 @@ test('chained mixed refining types', () => {
       return true
     })
     .refine((arg): arg is thirdRefinement => {
-      utils.assert.assertEqual<typeof arg, secondRefinement>(true)
+      assert.assertEqual<typeof arg, secondRefinement>(true)
       return arg.second === 33
     })
 
-  utils.assert.assertEqual<z.infer<typeof schema>, thirdRefinement>(true)
+  assert.assertEqual<z.infer<typeof schema>, thirdRefinement>(true)
 })
 
 test('get inner type', () => {

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../utils'
+import * as assert from '../../assertions.utils.test'
 import z from '../index'
 
 const nested = z.object({
@@ -20,7 +20,7 @@ test('shallow inference', () => {
     outer?: { inner: string } | undefined
     array?: { asdf: string }[]
   }
-  utils.assert.assertEqual<shallow, correct>(true)
+  assert.assertEqual<shallow, correct>(true)
 })
 
 test('shallow partial parse', () => {
@@ -68,7 +68,7 @@ test('required inference', () => {
     nullableField: number | null
     nullishField: string | null
   }
-  utils.assert.assertEqual<expected, required>(true)
+  assert.assertEqual<expected, required>(true)
 })
 
 test('required with mask', () => {

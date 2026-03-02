@@ -184,7 +184,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       } else if (s.value === undefined) {
         return undefinedSchema(s._def)
       } else {
-        utils.assert.assertEqual<bigint | symbol, typeof s.value>(true)
+        s.value satisfies bigint | symbol
         const unsupportedLiteral = typeof s.value
         throw new err.ZuiToJSONSchemaError(`Unsupported literal type: "${unsupportedLiteral}"`)
       }

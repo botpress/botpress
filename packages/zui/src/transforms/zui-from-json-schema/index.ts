@@ -198,7 +198,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     return z.intersection(zLeft, zRight)
   }
 
-  type _expectUndefined = utils.assert.AssertTrue<utils.types.IsEqual<typeof schema.type, undefined>>
+  schema.type satisfies undefined
 
   if (guards.isUnknownSchema(schema)) {
     return z.unknown()

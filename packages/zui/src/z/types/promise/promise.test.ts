@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../utils'
+import * as assert from '../../../assertions.utils.test'
 import * as z from '../../index'
 import { ZodError } from '../../error'
 
@@ -12,7 +12,7 @@ const promSchema = z.promise(
 
 test('promise inference', () => {
   type promSchemaType = z.infer<typeof promSchema>
-  utils.assert.assertEqual<promSchemaType, Promise<{ name: string; age: number }>>(true)
+  assert.assertEqual<promSchemaType, Promise<{ name: string; age: number }>>(true)
 })
 
 test('promise parsing success', async () => {
