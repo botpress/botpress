@@ -1,14 +1,7 @@
 import { ZodError } from '../../error'
+import { is } from '../../guards'
 import { builders } from '../../internal-builders'
-import type {
-  DefaultZodUnionOptions,
-  IZodUnion,
-  IZodType,
-  ZodUnionDef,
-  ZodUnionOptions,
-  ZodIssue,
-  ZodNativeType,
-} from '../../typings'
+import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
 import * as utils from '../../utils'
 import {
   ZodBaseTypeImpl,
@@ -159,9 +152,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   }
 
   mandatory(): IZodType {
-    const options = this._def.options
-      .filter((o) => !((o as ZodNativeType).typeName === 'ZodUndefined'))
-      .map((option) => option.mandatory())
+    const options = this._def.options.filter((o) => !is.zuiUndefined(o)).map((option) => option.mandatory())
 
     const [first, second, ...others] = options
     if (!first) {

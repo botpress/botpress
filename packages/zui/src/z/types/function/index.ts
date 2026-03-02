@@ -1,4 +1,5 @@
 import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
+import { is } from '../../guards'
 import { builders } from '../../internal-builders'
 import type {
   IZodType,
@@ -11,7 +12,6 @@ import type {
   InnerTypeOfFunction,
   IZodUnknown,
   IZodPromise,
-  ZodNativeType,
 } from '../../typings'
 
 import * as utils from '../../utils'
@@ -90,8 +90,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     const params = { errorMap: ctx.common.contextualErrorMap }
     const fn = ctx.data
 
-    const returns = this._def.returns as ZodNativeType
-    if (returns.typeName === 'ZodPromise') {
+    if (is.zuiPromise(this._def.returns)) {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 

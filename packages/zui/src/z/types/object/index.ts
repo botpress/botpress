@@ -1,3 +1,4 @@
+import { is } from '../../guards'
 import { builders } from '../../internal-builders'
 import type {
   IZodObject,
@@ -12,7 +13,6 @@ import type {
   KeyOfObject,
   IZodOptional,
   IZodEnum,
-  ZodNativeType,
 } from '../../typings'
 import * as utils from '../../utils'
 import {
@@ -507,10 +507,10 @@ export class ZodObjectImpl<
         newShape[key] = this.shape[key]
       } else {
         const fieldSchema = this.shape[key]
-        let newField = fieldSchema as ZodNativeType
 
-        while (newField.typeName === 'ZodOptional') {
-          newField = (newField as IZodOptional<any>)._def.innerType
+        let newField = fieldSchema!
+        while (is.zuiOptional(newField)) {
+          newField = newField._def.innerType
         }
 
         newShape[key] = newField

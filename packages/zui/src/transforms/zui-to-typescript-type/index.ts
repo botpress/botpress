@@ -126,16 +126,15 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
   if (schema instanceof KeyValue) {
     let optionalValue: z.ZodOptional | undefined = undefined
 
-    const schemaValue = schema.value as z.ZodNativeType
-    if (schemaValue.typeName === 'ZodOptional') {
-      optionalValue = schemaValue
-    } else if (schemaValue.typeName === 'ZodDefault' && config.treatDefaultAsOptional) {
-      optionalValue = schemaValue._def.innerType.optional()
+    if (z.is.zuiOptional(schema.value)) {
+      optionalValue = schema.value
+    } else if (z.is.zuiDefault(schema.value) && config.treatDefaultAsOptional) {
+      optionalValue = schema.value._def.innerType.optional()
     }
 
     if (optionalValue) {
       let innerType = optionalValue._def.innerType
-      if (z.isZuiType(innerType) && !innerType.description && optionalValue.description) {
+      if (z.is.zuiType(innerType) && !innerType.description && optionalValue.description) {
         innerType = innerType?.describe(optionalValue.description)
       }
 
@@ -146,27 +145,26 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    const isOptional = (schema.value as z.ZodNativeType).typeName === 'ZodAny' // any is treated as optional for backwards compatibility
+    const isOptional = z.is.zuiAny(schema.value) // any is treated as optional for backwards compatibility
     const key = isOptional ? _optionalKey(schema.key) : schema.key
     return `${delimiter}${description}${delimiter}${key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {
-    const schemaSchema = schema.schema as z.ZodNativeType
-    if (schemaSchema.typeName === 'ZodTuple') {
+    if (z.is.zuiTuple(schema.schema)) {
       let args = ''
-      for (let i = 0; i < schemaSchema.items.length; i++) {
-        const argName = (schemaSchema.items[i]?.ui?.title as string) ?? `arg${i}`
-        const item = schemaSchema.items[i]!
+      for (let i = 0; i < schema.schema.items.length; i++) {
+        const argName = (schema.schema.items[i]?.ui?.title as string) ?? `arg${i}`
+        const item = schema.schema.items[i]!
         args += `${sUnwrapZod(new KeyValue(toPropertyKey(argName), item), newConfig)}${
-          i < schemaSchema.items.length - 1 ? ', ' : ''
+          i < schema.schema.items.length - 1 ? ', ' : ''
         } `
       }
 
       return args
     }
 
-    const isLiteral = (schema.schema.naked() as z.ZodNativeType).typeName === 'ZodLiteral'
+    const isLiteral = z.is.zuiLiteral(schema.schema.naked())
 
     const typings = sUnwrapZod(schema.schema, newConfig).trim()
     const startsWithPairs =
@@ -185,12 +183,11 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
   }
 
   if (schema instanceof FnReturn) {
-    const schemaSchema = schema.schema as z.ZodNativeType
-    if (schemaSchema.typeName === 'ZodOptional') {
-      return `${sUnwrapZod(schemaSchema.unwrap(), newConfig)} | undefined`
+    if (z.is.zuiOptional(schema.schema)) {
+      return `${sUnwrapZod(schema.schema.unwrap(), newConfig)} | undefined`
     }
 
-    return sUnwrapZod(schemaSchema, newConfig)
+    return sUnwrapZod(schema.schema, newConfig)
   }
 
   const s = schema as z.ZodFirstPartySchemaTypes
@@ -239,7 +236,7 @@ function sUnwrapZod(schema: z.ZodType | KeyValue | FnParameters | Declaration | 
 
     case 'ZodObject':
       const props = Object.entries(s._def.shape()).map(([key, value]) => {
-        if (z.isZuiType(value)) {
+        if (z.is.zuiType(value)) {
           return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
         }
         return `${key}: unknown`

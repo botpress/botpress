@@ -285,7 +285,7 @@ const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.Objec
     return false
   }
 
-  if (!z.isZuiType(def.unknownKeys)) {
+  if (!z.is.zuiType(def.unknownKeys)) {
     return false
   }
 
