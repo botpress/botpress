@@ -16,13 +16,6 @@ const searchCompany: ActionDefinition = {
     schema: z.object({
       name: z.string().optional().title('Name').describe('The name of the company to search for'),
       domain: z.string().optional().title('Domain').describe('The domain of the company to search for'),
-      propertiesToReturn: z
-        .array(z.string())
-        .optional()
-        .title('Properties to Return')
-        .describe(
-          'Additional properties to return (e.g., ["health_status", "industry"]). Default properties are always included.'
-        ),
     }),
   },
   output: {
