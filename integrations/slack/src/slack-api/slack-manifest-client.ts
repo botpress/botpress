@@ -44,6 +44,7 @@ const manifestSchema = z.object({
     }),
     org_deploy_enabled: z.boolean(),
     socket_mode_enabled: z.boolean(),
+    token_rotation_enabled: z.boolean(),
   }),
 })
 
@@ -118,13 +119,6 @@ export class SlackManifestClient {
     this._logger = logger
     this._appConfigurationToken = ctx.configuration.appConfigurationToken
     this._slackWebClient = new SlackWebClient.WebClient(this._appConfigurationToken)
-    this._logger
-      .forBot()
-      .debug(
-        'Initialized Slack Manifest Client with provided app configuration token and refresh token',
-        this._appConfigurationToken,
-        ctx.configuration.appConfigurationRefreshToken
-      )
   }
 
   public static async create(props: bp.CommonHandlerProps) {
@@ -229,5 +223,6 @@ export const buildSlackAppManifest = (webhookUrl: string, redirectUri: string, a
     },
     org_deploy_enabled: false,
     socket_mode_enabled: false,
+    token_rotation_enabled: true,
   },
 })
