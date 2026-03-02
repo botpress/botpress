@@ -3,7 +3,7 @@ import { z, ZodType, zuiKey } from '../../z'
 import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from '.'
 import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension'
 import { JSONSchema7 } from 'json-schema'
-import { assert } from '../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 
 const testZuiConversion = (zuiObject: ZodType) => {
   const jsonSchema = toJSONSchemaLegacy(zuiObject)
@@ -209,7 +209,7 @@ describe('Coercion deserialization', () => {
       required: ['foo'],
     }
     const zStr = jsonSchemaToZodStr(schema)
-    await assert(zStr).toMatchWithoutFormatting(`
+    await assert.expectTypescript(zStr).toMatchWithoutFormatting(`
       z.object({ foo: z.ref("#Foo") })
     `)
   })
@@ -235,7 +235,7 @@ describe('Coercion deserialization', () => {
       required: ['foo', 'bar'],
     }
     const zStr = jsonSchemaToZodStr(schema)
-    await assert(zStr).toMatchWithoutFormatting(`
+    await assert.expectTypescript(zStr).toMatchWithoutFormatting(`
       z.object({ foo: z.literal("foo"), bar: z.literal("bar") })
     `)
   })

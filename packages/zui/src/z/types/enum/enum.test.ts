@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../utils'
+import * as assert from '../../../assertions.utils.test'
 import * as z from '../../index'
 
 test('create enum', () => {
@@ -12,7 +12,7 @@ test('create enum', () => {
 test('infer enum', () => {
   const MyEnum = z.enum(['Red', 'Green', 'Blue'])
   type MyEnum = z.infer<typeof MyEnum>
-  utils.assert.assertEqual<MyEnum, 'Red' | 'Green' | 'Blue'>(true)
+  assert.assertEqual<MyEnum, 'Red' | 'Green' | 'Blue'>(true)
 })
 
 test('get options', () => {
@@ -23,7 +23,7 @@ test('readonly enum', () => {
   const HTTP_SUCCESS = ['200', '201'] as const
   const arg = z.enum(HTTP_SUCCESS)
   type arg = z.infer<typeof arg>
-  utils.assert.assertEqual<arg, '200' | '201'>(true)
+  assert.assertEqual<arg, '200' | '201'>(true)
 
   arg.parse('201')
   expect(() => arg.parse('202')).toThrow()
@@ -44,11 +44,11 @@ test('extract/exclude', () => {
   const UnhealthyEnum = FoodEnum.exclude(['Salad'])
   const EmptyFoodEnum = FoodEnum.exclude(foods)
 
-  utils.assert.assertEqual<z.infer<typeof ItalianEnum>, 'Pasta' | 'Pizza'>(true)
-  utils.assert.assertEqual<z.infer<typeof UnhealthyEnum>, 'Pasta' | 'Pizza' | 'Tacos' | 'Burgers'>(true)
+  assert.assertEqual<z.infer<typeof ItalianEnum>, 'Pasta' | 'Pizza'>(true)
+  assert.assertEqual<z.infer<typeof UnhealthyEnum>, 'Pasta' | 'Pizza' | 'Tacos' | 'Burgers'>(true)
   // @ts-expect-error TS2344
-  utils.assert.assertEqual<typeof EmptyFoodEnum, z.ZodEnum<[]>>(true)
-  utils.assert.assertEqual<z.infer<typeof EmptyFoodEnum>, never>(true)
+  assert.assertEqual<typeof EmptyFoodEnum, z.ZodEnum<[]>>(true)
+  assert.assertEqual<z.infer<typeof EmptyFoodEnum>, never>(true)
 })
 
 test('error map in extract/exclude', () => {

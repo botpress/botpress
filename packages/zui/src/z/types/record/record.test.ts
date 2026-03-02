@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../../utils'
+import * as assert from '../../../assertions.utils.test'
 import * as z from '../../index'
 
 const booleanRecord = z.record(z.boolean())
@@ -12,11 +12,11 @@ const recordWithLiteralKeys = z.record(z.union([z.literal('Tuna'), z.literal('Sa
 type recordWithLiteralKeys = z.infer<typeof recordWithLiteralKeys>
 
 test('type inference', () => {
-  utils.assert.assertEqual<booleanRecord, Record<string, boolean>>(true)
+  assert.assertEqual<booleanRecord, Record<string, boolean>>(true)
 
-  utils.assert.assertEqual<recordWithEnumKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
+  assert.assertEqual<recordWithEnumKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
 
-  utils.assert.assertEqual<recordWithLiteralKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
+  assert.assertEqual<recordWithLiteralKeys, Partial<Record<'Tuna' | 'Salmon', string>>>(true)
 })
 
 test('methods', () => {

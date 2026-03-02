@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { z } from '../../../index'
-import * as utils from '../../utils'
+import * as assert from '../../../assertions.utils.test'
 import { ZodError } from '../../error'
 
 test('basic catch', () => {
@@ -44,9 +44,9 @@ test('catch with transform', () => {
   expect(stringWithDefault._def.innerType._def.schema.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  utils.assert.assertEqual<inp, unknown>(true)
+  assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  utils.assert.assertEqual<out, string>(true)
+  assert.assertEqual<out, string>(true)
 })
 
 test('catch on existing optional', () => {
@@ -58,18 +58,18 @@ test('catch on existing optional', () => {
   expect(stringWithDefault._def.innerType._def.innerType.typeName).toBe('ZodString')
 
   type inp = z.input<typeof stringWithDefault>
-  utils.assert.assertEqual<inp, unknown>(true)
+  assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  utils.assert.assertEqual<out, string | undefined>(true)
+  assert.assertEqual<out, string | undefined>(true)
 })
 
 test('optional on catch', () => {
   const stringWithDefault = z.string().catch('asdf').optional()
 
   type inp = z.input<typeof stringWithDefault>
-  utils.assert.assertEqual<inp, unknown>(true)
+  assert.assertEqual<inp, unknown>(true)
   type out = z.output<typeof stringWithDefault>
-  utils.assert.assertEqual<out, string | undefined>(true)
+  assert.assertEqual<out, string | undefined>(true)
 })
 
 test('complex chain example', () => {
@@ -92,7 +92,7 @@ test('removeCatch', () => {
   const stringWithRemovedDefault = z.string().catch('asdf').removeCatch()
 
   type out = z.output<typeof stringWithRemovedDefault>
-  utils.assert.assertEqual<out, string>(true)
+  assert.assertEqual<out, string>(true)
 })
 
 test('nested', () => {
@@ -101,9 +101,9 @@ test('nested', () => {
     inner: 'asdf',
   })
   type input = z.input<typeof outer>
-  utils.assert.assertEqual<input, unknown>(true)
+  assert.assertEqual<input, unknown>(true)
   type out = z.output<typeof outer>
-  utils.assert.assertEqual<out, { inner: string }>(true)
+  assert.assertEqual<out, { inner: string }>(true)
   expect(outer.parse(undefined)).toEqual({ inner: 'asdf' })
   expect(outer.parse({})).toEqual({ inner: 'asdf' })
   expect(outer.parse({ inner: undefined })).toEqual({ inner: 'asdf' })

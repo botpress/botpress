@@ -1,5 +1,4 @@
 import { ZodStringCheck, ZodStringDef } from '../../z/types/string'
-import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs, unknownToTypescriptValue } from '../common/utils'
 
 export const generateStringChecks = (def: ZodStringDef): string => {
@@ -60,7 +59,7 @@ const _generateStringCheck = (check: ZodStringCheck): string => {
       const ipOptions = unknownToTypescriptValue({ message: check.message, version: check.version })
       return `.ip(${ipOptions})`
     default:
-      type _assertion = utils.assert.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

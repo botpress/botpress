@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 import z from '../index'
-import * as utils from '../utils'
+import * as assert from '../../assertions.utils.test'
 
 test('generics', () => {
   async function stripOuter<TData extends z.ZodType>(schema: TData, data: unknown) {
@@ -15,7 +15,7 @@ test('generics', () => {
   }
 
   const result = stripOuter(z.object({ a: z.string() }), { a: 'asdf' })
-  utils.assert.assertEqual<typeof result, Promise<{ a: string }>>(true)
+  assert.assertEqual<typeof result, Promise<{ a: string }>>(true)
 })
 
 test('assignability', () => {

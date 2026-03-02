@@ -180,7 +180,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
     }
 
-    type _assertion = utils.assert.AssertNever<typeof this._def.effect>
+    this._def.effect satisfies never
     return false
   }
 

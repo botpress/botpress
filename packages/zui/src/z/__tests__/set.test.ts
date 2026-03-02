@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as utils from '../utils'
+import * as assert from '../../assertions.utils.test'
 import * as z from '../index'
 
 const stringSet = z.set(z.string())
@@ -12,7 +12,7 @@ const nonEmpty = z.set(z.string()).nonempty()
 const nonEmptyMax = z.set(z.string()).nonempty().max(2)
 
 test('type inference', () => {
-  utils.assert.assertEqual<stringSet, Set<string>>(true)
+  assert.assertEqual<stringSet, Set<string>>(true)
 })
 
 test('valid parse', () => {
