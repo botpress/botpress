@@ -1,3 +1,4 @@
+import * as client from '@botpress/client'
 import { NULL_MESSAGE_CODE } from 'plugin.definition'
 import * as types from './types'
 import * as bp from '.botpress'
@@ -85,7 +86,7 @@ export class ConversationManager {
     await this.respond({ type: 'text', text })
   }
 
-  public async respond(messagePayload: types.MessagePayload, tags: Record<string, string> = {}): Promise<void> {
+  public async respond(messagePayload: types.MessagePayload, tags: client.Message['tags'] = {}): Promise<void> {
     // FIXME: in the future, we should use the provided UserId so that messages
     //        on Botpress appear to come from the agent/user instead of the
     //        bot user. For now, this is not possible because of checks in the
