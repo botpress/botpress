@@ -1,6 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import z from '../../z'
-import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 import * as guards from './guards'

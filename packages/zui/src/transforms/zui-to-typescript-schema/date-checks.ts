@@ -1,5 +1,4 @@
 import { ZodDateCheck, ZodDateDef } from '../../z'
-import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateDateChecks = (def: ZodDateDef): string => {

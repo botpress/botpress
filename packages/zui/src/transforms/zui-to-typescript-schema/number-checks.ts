@@ -1,5 +1,4 @@
 import { ZodNumberCheck, ZodNumberDef } from '../../z/'
-import * as utils from '../../z/utils'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateNumberChecks = (def: ZodNumberDef): string => {
