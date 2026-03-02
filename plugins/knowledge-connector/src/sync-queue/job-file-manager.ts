@@ -1,14 +1,7 @@
-import * as sdk from '@botpress/sdk'
-import * as models from '../../definitions/models'
+import { QUEUE_ITEM_SCHEMA } from '../types'
 import type * as types from '../types'
 import * as utils from '../utils'
 import * as bp from '.botpress'
-
-const QUEUE_ITEM = models.FILE_WITH_PATH.extend({
-  status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
-  errorMessage: sdk.z.string().optional(),
-  addToKbId: sdk.z.string().optional(),
-})
 
 export const getSyncQueue = async (
   props: bp.WorkflowHandlerProps['processQueue'],
@@ -21,7 +14,7 @@ export const getSyncQueue = async (
   })
 
   const syncQueue: types.SyncQueue = []
-  const syncQueueGenerator = utils.jsonl.parseJsonLines(jobFileContent, QUEUE_ITEM)
+  const syncQueueGenerator = utils.jsonl.parseJsonLines(jobFileContent, QUEUE_ITEM_SCHEMA)
 
   for (const item of syncQueueGenerator) {
     if ('error' in item) {

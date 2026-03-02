@@ -1,16 +1,8 @@
 import * as sdk from '@botpress/sdk'
 import { WORKFLOW_ACTIVE_STATUSES } from 'src/consts'
-import * as models from '../../definitions/models'
+import { QUEUE_ITEM_SCHEMA, type Workflow } from '../types'
 import * as utils from '../utils'
 import * as bp from '.botpress'
-
-const QUEUE_ITEM_SCHEMA = models.FILE_WITH_PATH.extend({
-  status: sdk.z.enum(['pending', 'newly-synced', 'already-synced', 'errored']),
-  errorMessage: sdk.z.string().optional(),
-  addToKbId: sdk.z.string().optional(),
-})
-
-type Workflow = Awaited<ReturnType<bp.Client['listWorkflows']>>['workflows'][number]
 
 type WorkflowStatusResult = {
   currentStatus: 'inProgress' | 'completed' | 'failed'
@@ -28,20 +20,20 @@ type FileStats = {
 export const callAction: bp.PluginHandlers['actionHandlers']['checkSynchronizationStatus'] = async (props) => {
   const { syncJobId } = props.input
 
-  props.logger.info(`Checking synchronization status for sync job with ID "${syncJobId}"`)
+  props.logger.debug(`Checking synchronization status for sync job with ID "${syncJobId}"`)
 
   const allWorkflows = await props.workflows.processQueue.listInstances({ tags: { syncJobId } }).take(1)
 
   if (allWorkflows.length === 0) {
     props.logger.warn(`No workflow found for sync job with ID "${syncJobId}"`)
-    return createNotFoundResponse(syncJobId)
+    return _createNotFoundResponse(syncJobId)
   }
 
   const workflow = allWorkflows[0]!
   const integrationInstanceAlias = workflow.tags.integrationInstanceAlias || ''
   const startedAt = workflow.tags.syncInitiatedAt || workflow.createdAt
 
-  const statusResult = getWorkflowStatusResult(workflow)
+  const statusResult = _getWorkflowStatusResult(workflow)
 
   let fileStats: FileStats = {
     totalFiles: 0,
@@ -54,7 +46,7 @@ export const callAction: bp.PluginHandlers['actionHandlers']['checkSynchronizati
     try {
       const { file: jobFile } = await props.client.getFile({ id: workflow.input.jobFileId })
       const jobFileContent = await fetch(jobFile.url).then((res) => res.text())
-      fileStats = computeFileStats(jobFileContent, props.logger)
+      fileStats = _computeFileStats(jobFileContent, props.logger)
     } catch (error) {
       props.logger.error(`Failed to retrieve sync queue file: ${error}`)
     }
@@ -68,7 +60,7 @@ export const callAction: bp.PluginHandlers['actionHandlers']['checkSynchronizati
   }
 }
 
-const getWorkflowStatusResult = (workflow: Workflow): WorkflowStatusResult => {
+const _getWorkflowStatusResult = (workflow: Workflow): WorkflowStatusResult => {
   if (WORKFLOW_ACTIVE_STATUSES.includes(workflow.status as (typeof WORKFLOW_ACTIVE_STATUSES)[number])) {
     return { currentStatus: 'inProgress' }
   }
@@ -92,7 +84,7 @@ const getWorkflowStatusResult = (workflow: Workflow): WorkflowStatusResult => {
   }
 }
 
-const computeFileStats = (jobFileContent: string, logger: sdk.BotLogger): FileStats => {
+const _computeFileStats = (jobFileContent: string, logger: sdk.BotLogger): FileStats => {
   const stats: FileStats = {
     totalFiles: 0,
     processedFiles: 0,
@@ -127,7 +119,7 @@ const computeFileStats = (jobFileContent: string, logger: sdk.BotLogger): FileSt
   return stats
 }
 
-const createNotFoundResponse = (syncJobId: string) => ({
+const _createNotFoundResponse = (syncJobId: string) => ({
   currentStatus: 'failed' as const,
   failureReason: `No synchronization job found with ID "${syncJobId}"`,
   integrationInstanceAlias: '',

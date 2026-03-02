@@ -1,8 +1,8 @@
 import { extractIntegrationAlias } from '../../utils/extract-integration-alias'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.EventHandlers['*'] = async (props) => {
-  const deletedFolder = (props.event.payload as { folder: any }).folder
+export const handleEvent: bp.EventHandlers['files-readonly:folderDeletedRecursive'] = async (props) => {
+  const deletedFolder = props.event.payload.folder
 
   const integrationAlias = extractIntegrationAlias(props.event.type, props.logger)
   if (!integrationAlias) {

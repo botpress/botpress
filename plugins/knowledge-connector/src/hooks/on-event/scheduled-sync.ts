@@ -7,6 +7,16 @@ import type * as bp from '.botpress'
 
 type ScheduledSyncProps = bp.EventHandlerProps
 
+type FolderConfig = {
+  syncNewFiles?: boolean
+  path?: string
+  integrationInstanceAlias?: string
+  integrationDefinitionName?: string
+  transferFileToBotpressAlias?: string
+}
+
+type FolderSyncSettings = Record<string, Record<string, FolderConfig>>
+
 type IntegrationGroup = {
   integrationInstanceAlias: string
   integrationDefinitionName: string
@@ -17,12 +27,20 @@ type IntegrationGroup = {
 export const handleEvent = async (props: ScheduledSyncProps) => {
   const { logger, ctx } = props
 
-  logger.info('[scheduledSync] handleEvent called')
+  if ((props.configuration?.scheduledSyncIntervalHours ?? 0) <= 0) {
+    logger.debug('Scheduled sync disabled (interval is 0)')
+    return
+  }
+
+  const shouldSync = await _hasEnoughTimeElapsed(props, props.configuration?.scheduledSyncIntervalHours ?? 0)
+  if (!shouldSync) {
+    logger.debug('Scheduled sync skipped: not enough time elapsed since last sync')
+    return
+  }
 
   const settings = await _getFolderSyncSettings(props)
-  logger.info(`[scheduledSync] folderSyncSettings=${settings ? JSON.stringify(settings).slice(0, 500) : 'null'}`)
   if (!settings) {
-    logger.info('[scheduledSync] SKIPPED: no folder sync settings found')
+    logger.debug('Scheduled sync skipped: no folder sync settings found')
     return
   }
 
@@ -71,21 +89,11 @@ const _getFolderSyncSettings = async (props: ScheduledSyncProps) => {
   }
 }
 
-const _groupFoldersByIntegration = (
-  settings: Record<string, Record<string, Record<string, unknown>>>
-): IntegrationGroup[] => {
+const _groupFoldersByIntegration = (settings: FolderSyncSettings): IntegrationGroup[] => {
   const groupMap = new Map<string, IntegrationGroup>()
 
   for (const [kbId, folders] of Object.entries(settings)) {
-    for (const [folderId, folderConfig] of Object.entries(folders)) {
-      const config = folderConfig as {
-        syncNewFiles?: boolean
-        path?: string
-        integrationInstanceAlias?: string
-        integrationDefinitionName?: string
-        transferFileToBotpressAlias?: string
-      }
-
+    for (const [folderId, config] of Object.entries(folders)) {
       if (!config.integrationInstanceAlias || !config.integrationDefinitionName) {
         continue
       }

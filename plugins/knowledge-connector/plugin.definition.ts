@@ -19,7 +19,7 @@ export default new sdk.PluginDefinition({
         .default(0)
         .title('Scheduled Sync Interval (hours)')
         .describe(
-          'The interval in hours between scheduled re-syncs. Set to 0 to disable. The plugin checks every hour and triggers a sync if enough time has elapsed since the last one.'
+          'The interval in hours between scheduled re-syncs. Set to 0 to disable. The plugin checks periodically and triggers a sync if enough time has elapsed since the last one.'
         ),
     }),
   },
@@ -33,7 +33,7 @@ export default new sdk.PluginDefinition({
       type: 'scheduledSync',
       payload: {},
       schedule: {
-        cron: '* * * * *', // every minute (for testing); handler checks actual interval from configuration
+        cron: '* * * * *', // runs every minute; handler gates execution based on scheduledSyncIntervalHours
       },
     },
   },

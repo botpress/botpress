@@ -5,8 +5,8 @@ import { handleEvent as handleFileUpdated } from './file-updated'
 import { handleEvent as handleFolderDeletedRecursive } from './folder-deleted-recursive'
 import * as bp from '.botpress'
 
-export const handleEvent: bp.EventHandlers['*'] = async (props) => {
-  const modifiedItems = (props.event.payload as { modifiedItems: any }).modifiedItems
+export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'] = async (props) => {
+  const modifiedItems = props.event.payload.modifiedItems
   const integrationAlias = extractIntegrationAlias(props.event.type, props.logger)
   if (!integrationAlias) {
     return
@@ -16,14 +16,18 @@ export const handleEvent: bp.EventHandlers['*'] = async (props) => {
     if (deletedItem.type === 'file') {
       await handleFileDeleted({
         ...props,
-        event: { ...props.event, type: `${integrationAlias}:fileDeleted`, payload: { file: deletedItem } },
+        event: {
+          ...props.event,
+          type: `${integrationAlias}:fileDeleted` as 'files-readonly:fileDeleted',
+          payload: { file: deletedItem },
+        },
       })
     } else {
       await handleFolderDeletedRecursive({
         ...props,
         event: {
           ...props.event,
-          type: `${integrationAlias}:folderDeletedRecursive`,
+          type: `${integrationAlias}:folderDeletedRecursive` as 'files-readonly:folderDeletedRecursive',
           payload: { folder: deletedItem },
         },
       })
@@ -37,7 +41,11 @@ export const handleEvent: bp.EventHandlers['*'] = async (props) => {
 
     await handleFileCreated({
       ...props,
-      event: { ...props.event, type: `${integrationAlias}:fileCreated`, payload: { file: createdItem } },
+      event: {
+        ...props.event,
+        type: `${integrationAlias}:fileCreated` as 'files-readonly:fileCreated',
+        payload: { file: createdItem },
+      },
     })
   }
 
@@ -48,7 +56,11 @@ export const handleEvent: bp.EventHandlers['*'] = async (props) => {
 
     await handleFileUpdated({
       ...props,
-      event: { ...props.event, type: `${integrationAlias}:fileUpdated`, payload: { file: updatedItem } },
+      event: {
+        ...props.event,
+        type: `${integrationAlias}:fileUpdated` as 'files-readonly:fileUpdated',
+        payload: { file: updatedItem },
+      },
     })
   }
 }

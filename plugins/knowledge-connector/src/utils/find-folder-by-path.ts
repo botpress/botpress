@@ -5,7 +5,7 @@ export function findFolderByPath(
   for (const [kbId, folders] of Object.entries(settings)) {
     for (const [folderId, folderSettings] of Object.entries(folders)) {
       if (folderSettings.path && filePath.startsWith(folderSettings.path)) {
-        return { kbId, folderId, syncNewFiles: folderSettings.syncNewFiles }
+        return { kbId, folderId, syncNewFiles: folderSettings.syncNewFiles ?? false }
       }
     }
   }

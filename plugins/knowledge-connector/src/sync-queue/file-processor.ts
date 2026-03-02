@@ -23,7 +23,7 @@ export type ProcessFileProps = {
 export const processQueueFile = async (props: ProcessFileProps): Promise<types.SyncQueueItem> => {
   const fileToSync = structuredClone(props.fileToSync) as types.SyncQueueItem
   const existingFile = await _getExistingFileFromFilesApi(props, fileToSync)
-  const shouldUploadFile = _shouldUploadFile(props, fileToSync, existingFile)
+  const shouldUploadFile = _shouldUploadFile(fileToSync, existingFile)
 
   if (!shouldUploadFile) {
     fileToSync.status = 'already-synced'
@@ -57,11 +57,7 @@ const _getExistingFileFromFilesApi = async (
   return existingFiles[0]!
 }
 
-const _shouldUploadFile = (
-  _props: ProcessFileProps,
-  fileToSync: models.FileWithPath,
-  existingFile?: types.FilesApiFile
-) => {
+const _shouldUploadFile = (fileToSync: models.FileWithPath, existingFile?: types.FilesApiFile) => {
   if (!existingFile) {
     return true
   }
@@ -90,7 +86,9 @@ const _deleteExistingFileFromFilesApi = async (props: ProcessFileProps, existing
 
   try {
     await props.fileRepository.deleteFile({ id: existingFile.id })
-  } catch {}
+  } catch (error) {
+    props.logger.warn(`Failed to delete existing file: ${error instanceof Error ? error.message : String(error)}`)
+  }
 }
 
 const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: types.SyncQueueItem) => {

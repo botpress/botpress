@@ -68,6 +68,7 @@ describe.concurrent('processQueue', () => {
         integrationAlias: 'test-integration-alias',
         externalId: FILE_1.id,
         externalSize: FILE_1.sizeInBytes.toString(),
+        externalContentHash: null,
         externalPath: FILE_1.absolutePath,
       },
     })
@@ -94,6 +95,7 @@ describe.concurrent('processQueue', () => {
         integrationAlias: 'test-integration-alias',
         externalId: FILE_1.id,
         externalSize: FILE_1.sizeInBytes.toString(),
+        externalContentHash: null,
         externalPath: FILE_1.absolutePath,
         kbId: 'kb1',
         modalities: '["text"]',

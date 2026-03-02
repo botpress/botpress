@@ -6,7 +6,6 @@ import * as onEventFileDeleted from './hooks/on-event/file-deleted'
 import * as onEventFileUpdated from './hooks/on-event/file-updated'
 import * as onEventFolderDeleted from './hooks/on-event/folder-deleted-recursive'
 import * as onEventScheduledSync from './hooks/on-event/scheduled-sync'
-import { hasEnabledFolders } from './utils/has-enabled-folders'
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
@@ -19,7 +18,7 @@ const plugin = new bp.Plugin({
 
 plugin.on.event('files-readonly:fileDeleted', async (props) => {
   try {
-    await onEventFileDeleted.handleEvent(props as any)
+    await onEventFileDeleted.handleEvent(props)
   } catch (error) {
     props.logger.error(`fileDeleted error: ${error instanceof Error ? error.message : String(error)}`)
   }
@@ -27,7 +26,7 @@ plugin.on.event('files-readonly:fileDeleted', async (props) => {
 
 plugin.on.event('files-readonly:folderDeletedRecursive', async (props) => {
   try {
-    await onEventFolderDeleted.handleEvent(props as any)
+    await onEventFolderDeleted.handleEvent(props)
   } catch (error) {
     props.logger.error(`folderDeletedRecursive error: ${error instanceof Error ? error.message : String(error)}`)
   }
@@ -35,7 +34,7 @@ plugin.on.event('files-readonly:folderDeletedRecursive', async (props) => {
 
 plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
   try {
-    await onEventAggregate.handleEvent(props as any)
+    await onEventAggregate.handleEvent(props)
   } catch (error) {
     props.logger.error(`aggregateFileChanges error: ${error instanceof Error ? error.message : String(error)}`)
   }
@@ -43,18 +42,7 @@ plugin.on.event('files-readonly:aggregateFileChanges', async (props) => {
 
 plugin.on.event('files-readonly:fileCreated', async (props) => {
   try {
-    let settings
-    try {
-      settings = await props.states.bot.folderSyncSettings.get(props.ctx.botId)
-    } catch {
-      return
-    }
-
-    if (!settings?.settings || !hasEnabledFolders(settings.settings)) {
-      return
-    }
-
-    await onEventFileCreated.handleEvent(props as any)
+    await onEventFileCreated.handleEvent(props)
   } catch (error) {
     props.logger.error(`fileCreated error: ${error instanceof Error ? error.message : String(error)}`)
   }
@@ -62,28 +50,13 @@ plugin.on.event('files-readonly:fileCreated', async (props) => {
 
 plugin.on.event('files-readonly:fileUpdated', async (props) => {
   try {
-    let settings
-    try {
-      settings = await props.states.bot.folderSyncSettings.get(props.ctx.botId)
-    } catch {
-      return
-    }
-
-    if (!settings?.settings || !hasEnabledFolders(settings.settings)) {
-      return
-    }
-
-    await onEventFileUpdated.handleEvent(props as any)
+    await onEventFileUpdated.handleEvent(props)
   } catch (error) {
     props.logger.error(`fileUpdated error: ${error instanceof Error ? error.message : String(error)}`)
   }
 })
 
 plugin.on.event('scheduledSync', async (props) => {
-  props.logger.info('[scheduledSync] Event received', {
-    configuration: props.configuration,
-    botId: props.ctx.botId,
-  })
   try {
     await onEventScheduledSync.handleEvent(props)
   } catch (error) {
