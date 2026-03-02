@@ -20,7 +20,9 @@ const searchCompany: ActionDefinition = {
         .array(z.string())
         .optional()
         .title('Properties to Return')
-        .describe('Additional properties to return (e.g., ["health_status", "industry"]). Default properties are always included.'),
+        .describe(
+          'Additional properties to return (e.g., ["health_status", "industry"]). Default properties are always included.'
+        ),
     }),
   },
   output: {
@@ -40,7 +42,9 @@ const getCompany: ActionDefinition = {
         .array(z.string())
         .optional()
         .title('Properties to Return')
-        .describe('Additional properties to return (e.g., ["health_status", "industry"]). Default properties are always included.'),
+        .describe(
+          'Additional properties to return (e.g., ["health_status", "industry"]). Default properties are always included.'
+        ),
     }),
   },
   output: {

@@ -237,12 +237,9 @@ export class HubspotClient {
       type: 'company',
     })
 
-    const updatedCompany = await this._hsClient.crm.companies.basicApi.update(
-      companyId.toString(),
-      {
-        properties: resolvedProperties,
-      }
-    )
+    const updatedCompany = await this._hsClient.crm.companies.basicApi.update(companyId.toString(), {
+      properties: resolvedProperties,
+    })
     return updatedCompany
   }
 
