@@ -9,6 +9,8 @@ type ProfileEntry = ProfileCredentials & {
   name: string
 }
 
+type ProfileEntryWithoutToken = Omit<ProfileEntry, 'token'>
+
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
@@ -21,8 +23,8 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    let profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
-    if (_shouldMaskToken(this.argv)) profileEntry = _maskProfileToken(profileEntry)
+    let profileEntry: ProfileEntry | ProfileEntryWithoutToken = { name: activeProfileName, ...profile }
+    if (_shouldMaskToken(this.argv)) profileEntry = _stripProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -42,7 +44,7 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
     const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
 
     this.logger.log(activeProfileMsg)
-    this.logger.json(!_shouldMaskToken(this.argv) ? profileEntries : profileEntries.map(_maskProfileToken))
+    this.logger.json(!_shouldMaskToken(this.argv) ? profileEntries : profileEntries.map(_stripProfileToken))
     this.logger.log(activeProfileMsg)
   }
 }
@@ -91,18 +93,10 @@ const _updateGlobalCache = async (props: {
   await props.globalCache.set('workspaceId', props.profile.workspaceId)
 }
 
-const _maskProfileToken = ({ token, ...restProfile }: ProfileEntry): ProfileEntry => {
-  // Using both "floor" & "ceil" to handle cases where the token has an odd number length
-  const maxHalfTokenLength = Math.ceil(token.length / 2)
-  const minHalfTokenLength = Math.floor(token.length / 2)
-  const firstHalf = token.slice(0, maxHalfTokenLength)
+const _stripProfileToken = (profile: ProfileEntry | ProfileEntryWithoutToken): ProfileEntryWithoutToken => ({
+  name: profile.name,
+  apiUrl: profile.apiUrl,
+  workspaceId: profile.workspaceId,
+})
 
-  const maskedToken = firstHalf + '*'.repeat(minHalfTokenLength)
-
-  return {
-    ...restProfile,
-    token: maskedToken,
-  }
-}
-
-const _shouldMaskToken = (argv: { unmaskToken: boolean; json: boolean }) => !argv.json && !argv.unmaskToken
+const _shouldMaskToken = (argv: { displayToken: boolean; json: boolean }) => !argv.json && !argv.displayToken
