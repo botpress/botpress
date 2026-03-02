@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import axios from 'axios'
 import { Client as OfficialHubspotClient, AssociationTypes } from '@hubspot/api-client'
 import {
   AssociationSpecAssociationCategoryEnum,
@@ -90,6 +89,7 @@ export class HubspotClient {
       deal: PropertiesCache.create({ client, ctx, accessToken, type: 'deal' }),
       lead: PropertiesCache.create({ client, ctx, accessToken, type: 'lead' }),
       ticket: PropertiesCache.create({ client, ctx, accessToken, type: 'ticket' }),
+      company: PropertiesCache.create({ client, ctx, accessToken, type: 'company' }),
     }
   }
 
@@ -131,13 +131,7 @@ export class HubspotClient {
       throw new sdk.RuntimeError('Missing required filters: phone and/or email')
     }
 
-    // If empty array is explicitly passed, use it as-is (don't add defaults)
-    const allPropertiesToReturn = propertiesToReturn?.length === 0 ? [] : [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
-
-    // Skip validation for empty array to avoid issues with missing default properties
-    if (allPropertiesToReturn.length > 0) {
-      await this._validateProperties({ properties: allPropertiesToReturn, type: 'contact' })
-    }
+    await this._validateProperties({ properties: propertiesToReturn ?? [], type: 'contact' })
 
     const contacts = await this._hsClient.crm.contacts.searchApi.doSearch({
       filterGroups: [
@@ -145,7 +139,7 @@ export class HubspotClient {
           filters,
         },
       ],
-      properties: allPropertiesToReturn.length > 0 ? allPropertiesToReturn : undefined,
+      properties: [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
     const hsContact = contacts.results[0]
     if (!hsContact) {
@@ -202,19 +196,13 @@ export class HubspotClient {
       throw new sdk.RuntimeError('Missing required filters: name and/or domain')
     }
 
-    // If empty array is explicitly passed, use it as-is (don't add defaults)
-    const allProperties = propertiesToReturn?.length === 0 ? undefined : [
-      ...DEFAULT_COMPANY_PROPERTIES,
-      ...(propertiesToReturn ?? []),
-    ]
-
     const companies = await this._hsClient.crm.companies.searchApi.doSearch({
       filterGroups: [
         {
           filters,
         },
       ],
-      properties: allProperties,
+      properties: [...DEFAULT_COMPANY_PROPERTIES, ...(propertiesToReturn ?? [])],
     })
 
     const company = companies.results[0]
@@ -228,62 +216,34 @@ export class HubspotClient {
   }
 
   @handleErrors('Failed to get company by ID')
-  @handleErrors('Failed to get company by ID')
-  public async getCompanyById({ companyId, propertiesToReturn }: { companyId: number; propertiesToReturn?: string[] }) {
-    // If empty array is explicitly passed, use it as-is (don't add defaults)
-    // This avoids 414 errors and validation issues
-    const allPropertiesToReturn = propertiesToReturn?.length === 0 ? [] : [...DEFAULT_COMPANY_PROPERTIES, ...(propertiesToReturn ?? [])]
-
-    // Skip validation for empty array to avoid issues with missing default properties
-    if (allPropertiesToReturn.length > 0) {
-      await this._validateProperties({ properties: allPropertiesToReturn, type: 'company' })
-    }
-
-    const company = await this._hsClient.crm.companies.basicApi.getById(
-      companyId.toString(),
-      allPropertiesToReturn.length > 0 ? allPropertiesToReturn : undefined
-    )
+  public async getCompanyById({ companyId, propertiesToReturn }: { companyId: string; propertiesToReturn?: string[] }) {
+    const company = await this._hsClient.crm.companies.basicApi.getById(companyId.toString(), [
+      ...DEFAULT_COMPANY_PROPERTIES,
+      ...(propertiesToReturn ?? []),
+    ])
     return company
   }
 
+  @handleErrors('Failed to update company')
   public async updateCompany({
     companyId,
     additionalProperties,
   }: {
-    companyId: number
+    companyId: string
     additionalProperties: Record<string, string>
   }) {
-    try {
-      // Use v2 API (PUT with properties array) since v3 PATCH doesn't work with dropdown properties
-      const properties = Object.entries(additionalProperties).map(([name, value]) => ({
-        name,
-        value,
-      }))
+    const resolvedProperties = await this._resolveAndCoerceProperties({
+      properties: additionalProperties,
+      type: 'company',
+    })
 
-      this._logger.forBot().info('Updating company with v2 API', { companyId, properties })
-
-      const response = await axios.put(
-        `https://api.hubapi.com/companies/v2/companies/${companyId}`,
-        { properties },
-        {
-          headers: {
-            'Authorization': `Bearer ${this._accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-
-      this._logger.forBot().info('Company updated successfully', { companyId })
-      return response.data
-    } catch (error: any) {
-      this._logger.forBot().error('Failed to update company', {
-        companyId,
-        error: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      })
-      throw new sdk.RuntimeError(`Failed to update company: ${error.message}. ${JSON.stringify(error.response?.data || {})}`)
-    }
+    const updatedCompany = await this._hsClient.crm.companies.basicApi.update(
+      companyId,
+      {
+        properties: resolvedProperties,
+      }
+    )
+    return updatedCompany
   }
 
   @handleErrors('Failed to get ticket by ID')
@@ -407,19 +367,13 @@ export class HubspotClient {
 
   @handleErrors('Failed to get contact by ID')
   public async getContact({ contactId, propertiesToReturn }: { contactId: string; propertiesToReturn?: string[] }) {
-    // If empty array is explicitly passed, use it as-is (don't add defaults)
-    // This avoids 414 errors and validation issues with accounts that don't have default properties
-    const allPropertiesToReturn = propertiesToReturn?.length === 0 ? [] : [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
-
-    // Skip validation for empty array to avoid issues with missing default properties
-    if (allPropertiesToReturn.length > 0) {
-      await this._validateProperties({ properties: allPropertiesToReturn, type: 'contact' })
-    }
+    const allPropertiesToReturn = [...DEFAULT_CONTACT_PROPERTIES, ...(propertiesToReturn ?? [])]
+    await this._validateProperties({ properties: allPropertiesToReturn ?? [], type: 'contact' })
 
     const idProperty = contactId.includes('@') ? 'email' : undefined
     const contact = await this._hsClient.crm.contacts.basicApi.getById(
       contactId,
-      allPropertiesToReturn.length > 0 ? allPropertiesToReturn : undefined,
+      allPropertiesToReturn,
       undefined,
       undefined,
       undefined,
@@ -467,13 +421,10 @@ export class HubspotClient {
 
   @handleErrors('Failed to list contacts')
   public async listContacts({ properties, nextToken }: { properties?: string[]; nextToken?: string }) {
-    // If empty array is explicitly passed, use it as-is (don't add defaults)
-    const allProperties = properties?.length === 0 ? undefined : [
+    const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, [
       ...DEFAULT_CONTACT_PROPERTIES,
       ...(properties ?? []),
-    ]
-
-    const { results, paging } = await this._hsClient.crm.contacts.basicApi.getPage(PAGING_LIMIT, nextToken, allProperties)
+    ])
 
     return {
       contacts: results,

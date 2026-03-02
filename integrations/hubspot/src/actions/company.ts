@@ -28,11 +28,12 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
   logger,
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ client, ctx, logger })
-  // Don't fetch all properties to avoid 414 URI Too Long errors
+  const propertyKeys = await _getCompanyPropertyKeys(hsClient)
+
   const company = await hsClient.searchCompany({
     name: input.name,
     domain: input.domain,
-    propertiesToReturn: [], // Empty array = only default properties
+    propertiesToReturn: propertyKeys,
   })
 
   return {
@@ -42,14 +43,11 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
 
 export const getCompany: bp.IntegrationProps['actions']['getCompany'] = async ({ ctx, client, input, logger }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
+  const propertyKeys = await _getCompanyPropertyKeys(hsClient)
 
-  // Convert string to number if needed
-  const companyId = typeof input.companyId === 'string' ? parseInt(input.companyId, 10) : input.companyId
-
-  // Don't fetch all properties to avoid 414 URI Too Long errors
   const company = await hsClient.getCompanyById({
-    companyId,
-    propertiesToReturn: [], // Empty array = only default properties
+    companyId: input.companyId,
+    propertiesToReturn: propertyKeys,
   })
 
   return {
@@ -65,35 +63,18 @@ export const updateCompany: bp.IntegrationProps['actions']['updateCompany'] = as
 }) => {
   const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
 
-  // Convert string to number if needed
-  const companyId = typeof input.companyId === 'string' ? parseInt(input.companyId, 10) : input.companyId
-
   const additionalProperties = propertiesEntriesToRecord(input.properties ?? [])
 
   const updatedCompany = await hsClient.updateCompany({
-    companyId,
+    companyId: input.companyId,
     additionalProperties,
   })
 
-  // v2 API returns different format than v3 - handle it directly
-  // v2 response has properties object and string dates, not Date objects
   return {
     company: {
-      id: String(updatedCompany.companyId || updatedCompany.vid || companyId),
-      name: updatedCompany.properties?.name?.value ?? '',
-      domain: updatedCompany.properties?.domain?.value ?? '',
-      createdAt: typeof updatedCompany.properties?.createdate?.value === 'string'
-        ? updatedCompany.properties.createdate.value
-        : new Date().toISOString(),
-      updatedAt: typeof updatedCompany.properties?.hs_lastmodifieddate?.value === 'string'
-        ? updatedCompany.properties.hs_lastmodifieddate.value
-        : new Date().toISOString(),
-      properties: Object.fromEntries(
-        Object.entries(updatedCompany.properties || {}).map(([key, prop]: [string, any]) => [
-          key,
-          prop?.value ?? null,
-        ])
-      ),
+      ..._mapHsCompanyToBpCompany(updatedCompany),
+      name: updatedCompany.properties['name'] ?? undefined,
+      domain: updatedCompany.properties['domain'] ?? undefined,
     },
   }
 }
