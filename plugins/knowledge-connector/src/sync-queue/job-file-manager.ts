@@ -35,7 +35,7 @@ const _retrieveJobFile = async (
   const { file: jobFile } = await props.client.getFile({
     id: props.workflow.input.jobFileId ?? jobFileId,
   })
-  const jobFileContent = await fetch(jobFile.url).then((res) => res.text())
+  const jobFileContent = await fetch(jobFile.url, { signal: AbortSignal.timeout(30000) }).then((res) => res.text())
 
   return { jobFileContent, key: jobFile.key }
 }
