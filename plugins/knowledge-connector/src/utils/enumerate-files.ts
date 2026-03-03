@@ -48,9 +48,7 @@ export const enumerateFilesInFolder = async (props: {
   const { listItemsInFolder, folderId, folderPath, logger } = props
 
   const files: EnumeratedFile[] = []
-  const pendingFolders: Array<{ folderId?: string; absolutePath: string }> = [
-    { folderId, absolutePath: folderPath },
-  ]
+  const pendingFolders: Array<{ folderId?: string; absolutePath: string }> = [{ folderId, absolutePath: folderPath }]
 
   while (pendingFolders.length > 0) {
     const currentFolder = pendingFolders[0]!
