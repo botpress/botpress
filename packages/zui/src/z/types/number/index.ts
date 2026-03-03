@@ -1,5 +1,5 @@
 import { type IZodNumber, ZodNumberCheck, ZodNumberDef } from '../../typings'
-import * as utils from '../../utils'
+import * as utils from '../../../utils'
 import {
   ZodBaseTypeImpl,
   addIssueToContext,

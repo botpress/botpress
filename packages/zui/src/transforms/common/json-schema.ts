@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema'
 import * as z from '../../z'
-import * as utils from '../../z/utils/type-utils'
+import * as utils from '../../utils/type-utils'
 
 /**
  * Definitions:

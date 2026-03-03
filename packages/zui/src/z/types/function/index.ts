@@ -14,7 +14,7 @@ import type {
   IZodPromise,
 } from '../../typings'
 
-import * as utils from '../../utils'
+import * as utils from '../../../utils'
 
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
 

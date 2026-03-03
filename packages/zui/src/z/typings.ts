@@ -9,7 +9,7 @@ import {
   Writeable,
   AddQuestionMarks,
   ExtendShape,
-} from './utils/type-utils'
+} from '../utils/type-utils'
 
 //* ─────────────────────────── UI & Metadata ───────────────────────────────
 

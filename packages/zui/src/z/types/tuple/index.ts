@@ -1,5 +1,5 @@
 import type { IZodTuple, IZodType, ZodTupleDef } from '../../typings'
-import * as utils from '../../utils'
+import * as utils from '../../../utils'
 import {
   ParseInputLazyPath,
   addIssueToContext,

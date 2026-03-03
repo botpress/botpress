@@ -1,5 +1,5 @@
 import * as z from '../../../z'
-import { generateDatetimeRegex } from '../../../z/utils/datestring-utils'
+import { generateDatetimeRegex } from '../../../utils/datestring-utils'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
 import * as json from '../../common/json-schema'

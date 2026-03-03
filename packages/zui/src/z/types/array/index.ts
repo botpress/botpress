@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
 import type { ArrayCardinality, ArrayOutputType, IZodArray, IZodType, ZodArrayDef } from '../../typings'
-import * as utils from '../../utils'
+import * as utils from '../../../utils'
 import {
   ParseInputLazyPath,
   ZodBaseTypeImpl,

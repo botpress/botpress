@@ -30,7 +30,7 @@ import type {
   CustomErrorParams,
   IssueData,
 } from '../../typings'
-import * as utils from '../../utils'
+import * as utils from '../../../utils'
 
 // TODO(circle): get rid of circular dependency between zui core and transforms
 
