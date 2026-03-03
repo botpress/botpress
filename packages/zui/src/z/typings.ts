@@ -1664,6 +1664,11 @@ export type ZodNativeType =
   | IZodVoid
 
 export type ZodNativeTypeDef = ZodNativeType['_def']
+
+/**
+ * @deprecated - use ZodNativeTypeName instead
+ */
+export type ZodFirstPartyTypeKind = ZodNativeTypeName
 export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
 
 //* ─────────────────────────── Builders ──────────────────────────────

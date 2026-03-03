@@ -196,8 +196,6 @@ export type {
   ZodFirstPartySchemaTypes,
 } from './typings'
 
-export { ZodFirstPartyTypeKind } from './native'
-
 export {
   coerce,
   anyType as any,

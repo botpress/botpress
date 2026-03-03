@@ -1,12 +1,6 @@
-import { ZodNativeTypeName } from './typings'
+import { ZodNativeTypeName } from '../../z'
 
-/**
- * @deprecated - use ZodNativeTypeName instead
- */
 export type ZodFirstPartyTypeKind = ZodNativeTypeName
-/**
- * @deprecated - use ZodNativeTypeName instead
- */
 export const ZodFirstPartyTypeKind = {
   ZodString: 'ZodString',
   ZodNumber: 'ZodNumber',

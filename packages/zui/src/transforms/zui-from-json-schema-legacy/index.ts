@@ -4,7 +4,6 @@ import {
   type ZodAnyDef,
   type ZodArrayDef,
   type ZodBooleanDef,
-  ZodFirstPartyTypeKind,
   type ZodLazyDef,
   type ZodNullDef,
   type ZodObjectDef,
@@ -23,6 +22,7 @@ import {
 } from '../../z'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
+import { ZodFirstPartyTypeKind } from '../common/native'
 import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'
 import { parseSchema } from './parsers/parseSchema'
 import { JSONSchemaExtended } from './types'
