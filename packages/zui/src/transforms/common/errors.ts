@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { ZodNativeTypeName } from '../../z'
+import type { ZodNativeTypeName } from '../../z/typings'
 
 type Transform =
   | 'json-schema-to-zui'

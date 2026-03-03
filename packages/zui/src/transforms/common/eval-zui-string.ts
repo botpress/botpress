@@ -1,4 +1,6 @@
-import z, { ZodTypeAny } from '../../z'
+import { is } from '../../z/guards'
+import { builders as z } from '../../z/internal-builders'
+import type { ZodTypeAny } from '../../z/typings'
 
 export type EvalZuiStringResult =
   | {
@@ -13,14 +15,24 @@ export type EvalZuiStringResult =
 export const evalZuiString = (zuiString: string): EvalZuiStringResult => {
   let result: any
 
+  const zWithCoerce = Object.assign({}, z, {
+    coerce: {
+      string: (arg?: any) => z.string({ ...arg, coerce: true }),
+      number: (arg?: any) => z.number({ ...arg, coerce: true }),
+      boolean: (arg?: any) => z.boolean({ ...arg, coerce: true }),
+      bigint: (arg?: any) => z.bigint({ ...arg, coerce: true }),
+      date: (arg?: any) => z.date({ ...arg, coerce: true }),
+    },
+  })
+
   try {
-    result = new Function('z', `return ${zuiString}`)(z)
+    result = new Function('z', `return ${zuiString}`)(zWithCoerce)
   } catch (thrown) {
     const err = thrown instanceof Error ? thrown : new Error(String(thrown))
     return { sucess: false, error: `Failed to evaluate schema: ${err.message}` }
   }
 
-  if (!z.is.zuiType(result)) {
+  if (!is.zuiType(result)) {
     return { sucess: false, error: `String "${zuiString}" does not evaluate to a Zod schema` }
   }
 

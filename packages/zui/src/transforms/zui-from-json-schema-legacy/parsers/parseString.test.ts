@@ -1,12 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { parseString } from './parseString'
+import { evalZuiString } from '../../common/eval-zui-string'
 
 describe('parseString', () => {
-  // TODO: this is error prone since the test now depends on the build artefact
-  const run = (output: string, data: unknown) =>
-    eval(
-      `console.info(process.cwd()); const {z} = require("@bpinternal/zui"); ${output}.safeParse(${JSON.stringify(data)})`
-    )
+  const run = (output: string, data: unknown) => {
+    const evalResult = evalZuiString(output)
+    if (!evalResult.sucess) {
+      throw new Error(`Failed to evaluate ZUI string: ${evalResult.error}`)
+    }
+    const zSchema = evalResult.value
+    return zSchema.safeParse(data)
+  }
 
   it('DateTime format', () => {
     const datetime = '2018-11-13T20:20:39Z'

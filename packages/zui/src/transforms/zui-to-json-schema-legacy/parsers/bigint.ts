@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject, ZodBigIntDef } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { ZuiExtensionObject, ZodBigIntDef } from '../../../z/typings'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
 

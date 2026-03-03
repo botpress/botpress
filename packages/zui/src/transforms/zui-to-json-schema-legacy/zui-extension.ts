@@ -1,5 +1,6 @@
 import { JSONSchema7 } from 'json-schema'
-import { z } from '../../z'
+import { builders as z } from '../../z/internal-builders'
+import type { IZodType } from '../../z/typings'
 import { Options } from './Options'
 import { zodToJsonSchema } from './zodToJsonSchema'
 
@@ -23,7 +24,7 @@ export type ZuiSchemaOptions = {
  * @deprecated Use the new toJSONSchema function instead.
  */
 export const toJSONSchemaLegacy = (
-  zuiType: z.ZodType,
+  zuiType: IZodType,
   opts: ZuiSchemaOptions = { target: 'openApi3' }
 ): JSONSchema7 => {
   const jsonSchema = zodToJsonSchema(zuiType, opts)

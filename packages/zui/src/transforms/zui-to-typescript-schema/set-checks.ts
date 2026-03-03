@@ -1,4 +1,4 @@
-import { ZodSetDef } from '../../z'
+import type { ZodSetDef } from '../../z/typings'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 export const generateSetChecks = (def: ZodSetDef): string => {
   const checks: string[] = []

@@ -1,5 +1,13 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../z'
+import type {
+  ZodNullableDef,
+  ZodOptionalDef,
+  ZodUndefinedDef,
+  ZodUnknownDef,
+  ZodDiscriminatedUnionDef,
+  ZodTypeDef,
+  ZuiExtensionObject,
+} from '../../z/typings'
 import * as utils from '../../z/utils/type-utils'
 
 /**
@@ -8,13 +16,13 @@ import * as utils from '../../z/utils/type-utils'
  * Mutiple zui schemas map to the same JSON schema; undefined/never, any/unknown, union/discriminated-union
  * Adding some ZodDef to the ZuiExtension allows us to differentiate between them
  */
-type NullableDef = utils.Satisfies<{ typeName: 'ZodNullable' }, Partial<z.ZodNullableDef>>
-type OptionalDef = utils.Satisfies<{ typeName: 'ZodOptional' }, Partial<z.ZodOptionalDef>>
-type UndefinedDef = utils.Satisfies<{ typeName: 'ZodUndefined' }, Partial<z.ZodUndefinedDef>>
-type UnknownDef = utils.Satisfies<{ typeName: 'ZodUnknown' }, Partial<z.ZodUnknownDef>>
+type NullableDef = utils.Satisfies<{ typeName: 'ZodNullable' }, Partial<ZodNullableDef>>
+type OptionalDef = utils.Satisfies<{ typeName: 'ZodOptional' }, Partial<ZodOptionalDef>>
+type UndefinedDef = utils.Satisfies<{ typeName: 'ZodUndefined' }, Partial<ZodUndefinedDef>>
+type UnknownDef = utils.Satisfies<{ typeName: 'ZodUnknown' }, Partial<ZodUnknownDef>>
 type DiscriminatedUnionDef = utils.Satisfies<
   { typeName: 'ZodDiscriminatedUnion'; discriminator?: string },
-  Partial<z.ZodDiscriminatedUnionDef>
+  Partial<ZodDiscriminatedUnionDef>
 >
 
 /**
@@ -23,9 +31,9 @@ type DiscriminatedUnionDef = utils.Satisfies<
  * A ZUI flavored subset of JSONSchema7
  */
 
-type ZuiExtension<Def extends Partial<z.ZodTypeDef> = {}> = { def?: Def } & z.ZuiExtensionObject
+type ZuiExtension<Def extends Partial<ZodTypeDef> = {}> = { def?: Def } & ZuiExtensionObject
 type JsonData = string | number | boolean | null | JsonData[] | { [key: string]: JsonData }
-type BaseZuiJSONSchema<Def extends Partial<z.ZodTypeDef> = {}> = utils.Satisfies<
+type BaseZuiJSONSchema<Def extends Partial<ZodTypeDef> = {}> = utils.Satisfies<
   {
     description?: string
     readOnly?: boolean

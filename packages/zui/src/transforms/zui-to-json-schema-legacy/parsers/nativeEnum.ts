@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject, ZodNativeEnumDef } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { ZuiExtensionObject, ZodNativeEnumDef } from '../../../z/typings'
 
 export type JsonSchema7NativeEnumType = {
   type: 'string' | 'number' | ['string', 'number']

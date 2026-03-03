@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject, ZodIntersectionDef, ZodTypeAny } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { ZuiExtensionObject, ZodIntersectionDef, ZodTypeAny } from '../../../z/typings'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7StringType } from './string'

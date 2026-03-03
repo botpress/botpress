@@ -1,7 +1,8 @@
-import z, { zuiKey } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { IZodNumber } from '../../../z/typings'
 import * as json from '../../common/json-schema'
 
-export const zodNumberToJsonNumber = (zodNumber: z.ZodNumber): json.NumberSchema => {
+export const zodNumberToJsonNumber = (zodNumber: IZodNumber): json.NumberSchema => {
   const schema: json.NumberSchema = {
     type: 'number',
     description: zodNumber.description,

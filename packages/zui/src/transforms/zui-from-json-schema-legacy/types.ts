@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject } from '../../z'
+import { zuiKey } from '../../z/consts'
+import type { ZuiExtensionObject } from '../../z/typings'
 
 export type Serializable = { [key: string]: Serializable } | Serializable[] | string | number | boolean | null
 

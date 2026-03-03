@@ -1,9 +1,10 @@
-import z, { zuiKey } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { IZodTuple, IZodType } from '../../../z/typings'
 import * as json from '../../common/json-schema'
 
 export const zodTupleToJsonTuple = (
-  zodTuple: z.ZodTuple,
-  toSchema: (x: z.ZodType) => json.Schema
+  zodTuple: IZodTuple,
+  toSchema: (x: IZodType) => json.Schema
 ): json.TupleSchema => {
   const schema: json.TupleSchema = {
     type: 'array',

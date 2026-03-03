@@ -1,11 +1,5 @@
-import {
-  zuiKey,
-  ZuiExtensionObject,
-  ZodDiscriminatedUnionDef,
-  ZodLiteralDef,
-  ZodTypeAny,
-  ZodUnionDef,
-} from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { ZuiExtensionObject, ZodDiscriminatedUnionDef, ZodLiteralDef, ZodTypeAny, ZodUnionDef } from '../../../z/typings'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

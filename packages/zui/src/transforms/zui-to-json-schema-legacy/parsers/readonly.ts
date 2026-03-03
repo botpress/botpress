@@ -1,4 +1,4 @@
-import { ZodReadonlyDef } from '../../../z'
+import type { ZodReadonlyDef } from '../../../z/typings'
 import { parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

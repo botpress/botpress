@@ -1,9 +1,10 @@
-import z, { zuiKey } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { IZodArray, IZodType } from '../../../z/typings'
 import * as json from '../../common/json-schema'
 
 export const zodArrayToJsonArray = (
-  zodArray: z.ZodArray,
-  toSchema: (x: z.ZodType) => json.Schema
+  zodArray: IZodArray,
+  toSchema: (x: IZodType) => json.Schema
 ): json.ArraySchema => {
   const schema: json.ArraySchema = {
     type: 'array',

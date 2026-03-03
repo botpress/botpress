@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject, ZodNullableDef, ZodTypeAny } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { ZuiExtensionObject, ZodNullableDef, ZodTypeAny } from '../../../z/typings'
 import { addMeta, JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7NullType } from './null'

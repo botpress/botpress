@@ -1,4 +1,6 @@
-import { ZodNativeTypeDef, zuiKey, ZodFirstPartyTypeKind } from '../../z'
+import type { ZodNativeTypeDef } from '../../z/typings'
+import { zuiKey } from '../../z/consts'
+import { ZodFirstPartyTypeKind } from '../../z/native'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
 import { JsonSchema7BigintType, parseBigintDef } from './parsers/bigint'

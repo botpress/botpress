@@ -1,15 +1,16 @@
 import { JSONSchema7, JSONSchema7Type } from 'json-schema'
-import z from '../../../z'
+import { builders as z } from '../../../z/internal-builders'
+import type { IZodString, IZodNumber, IZodBoolean, IZodNull, IZodLiteral, IZodUnion } from '../../../z/typings'
 import * as errs from '../../common/errors'
 import { numberJSONSchemaToZuiNumber } from './number'
 import { stringJSONSchemaToZuiString } from './string'
 
 type ZuiPrimitive = keyof ZuiPrimitiveSchemas
 type ZuiPrimitiveSchemas = {
-  string: z.ZodString
-  number: z.ZodNumber
-  boolean: z.ZodBoolean
-  null: z.ZodNull
+  string: IZodString
+  number: IZodNumber
+  boolean: IZodBoolean
+  null: IZodNull
 }
 type ZuiPrimitiveTypes = {
   string: string
@@ -20,8 +21,8 @@ type ZuiPrimitiveTypes = {
 
 type ReturnType<T extends ZuiPrimitive> =
   | ZuiPrimitiveSchemas[T]
-  | z.ZodLiteral<ZuiPrimitiveTypes[T]>
-  | z.ZodUnion<[z.ZodLiteral<ZuiPrimitiveTypes[T]>, ...z.ZodLiteral<ZuiPrimitiveTypes[T]>[]]>
+  | IZodLiteral<ZuiPrimitiveTypes[T]>
+  | IZodUnion<[IZodLiteral<ZuiPrimitiveTypes[T]>, ...IZodLiteral<ZuiPrimitiveTypes[T]>[]]>
 
 export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSchema7): ReturnType<T> => {
   const values: JSONSchema7Type[] = []
@@ -57,12 +58,12 @@ export const toZuiPrimitive = <T extends ZuiPrimitive>(type: T, schema: JSONSche
     }
   } else {
     if (primitiveValues.length === 1) {
-      zuiPrimitive = z.literal(first) satisfies z.ZodLiteral<ZuiPrimitiveTypes[T]>
+      zuiPrimitive = z.literal(first) satisfies IZodLiteral<ZuiPrimitiveTypes[T]>
     } else {
       const items = primitiveValues.map((value) => z.literal(value)) as [
-        z.ZodLiteral<ZuiPrimitiveTypes[T]>,
-        z.ZodLiteral<ZuiPrimitiveTypes[T]>,
-        ...z.ZodLiteral<ZuiPrimitiveTypes[T]>[],
+        IZodLiteral<ZuiPrimitiveTypes[T]>,
+        IZodLiteral<ZuiPrimitiveTypes[T]>,
+        ...IZodLiteral<ZuiPrimitiveTypes[T]>[],
       ]
       zuiPrimitive = z.union(items)
     }

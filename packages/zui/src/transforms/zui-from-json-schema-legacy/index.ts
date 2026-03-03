@@ -1,26 +1,27 @@
-import {
-  zuiKey,
+import { zuiKey } from '../../z/consts'
+import { builders as z } from '../../z/internal-builders'
+import { ZodFirstPartyTypeKind } from '../../z/native'
+import type {
   ZuiExtensionObject,
-  type ZodAnyDef,
-  type ZodArrayDef,
-  type ZodBooleanDef,
-  ZodFirstPartyTypeKind,
-  type ZodLazyDef,
-  type ZodNullDef,
-  type ZodObjectDef,
-  type ZodRecordDef,
-  type ZodStringDef,
-  type ZodSymbolDef,
-  type ZodTypeAny,
-  type ZodUndefinedDef,
-  type ZodUnionDef,
+  ZodAnyDef,
+  ZodArrayDef,
+  ZodBooleanDef,
+  ZodLazyDef,
+  ZodNullDef,
+  ZodObjectDef,
+  ZodRecordDef,
+  ZodStringDef,
+  ZodSymbolDef,
+  ZodTypeAny,
+  ZodUndefinedDef,
+  ZodUnionDef,
   ZodNullableDef,
   ZodOptionalDef,
   ZodNumberDef,
   ZodEnumDef,
   ZodDefaultDef,
-  z,
-} from '../../z'
+  ZodNativeTypeDef,
+} from '../../z/typings'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
 import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'
@@ -78,9 +79,9 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        const def: z.ZodNativeTypeDef = zodField._def
+        const def: ZodNativeTypeDef = zodField._def
 
-        if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+        if (def.typeName === ZodFirstPartyTypeKind.ZodTuple) {
           applyZuiPropsRecursively(def.items[index]!, item)
         }
       })

@@ -1,6 +1,7 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import z, { zuiKey } from '../../z'
+import { zuiKey } from '../../z/consts'
+import type { IZodType, ZodNativeType, ZodTypeDef } from '../../z/typings'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {
@@ -21,14 +22,14 @@ import { generateStringChecks } from './string-checks'
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.ZodType): string {
-  const wrappedSchema: z.ZodType = schema
+export function toTypescriptSchema(schema: IZodType): string {
+  const wrappedSchema: IZodType = schema
   const dts = sUnwrapZod(wrappedSchema)
   return dts
 }
 
-function sUnwrapZod(schema: z.ZodType): string {
-  const s = schema as z.ZodNativeType
+function sUnwrapZod(schema: IZodType): string {
+  const s = schema as ZodNativeType
   switch (s.typeName) {
     case 'ZodString':
       return `z.string()${generateStringChecks(s._def)}${_addMetadata(s._def)}`.trim()
@@ -174,12 +175,12 @@ function sUnwrapZod(schema: z.ZodType): string {
   }
 }
 
-const _addMetadata = (def: z.ZodTypeDef, inner?: z.ZodType) => {
+const _addMetadata = (def: ZodTypeDef, inner?: IZodType) => {
   const innerDef = inner?._def
   return `${_addZuiExtensions(def, innerDef)}${_maybeDescribe(def, innerDef)}`
 }
 
-const _maybeDescribe = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeDescribe = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   if (!def.description) {
     return ''
   }
@@ -189,10 +190,10 @@ const _maybeDescribe = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.describe(${primitiveToTypescriptValue(def.description)})`
 }
 
-const _addZuiExtensions = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) =>
+const _addZuiExtensions = (def: ZodTypeDef, innerDef?: ZodTypeDef) =>
   `${_maybeTitle(def, innerDef)}${_maybeDisplayAs(def, innerDef)}${_maybeDisabled(def, innerDef)}${_maybeHidden(def, innerDef)}${_maybePlaceholder(def, innerDef)}${_maybeSecret(def, innerDef)}${_maybeSetMetadata(def, innerDef)}`
 
-const _maybeTitle = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeTitle = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const title = def[zuiKey]?.title
   if (!title) {
     return ''
@@ -203,7 +204,7 @@ const _maybeTitle = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.title(${primitiveToTypescriptValue(title)})`
 }
 
-const _maybeDisplayAs = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeDisplayAs = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const displayAs = def[zuiKey]?.displayAs
   if (!displayAs) {
     return ''
@@ -214,7 +215,7 @@ const _maybeDisplayAs = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.displayAs(${recordOfUnknownToTypescriptRecord({ id: displayAs[0], params: displayAs[1] })})`
 }
 
-const _maybeDisabled = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeDisabled = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const disabled = def[zuiKey]?.disabled
   if (!disabled) {
     return ''
@@ -225,7 +226,7 @@ const _maybeDisabled = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.disabled(${disabled})`
 }
 
-const _maybeHidden = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeHidden = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const hidden = def[zuiKey]?.hidden
   if (!hidden) {
     return ''
@@ -236,7 +237,7 @@ const _maybeHidden = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.hidden(${hidden})`
 }
 
-const _maybePlaceholder = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybePlaceholder = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const placeholder = def[zuiKey]?.placeholder
   if (!placeholder) {
     return ''
@@ -247,7 +248,7 @@ const _maybePlaceholder = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return `.placeholder(${primitiveToTypescriptValue(placeholder)})`
 }
 
-const _maybeSecret = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeSecret = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const secret = def[zuiKey]?.secret
   if (!secret) {
     return ''
@@ -258,7 +259,7 @@ const _maybeSecret = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
   return '.secret()'
 }
 
-const _maybeSetMetadata = (def: z.ZodTypeDef, innerDef?: z.ZodTypeDef) => {
+const _maybeSetMetadata = (def: ZodTypeDef, innerDef?: ZodTypeDef) => {
   const reservedKeys = [
     'title',
     'tooltip',

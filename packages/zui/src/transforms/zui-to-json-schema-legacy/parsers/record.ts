@@ -1,4 +1,6 @@
-import { zuiKey, ZuiExtensionObject, ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import { ZodFirstPartyTypeKind } from '../../../z/native'
+import type { ZuiExtensionObject, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z/typings'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7EnumType } from './enum'

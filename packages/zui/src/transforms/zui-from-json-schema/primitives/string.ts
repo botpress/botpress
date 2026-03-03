@@ -1,5 +1,6 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../../z'
+import { builders as z } from '../../../z/internal-builders'
+import type { IZodString } from '../../../z/typings'
 import * as datetime from '../../../z/utils/datestring-utils'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 
@@ -8,7 +9,7 @@ export const stringJSONSchemaToZuiString = ({
   pattern,
   minLength,
   maxLength,
-}: JSONSchema7 & { type: 'string' }): z.ZodString => {
+}: JSONSchema7 & { type: 'string' }): IZodString => {
   let zodString = z.string()
 
   if (minLength && maxLength && minLength === maxLength) {

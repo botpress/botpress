@@ -1,4 +1,4 @@
-import { ZodArrayDef } from '../../z'
+import type { ZodArrayDef } from '../../z/typings'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateArrayChecks = (def: ZodArrayDef): string => {

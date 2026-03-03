@@ -1,11 +1,12 @@
-import z, { zuiKey } from '../../../z'
+import { zuiKey } from '../../../z/consts'
+import type { IZodString } from '../../../z/typings'
 import { generateDatetimeRegex } from '../../../z/utils/datestring-utils'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
 import * as json from '../../common/json-schema'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 
-export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema => {
+export const zodStringToJsonString = (zodString: IZodString): json.StringSchema => {
   const schema: json.StringSchema = {
     type: 'string',
     description: zodString.description,

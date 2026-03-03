@@ -1,4 +1,5 @@
-import z from '../../z'
+import { is } from '../../z/guards'
+import type { IZodType, ZodTypeDef, ZodObjectDef, ZodNativeType } from '../../z/typings'
 import * as utils from '../../z/utils'
 import * as err from '../common/errors'
 import * as json from '../common/json-schema'
@@ -13,8 +14,8 @@ import { zodTupleToJsonTuple } from './type-processors/tuple'
  * @param schema zui schema
  * @returns ZUI flavored JSON schema
  */
-export function toJSONSchema(schema: z.ZodType): json.Schema {
-  const s = schema as z.ZodNativeType
+export function toJSONSchema(schema: IZodType): json.Schema {
+  const s = schema as ZodNativeType
 
   switch (s.typeName) {
     case 'ZodString':
@@ -79,7 +80,7 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
       const requiredProperties = shape.filter(([_, value]) => !value.isOptional())
       const required = requiredProperties.length ? requiredProperties.map(([key]) => key) : undefined
       const properties = shape
-        .map(([key, value]) => [key, value.mandatory()] satisfies [string, z.ZodType])
+        .map(([key, value]) => [key, value.mandatory()] satisfies [string, IZodType])
         .map(([key, value]) => [key, toJSONSchema(value)] satisfies [string, json.Schema])
 
       return {
@@ -264,19 +265,19 @@ export function toJSONSchema(schema: z.ZodType): json.Schema {
   }
 }
 
-const undefinedSchema = (def?: z.ZodTypeDef): json.UndefinedSchema => ({
+const undefinedSchema = (def?: ZodTypeDef): json.UndefinedSchema => ({
   not: true,
   description: def?.description,
   'x-zui': { ...def?.['x-zui'], def: { typeName: 'ZodUndefined' } },
 })
 
-const nullSchema = (def?: z.ZodTypeDef): json.NullSchema => ({
+const nullSchema = (def?: ZodTypeDef): json.NullSchema => ({
   type: 'null',
   description: def?.description,
   'x-zui': def?.['x-zui'],
 })
 
-const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.ObjectSchema['additionalProperties']> => {
+const additionalPropertiesSchema = (def: ZodObjectDef): NonNullable<json.ObjectSchema['additionalProperties']> => {
   if (def.unknownKeys === 'passthrough') {
     return true
   }
@@ -285,7 +286,7 @@ const additionalPropertiesSchema = (def: z.ZodObjectDef): NonNullable<json.Objec
     return false
   }
 
-  if (!z.is.zuiType(def.unknownKeys)) {
+  if (!is.zuiType(def.unknownKeys)) {
     return false
   }
 

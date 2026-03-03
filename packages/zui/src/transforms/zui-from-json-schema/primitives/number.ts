@@ -1,5 +1,6 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../../z'
+import { builders as z } from '../../../z/internal-builders'
+import type { IZodNumber } from '../../../z/typings'
 
 export const numberJSONSchemaToZuiNumber = ({
   type,
@@ -9,7 +10,7 @@ export const numberJSONSchemaToZuiNumber = ({
   exclusiveMaximum,
   multipleOf,
   format,
-}: JSONSchema7 & { type: 'number' | 'integer' }): z.ZodNumber => {
+}: JSONSchema7 & { type: 'number' | 'integer' }): IZodNumber => {
   let zodNumber = z.number()
 
   if (type === 'integer') {

@@ -1,5 +1,6 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
-import z from '../../z'
+import { builders as z } from '../../z/internal-builders'
+import type { IZodType, IZodObject, ZodDiscriminatedUnionOption } from '../../z/typings'
 import * as errors from '../common/errors'
 import { ArraySchema, SetSchema, TupleSchema } from '../common/json-schema'
 import * as guards from './guards'
@@ -13,11 +14,11 @@ const DEFAULT_TYPE = z.any()
  * @param schema json schema
  * @returns ZUI Schema
  */
-export function fromJSONSchema(schema: JSONSchema7): z.ZodType {
+export function fromJSONSchema(schema: JSONSchema7): IZodType {
   return _fromJSONSchema(schema)
 }
 
-function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
+function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
   if (schema === undefined) {
     return DEFAULT_TYPE
   }
@@ -89,7 +90,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
       return _fromJSONSchema({ ...schema, type: schema.type[0] })
     }
     const { type: _, ...tmp } = schema
-    const types = schema.type.map((t) => _fromJSONSchema({ ...tmp, type: t })) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const types = schema.type.map((t) => _fromJSONSchema({ ...tmp, type: t })) as [IZodType, IZodType, ...IZodType[]]
     return z.union(types)
   }
 
@@ -128,14 +129,14 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
   if (schema.type === 'object') {
     if (schema.additionalProperties !== undefined && schema.properties !== undefined) {
       const catchAll = _fromJSONSchema(schema.additionalProperties)
-      const inner = _fromJSONSchema({ ...schema, additionalProperties: undefined }) as z.ZodObject
+      const inner = _fromJSONSchema({ ...schema, additionalProperties: undefined }) as IZodObject
       return inner.catchall(catchAll)
     }
 
     if (schema.properties !== undefined) {
-      const properties: Record<string, z.ZodType> = {}
+      const properties: Record<string, IZodType> = {}
       for (const [key, value] of Object.entries(schema.properties)) {
-        const mapped: z.ZodType = _fromJSONSchema(value)
+        const mapped: IZodType = _fromJSONSchema(value)
         const required: string[] = schema.required ?? []
         // If the property is already optional (e.g., has a default value), don't wrap it again
         properties[key] = required.includes(key) ? mapped : mapped.isOptional() ? mapped : mapped.optional()
@@ -173,14 +174,14 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): z.ZodType {
     if (guards.isDiscriminatedUnionSchema(schema) && schema['x-zui']?.def?.discriminator) {
       const { discriminator } = schema['x-zui'].def
       const options = schema.anyOf.map(_fromJSONSchema) as [
-        z.ZodDiscriminatedUnionOption<string>,
-        z.ZodDiscriminatedUnionOption<string>,
-        ...z.ZodDiscriminatedUnionOption<string>[],
+        ZodDiscriminatedUnionOption<string>,
+        ZodDiscriminatedUnionOption<string>,
+        ...ZodDiscriminatedUnionOption<string>[],
       ]
       return z.discriminatedUnion(discriminator, options)
     }
 
-    const options = schema.anyOf.map(_fromJSONSchema) as [z.ZodType, z.ZodType, ...z.ZodType[]]
+    const options = schema.anyOf.map(_fromJSONSchema) as [IZodType, IZodType, ...IZodType[]]
     return z.union(options)
   }
 

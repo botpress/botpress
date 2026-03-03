@@ -1,4 +1,4 @@
-import { ZodOptionalDef, ZodTypeAny } from '../../../z'
+import type { ZodOptionalDef, ZodTypeAny } from '../../../z/typings'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 
