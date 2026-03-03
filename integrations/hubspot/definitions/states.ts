@@ -6,6 +6,16 @@ const oauthCredentials = {
     accessToken: z.string().title('Access Token').describe('The access token for the Hubspot integration'),
     refreshToken: z.string().title('Refresh Token').describe('The refresh token for the Hubspot integration'),
     expiresAtSeconds: z.number().title('Expires At').describe('The timestamp in seconds when the access token expires'),
+    clientId: z
+      .string()
+      .optional()
+      .title('Client ID')
+      .describe('Client ID for manual configuration (used for token refresh)'),
+    clientSecret: z
+      .string()
+      .optional()
+      .title('Client Secret')
+      .describe('Client Secret for manual configuration (used for token refresh)'),
   }),
 } satisfies StateDefinition
 
@@ -82,17 +92,27 @@ const propertyCacheStateDefinition = {
   }),
 } satisfies StateDefinition
 
-export type CrmObjectType = 'ticket' | 'deal' | 'contact' | 'lead'
+export type CrmObjectType = 'ticket' | 'deal' | 'contact' | 'lead' | 'company'
 const propertyCacheStates = {
   ticketPropertyCache: propertyCacheStateDefinition,
   dealPropertyCache: propertyCacheStateDefinition,
   contactPropertyCache: propertyCacheStateDefinition,
   leadPropertyCache: propertyCacheStateDefinition,
+  companyPropertyCache: propertyCacheStateDefinition,
 } satisfies Record<`${CrmObjectType}PropertyCache`, StateDefinition>
+
+const manualOauthCredentials = {
+  type: 'integration',
+  schema: z.object({
+    clientId: z.string().title('Client ID').describe('Temporary storage for user-provided client ID'),
+    clientSecret: z.string().title('Client Secret').describe('Temporary storage for user-provided client secret'),
+  }),
+} satisfies StateDefinition
 
 export const states = {
   oauthCredentials,
   ticketPipelineCache,
   companiesCache,
+  manualOauthCredentials,
   ...propertyCacheStates,
 } satisfies Record<string, StateDefinition>

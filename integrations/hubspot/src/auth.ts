@@ -9,6 +9,8 @@ type OAuthCredentials = {
   accessToken: string
   refreshToken: string
   expiresAtSeconds: number
+  clientId?: string
+  clientSecret?: string
 }
 
 const _getExpiresAtFromExpiresIn = (expiresIn: number) => {
@@ -16,14 +18,22 @@ const _getExpiresAtFromExpiresIn = (expiresIn: number) => {
   return nowSeconds + expiresIn
 }
 
-export const exchangeCodeForOAuthCredentials = async ({ code }: { code: string }) => {
+export const exchangeCodeForOAuthCredentials = async ({
+  code,
+  clientId,
+  clientSecret,
+}: {
+  code: string
+  clientId?: string
+  clientSecret?: string
+}) => {
   const hsClient = new OfficialHubspotClient({})
   const { refreshToken, accessToken, expiresIn } = await hsClient.oauth.tokensApi.create(
     'authorization_code',
     code,
     REDIRECT_URI,
-    bp.secrets.CLIENT_ID,
-    bp.secrets.CLIENT_SECRET
+    clientId ?? bp.secrets.CLIENT_ID,
+    clientSecret ?? bp.secrets.CLIENT_SECRET
   )
   return {
     refreshToken,
@@ -52,7 +62,7 @@ export const setOAuthCredentials = async ({
 const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   const {
     state: {
-      payload: { accessToken, refreshToken, expiresAtSeconds },
+      payload: { accessToken, refreshToken, expiresAtSeconds, clientId, clientSecret },
     },
   } = await client
     .getState({ type: 'integration', name: 'oauthCredentials', id: ctx.integrationId })
@@ -67,19 +77,25 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
     return accessToken
   }
 
+  // Use stored client credentials if available (manual config), otherwise use secrets (OAuth)
+  const effectiveClientId = clientId ?? bp.secrets.CLIENT_ID
+  const effectiveClientSecret = clientSecret ?? bp.secrets.CLIENT_SECRET
+
   const hsClient = new OfficialHubspotClient({})
   const refreshResponse = await hsClient.oauth.tokensApi.create(
     'refresh_token',
     undefined,
     REDIRECT_URI,
-    bp.secrets.CLIENT_ID,
-    bp.secrets.CLIENT_SECRET,
+    effectiveClientId,
+    effectiveClientSecret,
     refreshToken
   )
   const newCredentials = {
     accessToken: refreshResponse.accessToken,
     refreshToken: refreshResponse.refreshToken,
     expiresAtSeconds: _getExpiresAtFromExpiresIn(refreshResponse.expiresIn),
+    clientId,
+    clientSecret,
   }
   await setOAuthCredentials({
     client,
@@ -91,10 +107,18 @@ const _getOrRefreshOAuthAccessToken = async ({ client, ctx }: { client: bp.Clien
 
 export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) => {
   let accessToken: string | undefined
-  if (ctx.configurationType === 'manual') {
-    accessToken = ctx.configuration.accessToken
-  } else {
+
+  // Try OAuth state first (used by both OAuth and manual config wizard)
+  try {
     accessToken = await _getOrRefreshOAuthAccessToken({ client, ctx })
+  } catch (error) {
+    // Fall back to manual config access token if OAuth state doesn't exist
+    // This maintains backwards compatibility with old-style manual config
+    if (ctx.configurationType === 'manual' && ctx.configuration.accessToken) {
+      accessToken = ctx.configuration.accessToken
+    } else {
+      throw error
+    }
   }
 
   if (!accessToken) {

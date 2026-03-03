@@ -5,7 +5,7 @@ export default new IntegrationDefinition({
   name: 'hubspot',
   title: 'HubSpot',
   description: 'Manage contacts, tickets and more from your chatbot.',
-  version: '5.2.1',
+  version: '5.3.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
@@ -17,15 +17,20 @@ export default new IntegrationDefinition({
   configurations: {
     manual: {
       title: 'Manual Configuration',
-      description: 'Manual configuration, use your own Hubspot app',
+      description:
+        'Use your own HubSpot app. Enter your Client ID and Client Secret, then you will be redirected to authorize with HubSpot.',
       schema: z.object({
-        accessToken: z.string().min(1).secret().title('Access Token').describe('Your Hubspot Access Token'),
+        clientId: z
+          .string()
+          .min(1)
+          .title('Client ID')
+          .describe('Your HubSpot app Client ID (found in app settings)'),
         clientSecret: z
           .string()
+          .min(1)
           .secret()
-          .optional()
           .title('Client Secret')
-          .describe('Hubspot Client Secret (used for webhook signature check)'),
+          .describe('Your HubSpot app Client Secret (found in app settings)'),
       }),
     },
   },

@@ -1,12 +1,20 @@
 import { Signature } from '@hubspot/api-client'
+import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import { getClientSecret } from '../auth'
 import * as handlers from './handlers'
+import * as wizard from '../wizard'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
   const { req, logger } = props
 
   logger.debug(`Received request on ${req.path}: ${JSON.stringify(req.body, null, 2)}`)
+
+  // Handle wizard requests for manual configuration
+  if (isOAuthWizardUrl(req.path)) {
+    return await wizard.handler(props)
+  }
+
   if (handlers.isOAuthCallback(props)) {
     return await handlers.handleOAuthCallback(props)
   }
