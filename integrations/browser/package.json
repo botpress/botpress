@@ -10,7 +10,7 @@
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@mendable/firecrawl-js": "^4.3.8",
-    "axios": "^1.7.2"
+    "axios": "^0.30.3"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
