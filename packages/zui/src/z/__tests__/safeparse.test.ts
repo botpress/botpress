@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import z from '../index'
+import * as z from '../index'
 import { ZodError } from '../error'
 const stringSchema = z.string()
 

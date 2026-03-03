@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { z, zuiKey } from '../../../z'
+import * as z from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
+
+const { zuiKey } = z
 
 describe('Root schema result after parsing', () => {
   it('should return the schema directly in the root if no name is passed', () => {

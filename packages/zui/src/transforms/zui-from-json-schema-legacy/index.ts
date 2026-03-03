@@ -19,7 +19,7 @@ import {
   ZodNumberDef,
   ZodEnumDef,
   ZodDefaultDef,
-  z,
+  ZodNativeTypeDef,
 } from '../../z'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
@@ -78,9 +78,9 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        const def: z.ZodNativeTypeDef = zodField._def
+        const def: ZodNativeTypeDef = zodField._def
 
-        if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+        if (def.typeName === ZodFirstPartyTypeKind.ZodTuple) {
           applyZuiPropsRecursively(def.items[index]!, item)
         }
       })

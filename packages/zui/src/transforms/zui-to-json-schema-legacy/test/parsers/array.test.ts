@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z, zuiKey } from '../../../../z'
+import * as z from '../../../../z'
 import { parseArrayDef } from '../../parsers/array'
 import { getRefs } from '../../Refs'
 import { errorReferences } from './errorReferences'
 import deref from 'local-ref-resolver'
+
+const { zuiKey } = z
 
 describe('Arrays and array validations', () => {
   it('should be possible to describe a simple array', () => {

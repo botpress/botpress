@@ -1,6 +1,8 @@
 import { describe, test, expect } from 'vitest'
-import { z, zuiKey } from '../../../z'
+import * as z from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
+
+const { zuiKey } = z
 
 describe('Issue tests', () => {
   test('@94', () => {

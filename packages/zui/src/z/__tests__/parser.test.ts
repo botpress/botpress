@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import z from '../index'
+import * as z from '../index'
 
 test('parse strict object with unknown keys', () => {
   expect(() =>

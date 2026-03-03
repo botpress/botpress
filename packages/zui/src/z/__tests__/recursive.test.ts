@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import { z } from '../index'
+import * as z from '../index'
 
 interface Category {
   name: string

@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../../z'
+import * as z from'../../../z'
 
 export const numberJSONSchemaToZuiNumber = ({
   type,

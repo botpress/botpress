@@ -1,5 +1,7 @@
-import z, { zuiKey } from '../../../z'
+import * as z from '../../../z'
 import * as json from '../../common/json-schema'
+
+const { zuiKey } = z
 
 export const zodTupleToJsonTuple = (
   zodTuple: z.ZodTuple,

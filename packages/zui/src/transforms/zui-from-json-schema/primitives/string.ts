@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../../z'
+import * as z from'../../../z'
 import * as datetime from '../../../z/utils/datestring-utils'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 

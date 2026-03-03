@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as assert from '../../assertions.utils.test'
-import z from '../index'
+import * as z from '../index'
 import { NEVER } from '../types/basetype'
 import { ZodError } from '../error'
 

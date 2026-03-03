@@ -1,9 +1,11 @@
-import z, { zuiKey } from '../../../z'
+import * as z from '../../../z'
 import { generateDatetimeRegex } from '../../../z/utils/datestring-utils'
 import { regexUtils } from '../../common'
 import * as errors from '../../common/errors'
 import * as json from '../../common/json-schema'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
+
+const { zuiKey } = z
 
 export const zodStringToJsonString = (zodString: z.ZodString): json.StringSchema => {
   const schema: json.StringSchema = {

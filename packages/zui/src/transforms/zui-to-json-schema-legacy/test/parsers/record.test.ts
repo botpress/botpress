@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { z, zuiKey } from '../../../../z'
+import * as z from '../../../../z'
 import { parseRecordDef } from '../../parsers/record'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('records', () => {
   it('should be possible to describe a simple record', () => {

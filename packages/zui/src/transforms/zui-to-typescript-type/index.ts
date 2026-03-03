@@ -1,4 +1,4 @@
-import z from '../../z'
+import * as z from'../../z'
 import * as utils from '../../z/utils'
 import * as errors from '../common/errors'
 import {

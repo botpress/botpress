@@ -1,5 +1,5 @@
 import { JSONSchema7Definition } from 'json-schema'
-import z from '../../../z'
+import * as z from'../../../z'
 import { ArraySchema, SetSchema, TupleSchema } from '../../common/json-schema'
 
 export const arrayJSONSchemaToZuiArray = (

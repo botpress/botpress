@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { z, zuiKey } from '../../../../z'
+import * as z from '../../../../z'
 import { parseBrandedDef } from '../../parsers/branded'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('objects', () => {
   it('should be possible to use branded string', () => {

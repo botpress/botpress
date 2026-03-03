@@ -1,9 +1,9 @@
-import z, { ZodTypeAny } from '../../z'
+import * as z from '../../z'
 
 export type EvalZuiStringResult =
   | {
       sucess: true
-      value: ZodTypeAny
+      value: z.ZodTypeAny
     }
   | {
       sucess: false
