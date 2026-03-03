@@ -1,9 +1,8 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "..",
-    "outDir": "../dist",
-    "noPropertyAccessFromIndexSignature": true,
+    "baseUrl": ".",
+    "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

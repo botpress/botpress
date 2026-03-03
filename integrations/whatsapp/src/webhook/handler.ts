@@ -6,6 +6,7 @@ import { messagesHandler } from './handlers/messages'
 import { oauthCallbackHandler } from './handlers/oauth'
 import { reactionHandler } from './handlers/reaction'
 import { isSandboxCommand, sandboxHandler } from './handlers/sandbox'
+import { statusHandler } from './handlers/status'
 import { subscribeHandler } from './handlers/subscribe'
 import * as bp from '.botpress'
 
@@ -56,6 +57,9 @@ const _handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) 
 
   switch (changes.field) {
     case 'messages':
+      for (const status of changes.value.statuses ?? []) {
+        await statusHandler(status, props)
+      }
       for (const message of changes.value.messages ?? []) {
         if (message.type === 'reaction') {
           await reactionHandler(message, props)

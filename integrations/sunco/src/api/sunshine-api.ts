@@ -1,12 +1,44 @@
+import { StoredCredentials } from 'src/types'
 // @ts-expect-error No types for sunshine-conversations-client
 import * as SunshineConversationsClientModule from 'sunshine-conversations-client'
 
-export function createClient(keyId: string, keySecret: string) {
+export type CombinedApiClient = {
+  activities: ActivitiesApi
+  apps: AppsApi
+  users: UsersApi
+  conversations: ConversationsApi
+  messages: MessagesApi
+  webhooks: WebhooksApi
+  integrations: IntegrationsApi
+  switchboard: SwitchboardsApi
+  switchboardActions: SwitchboardActionsApi
+  switchboardIntegrations: SwitchboardIntegrationsApi
+}
+
+export function createClient(creds: StoredCredentials): CombinedApiClient {
+  const client =
+    creds.configType === 'manual'
+      ? createClientFromBasicAuth(creds.keyId, creds.keySecret)
+      : createClientFromToken(creds.token)
+  return createApis(client)
+}
+
+function createClientFromBasicAuth(keyId: string, keySecret: string): ApiClient {
   const apiClient = new SunshineConversationsApi.ApiClient()
   const auth = apiClient.authentications['basicAuth']
   auth.username = keyId
   auth.password = keySecret
+  return apiClient
+}
 
+function createClientFromToken(token: string) {
+  const apiClient = new SunshineConversationsApi.ApiClient()
+  const auth = apiClient.authentications['bearerAuth']
+  auth.accessToken = token
+  return apiClient
+}
+
+function createApis(apiClient: ApiClient): CombinedApiClient {
   return {
     activities: new SunshineConversationsApi.ActivitiesApi(apiClient),
     apps: new SunshineConversationsApi.AppsApi(apiClient),

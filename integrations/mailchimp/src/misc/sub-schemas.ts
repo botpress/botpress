@@ -11,11 +11,11 @@ const HttpMethodSchema = z.union([
 ])
 
 const linkSchema = z.object({
-  rel: z.string().optional(),
-  href: z.string().optional(),
-  method: HttpMethodSchema.optional(),
-  targetSchema: z.string().optional(),
-  schema: z.string().optional(),
+  rel: z.string().optional().title('Rel').describe('Link relation type'),
+  href: z.string().optional().title('Href').describe('Link URL'),
+  method: HttpMethodSchema.optional().title('Method').describe('HTTP method'),
+  targetSchema: z.string().optional().title('Target Schema').describe('Target schema URL'),
+  schema: z.string().optional().title('Schema').describe('Schema URL'),
 })
 
 const tagsSchema = z.object({
@@ -110,28 +110,31 @@ const statsSchema = z.object({
 })
 
 const listSchema = z.object({
-  id: z.string(),
-  web_id: z.number(),
-  name: z.string(),
-  contact: contactSchema,
-  permission_reminder: z.string(),
-  use_archive_bar: z.boolean(),
-  campaign_defaults: campaignDefaultsSchema,
-  notify_on_subscribe: z.string(),
-  notify_on_unsubscribe: z.string(),
-  date_created: z.string(),
-  list_rating: z.number(),
-  email_type_option: z.boolean(),
-  subscribe_url_short: z.string(),
-  subscribe_url_long: z.string(),
-  beamer_address: z.string(),
-  visibility: z.string(),
-  double_optin: z.boolean(),
-  has_welcome: z.boolean(),
-  marketing_permissions: z.boolean(),
-  modules: z.array(z.any()),
-  stats: statsSchema,
-  _links: z.array(linkSchema),
+  id: z.string().title('ID').describe('List ID'),
+  web_id: z.number().title('Web ID').describe('List web ID'),
+  name: z.string().title('Name').describe('List name'),
+  contact: contactSchema.title('Contact').describe('Contact information for the list'),
+  permission_reminder: z.string().title('Permission Reminder').describe('Permission reminder message'),
+  use_archive_bar: z.boolean().title('Use Archive Bar').describe('Whether to use the archive bar'),
+  campaign_defaults: campaignDefaultsSchema.title('Campaign Defaults').describe('Default campaign settings'),
+  notify_on_subscribe: z.string().title('Notify on Subscribe').describe('Email to notify on subscription'),
+  notify_on_unsubscribe: z.string().title('Notify on Unsubscribe').describe('Email to notify on unsubscription'),
+  date_created: z.string().title('Date Created').describe('Date when the list was created'),
+  list_rating: z.number().title('List Rating').describe('List quality rating'),
+  email_type_option: z.boolean().title('Email Type Option').describe('Whether email type option is enabled'),
+  subscribe_url_short: z.string().title('Subscribe URL Short').describe('Short subscription URL'),
+  subscribe_url_long: z.string().title('Subscribe URL Long').describe('Long subscription URL'),
+  beamer_address: z.string().title('Beamer Address').describe('Beamer email address'),
+  visibility: z.string().title('Visibility').describe('List visibility setting'),
+  double_optin: z.boolean().title('Double Opt-in').describe('Whether double opt-in is required'),
+  has_welcome: z.boolean().title('Has Welcome').describe('Whether the list has a welcome email'),
+  marketing_permissions: z
+    .boolean()
+    .title('Marketing Permissions')
+    .describe('Whether marketing permissions are enabled'),
+  modules: z.array(z.any()).title('Modules').describe('List modules'),
+  stats: statsSchema.title('Stats').describe('List statistics'),
+  _links: z.array(linkSchema).title('Links').describe('Related links'),
 })
 
 const constraintsSchema = z.object({
@@ -154,7 +157,9 @@ const recipientsSchema = z
         match: z.string().describe('Match condition'),
         conditions: z.array(z.unknown()).describe('Array of conditions'), // Adjust the type accordingly
       })
-      .partial(),
+      .partial()
+      .title('Segment Options')
+      .describe('Segment options for targeting specific recipients'),
   })
   .passthrough()
   .describe('Recipients information')
@@ -239,22 +244,26 @@ const rssOptsSchema = z
   .object({
     feed_url: z.string().describe('URL of the RSS feed'),
     frequency: z.string().describe('Frequency of sending (e.g., "daily")'),
-    schedule: z.object({
-      hour: z.number().describe('Hour of the day for sending'),
-      daily_send: z
-        .object({
-          sunday: z.boolean(),
-          monday: z.boolean(),
-          tuesday: z.boolean(),
-          wednesday: z.boolean(),
-          thursday: z.boolean(),
-          friday: z.boolean(),
-          saturday: z.boolean(),
-        })
-        .describe('Daily send options'),
-      weekly_send_day: z.string().describe('Day of the week for weekly sending'),
-      monthly_send_date: z.number().describe('Date of the month for monthly sending'),
-    }),
+    schedule: z
+      .object({
+        hour: z.number().describe('Hour of the day for sending'),
+        daily_send: z
+          .object({
+            sunday: z.boolean().title('Sunday').describe('Send on Sunday'),
+            monday: z.boolean().title('Monday').describe('Send on Monday'),
+            tuesday: z.boolean().title('Tuesday').describe('Send on Tuesday'),
+            wednesday: z.boolean().title('Wednesday').describe('Send on Wednesday'),
+            thursday: z.boolean().title('Thursday').describe('Send on Thursday'),
+            friday: z.boolean().title('Friday').describe('Send on Friday'),
+            saturday: z.boolean().title('Saturday').describe('Send on Saturday'),
+          })
+          .title('Daily Send')
+          .describe('Daily send options'),
+        weekly_send_day: z.string().describe('Day of the week for weekly sending'),
+        monthly_send_date: z.number().describe('Date of the month for monthly sending'),
+      })
+      .title('Schedule')
+      .describe('RSS feed schedule'),
     last_sent: z.string().describe('Last time the RSS feed was sent'),
     constrain_rss_img: z.boolean().describe('Indicates whether to constrain RSS images'),
   })
@@ -293,11 +302,14 @@ const reportSummarySchema = z
     clicks: z.number().describe('Total clicks'),
     subscriber_clicks: z.number().describe('Subscriber clicks'),
     click_rate: z.number().describe('Click rate'),
-    ecommerce: z.object({
-      total_orders: z.number().describe('Total ecommerce orders'),
-      total_spent: z.number().describe('Total amount spent in ecommerce'),
-      total_revenue: z.number().describe('Total ecommerce revenue'),
-    }),
+    ecommerce: z
+      .object({
+        total_orders: z.number().describe('Total ecommerce orders'),
+        total_spent: z.number().describe('Total amount spent in ecommerce'),
+        total_revenue: z.number().describe('Total ecommerce revenue'),
+      })
+      .title('Ecommerce')
+      .describe('Ecommerce data for the campaign'),
   })
   .passthrough()
 
@@ -309,7 +321,7 @@ const deliveryStatusSchema = z.union([
     emails_sent: z.number().describe('Total emails sent'),
     emails_canceled: z.number().describe('Total emails canceled'),
   }),
-  z.object({ enabled: z.literal(false) }),
+  z.object({ enabled: z.literal(false).describe('Delivery status tracking is disabled') }),
 ])
 
 export {

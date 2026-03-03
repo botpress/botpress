@@ -1,4 +1,4 @@
-import { Zai } from './zai'
+import { Zai, type Memoizer } from './zai'
 
 import './operations/text'
 import './operations/rewrite'
@@ -14,3 +14,4 @@ import './operations/answer'
 import './operations/patch'
 
 export { Zai }
+export type { Memoizer }

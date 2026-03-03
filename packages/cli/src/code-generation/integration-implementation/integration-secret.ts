@@ -4,6 +4,7 @@ import * as consts from '../consts'
 import { Module } from '../module'
 
 export const secretEnvVariableName = (secretName: string) => `SECRET_${casing.to.screamingSnakeCase(secretName)}`
+export const stripSecretEnvVariablePrefix = (secretName: string) => secretName.replace(/^SECRET_/, '')
 
 export class IntegrationSecretIndexModule extends Module {
   public constructor(private _integration: IntegrationDefinition) {
