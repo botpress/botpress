@@ -45,7 +45,7 @@ export const callAction: bp.PluginHandlers['actionHandlers']['checkSynchronizati
   if (workflow.input.jobFileId) {
     try {
       const { file: jobFile } = await props.client.getFile({ id: workflow.input.jobFileId })
-      const jobFileContent = await fetch(jobFile.url).then((res) => res.text())
+      const jobFileContent = await fetch(jobFile.url, { signal: AbortSignal.timeout(30000) }).then((res) => res.text())
       fileStats = _computeFileStats(jobFileContent, props.logger)
     } catch (error) {
       props.logger.error(`Failed to retrieve sync queue file: ${error}`)
