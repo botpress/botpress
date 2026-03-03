@@ -3,6 +3,19 @@ import { DropboxAuth } from 'dropbox'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import * as bp from '.botpress'
 
+export const getOAuthClientId = ({ ctx }: { ctx: bp.Context }) =>
+  ctx.configurationType === 'manual' ? ctx.configuration.clientId : bp.secrets.APP_KEY
+
+export const getOAuthClientSecret = ({ ctx }: { ctx: bp.Context }) =>
+  ctx.configurationType === 'manual' ? ctx.configuration.clientSecret : bp.secrets.APP_SECRET
+
+export const getAuthorizationCode = ({ ctx }: { ctx: bp.Context }): string | undefined => {
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.authorizationCode
+  }
+  return undefined
+}
+
 export class DropboxOAuthClient {
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
@@ -13,8 +26,8 @@ export class DropboxOAuthClient {
     this._ctx = ctx
 
     this._dropboxAuth = new DropboxAuth({
-      clientId: ctx.configuration.clientId,
-      clientSecret: ctx.configuration.clientSecret,
+      clientId: getOAuthClientId({ ctx }),
+      clientSecret: getOAuthClientSecret({ ctx }),
     })
   }
 
@@ -26,8 +39,8 @@ export class DropboxOAuthClient {
   }
 
   @handleErrors('Failed to exchange authorization code. Please reconfigure the integration.')
-  public async processAuthorizationCode(authorizationCode: string): Promise<void> {
-    const result = await this._exchangeAuthorizationCodeForRefreshToken(authorizationCode)
+  public async processAuthorizationCode(authorizationCode: string, redirectUri: string): Promise<void> {
+    const result = await this._exchangeAuthorizationCodeForRefreshToken(authorizationCode, redirectUri)
 
     await this._client.setState({
       id: this._ctx.integrationId,
@@ -42,8 +55,8 @@ export class DropboxOAuthClient {
     })
   }
 
-  private async _exchangeAuthorizationCodeForRefreshToken(authorizationCode: string) {
-    const response = await this._dropboxAuth.getAccessTokenFromCode('', authorizationCode)
+  private async _exchangeAuthorizationCodeForRefreshToken(authorizationCode: string, redirectUri: string) {
+    const response = await this._dropboxAuth.getAccessTokenFromCode(redirectUri, authorizationCode)
 
     // NOTE: DropboxAuth.getAccessTokenFromCode is not properly typed: the
     // response is not an empty object, but an object with the following properties:
@@ -65,13 +78,26 @@ export class DropboxOAuthClient {
 
   @handleErrors('Failed to get authorization state. Please reconfigure the integration.')
   private async _getAuthState(): Promise<bp.states.authorization.Authorization['payload']> {
-    const { state } = await this._client.getState({
-      id: this._ctx.integrationId,
-      type: 'integration',
-      name: 'authorization',
-    })
+    try {
+      const result = await this._client.getState({
+        id: this._ctx.integrationId,
+        type: 'integration',
+        name: 'authorization',
+      })
 
-    return state.payload
+      if (!result?.state?.payload) {
+        throw new Error('Authorization state not found. Please complete the OAuth wizard to configure the integration.')
+      }
+
+      return result.state.payload
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('not found')) {
+        throw error
+      }
+      throw new Error(
+        'Failed to retrieve authorization state. Please complete the OAuth wizard to configure the integration.'
+      )
+    }
   }
 
   @handleErrors('Failed to exchange refresh token for access token')
