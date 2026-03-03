@@ -15,6 +15,9 @@ export default new sdk.IntegrationDefinition({
   entities,
   secrets,
   states,
+  attributes: {
+    category: 'File Management',
+  },
 }).extend(filesReadonly, ({}) => ({
   entities: {},
   actions: {

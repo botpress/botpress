@@ -5,7 +5,7 @@ import { actions, channels, user, states } from 'definitions'
 
 export default new IntegrationDefinition({
   name: 'teams',
-  version: '2.0.2',
+  version: '2.0.3',
   title: 'Microsoft Teams',
   description: 'Interact with users, deliver notifications, and perform actions within Microsoft Teams.',
   icon: 'icon.svg',
@@ -23,4 +23,7 @@ export default new IntegrationDefinition({
   events: {},
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  attributes: {
+    category: 'Communication & Channels',
+  },
 }).extend(typingIndicator, () => ({ entities: {} }))

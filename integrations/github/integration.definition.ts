@@ -7,7 +7,7 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.1.7',
+  version: '1.1.8',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Manage GitHub issues, pull requests, and repositories.',
@@ -24,5 +24,8 @@ export default new sdk.IntegrationDefinition({
   secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Developer Tools',
   },
 })

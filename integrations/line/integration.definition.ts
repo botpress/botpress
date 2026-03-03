@@ -6,7 +6,7 @@ import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '2.0.3',
+  version: '2.0.4',
   title: 'Line',
   description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
@@ -106,6 +106,9 @@ export default new IntegrationDefinition({
       title: 'Conversation',
       description: 'A conversation with a Line user',
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
   },
 })
   .extend(typingIndicator, ({}) => ({ entities: {} }))
