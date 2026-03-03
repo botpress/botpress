@@ -1,4 +1,4 @@
-import type * as transforms from '../transforms'
+import type * as transforms from './transforms'
 import {
   Cast,
   UnionToTuple,

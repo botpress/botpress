@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { z } from '../index'
-import * as transforms from '../../transforms'
+import * as transforms from '../transforms'
 
 const expectZui = (actual: z.ZodType) => ({
   not: {

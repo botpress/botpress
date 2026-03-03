@@ -1,0 +1,34 @@
+import { zuiKey } from '../../../consts'
+import type { IZodArray, IZodType } from '../../../typings'
+import * as json from '../../common/json-schema'
+
+export const zodArrayToJsonArray = (
+  zodArray: IZodArray,
+  toSchema: (x: IZodType) => json.Schema
+): json.ArraySchema => {
+  const schema: json.ArraySchema = {
+    type: 'array',
+    description: zodArray.description,
+    items: toSchema(zodArray._def.type),
+    'x-zui': zodArray._def['x-zui'],
+  }
+
+  if (zodArray._def[zuiKey]) {
+    schema[zuiKey] = zodArray._def[zuiKey]
+  }
+
+  if (zodArray._def.minLength) {
+    schema.minItems = zodArray._def.minLength.value
+  }
+
+  if (zodArray._def.maxLength) {
+    schema.maxItems = zodArray._def.maxLength.value
+  }
+
+  if (zodArray._def.exactLength) {
+    schema.minItems = zodArray._def.exactLength.value
+    schema.maxItems = zodArray._def.exactLength.value
+  }
+
+  return schema
+}
