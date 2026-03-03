@@ -3,7 +3,7 @@ import z from '..'
 import { toJSONSchema } from './zui-to-json-schema'
 import { fromJSONSchema } from './zui-from-json-schema'
 import * as errors from './common/errors'
-import * as transforms from '../transforms'
+import * as transforms from '.'
 
 const assert = (src: z.ZodType) => ({
   toTransformBackToItself: () => {
