@@ -93,6 +93,7 @@ export const candidateSchema = baseCandidateSchema
         title: z.string().title('Job Title').describe('The job title'),
       })
       .partial()
+      .title('Job')
       .describe('The job details'),
   })
   .partial()
@@ -227,7 +228,7 @@ const detailedCandidateSchemaExtraFields = {
     .title('Experience Entries')
     .describe('A collection with experience entries'),
   skills: z
-    .array(z.object({ name: z.string().title('Name') }).partial())
+    .array(z.object({ name: z.string().title('Name').describe('The name of the skill') }).partial())
     .title('Skills')
     .describe('A collection of skills with names'),
   answers: z.array(answerSchema).title('Answers').describe('A collection with answers provided'),
@@ -340,7 +341,9 @@ export const postCandidateInTalentPoolSchema = z.object({
       name: z.string().title('Name').describe('The name of the file'),
       data: z.string().title('Data').describe('The base64 encoded data'),
     })
-    .optional(),
+    .optional()
+    .title('Resume')
+    .describe('The resume file to attach to the candidate'),
 })
 
 export const postCandidateInJobSchema = postCandidateInTalentPoolSchema.extend({
@@ -431,7 +434,10 @@ export const updateCandidateInputSchema = z.object({
   id: z.string().title('ID').describe("The candidate to update's id"),
   candidate: postCandidateInTalentPoolSchema
     .extend({
-      textingConsent: z.enum(['forced', 'declined']).title('Texting Consent'),
+      textingConsent: z
+        .enum(['forced', 'declined'])
+        .title('Texting Consent')
+        .describe("The candidate's consent to receive text messages"),
       imageUrl: z.string().title('Image Url').describe("A url pointing to the candidate's image"),
       imageSource: imageSource
         .title('Image Source')
@@ -442,15 +448,20 @@ export const updateCandidateInputSchema = z.object({
           data: z.string().title('Data').describe("The candidate's image encodede in base64"),
           source: imageSource.title('Image Source').describe('The image source'),
         })
-        .partial(),
+        .partial()
+        .title('Image')
+        .describe("The candidate's image to upload"),
       educationEntries: z
         .array(updateEducationEntrySchema)
+        .title('Education Entries')
         .describe('Existing entries will be deleted if not included in the new array.'),
       experienceEntries: z
         .array(updateExperienceEntrySchema)
+        .title('Experience Entries')
         .describe('Existing entries will be deleted if not included in the new array.'),
       socialProfiles: z
         .array(updateSocialProfileSchema)
+        .title('Social Profiles')
         .describe('Existing profiles will be deleted if not included in the new array.'),
     })
     .omit({

@@ -85,7 +85,12 @@ export const generateScatterPlot = {
   input: {
     schema: z.object({
       data: z
-        .array(z.object({ x: z.number(), y: z.number() }))
+        .array(
+          z.object({
+            x: z.number().title('X Position').describe('The X coordinate of the data point'),
+            y: z.number().title('Y Position').describe('The Y coordinate of the data point'),
+          })
+        )
         .catch(() => [
           { x: 1, y: 2 },
           { x: 2, y: 3 },
@@ -164,9 +169,9 @@ const generateBubbleChart = {
       data: z
         .array(
           z.object({
-            x: z.number(),
-            y: z.number(),
-            r: z.number(),
+            x: z.number().title('X Position').describe('The X coordinate of the data point'),
+            y: z.number().title('Y Position').describe('The Y coordinate of the data point'),
+            r: z.number().title('Radius').describe('The radius of the bubble chart data point'),
           })
         )
         .catch(() => [
