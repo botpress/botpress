@@ -13,7 +13,6 @@ export const handleEvent: bp.EventHandlers['files-readonly:fileDeleted'] = async
     const { files } = await props.client.listFiles({
       tags: {
         externalId: deletedFile.id,
-        integrationName: integrationAlias,
         integrationAlias,
       },
     })

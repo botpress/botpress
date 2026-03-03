@@ -1,5 +1,4 @@
 import type * as models from '../../definitions/models'
-import type * as types from '../types'
 
 const TRANSFER_FILE_ACTION_NAME = 'filesReadonlyTransferFileToBotpress'
 
