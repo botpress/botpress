@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 
 test('nativeEnum test with consts', () => {
   const Fruits: { Apple: 'apple'; Banana: 'banana' } = {

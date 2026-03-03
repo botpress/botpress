@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 import { ZodError } from '../../error'
 
 const testTuple = z.tuple([z.string(), z.object({ name: z.literal('Rudy') }), z.array(z.literal('blue'))])

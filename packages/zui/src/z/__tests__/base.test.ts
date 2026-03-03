@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import z from '../index'
-import * as assert from '../../assertions.utils.test'
+import * as assert from '../assertions.utils.test'
 
 test('type guard', () => {
   const stringToNumber = z.string().transform((arg) => arg.length)

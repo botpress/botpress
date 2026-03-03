@@ -3,7 +3,7 @@ import { z, ZodType, zuiKey } from '../..'
 import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from '.'
 import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension'
 import { JSONSchema7 } from 'json-schema'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 
 const testZuiConversion = (zuiObject: ZodType) => {
   const jsonSchema = toJSONSchemaLegacy(zuiObject)

@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { z } from '../../..'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 
 test('basic defaults', () => {
   expect(z.string().default('default').parse(undefined)).toBe('default')

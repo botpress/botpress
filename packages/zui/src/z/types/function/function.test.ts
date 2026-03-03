@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 import { ZodError } from '../../error'
 
 const args1 = z.tuple([z.string()])

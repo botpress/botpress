@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 import z from '../index'
-import * as assert from '../../assertions.utils.test'
+import * as assert from '../assertions.utils.test'
 
 test('generics', () => {
   async function stripOuter<TData extends z.ZodType>(schema: TData, data: unknown) {

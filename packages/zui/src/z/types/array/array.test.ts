@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 
 const minTwo = z.string().array().min(2)
 const maxTwo = z.string().array().max(2)

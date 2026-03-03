@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../../assertions.utils.test'
+import * as assert from '../../assertions.utils.test'
 import * as z from '../../index'
 
 const stringMap = z.map(z.string(), z.string())

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import * as assert from '../../assertions.utils.test'
+import * as assert from '../assertions.utils.test'
 import z from '../index'
 
 test('refinement', () => {
