@@ -7,7 +7,7 @@ import * as guards from './guards'
 import { arrayJSONSchemaToZuiArray } from './iterables/array'
 import { toZuiPrimitive } from './primitives'
 
-const DEFAULT_TYPE = z.any()
+const DEFAULT_TYPE = () => z.any()
 
 /**
  * Converts a JSON Schema to a ZUI Schema.
@@ -20,7 +20,7 @@ export function fromJSONSchema(schema: JSONSchema7): IZodType {
 
 function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
   if (schema === undefined) {
-    return DEFAULT_TYPE
+    return DEFAULT_TYPE()
   }
 
   if (schema === true) {
@@ -84,7 +84,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
 
   if (Array.isArray(schema.type)) {
     if (schema.type.length === 0) {
-      return DEFAULT_TYPE
+      return DEFAULT_TYPE()
     }
     if (schema.type.length === 1) {
       return _fromJSONSchema({ ...schema, type: schema.type[0] })
@@ -149,12 +149,12 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
       return z.record(inner)
     }
 
-    return z.record(DEFAULT_TYPE)
+    return z.record(DEFAULT_TYPE())
   }
 
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) {
-      return DEFAULT_TYPE
+      return DEFAULT_TYPE()
     }
 
     if (schema.anyOf.length === 1) {
@@ -187,7 +187,7 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
 
   if (schema.allOf !== undefined) {
     if (schema.allOf.length === 0) {
-      return DEFAULT_TYPE
+      return DEFAULT_TYPE()
     }
     if (schema.allOf.length === 1) {
       return _fromJSONSchema(schema.allOf[0])
@@ -203,5 +203,5 @@ function _fromJSONSchema(schema: JSONSchema7Definition | undefined): IZodType {
   if (guards.isUnknownSchema(schema)) {
     return z.unknown()
   }
-  return DEFAULT_TYPE
+  return DEFAULT_TYPE()
 }
