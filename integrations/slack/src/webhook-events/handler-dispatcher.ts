@@ -2,6 +2,7 @@ import { isOAuthWizardUrl } from '@botpress/common/src/oauth-wizard'
 import * as sdk from '@botpress/sdk'
 import type { SlackEvent } from '@slack/types'
 import { safeParseBody } from 'src/misc/utils'
+import { getAppManifestConfigurationState } from 'src/slack-api/slack-manifest-client'
 import { oauthWizardHandler } from '../oauth-wizard'
 import * as handlers from './handlers'
 import { handleInteractiveRequest, isInteractiveRequest } from './handlers/interactive-request'
@@ -59,8 +60,8 @@ function _verifyBodyIsPresent(req: sdk.Request): asserts req is sdk.Request & { 
   }
 }
 
-const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ctx }: bp.HandlerProps) => {
-  const signingSecret = await _getSigningSecret(ctx)
+const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ...props }: bp.HandlerProps) => {
+  const signingSecret = await _getSigningSecret({ logger, ...props })
   const isSignatureValid = new SlackEventSignatureValidator(signingSecret, req, logger).isEventProperlyAuthenticated()
 
   if (!isSignatureValid) {
@@ -113,9 +114,13 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
   }
 }
 
-const _getSigningSecret = async (ctx: bp.Context): Promise<string> => {
+const _getSigningSecret = async ({ client, ctx }: bp.CommonHandlerProps): Promise<string> => {
   if (ctx.configurationType === 'refreshToken') {
     return ctx.configuration.signingSecret
+  } else if (ctx.configurationType === 'manifestAppCredentials') {
+    const { signingSecret } = await getAppManifestConfigurationState(client, ctx)
+    if (!signingSecret) throw new sdk.RuntimeError('Signing secret not found, please re-run setup wizard')
+    return signingSecret
   }
   return bp.secrets.SIGNING_SECRET
 }

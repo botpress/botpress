@@ -39,7 +39,7 @@ export class SlackClient {
     if (ctx.configurationType === 'manifestAppCredentials') {
       const {
         state: {
-          payload: { clientId, clientSecret, authorizeUrl },
+          payload: { clientId, clientSecret },
         },
       } = await client.getState({
         type: 'integration',

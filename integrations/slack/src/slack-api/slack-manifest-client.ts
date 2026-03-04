@@ -1,5 +1,6 @@
 import { z, RuntimeError } from '@botpress/sdk'
 import * as SlackWebClient from '@slack/web-api'
+import { states } from 'definitions'
 import { REQUIRED_SLACK_SCOPES } from '../setup'
 import { surfaceSlackErrors } from './error-handling'
 import * as bp from '.botpress'
@@ -54,6 +55,7 @@ const manifestCreateResponseSchema = z.object({
   credentials: z.object({
     client_id: z.string(),
     client_secret: z.string(),
+    signing_secret: z.string(),
   }),
   oauth_authorize_url: z.string(),
 })
@@ -73,7 +75,7 @@ export const patchAppManifestConfigurationState = async (
   newState: Partial<ManifestAppCredentialsState>
 ) => {
   const currentState = await getAppManifestConfigurationState(client, ctx)
-  const { data, success } = z.custom<ManifestAppCredentialsState>().safeParse({
+  const { data, success } = states.manifestAppCredentials.schema.safeParse({
     ...currentState,
     ...newState,
   })
@@ -159,7 +161,7 @@ export class SlackManifestClient {
       const { token: rotatedToken, refresh_token } = surfaceSlackErrors({
         logger,
         response: await slackWebClient.tooling.tokens.rotate({
-          refresh_token: appConfigurationRefreshToken,
+          refresh_token: appConfigurationRefreshToken!,
         }),
       })
       logger.forBot().debug('Rotating Slack app configuration token...')

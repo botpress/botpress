@@ -135,7 +135,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   logger.forBot().debug('Creating Slack app from manifest...')
   const { app_id, credentials, oauth_authorize_url } = await manifestClient.createApp(manifest)
   const authorizeUrl = new URL(oauth_authorize_url)
-  const oauthCallbackUrl = oauthWizard.getWizardStepUrl('oauth-callback').toString() //`${redirectUri}?state=${ctx.webhookId}`
+  const oauthCallbackUrl = oauthWizard.getWizardStepUrl('oauth-callback').toString()
   authorizeUrl.searchParams.set('redirect_uri', oauthCallbackUrl)
   authorizeUrl.searchParams.set('state', ctx.webhookId)
 
@@ -143,6 +143,7 @@ const _createAppHandler: WizardHandler = async (props) => {
     appId: app_id,
     clientId: credentials.client_id,
     clientSecret: credentials.client_secret,
+    signingSecret: credentials.signing_secret,
     authorizeUrl: authorizeUrl.toString(),
   })
   return responses.redirectToExternalUrl(authorizeUrl.toString())
