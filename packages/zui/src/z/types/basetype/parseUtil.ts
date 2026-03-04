@@ -1,6 +1,6 @@
 import { zuiKey } from '../../consts'
 import { defaultErrorMap, getErrorMap } from '../../error'
-import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap, IZodType } from '../../typings'
+import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap } from '../../typings'
 
 export type RawCreateParams =
   | {
