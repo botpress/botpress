@@ -116,9 +116,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   const manifestState = await getAppManifestConfigurationState(client, ctx)
 
   if (!manifestState.appConfigurationToken || !manifestState.appConfigurationRefreshToken) {
-    throw new RuntimeError(
-      'Slack App Configuration Token and Refresh Token are required. Please restart the wizard.'
-    )
+    throw new RuntimeError('Slack App Configuration Token and Refresh Token are required. Please restart the wizard.')
   }
   const appName = manifestState.appName || 'Botpress Bot'
 
