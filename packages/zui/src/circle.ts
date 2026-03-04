@@ -21,4 +21,3 @@ ZodBaseTypeImpl.prototype.toTypescriptType = function (opts) {
 ZodBaseTypeImpl.prototype.toTypescriptSchema = function () {
   return transforms.toTypescriptSchema(this)
 }
-

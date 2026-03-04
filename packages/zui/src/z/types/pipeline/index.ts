@@ -1,5 +1,5 @@
-import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
 import { ZodBaseTypeImpl, DIRTY, INVALID, ParseInput, ParseReturnType } from '../basetype'
 export type { ZodPipelineDef }
 

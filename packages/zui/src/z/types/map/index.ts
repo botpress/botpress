@@ -1,5 +1,5 @@
-import type { IZodMap, IZodType, ZodMapDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { IZodMap, IZodType, ZodMapDef } from '../../typings'
 import {
   ParseInputLazyPath,
   ZodBaseTypeImpl,

@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-import type { IZodType, IZodDefault, ZodDefaultDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { IZodType, IZodDefault, ZodDefaultDef } from '../../typings'
 import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodDefaultImpl<T extends IZodType = IZodType>

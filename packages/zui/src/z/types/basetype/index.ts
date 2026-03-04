@@ -1,4 +1,5 @@
 import type * as transforms from '../../../transforms'
+import * as utils from '../../../utils'
 import { zuiKey } from '../../consts'
 import { ZodError } from '../../error'
 import { builders } from '../../internal-builders'
@@ -30,7 +31,6 @@ import type {
   CustomErrorParams,
   IssueData,
 } from '../../typings'
-import * as utils from '../../../utils'
 
 // TODO(circle): get rid of circular dependency between zui core and transforms
 

@@ -1,6 +1,6 @@
+import * as utils from '../../../utils'
 import { zuiKey } from '../../consts'
 import { type IZodString, ZodStringCheck, ZodStringDef } from '../../typings'
-import * as utils from '../../../utils'
 import {
   ZodBaseTypeImpl,
   addIssueToContext,

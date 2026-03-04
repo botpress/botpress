@@ -1,5 +1,5 @@
 import { JSONSchema7, JSONSchema7Type } from 'json-schema'
-import * as z from'../../../z'
+import * as z from '../../../z'
 import * as errs from '../../common/errors'
 import { numberJSONSchemaToZuiNumber } from './number'
 import { stringJSONSchemaToZuiString } from './string'

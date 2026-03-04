@@ -1,5 +1,5 @@
-import type { IZodRecord, IZodString, IZodType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { IZodRecord, IZodString, IZodType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
 import {
   ParseInputLazyPath,
   ZodBaseTypeImpl,

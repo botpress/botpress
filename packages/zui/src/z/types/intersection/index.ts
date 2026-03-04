@@ -1,5 +1,5 @@
-import type { IZodIntersection, IZodType, ZodIntersectionDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { IZodIntersection, IZodType, ZodIntersectionDef } from '../../typings'
 import {
   getParsedType,
   addIssueToContext,

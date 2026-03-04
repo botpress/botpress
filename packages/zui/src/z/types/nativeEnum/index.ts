@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef } from '../../typings'
 import * as utils from '../../../utils'
+import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
 
 export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
