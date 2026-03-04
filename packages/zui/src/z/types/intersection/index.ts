@@ -41,8 +41,8 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (
-      parsedLeft: SyncParseReturnType<T>,
-      parsedRight: SyncParseReturnType<U>
+      parsedLeft: SyncParseReturnType<T['_output']>,
+      parsedRight: SyncParseReturnType<U['_output']>
     ): SyncParseReturnType<T & U> => {
       if (isAborted(parsedLeft) || isAborted(parsedRight)) {
         return INVALID
