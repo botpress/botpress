@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import * as z from'../../../../z'
+import * as z from '../../../../z'
 import { parseNativeEnumDef } from '../../parsers/nativeEnum'
 
 describe('Native enums', () => {

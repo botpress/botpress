@@ -1,5 +1,5 @@
 import * as errs from '../common/errors'
-import * as z from'../../z'
+import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
 import { toJSONSchema } from './index'
 
