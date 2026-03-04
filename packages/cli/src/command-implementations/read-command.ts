@@ -38,19 +38,19 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   }
 
   private _parseIntegration = async (integrationDef: sdk.IntegrationDefinition) => {
-    const {
-      // Ignored fields ("code", "icon", "readme") so the terminal output doesn't get polluted
-      code: _code,
-      icon: _icon,
-      readme: _readme,
-      ...parsed
-    } = await this.prepareCreateIntegrationBody(integrationDef)
+    const [parsed, configs] = await Promise.all([
+      apiUtils.prepareCreateIntegrationBody(integrationDef),
+      apiUtils.prepareCreateIntegrationConfigs(integrationDef),
+    ])
 
-    parsed.interfaces = utils.records.mapValues(integrationDef.interfaces ?? {}, (iface) => ({
-      ...iface,
-      id: iface.id ?? '',
-    }))
-    return parsed
+    return {
+      ...parsed,
+      ...configs,
+      interfaces: utils.records.mapValues(integrationDef.interfaces ?? {}, (iface) => ({
+        ...iface,
+        id: iface.id ?? '',
+      })),
+    }
   }
 
   private _parseInterface = async (interfaceDef: sdk.InterfaceDefinition) => {
