@@ -67,27 +67,6 @@ export const prepareCreateIntegrationBody = async (
   extraOperations: '__advanced' in integration ? integration.__advanced?.extraOperations : undefined,
 })
 
-export const prepareCreateIntegrationConfigs = async (
-  integration: sdk.IntegrationDefinition
-): Promise<Pick<types.CreateIntegrationRequestBody, 'configuration' | 'configurations'>> => ({
-  configuration: integration.configuration
-    ? {
-        ...integration.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(integration.configuration, {
-          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-        }),
-      }
-    : undefined,
-  configurations: integration.configurations
-    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
-        ...configuration,
-        schema: await utils.schema.mapZodToJsonSchema(configuration, {
-          useLegacyZuiTransformer: integration.__advanced?.useLegacyZuiTransformer,
-        }),
-      }))
-    : undefined,
-})
-
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
 type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
 type Channels = client.Integration['channels']
