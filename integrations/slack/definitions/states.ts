@@ -62,6 +62,7 @@ export const states = {
       appConfigurationRefreshToken: sdk.z
         .string()
         .secret()
+        .optional()
         .title('Slack App Configuration Refresh Token')
         .describe('Generated from api.slack.com/apps'),
       appId: sdk.z.string().optional().title('Slack App ID').describe('The ID of the created Slack app'),
