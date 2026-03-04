@@ -104,9 +104,10 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
         const result = await Reflect.apply(fn, this, parsedArgs)
 
         const parsedReturns = await returns._def.type.parseAsync(result, params).catch((e: unknown) => {
-          if (is.zuiError(e)) {
-            error.addIssue(makeReturnsIssue(result, e))
+          if (!is.zuiError(e)) {
+            throw e
           }
+          error.addIssue(makeReturnsIssue(result, e))
           throw error
         })
         return parsedReturns
