@@ -45,4 +45,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  attributes: {
+    category: 'Developer Tools',
+  },
 })

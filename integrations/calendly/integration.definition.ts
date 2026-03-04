@@ -103,4 +103,7 @@ export default new IntegrationDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
   },
+  attributes: {
+    category: 'Business Operations',
+  },
 })

@@ -25,4 +25,7 @@ export default new sdk.IntegrationDefinition({
   __advanced: {
     useLegacyZuiTransformer: true,
   },
+  attributes: {
+    category: 'Developer Tools',
+  },
 })

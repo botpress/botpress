@@ -26,4 +26,7 @@ export default new IntegrationDefinition({
       description: 'Logo key',
     },
   },
+  attributes: {
+    category: 'Developer Tools',
+  },
 })

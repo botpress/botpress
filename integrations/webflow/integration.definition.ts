@@ -4,7 +4,7 @@ import { actions } from './definitions/actions'
 
 export default new IntegrationDefinition({
   name: 'webflow',
-  version: '3.1.2',
+  version: '3.1.3',
   title: 'Webflow',
   description: 'CRUD operations for Webflow CMS',
   readme: 'hub.md',
@@ -50,5 +50,8 @@ export default new IntegrationDefinition({
   },
   __advanced: {
     useLegacyZuiTransformer: true,
+  },
+  attributes: {
+    category: 'Developer Tools',
   },
 })

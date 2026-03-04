@@ -8,7 +8,20 @@ on:
       - 'integrations/chat/**'
       - 'packages/sdk/**'
 
-  workflow_dispatch: {}
+  push:
+    branches:
+      - master
+    paths:
+      - 'integrations/chat/**'
+      - 'packages/sdk/**'
+
+  workflow_dispatch:
+    inputs:
+      push_to_ecr:
+        description: 'Push image to ECR after successful tests'
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   id-token: write
@@ -19,17 +32,133 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  docker-chat:
+  build-test-push:
     runs-on: depot-ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup # FIXME: This should not be necessary, as the Dockerfile should be self-contained
         uses: ./.github/actions/setup
         with:
           extra_filters: '-F @botpresshub/chat'
-      - uses: ./.github/actions/docker-build
+
+      - uses: aws-actions/configure-aws-credentials@v3
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
         with:
-          repository: chat-integration
-          dockerfile: ./integrations/chat/Dockerfile
-          push: ${{ github.event_name == 'workflow_dispatch' }}
-          depot-project: ${{ secrets.DEPOT_PROJECT_ID }}
+          role-session-name: container_pusher
+          role-to-assume: arn:aws:iam::986677156374:role/actions/build/container_pusher
+          aws-region: us-east-1
+
+      - uses: aws-actions/amazon-ecr-login@v1
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
+        id: ecr
+        with:
+          mask-password: true
+
+      - uses: docker/metadata-action@v4
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
+        id: meta
+        with:
+          images: ${{ steps.ecr.outputs.registry }}/chat-integration
+          flavor: |
+            latest=false
+          tags: |
+            type=sha,prefix=,format=long
+
+      - name: Set BUILD_DATE
+        id: meta_date
+        run: |
+          export TZ=America/Toronto
+          echo "timestamp=$(date +"%Y-%m-%d %H:%M:%S")" >> "$GITHUB_OUTPUT"
+
+      - name: Create ECR Registry
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
+        env:
+          ECR_REPOSITORY: chat-integration
+        run: |
+          aws --version
+          aws ecr create-repository --repository-name $ECR_REPOSITORY || true
+          aws ssm get-parameter --name '/cloud/container-registry/ecr-policy-document' --query 'Parameter.Value' | jq -r '.' > repository-policy.json
+          aws ecr set-repository-policy --repository-name $ECR_REPOSITORY --policy-text file://repository-policy.json &> /dev/null
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Build Docker image
+        uses: depot/build-push-action@v1
+        with:
+          project: ${{ secrets.DEPOT_PROJECT_ID }}
+          build-args: |
+            MINIFY=true
+            BUILD_DATE=${{ steps.meta_date.outputs.timestamp }}
+          file: ./integrations/chat/Dockerfile
+          context: .
+          push: false
+          load: true
+          tags: chat-integration:test
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Start Docker container
+        run: |
+          docker run -d \
+            --name chat-test \
+            -p 8081:8081 \
+            -e SECRET_SIGNAL_URL=https://chat.botpress.dev \
+            chat-integration:test
+
+      - name: Wait for container to be ready
+        run: |
+          echo "Waiting for container to start..."
+          for i in {1..30}; do
+            if docker ps --filter "name=chat-test" --filter "status=running" | grep -q chat-test; then
+              echo "Container is running"
+              sleep 5
+              exit 0
+            fi
+            if docker ps -a --filter "name=chat-test" --filter "status=exited" | grep -q chat-test; then
+              echo "Container exited prematurely!"
+              docker logs chat-test
+              exit 1
+            fi
+            echo "Waiting for container... ($i/30)"
+            sleep 2
+          done
+          echo "Container did not start within expected time"
+          docker ps -a
+          exit 1
+
+      - name: Check health endpoint
+        run: |
+          echo "Checking /health endpoint..."
+          for i in {1..15}; do
+            if curl -f http://localhost:8081/health; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Attempt $i/15 failed, retrying..."
+            sleep 2
+          done
+          echo "Health check failed after 15 attempts"
+          exit 1
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs chat-test
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f chat-test || true
+
+      - name: Tag and push to ECR
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.push_to_ecr) }}
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Tagging image for ECR: $ECR_REGISTRY/chat-integration:$IMAGE_TAG"
+          docker tag chat-integration:test $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+
+          echo "Pushing to ECR..."
+          docker push $ECR_REGISTRY/chat-integration:$IMAGE_TAG
+
+          echo "Successfully pushed image: $IMAGE_TAG"

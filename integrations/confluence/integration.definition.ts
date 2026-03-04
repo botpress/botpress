@@ -9,11 +9,14 @@ import { entities } from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'confluence',
-  version: '3.3.2',
+  version: '3.3.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   title: 'Confluence',
   description: 'Manage your files and folders effortlessly.',
+  attributes: {
+    category: 'File Management',
+  },
   configuration: {
     schema: sdk.z.object({
       host: sdk.z.string().describe('Host URI. Format is https://your_workspace_name.atlassian.net').title('Host'),
