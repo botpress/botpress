@@ -1,10 +1,16 @@
 import * as sdk from '@botpress/sdk'
 import * as crypto from 'crypto'
+import { getOAuthClientSecret } from '../dropbox-api/oauth-client'
 import { handleFileChangeEvent, isFileChangeNotification } from './handlers/file-change'
 import { isWebhookVerificationRequest, handleWebhookVerificationRequest } from './handlers/webhook-verification'
+import { oauthCallbackHandler } from './oauth'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
+  if (props.req.path.startsWith('/oauth')) {
+    return await oauthCallbackHandler(props)
+  }
+
   if (isWebhookVerificationRequest(props)) {
     return await handleWebhookVerificationRequest(props)
   }
@@ -25,8 +31,9 @@ const _validatePayloadSignature = (props: bp.HandlerProps) => {
     throw new sdk.RuntimeError('Missing Dropbox signature in request headers')
   }
 
+  const clientSecret = getOAuthClientSecret({ ctx: props.ctx })
   const bodySignatureFromBotpress = crypto
-    .createHmac('sha256', props.ctx.configuration.clientSecret)
+    .createHmac('sha256', clientSecret)
     .update(props.req.body ?? '')
     .digest('hex')
 
