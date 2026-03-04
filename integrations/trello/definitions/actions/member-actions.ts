@@ -63,7 +63,7 @@ export const getBoardMembersByDisplayName = {
   },
   output: {
     schema: z.object({
-      members: z.array(memberSchema).title('Board Members').describe('A list of members match the specified name'),
+      members: z.array(memberSchema).title('Board Members').describe('A list of members that match the specified name'),
     }),
   },
 } as const satisfies ActionDefinition
