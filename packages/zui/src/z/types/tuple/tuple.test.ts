@@ -27,7 +27,7 @@ test('successful async validation', async () => {
 
 test('failed validation', () => {
   const checker = () => {
-    testTuple.parse([123, { name: 'Rudy2' }, ['blue', 'red']] as any)
+    testTuple.parse([123, { name: 'Rudy2' }, ['blue', 'red']])
   }
   try {
     checker()
