@@ -1,4 +1,4 @@
-import { z, ZodRawShape } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import * as sdk from '@botpress/sdk'
 
 export { actions } from './actions'
@@ -23,7 +23,7 @@ const webhookSecret = {
     .describe(
       'A high-entropy string that only you and Botpress know. Must be set to the same value as in the GitHub organization settings.'
     ),
-} as const satisfies ZodRawShape
+} as const satisfies z.ZodRawShape
 
 export const configurations = {
   manualApp: {

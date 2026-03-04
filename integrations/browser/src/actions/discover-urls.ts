@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { IntegrationLogger, z, ZodIssue } from '@botpress/sdk'
+import { IntegrationLogger, z } from '@botpress/sdk'
 import Firecrawl, { SdkError } from '@mendable/firecrawl-js'
 import { trackEvent } from '../tracking'
 import { isValidGlob, matchGlob } from '../utils/globs'
@@ -11,7 +11,7 @@ const COST_PER_FIRECRAWL_MAP = 0.001
 
 type StopReason = Awaited<ReturnType<bp.IntegrationProps['actions']['discoverUrls']>>['stopReason']
 
-type ZodIssueCode = ZodIssue['code']
+type ZodIssueCode = z.ZodIssue['code']
 
 export const urlSchema = z.string().transform((url, ctx) => {
   url = url.trim()
