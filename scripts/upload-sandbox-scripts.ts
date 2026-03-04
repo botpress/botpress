@@ -24,7 +24,7 @@ const _fallbackProfileArgs = () => ({
   token: undefined,
 })
 function getProfileArgs(): any {
-  const activeProfileCmdResult = spawnSync('pnpm', ['exec', 'bp', 'profiles', 'active', '--json'])
+  const activeProfileCmdResult = spawnSync('pnpm', ['exec', 'bp', 'profiles', 'active', '--json', '--displayToken'])
   if (activeProfileCmdResult.status !== 0) {
     console.debug(
       `Failed to get active profile: ${activeProfileCmdResult.error?.message || activeProfileCmdResult.stderr.toString() || 'Unknown error'}`
