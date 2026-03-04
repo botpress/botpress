@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { isValidUrl } from './misc/utils'
 import { SlackClient } from './slack-api'
+import { getAppManifestConfigurationState } from './slack-api/slack-manifest-client'
 import type * as bp from '.botpress'
 
 export const REQUIRED_SLACK_SCOPES = [
@@ -31,7 +32,10 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
   if (ctx.configurationType === 'manifestAppCredentials') {
-    return
+    const { appId } = await getAppManifestConfigurationState(client, ctx)
+    if (!appId) {
+      return
+    }
   }
 
   let slackClient: SlackClient

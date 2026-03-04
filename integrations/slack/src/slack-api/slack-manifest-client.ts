@@ -201,6 +201,43 @@ export class SlackManifestClient {
     }
     return data
   }
+
+  public async exportApp(appId: string): Promise<SlackAppManifest> {
+    const response = surfaceSlackErrors<SlackWebClient.AppsManifestExportResponse>({
+      logger: this._logger,
+      response: await this._slackWebClient.apps.manifest.export({
+        token: this._appConfigurationToken,
+        app_id: appId,
+      }),
+    })
+    const { data, success } = manifestSchema.safeParse(response.manifest)
+    if (!success) {
+      throw new RuntimeError(`Unexpected response from Slack manifest export API: ${JSON.stringify(response.manifest)}`)
+    }
+    return data
+  }
+
+  public async updateApp(appId: string, manifest: SlackAppManifest): Promise<void> {
+    surfaceSlackErrors({
+      logger: this._logger,
+      response: await this._slackWebClient.apps.manifest.update({
+        token: this._appConfigurationToken,
+        app_id: appId,
+        manifest: JSON.stringify(manifest),
+      }),
+    })
+  }
+
+  public async updateAppIfNeeded(appId: string, desiredManifest: SlackAppManifest): Promise<boolean> {
+    const currentManifest = await this.exportApp(appId)
+    if (JSON.stringify(currentManifest) === JSON.stringify(desiredManifest)) {
+      this._logger.forBot().debug('Slack app manifest is up to date, skipping update')
+      return false
+    }
+    this._logger.forBot().debug('Slack app manifest has changed, updating...')
+    await this.updateApp(appId, desiredManifest)
+    return true
+  }
 }
 
 export const buildSlackAppManifest = (webhookUrl: string, redirectUri: string, appName: string): SlackAppManifest => ({
