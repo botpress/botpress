@@ -266,7 +266,7 @@ ${opts.join(' | ')}`
         return '[]'
       }
 
-      const items = s._def.items.map((i: any) => sUnwrapZod(i, newConfig))
+      const items = s._def.items.map((i) => sUnwrapZod(i, newConfig))
       return `[${items.join(', ')}]`
 
     case 'ZodRecord':

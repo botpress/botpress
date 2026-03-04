@@ -824,7 +824,7 @@ describe.concurrent('objects', () => {
       .object({
         Date: z.optional(z.string().optional().optional()),
       })
-      .required({ Date: false } as any)
+      .required({ Date: false } as any) // TODO(any): type properly
 
     const typings = toTypescript(obj)
     await assert.expectTypescript(typings).toMatchWithoutFormatting(`declare const x: { Date?: string }`)

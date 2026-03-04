@@ -130,7 +130,7 @@ export class ParseStatus {
   }
 
   static mergeObjectSync(status: ParseStatus, pairs: MergeObjectPair[]): SyncParseReturnType {
-    const finalObject: any = {}
+    const finalObject: Record<string, unknown> = {}
     for (const pair of pairs) {
       const { key, value } = pair
       if (key.status === 'aborted') return INVALID

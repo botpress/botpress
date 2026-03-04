@@ -71,7 +71,7 @@ const _processCreateParams = (
     description,
     supportsExtensions,
     [zuiKey]: zuiExtensions,
-  } = params as any
+  } = params
 
   if (errorMap && (invalid_type_error || required_error)) {
     throw new Error('Can\'t use "invalid_type_error" or "required_error" in conjunction with custom error map.')

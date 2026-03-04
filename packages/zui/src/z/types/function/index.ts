@@ -12,7 +12,6 @@ import type {
   OuterTypeOfFunction,
   InnerTypeOfFunction,
   IZodUnknown,
-  IZodPromise,
 } from '../../typings'
 
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
@@ -89,11 +88,13 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     const params = { errorMap: ctx.common.contextualErrorMap }
     const fn = ctx.data
 
-    if (is.zuiPromise(this._def.returns)) {
+    const me = this
+    const returns = this._def.returns
+
+    if (is.zuiPromise(returns)) {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 
-      const me = this
       return OK(async function (this: any, ...args: any[]) {
         const error = new ZodError([])
         const parsedArgs = await me._def.args.parseAsync(args, params).catch((e) => {
@@ -101,20 +102,20 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
           throw error
         })
         const result = await Reflect.apply(fn, this, parsedArgs)
-        const parsedReturns = await (me._def.returns as unknown as IZodPromise<IZodType>)._def.type
-          .parseAsync(result, params)
-          .catch((e: any) => {
-            // TODO: type e properly
-            error.addIssue(makeReturnsIssue(result, e))
-            throw error
-          })
+
+        const parsedReturns = await returns._def.type.parseAsync(result, params).catch((e: unknown) => {
+          if (!is.zuiError(e)) {
+            throw e
+          }
+          error.addIssue(makeReturnsIssue(result, e))
+          throw error
+        })
         return parsedReturns
       })
     } else {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 
-      const me = this
       return OK(function (this: any, ...args: any[]) {
         const parsedArgs = me._def.args.safeParse(args, params)
         if (!parsedArgs.success) {

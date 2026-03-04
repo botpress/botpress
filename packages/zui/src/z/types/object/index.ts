@@ -223,10 +223,10 @@ export class ZodObjectImpl<
       return this._def.unknownKeys as AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'passthrough') {
-      return builders.any() as unknown as AdditionalProperties<UnknownKeys>
+      return builders.any() as AdditionalProperties<UnknownKeys>
     }
     if (this._def.unknownKeys === 'strict') {
-      return builders.never() as unknown as AdditionalProperties<UnknownKeys>
+      return builders.never() as AdditionalProperties<UnknownKeys>
     }
     return undefined as AdditionalProperties<UnknownKeys>
   }
@@ -311,6 +311,7 @@ export class ZodObjectImpl<
   merge<Incoming extends IZodObject<any>, Augmentation extends Incoming['shape']>(
     merging: Incoming
   ): IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
+    // TODO(any): type properly
     const merged: any = new ZodObjectImpl({
       unknownKeys: merging._def.unknownKeys,
       shape: () => ({
@@ -321,41 +322,7 @@ export class ZodObjectImpl<
     })
     return merged
   }
-  // merge<
-  //   Incoming extends AnyZodObject,
-  //   Augmentation extends Incoming["shape"],
-  //   NewOutput extends {
-  //     [k in keyof Augmentation | keyof Output]: k extends keyof Augmentation
-  //       ? Augmentation[k]["_output"]
-  //       : k extends keyof Output
-  //       ? Output[k]
-  //       : never;
-  //   },
-  //   NewInput extends {
-  //     [k in keyof Augmentation | keyof Input]: k extends keyof Augmentation
-  //       ? Augmentation[k]["_input"]
-  //       : k extends keyof Input
-  //       ? Input[k]
-  //       : never;
-  //   }
-  // >(
-  //   merging: Incoming
-  // ): IZodObject<
-  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
-  //   Incoming["_def"]["unknownKeys"],
-  //   Incoming["_def"]["catchall"],
-  //   NewOutput,
-  //   NewInput
-  // > {
-  //   const merged: any = new ZodObjectImpl({
-  //     unknownKeys: merging._def.unknownKeys,
-  //     catchall: merging._def.catchall,
-  //     shape: () =>
-  //       utils.types.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: 'ZodObject',
-  //   });
-  //   return merged;
-  // }
+
   setKey<Key extends string, Schema extends IZodType>(
     key: Key,
     schema: Schema
@@ -365,6 +332,7 @@ export class ZodObjectImpl<
     },
     UnknownKeys
   > {
+    // TODO(any): type properly
     return this.augment({ [key]: schema }) as unknown as IZodObject<
       T & {
         [k in Key]: Schema
@@ -372,27 +340,7 @@ export class ZodObjectImpl<
       UnknownKeys
     >
   }
-  // merge<Incoming extends AnyZodObject>(
-  //   merging: Incoming
-  // ): //ZodObject<T & Incoming["_shape"], UnknownKeys, Catchall> = (merging) => {
-  // ZodObject<
-  //   extendShape<T, ReturnType<Incoming["_def"]["shape"]>>,
-  //   Incoming["_def"]["unknownKeys"],
-  //   Incoming["_def"]["catchall"]
-  // > {
-  //   // const mergedShape = utils.types.mergeShapes(
-  //   //   this._def.shape(),
-  //   //   merging._def.shape()
-  //   // );
-  //   const merged: any = new ZodObjectImpl({
-  //     unknownKeys: merging._def.unknownKeys,
-  //     catchall: merging._def.catchall,
-  //     shape: () =>
-  //       utils.types.mergeShapes(this._def.shape(), merging._def.shape()),
-  //     typeName: 'ZodObject',
-  //   });
-  //   return merged;
-  // }
+
   catchall<Index extends IZodType>(index: Index): IZodObject<T, Index> {
     return new ZodObjectImpl({
       ...this._def,
@@ -405,6 +353,7 @@ export class ZodObjectImpl<
       [k in keyof T]?: true
     },
   >(mask: Mask): IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> {
+    // TODO(any): type properly
     const shape: any = {}
 
     Object.keys(mask).forEach((key) => {
@@ -426,6 +375,7 @@ export class ZodObjectImpl<
       [k in keyof T]?: true
     },
   >(mask: Mask): IZodObject<Omit<T, keyof Mask>, UnknownKeys> {
+    // TODO(any): type properly
     const shape: any = {}
 
     Object.keys(this.shape).forEach((key) => {
@@ -500,6 +450,7 @@ export class ZodObjectImpl<
     UnknownKeys
   >
   required(mask?: any): IZodObject {
+    // TODO(any): type properly
     const newShape: any = {}
 
     Object.keys(this.shape).forEach((key) => {

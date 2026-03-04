@@ -36,7 +36,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: 1234,
-    } as any)
+    })
   expect(badCheck).toThrow()
 
   expect(() => booleanRecord.parse('asdf')).toThrow()
@@ -46,7 +46,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: {},
-    } as any)
+    })
   expect(badCheck).toThrow()
 })
 
@@ -54,7 +54,7 @@ test('string record parse - fail', () => {
   const badCheck = () =>
     booleanRecord.parse({
       asdf: [],
-    } as any)
+    })
   expect(badCheck).toThrow()
 })
 
