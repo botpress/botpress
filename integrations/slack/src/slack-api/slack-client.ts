@@ -46,8 +46,9 @@ export class SlackClient {
         name: 'manifestAppCredentials',
         id: ctx.integrationId,
       })
-      if (!clientId || !clientSecret)
+      if (!clientId || !clientSecret) {
         throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      }
       const oAuthClient = new SlackOAuthClient({
         ctx,
         client,
@@ -82,8 +83,9 @@ export class SlackClient {
         name: 'manifestAppCredentials',
         id: ctx.integrationId,
       })
-      if (!clientId || !clientSecret || !authorizeUrl)
+      if (!clientId || !clientSecret || !authorizeUrl) {
         throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      }
       const oAuthClient = new SlackOAuthClient({
         ctx,
         client,
