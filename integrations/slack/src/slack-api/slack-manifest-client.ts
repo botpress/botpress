@@ -130,9 +130,8 @@ export class SlackManifestClient {
 
     const state = await getAppManifestConfigurationState(client, ctx)
 
-    const appConfigurationToken = state.appConfigurationToken || ctx.configuration.appConfigurationToken
-    const appConfigurationRefreshToken =
-      state.appConfigurationRefreshToken || ctx.configuration.appConfigurationRefreshToken
+    const appConfigurationToken = state.appConfigurationToken
+    const appConfigurationRefreshToken = state.appConfigurationRefreshToken
 
     if (!appConfigurationToken || !appConfigurationRefreshToken) {
       throw new RuntimeError('Slack manifest app credentials are not properly configured')

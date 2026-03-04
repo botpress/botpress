@@ -31,12 +31,6 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
   await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
   if (ctx.configurationType === 'manifestAppCredentials') {
-    if (!ctx.configuration.appConfigurationToken || !ctx.configuration.appConfigurationRefreshToken) {
-      throw new RuntimeError(
-        'Missing configuration: App Configuration Token and Refresh Token are required when using app manifest configuration'
-      )
-    }
-    await _saveAppConfigurationToken({ client, ctx })
     return
   }
 
@@ -163,25 +157,6 @@ const _saveOriginalRefreshToken = async (client: bp.Client, ctx: bp.Context, ref
     id: ctx.integrationId,
     name: 'oAuthCredentialsV2',
     payload: { ...state.payload, originalRefreshToken: refreshToken },
-  })
-}
-
-const _saveAppConfigurationToken = async ({ client, ctx }: Omit<bp.CommonHandlerProps, 'logger'>) => {
-  if (ctx.configurationType !== 'manifestAppCredentials' || !ctx.configuration.appConfigurationToken) {
-    throw new RuntimeError('App Configuration Token is required to save app configuration token in state')
-  }
-
-  const { state } = await client.getState({
-    type: 'integration',
-    name: 'manifestAppCredentials',
-    id: ctx.integrationId,
-  })
-
-  await client.setState({
-    type: 'integration',
-    id: ctx.integrationId,
-    name: 'manifestAppCredentials',
-    payload: { ...state.payload, appConfigurationToken: ctx.configuration.appConfigurationToken },
   })
 }
 

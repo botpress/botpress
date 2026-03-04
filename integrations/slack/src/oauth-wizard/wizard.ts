@@ -14,6 +14,10 @@ type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
 export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
     .addStep({ id: 'start', handler: _startHandler })
+    .addStep({ id: 'get-config-token', handler: _getConfigTokenHandler })
+    .addStep({ id: 'save-config-token', handler: _saveConfigTokenHandler })
+    .addStep({ id: 'get-config-refresh-token', handler: _getConfigRefreshTokenHandler })
+    .addStep({ id: 'save-config-refresh-token', handler: _saveConfigRefreshTokenHandler })
     .addStep({ id: 'get-app-name', handler: _getAppNameHandler })
     .addStep({ id: 'save-app-name', handler: _saveAppNameHandler })
     .addStep({ id: 'create-app', handler: _createAppHandler })
@@ -37,10 +41,51 @@ const _startHandler: WizardHandler = async ({ client, ctx, responses }) => {
       'This wizard will create a dedicated Slack app for your bot using the Slack App Manifest API.<br><br>' +
       'A Slack app will be automatically created and configured with all the required permissions and settings.',
     buttons: [
-      { action: 'navigate', label: 'Continue', navigateToStep: 'get-app-name', buttonType: 'primary' },
+      { action: 'navigate', label: 'Continue', navigateToStep: 'get-config-token', buttonType: 'primary' },
       { action: 'close', label: 'Cancel', buttonType: 'secondary' },
     ],
   })
+}
+
+const _getConfigTokenHandler: WizardHandler = async ({ client, ctx, responses }) => {
+  const state = await getAppManifestConfigurationState(client, ctx)
+  if (state.appConfigurationToken && state.appConfigurationRefreshToken) {
+    return responses.redirectToStep('get-app-name')
+  }
+
+  return responses.displayInput({
+    pageTitle: 'Slack App Configuration Token',
+    htmlOrMarkdownPageContents:
+      'Enter your Slack App Configuration Token.<br>You can generate one at <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a>.',
+    input: { label: 'App Configuration Token', type: 'text' },
+    nextStepId: 'save-config-token',
+  })
+}
+
+const _saveConfigTokenHandler: WizardHandler = async ({ client, ctx, responses, inputValue }) => {
+  if (!inputValue?.trim()) {
+    throw new RuntimeError('App Configuration Token is required')
+  }
+  await patchAppManifestConfigurationState(client, ctx, { appConfigurationToken: inputValue.trim() })
+  return responses.redirectToStep('get-config-refresh-token')
+}
+
+const _getConfigRefreshTokenHandler: WizardHandler = (props) => {
+  return props.responses.displayInput({
+    pageTitle: 'Slack App Configuration Refresh Token',
+    htmlOrMarkdownPageContents:
+      'Enter your Slack App Configuration Refresh Token.<br>You can generate one at <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a>.',
+    input: { label: 'App Configuration Refresh Token', type: 'text' },
+    nextStepId: 'save-config-refresh-token',
+  })
+}
+
+const _saveConfigRefreshTokenHandler: WizardHandler = async ({ client, ctx, responses, inputValue }) => {
+  if (!inputValue?.trim()) {
+    throw new RuntimeError('App Configuration Refresh Token is required')
+  }
+  await patchAppManifestConfigurationState(client, ctx, { appConfigurationRefreshToken: inputValue.trim() })
+  return responses.redirectToStep('get-app-name')
 }
 
 const _getAppNameHandler: WizardHandler = (props) => {
@@ -68,15 +113,13 @@ const _createAppHandler: WizardHandler = async (props) => {
     throw new RuntimeError('This wizard is only available for the App Manifest configuration type')
   }
 
-  const appConfigurationToken = ctx.configuration.appConfigurationToken
-  const appConfigurationRefreshToken = ctx.configuration.appConfigurationRefreshToken
-  if (!appConfigurationToken || !appConfigurationRefreshToken) {
+  const manifestState = await getAppManifestConfigurationState(client, ctx)
+
+  if (!manifestState.appConfigurationToken || !manifestState.appConfigurationRefreshToken) {
     throw new RuntimeError(
-      'Slack App Configuration Token and Refresh Token are required in the integration configuration'
+      'Slack App Configuration Token and Refresh Token are required. Please restart the wizard.'
     )
   }
-
-  const manifestState = await getAppManifestConfigurationState(client, ctx)
   const appName = manifestState.appName || 'Botpress Bot'
 
   const webhookUrl = process.env.BP_WEBHOOK_URL!
