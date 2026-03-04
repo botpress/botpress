@@ -4,7 +4,6 @@ import {
   type ZodAnyDef,
   type ZodArrayDef,
   type ZodBooleanDef,
-  ZodFirstPartyTypeKind,
   type ZodLazyDef,
   type ZodNullDef,
   type ZodObjectDef,
@@ -19,10 +18,11 @@ import {
   ZodNumberDef,
   ZodEnumDef,
   ZodDefaultDef,
-  z,
+  ZodNativeTypeDef,
 } from '../../z'
 import * as errors from '../common/errors'
 import { evalZuiString } from '../common/eval-zui-string'
+import { ZodFirstPartyTypeKind } from '../common/native'
 import { JsonSchema7Type } from '../zui-to-json-schema-legacy/parseDef'
 import { parseSchema } from './parsers/parseSchema'
 import { JSONSchemaExtended } from './types'
@@ -78,9 +78,9 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        const def: z.ZodNativeTypeDef = zodField._def
+        const def: ZodNativeTypeDef = zodField._def
 
-        if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+        if (def.typeName === ZodFirstPartyTypeKind.ZodTuple) {
           applyZuiPropsRecursively(def.items[index]!, item)
         }
       })

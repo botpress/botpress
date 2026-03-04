@@ -1,4 +1,5 @@
-import { zuiKey, ZuiExtensionObject, ZodArrayDef, ZodFirstPartyTypeKind, ZodTypeAny } from '../../../z'
+import { zuiKey, ZuiExtensionObject, ZodArrayDef, ZodTypeAny } from '../../../z'
+import { ZodFirstPartyTypeKind } from '../../common/native'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'

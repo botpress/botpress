@@ -1,5 +1,5 @@
+import * as utils from '../../utils'
 import type { ZodIssue, ZodFormattedError, ZodErrorMap, IZodError } from '../typings'
-import * as utils from '../utils'
 import { errorMap as defaultErrorMap } from './locales/en'
 
 export class ZodError<T = any> extends Error implements IZodError<T> {

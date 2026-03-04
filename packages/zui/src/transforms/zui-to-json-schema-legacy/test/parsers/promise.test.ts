@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z, zuiKey } from '../../../../z'
+import * as z from '../../../../z'
 import { parsePromiseDef } from '../../parsers/promise'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('promise', () => {
   it('should be possible to use promise', () => {

@@ -1,3 +1,4 @@
+import * as utils from '../../../utils'
 import { defaultErrorMap, getErrorMap, ZodError } from '../../error'
 import { is } from '../../guards'
 import { builders } from '../../internal-builders'
@@ -13,8 +14,6 @@ import type {
   IZodUnknown,
   IZodPromise,
 } from '../../typings'
-
-import * as utils from '../../utils'
 
 import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
 

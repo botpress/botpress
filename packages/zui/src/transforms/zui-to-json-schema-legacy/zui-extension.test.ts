@@ -1,6 +1,8 @@
 import { describe, test, expect, it } from 'vitest'
 import { toJSONSchemaLegacy } from './zui-extension'
-import { z, zuiKey } from '../../z'
+import * as z from '../../z'
+
+const { zuiKey } = z
 
 describe('zuiToJsonSchema', () => {
   test('should work', () => {

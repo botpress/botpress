@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import * as assert from '../../assertions.utils.test'
-import z from '../index'
+import * as z from '../index'
 
 const nested = z.object({
   name: z.string(),

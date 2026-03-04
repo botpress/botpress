@@ -1,6 +1,6 @@
 import { JSONSchema7 } from 'json-schema'
-import z from '../../../z'
-import * as datetime from '../../../z/utils/datestring-utils'
+import * as datetime from '../../../utils/datestring-utils'
+import * as z from '../../../z'
 import { zodPatterns } from '../../zui-to-json-schema-legacy/parsers/string'
 
 export const stringJSONSchemaToZuiString = ({

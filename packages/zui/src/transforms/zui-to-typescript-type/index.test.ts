@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { toTypescriptType as toTs } from '.'
-import z, { ZodType } from '../../z'
+import * as z from '../../z'
 import * as errors from '../common/errors'
 import * as assert from '../../assertions.utils.test'
 
-const toTypescript = (schema: ZodType): string => {
+const toTypescript = (schema: z.ZodType): string => {
   const hasTitle = 'title' in schema.ui
   if (!hasTitle) {
     schema = schema.title('x')

@@ -1,11 +1,13 @@
 import { describe, expect, test, it } from 'vitest'
-import { z, ZodType, zuiKey } from '../../z'
+import * as z from '../../z'
 import { jsonSchemaToZodStr, fromJSONSchemaLegacy, traverseZodDefinitions } from '.'
 import { toJSONSchemaLegacy } from '../zui-to-json-schema-legacy/zui-extension'
 import { JSONSchema7 } from 'json-schema'
 import * as assert from '../../assertions.utils.test'
 
-const testZuiConversion = (zuiObject: ZodType) => {
+const { zuiKey } = z
+
+const testZuiConversion = (zuiObject: z.ZodType) => {
   const jsonSchema = toJSONSchemaLegacy(zuiObject)
   const asZui = fromJSONSchemaLegacy(jsonSchema)
   const convertedJsonSchema = toJSONSchemaLegacy(asZui)

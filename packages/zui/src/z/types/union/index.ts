@@ -1,8 +1,8 @@
+import * as utils from '../../../utils'
 import { ZodError } from '../../error'
 import { is } from '../../guards'
 import { builders } from '../../internal-builders'
 import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
-import * as utils from '../../utils'
 import {
   ZodBaseTypeImpl,
   addIssueToContext,

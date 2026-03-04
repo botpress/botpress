@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { JSONSchema7Type } from 'json-schema'
-import { z, zuiKey } from '../../../../z'
+import * as z from '../../../../z'
 import { parseDef } from '../../parseDef'
 import { getRefs } from '../../Refs'
+
+const { zuiKey } = z
 
 describe('Standalone optionals', () => {
   it('should work as unions with undefined', () => {

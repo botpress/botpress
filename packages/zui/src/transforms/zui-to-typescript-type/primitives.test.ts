@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 import { toTypescriptType as toTs } from '.'
-import z from '../../z'
+import * as z from '../../z'
 import * as assert from '../../assertions.utils.test'
 
 const toTypescriptType = (schema: z.ZodType) => toTs(schema, { declaration: 'variable' })

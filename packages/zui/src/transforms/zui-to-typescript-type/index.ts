@@ -1,5 +1,5 @@
-import z from '../../z'
-import * as utils from '../../z/utils'
+import * as utils from '../../utils'
+import * as z from '../../z'
 import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,

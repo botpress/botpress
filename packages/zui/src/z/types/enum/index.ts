@@ -1,6 +1,6 @@
+import * as utils from '../../../utils'
 import { builders } from '../../internal-builders'
 import type { FilterEnum, IZodEnum, EnumValuesMap, NeverCast, ZodEnumDef, EnumValues } from '../../typings'
-import * as utils from '../../utils'
 import {
   RawCreateParams,
   ZodBaseTypeImpl,

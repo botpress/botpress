@@ -1,5 +1,5 @@
+import * as utils from '../../../utils'
 import { type IZodBigInt, ZodBigIntCheck, ZodBigIntDef } from '../../typings'
-import * as utils from '../../utils'
 import {
   addIssueToContext,
   INVALID,

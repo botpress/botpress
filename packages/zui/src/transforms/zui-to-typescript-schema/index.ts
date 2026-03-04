@@ -1,7 +1,7 @@
 import { mapValues, isEqual } from 'lodash-es'
 
-import z, { zuiKey } from '../../z'
-import * as utils from '../../z/utils'
+import * as utils from '../../utils'
+import * as z from '../../z'
 import * as errors from '../common/errors'
 import {
   primitiveToTypescriptValue,
@@ -14,6 +14,8 @@ import { generateDateChecks } from './date-checks'
 import { generateNumberChecks } from './number-checks'
 import { generateSetChecks } from './set-checks'
 import { generateStringChecks } from './string-checks'
+
+const { zuiKey } = z
 
 /**
  *

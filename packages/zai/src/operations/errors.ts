@@ -1,4 +1,4 @@
-import { z, ZodError } from '@bpinternal/zui'
+import z, { ZodError } from '@bpinternal/zui'
 
 export class JsonParsingError extends Error {
   public constructor(

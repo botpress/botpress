@@ -1,4 +1,4 @@
-import z from '../../z'
+import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
 import { fromJSONSchema } from './index'
 import { JSONSchema7 } from 'json-schema'

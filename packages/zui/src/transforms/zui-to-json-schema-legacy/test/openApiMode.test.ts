@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { z, zuiKey } from '../../../z'
+import * as z from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
+
+const { zuiKey } = z
 
 describe('Open API target', () => {
   it('should use nullable boolean property and not use $schema property', () => {

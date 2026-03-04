@@ -1,3 +1,4 @@
+import * as utils from '../../../utils'
 import { is } from '../../guards'
 import { builders } from '../../internal-builders'
 import type {
@@ -14,7 +15,6 @@ import type {
   IZodOptional,
   IZodEnum,
 } from '../../typings'
-import * as utils from '../../utils'
 import {
   addIssueToContext,
   INVALID,

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { z } from '../../..'
+import { z } from '../../../index'
 import * as assert from '../../../assertions.utils.test'
 
 test('basic defaults', () => {

@@ -1,4 +1,5 @@
 import type * as transforms from '../../../transforms'
+import * as utils from '../../../utils'
 import { zuiKey } from '../../consts'
 import { ZodError } from '../../error'
 import { builders } from '../../internal-builders'
@@ -30,7 +31,6 @@ import type {
   CustomErrorParams,
   IssueData,
 } from '../../typings'
-import * as utils from '../../utils'
 
 // TODO(circle): get rid of circular dependency between zui core and transforms
 
@@ -501,14 +501,16 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   /**
    *
+   * @deprecated use z.transforms.toJSONSchema(schema) instead
    * @returns a JSON Schema equivalent to the Zui schema
    */
-  toJSONSchema(): transforms.ZuiJSONSchema {
+  toJSONSchema(): transforms.json.Schema {
     throw new _CircularDependencyError('toJSONSchema')
   }
 
   /**
    *
+   * @deprecated use z.transforms.toTypescriptType(schema) instead
    * @param options generation options
    * @returns a string of the TypeScript type representing the schema
    */
@@ -518,6 +520,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   /**
    *
+   * @deprecated use z.transforms.toTypescriptSchema(schema) instead
    * @param options generation options
    * @returns a typescript program (a string) that would construct the given schema if executed
    */

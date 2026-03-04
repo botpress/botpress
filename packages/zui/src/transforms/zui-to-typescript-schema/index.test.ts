@@ -2,7 +2,7 @@ import { describe, expect, test, it } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
-import z, { ZodLiteral } from '../../z'
+import * as z from '../../z'
 import { UIComponentDefinitions } from '../../z/typings'
 
 const evalZui = (source: string): z.ZodType => {
@@ -462,7 +462,7 @@ describe.concurrent('toTypescriptSchema', () => {
   })
   test('literal symbol', () => {
     const source = z.literal(Symbol('banana'))
-    const dest = evalZui(toTypescript(source)) as ZodLiteral
+    const dest = evalZui(toTypescript(source)) as z.ZodLiteral
 
     expect(dest.typeName === 'ZodLiteral').toBe(true)
     const value = dest.value as symbol
