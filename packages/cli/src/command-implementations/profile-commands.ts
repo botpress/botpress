@@ -24,7 +24,7 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
 
     const profile = await this.readProfileFromFS(activeProfileName)
     let profileEntry: ProfileEntry | ProfileEntryWithoutToken = { name: activeProfileName, ...profile }
-    if (_shouldMaskToken(this.argv)) profileEntry = _stripProfileToken(profileEntry)
+    if (_shouldOmitToken(this.argv)) profileEntry = _stripProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -44,7 +44,7 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
     const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
 
     this.logger.log(activeProfileMsg)
-    this.logger.json(!_shouldMaskToken(this.argv) ? profileEntries : profileEntries.map(_stripProfileToken))
+    this.logger.json(!_shouldOmitToken(this.argv) ? profileEntries : profileEntries.map(_stripProfileToken))
     this.logger.log(activeProfileMsg)
   }
 }
@@ -99,4 +99,4 @@ const _stripProfileToken = (profile: ProfileEntry | ProfileEntryWithoutToken): P
   workspaceId: profile.workspaceId,
 })
 
-const _shouldMaskToken = (argv: { displayToken: boolean; json: boolean }) => !argv.json && !argv.displayToken
+const _shouldOmitToken = (argv: { displayToken: boolean; json: boolean }) => !argv.json && !argv.displayToken
