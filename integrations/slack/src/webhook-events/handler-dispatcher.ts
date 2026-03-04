@@ -14,7 +14,6 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
 
   if (isOAuthWizardUrl(req.path)) {
-    logger.forBot().debug('Handler received request for OAuth wizard URL, delegating to OAuth wizard handler', req.path)
     return await oauthWizardHandler({ req, client, logger, ctx })
   }
 
@@ -60,8 +59,8 @@ function _verifyBodyIsPresent(req: sdk.Request): asserts req is sdk.Request & { 
   }
 }
 
-const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ctx, client }: bp.HandlerProps) => {
-  const signingSecret = await _getSigningSecret(ctx, client)
+const _verifyMessageIsProperlyAuthenticated = async ({ req, logger, ctx }: bp.HandlerProps) => {
+  const signingSecret = await _getSigningSecret(ctx)
   const isSignatureValid = new SlackEventSignatureValidator(signingSecret, req, logger).isEventProperlyAuthenticated()
 
   if (!isSignatureValid) {
@@ -114,20 +113,9 @@ const _dispatchEvent = async ({ client, ctx, logger }: bp.HandlerProps, slackEve
   }
 }
 
-const _getSigningSecret = async (ctx: bp.Context, client: bp.Client): Promise<string> => {
+const _getSigningSecret = async (ctx: bp.Context): Promise<string> => {
   if (ctx.configurationType === 'refreshToken') {
     return ctx.configuration.signingSecret
-  }
-  if (ctx.configurationType === 'manifestAppCredentials') {
-    const { state } = await client.getState({
-      type: 'integration',
-      name: 'manifestAppCredentials',
-      id: ctx.integrationId,
-    })
-    if (!state.payload.signingSecret) {
-      throw new sdk.RuntimeError('Signing secret not found. Please re-run the app manifest wizard.')
-    }
-    return state.payload.signingSecret
   }
   return bp.secrets.SIGNING_SECRET
 }

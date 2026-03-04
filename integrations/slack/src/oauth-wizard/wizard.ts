@@ -1,12 +1,12 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { RuntimeError, Response } from '@botpress/sdk'
+import { handleOAuthCallback } from 'src/webhook-events/handlers/oauth-callback'
 import {
   SlackManifestClient,
   buildSlackAppManifest,
   patchAppManifestConfigurationState,
   getAppManifestConfigurationState,
 } from '../slack-api/slack-manifest-client'
-import { SlackOAuthClient } from '../slack-api/slack-oauth-client'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -74,7 +74,7 @@ const _createAppHandler: WizardHandler = async (props) => {
   const appName = manifestState.appName || 'Botpress Bot'
 
   const webhookUrl = process.env.BP_WEBHOOK_URL!
-  const redirectUri = 'https://webhook.botpress.cloud/oauth'
+  const redirectUri = `${webhookUrl}/oauth`
   const manifest = buildSlackAppManifest(webhookUrl, redirectUri, appName)
   const manifestClient = await SlackManifestClient.create({
     client,
@@ -86,63 +86,23 @@ const _createAppHandler: WizardHandler = async (props) => {
   await manifestClient.validateManifest(manifest)
 
   logger.forBot().debug('Creating Slack app from manifest...')
-  const {
-    app_id,
-    credentials: { client_id, client_secret, signing_secret },
-    oauth_authorize_url,
-  } = await manifestClient.createApp(manifest)
+  const { app_id, credentials, oauth_authorize_url } = await manifestClient.createApp(manifest)
+  const authorizeUrl = new URL(oauth_authorize_url)
+  const oauthCallbackUrl = oauthWizard.getWizardStepUrl('oauth-callback').toString() //`${redirectUri}?state=${ctx.webhookId}`
+  authorizeUrl.searchParams.set('redirect_uri', oauthCallbackUrl)
+  authorizeUrl.searchParams.set('state', ctx.webhookId)
 
   await patchAppManifestConfigurationState(client, ctx, {
     appId: app_id,
-    clientId: client_id,
-    clientSecret: client_secret,
-    signingSecret: signing_secret,
+    clientId: credentials.client_id,
+    clientSecret: credentials.client_secret,
+    authorizeUrl: authorizeUrl.toString(),
   })
-
-  return responses.redirectToExternalUrl(oauth_authorize_url)
+  return responses.redirectToExternalUrl(authorizeUrl.toString())
 }
 
-const _oauthCallbackHandler: WizardHandler = async (props) => {
-  props.logger.forBot().debug('Handling OAuth callback with query parameters', { query: props.query })
-  const { client, ctx, logger, responses, query } = props
-  const code = query.get('code')
-
-  if (!code) {
-    const error = query.get('error') || 'No authorization code received'
-    return responses.endWizard({
-      success: false,
-      errorMessage: `Slack OAuth failed: ${error}`,
-    })
-  }
-
-  const state = await getAppManifestConfigurationState(client, ctx)
-  if (!state.clientId || !state.clientSecret) {
-    return responses.endWizard({
-      success: false,
-      errorMessage: 'App credentials not found. Please restart the wizard.',
-    })
-  }
-
-  const redirectUri = oauthWizard.getWizardStepUrl('oauth-callback', ctx).toString()
-  const oauthClient = new SlackOAuthClient({
-    client,
-    ctx,
-    logger,
-    clientIdOverride: state.clientId,
-    clientSecretOverride: state.clientSecret,
-  })
-
-  try {
-    await oauthClient.requestShortLivedCredentials.fromAuthorizationCode(code, redirectUri)
-    const { teamId } = await oauthClient.getAuthState()
-    await client.configureIntegration({ identifier: teamId })
-  } catch (error) {
-    logger.forBot().error('Failed to exchange authorization code', error)
-    return responses.endWizard({
-      success: false,
-      errorMessage: `Failed to exchange authorization code: ${error instanceof Error ? error.message : String(error)}`,
-    })
-  }
+const _oauthCallbackHandler: WizardHandler = async ({ req, client, ctx, logger, responses }) => {
+  await handleOAuthCallback({ req, client, ctx, logger })
 
   return responses.redirectToStep('end')
 }

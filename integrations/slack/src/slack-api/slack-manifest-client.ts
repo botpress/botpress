@@ -54,8 +54,6 @@ const manifestCreateResponseSchema = z.object({
   credentials: z.object({
     client_id: z.string(),
     client_secret: z.string(),
-    signing_secret: z.string(),
-    verification_token: z.string(),
   }),
   oauth_authorize_url: z.string(),
 })

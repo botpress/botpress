@@ -78,6 +78,7 @@ export const states = {
         .optional()
         .title('Signing Secret')
         .describe('Signing secret from the manifest-created app'),
+      authorizeUrl: sdk.z.string().url().optional().title('Slack Authorize Url'),
     }),
   },
 } as const satisfies sdk.IntegrationDefinitionProps['states']

@@ -51,6 +51,33 @@ export class SlackClient {
     logger: bp.Logger
     authorizationCode: string
   }) {
+    if (ctx.configurationType === 'manifestAppCredentials') {
+      const {
+        state: {
+          payload: { clientId, clientSecret, authorizeUrl },
+        },
+      } = await client.getState({
+        type: 'integration',
+        name: 'manifestAppCredentials',
+        id: ctx.integrationId,
+      })
+      if (!clientId || !clientSecret || !authorizeUrl)
+        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      const redirectUri = new URL(authorizeUrl).searchParams.get('redirect_uri')
+
+      if (!redirectUri) throw new sdk.RuntimeError(`Unable to get redirect uri, received: ${authorizeUrl}`)
+      await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri)
+
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
+
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode)
 
