@@ -31,14 +31,16 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, l
 
   await _updateBotpressBotNameAndAvatar({ client, ctx, logger })
 
+  let slackClient: SlackClient
+
   if (ctx.configurationType === 'manifestAppCredentials') {
     const { appId } = await getAppManifestConfigurationState(client, ctx)
-    if (!appId) {
+    if (appId) {
+      slackClient = await SlackClient.createFromStates({ client, ctx, logger })
+    } else {
       return
     }
   }
-
-  let slackClient: SlackClient
 
   if (ctx.configurationType === 'refreshToken') {
     if (

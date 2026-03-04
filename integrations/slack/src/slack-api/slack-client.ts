@@ -36,6 +36,27 @@ export class SlackClient {
     ctx: bp.Context
     logger: bp.Logger
   }) {
+    if (ctx.configurationType === 'manifestAppCredentials') {
+      const {
+        state: {
+          payload: { clientId, clientSecret, authorizeUrl },
+        },
+      } = await client.getState({
+        type: 'integration',
+        name: 'manifestAppCredentials',
+        id: ctx.integrationId,
+      })
+      if (!clientId || !clientSecret)
+        throw new sdk.RuntimeError('Client ID or Client Secret not found, please re-run the authorization wizard')
+      const oAuthClient = new SlackOAuthClient({
+        ctx,
+        client,
+        logger,
+        clientIdOverride: clientId,
+        clientSecretOverride: clientSecret,
+      })
+      return await SlackClient._createNewInstance({ logger, oAuthClient })
+    }
     const oAuthClient = new SlackOAuthClient({ ctx, client, logger })
     return await SlackClient._createNewInstance({ logger, oAuthClient })
   }
