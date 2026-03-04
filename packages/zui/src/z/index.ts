@@ -81,6 +81,7 @@ export type {
   ZodTupleDef,
   IZodTuple as ZodTuple,
   ZodTupleItems,
+  AnyZodTuple,
 
   // object
   ZodObjectDef,

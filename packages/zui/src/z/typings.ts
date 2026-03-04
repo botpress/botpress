@@ -815,6 +815,11 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
   typeName: 'ZodTuple'
 } & ZodTypeDef
 
+/**
+ * @deprecated use ZodTuple instead
+ */
+export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
+
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodTuple<
   T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]] | [],
