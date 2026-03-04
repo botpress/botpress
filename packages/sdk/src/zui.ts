@@ -14,12 +14,12 @@ export const mergeObjectSchemas = (a: ZuiObjectSchema, b: ZuiObjectSchema): ZuiO
   const aDef = a._def
   const bDef = b._def
 
-  if (aDef.typeName === z.ZodFirstPartyTypeKind.ZodObject && bDef.typeName === z.ZodFirstPartyTypeKind.ZodObject) {
+  if (aDef.typeName === 'ZodObject' && bDef.typeName === 'ZodObject') {
     const aShape = aDef.shape()
     const bShape = bDef.shape()
     return z.object({ ...aShape, ...bShape })
   }
-  if (aDef.typeName === z.ZodFirstPartyTypeKind.ZodRecord && bDef.typeName === z.ZodFirstPartyTypeKind.ZodRecord) {
+  if (aDef.typeName === 'ZodRecord' && bDef.typeName === 'ZodRecord') {
     return z.record(z.intersection(aDef.valueType, bDef.valueType))
   }
   // TODO: adress this case

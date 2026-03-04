@@ -23,6 +23,7 @@ export type {
   IZodType as ZodType,
   ZodTypeAny,
   ZodSchema,
+  Schema,
 
   // any
   ZodAnyDef,
