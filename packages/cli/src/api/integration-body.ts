@@ -67,7 +67,9 @@ export const prepareCreateIntegrationBody = async (
   extraOperations: '__advanced' in integration ? integration.__advanced?.extraOperations : undefined,
 })
 
-export const prepareCreateIntegrationConfigs = async (integration: sdk.IntegrationDefinition) => ({
+export const prepareCreateIntegrationConfigs = async (
+  integration: sdk.IntegrationDefinition
+): Promise<Pick<types.CreateIntegrationRequestBody, 'configuration' | 'configurations'>> => ({
   configuration: integration.configuration
     ? {
         ...integration.configuration,
