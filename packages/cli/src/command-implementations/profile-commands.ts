@@ -99,4 +99,4 @@ const _stripProfileToken = (profile: ProfileEntry | ProfileEntryWithoutToken): P
   workspaceId: profile.workspaceId,
 })
 
-const _shouldOmitToken = (argv: { displayToken: boolean; json: boolean }) => !argv.json && !argv.displayToken
+const _shouldOmitToken = (argv: { displayToken: boolean }) => !argv.displayToken
