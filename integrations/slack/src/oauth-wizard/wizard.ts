@@ -24,8 +24,14 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   return await wizard.handleRequest()
 }
 
-const _startHandler: WizardHandler = (props) => {
-  return props.responses.displayButtons({
+const _startHandler: WizardHandler = async ({ client, ctx, responses }) => {
+  const { appId, clientId, clientSecret, authorizeUrl } = await getAppManifestConfigurationState(client, ctx)
+
+  if (appId && clientId && clientSecret && authorizeUrl) {
+    return responses.redirectToExternalUrl(authorizeUrl)
+  }
+
+  return responses.displayButtons({
     pageTitle: 'Slack App Setup',
     htmlOrMarkdownPageContents:
       'This wizard will create a dedicated Slack app for your bot using the Slack App Manifest API.<br><br>' +
