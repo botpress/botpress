@@ -1,5 +1,11 @@
 import * as utils from '../../../utils'
-import type { IZodTuple, IZodType, ZodTupleDef } from '../../typings'
+import type {
+  IZodTuple,
+  IZodType,
+  ZodTupleDef,
+  OutputTypeOfTupleWithRest,
+  InputTypeOfTupleWithRest,
+} from '../../typings'
 import {
   ParseInputLazyPath,
   addIssueToContext,
@@ -11,37 +17,11 @@ import {
   ZodBaseTypeImpl,
 } from '../basetype'
 
-export type ZodTupleItems = [IZodType, ...IZodType[]]
-
-type _AssertArray<T> = T extends any[] ? T : never
-type _OutputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_output'] : never
-}>
-
-type _OutputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends IZodType | null = null,
-> = Rest extends IZodType ? [..._OutputTypeOfTuple<T>, ...Rest['_output'][]] : _OutputTypeOfTuple<T>
-
-type _InputTypeOfTuple<T extends ZodTupleItems | []> = _AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_input'] : never
-}>
-
-type _InputTypeOfTupleWithRest<
-  T extends ZodTupleItems | [],
-  Rest extends IZodType | null = null,
-> = Rest extends IZodType ? [..._InputTypeOfTuple<T>, ...Rest['_input'][]] : _InputTypeOfTuple<T>
-
-/**
- * @deprecated use ZodTuple instead
- */
-export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
-
 export class ZodTupleImpl<
     T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
     Rest extends IZodType | null = null,
   >
-  extends ZodBaseTypeImpl<_OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, _InputTypeOfTupleWithRest<T, Rest>>
+  extends ZodBaseTypeImpl<OutputTypeOfTupleWithRest<T, Rest>, ZodTupleDef<T, Rest>, InputTypeOfTupleWithRest<T, Rest>>
   implements IZodTuple<T, Rest>
 {
   dereference(defs: Record<string, IZodType>): IZodType {
