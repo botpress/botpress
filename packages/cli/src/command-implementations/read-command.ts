@@ -38,26 +38,14 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   }
 
   private _parseIntegration = async (integrationDef: sdk.IntegrationDefinition) => {
-    const parsed = await apiUtils.prepareCreateIntegrationBody(integrationDef)
+    const [parsed, configs] = await Promise.all([
+      apiUtils.prepareCreateIntegrationBody(integrationDef),
+      apiUtils.prepareCreateIntegrationConfigs(integrationDef),
+    ])
 
     return {
       ...parsed,
-      configuration: integrationDef.configuration
-        ? {
-            ...integrationDef.configuration,
-            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-            }),
-          }
-        : undefined,
-      configurations: integrationDef.configurations
-        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
-            ...configuration,
-            schema: await utils.schema.mapZodToJsonSchema(configuration, {
-              useLegacyZuiTransformer: integrationDef.__advanced?.useLegacyZuiTransformer,
-            }),
-          }))
-        : undefined,
+      ...configs,
       interfaces: utils.records.mapValues(integrationDef.interfaces ?? {}, (iface) => ({
         ...iface,
         id: iface.id ?? '',
