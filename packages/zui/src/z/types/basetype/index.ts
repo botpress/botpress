@@ -460,9 +460,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * Whether the field is hidden in the UI. Useful for internal fields.
    * @default false
    */
-  hidden<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)
-  ): this {
+  hidden<T = this['_output']>(value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)): this {
     let data: ZuiMetadata
     if (value === undefined) {
       data = true
@@ -478,9 +476,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
    * Whether the field is disabled
    * @default false
    */
-  disabled<T extends any = this['_output']>(
-    value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)
-  ): this {
+  disabled<T = this['_output']>(value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)): this {
     let data: ZuiMetadata
     if (value === undefined) {
       data = true
@@ -560,7 +556,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   // TODO: this is an ugly workaround to prevent from exposing internal methods in the public API. We should find something better.
-  protected static fromInterface(t: IZodType): ZodBaseTypeImpl {
-    return t as ZodBaseTypeImpl
+  protected static fromInterface<O, D extends ZodTypeDef, I>(t: IZodType<O, D, I>): ZodBaseTypeImpl<O, D, I> {
+    return t as ZodBaseTypeImpl<O, D, I>
   }
 }

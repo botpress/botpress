@@ -22,7 +22,7 @@ const _handleTuple = (
   toZui: (x: JSONSchema7Definition) => z.ZodType
 ): z.ZodTuple => {
   const itemSchemas = items.map(toZui) as [] | [z.ZodType, ...z.ZodType[]]
-  let zodTuple: z.ZodTuple<any, any> = z.tuple(itemSchemas)
+  let zodTuple: z.ZodTuple = z.tuple(itemSchemas)
 
   if (additionalItems !== undefined) {
     zodTuple = zodTuple.rest(toZui(additionalItems))

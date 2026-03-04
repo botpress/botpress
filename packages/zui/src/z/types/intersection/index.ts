@@ -41,8 +41,8 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (
-      parsedLeft: SyncParseReturnType<any>,
-      parsedRight: SyncParseReturnType<any>
+      parsedLeft: SyncParseReturnType<T>,
+      parsedRight: SyncParseReturnType<U>
     ): SyncParseReturnType<T & U> => {
       if (isAborted(parsedLeft) || isAborted(parsedRight)) {
         return INVALID
@@ -76,7 +76,7 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
           path: ctx.path,
           parent: ctx,
         }),
-      ]).then(([left, right]: any) => handleParsed(left, right))
+      ]).then(([left, right]) => handleParsed(left, right))
     } else {
       return handleParsed(
         ZodBaseTypeImpl.fromInterface(this._def.left)._parseSync({
@@ -102,6 +102,7 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
     return thisItems.isEqual(thatItems)
   }
 
+  // TODO(any): type this whole function properly
   private _mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
     const aType = getParsedType(a)
     const bType = getParsedType(b)

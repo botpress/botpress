@@ -11,6 +11,7 @@ test('refinement', () => {
 
   const obj3 = obj2.refine((data) => data.first || data.second, 'Either first or second should be filled in.')
 
+  // TODO(any): type properly
   expect(obj1 === (obj2 as any)).toEqual(false)
   expect(obj2 === (obj3 as any)).toEqual(false)
 

@@ -1,4 +1,5 @@
 import * as utils from '../../../utils'
+import { is } from '../../guards'
 import type { IZodEffects, IZodType, ZodEffectsDef, input, output, RefinementCtx, IssueData } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../basetype'
 
@@ -14,8 +15,8 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
    * @deprecated use naked() instead
    */
   sourceType(): T {
-    return this._def.schema._def.typeName === 'ZodEffects'
-      ? (this._def.schema as unknown as IZodEffects<T>).sourceType()
+    return is.zuiEffects(this._def.schema)
+      ? (this._def.schema.sourceType() as T) // this cast is a lie
       : (this._def.schema as T)
   }
 
@@ -89,6 +90,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       }
     }
     if (effect.type === 'refinement') {
+      // TODO(any): type properly
       const executeRefinement = (acc: unknown): any => {
         const result = effect.refinement(acc, checkCtx)
         if (ctx.common.async) {

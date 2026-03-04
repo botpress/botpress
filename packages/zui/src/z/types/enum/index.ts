@@ -46,27 +46,19 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
   }
 
   get enum(): EnumValuesMap<T> {
-    const enumValues: any = {}
+    const enumValues: Record<string, T[number]> = {}
     for (const val of this._def.values) {
       enumValues[val] = val
     }
-    return enumValues
+    return enumValues as EnumValuesMap<T>
   }
 
   get Values(): EnumValuesMap<T> {
-    const enumValues: any = {}
-    for (const val of this._def.values) {
-      enumValues[val] = val
-    }
-    return enumValues
+    return this.enum
   }
 
   get Enum(): EnumValuesMap<T> {
-    const enumValues: any = {}
-    for (const val of this._def.values) {
-      enumValues[val] = val
-    }
-    return enumValues
+    return this.enum
   }
 
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(

@@ -11,7 +11,7 @@ export type EvalZuiStringResult =
     }
 
 export const evalZuiString = (zuiString: string): EvalZuiStringResult => {
-  let result: any
+  let result: unknown
 
   try {
     result = new Function('z', `return ${zuiString}`)(z)

@@ -1,6 +1,6 @@
 import { zuiKey } from '../../consts'
 import { defaultErrorMap, getErrorMap } from '../../error'
-import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap } from '../../typings'
+import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap, IZodType } from '../../typings'
 
 export type RawCreateParams =
   | {
@@ -130,7 +130,7 @@ export class ParseStatus {
   }
 
   static mergeObjectSync(status: ParseStatus, pairs: MergeObjectPair[]): SyncParseReturnType {
-    const finalObject: any = {}
+    const finalObject: Record<string, IZodType> = {}
     for (const pair of pairs) {
       const { key, value } = pair
       if (key.status === 'aborted') return INVALID

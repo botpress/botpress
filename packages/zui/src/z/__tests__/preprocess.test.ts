@@ -163,6 +163,7 @@ test('preprocess validates with sibling errors', () => {
     z.object({
       // Must be first
       missing: z.string().refine(() => false),
+      // TODO(any): type properly
       preprocess: z.preprocess((data: any) => data?.trim(), z.string().regex(/ asdf/)),
     }).parse({ preprocess: ' asdf' })
   }).toThrow(

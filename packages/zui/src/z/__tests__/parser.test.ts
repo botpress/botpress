@@ -2,12 +2,7 @@ import { test, expect } from 'vitest'
 import * as z from '../index'
 
 test('parse strict object with unknown keys', () => {
-  expect(() =>
-    z
-      .object({ name: z.string() })
-      .strict()
-      .parse({ name: 'bill', unknownKey: 12 } as any)
-  ).toThrow()
+  expect(() => z.object({ name: z.string() }).strict().parse({ name: 'bill', unknownKey: 12 })).toThrow()
 })
 
 test('parse nonstrict object with unknown keys', () => {
@@ -15,25 +10,25 @@ test('parse nonstrict object with unknown keys', () => {
 })
 
 test('invalid left side of intersection', () => {
-  expect(() => z.intersection(z.string(), z.number()).parse(12 as any)).toThrow()
+  expect(() => z.intersection(z.string(), z.number()).parse(12)).toThrow()
 })
 
 test('invalid right side of intersection', () => {
-  expect(() => z.intersection(z.string(), z.number()).parse('12' as any)).toThrow()
+  expect(() => z.intersection(z.string(), z.number()).parse('12')).toThrow()
 })
 
 test('parsing non-array in tuple schema', () => {
-  expect(() => z.tuple([]).parse('12' as any)).toThrow()
+  expect(() => z.tuple([]).parse('12')).toThrow()
 })
 
 test('incorrect num elements in tuple', () => {
-  expect(() => z.tuple([]).parse(['asdf'] as any)).toThrow()
+  expect(() => z.tuple([]).parse(['asdf'])).toThrow()
 })
 
 test('invalid enum value', () => {
-  expect(() => z.enum(['Blue']).parse('Red' as any)).toThrow()
+  expect(() => z.enum(['Blue']).parse('Red')).toThrow()
 })
 
 test('parsing unknown', () => {
-  z.string().parse('Red' as unknown)
+  z.string().parse('Red')
 })

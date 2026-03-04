@@ -41,7 +41,7 @@ export type UIComponentDefinitions = {
   [T in BaseDisplayAsType]: {
     [K: string]: {
       id: string
-      params: IZodObject<any>
+      params: IZodObject
     }
   }
 }
@@ -736,7 +736,9 @@ export interface IZodEnum<T extends [string, ...string[]] = [string, ...string[]
   extends IZodType<T[number], ZodEnumDef<T>> {
   options: T
   enum: EnumValuesMap<T>
+  /** @deprecated use .enum instead */
   Values: EnumValuesMap<T>
+  /** @deprecated use .enum instead */
   Enum: EnumValuesMap<T>
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
