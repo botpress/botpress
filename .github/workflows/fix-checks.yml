@@ -1,0 +1,43 @@
+name: Fix all auto-fixable issues
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  fix-checks:
+    runs-on: depot-ubuntu-22.04-8
+    timeout-minutes: 10
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Fix issues
+        run: pnpm run fix
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [[ -n $(git status --porcelain --untracked-files=no) ]]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: automatically fix code issues [skip ci]"
+          git push
