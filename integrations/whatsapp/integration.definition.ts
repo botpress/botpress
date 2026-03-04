@@ -93,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.7.1'
+export const INTEGRATION_VERSION = '4.8.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -323,6 +323,11 @@ export default new IntegrationDefinition({
     },
   },
   events: {
+    messageRead: {
+      title: 'Message Read',
+      description: 'Triggered when a user reads a message',
+      schema: z.object({}),
+    },
     reactionAdded: {
       title: 'Reaction Added',
       description: 'Triggered when a user adds a reaction to a message',
@@ -426,6 +431,9 @@ export default new IntegrationDefinition({
       description: 'Proactive conversation with a WhatsApp user',
       schema: startConversationProps.input.schema.shape['conversation'],
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

@@ -41,4 +41,7 @@ export default new sdk.IntegrationDefinition({
       }),
     },
   },
+  attributes: {
+    category: 'Project Management',
+  },
 })

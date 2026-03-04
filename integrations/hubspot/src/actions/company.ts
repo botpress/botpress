@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 import { companySchema } from '../../definitions/actions/company'
-import { getAuthenticatedHubspotClient } from '../utils'
+import { getAuthenticatedHubspotClient, propertiesEntriesToRecord } from '../utils'
 import * as bp from '.botpress'
 
 type HubspotClient = Awaited<ReturnType<typeof getAuthenticatedHubspotClient>>
@@ -38,5 +38,46 @@ export const searchCompany: bp.IntegrationProps['actions']['searchCompany'] = as
 
   return {
     company: company ? _mapHsCompanyToBpCompany(company) : undefined,
+  }
+}
+
+export const getCompany: bp.IntegrationProps['actions']['getCompany'] = async ({ ctx, client, input, logger }) => {
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
+  const propertyKeys =
+    input.propertiesToReturn && input.propertiesToReturn.length > 0
+      ? input.propertiesToReturn
+      : await _getCompanyPropertyKeys(hsClient)
+
+  const company = await hsClient.getCompanyById({
+    companyId: Number(input.companyId),
+    propertiesToReturn: propertyKeys,
+  })
+
+  return {
+    company: _mapHsCompanyToBpCompany(company),
+  }
+}
+
+export const updateCompany: bp.IntegrationProps['actions']['updateCompany'] = async ({
+  ctx,
+  client,
+  input,
+  logger,
+}) => {
+  const hsClient = await getAuthenticatedHubspotClient({ ctx, client, logger })
+
+  const additionalProperties = propertiesEntriesToRecord(input.properties ?? [])
+
+  const updatedCompany = await hsClient.updateCompany({
+    companyId: Number(input.companyId),
+    additionalProperties,
+  })
+
+  return {
+    company: {
+      ..._mapHsCompanyToBpCompany(updatedCompany),
+      name: updatedCompany.properties['name'] ?? undefined,
+      domain: updatedCompany.properties['domain'] ?? undefined,
+    },
   }
 }

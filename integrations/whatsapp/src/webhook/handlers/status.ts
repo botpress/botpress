@@ -1,8 +1,24 @@
+import { getMessageFromWhatsappMessageId } from 'src/misc/util'
 import { WhatsAppStatusValue } from '../../misc/types'
 import * as bp from '.botpress'
 
 export const statusHandler = async (value: WhatsAppStatusValue, props: bp.HandlerProps) => {
-  const { logger } = props
+  const { client, logger } = props
+
+  if (value.status === 'read') {
+    const message = await getMessageFromWhatsappMessageId(value.id, client)
+    if (!message) {
+      logger.forBot().error(`No message found for WhatsApp message ID ${value.id}, cannot create messageRead event`)
+      return
+    }
+
+    await client.createEvent({
+      type: 'messageRead',
+      conversationId: message.conversationId,
+      messageId: message.id,
+      payload: {},
+    })
+  }
 
   if (value.status === 'failed') {
     const errorDetails =
