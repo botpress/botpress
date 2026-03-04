@@ -18,10 +18,10 @@ const allMessages = {
   ...sdk.messages.defaults,
   markdown: sdk.messages.markdown,
   bloc: sdk.messages.markdownBloc,
-} satisfies Record<string, { schema: sdk.AnyZodObject }>
+} satisfies Record<string, { schema: sdk.z.AnyZodObject }>
 
 type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: sdk.AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
+const messagePayloadSchemas: sdk.z.AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
   sdk.z.object({
     source: messageSourceSchema,
     type: sdk.z.literal(k),
@@ -29,7 +29,7 @@ const messagePayloadSchemas: sdk.AnyZodObject[] = Object.entries(allMessages).ma
   })
 )
 
-const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.AnyZodObject>)
+const messageSchema = sdk.z.union(messagePayloadSchemas as Tuple<sdk.z.AnyZodObject>)
 
 export default new sdk.InterfaceDefinition({
   name: 'hitl',

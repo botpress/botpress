@@ -1,20 +1,20 @@
 import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
 import { SDK_VERSION } from '../version'
-import z, { ZuiObjectSchema, GenericZuiSchema, ZodRef } from '../zui'
+import { z } from '../zui'
 
-type BaseEvents = Record<string, ZuiObjectSchema>
-type BaseActions = Record<string, ZuiObjectSchema>
-type BaseMessages = Record<string, ZuiObjectSchema>
+type BaseEvents = Record<string, z.ZuiObjectSchema>
+type BaseActions = Record<string, z.ZuiObjectSchema>
+type BaseMessages = Record<string, z.ZuiObjectSchema>
 type BaseChannels = Record<string, BaseMessages>
-type BaseEntities = Record<string, ZuiObjectSchema>
+type BaseEntities = Record<string, z.ZuiObjectSchema>
 
 type EntityReferences<TEntities extends BaseEntities> = {
-  [K in keyof TEntities]: ZodRef
+  [K in keyof TEntities]: z.ZodRef
 }
 
 type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
-  schema: GenericZuiSchema<EntityReferences<TEntities>, TEvent>
+  schema: z.GenericZuiSchema<EntityReferences<TEntities>, TEvent>
   attributes?: Record<string, string>
 }
 
@@ -24,7 +24,7 @@ type GenericChannelDefinition<
 > = {
   messages: {
     [K in keyof TChannel]: {
-      schema: GenericZuiSchema<EntityReferences<TEntities>, TChannel[K]>
+      schema: z.GenericZuiSchema<EntityReferences<TEntities>, TChannel[K]>
     }
   }
 }
@@ -37,8 +37,8 @@ type GenericActionDefinition<
   description?: string
   billable?: boolean
   cacheable?: boolean
-  input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
-  output: { schema: GenericZuiSchema<EntityReferences<TEntities>, ZuiObjectSchema> }
+  input: { schema: z.GenericZuiSchema<EntityReferences<TEntities>, TAction> }
+  output: { schema: z.GenericZuiSchema<EntityReferences<TEntities>, z.ZuiObjectSchema> }
   attributes?: Record<string, string>
 }
 
@@ -171,7 +171,7 @@ export class InterfaceDefinition<
   }
 
   private _getEntityReference = (entities: Record<string, EntityDefinition>): EntityReferences<TEntities> => {
-    const entityReferences: Record<string, ZodRef> = {} as EntityReferences<TEntities>
+    const entityReferences: Record<string, z.ZodRef> = {} as EntityReferences<TEntities>
     for (const [entityName, entityDef] of Object.entries(entities)) {
       const title = entityDef.schema._def['x-zui']?.title
       const description = entityDef.schema._def.description
