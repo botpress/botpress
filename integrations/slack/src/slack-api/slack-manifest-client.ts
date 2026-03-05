@@ -76,12 +76,14 @@ export const patchAppManifestConfigurationState = async (
 ) => {
   const currentState = await getAppManifestConfigurationState(client, ctx)
   const { data, success } = states.manifestAppCredentials.schema.safeParse({
+  const parseResult = states.manifestAppCredentials.schema.safeParse({
     ...currentState,
     ...newState,
   })
-  if (!success) {
-    throw new RuntimeError(`Failed to parse manifest app credentials state: ${JSON.stringify(data)}`)
+  if (!parseResult.success) {
+    throw new RuntimeError(`Failed to parse manifest app credentials state: ${parseResult.error.message}`)
   }
+  const { data } = parseResult
   await client.setState({
     type: 'integration',
     id: ctx.integrationId,
