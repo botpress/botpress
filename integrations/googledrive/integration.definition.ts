@@ -24,9 +24,12 @@ export default new sdk.IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.4.0',
+  version: '0.4.1',
   readme: 'hub.md',
   icon: 'icon.svg',
+  attributes: {
+    category: 'File Management',
+  },
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',

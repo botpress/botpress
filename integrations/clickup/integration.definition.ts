@@ -3,7 +3,7 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 export default new IntegrationDefinition({
   name: 'clickup',
   title: 'ClickUp',
-  version: '0.0.1',
+  version: '0.0.2',
   description: 'Create and update tasks, and add comments from your chatbot.',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -157,5 +157,8 @@ export default new IntegrationDefinition({
         description: 'User ID from ClickUp',
       },
     },
+  },
+  attributes: {
+    category: 'Project Management',
   },
 })

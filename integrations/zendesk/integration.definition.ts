@@ -6,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '3.0.7',
+  version: '3.0.8',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -63,6 +63,9 @@ export default new sdk.IntegrationDefinition({
           .optional(),
       }),
     },
+  },
+  attributes: {
+    category: 'Customer Support',
   },
 }).extend(hitl, (self) => ({
   entities: {
