@@ -17,7 +17,7 @@ export const getCardById = {
 
 export const getCardsByDisplayName = {
   title: 'Find cards by name',
-  description: 'Find all lists whose display name match this name',
+  description: 'Find all cards whose display name match this name',
   input: {
     schema: hasListId
       .extend({
