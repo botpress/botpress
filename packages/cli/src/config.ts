@@ -381,10 +381,12 @@ const chatSchema = {
 
 const listProfilesSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in each of the bp profiles', default: false },
 } satisfies CommandSchema
 
 const activeProfileSchema = {
   ...globalSchema,
+  displayToken: { type: 'boolean', description: 'Display the token in the bp profile', default: false },
 } satisfies CommandSchema
 
 const useProfileSchema = {
