@@ -40,5 +40,8 @@ export const handleOAuthCallback = async ({ req, client, ctx, logger }: bp.Handl
   await client.configureIntegration({
     identifier: userEmail,
   })
+
+  await client.configureIntegration({ identifier: ctx.webhookId })
+
   logger.forBot().info('Integration configured successfully')
 }
