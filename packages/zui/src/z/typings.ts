@@ -322,11 +322,11 @@ export type ParseInput = {
   parent: ParseContext
 }
 
-export type INVALID = { status: 'aborted' }
-export type DIRTY<T> = { status: 'dirty'; value: T }
-export type OK<T> = { status: 'valid'; value: T }
+export type InvalidParseReturnType = { status: 'aborted' }
+export type DirtyParseReturnType<T> = { status: 'dirty'; value: T }
+export type ValidParseReturnType<T> = { status: 'valid'; value: T }
 
-export type SyncParseReturnType<T = any> = OK<T> | DIRTY<T> | INVALID
+export type SyncParseReturnType<T = any> = ValidParseReturnType<T> | DirtyParseReturnType<T> | InvalidParseReturnType
 export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
 export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
 

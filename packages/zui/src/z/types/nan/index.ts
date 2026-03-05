@@ -1,5 +1,5 @@
 import type { IZodNaN, ZodNaNDef, ParseInput, ParseReturnType } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZodNaN {
   _parse(input: ParseInput): ParseReturnType<any> {
@@ -11,7 +11,7 @@ export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZ
         expected: 'nan',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     return { status: 'valid', value: input.data }

@@ -9,7 +9,7 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import { ParseInputLazyPath, addIssueToContext, INVALID, ParseStatus, ZodBaseTypeImpl } from '../basetype'
+import { ParseInputLazyPath, addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodTupleImpl<
     T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
@@ -53,7 +53,7 @@ export class ZodTupleImpl<
         expected: 'array',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (ctx.data.length < this._def.items.length) {
@@ -65,7 +65,7 @@ export class ZodTupleImpl<
         type: 'array',
       })
 
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const rest = this._def.rest

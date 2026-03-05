@@ -1,5 +1,5 @@
 import type { IZodOptional, IZodType, ZodOptionalDef, ParseInput, ParseReturnType } from '../../typings'
-import { ZodBaseTypeImpl, OK } from '../basetype'
+import { ZodBaseTypeImpl } from '../basetype'
 
 export class ZodOptionalImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | undefined, ZodOptionalDef<T>, T['_input'] | undefined>
@@ -26,7 +26,7 @@ export class ZodOptionalImpl<T extends IZodType = IZodType>
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType === 'undefined') {
-      return OK(undefined)
+      return { status: 'valid', value: undefined }
     }
     return this._def.innerType._parse(input)
   }

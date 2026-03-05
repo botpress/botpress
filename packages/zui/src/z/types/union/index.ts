@@ -13,8 +13,10 @@ import type {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
+  InvalidParseReturnType,
+  DirtyParseReturnType,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
@@ -48,7 +50,9 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
     const { ctx } = this._processInputParams(input)
     const options = this._def.options
 
-    function handleResults(results: { ctx: ParseContext; result: SyncParseReturnType<any> }[]) {
+    function handleResults(
+      results: { ctx: ParseContext; result: SyncParseReturnType<any> }[]
+    ): SyncParseReturnType<any> {
       // return first issue-free validation if it exists
       for (const result of results) {
         if (result.result.status === 'valid') {
@@ -71,7 +75,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
         code: 'invalid_union',
         unionErrors,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (ctx.common.async) {
@@ -96,7 +100,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
         })
       ).then(handleResults)
     } else {
-      let dirty: undefined | { result: DIRTY<any>; ctx: ParseContext } = undefined
+      let dirty: undefined | { result: DirtyParseReturnType<any>; ctx: ParseContext } = undefined
       const issues: ZodIssue[][] = []
       for (const option of options) {
         const childCtx: ParseContext = {
@@ -135,7 +139,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
         unionErrors,
       })
 
-      return INVALID
+      return { status: 'aborted' } satisfies InvalidParseReturnType
     }
   }
 

@@ -17,14 +17,7 @@ import type {
   ParseInput,
   ParseReturnType,
 } from '../../typings'
-import {
-  addIssueToContext,
-  INVALID,
-  ParseStatus,
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  type MergeObjectPair,
-} from '../basetype'
+import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
 export class ZodObjectImpl<
     T extends ZodRawShape = ZodRawShape,
@@ -90,7 +83,7 @@ export class ZodObjectImpl<
         expected: 'object',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const { status, ctx } = this._processInputParams(input)

@@ -1,5 +1,5 @@
 import type { IZodNullable, IZodType, ZodNullableDef, ParseInput, ParseReturnType } from '../../typings'
-import { OK, ZodBaseTypeImpl } from '../basetype'
+import { ZodBaseTypeImpl } from '../basetype'
 
 export class ZodNullableImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<T['_output'] | null, ZodNullableDef<T>, T['_input'] | null>
@@ -26,7 +26,7 @@ export class ZodNullableImpl<T extends IZodType = IZodType>
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType === 'null') {
-      return OK(null)
+      return { status: 'valid', value: null }
     }
     return this._def.innerType._parse(input)
   }

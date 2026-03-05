@@ -9,17 +9,10 @@ import type {
   SyncParseReturnType,
   AsyncParseReturnType,
   ParseReturnType,
-  INVALID as INVALID_TYPE,
-  DIRTY as DIRTY_TYPE,
-  OK as OK_TYPE,
+  InvalidParseReturnType,
+  DirtyParseReturnType,
+  ValidParseReturnType,
 } from '../../typings'
-
-export type INVALID = INVALID_TYPE
-export const INVALID = Object.freeze({ status: 'aborted' })
-export type DIRTY<T> = DIRTY_TYPE<T>
-export const DIRTY = <T>(value: T): DIRTY<T> => ({ status: 'dirty', value })
-export type OK<T> = OK_TYPE<T>
-export const OK = <T>(value: T): OK<T> => ({ status: 'valid', value })
 
 export const makeIssue = (params: {
   data: any
@@ -90,7 +83,7 @@ export class ParseStatus {
   static mergeArray(status: ParseStatus, results: SyncParseReturnType<any>[]): SyncParseReturnType {
     const arrayValue: any[] = []
     for (const s of results) {
-      if (s.status === 'aborted') return INVALID
+      if (s.status === 'aborted') return { status: 'aborted' }
       if (s.status === 'dirty') status.dirty()
       arrayValue.push(s.value)
     }
@@ -116,8 +109,8 @@ export class ParseStatus {
     const finalObject: Record<string, unknown> = {}
     for (const pair of pairs) {
       const { key, value } = pair
-      if (key.status === 'aborted') return INVALID
-      if (value.status === 'aborted') return INVALID
+      if (key.status === 'aborted') return { status: 'aborted' }
+      if (value.status === 'aborted') return { status: 'aborted' }
       if (key.status === 'dirty') status.dirty()
       if (value.status === 'dirty') status.dirty()
 
@@ -130,10 +123,12 @@ export class ParseStatus {
   }
 }
 
-export const isAborted = (x: ParseReturnType<any>): x is INVALID => (x as SyncParseReturnType).status === 'aborted'
-export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> =>
+export const isAborted = (x: ParseReturnType<any>): x is InvalidParseReturnType =>
+  (x as SyncParseReturnType).status === 'aborted'
+export const isDirty = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> | DirtyParseReturnType<T> =>
   (x as SyncParseReturnType).status === 'dirty'
-export const isValid = <T>(x: ParseReturnType<T>): x is OK<T> => (x as SyncParseReturnType).status === 'valid'
+export const isValid = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> =>
+  (x as SyncParseReturnType).status === 'valid'
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 

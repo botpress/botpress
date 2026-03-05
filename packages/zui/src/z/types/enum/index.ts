@@ -11,7 +11,7 @@ import type {
   ParseReturnType,
   ZodCreateParams,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEnumImpl<T extends EnumValues = EnumValues>
   extends ZodBaseTypeImpl<T[number], ZodEnumDef<T>>
@@ -26,7 +26,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
         received: ctx.parsedType,
         code: 'invalid_type',
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (this._def.values.indexOf(input.data) === -1) {
@@ -38,9 +38,9 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
         code: 'invalid_enum_value',
         options: expectedValues,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   get options(): T {

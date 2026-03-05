@@ -1,6 +1,6 @@
 import * as utils from '../../../utils'
 import { type IZodNumber, ZodNumberCheck, ZodNumberDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseStatus } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
 
 // https://stackoverflow.com/questions/3966484/why-does-modulus-operator-return-fractional-number-in-javascript/31711034#31711034
 
@@ -17,7 +17,7 @@ export class ZodNumberImpl extends ZodBaseTypeImpl<number, ZodNumberDef> impleme
         expected: 'number',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     let ctx: undefined | ParseContext = undefined

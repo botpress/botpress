@@ -9,14 +9,7 @@ import type {
   ParseInput,
   ParseReturnType,
 } from '../../typings'
-import {
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
-  ParseStatus,
-  type MergeObjectPair,
-} from '../basetype'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus, type MergeObjectPair } from '../basetype'
 
 export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
@@ -63,7 +56,7 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
         expected: 'object',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const pairs: {

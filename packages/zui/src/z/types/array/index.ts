@@ -9,7 +9,7 @@ import type {
   ParseInput,
   ParseReturnType,
 } from '../../typings'
-import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus, INVALID } from '../basetype'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
 
 export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends ArrayCardinality = 'many'>
   extends ZodBaseTypeImpl<
@@ -61,7 +61,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
         expected: 'array',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (def.exactLength !== null) {

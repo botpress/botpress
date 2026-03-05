@@ -16,7 +16,7 @@ import type {
   ParseReturnType,
 } from '../../typings'
 
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, makeIssue } from '../basetype'
 
 export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
@@ -56,7 +56,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
         expected: 'function',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     function makeArgsIssue(args: any, error: ZodError): ZodIssue {
@@ -97,39 +97,45 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 
-      return OK(async function (this: any, ...args: any[]) {
-        const error = new ZodError([])
-        const parsedArgs = await me._def.args.parseAsync(args, params).catch((e) => {
-          error.addIssue(makeArgsIssue(args, e))
-          throw error
-        })
-        const result = await Reflect.apply(fn, this, parsedArgs)
+      return {
+        status: 'valid',
+        async value(this: any, ...args: any[]) {
+          const error = new ZodError([])
+          const parsedArgs = await me._def.args.parseAsync(args, params).catch((e) => {
+            error.addIssue(makeArgsIssue(args, e))
+            throw error
+          })
+          const result = await Reflect.apply(fn, this, parsedArgs)
 
-        const parsedReturns = await returns._def.type.parseAsync(result, params).catch((e: unknown) => {
-          if (!is.zuiError(e)) {
-            throw e
-          }
-          error.addIssue(makeReturnsIssue(result, e))
-          throw error
-        })
-        return parsedReturns
-      })
+          const parsedReturns = await returns._def.type.parseAsync(result, params).catch((e: unknown) => {
+            if (!is.zuiError(e)) {
+              throw e
+            }
+            error.addIssue(makeReturnsIssue(result, e))
+            throw error
+          })
+          return parsedReturns
+        },
+      }
     } else {
       // Would love a way to avoid disabling this rule, but we need
       // an alias (using an arrow function was what caused 2651).
 
-      return OK(function (this: any, ...args: any[]) {
-        const parsedArgs = me._def.args.safeParse(args, params)
-        if (!parsedArgs.success) {
-          throw new ZodError([makeArgsIssue(args, parsedArgs.error)])
-        }
-        const result = Reflect.apply(fn, this, parsedArgs.data)
-        const parsedReturns = me._def.returns.safeParse(result, params)
-        if (!parsedReturns.success) {
-          throw new ZodError([makeReturnsIssue(result, parsedReturns.error)])
-        }
-        return parsedReturns.data
-      })
+      return {
+        status: 'valid',
+        value(this: any, ...args: any[]) {
+          const parsedArgs = me._def.args.safeParse(args, params)
+          if (!parsedArgs.success) {
+            throw new ZodError([makeArgsIssue(args, parsedArgs.error)])
+          }
+          const result = Reflect.apply(fn, this, parsedArgs.data)
+          const parsedReturns = me._def.returns.safeParse(result, params)
+          if (!parsedReturns.success) {
+            throw new ZodError([makeReturnsIssue(result, parsedReturns.error)])
+          }
+          return parsedReturns.data
+        },
+      }
     }
   }
 

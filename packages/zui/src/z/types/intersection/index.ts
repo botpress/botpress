@@ -7,7 +7,7 @@ import type {
   ParseReturnType,
   SyncParseReturnType,
 } from '../../typings'
-import { getParsedType, addIssueToContext, INVALID, isAborted, isDirty, ZodBaseTypeImpl } from '../basetype'
+import { getParsedType, addIssueToContext, isAborted, isDirty, ZodBaseTypeImpl } from '../basetype'
 
 export type { ZodIntersectionDef }
 
@@ -42,7 +42,7 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
       parsedRight: SyncParseReturnType<U['_output']>
     ): SyncParseReturnType<T & U> => {
       if (isAborted(parsedLeft) || isAborted(parsedRight)) {
-        return INVALID
+        return { status: 'aborted' }
       }
 
       const merged = this._mergeValues(parsedLeft.value, parsedRight.value)
@@ -51,7 +51,7 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
         addIssueToContext(ctx, {
           code: 'invalid_intersection_types',
         })
-        return INVALID
+        return { status: 'aborted' }
       }
 
       if (isDirty(parsedLeft) || isDirty(parsedRight)) {

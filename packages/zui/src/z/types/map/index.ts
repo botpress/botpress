@@ -1,6 +1,6 @@
 import * as utils from '../../../utils'
 import type { IZodMap, IZodType, ZodMapDef, ParseInput, ParseReturnType, SyncParseReturnType } from '../../typings'
-import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, INVALID } from '../basetype'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
@@ -47,7 +47,7 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
         expected: 'map',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const keyType = this._def.keyType
@@ -67,7 +67,7 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
           const key = await pair.key
           const value = await pair.value
           if (key.status === 'aborted' || value.status === 'aborted') {
-            return INVALID
+            return { status: 'aborted' }
           }
           if (key.status === 'dirty' || value.status === 'dirty') {
             status.dirty()
@@ -83,7 +83,7 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
         const key = pair.key as SyncParseReturnType<any>
         const value = pair.value as SyncParseReturnType<any>
         if (key.status === 'aborted' || value.status === 'aborted') {
-          return INVALID
+          return { status: 'aborted' }
         }
         if (key.status === 'dirty' || value.status === 'dirty') {
           status.dirty()
