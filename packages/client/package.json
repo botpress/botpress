@@ -28,7 +28,7 @@
     "axios": "^1.6.1",
     "axios-retry": "^4.5.0",
     "browser-or-node": "^2.1.1",
-    "qs": "^6.11.0"
+    "qs": "^6.14.2"
   },
   "devDependencies": {
     "@types/qs": "^6.9.7",
