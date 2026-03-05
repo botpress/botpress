@@ -94,8 +94,8 @@ export class SlackClient {
         clientSecretOverride: clientSecret,
       })
       const redirectUri = new URL(authorizeUrl).searchParams.get('redirect_uri')
-
-      if (!redirectUri) throw new sdk.RuntimeError(`Unable to get redirect uri, received: ${authorizeUrl}`)
+      if (!clientId || !clientSecret || !authorizeUrl)
+        throw new sdk.RuntimeError('Client ID, Client Secret, or Authorize URL not found, please re-run the authorization wizard')
       await oAuthClient.requestShortLivedCredentials.fromAuthorizationCode(authorizationCode, redirectUri)
 
       return await SlackClient._createNewInstance({ logger, oAuthClient })
