@@ -104,7 +104,7 @@ const appendValues = {
         .string()
         .title('Start Column')
         .describe(
-          'The start column letter(s) (e.g. "A", "B", "AA"). The range will be constructed from this column row 1 to column row 100000.'
+          'The start column letter(s) (e.g. "A", "B", "AA"). Used to identify the table in the sheet — data will be appended after the last row of the detected table.'
         ),
       majorDimension: _commonFields.majorDimension
         .optional()
@@ -425,7 +425,12 @@ const createNamedRangeInSheet = {
   input: {
     schema: z.object({
       sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to create the named range in.'),
-      rangeName: z.string().title('Name').describe('The name of the named range.'),
+      rangeName: z
+        .string()
+        .title('Name')
+        .describe(
+          'The name of the named range. Must follow naming rules: cannot contain spaces, cannot start with a number, and cannot conflict with standard cell references (e.g., "A1", "R1C1"). Names violating these rules will be considered invalid.'
+        ),
       rangeA1: _commonFields.range.describe(
         'The A1 notation of the range to associate with the named range. (e.g. "Sheet1!A1:B2")'
       ),
