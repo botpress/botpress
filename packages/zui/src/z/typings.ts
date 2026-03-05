@@ -302,6 +302,34 @@ export type ZodParsedType =
   | 'map'
   | 'set'
 
+export type ParseContext = {
+  common: {
+    issues: ZodIssue[]
+    contextualErrorMap?: ZodErrorMap
+    async: boolean
+  }
+  schemaErrorMap?: ZodErrorMap
+  parsedType: ZodParsedType
+
+  data: any
+  path: (string | number)[]
+  parent: ParseContext | null
+}
+
+export type ParseInput = {
+  data: any
+  path: (string | number)[]
+  parent: ParseContext
+}
+
+export type INVALID = { status: 'aborted' }
+export type DIRTY<T> = { status: 'dirty'; value: T }
+export type OK<T> = { status: 'valid'; value: T }
+
+export type SyncParseReturnType<T = any> = OK<T> | DIRTY<T> | INVALID
+export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
+export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
+
 export type SafeParseSuccess<Output> = {
   success: true
   data: Output
@@ -316,7 +344,7 @@ export type SafeParseError<Input> = {
 
 export type SafeParseReturnType<Input, Output> = SafeParseSuccess<Output> | SafeParseError<Input>
 
-type _ParseParams = {
+export type ParseParams = {
   path: (string | number)[]
   errorMap: ZodErrorMap
   async: boolean
@@ -376,6 +404,11 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   _output: Output
   _input: Input
   _def: Def
+
+  _parse(input: ParseInput): ParseReturnType<Output>
+  _parseAsync(input: ParseInput): AsyncParseReturnType<Output>
+  _parseSync(input: ParseInput): SyncParseReturnType<Output>
+
   description: string | undefined
   typeName: Def['typeName']
   /** deeply replace all references in the schema */
@@ -383,12 +416,12 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
   /** deeply scans the schema to check if it contains references */
   getReferences(): string[]
   clone(): IZodType<Output, Def, Input>
-  parse(data: unknown, params?: Partial<_ParseParams>): Output
-  safeParse(data: unknown, params?: Partial<_ParseParams>): SafeParseReturnType<Input, Output>
-  parseAsync(data: unknown, params?: Partial<_ParseParams>): Promise<Output>
-  safeParseAsync(data: unknown, params?: Partial<_ParseParams>): Promise<SafeParseReturnType<Input, Output>>
+  parse(data: unknown, params?: Partial<ParseParams>): Output
+  safeParse(data: unknown, params?: Partial<ParseParams>): SafeParseReturnType<Input, Output>
+  parseAsync(data: unknown, params?: Partial<ParseParams>): Promise<Output>
+  safeParseAsync(data: unknown, params?: Partial<ParseParams>): Promise<SafeParseReturnType<Input, Output>>
   /** Alias of safeParseAsync */
-  spa: (data: unknown, params?: Partial<_ParseParams>) => Promise<SafeParseReturnType<Input, Output>>
+  spa: (data: unknown, params?: Partial<ParseParams>) => Promise<SafeParseReturnType<Input, Output>>
   refine<RefinedOutput extends Output>(
     check: (arg: Output) => arg is RefinedOutput,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)

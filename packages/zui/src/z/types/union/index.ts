@@ -2,17 +2,19 @@ import * as utils from '../../../utils'
 import { ZodError } from '../../error'
 import { is } from '../../guards'
 import { builders } from '../../internal-builders'
-import type { DefaultZodUnionOptions, IZodUnion, IZodType, ZodUnionDef, ZodUnionOptions, ZodIssue } from '../../typings'
-import {
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  DIRTY,
-  INVALID,
+import type {
+  DefaultZodUnionOptions,
+  IZodUnion,
+  IZodType,
+  ZodUnionDef,
+  ZodUnionOptions,
+  ZodIssue,
   ParseContext,
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../basetype'
+} from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID } from '../basetype'
 
 export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
   extends ZodBaseTypeImpl<T[number]['_output'], ZodUnionDef<T>, T[number]['_input']>
@@ -84,7 +86,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
             parent: null,
           }
           return {
-            result: await ZodBaseTypeImpl.fromInterface(option)._parseAsync({
+            result: await option._parseAsync({
               data: ctx.data,
               path: ctx.path,
               parent: childCtx,
@@ -105,7 +107,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
           },
           parent: null,
         }
-        const result = ZodBaseTypeImpl.fromInterface(option)._parseSync({
+        const result = option._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: childCtx,

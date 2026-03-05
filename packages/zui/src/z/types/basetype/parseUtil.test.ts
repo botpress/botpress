@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest'
-import { isAborted, isDirty, isValid, SyncParseReturnType } from './parseUtil'
+import { isAborted, isDirty, isValid } from './parseUtil'
+import { SyncParseReturnType } from '../../typings'
 
 test('parseUtil isInvalid should use structural typing', () => {
   // Test for issue #556: https://github.com/colinhacks/zod/issues/556

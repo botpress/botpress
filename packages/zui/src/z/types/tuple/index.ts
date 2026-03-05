@@ -5,17 +5,11 @@ import type {
   ZodTupleDef,
   OutputTypeOfTupleWithRest,
   InputTypeOfTupleWithRest,
-} from '../../typings'
-import {
-  ParseInputLazyPath,
-  addIssueToContext,
-  INVALID,
   ParseInput,
   ParseReturnType,
-  ParseStatus,
   SyncParseReturnType,
-  ZodBaseTypeImpl,
-} from '../basetype'
+} from '../../typings'
+import { ParseInputLazyPath, addIssueToContext, INVALID, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodTupleImpl<
     T extends [IZodType, ...IZodType[]] | [] = [IZodType, ...IZodType[]],
@@ -91,7 +85,7 @@ export class ZodTupleImpl<
       .map((item, itemIndex) => {
         const schema = this._def.items[itemIndex] || this._def.rest
         if (!schema) return null
-        return ZodBaseTypeImpl.fromInterface(schema)._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex))
+        return schema._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex))
       })
       .filter((x) => !!x) // filter nulls
 

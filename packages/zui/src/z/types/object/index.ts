@@ -14,16 +14,16 @@ import type {
   KeyOfObject,
   IZodOptional,
   IZodEnum,
+  ParseInput,
+  ParseReturnType,
 } from '../../typings'
 import {
   addIssueToContext,
   INVALID,
-  ParseInput,
   ParseStatus,
   ParseInputLazyPath,
   ZodBaseTypeImpl,
   type MergeObjectPair,
-  ParseReturnType,
 } from '../basetype'
 
 export class ZodObjectImpl<
@@ -116,7 +116,7 @@ export class ZodObjectImpl<
       const value = ctx.data[key]
       pairs.push({
         key: { status: 'valid', value: key },
-        value: ZodBaseTypeImpl.fromInterface(keyValidator)._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
         alwaysSet: key in ctx.data,
       })
     }
@@ -144,7 +144,7 @@ export class ZodObjectImpl<
         const value = ctx.data[key]
         pairs.push({
           key: { status: 'valid', value: key },
-          value: ZodBaseTypeImpl.fromInterface(unknownKeys)._parse(
+          value: unknownKeys._parse(
             new ParseInputLazyPath(ctx, value, ctx.path, key) //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: key in ctx.data,

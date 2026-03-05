@@ -1,7 +1,7 @@
 import * as utils from '../../../utils'
 import { ZodError } from '../../error'
-import type { IZodCatch, IZodType, ZodCatchDef } from '../../typings'
-import { ZodBaseTypeImpl, isAsync, ParseContext, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodCatch, IZodType, ZodCatchDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, isAsync } from '../basetype'
 
 export class ZodCatchImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
@@ -23,7 +23,7 @@ export class ZodCatchImpl<T extends IZodType = IZodType>
       },
     }
 
-    const result = ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse({
+    const result = this._def.innerType._parse({
       data: newCtx.data,
       path: newCtx.path,
       parent: {

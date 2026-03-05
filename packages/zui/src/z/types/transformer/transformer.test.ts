@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 import * as assert from '../../../assertions.utils.test'
-import { NEVER } from '..'
+import { INVALID } from '..'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
 // const numberToString = z
@@ -80,7 +80,7 @@ test('z.NEVER in transform', () => {
     .transform((val, ctx) => {
       if (!val) {
         ctx.addIssue({ code: 'custom', message: 'bad' })
-        return NEVER
+        return INVALID as never
       }
       return val
     })

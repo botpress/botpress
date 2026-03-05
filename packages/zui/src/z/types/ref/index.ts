@@ -1,10 +1,8 @@
-import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
+import type { IZodRef, IZodType, ZodRefDef, ParseInput, ParseReturnType } from '../../typings'
 import {
   //
   ZodBaseTypeImpl,
   INVALID,
-  ParseInput,
-  ParseReturnType,
   addIssueToContext,
 } from '../basetype'
 export type { ZodRefDef }

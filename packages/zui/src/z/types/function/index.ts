@@ -12,9 +12,11 @@ import type {
   OuterTypeOfFunction,
   InnerTypeOfFunction,
   IZodUnknown,
+  ParseInput,
+  ParseReturnType,
 } from '../../typings'
 
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK, ParseInput, ParseReturnType } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, makeIssue, OK } from '../basetype'
 
 export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType>
   extends ZodBaseTypeImpl<

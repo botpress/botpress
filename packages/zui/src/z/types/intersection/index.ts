@@ -1,16 +1,13 @@
 import * as utils from '../../../utils'
-import type { IZodIntersection, IZodType, ZodIntersectionDef } from '../../typings'
-import {
-  getParsedType,
-  addIssueToContext,
-  INVALID,
-  isAborted,
-  isDirty,
+import type {
+  IZodIntersection,
+  IZodType,
+  ZodIntersectionDef,
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-  ZodBaseTypeImpl,
-} from '../basetype'
+} from '../../typings'
+import { getParsedType, addIssueToContext, INVALID, isAborted, isDirty, ZodBaseTypeImpl } from '../basetype'
 
 export type { ZodIntersectionDef }
 
@@ -66,12 +63,12 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
 
     if (ctx.common.async) {
       return Promise.all([
-        ZodBaseTypeImpl.fromInterface(this._def.left)._parseAsync({
+        this._def.left._parseAsync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
         }),
-        ZodBaseTypeImpl.fromInterface(this._def.right)._parseAsync({
+        this._def.right._parseAsync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -79,12 +76,12 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
       ]).then(([left, right]) => handleParsed(left, right))
     } else {
       return handleParsed(
-        ZodBaseTypeImpl.fromInterface(this._def.left)._parseSync({
+        this._def.left._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
         }),
-        ZodBaseTypeImpl.fromInterface(this._def.right)._parseSync({
+        this._def.right._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,

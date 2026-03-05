@@ -1,5 +1,5 @@
-import type { IZodLazy, IZodType, ZodLazyDef, input, output } from '../../typings'
-import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodLazy, IZodType, ZodLazyDef, input, output, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl } from '../basetype'
 
 export class ZodLazyImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<output<T>, ZodLazyDef<T>, input<T>>
@@ -30,7 +30,7 @@ export class ZodLazyImpl<T extends IZodType = IZodType>
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
     const lazySchema = this._def.getter()
-    return ZodBaseTypeImpl.fromInterface(lazySchema)._parse({ data: ctx.data, path: ctx.path, parent: ctx })
+    return lazySchema._parse({ data: ctx.data, path: ctx.path, parent: ctx })
   }
 
   isEqual(schema: IZodType): boolean {

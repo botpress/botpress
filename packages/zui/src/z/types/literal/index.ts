@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-import type { IZodLiteral, Primitive, ZodLiteralDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodLiteral, Primitive, ZodLiteralDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID } from '../basetype'
 
 export class ZodLiteralImpl<T extends Primitive = Primitive>
   extends ZodBaseTypeImpl<T, ZodLiteralDef<T>>

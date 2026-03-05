@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es'
 import * as utils from '../../../utils'
-import type { IZodType, IZodDefault, ZodDefaultDef } from '../../typings'
-import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodType, IZodDefault, ZodDefaultDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl } from '../basetype'
 
 export class ZodDefaultImpl<T extends IZodType = IZodType>
   extends ZodBaseTypeImpl<utils.types.NoUndefined<T['_output']>, ZodDefaultDef<T>, T['_input'] | undefined>
@@ -13,7 +13,7 @@ export class ZodDefaultImpl<T extends IZodType = IZodType>
     if (ctx.parsedType === 'undefined') {
       data = this._def.defaultValue()
     }
-    return ZodBaseTypeImpl.fromInterface(this._def.innerType)._parse({
+    return this._def.innerType._parse({
       data,
       path: ctx.path,
       parent: ctx,

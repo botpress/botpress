@@ -1,6 +1,6 @@
 import * as utils from '../../../utils'
-import type { IZodPipeline, IZodType, ZodPipelineDef } from '../../typings'
-import { ZodBaseTypeImpl, DIRTY, INVALID, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodPipeline, IZodType, ZodPipelineDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, DIRTY, INVALID } from '../basetype'
 export type { ZodPipelineDef }
 
 export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType = IZodType>
@@ -31,7 +31,7 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
     const { status, ctx } = this._processInputParams(input)
     if (ctx.common.async) {
       const handleAsync = async () => {
-        const inResult = await ZodBaseTypeImpl.fromInterface(this._def.in)._parseAsync({
+        const inResult = await this._def.in._parseAsync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -41,7 +41,7 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
           status.dirty()
           return DIRTY(inResult.value)
         } else {
-          return ZodBaseTypeImpl.fromInterface(this._def.out)._parseAsync({
+          return this._def.out._parseAsync({
             data: inResult.value,
             path: ctx.path,
             parent: ctx,
@@ -50,7 +50,7 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
       }
       return handleAsync()
     } else {
-      const inResult = ZodBaseTypeImpl.fromInterface(this._def.in)._parseSync({
+      const inResult = this._def.in._parseSync({
         data: ctx.data,
         path: ctx.path,
         parent: ctx,
@@ -63,7 +63,7 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
           value: inResult.value,
         }
       } else {
-        return ZodBaseTypeImpl.fromInterface(this._def.out)._parseSync({
+        return this._def.out._parseSync({
           data: inResult.value,
           path: ctx.path,
           parent: ctx,

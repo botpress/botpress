@@ -1,16 +1,25 @@
-import { zuiKey } from '../../consts'
 import { defaultErrorMap, getErrorMap } from '../../error'
-import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap } from '../../typings'
+import type {
+  ZodParsedType,
+  IssueData,
+  ZodIssue,
+  ZodErrorMap,
+  ParseContext,
+  ParseInput,
+  SyncParseReturnType,
+  AsyncParseReturnType,
+  ParseReturnType,
+  INVALID as INVALID_TYPE,
+  DIRTY as DIRTY_TYPE,
+  OK as OK_TYPE,
+} from '../../typings'
 
-export type RawCreateParams =
-  | {
-      errorMap?: ZodErrorMap
-      invalid_type_error?: string
-      required_error?: string
-      description?: string
-      [zuiKey]?: ZuiExtensionObject
-    }
-  | undefined
+export type INVALID = INVALID_TYPE
+export const INVALID = Object.freeze({ status: 'aborted' })
+export type DIRTY<T> = DIRTY_TYPE<T>
+export const DIRTY = <T>(value: T): DIRTY<T> => ({ status: 'dirty', value })
+export type OK<T> = OK_TYPE<T>
+export const OK = <T>(value: T): OK<T> => ({ status: 'valid', value })
 
 export const makeIssue = (params: {
   data: any
@@ -41,34 +50,8 @@ export const makeIssue = (params: {
   }
 }
 
-export type ParseParams = {
-  path: (string | number)[]
-  errorMap: ZodErrorMap
-  async: boolean
-}
-
-export type ParsePathComponent = string | number
-export type ParsePath = ParsePathComponent[]
+export type ParsePath = (string | number)[]
 export const EMPTY_PATH: ParsePath = []
-
-export type ParseContext = {
-  readonly common: {
-    readonly issues: ZodIssue[]
-    readonly contextualErrorMap?: ZodErrorMap
-    readonly async: boolean
-  }
-  readonly path: ParsePath
-  readonly schemaErrorMap?: ZodErrorMap
-  readonly parent: ParseContext | null
-  readonly data: any
-  readonly parsedType: ZodParsedType
-}
-
-export type ParseInput = {
-  data: any
-  path: (string | number)[]
-  parent: ParseContext
-}
 
 export type MergeObjectPair = {
   key: SyncParseReturnType<any>
@@ -146,24 +129,6 @@ export class ParseStatus {
     return { status: status.value, value: finalObject }
   }
 }
-
-export type INVALID = { status: 'aborted' }
-export const INVALID: INVALID = Object.freeze({
-  status: 'aborted',
-})
-
-export type NEVER = never
-export const NEVER = INVALID as never
-
-export type DIRTY<T> = { status: 'dirty'; value: T }
-export const DIRTY = <T>(value: T): DIRTY<T> => ({ status: 'dirty', value })
-
-export type OK<T> = { status: 'valid'; value: T }
-export const OK = <T>(value: T): OK<T> => ({ status: 'valid', value })
-
-export type SyncParseReturnType<T = any> = OK<T> | DIRTY<T> | INVALID
-export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
-export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
 
 export const isAborted = (x: ParseReturnType<any>): x is INVALID => (x as SyncParseReturnType).status === 'aborted'
 export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> =>

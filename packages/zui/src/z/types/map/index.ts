@@ -1,14 +1,6 @@
 import * as utils from '../../../utils'
-import type { IZodMap, IZodType, ZodMapDef } from '../../typings'
-import {
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  SyncParseReturnType,
-} from '../basetype'
+import type { IZodMap, IZodType, ZodMapDef, ParseInput, ParseReturnType, SyncParseReturnType } from '../../typings'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, INVALID } from '../basetype'
 
 export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
@@ -63,10 +55,8 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
 
     const pairs = [...(ctx.data as Map<unknown, unknown>).entries()].map(([key, value], index) => {
       return {
-        key: ZodBaseTypeImpl.fromInterface(keyType)._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, 'key'])),
-        value: ZodBaseTypeImpl.fromInterface(valueType)._parse(
-          new ParseInputLazyPath(ctx, value, ctx.path, [index, 'value'])
-        ),
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, 'key'])),
+        value: valueType._parse(new ParseInputLazyPath(ctx, value, ctx.path, [index, 'value'])),
       }
     })
 

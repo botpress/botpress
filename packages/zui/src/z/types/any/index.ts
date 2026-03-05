@@ -1,5 +1,5 @@
-import type { IZodAny, IZodType, ZodAnyDef } from '../../typings'
-import { ParseReturnType, ZodBaseTypeImpl, OK, ParseInput } from '../basetype'
+import type { IZodAny, IZodType, ZodAnyDef, ParseReturnType, ParseInput } from '../../typings'
+import { ZodBaseTypeImpl, OK } from '../basetype'
 
 export class ZodAnyImpl extends ZodBaseTypeImpl<any, ZodAnyDef> implements IZodAny {
   // to prevent instances of other classes from extending ZodAny. this causes issues with catchall in ZodObject.

@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import * as assert from '../../assertions.utils.test'
 import * as z from '../index'
-import { NEVER } from '../types/basetype'
+import { INVALID } from '../types/basetype'
 import { ZodError } from '../error'
 
 test('preprocess', () => {
@@ -129,7 +129,7 @@ test('z.NEVER in preprocess', () => {
   const foo = z.preprocess((val, ctx) => {
     if (!val) {
       ctx.addIssue({ code: 'custom', message: 'bad' })
-      return NEVER
+      return INVALID as never
     }
     return val
   }, z.number())

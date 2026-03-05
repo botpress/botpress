@@ -1,15 +1,7 @@
 import * as utils from '../../../utils'
 import { zuiKey } from '../../consts'
-import { type IZodString, ZodStringCheck, ZodStringDef } from '../../typings'
-import {
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-} from '../basetype'
+import { type IZodString, ZodStringCheck, ZodStringDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseStatus } from '../basetype'
 
 export type { ZodStringCheck, ZodStringDef }
 export type IpVersion = NonNullable<Extract<ZodStringCheck, { kind: 'ip' }>['version']>

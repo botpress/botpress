@@ -1,6 +1,6 @@
 import { builders } from '../../internal-builders'
-import type { IZodNever, IZodUndefined, ZodUndefinedDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodNever, IZodUndefined, ZodUndefinedDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK } from '../basetype'
 
 export class ZodUndefinedImpl extends ZodBaseTypeImpl<undefined, ZodUndefinedDef> implements IZodUndefined {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

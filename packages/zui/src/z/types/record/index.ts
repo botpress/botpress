@@ -1,12 +1,19 @@
 import * as utils from '../../../utils'
-import type { IZodRecord, IZodString, IZodType, KeySchema, RecordType, ZodRecordDef } from '../../typings'
+import type {
+  IZodRecord,
+  IZodString,
+  IZodType,
+  KeySchema,
+  RecordType,
+  ZodRecordDef,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
 import {
   ParseInputLazyPath,
   ZodBaseTypeImpl,
   addIssueToContext,
   INVALID,
-  ParseInput,
-  ParseReturnType,
   ParseStatus,
   type MergeObjectPair,
 } from '../basetype'
@@ -69,10 +76,8 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
 
     for (const key in ctx.data) {
       pairs.push({
-        key: ZodBaseTypeImpl.fromInterface(keyType)._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
-        value: ZodBaseTypeImpl.fromInterface(valueType)._parse(
-          new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)
-        ),
+        key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, key)),
+        value: valueType._parse(new ParseInputLazyPath(ctx, ctx.data[key], ctx.path, key)),
       })
     }
 
