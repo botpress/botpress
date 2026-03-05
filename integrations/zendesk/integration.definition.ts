@@ -64,7 +64,9 @@ export default new sdk.IntegrationDefinition({
         ticketFormId: sdk.z
           .string()
           .title('Ticket Form ID')
-          .describe('The ID of the ticket form to use when creating the ticket. This needs to be set up in Zendesk beforehand.')
+          .describe(
+            'The ID of the ticket form to use when creating the ticket. This needs to be set up in Zendesk beforehand.'
+          )
           .optional(),
       }),
     },

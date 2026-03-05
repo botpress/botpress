@@ -14,7 +14,12 @@ export const ticketSchema = z.object({
   priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable().title('Priority').describe('Ticket priority'),
   requesterId: z.number().title('Requester ID').describe('ID of the requester'),
   requester: requesterSchema.optional().title('Requester').describe('Requester information'),
-  ticketFormId: z.string().nullable().optional().title('Ticket Form ID').describe('ID of the ticket form used when creating the ticket'),
+  ticketFormId: z
+    .string()
+    .nullable()
+    .optional()
+    .title('Ticket Form ID')
+    .describe('ID of the ticket form used when creating the ticket'),
   assigneeId: z.number().nullable().title('Assignee ID').describe('ID of the assignee'),
   createdAt: z.string().title('Created At').describe('Ticket creation date'),
   updatedAt: z.string().title('Updated At').describe('Ticket last update date'),
