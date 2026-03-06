@@ -63,6 +63,7 @@ export default new sdk.IntegrationDefinition({
           .optional(),
         ticketFormId: sdk.z
           .string()
+          .regex(/^\d+$/, 'Must be a numeric ID')
           .title('Ticket Form ID')
           .describe(
             'The ID of the ticket form to use when creating the ticket. This needs to be set up in Zendesk beforehand.'
