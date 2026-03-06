@@ -1,5 +1,4 @@
-import { util } from '../../z'
-import { ZodDateCheck, ZodDateDef } from '../../z/types/date'
+import { ZodDateCheck, ZodDateDef } from '../../z'
 import { primitiveToTypescriptValue as toTs } from '../common/utils'
 
 export const generateDateChecks = (def: ZodDateDef): string => {
@@ -19,7 +18,7 @@ const _generateDateCheck = (check: ZodDateCheck): string => {
       const maxDate = dateTs(check.value)
       return `.max(${maxDate}, ${toTs(check.message)})`
     default:
-      type _assertion = util.AssertNever<typeof check>
+      check satisfies never
       return ''
   }
 }

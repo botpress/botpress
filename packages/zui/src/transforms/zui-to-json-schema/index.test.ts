@@ -1,5 +1,5 @@
 import * as errs from '../common/errors'
-import z from '../../z'
+import * as z from '../../z'
 import { describe, test, expect } from 'vitest'
 import { toJSONSchema } from './index'
 
@@ -192,7 +192,7 @@ describe('zuiToJSONSchemaNext', () => {
         },
       ],
       'x-zui': {
-        def: { typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion, discriminator: 'type' },
+        def: { typeName: 'ZodDiscriminatedUnion', discriminator: 'type' },
       },
     })
   })

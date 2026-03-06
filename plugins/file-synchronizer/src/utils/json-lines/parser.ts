@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 
 type _JsonParseResult<T> = { rawLine: string } & ({ value: T } | { error: Error })
 
-export function* parseJsonLines<TLineSchema extends sdk.ZodTypeAny>(
+export function* parseJsonLines<TLineSchema extends sdk.z.ZodTypeAny>(
   rawJsonLines: string,
   zodSchema: TLineSchema
 ): Generator<_JsonParseResult<sdk.z.infer<TLineSchema>>, void, undefined> {

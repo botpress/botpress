@@ -1,35 +1,17 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeAny,
-  ZodTypeDef,
-  processCreateParams,
-  ZodParsedType,
-  addIssueToContext,
-  INVALID,
-  OK,
-  ParseInput,
-  ParseReturnType,
-} from '../index'
+import type { IZodPromise, IZodType, ZodPromiseDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
+export type { ZodPromiseDef }
 
-export type ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> = {
-  type: T
-  typeName: ZodFirstPartyTypeKind.ZodPromise
-} & ZodTypeDef
-
-export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
-  Promise<T['_output']>,
-  ZodPromiseDef<T>,
-  Promise<T['_input']>
-> {
+export class ZodPromiseImpl<T extends IZodType = IZodType>
+  extends ZodBaseTypeImpl<Promise<T['_output']>, ZodPromiseDef<T>, Promise<T['_input']>>
+  implements IZodPromise<T>
+{
   unwrap() {
     return this._def.type
   }
 
-  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
-    return new ZodPromise({
+  dereference(defs: Record<string, IZodType>): IZodType {
+    return new ZodPromiseImpl({
       ...this._def,
       type: this._def.type.dereference(defs),
     })
@@ -39,46 +21,39 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
     return this._def.type.getReferences()
   }
 
-  clone(): ZodPromise<T> {
-    return new ZodPromise({
+  clone(): IZodPromise<T> {
+    return new ZodPromiseImpl({
       ...this._def,
-      type: this._def.type.clone(),
-    }) as ZodPromise<T>
+      type: this._def.type.clone() as T,
+    })
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
-    if (ctx.parsedType !== ZodParsedType.promise && ctx.common.async === false) {
+    if (ctx.parsedType !== 'promise' && ctx.common.async === false) {
       addIssueToContext(ctx, {
-        code: ZodIssueCode.invalid_type,
-        expected: ZodParsedType.promise,
+        code: 'invalid_type',
+        expected: 'promise',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
-    const promisified = ctx.parsedType === ZodParsedType.promise ? ctx.data : Promise.resolve(ctx.data)
+    const promisified = ctx.parsedType === 'promise' ? ctx.data : Promise.resolve(ctx.data)
 
-    return OK(
-      promisified.then((data: any) => {
+    return {
+      status: 'valid',
+      value: promisified.then((data: any) => {
         return this._def.type.parseAsync(data, {
           path: ctx.path,
           errorMap: ctx.common.contextualErrorMap,
         })
-      })
-    )
+      }),
+    }
   }
 
-  static create = <T extends ZodTypeAny>(schema: T, params?: RawCreateParams): ZodPromise<T> => {
-    return new ZodPromise({
-      type: schema,
-      typeName: ZodFirstPartyTypeKind.ZodPromise,
-      ...processCreateParams(params),
-    })
-  }
-
-  isEqual(schema: ZodTypeAny): boolean {
-    if (!(schema instanceof ZodPromise)) return false
+  isEqual(schema: IZodType): boolean {
+    if (!(schema instanceof ZodPromiseImpl)) return false
     return this._def.type.isEqual(schema._def.type)
   }
 

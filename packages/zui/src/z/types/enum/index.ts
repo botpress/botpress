@@ -1,74 +1,32 @@
-import {
-  ZodIssueCode,
-  RawCreateParams,
-  ZodFirstPartyTypeKind,
-  ZodType,
-  ZodTypeDef,
-  processCreateParams,
-  util,
-  addIssueToContext,
-  INVALID,
-  OK,
+import * as utils from '../../../utils'
+import { builders } from '../../internal-builders'
+import type {
+  FilterEnum,
+  IZodEnum,
+  EnumValuesMap,
+  NeverCast,
+  ZodEnumDef,
+  EnumValues,
   ParseInput,
   ParseReturnType,
-} from '../index'
-import { CustomSet } from '../utils/custom-set'
+  ZodCreateParams,
+} from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
-export type ArrayKeys = keyof any[]
-export type Indices<T> = Exclude<keyof T, ArrayKeys>
-
-export type EnumValues = [string, ...string[]]
-
-export type Values<T extends EnumValues> = {
-  [k in T[number]]: k
-}
-
-export type ZodEnumDef<T extends EnumValues = EnumValues> = {
-  values: T
-  typeName: ZodFirstPartyTypeKind.ZodEnum
-} & ZodTypeDef
-
-export type Writeable<T> = {
-  -readonly [P in keyof T]: T[P]
-}
-
-export type FilterEnum<Values, ToExclude> = Values extends []
-  ? []
-  : Values extends [infer Head, ...infer Rest]
-    ? Head extends ToExclude
-      ? FilterEnum<Rest, ToExclude>
-      : [Head, ...FilterEnum<Rest, ToExclude>]
-    : never
-
-export type typecast<A, T> = A extends T ? A : never
-
-export function createZodEnum<U extends string, T extends Readonly<[U, ...U[]]>>(
-  values: T,
-  params?: RawCreateParams
-): ZodEnum<Writeable<T>>
-export function createZodEnum<U extends string, T extends [U, ...U[]]>(values: T, params?: RawCreateParams): ZodEnum<T>
-export function createZodEnum(values: [string, ...string[]], params?: RawCreateParams) {
-  return new ZodEnum({
-    values,
-    typeName: ZodFirstPartyTypeKind.ZodEnum,
-    ...processCreateParams(params),
-  })
-}
-
-export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> extends ZodType<
-  T[number],
-  ZodEnumDef<T>
-> {
+export class ZodEnumImpl<T extends EnumValues = EnumValues>
+  extends ZodBaseTypeImpl<T[number], ZodEnumDef<T>>
+  implements IZodEnum<T>
+{
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (typeof input.data !== 'string') {
       const ctx = this._getOrReturnCtx(input)
       const expectedValues = this._def.values
       addIssueToContext(ctx, {
-        expected: util.joinValues(expectedValues) as 'string',
+        expected: utils.others.joinValues(expectedValues) as 'string',
         received: ctx.parsedType,
-        code: ZodIssueCode.invalid_type,
+        code: 'invalid_type',
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (this._def.values.indexOf(input.data) === -1) {
@@ -77,47 +35,40 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
       addIssueToContext(ctx, {
         received: ctx.data,
-        code: ZodIssueCode.invalid_enum_value,
+        code: 'invalid_enum_value',
         options: expectedValues,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
-  get options() {
+  get options(): T {
     return this._def.values
   }
 
-  get enum(): Values<T> {
-    const enumValues: any = {}
+  get enum(): EnumValuesMap<T> {
+    const enumValues: Record<string, T[number]> = {}
     for (const val of this._def.values) {
       enumValues[val] = val
     }
-    return enumValues
+    return enumValues as EnumValuesMap<T>
   }
 
-  get Values(): Values<T> {
-    const enumValues: any = {}
-    for (const val of this._def.values) {
-      enumValues[val] = val
-    }
-    return enumValues
+  get Values(): EnumValuesMap<T> {
+    return this.enum
   }
 
-  get Enum(): Values<T> {
-    const enumValues: any = {}
-    for (const val of this._def.values) {
-      enumValues[val] = val
-    }
-    return enumValues
+  get Enum(): EnumValuesMap<T> {
+    return this.enum
   }
 
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
-    newDef: RawCreateParams = this._def
-  ): ZodEnum<Writeable<ToExtract>> {
-    return ZodEnum.create(values, {
+    newDef: ZodCreateParams = this._def
+  ): IZodEnum<utils.types.Writeable<ToExtract>> {
+    // TODO(why): find out why the ctor is not used directly
+    return builders.enum(values, {
       ...this._def,
       ...newDef,
     })
@@ -125,20 +76,19 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
 
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
-    newDef: RawCreateParams = this._def
-  ): ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
-    return ZodEnum.create(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
+    newDef: ZodCreateParams = this._def
+  ): IZodEnum<NeverCast<utils.types.Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
+    // TODO(why): find out why the ctor is not used directly
+    return builders.enum(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {
       ...this._def,
       ...newDef,
-    }) as ZodEnum<typecast<Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
+    }) as IZodEnum<NeverCast<utils.types.Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
   }
 
-  static create = createZodEnum
-
-  isEqual(schema: ZodType): boolean {
-    if (!(schema instanceof ZodEnum)) return false
-    const thisValues = new CustomSet<string>(this._def.values)
-    const thatValues = new CustomSet<string>(schema._def.values)
+  isEqual(schema: ZodBaseTypeImpl): boolean {
+    if (!(schema instanceof ZodEnumImpl)) return false
+    const thisValues = new utils.ds.CustomSet<string>(this._def.values)
+    const thatValues = new utils.ds.CustomSet<string>(schema._def.values)
     return thisValues.isEqual(thatValues)
   }
 }
