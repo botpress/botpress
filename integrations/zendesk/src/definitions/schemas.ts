@@ -40,7 +40,7 @@ const _zdTicketSchema = ticketSchema.transform((data) => ({
   requester_id: data.requesterId,
   assignee_id: data.assigneeId,
   external_id: data.externalId,
-  ticket_form_id: data.ticketFormId,
+  ticket_form_id: data.ticketFormId != null ? parseInt(data.ticketFormId, 10) : data.ticketFormId,
 }))
 
 export type ZendeskTicket = z.output<typeof _zdTicketSchema>

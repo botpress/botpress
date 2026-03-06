@@ -12,7 +12,7 @@ export const createTicket: bp.IntegrationProps['actions']['createTicket'] = asyn
       name: input.requesterName,
       email: input.requesterEmail,
     },
-    input.ticketFormId ? { ticket_form_id: input.ticketFormId } : {}
+    input.ticketFormId ? { ticket_form_id: parseInt(input.ticketFormId, 10) } : {}
   )
 
   return {
