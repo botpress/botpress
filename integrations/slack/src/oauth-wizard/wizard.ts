@@ -1,12 +1,12 @@
 import * as oauthWizard from '@botpress/common/src/oauth-wizard'
 import { RuntimeError, Response } from '@botpress/sdk'
-import { handleOAuthCallback } from 'src/webhook-events/handlers/oauth-callback'
 import {
   SlackManifestClient,
   buildSlackAppManifest,
   patchAppManifestConfigurationState,
   getAppManifestConfigurationState,
 } from '../slack-api/slack-manifest-client'
+import { handleOAuthCallback } from '../webhook-events/handlers/oauth-callback'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
@@ -29,7 +29,12 @@ export const handler = async (props: bp.HandlerProps): Promise<Response> => {
 }
 
 const _startHandler: WizardHandler = async ({ client, ctx, responses }) => {
-  const { appId, clientId, clientSecret, authorizeUrl } = await getAppManifestConfigurationState(client, ctx)
+  const { appConfigurationToken, appConfigurationRefreshToken, appName, appId, clientId, clientSecret, authorizeUrl } =
+    await getAppManifestConfigurationState(client, ctx)
+
+  if (appConfigurationToken && appConfigurationRefreshToken && !appName) {
+    return responses.redirectToStep('get-app-name')
+  }
 
   if (appId && clientId && clientSecret && authorizeUrl) {
     return responses.redirectToExternalUrl(authorizeUrl)
@@ -64,7 +69,7 @@ const _getConfigTokenHandler: WizardHandler = async ({ client, ctx, responses })
 
 const _saveConfigTokenHandler: WizardHandler = async ({ client, ctx, responses, inputValue }) => {
   if (!inputValue?.trim()) {
-    throw new RuntimeError('App Configuration Token is required')
+    return responses.redirectToStep('get-config-token')
   }
   await patchAppManifestConfigurationState(client, ctx, { appConfigurationToken: inputValue.trim() })
   return responses.redirectToStep('get-config-refresh-token')
@@ -82,7 +87,7 @@ const _getConfigRefreshTokenHandler: WizardHandler = (props) => {
 
 const _saveConfigRefreshTokenHandler: WizardHandler = async ({ client, ctx, responses, inputValue }) => {
   if (!inputValue?.trim()) {
-    throw new RuntimeError('App Configuration Refresh Token is required')
+    return responses.redirectToStep('get-config-refresh-token')
   }
   await patchAppManifestConfigurationState(client, ctx, { appConfigurationRefreshToken: inputValue.trim() })
   return responses.redirectToStep('get-app-name')
@@ -98,8 +103,8 @@ const _getAppNameHandler: WizardHandler = (props) => {
 }
 
 const _saveAppNameHandler: WizardHandler = async ({ client, ctx, responses, inputValue }) => {
-  if (!inputValue?.trim()) {
-    throw new RuntimeError('App name is required')
+  if (!inputValue || inputValue?.trim().length > 35) {
+    return responses.redirectToStep('get-app-name')
   }
   await patchAppManifestConfigurationState(client, ctx, { appName: inputValue.trim() })
 
