@@ -30,22 +30,15 @@ import type {
   RefinementCtx,
   CustomErrorParams,
   IssueData,
-} from '../../typings'
-
-// TODO(circle): get rid of circular dependency between zui core and transforms
-
-import {
-  getParsedType,
-  isAsync,
-  isValid,
   ParseContext,
   ParseInput,
   ParseParams,
-  ParseStatus,
   ParseReturnType,
   AsyncParseReturnType,
   SyncParseReturnType,
-} from './parseUtil'
+} from '../../typings'
+
+import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
 
 export * from './parseUtil'
 
@@ -553,10 +546,5 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
         },
       }
     }
-  }
-
-  // TODO: this is an ugly workaround to prevent from exposing internal methods in the public API. We should find something better.
-  protected static fromInterface<O, D extends ZodTypeDef, I>(t: IZodType<O, D, I>): ZodBaseTypeImpl<O, D, I> {
-    return t as ZodBaseTypeImpl<O, D, I>
   }
 }

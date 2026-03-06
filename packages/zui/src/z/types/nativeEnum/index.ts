@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash-es'
 import * as utils from '../../../utils'
-import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
   extends ZodBaseTypeImpl<T[keyof T], ZodNativeEnumDef<T>>
@@ -18,7 +18,7 @@ export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
         received: ctx.parsedType,
         code: 'invalid_type',
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (nativeEnumValues.indexOf(input.data) === -1) {
@@ -29,9 +29,9 @@ export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
         code: 'invalid_enum_value',
         options: expectedValues,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   get enum() {

@@ -1,5 +1,5 @@
-import type { IZodBoolean, ZodBooleanDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodBoolean, ZodBooleanDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> implements IZodBoolean {
   _parse(input: ParseInput): ParseReturnType<boolean> {
@@ -15,9 +15,9 @@ export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> impl
         expected: 'boolean',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   isEqual(schema: ZodBaseTypeImpl): boolean {

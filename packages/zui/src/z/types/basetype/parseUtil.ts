@@ -1,16 +1,18 @@
-import { zuiKey } from '../../consts'
 import { defaultErrorMap, getErrorMap } from '../../error'
-import type { ZuiExtensionObject, ZodParsedType, IssueData, ZodIssue, ZodErrorMap } from '../../typings'
-
-export type RawCreateParams =
-  | {
-      errorMap?: ZodErrorMap
-      invalid_type_error?: string
-      required_error?: string
-      description?: string
-      [zuiKey]?: ZuiExtensionObject
-    }
-  | undefined
+import type {
+  ZodParsedType,
+  IssueData,
+  ZodIssue,
+  ZodErrorMap,
+  ParseContext,
+  ParseInput,
+  SyncParseReturnType,
+  AsyncParseReturnType,
+  ParseReturnType,
+  InvalidParseReturnType,
+  DirtyParseReturnType,
+  ValidParseReturnType,
+} from '../../typings'
 
 export const makeIssue = (params: {
   data: any
@@ -41,34 +43,8 @@ export const makeIssue = (params: {
   }
 }
 
-export type ParseParams = {
-  path: (string | number)[]
-  errorMap: ZodErrorMap
-  async: boolean
-}
-
-export type ParsePathComponent = string | number
-export type ParsePath = ParsePathComponent[]
+export type ParsePath = (string | number)[]
 export const EMPTY_PATH: ParsePath = []
-
-export type ParseContext = {
-  readonly common: {
-    readonly issues: ZodIssue[]
-    readonly contextualErrorMap?: ZodErrorMap
-    readonly async: boolean
-  }
-  readonly path: ParsePath
-  readonly schemaErrorMap?: ZodErrorMap
-  readonly parent: ParseContext | null
-  readonly data: any
-  readonly parsedType: ZodParsedType
-}
-
-export type ParseInput = {
-  data: any
-  path: (string | number)[]
-  parent: ParseContext
-}
 
 export type MergeObjectPair = {
   key: SyncParseReturnType<any>
@@ -107,7 +83,7 @@ export class ParseStatus {
   static mergeArray(status: ParseStatus, results: SyncParseReturnType<any>[]): SyncParseReturnType {
     const arrayValue: any[] = []
     for (const s of results) {
-      if (s.status === 'aborted') return INVALID
+      if (s.status === 'aborted') return { status: 'aborted' }
       if (s.status === 'dirty') status.dirty()
       arrayValue.push(s.value)
     }
@@ -133,8 +109,8 @@ export class ParseStatus {
     const finalObject: Record<string, unknown> = {}
     for (const pair of pairs) {
       const { key, value } = pair
-      if (key.status === 'aborted') return INVALID
-      if (value.status === 'aborted') return INVALID
+      if (key.status === 'aborted') return { status: 'aborted' }
+      if (value.status === 'aborted') return { status: 'aborted' }
       if (key.status === 'dirty') status.dirty()
       if (value.status === 'dirty') status.dirty()
 
@@ -147,28 +123,12 @@ export class ParseStatus {
   }
 }
 
-export type INVALID = { status: 'aborted' }
-export const INVALID: INVALID = Object.freeze({
-  status: 'aborted',
-})
-
-export type NEVER = never
-export const NEVER = INVALID as never
-
-export type DIRTY<T> = { status: 'dirty'; value: T }
-export const DIRTY = <T>(value: T): DIRTY<T> => ({ status: 'dirty', value })
-
-export type OK<T> = { status: 'valid'; value: T }
-export const OK = <T>(value: T): OK<T> => ({ status: 'valid', value })
-
-export type SyncParseReturnType<T = any> = OK<T> | DIRTY<T> | INVALID
-export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
-export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
-
-export const isAborted = (x: ParseReturnType<any>): x is INVALID => (x as SyncParseReturnType).status === 'aborted'
-export const isDirty = <T>(x: ParseReturnType<T>): x is OK<T> | DIRTY<T> =>
+export const isAborted = (x: ParseReturnType<any>): x is InvalidParseReturnType =>
+  (x as SyncParseReturnType).status === 'aborted'
+export const isDirty = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> | DirtyParseReturnType<T> =>
   (x as SyncParseReturnType).status === 'dirty'
-export const isValid = <T>(x: ParseReturnType<T>): x is OK<T> => (x as SyncParseReturnType).status === 'valid'
+export const isValid = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> =>
+  (x as SyncParseReturnType).status === 'valid'
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 

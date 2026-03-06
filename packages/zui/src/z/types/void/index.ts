@@ -1,5 +1,5 @@
-import type { IZodVoid, ZodVoidDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodVoid, ZodVoidDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodVoidImpl extends ZodBaseTypeImpl<void, ZodVoidDef> implements IZodVoid {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -11,9 +11,9 @@ export class ZodVoidImpl extends ZodBaseTypeImpl<void, ZodVoidDef> implements IZ
         expected: 'void',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   isEqual(schema: ZodBaseTypeImpl): boolean {

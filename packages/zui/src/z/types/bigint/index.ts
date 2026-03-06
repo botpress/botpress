@@ -1,14 +1,6 @@
 import * as utils from '../../../utils'
-import { type IZodBigInt, ZodBigIntCheck, ZodBigIntDef } from '../../typings'
-import {
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseStatus,
-  ZodBaseTypeImpl,
-  ParseReturnType,
-} from '../basetype'
+import { type IZodBigInt, ZodBigIntCheck, ZodBigIntDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import { addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodBigIntImpl extends ZodBaseTypeImpl<bigint, ZodBigIntDef> implements IZodBigInt {
   _parse(input: ParseInput): ParseReturnType<bigint> {
@@ -23,7 +15,7 @@ export class ZodBigIntImpl extends ZodBaseTypeImpl<bigint, ZodBigIntDef> impleme
         expected: 'bigint',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     let ctx: undefined | ParseContext = undefined

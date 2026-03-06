@@ -1,5 +1,5 @@
-import type { IZodSymbol, ZodSymbolDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodSymbol, ZodSymbolDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> implements IZodSymbol {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -11,10 +11,10 @@ export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> impleme
         expected: 'symbol',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   isEqual(schema: ZodBaseTypeImpl): boolean {

@@ -1,14 +1,6 @@
 import * as utils from '../../../utils'
-import { type IZodDate, ZodDateCheck, ZodDateDef } from '../../typings'
-import {
-  addIssueToContext,
-  INVALID,
-  ParseContext,
-  ParseInput,
-  ParseReturnType,
-  ParseStatus,
-  ZodBaseTypeImpl,
-} from '../basetype'
+import { type IZodDate, ZodDateCheck, ZodDateDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import { addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZodDate {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -24,7 +16,7 @@ export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZ
         expected: 'date',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (isNaN(input.data.getTime())) {
@@ -32,7 +24,7 @@ export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZ
       addIssueToContext(ctx, {
         code: 'invalid_date',
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const status = new ParseStatus()

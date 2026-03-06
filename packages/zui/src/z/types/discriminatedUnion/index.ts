@@ -9,8 +9,10 @@ import type {
   IZodObject,
   Primitive,
   ZodNativeType,
+  ParseInput,
+  ParseReturnType,
 } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 const getDiscriminator = (_type: IZodType | undefined): Primitive[] => {
   const type = _type as ZodNativeType | undefined
@@ -97,7 +99,7 @@ export class ZodDiscriminatedUnionImpl<
         expected: 'object',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const discriminator = this.discriminator
@@ -112,17 +114,17 @@ export class ZodDiscriminatedUnionImpl<
         options: Array.from(this.optionsMap.keys()),
         path: [discriminator],
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (ctx.common.async) {
-      return ZodBaseTypeImpl.fromInterface(option)._parseAsync({
+      return option._parseAsync({
         data: ctx.data,
         path: ctx.path,
         parent: ctx,
       }) as ParseReturnType<this['_output']>
     } else {
-      return ZodBaseTypeImpl.fromInterface(option)._parseSync({
+      return option._parseSync({
         data: ctx.data,
         path: ctx.path,
         parent: ctx,

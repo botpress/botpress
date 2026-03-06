@@ -14,17 +14,10 @@ import type {
   KeyOfObject,
   IZodOptional,
   IZodEnum,
-} from '../../typings'
-import {
-  addIssueToContext,
-  INVALID,
   ParseInput,
-  ParseStatus,
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  type MergeObjectPair,
   ParseReturnType,
-} from '../basetype'
+} from '../../typings'
+import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
 export class ZodObjectImpl<
     T extends ZodRawShape = ZodRawShape,
@@ -90,7 +83,7 @@ export class ZodObjectImpl<
         expected: 'object',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const { status, ctx } = this._processInputParams(input)
@@ -116,7 +109,7 @@ export class ZodObjectImpl<
       const value = ctx.data[key]
       pairs.push({
         key: { status: 'valid', value: key },
-        value: ZodBaseTypeImpl.fromInterface(keyValidator)._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value, ctx.path, key)),
         alwaysSet: key in ctx.data,
       })
     }
@@ -144,7 +137,7 @@ export class ZodObjectImpl<
         const value = ctx.data[key]
         pairs.push({
           key: { status: 'valid', value: key },
-          value: ZodBaseTypeImpl.fromInterface(unknownKeys)._parse(
+          value: unknownKeys._parse(
             new ParseInputLazyPath(ctx, value, ctx.path, key) //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: key in ctx.data,

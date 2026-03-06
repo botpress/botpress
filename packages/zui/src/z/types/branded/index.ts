@@ -1,5 +1,5 @@
-import type { IZodBranded, IZodType, ZodBrandedDef, BRAND } from '../../typings'
-import { ZodBaseTypeImpl, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodBranded, IZodType, ZodBrandedDef, BRAND, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl } from '../basetype'
 
 type Key = string | number | symbol
 
@@ -28,7 +28,7 @@ export class ZodBrandedImpl<T extends IZodType = IZodType, B extends Key = Key>
   _parse(input: ParseInput): ParseReturnType<any> {
     const { ctx } = this._processInputParams(input)
     const data = ctx.data
-    return ZodBaseTypeImpl.fromInterface(this._def.type)._parse({
+    return this._def.type._parse({
       data,
       path: ctx.path,
       parent: ctx,

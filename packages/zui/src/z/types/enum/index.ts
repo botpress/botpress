@@ -1,15 +1,17 @@
 import * as utils from '../../../utils'
 import { builders } from '../../internal-builders'
-import type { FilterEnum, IZodEnum, EnumValuesMap, NeverCast, ZodEnumDef, EnumValues } from '../../typings'
-import {
-  RawCreateParams,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
-  OK,
+import type {
+  FilterEnum,
+  IZodEnum,
+  EnumValuesMap,
+  NeverCast,
+  ZodEnumDef,
+  EnumValues,
   ParseInput,
   ParseReturnType,
-} from '../basetype'
+  ZodCreateParams,
+} from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodEnumImpl<T extends EnumValues = EnumValues>
   extends ZodBaseTypeImpl<T[number], ZodEnumDef<T>>
@@ -24,7 +26,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
         received: ctx.parsedType,
         code: 'invalid_type',
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (this._def.values.indexOf(input.data) === -1) {
@@ -36,9 +38,9 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
         code: 'invalid_enum_value',
         options: expectedValues,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
-    return OK(input.data)
+    return { status: 'valid', value: input.data }
   }
 
   get options(): T {
@@ -63,7 +65,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
 
   extract<ToExtract extends readonly [T[number], ...T[number][]]>(
     values: ToExtract,
-    newDef: RawCreateParams = this._def
+    newDef: ZodCreateParams = this._def
   ): IZodEnum<utils.types.Writeable<ToExtract>> {
     // TODO(why): find out why the ctor is not used directly
     return builders.enum(values, {
@@ -74,7 +76,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
 
   exclude<ToExclude extends readonly [T[number], ...T[number][]]>(
     values: ToExclude,
-    newDef: RawCreateParams = this._def
+    newDef: ZodCreateParams = this._def
   ): IZodEnum<NeverCast<utils.types.Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>> {
     // TODO(why): find out why the ctor is not used directly
     return builders.enum(this.options.filter((opt) => !values.includes(opt)) as FilterEnum<T, ToExclude[number]>, {

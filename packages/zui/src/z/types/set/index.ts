@@ -1,14 +1,6 @@
 import * as utils from '../../../utils'
-import type { IZodSet, IZodType, ZodSetDef } from '../../typings'
-import {
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
-  SyncParseReturnType,
-} from '../basetype'
+import type { IZodSet, IZodType, ZodSetDef, ParseInput, ParseReturnType, SyncParseReturnType } from '../../typings'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodSetImpl<Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<Set<Value['_output']>, ZodSetDef<Value>, Set<Value['_input']>>
@@ -40,7 +32,7 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
         expected: 'set',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const def = this._def
@@ -75,10 +67,10 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
 
     const valueType = this._def.valueType
 
-    function finalizeSet(elements: SyncParseReturnType<any>[]) {
+    function finalizeSet(elements: SyncParseReturnType<any>[]): SyncParseReturnType<any> {
       const parsedSet = new Set()
       for (const element of elements) {
-        if (element.status === 'aborted') return INVALID
+        if (element.status === 'aborted') return { status: 'aborted' }
         if (element.status === 'dirty') status.dirty()
         parsedSet.add(element.value)
       }
@@ -86,7 +78,7 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     }
 
     const elements = [...(ctx.data as Set<unknown>).values()].map((item, i) =>
-      ZodBaseTypeImpl.fromInterface(valueType)._parse(new ParseInputLazyPath(ctx, item, ctx.path, i))
+      valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i))
     )
 
     if (ctx.common.async) {

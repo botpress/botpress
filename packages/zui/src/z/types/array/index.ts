@@ -1,15 +1,15 @@
 import { isEqual } from 'lodash-es'
 import * as utils from '../../../utils'
-import type { ArrayCardinality, ArrayOutputType, IZodArray, IZodType, ZodArrayDef } from '../../typings'
-import {
-  ParseInputLazyPath,
-  ZodBaseTypeImpl,
-  addIssueToContext,
-  INVALID,
+import type {
+  ArrayCardinality,
+  ArrayOutputType,
+  IZodArray,
+  IZodType,
+  ZodArrayDef,
   ParseInput,
   ParseReturnType,
-  ParseStatus,
-} from '../basetype'
+} from '../../typings'
+import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
 
 export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends ArrayCardinality = 'many'>
   extends ZodBaseTypeImpl<
@@ -61,7 +61,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
         expected: 'array',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     if (def.exactLength !== null) {
@@ -112,7 +112,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     if (ctx.common.async) {
       return Promise.all(
         [...ctx.data].map((item, i) => {
-          return ZodArrayImpl.fromInterface(def.type)._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i))
+          return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i))
         })
       ).then((result) => {
         return ParseStatus.mergeArray(status, result)
@@ -120,7 +120,7 @@ export class ZodArrayImpl<T extends IZodType = IZodType, Cardinality extends Arr
     }
 
     const result = [...ctx.data].map((item, i) => {
-      return ZodArrayImpl.fromInterface(def.type)._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i))
+      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i))
     })
 
     return ParseStatus.mergeArray(status, result)

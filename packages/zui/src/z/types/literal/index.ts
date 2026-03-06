@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-import type { IZodLiteral, Primitive, ZodLiteralDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodLiteral, Primitive, ZodLiteralDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodLiteralImpl<T extends Primitive = Primitive>
   extends ZodBaseTypeImpl<T, ZodLiteralDef<T>>
@@ -14,7 +14,7 @@ export class ZodLiteralImpl<T extends Primitive = Primitive>
         code: 'invalid_literal',
         expected: this._def.value,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
     return { status: 'valid', value: input.data }
   }

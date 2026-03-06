@@ -1,10 +1,7 @@
-import type { IZodRef, IZodType, ZodRefDef } from '../../typings'
+import type { IZodRef, IZodType, ZodRefDef, ParseInput, ParseReturnType } from '../../typings'
 import {
   //
   ZodBaseTypeImpl,
-  INVALID,
-  ParseInput,
-  ParseReturnType,
   addIssueToContext,
 } from '../basetype'
 export type { ZodRefDef }
@@ -28,7 +25,7 @@ export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef>
     addIssueToContext(ctx, {
       code: 'unresolved_reference',
     })
-    return INVALID
+    return { status: 'aborted' }
   }
 
   public override isOptional(): boolean {

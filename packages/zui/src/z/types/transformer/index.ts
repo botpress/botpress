@@ -1,7 +1,17 @@
 import * as utils from '../../../utils'
 import { is } from '../../guards'
-import type { IZodEffects, IZodType, ZodEffectsDef, input, output, RefinementCtx, IssueData } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../basetype'
+import type {
+  IZodEffects,
+  IZodType,
+  ZodEffectsDef,
+  input,
+  output,
+  RefinementCtx,
+  IssueData,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
   extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
@@ -64,28 +74,28 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
       if (ctx.common.async) {
         return Promise.resolve(processed).then(async (processed) => {
-          if (status.value === 'aborted') return INVALID
+          if (status.value === 'aborted') return { status: 'aborted' }
 
-          const result = await ZodEffectsImpl.fromInterface(this._def.schema)._parseAsync({
+          const result = await this._def.schema._parseAsync({
             data: processed,
             path: ctx.path,
             parent: ctx,
           })
-          if (result.status === 'aborted') return INVALID
-          if (result.status === 'dirty') return DIRTY(result.value)
-          if (status.value === 'dirty') return DIRTY(result.value)
+          if (result.status === 'aborted') return { status: 'aborted' }
+          if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+          if (status.value === 'dirty') return { status: 'dirty', value: result.value }
           return result
         })
       } else {
-        if (status.value === 'aborted') return INVALID
-        const result = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
+        if (status.value === 'aborted') return { status: 'aborted' }
+        const result = this._def.schema._parseSync({
           data: processed,
           path: ctx.path,
           parent: ctx,
         })
-        if (result.status === 'aborted') return INVALID
-        if (result.status === 'dirty') return DIRTY(result.value)
-        if (status.value === 'dirty') return DIRTY(result.value)
+        if (result.status === 'aborted') return { status: 'aborted' }
+        if (result.status === 'dirty') return { status: 'dirty', value: result.value }
+        if (status.value === 'dirty') return { status: 'dirty', value: result.value }
         return result
       }
     }
@@ -103,34 +113,32 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       }
 
       if (ctx.common.async === false) {
-        const inner = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
+        const inner = this._def.schema._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
         })
-        if (inner.status === 'aborted') return INVALID
+        if (inner.status === 'aborted') return { status: 'aborted' }
         if (inner.status === 'dirty') status.dirty()
 
         // return value is ignored
         executeRefinement(inner.value)
         return { status: status.value, value: inner.value }
       } else {
-        return ZodEffectsImpl.fromInterface(this._def.schema)
-          ._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx })
-          .then((inner) => {
-            if (inner.status === 'aborted') return INVALID
-            if (inner.status === 'dirty') status.dirty()
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((inner) => {
+          if (inner.status === 'aborted') return { status: 'aborted' }
+          if (inner.status === 'dirty') status.dirty()
 
-            return executeRefinement(inner.value).then(() => {
-              return { status: status.value, value: inner.value }
-            })
+          return executeRefinement(inner.value).then(() => {
+            return { status: status.value, value: inner.value }
           })
+        })
       }
     }
 
     if (effect.type === 'transform') {
       if (ctx.common.async === false) {
-        const base = ZodEffectsImpl.fromInterface(this._def.schema)._parseSync({
+        const base = this._def.schema._parseSync({
           data: ctx.data,
           path: ctx.path,
           parent: ctx,
@@ -147,16 +155,14 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
         return { status: status.value, value: result }
       } else {
-        return ZodEffectsImpl.fromInterface(this._def.schema)
-          ._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx })
-          .then((base) => {
-            if (!isValid(base)) return base
+        return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
+          if (!isValid(base)) return base
 
-            return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
-              status: status.value,
-              value: result,
-            }))
-          })
+          return Promise.resolve(effect.transform(base.value, checkCtx)).then((result) => ({
+            status: status.value,
+            value: result,
+          }))
+        })
       }
     }
 

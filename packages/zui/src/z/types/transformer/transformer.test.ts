@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest'
 import * as z from '../../index'
 import * as assert from '../../../assertions.utils.test'
-import { NEVER } from '..'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
 // const numberToString = z
@@ -73,14 +72,14 @@ test('transform ctx.addIssue with parseAsync', async () => {
   })
 })
 
-test('z.NEVER in transform', () => {
+test('return invalid parse result in transform', () => {
   const foo = z
     .number()
     .optional()
     .transform((val, ctx) => {
       if (!val) {
         ctx.addIssue({ code: 'custom', message: 'bad' })
-        return NEVER
+        return { status: 'aborted' } as never
       }
       return val
     })

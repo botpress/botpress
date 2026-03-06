@@ -1,5 +1,5 @@
-import type { IZodPromise, IZodType, ZodPromiseDef } from '../../typings'
-import { ZodBaseTypeImpl, addIssueToContext, INVALID, OK, ParseInput, ParseReturnType } from '../basetype'
+import type { IZodPromise, IZodType, ZodPromiseDef, ParseInput, ParseReturnType } from '../../typings'
+import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 export type { ZodPromiseDef }
 
 export class ZodPromiseImpl<T extends IZodType = IZodType>
@@ -36,19 +36,20 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
         expected: 'promise',
         received: ctx.parsedType,
       })
-      return INVALID
+      return { status: 'aborted' }
     }
 
     const promisified = ctx.parsedType === 'promise' ? ctx.data : Promise.resolve(ctx.data)
 
-    return OK(
-      promisified.then((data: any) => {
+    return {
+      status: 'valid',
+      value: promisified.then((data: any) => {
         return this._def.type.parseAsync(data, {
           path: ctx.path,
           errorMap: ctx.common.contextualErrorMap,
         })
-      })
-    )
+      }),
+    }
   }
 
   isEqual(schema: IZodType): boolean {
