@@ -1,0 +1,4 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+
+"{{ webhookUrl }}/oauth/wizard/start?state={{ webhookId }}"

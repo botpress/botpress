@@ -356,7 +356,7 @@ const _getTextPayloadFromSlackEvent = async (
   type BlockElement = ContextBlockElement | ActionsBlockElement | RichTextBlockElement
   type BlockSubElement = RichTextSection | RichTextElement
   const userElements = blocks
-    .flatMap((block): BlockElement[] => ('elements' in block ? block.elements : []))
+    .flatMap((block): BlockElement[] => ('elements' in block ? (block.elements as BlockElement[]) : []))
     .flatMap((element): BlockSubElement[] => ('elements' in element ? element.elements : []))
     .filter((subElement) => subElement.type === 'user')
 
