@@ -54,7 +54,7 @@ export const transformTicket = (ticket: ZendeskTicket): Ticket => {
     createdAt: ticket.created_at,
     updatedAt: ticket.updated_at,
     externalId: ticket.external_id,
-    ticketFormId: ticket.ticket_form_id,
+    ticketFormId: ticket.ticket_form_id != null ? String(ticket.ticket_form_id) : null,
   }
 }
 
