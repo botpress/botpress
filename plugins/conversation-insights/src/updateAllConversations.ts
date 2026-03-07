@@ -9,13 +9,17 @@ export const updateAllConversations = async (props: WorkflowProps) => {
   const dirtyConversations = await conversations.takePage(1)
 
   const promises: Promise<void>[] = []
-  for (const conversation of dirtyConversations) {
-    const firstMessagePage = await conversation.listMessages().takePage(1)
-    const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
-    promises.push(promise)
+
+  try {
+    for (const conversation of dirtyConversations) {
+      const firstMessagePage = await conversation.listMessages().takePage(1)
+      const promise = summaryUpdater.updateTitleAndSummary({ ...props, conversation, messages: firstMessagePage })
+      promises.push(promise)
+    }
+  } finally {
+    await Promise.all(promises)
   }
 
-  await Promise.all(promises)
   if (conversations.isExhausted) {
     await props.workflow.setCompleted()
   }
