@@ -50,7 +50,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
         case 'object':
           if (Array.isArray(value)) {
             const [first] = value as unknown[]
-            if (!first) {
+            if (first === undefined || first === null) {
               acc[key] = applyOptions(z.array(z.unknown()))
             } else if (typeof first === 'object') {
               acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
