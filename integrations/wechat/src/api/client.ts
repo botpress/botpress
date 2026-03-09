@@ -122,7 +122,12 @@ async function _getAccessToken(appId: string, appSecret: string): Promise<Result
 
   const { data } = result
   if ('errcode' in data) {
-    return { success: false, error: new RuntimeError(`Failed to acquire a WeChat access token -> ${data.errmsg}`) }
+    return {
+      success: false,
+      error: new RuntimeError(
+        `Failed to acquire a WeChat access token (Error Code: ${data.errcode}) -> ${data.errmsg}`
+      ),
+    }
   }
 
   return { success: true, data: data.access_token }
