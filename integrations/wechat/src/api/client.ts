@@ -89,12 +89,10 @@ export class WeChatClient {
     }
     const uploadData = resp.data
 
-    if (uploadData.errcode && uploadData.errcode !== 0) {
-      throw new RuntimeError(`Failed to upload media to WeChat: ${uploadData.errmsg} (code: ${uploadData.errcode})`)
-    }
-
-    if (!uploadData.media_id) {
-      throw new RuntimeError('Failed to upload media to WeChat: missing media_id')
+    const hasErrorCode = uploadData.errcode && uploadData.errcode !== 0
+    if (hasErrorCode || !uploadData.media_id) {
+      const errorSuffix = hasErrorCode ? `${uploadData.errmsg} (code: ${uploadData.errcode})` : 'missing media_id'
+      throw new RuntimeError(`Failed to upload media to WeChat -> ${errorSuffix}`)
     }
 
     return uploadData.media_id
