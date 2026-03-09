@@ -99,8 +99,10 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
     return thisItems.isEqual(thatItems)
   }
 
-  // TODO(any): type this whole function properly
-  private _mergeValues(a: any, b: any): { valid: true; data: any } | { valid: false } {
+  private _mergeValues(
+    a: T['_output'],
+    b: U['_output']
+  ): { valid: true; data: T['_output'] & U['_output'] } | { valid: false } {
     const aType = getParsedType(a)
     const bType = getParsedType(b)
 
@@ -110,7 +112,7 @@ export class ZodIntersectionImpl<T extends IZodType = IZodType, U extends IZodTy
       const bKeys = Object.keys(b)
       const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1)
 
-      const newObj: any = { ...a, ...b }
+      const newObj: T['_output'] & U['_output'] = { ...a, ...b }
       for (const key of sharedKeys) {
         const sharedValue = this._mergeValues(a[key], b[key])
         if (!sharedValue.valid) {

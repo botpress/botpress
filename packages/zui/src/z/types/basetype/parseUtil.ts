@@ -132,10 +132,8 @@ export const isValid = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> 
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 
-export const getParsedType = (data: any): ZodParsedType => {
-  const t = typeof data
-
-  switch (t) {
+export const getParsedType = (data: unknown): ZodParsedType => {
+  switch (typeof data) {
     case 'undefined':
       return 'undefined'
 
@@ -164,7 +162,16 @@ export const getParsedType = (data: any): ZodParsedType => {
       if (data === null) {
         return 'null'
       }
-      if (data.then && typeof data.then === 'function' && data.catch && typeof data.catch === 'function') {
+      if (typeof Promise !== 'undefined' && data instanceof Promise) {
+        return 'promise'
+      }
+      if (
+        // for fake promises
+        (data as Promise<unknown>).then &&
+        typeof (data as Promise<unknown>).then === 'function' &&
+        (data as Promise<unknown>).catch &&
+        typeof (data as Promise<unknown>).catch === 'function'
+      ) {
         return 'promise'
       }
       if (typeof Map !== 'undefined' && data instanceof Map) {
