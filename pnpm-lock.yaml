@@ -2081,10 +2081,16 @@ importers:
       axios:
         specifier: ^1.6.8
         version: 1.13.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/lodash':
+        specifier: ^4.17.0
+        version: 4.17.0
 
   integrations/whatsapp:
     dependencies:
@@ -16283,7 +16289,7 @@ snapshots:
 
   axios@1.13.1:
     dependencies:
-      follow-redirects: 1.15.6(debug@4.4.1)
+      follow-redirects: 1.15.6
       form-data: 4.0.4
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -17992,6 +17998,8 @@ snapshots:
   follow-redirects@1.15.2: {}
 
   follow-redirects@1.15.5: {}
+
+  follow-redirects@1.15.6: {}
 
   follow-redirects@1.15.6(debug@4.4.1):
     optionalDependencies:
