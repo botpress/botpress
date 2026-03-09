@@ -22,7 +22,7 @@ export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
     }
 
     if (nativeEnumValues.indexOf(input.data) === -1) {
-      const expectedValues: any[] = Object.values(nativeEnumValues)
+      const expectedValues: (string | number)[] = Object.values(nativeEnumValues)
 
       addIssueToContext(ctx, {
         received: ctx.data,
@@ -44,7 +44,7 @@ export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
   }
 
   private _getValidEnumValues = (obj: EnumLike) => {
-    const validKeys = Object.keys(obj).filter((k: any) => typeof obj[obj[k]!] !== 'number')
+    const validKeys = Object.keys(obj).filter((k) => typeof obj[obj[k]!] !== 'number')
     const filtered: EnumLike = {}
     for (const k of validKeys) {
       filtered[k] = obj[k]!

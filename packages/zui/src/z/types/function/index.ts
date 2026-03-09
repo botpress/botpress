@@ -49,6 +49,8 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
   }
 
   _parse(input: ParseInput): ParseReturnType<any> {
+    // TODO(any): properly type this method
+
     const { ctx } = this._processInputParams(input)
     if (ctx.parsedType !== 'function') {
       addIssueToContext(ctx, {

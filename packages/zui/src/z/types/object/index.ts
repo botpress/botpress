@@ -16,6 +16,7 @@ import type {
   IZodEnum,
   ParseInput,
   ParseReturnType,
+  SyncParseReturnType,
 } from '../../typings'
 import { addIssueToContext, ParseStatus, ParseInputLazyPath, ZodBaseTypeImpl, type MergeObjectPair } from '../basetype'
 
@@ -148,7 +149,11 @@ export class ZodObjectImpl<
     if (ctx.common.async) {
       return Promise.resolve()
         .then(async () => {
-          const syncPairs: any[] = []
+          const syncPairs: {
+            key: SyncParseReturnType<any>
+            value: SyncParseReturnType<any>
+            alwaysSet?: boolean
+          }[] = []
           for (const pair of pairs) {
             const key = await pair.key
             syncPairs.push({
