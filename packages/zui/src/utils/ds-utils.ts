@@ -4,7 +4,7 @@ export type CustomSetOptions<T> = {
   compare: (a: T, b: T) => boolean
 }
 
-const DEFAULT_OPTIONS: CustomSetOptions<any> = {
+const DEFAULT_OPTIONS: CustomSetOptions<unknown> = {
   compare: isEqual,
 }
 
