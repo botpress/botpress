@@ -69,22 +69,21 @@ const _sendMessage = async (
   message: WeChatOutgoingMessage,
   wechatClient?: WeChatClient
 ): Promise<void> => {
-  const chatId = _getWeChatChatId(conversation)
+  const wechatConvoId = _getWeChatConversationId(conversation)
 
   wechatClient ??= await WeChatClient.create(ctx)
-  const sendResponse = await wechatClient.sendMessage(chatId, message)
+  const sendResponse = await wechatClient.sendMessage(wechatConvoId, message)
 
   const ackId = sendResponse.msgId ?? createAckId('wechat')
   await ack({ tags: { id: ackId } })
 }
 
-// get chat ID (WeChat user OpenID) from conversation tags
-const _getWeChatChatId = (conversation: { tags: Record<string, string> }): string => {
-  const chatId = conversation.tags?.id || conversation.tags?.chatId
-  if (!chatId) {
+const _getWeChatConversationId = (conversation: { tags: Record<string, string> }): string => {
+  const wechatConvoId = conversation.tags?.id || conversation.tags?.chatId
+  if (!wechatConvoId) {
     throw new RuntimeError('Conversation does not have a WeChat chat ID')
   }
-  return chatId
+  return wechatConvoId
 }
 
 // Upload media to WeChat cloud (returns media_id)
