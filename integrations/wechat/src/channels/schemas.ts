@@ -1,6 +1,8 @@
 import { z } from '@botpress/sdk'
 import { Merge } from '../types'
 
+const MS_PER_SECOND = 1000
+
 export const wechatMessageSchema = z
   .object({
     msgId: z.string().min(1),
@@ -20,5 +22,9 @@ export const wechatMessageSchema = z
     createTime: z.coerce.number().positive().describe('Seconds since UTC Epoch'),
   })
   .passthrough()
+  .transform(({ createTime, ...data }) => ({
+    ...data,
+    dateCreated: new Date(createTime * MS_PER_SECOND),
+  }))
 export type WeChatMessage = z.infer<typeof wechatMessageSchema>
 export type WeChatMediaMessage = Merge<WeChatMessage, { msgType: 'image' | 'video' }>
