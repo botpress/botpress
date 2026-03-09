@@ -1,3 +1,4 @@
+import { XMLParser } from 'fast-xml-parser'
 import camelCase from 'lodash/camelCase'
 import { Result } from '../types'
 import { usePromiseToResult } from '../utils'
@@ -17,7 +18,7 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
     return { success: false, error: new Error('Received empty webhook payload') }
   }
 
-  const parseResult = _parseAndValidateWeChatMessage(requestBody)
+  const parseResult = _parseAndValidateMessage(requestBody, props.logger)
   if (!parseResult.success) return parseResult
 
   const wechatMessage: WeChatMessage = parseResult.data
@@ -100,6 +101,38 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
   return { success: true, data: 'success' }
 }
 
+const _parseAndValidateWeChatXmlMessage = (rawXmlContent: string): Result<WeChatMessage> => {
+  const parser = new XMLParser({ parseTagValue: false })
+  const parseData = _mapWechatMessageKeys(parser.parse(rawXmlContent))
+  const result = wechatMessageSchema.safeParse(parseData)
+
+  if (!result.success) {
+    return {
+      success: false,
+      error: new Error(`Unexpected WeChat message body received -> ${result.error.message}`),
+    }
+  }
+
+  return result
+}
+
+// This abstraction can be removed once we determine the "fallback" to no longer be necessary
+const _parseAndValidateMessage = (rawXmlContent: string, logger: bp.Logger) => {
+  const result = _parseAndValidateWeChatXmlMessage(rawXmlContent)
+
+  if (!result.success) {
+    const fbResult = _fallbackParseAndValidateWeChatMessage(rawXmlContent)
+    if (fbResult.success) {
+      logger.error(`Primary message parser failure, fallback used -> ${result.error.message}`)
+      return fbResult
+    }
+
+    return result
+  }
+
+  return result
+}
+
 const _mapWechatMessageKeys = (parsedWechatMessage: Record<string, any>): Record<string, any> => {
   const mappedEntries = Object.entries(parsedWechatMessage).map(([key, value]) => {
     const mappedKey = camelCase(key)
@@ -112,6 +145,7 @@ const _mapWechatMessageKeys = (parsedWechatMessage: Record<string, any>): Record
   return Object.fromEntries(mappedEntries)
 }
 
+/** Tightly coupled to "_fallbackParseAndValidateWeChatMessage" */
 const _extractXmlValue = (xml: string, tag: string): string | undefined => {
   // find pattern of CDATA or plain text: <Tag><![CDATA[value]]></Tag> or <Tag>value</Tag>
   const valueRegex = new RegExp(`<${tag}>\\s*(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?\\s*</${tag}>`, 'i')
@@ -119,7 +153,9 @@ const _extractXmlValue = (xml: string, tag: string): string | undefined => {
   return match?.[1]
 }
 
-const _parseAndValidateWeChatMessage = (reqBody: string): Result<WeChatMessage> => {
+// This is a fallback parser, it can be removed once we're sufficiently confident
+// that "_parseAndValidateWeChatXmlMessage" works in all expected use-cases.
+const _fallbackParseAndValidateWeChatMessage = (reqBody: string): Result<WeChatMessage> => {
   const _wechatMessageKeys = [
     'MsgId',
     'MsgType',
