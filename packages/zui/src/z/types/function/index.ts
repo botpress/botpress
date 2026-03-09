@@ -49,7 +49,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
   }
 
   // TODO(any): type this whole function properly
-  _parse(input: ParseInput): ParseReturnType<any> {
+  _parse(input: ParseInput): ParseReturnType {
     const { ctx } = this._processInputParams(input)
     if (ctx.parsedType !== 'function') {
       addIssueToContext(ctx, {

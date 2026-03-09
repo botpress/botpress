@@ -525,7 +525,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this
   }
 
-  private _handleResult = <Input, Output>(
+  private _handleResult = (
     ctx: ParseContext,
     result: SyncParseReturnType<Output>
   ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {

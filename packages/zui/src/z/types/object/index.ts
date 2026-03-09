@@ -101,8 +101,8 @@ export class ZodObjectImpl<
     }
 
     const pairs: {
-      key: ParseReturnType<any>
-      value: ParseReturnType<any>
+      key: ParseReturnType
+      value: ParseReturnType
       alwaysSet?: boolean
     }[] = []
     for (const key of shapeKeys) {
@@ -150,8 +150,8 @@ export class ZodObjectImpl<
       return Promise.resolve()
         .then(async () => {
           const syncPairs: {
-            key: SyncParseReturnType<any>
-            value: SyncParseReturnType<any>
+            key: SyncParseReturnType
+            value: SyncParseReturnType
             alwaysSet?: boolean
           }[] = []
           for (const pair of pairs) {

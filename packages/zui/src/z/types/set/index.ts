@@ -67,7 +67,7 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
 
     const valueType = this._def.valueType
 
-    function finalizeSet(elements: SyncParseReturnType<any>[]): SyncParseReturnType<any> {
+    function finalizeSet(elements: SyncParseReturnType[]): SyncParseReturnType {
       const parsedSet = new Set()
       for (const element of elements) {
         if (element.status === 'aborted') return { status: 'aborted' }
@@ -84,7 +84,7 @@ export class ZodSetImpl<Value extends IZodType = IZodType>
     if (ctx.common.async) {
       return Promise.all(elements).then((elements) => finalizeSet(elements))
     } else {
-      return finalizeSet(elements as SyncParseReturnType<any>[])
+      return finalizeSet(elements as SyncParseReturnType[])
     }
   }
 

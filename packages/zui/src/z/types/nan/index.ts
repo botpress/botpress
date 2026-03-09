@@ -2,7 +2,7 @@ import type { IZodNaN, ZodNaNDef, ParseInput, ParseReturnType } from '../../typi
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZodNaN {
-  _parse(input: ParseInput): ParseReturnType<any> {
+  _parse(input: ParseInput): ParseReturnType {
     const parsedType = this._getType(input)
     if (parsedType !== 'nan') {
       const ctx = this._getOrReturnCtx(input)

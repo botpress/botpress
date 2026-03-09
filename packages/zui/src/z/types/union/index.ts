@@ -50,9 +50,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
     const { ctx } = this._processInputParams(input)
     const options = this._def.options
 
-    function handleResults(
-      results: { ctx: ParseContext; result: SyncParseReturnType<any> }[]
-    ): SyncParseReturnType<any> {
+    function handleResults(results: { ctx: ParseContext; result: SyncParseReturnType }[]): SyncParseReturnType {
       // return first issue-free validation if it exists
       for (const result of results) {
         if (result.result.status === 'valid') {

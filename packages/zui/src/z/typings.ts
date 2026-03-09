@@ -327,8 +327,8 @@ export type DirtyParseReturnType<T> = { status: 'dirty'; value: T }
 export type ValidParseReturnType<T> = { status: 'valid'; value: T }
 
 export type SyncParseReturnType<T = any> = ValidParseReturnType<T> | DirtyParseReturnType<T> | InvalidParseReturnType
-export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
-export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
+export type AsyncParseReturnType<T = any> = Promise<SyncParseReturnType<T>>
+export type ParseReturnType<T = any> = SyncParseReturnType<T> | AsyncParseReturnType<T>
 
 export type SafeParseSuccess<Output> = {
   success: true

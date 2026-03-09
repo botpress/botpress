@@ -34,10 +34,10 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
     })
   }
 
-  _parse(input: ParseInput): ParseReturnType<any> {
+  _parse(input: ParseInput): ParseReturnType {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.common.async) {
-      const handleAsync = async (): AsyncParseReturnType<any> => {
+      const handleAsync = async (): AsyncParseReturnType => {
         const inResult = await this._def.in._parseAsync({
           data: ctx.data,
           path: ctx.path,

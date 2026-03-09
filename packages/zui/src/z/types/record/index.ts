@@ -60,8 +60,8 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
     }
 
     const pairs: {
-      key: ParseReturnType<any>
-      value: ParseReturnType<any>
+      key: ParseReturnType
+      value: ParseReturnType
     }[] = []
 
     const keyType = this._def.keyType
