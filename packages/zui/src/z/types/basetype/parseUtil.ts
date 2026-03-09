@@ -162,6 +162,9 @@ export const getParsedType = (data: unknown): ZodParsedType => {
       if (data === null) {
         return 'null'
       }
+      if (typeof Promise !== 'undefined' && data instanceof Promise) {
+        return 'promise'
+      }
       if (
         // for fake promises
         (data as Promise<unknown>).then &&
@@ -169,9 +172,6 @@ export const getParsedType = (data: unknown): ZodParsedType => {
         (data as Promise<unknown>).catch &&
         typeof (data as Promise<unknown>).catch === 'function'
       ) {
-        return 'promise'
-      }
-      if (typeof Promise !== 'undefined' && data instanceof Promise) {
         return 'promise'
       }
       if (typeof Map !== 'undefined' && data instanceof Map) {
