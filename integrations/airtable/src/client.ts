@@ -1,7 +1,7 @@
 import Airtable, { type FieldSet } from 'airtable'
 import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'querystring'
-import { TableFields } from './misc/types'
+import type { CreatableField } from './misc/field-schemas'
 
 type TableResponse = {
   id: string
@@ -79,7 +79,7 @@ export class AirtableApi {
     }
   }
 
-  public async createTable(name: string, fields: TableFields, description?: string): Promise<TableResponse> {
+  public async createTable(name: string, fields: CreatableField[], description?: string): Promise<TableResponse> {
     const descriptionLimit = 20000
     const validDescription = description?.slice(0, descriptionLimit)
     const payload = {

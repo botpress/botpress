@@ -1,12 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
 import type { IntegrationProps } from '../misc/types'
-import { fieldsStringToArray, getClient } from '../utils'
+import { getClient } from '../utils'
 
 export const createTable: IntegrationProps['actions']['createTable'] = async ({ ctx, logger, input }) => {
   const AirtableClient = getClient(ctx.configuration)
 
   try {
-    const table = await AirtableClient.createTable(input.name, fieldsStringToArray(input.fields), input.description)
+    const table = await AirtableClient.createTable(input.name, input.fields, input.description)
     logger.forBot().info(`Successful - Create Table - ${table.id} - ${table.name}`)
     return table
   } catch (thrown) {

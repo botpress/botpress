@@ -1,4 +1,5 @@
 import { z } from '@botpress/sdk'
+import { creatableFieldSchema } from './field-schemas'
 import { tableSchema, recordSchema } from './sub-schemas'
 
 export const getTableRecordsInputSchema = z.object({
@@ -37,10 +38,9 @@ export const listRecordsOutputSchema = z
 export const createTableInputSchema = z.object({
   name: z.string().describe('Name of the Table (e.g. MyTable)').title('Name'),
   fields: z
-    .string()
-    .describe(
-      'The Table\'s fields, separated by commas. Each field should be in the format "type_name" (e.g. "phoneNumber_Customer Phone, singleLineText_Address").'
-    )
+    .array(creatableFieldSchema)
+    .min(1)
+    .describe('The fields to create in the table. Each field requires a name and type, and some types require additional options.')
     .title('Fields'),
   description: z
     .string()
