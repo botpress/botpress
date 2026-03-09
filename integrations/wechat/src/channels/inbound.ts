@@ -9,7 +9,6 @@ import * as bp from '.botpress'
 export type BotpressConversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
 export type BotpressUser = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-// TODO: Finish this
 export const processInboundChannelMessage = async (props: bp.HandlerProps): Promise<Result<string>> => {
   const { client, req } = props
 
