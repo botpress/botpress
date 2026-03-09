@@ -356,7 +356,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   default(def: utils.types.NoUndefined<Input>): IZodDefault<this>
   default(def: () => utils.types.NoUndefined<Input>): IZodDefault<this>
-  default(def: any) {
+  default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {
     const defaultValueFunc = typeof def === 'function' ? def : () => def
     return builders.default(this, defaultValueFunc)
   }
@@ -525,7 +525,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this
   }
 
-  private _handleResult = <Input, Output>(
+  private _handleResult = (
     ctx: ParseContext,
     result: SyncParseReturnType<Output>
   ): { success: true; data: Output } | { success: false; error: ZodError<Input> } => {
@@ -539,6 +539,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       return {
         success: false,
         get error() {
+          // TODO(why): find out why we cast as any and set a property that isn't defined above as a class property
           if ((this as any)._error) return (this as any)._error as Error
           const error = new ZodError(ctx.common.issues)
           ;(this as any)._error = error

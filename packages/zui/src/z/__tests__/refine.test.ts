@@ -2,6 +2,8 @@ import { test, expect } from 'vitest'
 import * as assert from '../../assertions.utils.test'
 import * as z from '../index'
 
+const _strictEqual = (a: unknown, b: unknown) => a === b
+
 test('refinement', () => {
   const obj1 = z.object({
     first: z.string(),
@@ -11,9 +13,8 @@ test('refinement', () => {
 
   const obj3 = obj2.refine((data) => data.first || data.second, 'Either first or second should be filled in.')
 
-  // TODO(any): type properly
-  expect(obj1 === (obj2 as any)).toEqual(false)
-  expect(obj2 === (obj3 as any)).toEqual(false)
+  expect(_strictEqual(obj1, obj2)).toEqual(false)
+  expect(_strictEqual(obj2, obj3)).toEqual(false)
 
   expect(() => obj1.parse({})).toThrow()
   expect(() => obj2.parse({ third: 'adsf' })).toThrow()

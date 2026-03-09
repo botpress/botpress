@@ -25,7 +25,7 @@ export class ZodBrandedImpl<T extends IZodType = IZodType, B extends Key = Key>
     })
   }
 
-  _parse(input: ParseInput): ParseReturnType<any> {
+  _parse(input: ParseInput): ParseReturnType {
     const { ctx } = this._processInputParams(input)
     const data = ctx.data
     return this._def.type._parse({

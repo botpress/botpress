@@ -26,7 +26,7 @@ export type ZuiMetadata =
 
 export type ZuiExtensionObject = {
   tooltip?: boolean
-  displayAs?: [string, any]
+  displayAs?: [string, ZuiMetadata]
   title?: string
   disabled?: boolean | string
   hidden?: boolean | string
@@ -198,7 +198,7 @@ export type ZodUnresolvedReferenceIssue = {
 export type ZodCustomIssue = {
   code: 'custom'
   params?: {
-    [k: string]: any
+    [k: string]: unknown
   }
 } & _ZodIssueBase
 
@@ -247,7 +247,7 @@ export type ZodFormattedError<T, U = string> = {
 } & _RecursiveZodFormattedError<NonNullable<T>>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodError<T = any> extends Error {
+export interface IZodError<T = unknown> extends Error {
   readonly __type__: 'ZuiError'
   issues: ZodIssue[]
   errors: ZodIssue[]
@@ -323,12 +323,12 @@ export type ParseInput = {
 }
 
 export type InvalidParseReturnType = { status: 'aborted' }
-export type DirtyParseReturnType<T> = { status: 'dirty'; value: T }
-export type ValidParseReturnType<T> = { status: 'valid'; value: T }
+export type DirtyParseReturnType<T = any> = { status: 'dirty'; value: T }
+export type ValidParseReturnType<T = any> = { status: 'valid'; value: T }
 
 export type SyncParseReturnType<T = any> = ValidParseReturnType<T> | DirtyParseReturnType<T> | InvalidParseReturnType
-export type AsyncParseReturnType<T> = Promise<SyncParseReturnType<T>>
-export type ParseReturnType<T> = SyncParseReturnType<T> | AsyncParseReturnType<T>
+export type AsyncParseReturnType<T = any> = Promise<SyncParseReturnType<T>>
+export type ParseReturnType<T = any> = SyncParseReturnType<T> | AsyncParseReturnType<T>
 
 export type SafeParseSuccess<Output> = {
   success: true
@@ -1323,7 +1323,7 @@ export interface IZodPromise<T extends IZodType = IZodType>
 
 //* ─────────────────────────── ZodReadonly ───────────────────────────────────
 
-export type BuiltIn =
+type _BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))
   | {
       readonly [Symbol.toStringTag]: string
@@ -1343,7 +1343,7 @@ export type MakeReadonly<T> =
         ? readonly [Head, ...Tail]
         : T extends Array<infer V>
           ? ReadonlyArray<V>
-          : T extends BuiltIn
+          : T extends _BuiltIn
             ? T
             : Readonly<T>
 
@@ -1524,7 +1524,7 @@ export type ZodRecordDef<Key extends KeySchema = KeySchema, Value extends IZodTy
   typeName: 'ZodRecord'
 } & ZodTypeDef
 
-export type KeySchema = IZodType<string | number | symbol, any, any>
+export type KeySchema = IZodType<string | number | symbol, ZodTypeDef>
 export type RecordType<K extends string | number | symbol, V> = [string] extends [K]
   ? Record<K, V>
   : [number] extends [K]
@@ -1536,7 +1536,7 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         : Partial<Record<K, V>>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodRecord<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
+export interface IZodRecord<Key extends KeySchema = KeySchema, Value extends IZodType = IZodType>
   extends IZodType<
     RecordType<Key['_output'], Value['_output']>,
     ZodRecordDef<Key, Value>,
@@ -1795,7 +1795,7 @@ export declare function createRecord(
   first: KeySchema | IZodType,
   second?: ZodCreateParams | IZodType,
   third?: ZodCreateParams
-): IZodRecord<any, any>
+): IZodRecord
 export declare function createMap<Key extends IZodType, Value extends IZodType>(
   keyType: Key,
   valueType: Value,

@@ -1,7 +1,6 @@
 import * as utils from '../../../utils'
 import type {
   IZodRecord,
-  IZodString,
   IZodType,
   KeySchema,
   RecordType,
@@ -11,7 +10,7 @@ import type {
 } from '../../typings'
 import { ParseInputLazyPath, ZodBaseTypeImpl, addIssueToContext, ParseStatus, type MergeObjectPair } from '../basetype'
 
-export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
+export class ZodRecordImpl<Key extends KeySchema = KeySchema, Value extends IZodType = IZodType>
   extends ZodBaseTypeImpl<
     RecordType<Key['_output'], Value['_output']>,
     ZodRecordDef<Key, Value>,
@@ -60,8 +59,8 @@ export class ZodRecordImpl<Key extends KeySchema = IZodString, Value extends IZo
     }
 
     const pairs: {
-      key: ParseReturnType<any>
-      value: ParseReturnType<any>
+      key: ParseReturnType
+      value: ParseReturnType
     }[] = []
 
     const keyType = this._def.keyType

@@ -94,7 +94,7 @@ export class ZodTupleImpl<
         return ParseStatus.mergeArray(status, results)
       })
     } else {
-      return ParseStatus.mergeArray(status, items as SyncParseReturnType<any>[])
+      return ParseStatus.mergeArray(status, items as SyncParseReturnType[])
     }
   }
 

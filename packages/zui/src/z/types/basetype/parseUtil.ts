@@ -47,8 +47,8 @@ export type ParsePath = (string | number)[]
 export const EMPTY_PATH: ParsePath = []
 
 export type MergeObjectPair = {
-  key: SyncParseReturnType<any>
-  value: SyncParseReturnType<any>
+  key: SyncParseReturnType
+  value: SyncParseReturnType
   alwaysSet?: boolean
 }
 
@@ -68,8 +68,8 @@ export function addIssueToContext(ctx: ParseContext, issueData: IssueData): void
 }
 
 export type ObjectPair = {
-  key: SyncParseReturnType<any>
-  value: SyncParseReturnType<any>
+  key: SyncParseReturnType
+  value: SyncParseReturnType
 }
 export class ParseStatus {
   value: 'aborted' | 'dirty' | 'valid' = 'valid'
@@ -80,7 +80,7 @@ export class ParseStatus {
     if (this.value !== 'aborted') this.value = 'aborted'
   }
 
-  static mergeArray(status: ParseStatus, results: SyncParseReturnType<any>[]): SyncParseReturnType {
+  static mergeArray(status: ParseStatus, results: SyncParseReturnType[]): SyncParseReturnType {
     const arrayValue: any[] = []
     for (const s of results) {
       if (s.status === 'aborted') return { status: 'aborted' }
@@ -93,8 +93,8 @@ export class ParseStatus {
 
   static async mergeObjectAsync(
     status: ParseStatus,
-    pairs: { key: ParseReturnType<any>; value: ParseReturnType<any> }[]
-  ): Promise<SyncParseReturnType<any>> {
+    pairs: { key: ParseReturnType; value: ParseReturnType }[]
+  ): Promise<SyncParseReturnType> {
     const syncPairs: ObjectPair[] = []
     for (const pair of pairs) {
       syncPairs.push({
@@ -123,7 +123,7 @@ export class ParseStatus {
   }
 }
 
-export const isAborted = (x: ParseReturnType<any>): x is InvalidParseReturnType =>
+export const isAborted = (x: ParseReturnType): x is InvalidParseReturnType =>
   (x as SyncParseReturnType).status === 'aborted'
 export const isDirty = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> | DirtyParseReturnType<T> =>
   (x as SyncParseReturnType).status === 'dirty'
@@ -132,10 +132,8 @@ export const isValid = <T>(x: ParseReturnType<T>): x is ValidParseReturnType<T> 
 export const isAsync = <T>(x: ParseReturnType<T>): x is AsyncParseReturnType<T> =>
   typeof Promise !== 'undefined' && x instanceof Promise
 
-export const getParsedType = (data: any): ZodParsedType => {
-  const t = typeof data
-
-  switch (t) {
+export const getParsedType = (data: unknown): ZodParsedType => {
+  switch (typeof data) {
     case 'undefined':
       return 'undefined'
 
@@ -164,7 +162,16 @@ export const getParsedType = (data: any): ZodParsedType => {
       if (data === null) {
         return 'null'
       }
-      if (data.then && typeof data.then === 'function' && data.catch && typeof data.catch === 'function') {
+      if (typeof Promise !== 'undefined' && data instanceof Promise) {
+        return 'promise'
+      }
+      if (
+        // for fake promises
+        (data as Promise<unknown>).then &&
+        typeof (data as Promise<unknown>).then === 'function' &&
+        (data as Promise<unknown>).catch &&
+        typeof (data as Promise<unknown>).catch === 'function'
+      ) {
         return 'promise'
       }
       if (typeof Map !== 'undefined' && data instanceof Map) {

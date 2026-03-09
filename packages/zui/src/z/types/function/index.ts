@@ -48,7 +48,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
     })
   }
 
-  _parse(input: ParseInput): ParseReturnType<any> {
+  _parse(input: ParseInput): ParseReturnType {
     const { ctx } = this._processInputParams(input)
     if (ctx.parsedType !== 'function') {
       addIssueToContext(ctx, {
@@ -59,7 +59,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
       return { status: 'aborted' }
     }
 
-    function makeArgsIssue(args: any, error: ZodError): ZodIssue {
+    function makeArgsIssue(args: unknown, error: ZodError): ZodIssue {
       return makeIssue({
         data: args,
         path: ctx.path,
@@ -73,7 +73,7 @@ export class ZodFunctionImpl<Args extends IZodTuple<any, any> = IZodTuple, Retur
       })
     }
 
-    function makeReturnsIssue(returns: any, error: ZodError): ZodIssue {
+    function makeReturnsIssue(returns: unknown, error: ZodError): ZodIssue {
       return makeIssue({
         data: returns,
         path: ctx.path,

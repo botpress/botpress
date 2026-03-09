@@ -100,8 +100,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       }
     }
     if (effect.type === 'refinement') {
-      // TODO(any): type properly
-      const executeRefinement = (acc: unknown): any => {
+      const executeRefinement = (acc: unknown): unknown => {
         const result = effect.refinement(acc, checkCtx)
         if (ctx.common.async) {
           return Promise.resolve(result)
@@ -129,7 +128,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           if (inner.status === 'aborted') return { status: 'aborted' }
           if (inner.status === 'dirty') status.dirty()
 
-          return executeRefinement(inner.value).then(() => {
+          return (executeRefinement(inner.value) as Promise<unknown>).then(() => {
             return { status: status.value, value: inner.value }
           })
         })

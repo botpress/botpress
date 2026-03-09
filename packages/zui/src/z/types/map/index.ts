@@ -80,8 +80,8 @@ export class ZodMapImpl<Key extends IZodType = IZodType, Value extends IZodType 
     } else {
       const finalMap = new Map()
       for (const pair of pairs) {
-        const key = pair.key as SyncParseReturnType<any>
-        const value = pair.value as SyncParseReturnType<any>
+        const key = pair.key as SyncParseReturnType
+        const value = pair.value as SyncParseReturnType
         if (key.status === 'aborted' || value.status === 'aborted') {
           return { status: 'aborted' }
         }
