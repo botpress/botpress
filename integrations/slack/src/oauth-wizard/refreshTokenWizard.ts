@@ -5,7 +5,7 @@ import { handleOAuthCallback } from '../webhook-events/handlers/oauth-callback'
 import * as bp from '.botpress'
 
 type WizardHandler = oauthWizard.WizardStepHandler<bp.HandlerProps>
-type ManualConfigState = bp.states.manualConfig.ManualConfig['payload']
+type ManualConfigState = bp.states.oAuthCredentialsV2.OAuthCredentialsV2['payload']
 
 export const handler = async (props: bp.HandlerProps): Promise<Response> => {
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
@@ -33,7 +33,7 @@ const _patchManualConfigState = async (
   const state = await _manualConfigState(client, ctx)
   logger?.forBot().debug(state)
   logger?.forBot().debug('new', newState)
-  const { data, success, error } = states.manualConfig.schema.safeParse({
+  const { data, success, error } = states.oAuthCredentialsV2.schema.safeParse({
     ...state,
     ...newState,
   })
@@ -43,7 +43,7 @@ const _patchManualConfigState = async (
   await client.setState({
     type: 'integration',
     id: ctx.integrationId,
-    name: 'manualConfig',
+    name: 'oAuthCredentialsV2',
     payload: data,
   })
 }
@@ -52,7 +52,7 @@ const _manualConfigState = async (client: bp.Client, ctx: bp.Context): Promise<P
   try {
     const { state } = await client.getState({
       type: 'integration',
-      name: 'manualConfig',
+      name: 'oAuthCredentialsV2',
       id: ctx.integrationId,
     })
     return state.payload
