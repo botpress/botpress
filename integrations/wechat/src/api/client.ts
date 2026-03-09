@@ -74,18 +74,11 @@ export class WeChatClient {
     const formData = new FormData()
     formData.append('media', mediaBlob, `media.${fileExtension}`)
 
-    const uploadUrl = `${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`
-    const uploadResponse = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData,
-    })
+    const resp = await axios
+      .post(`${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`)
+      .catch(useHandleCaughtError('Failed to upload media to WeChat API'))
 
-    if (!uploadResponse.ok) {
-      throw new RuntimeError(`Failed to upload media to WeChat: ${uploadResponse.status} ${uploadResponse.statusText}`)
-    }
-
-    // TODO: Refactor this
-    const uploadData = (await uploadResponse.json()) as { media_id?: string; errcode?: number; errmsg?: string }
+    const uploadData = resp.data as { media_id?: string; errcode?: number; errmsg?: string }
 
     if (uploadData.errcode && uploadData.errcode !== 0) {
       throw new RuntimeError(`Failed to upload media to WeChat: ${uploadData.errmsg} (code: ${uploadData.errcode})`)
