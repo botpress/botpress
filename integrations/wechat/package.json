@@ -10,6 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "axios": "^1.6.8",
+    "fast-xml-parser": "^5.4.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
