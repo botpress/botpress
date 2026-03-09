@@ -85,14 +85,24 @@ const checkboxIcons = [...ratingIcons, 'check', 'xCheckbox'] as const
 
 // Shared sub-schemas
 
+const dateFormatName = z.enum(['local', 'friendly', 'us', 'european', 'iso'])
+
 const dateFormatSchema = z.object({
-  name: z.enum(['local', 'friendly', 'us', 'european', 'iso']).title('Format Name').describe('Date format name'),
-  format: z.string().optional().title('Format String').describe('Date format string'),
+  name: dateFormatName
+    .title('Format Name')
+    .describe(
+      'Date format preset: local (locale-dependent), friendly (LL e.g. "January 1, 2020"), us (M/D/YYYY), european (D/M/YYYY), iso (YYYY-MM-DD)'
+    ),
+  format: z.string().optional().title('Format String').describe('Read-only format string, auto-set based on name'),
 })
 
+const timeFormatName = z.enum(['12hour', '24hour'])
+
 const timeFormatSchema = z.object({
-  name: z.enum(['12hour', '24hour']).title('Format Name').describe('Time format name'),
-  format: z.string().optional().title('Format String').describe('Time format string'),
+  name: timeFormatName
+    .title('Format Name')
+    .describe('Time format preset: 12hour (h:mma e.g. "1:00pm"), 24hour (HH:mm e.g. "13:00")'),
+  format: z.string().optional().title('Format String').describe('Read-only format string, auto-set based on name'),
 })
 
 const choiceSchema = z.object({
