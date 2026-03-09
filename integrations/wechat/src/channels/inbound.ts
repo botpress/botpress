@@ -1,3 +1,4 @@
+import camelCase from 'lodash/camelCase'
 import { Result } from '../types'
 import { usePromiseToResult } from '../utils'
 import { WeChatMediaMessage, WeChatMessage, wechatMessageSchema } from './schemas'
@@ -15,29 +16,44 @@ const _extractXmlValue = (xml: string, tag: string): string | undefined => {
 }
 
 const _parseAndValidateWeChatMessage = (reqBody: string): Result<WeChatMessage> => {
-  const result = wechatMessageSchema.safeParse({
-    msgId: _extractXmlValue(reqBody, 'MsgId'),
-    msgType: _extractXmlValue(reqBody, 'MsgType'),
-    toUserName: _extractXmlValue(reqBody, 'ToUserName'),
-    fromUserName: _extractXmlValue(reqBody, 'FromUserName'),
-    content: _extractXmlValue(reqBody, 'Content'),
-    picUrl: _extractXmlValue(reqBody, 'PicUrl'),
-    mediaId: _extractXmlValue(reqBody, 'MediaId'),
-    recognition: _extractXmlValue(reqBody, 'Recognition'),
-    locationX: _extractXmlValue(reqBody, 'Location_X'),
-    locationY: _extractXmlValue(reqBody, 'Location_Y'),
-    label: _extractXmlValue(reqBody, 'Label'),
-    title: _extractXmlValue(reqBody, 'Title'),
-    description: _extractXmlValue(reqBody, 'Description'),
-    url: _extractXmlValue(reqBody, 'Url'),
-    dateCreated: _extractXmlValue(reqBody, 'CreateTime'),
-  })
+  const _wechatMessageKeys = [
+    'MsgId',
+    'MsgType',
+    'ToUserName',
+    'FromUserName',
+    'Content',
+    'PicUrl',
+    'MediaId',
+    'Recognition',
+    'Location_X',
+    'Location_Y',
+    'Label',
+    'Title',
+    'Description',
+    'Url',
+    'CreateTime',
+  ]
+
+  const entries = _wechatMessageKeys.map((key) => [camelCase(key), _extractXmlValue(reqBody, key)])
+  const result = wechatMessageSchema.safeParse(Object.fromEntries(entries))
 
   if (!result.success) {
-    return { success: false, error: new Error(`The request body XML is malformed -> ${result.error.message}`) }
+    return { success: false, error: new Error(`Unexpected WeChat Message Body received -> ${result.error.message}`) }
   }
 
   return result
+}
+
+const _mapWechatMessageKeys = (parsedWechatMessage: Record<string, any>): Record<string, any> => {
+  const mappedEntries = Object.entries(parsedWechatMessage).map(([key, value]) => {
+    const mappedKey = camelCase(key)
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      return [mappedKey, _mapWechatMessageKeys(value)] as const
+    }
+
+    return [mappedKey, value] as const
+  })
+  return Object.fromEntries(mappedEntries)
 }
 
 // TODO: Finish this
@@ -81,7 +97,7 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
   if (!userResult.success) return userResult
   const { user } = userResult.data
 
-  const messageId = wechatMessage.msgId || wechatMessage.dateCreated // Using "dateCreated" does not seem like a good idea, consider refactoring it
+  const messageId = wechatMessage.msgId
   const baseMessage = {
     tags: {
       id: messageId,

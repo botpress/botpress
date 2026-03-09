@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 import { Merge } from '../types'
 
 export const wechatMessageSchema = z.object({
-  msgId: z.string(), // TBD if this is always present (aka min length 1), will confirm in QA
+  msgId: z.string().min(1),
   msgType: z.string().min(1),
   toUserName: z.string().min(1),
   fromUserName: z.string().min(1),
@@ -16,7 +16,7 @@ export const wechatMessageSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   url: z.string().optional(),
-  dateCreated: z.string().min(1),
+  createTime: z.coerce.number().positive().describe('Seconds since UTC Epoch'),
 })
 export type WeChatMessage = z.infer<typeof wechatMessageSchema>
 export type WeChatMediaMessage = Merge<WeChatMessage, { msgType: 'image' | 'video' }>
