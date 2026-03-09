@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 
 const MISSING_ACCESS_TOKEN_MSG = 'The WeChat access token is missing from the response'
-export const weChatAuthTokenResponseSchema = z.union([
+export const weChatAuthTokenRespSchema = z.union([
   z.object({
     errcode: z.number(),
     errmsg: z.string(),
@@ -11,7 +11,7 @@ export const weChatAuthTokenResponseSchema = z.union([
   }),
 ])
 
-export const wechatSendMessageResponseSchema = z
+export const wechatSendMessageRespSchema = z
   .object({
     errcode: z.number().optional(),
     errmsg: z.string().optional(),
@@ -26,7 +26,7 @@ export const wechatSendMessageResponseSchema = z
     errorMsg: data.errmsg,
     msgId: data.msgid ?? data.msg_id ?? data.message_id,
   }))
-export type WeChatSendMessageResponse = z.infer<typeof wechatSendMessageResponseSchema>
+export type WeChatSendMessageResp = z.infer<typeof wechatSendMessageRespSchema>
 
 export const wechatUploadMediaRespSchema = z.object({
   media_id: z.string().optional(),

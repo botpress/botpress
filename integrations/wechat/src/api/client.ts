@@ -3,9 +3,9 @@ import axios from 'axios'
 import { Result } from '../types'
 import { useHandleCaughtError } from '../utils'
 import {
-  weChatAuthTokenResponseSchema,
-  WeChatSendMessageResponse,
-  wechatSendMessageResponseSchema,
+  weChatAuthTokenRespSchema,
+  type WeChatSendMessageResp,
+  wechatSendMessageRespSchema,
   wechatUploadMediaRespSchema,
 } from './schemas'
 import * as bp from '.botpress'
@@ -54,7 +54,7 @@ export class WeChatClient {
     return { content, contentType }
   }
 
-  public async sendMessage(toUser: string, message: WeChatOutgoingMessage): Promise<WeChatSendMessageResponse> {
+  public async sendMessage(toUser: string, message: WeChatOutgoingMessage): Promise<WeChatSendMessageResp> {
     const resp = await axios
       .post(`${WECHAT_API_BASE}/message/custom/send?access_token=${this._accessToken}`, {
         touser: toUser,
@@ -62,7 +62,7 @@ export class WeChatClient {
       })
       .catch(useHandleCaughtError('Failed to send WeChat message'))
 
-    const parseResult = wechatSendMessageResponseSchema.safeParse(resp.data)
+    const parseResult = wechatSendMessageRespSchema.safeParse(resp.data)
     if (!parseResult.success) {
       throw new RuntimeError('Unexpected response structure received when attempting to send message to WeChat')
     }
@@ -112,7 +112,7 @@ async function _getAccessToken(appId: string, appSecret: string): Promise<Result
     .get(`${WECHAT_API_BASE}/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`)
     .catch(useHandleCaughtError('Failed to acquire a WeChat access token'))
 
-  const result = weChatAuthTokenResponseSchema.safeParse(resp.data)
+  const result = weChatAuthTokenRespSchema.safeParse(resp.data)
   if (!result.success) {
     return {
       success: false,
