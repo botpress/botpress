@@ -98,7 +98,7 @@ export class ZodUnionImpl<T extends ZodUnionOptions = DefaultZodUnionOptions>
         })
       ).then(handleResults)
     } else {
-      let dirty: undefined | { result: DirtyParseReturnType<any>; ctx: ParseContext } = undefined
+      let dirty: undefined | { result: DirtyParseReturnType; ctx: ParseContext } = undefined
       const issues: ZodIssue[][] = []
       for (const option of options) {
         const childCtx: ParseContext = {

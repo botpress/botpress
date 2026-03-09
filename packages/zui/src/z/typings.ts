@@ -26,7 +26,7 @@ export type ZuiMetadata =
 
 export type ZuiExtensionObject = {
   tooltip?: boolean
-  displayAs?: [string, any]
+  displayAs?: [string, ZuiMetadata]
   title?: string
   disabled?: boolean | string
   hidden?: boolean | string
@@ -198,7 +198,7 @@ export type ZodUnresolvedReferenceIssue = {
 export type ZodCustomIssue = {
   code: 'custom'
   params?: {
-    [k: string]: any
+    [k: string]: unknown
   }
 } & _ZodIssueBase
 
@@ -247,7 +247,7 @@ export type ZodFormattedError<T, U = string> = {
 } & _RecursiveZodFormattedError<NonNullable<T>>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodError<T = any> extends Error {
+export interface IZodError<T = unknown> extends Error {
   readonly __type__: 'ZuiError'
   issues: ZodIssue[]
   errors: ZodIssue[]
@@ -323,8 +323,8 @@ export type ParseInput = {
 }
 
 export type InvalidParseReturnType = { status: 'aborted' }
-export type DirtyParseReturnType<T> = { status: 'dirty'; value: T }
-export type ValidParseReturnType<T> = { status: 'valid'; value: T }
+export type DirtyParseReturnType<T = any> = { status: 'dirty'; value: T }
+export type ValidParseReturnType<T = any> = { status: 'valid'; value: T }
 
 export type SyncParseReturnType<T = any> = ValidParseReturnType<T> | DirtyParseReturnType<T> | InvalidParseReturnType
 export type AsyncParseReturnType<T = any> = Promise<SyncParseReturnType<T>>

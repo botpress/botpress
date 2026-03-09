@@ -19,7 +19,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
     throw new errors.ObjectToZuiError('Input must be an object')
   }
 
-  const applyOptions = (zodType: any) => {
+  const applyOptions = (zodType: z.ZodType) => {
     let newType = zodType
     if (opts?.nullable) {
       newType = newType.nullable()
@@ -27,13 +27,13 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
     if (opts?.optional) {
       newType = newType.optional()
     }
-    if (opts?.passtrough && typeof newType.passthrough === 'function') {
+    if (opts?.passtrough && z.is.zuiObject(newType)) {
       newType = newType.passthrough()
     }
     return newType
   }
 
-  const schema = Object.entries(obj).reduce((acc: any, [key, value]) => {
+  const schema: z.ZodRawShape = Object.entries(obj).reduce((acc: z.ZodRawShape, [key, value]: [string, unknown]) => {
     if (value === null) {
       acc[key] = applyOptions(z.null())
     } else {
@@ -49,12 +49,29 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
           break
         case 'object':
           if (Array.isArray(value)) {
-            if (value.length === 0) {
+            const [first] = value as unknown[]
+            if (!first) {
               acc[key] = applyOptions(z.array(z.unknown()))
-            } else if (typeof value[0] === 'object') {
-              acc[key] = applyOptions(z.array(fromObject(value[0], opts, false)))
-            } else if (['string', 'number', 'boolean'].includes(typeof value[0])) {
-              acc[key] = applyOptions(z.array((z as any)[typeof value[0] as any]()))
+            } else if (typeof first === 'object') {
+              acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
+            } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
+              let inner: z.ZodType
+              switch (typeof first) {
+                case 'string':
+                  inner = dateTimeRegex.test(first) ? z.string().datetime() : z.string()
+                  break
+                case 'number':
+                  inner = z.number()
+                  break
+                case 'boolean':
+                  inner = z.boolean()
+                  break
+                default:
+                  first satisfies never
+                  inner = z.unknown()
+              }
+
+              acc[key] = applyOptions(z.array(inner))
             }
           } else {
             acc[key] = applyOptions(fromObject(value, opts, false))
@@ -65,7 +82,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
       }
     }
     return acc
-  }, {} as z.ZodObject)
+  }, {} as z.ZodRawShape)
 
   const hasProperties = Object.keys(schema).length > 0
   if (opts?.passtrough || (!isRoot && !hasProperties)) {

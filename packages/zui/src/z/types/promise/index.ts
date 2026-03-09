@@ -43,7 +43,7 @@ export class ZodPromiseImpl<T extends IZodType = IZodType>
 
     return {
       status: 'valid',
-      value: promisified.then((data: any) => {
+      value: promisified.then((data: unknown) => {
         return this._def.type.parseAsync(data, {
           path: ctx.path,
           errorMap: ctx.common.contextualErrorMap,
