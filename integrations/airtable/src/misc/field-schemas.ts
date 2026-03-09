@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 
-export const airtableFieldType = z.enum([
+const airtableFieldType = z.enum([
   'singleLineText',
   'email',
   'url',
@@ -41,6 +41,48 @@ const baseField = z.object({
   description: z.string().optional().title('Description').describe('The description of the field'),
 })
 
+// Shared enums
+
+const baseColors = [
+  'greenBright',
+  'tealBright',
+  'cyanBright',
+  'blueBright',
+  'purpleBright',
+  'pinkBright',
+  'redBright',
+  'orangeBright',
+  'yellowBright',
+  'grayBright',
+] as const
+
+const extendedColors = [
+  ...baseColors,
+  'blueLight',
+  'blueDark',
+  'cyanLight',
+  'cyanDark',
+  'tealLight',
+  'tealDark',
+  'greenLight',
+  'greenDark',
+  'yellowLight',
+  'yellowDark',
+  'orangeLight',
+  'orangeDark',
+  'redLight',
+  'redDark',
+  'pinkLight',
+  'pinkDark',
+  'purpleLight',
+  'purpleDark',
+  'grayLight',
+  'grayDark',
+] as const
+
+const ratingIcons = ['star', 'heart', 'thumbsUp', 'flag', 'dot'] as const
+const checkboxIcons = [...ratingIcons, 'check', 'xCheckbox'] as const
+
 // Shared sub-schemas
 
 const dateFormatSchema = z.object({
@@ -55,7 +97,7 @@ const timeFormatSchema = z.object({
 
 const choiceSchema = z.object({
   name: z.string().title('Name').describe('Choice name'),
-  color: z.string().optional().title('Color').describe('Choice color'),
+  color: z.enum(extendedColors).optional().title('Color').describe('Choice color'),
 })
 
 // Simple fields (no options)
@@ -149,8 +191,8 @@ const checkboxField = baseField.extend({
   type: airtableFieldType.extract(['checkbox']),
   options: z
     .object({
-      color: z.string().title('Color').describe('Color name (e.g. "greenBright")'),
-      icon: z.string().title('Icon').describe('Icon name (e.g. "check")'),
+      color: z.enum(baseColors).title('Color').describe('Checkbox color'),
+      icon: z.enum(checkboxIcons).title('Icon').describe('Checkbox icon'),
     })
     .title('Options')
     .describe('Checkbox display options'),
@@ -227,8 +269,8 @@ const ratingField = baseField.extend({
   options: z
     .object({
       max: z.number().min(1).max(10).title('Max').describe('Maximum rating value (1-10)'),
-      color: z.string().title('Color').describe('Rating color'),
-      icon: z.string().title('Icon').describe('Rating icon'),
+      color: z.enum(baseColors).title('Color').describe('Rating color'),
+      icon: z.enum(ratingIcons).title('Icon').describe('Rating icon'),
     })
     .title('Options')
     .describe('Rating field options'),
@@ -259,9 +301,17 @@ const multipleRecordLinksField = baseField.extend({
   options: z
     .object({
       linkedTableId: z.string().title('Linked Table ID').describe('ID of the linked table'),
-      prefersSingleRecordLink: z.boolean().optional().title('Prefers Single Record Link').describe('Whether to prefer a single record link'),
+      prefersSingleRecordLink: z
+        .boolean()
+        .optional()
+        .title('Prefers Single Record Link')
+        .describe('Whether to prefer a single record link'),
       inverseLinkFieldId: z.string().optional().title('Inverse Link Field ID').describe('ID of the inverse link field'),
-      viewIdForRecordSelection: z.string().optional().title('View ID for Record Selection').describe('ID of the view for record selection'),
+      viewIdForRecordSelection: z
+        .string()
+        .optional()
+        .title('View ID for Record Selection')
+        .describe('ID of the view for record selection'),
       isReversed: z.boolean().optional().title('Is Reversed').describe('Whether the link is reversed'),
     })
     .title('Options')
@@ -294,10 +344,17 @@ const rollupField = baseField.extend({
   type: airtableFieldType.extract(['rollup']),
   options: z
     .object({
-      fieldIdInLinkedTable: z.string().title('Field ID in Linked Table').describe('ID of the field in the linked table'),
+      fieldIdInLinkedTable: z
+        .string()
+        .title('Field ID in Linked Table')
+        .describe('ID of the field in the linked table'),
       recordLinkFieldId: z.string().title('Record Link Field ID').describe('ID of the record link field'),
       result: z.object({}).passthrough().optional().title('Result').describe('Result type configuration'),
-      referencedFieldIds: z.array(z.string()).optional().title('Referenced Field IDs').describe('IDs of referenced fields'),
+      referencedFieldIds: z
+        .array(z.string())
+        .optional()
+        .title('Referenced Field IDs')
+        .describe('IDs of referenced fields'),
     })
     .optional()
     .title('Options')
