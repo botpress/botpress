@@ -5,7 +5,7 @@ import { trelloIdSchema } from 'definitions/schemas'
 import { events, actions, channels, user, configuration, entities } from './definitions'
 
 export const INTEGRATION_NAME = 'trello'
-export const INTEGRATION_VERSION = '2.1.1'
+export const INTEGRATION_VERSION = '2.1.2'
 
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,

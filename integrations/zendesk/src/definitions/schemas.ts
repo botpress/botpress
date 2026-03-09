@@ -14,6 +14,12 @@ export const ticketSchema = z.object({
   priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable().title('Priority').describe('Ticket priority'),
   requesterId: z.number().title('Requester ID').describe('ID of the requester'),
   requester: requesterSchema.optional().title('Requester').describe('Requester information'),
+  ticketFormId: z
+    .string()
+    .nullable()
+    .optional()
+    .title('Ticket Form ID')
+    .describe('ID of the ticket form used when creating the ticket'),
   assigneeId: z.number().nullable().title('Assignee ID').describe('ID of the assignee'),
   createdAt: z.string().title('Created At').describe('Ticket creation date'),
   updatedAt: z.string().title('Updated At').describe('Ticket last update date'),
@@ -28,12 +34,13 @@ export const ticketSchema = z.object({
 })
 
 const _zdTicketSchema = ticketSchema.transform((data) => ({
-  ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt', 'externalId']),
+  ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt', 'externalId', 'ticketFormId']),
   created_at: data.createdAt,
   updated_at: data.updatedAt,
   requester_id: data.requesterId,
   assignee_id: data.assigneeId,
   external_id: data.externalId,
+  ticket_form_id: data.ticketFormId != null ? parseInt(data.ticketFormId, 10) : data.ticketFormId,
 }))
 
 export type ZendeskTicket = z.output<typeof _zdTicketSchema>
@@ -41,12 +48,13 @@ export type Ticket = z.input<typeof ticketSchema>
 
 export const transformTicket = (ticket: ZendeskTicket): Ticket => {
   return {
-    ...omit(ticket, ['requester_id', 'assignee_id', 'created_at', 'updated_at', 'external_id']),
+    ...omit(ticket, ['requester_id', 'assignee_id', 'created_at', 'updated_at', 'external_id', 'ticket_form_id']),
     requesterId: ticket.requester_id,
     assigneeId: ticket.assignee_id,
     createdAt: ticket.created_at,
     updatedAt: ticket.updated_at,
     externalId: ticket.external_id,
+    ticketFormId: ticket.ticket_form_id != null ? String(ticket.ticket_form_id) : null,
   }
 }
 
