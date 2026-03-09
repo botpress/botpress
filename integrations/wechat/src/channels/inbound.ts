@@ -8,54 +8,6 @@ import * as bp from '.botpress'
 export type BotpressConversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
 export type BotpressUser = Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-const _extractXmlValue = (xml: string, tag: string): string | undefined => {
-  // find pattern of CDATA or plain text: <Tag><![CDATA[value]]></Tag> or <Tag>value</Tag>
-  const valueRegex = new RegExp(`<${tag}>\\s*(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?\\s*</${tag}>`, 'i')
-  const match = xml.match(valueRegex)
-  return match?.[1]
-}
-
-const _parseAndValidateWeChatMessage = (reqBody: string): Result<WeChatMessage> => {
-  const _wechatMessageKeys = [
-    'MsgId',
-    'MsgType',
-    'ToUserName',
-    'FromUserName',
-    'Content',
-    'PicUrl',
-    'MediaId',
-    'Recognition',
-    'Location_X',
-    'Location_Y',
-    'Label',
-    'Title',
-    'Description',
-    'Url',
-    'CreateTime',
-  ]
-
-  const entries = _wechatMessageKeys.map((key) => [camelCase(key), _extractXmlValue(reqBody, key)])
-  const result = wechatMessageSchema.safeParse(Object.fromEntries(entries))
-
-  if (!result.success) {
-    return { success: false, error: new Error(`Unexpected WeChat Message Body received -> ${result.error.message}`) }
-  }
-
-  return result
-}
-
-const _mapWechatMessageKeys = (parsedWechatMessage: Record<string, any>): Record<string, any> => {
-  const mappedEntries = Object.entries(parsedWechatMessage).map(([key, value]) => {
-    const mappedKey = camelCase(key)
-    if (typeof value === 'object' && !Array.isArray(value)) {
-      return [mappedKey, _mapWechatMessageKeys(value)] as const
-    }
-
-    return [mappedKey, value] as const
-  })
-  return Object.fromEntries(mappedEntries)
-}
-
 // TODO: Finish this
 export const processInboundChannelMessage = async (props: bp.HandlerProps): Promise<Result<string>> => {
   const { client, req } = props
@@ -146,4 +98,52 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
   }
 
   return { success: true, data: 'success' }
+}
+
+const _mapWechatMessageKeys = (parsedWechatMessage: Record<string, any>): Record<string, any> => {
+  const mappedEntries = Object.entries(parsedWechatMessage).map(([key, value]) => {
+    const mappedKey = camelCase(key)
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      return [mappedKey, _mapWechatMessageKeys(value)] as const
+    }
+
+    return [mappedKey, value] as const
+  })
+  return Object.fromEntries(mappedEntries)
+}
+
+const _extractXmlValue = (xml: string, tag: string): string | undefined => {
+  // find pattern of CDATA or plain text: <Tag><![CDATA[value]]></Tag> or <Tag>value</Tag>
+  const valueRegex = new RegExp(`<${tag}>\\s*(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?\\s*</${tag}>`, 'i')
+  const match = xml.match(valueRegex)
+  return match?.[1]
+}
+
+const _parseAndValidateWeChatMessage = (reqBody: string): Result<WeChatMessage> => {
+  const _wechatMessageKeys = [
+    'MsgId',
+    'MsgType',
+    'ToUserName',
+    'FromUserName',
+    'Content',
+    'PicUrl',
+    'MediaId',
+    'Recognition',
+    'Location_X',
+    'Location_Y',
+    'Label',
+    'Title',
+    'Description',
+    'Url',
+    'CreateTime',
+  ]
+
+  const entries = _wechatMessageKeys.map((key) => [camelCase(key), _extractXmlValue(reqBody, key)])
+  const result = wechatMessageSchema.safeParse(Object.fromEntries(entries))
+
+  if (!result.success) {
+    return { success: false, error: new Error(`Unexpected WeChat Message Body received -> ${result.error.message}`) }
+  }
+
+  return result
 }
