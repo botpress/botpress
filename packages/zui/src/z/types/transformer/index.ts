@@ -51,7 +51,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
 
-    const effect = this._def.effect || null
+    const effect = this._def.effect
 
     const checkCtx: RefinementCtx = {
       addIssue: (arg: IssueData) => {
