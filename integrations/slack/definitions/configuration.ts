@@ -70,7 +70,7 @@ export const configurations = {
     title: 'App Manifest (Automatic Setup)',
     description: 'Register new Slack application',
     identifier: {
-      linkTemplateScript: 'manifestHandler.vrl',
+      linkTemplateScript: 'authWizardHandler.vrl',
     },
     schema: sdk.z.object({
       ...SHARED_CONFIGURATION,
