@@ -27,3 +27,9 @@ export const wechatSendMessageResponseSchema = z
     msgId: data.msgid ?? data.msg_id ?? data.message_id,
   }))
 export type WeChatSendMessageResponse = z.infer<typeof wechatSendMessageResponseSchema>
+
+export const wechatUploadMediaRespSchema = z.object({
+  media_id: z.string().optional(),
+  errcode: z.coerce.number().optional(),
+  errmsg: z.string().optional(),
+})

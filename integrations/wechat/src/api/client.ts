@@ -2,7 +2,12 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Result } from '../types'
 import { useHandleCaughtError } from '../utils'
-import { weChatAuthTokenResponseSchema, WeChatSendMessageResponse, wechatSendMessageResponseSchema } from './schemas'
+import {
+  weChatAuthTokenResponseSchema,
+  WeChatSendMessageResponse,
+  wechatSendMessageResponseSchema,
+  wechatUploadMediaRespSchema,
+} from './schemas'
 import * as bp from '.botpress'
 
 export const WECHAT_API_BASE = 'https://api.weixin.qq.com/cgi-bin'
@@ -78,7 +83,11 @@ export class WeChatClient {
       .post(`${WECHAT_API_BASE}/media/upload?access_token=${this._accessToken}&type=${mediaType}`)
       .catch(useHandleCaughtError('Failed to upload media to WeChat API'))
 
-    const uploadData = resp.data as { media_id?: string; errcode?: number; errmsg?: string }
+    const result = wechatUploadMediaRespSchema.safeParse(resp.data)
+    if (!result.success) {
+      throw new RuntimeError(`Unexpected response received when uploading media to WeChat -> ${result.error.message}`)
+    }
+    const uploadData = resp.data
 
     if (uploadData.errcode && uploadData.errcode !== 0) {
       throw new RuntimeError(`Failed to upload media to WeChat: ${uploadData.errmsg} (code: ${uploadData.errcode})`)
