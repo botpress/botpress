@@ -1323,7 +1323,7 @@ export interface IZodPromise<T extends IZodType = IZodType>
 
 //* ─────────────────────────── ZodReadonly ───────────────────────────────────
 
-export type BuiltIn =
+type _BuiltIn =
   | (((...args: any[]) => any) | (new (...args: any[]) => any))
   | {
       readonly [Symbol.toStringTag]: string
@@ -1343,7 +1343,7 @@ export type MakeReadonly<T> =
         ? readonly [Head, ...Tail]
         : T extends Array<infer V>
           ? ReadonlyArray<V>
-          : T extends BuiltIn
+          : T extends _BuiltIn
             ? T
             : Readonly<T>
 
@@ -1524,7 +1524,7 @@ export type ZodRecordDef<Key extends KeySchema = KeySchema, Value extends IZodTy
   typeName: 'ZodRecord'
 } & ZodTypeDef
 
-export type KeySchema = IZodType<string | number | symbol, any, any>
+export type KeySchema = IZodType<string | number | symbol, ZodTypeDef>
 export type RecordType<K extends string | number | symbol, V> = [string] extends [K]
   ? Record<K, V>
   : [number] extends [K]
@@ -1536,7 +1536,7 @@ export type RecordType<K extends string | number | symbol, V> = [string] extends
         : Partial<Record<K, V>>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodRecord<Key extends KeySchema = IZodString, Value extends IZodType = IZodType>
+export interface IZodRecord<Key extends KeySchema = KeySchema, Value extends IZodType = IZodType>
   extends IZodType<
     RecordType<Key['_output'], Value['_output']>,
     ZodRecordDef<Key, Value>,
@@ -1795,7 +1795,7 @@ export declare function createRecord(
   first: KeySchema | IZodType,
   second?: ZodCreateParams | IZodType,
   third?: ZodCreateParams
-): IZodRecord<any, any>
+): IZodRecord
 export declare function createMap<Key extends IZodType, Value extends IZodType>(
   keyType: Key,
   valueType: Value,

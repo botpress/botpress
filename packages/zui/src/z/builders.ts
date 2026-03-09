@@ -247,15 +247,15 @@ export const recordType: ZodBuilders['record'] = (
 ): IZodRecord<any, any> => {
   if (second instanceof ZodBaseTypeImpl) {
     return new ZodRecordImpl({
-      keyType: first,
-      valueType: second,
+      keyType: first as KeySchema,
+      valueType: second as IZodType,
       typeName: 'ZodRecord',
       ..._processCreateParams(third),
     })
   }
   return new ZodRecordImpl({
     keyType: stringType(),
-    valueType: first,
+    valueType: first as IZodType,
     typeName: 'ZodRecord',
     ..._processCreateParams(second),
   })

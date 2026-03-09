@@ -539,7 +539,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
       return {
         success: false,
         get error() {
-          // TODO: find out why we cast as any and set a property that isn't defined above as a class property
+          // TODO(why): find out why we cast as any and set a property that isn't defined above as a class property
           if ((this as any)._error) return (this as any)._error as Error
           const error = new ZodError(ctx.common.issues)
           ;(this as any)._error = error
