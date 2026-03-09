@@ -14,14 +14,15 @@ export const isEqual = (a: unknown, b: unknown): boolean => {
   return _isEqualWithVisitedTracking(a, b, new WeakSet())
 }
 
-// TODO(any): type properly
-const _isEqualWithVisitedTracking = (a: unknown, b: unknown, visited: WeakSet<any>): boolean =>
+const _isPlainObject = (x: unknown): x is object => lodash.isPlainObject(x)
+
+const _isEqualWithVisitedTracking = (a: unknown, b: unknown, visited: WeakSet<object>): boolean =>
   lodash.isEqualWith(a, b, _customizerWithVisitedTracking(visited))
 
 const _customizerWithVisitedTracking =
-  (visited: WeakSet<any>): IsEqualCustomizer =>
+  (visited: WeakSet<object>): IsEqualCustomizer =>
   (a, b) => {
-    if (lodash.isPlainObject(a) && !visited.has(a) && lodash.isPlainObject(b) && !visited.has(b)) {
+    if (_isPlainObject(a) && !visited.has(a) && _isPlainObject(b) && !visited.has(b)) {
       const cleanedA = lodash.omitBy(a as object, lodash.isUndefined)
       const cleanedB = lodash.omitBy(b as object, lodash.isUndefined)
 

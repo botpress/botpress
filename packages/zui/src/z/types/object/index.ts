@@ -309,16 +309,16 @@ export class ZodObjectImpl<
   merge<Incoming extends IZodObject<any>, Augmentation extends Incoming['shape']>(
     merging: Incoming
   ): IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']> {
-    // TODO(any): type properly
-    const merged: any = new ZodObjectImpl({
-      unknownKeys: merging._def.unknownKeys,
-      shape: () => ({
-        ...this._def.shape(),
-        ...merging._def.shape(),
-      }),
+    const merged = new ZodObjectImpl({
+      unknownKeys: merging._def.unknownKeys as Incoming['_def']['unknownKeys'],
+      shape: () =>
+        ({
+          ...this._def.shape(),
+          ...merging._def.shape(),
+        }) as utils.types.ExtendShape<T, Augmentation>,
       typeName: 'ZodObject',
     })
-    return merged
+    return merged as IZodObject<utils.types.ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   }
 
   setKey<Key extends string, Schema extends IZodType>(
@@ -330,8 +330,7 @@ export class ZodObjectImpl<
     },
     UnknownKeys
   > {
-    // TODO(any): type properly
-    return this.augment({ [key]: schema }) as unknown as IZodObject<
+    return this.augment({ [key]: schema }) as IZodObject<
       T & {
         [k in Key]: Schema
       },
@@ -351,8 +350,7 @@ export class ZodObjectImpl<
       [k in keyof T]?: true
     },
   >(mask: Mask): IZodObject<Pick<T, Extract<keyof T, keyof Mask>>, UnknownKeys> {
-    // TODO(any): type properly
-    const shape: any = {}
+    const shape: Record<string, IZodType> = {}
 
     Object.keys(mask).forEach((key) => {
       if (mask[key] && this.shape[key]) {
@@ -373,12 +371,11 @@ export class ZodObjectImpl<
       [k in keyof T]?: true
     },
   >(mask: Mask): IZodObject<Omit<T, keyof Mask>, UnknownKeys> {
-    // TODO(any): type properly
-    const shape: any = {}
+    const shape: Record<string, IZodType> = {}
 
-    Object.keys(this.shape).forEach((key) => {
+    Object.entries(this.shape).forEach(([key, value]) => {
       if (!mask[key]) {
-        shape[key] = this.shape[key]
+        shape[key] = value
       }
     })
 
@@ -447,15 +444,16 @@ export class ZodObjectImpl<
     }>,
     UnknownKeys
   >
-  required(mask?: any): IZodObject {
-    // TODO(any): type properly
-    const newShape: any = {}
+  required(mask?: {
+    [k in keyof T]?: true
+  }): IZodObject {
+    const newShape: Record<string, IZodType> = {}
 
-    Object.keys(this.shape).forEach((key) => {
+    Object.entries(this.shape).forEach(([key, value]) => {
       if (mask && !mask[key]) {
-        newShape[key] = this.shape[key]
+        newShape[key] = value
       } else {
-        const fieldSchema = this.shape[key]
+        const fieldSchema = value
 
         let newField = fieldSchema!
         while (is.zuiOptional(newField)) {
@@ -469,7 +467,7 @@ export class ZodObjectImpl<
     return new ZodObjectImpl({
       ...this._def,
       shape: () => newShape,
-    })
+    }) as IZodObject
   }
 
   keyof(): IZodEnum<KeyOfObject<T>> {
