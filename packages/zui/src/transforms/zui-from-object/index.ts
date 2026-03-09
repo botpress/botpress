@@ -55,22 +55,7 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
             } else if (typeof first === 'object') {
               acc[key] = applyOptions(z.array(fromObject(first, opts, false)))
             } else if (typeof first === 'string' || typeof first === 'number' || typeof first === 'boolean') {
-              let inner: z.ZodType
-              switch (typeof first) {
-                case 'string':
-                  inner = dateTimeRegex.test(first) ? z.string().datetime() : z.string()
-                  break
-                case 'number':
-                  inner = z.number()
-                  break
-                case 'boolean':
-                  inner = z.boolean()
-                  break
-                default:
-                  first satisfies never
-                  inner = z.unknown()
-              }
-
+              const inner = _getInnerType(first)
               acc[key] = applyOptions(z.array(inner))
             }
           } else {
@@ -90,4 +75,18 @@ export const fromObject = (obj: object, opts?: ObjectToZuiOptions, isRoot = true
   }
 
   return z.object(schema)
+}
+
+const _getInnerType = (first: string | number | boolean): z.ZodType => {
+  if (typeof first === 'string') {
+    return z.string()
+  }
+  if (typeof first === 'number') {
+    return z.number()
+  }
+  if (typeof first === 'boolean') {
+    return z.boolean()
+  }
+  first satisfies never
+  return z.unknown()
 }
