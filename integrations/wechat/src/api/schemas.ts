@@ -15,8 +15,9 @@ export const wechatSendMessageRespSchema = z
   .object({
     errcode: z.number().optional(),
     errmsg: z.string().optional(),
-    // Not sure which one of these "message ids" is the correct key, so I've copied it from the previous implementation.
-    // My suspicion is that it will vary based on which message type I use in the request. (To be tested)
+    // NOTE: AFAIK the "sendMessage" response doesn't contain
+    // any Message ID, because WeChat doesn't send one back.
+    // The properties below can likely be safely removed.
     msgid: z.string().optional(),
     msg_id: z.string().optional(),
     message_id: z.string().optional(),
