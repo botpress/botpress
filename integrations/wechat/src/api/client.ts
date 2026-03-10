@@ -22,7 +22,10 @@ type WeChatOutgoingMessage = WeChatTextMessage | WeChatImageMessage | WeChatVide
 
 // TODO: Finish cleaning this class logic up
 export class WeChatClient {
-  private constructor(private readonly _accessToken: string) {}
+  private constructor(
+    private readonly _accessToken: string,
+    private readonly _logger: bp.Logger
+  ) {}
 
   public getMediaUrl(accessToken: string, mediaId: string): string {
     return `${WECHAT_API_BASE}/media/get?access_token=${accessToken}&media_id=${mediaId}`
@@ -95,12 +98,12 @@ export class WeChatClient {
     return getValidMediaPropOrThrow('media_id', result.data, 'Failed to upload media to WeChat')
   }
 
-  public static async create(ctx: bp.Context) {
+  public static async create(ctx: bp.Context, logger: bp.Logger) {
     const { appId, appSecret } = ctx.configuration
     const tokenResult = await _getAccessToken(appId, appSecret)
     if (!tokenResult.success) throw tokenResult.error
 
-    return new WeChatClient(tokenResult.data)
+    return new WeChatClient(tokenResult.data, logger)
   }
 }
 

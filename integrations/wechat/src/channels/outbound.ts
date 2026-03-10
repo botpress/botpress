@@ -35,7 +35,7 @@ const _handleTextMessage = async (props: bp.MessageProps['channel']['text']) => 
 const _handleImageMessage = async (props: bp.MessageProps['channel']['image']) => {
   const { ctx, payload, logger } = props
   try {
-    const wechatClient = await WeChatClient.create(ctx)
+    const wechatClient = await WeChatClient.create(ctx, logger)
     const mediaId = await _uploadWeChatMedia(wechatClient, payload.imageUrl, 'image')
     await _sendMessage(
       props,
@@ -65,13 +65,13 @@ const _handleVideoMessage = async (props: bp.MessageProps['channel']['video']) =
 }
 
 const _sendMessage = async (
-  { conversation, ctx, ack }: bp.AnyMessageProps,
+  { conversation, ctx, ack, logger }: bp.AnyMessageProps,
   message: WeChatOutgoingMessage,
   wechatClient?: WeChatClient
 ): Promise<void> => {
   const wechatConvoId = _getWeChatConversationId(conversation)
 
-  wechatClient ??= await WeChatClient.create(ctx)
+  wechatClient ??= await WeChatClient.create(ctx, logger)
   const sendResponse = await wechatClient.sendMessage(wechatConvoId, message)
 
   const ackId = sendResponse.msgId ?? createAckId('wechat')

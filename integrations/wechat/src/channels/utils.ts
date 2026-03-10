@@ -49,7 +49,7 @@ export const createMediaMessage = async (
 }
 
 const _getOrUploadWeChatMedia = async (
-  { client, ctx }: bp.CommonHandlerProps,
+  { client, ctx, logger }: bp.CommonHandlerProps,
   params: {
     messageId: string
     mediaId?: string
@@ -71,7 +71,7 @@ const _getOrUploadWeChatMedia = async (
   }
 
   if (mediaId) {
-    const wechatClient = await WeChatClient.create(ctx)
+    const wechatClient = await WeChatClient.create(ctx, logger)
     const { content, contentType } = await wechatClient.downloadWeChatMedia(mediaId)
     const { file } = await client.uploadFile({
       key: mediaKey,
