@@ -9,6 +9,8 @@ type ProfileEntry = ProfileCredentials & {
   name: string
 }
 
+type ProfileEntryWithoutToken = Omit<ProfileEntry, 'token'>
+
 export type ActiveProfileCommandDefinition = typeof commandDefinitions.profiles.subcommands.active
 export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefinition> {
   public async run(): Promise<void> {
@@ -21,7 +23,8 @@ export class ActiveProfileCommand extends GlobalCommand<ActiveProfileCommandDefi
     }
 
     const profile = await this.readProfileFromFS(activeProfileName)
-    const profileEntry: ProfileEntry = { name: activeProfileName, ...profile }
+    let profileEntry: ProfileEntry | ProfileEntryWithoutToken = { name: activeProfileName, ...profile }
+    if (_shouldOmitToken(this.argv)) profileEntry = _stripProfileToken(profileEntry)
 
     this.logger.log('Active profile:')
     this.logger.json(profileEntry)
@@ -38,8 +41,11 @@ export class ListProfilesCommand extends GlobalCommand<ListProfilesCommandDefini
       return
     }
     const activeProfileName = await this.globalCache.get('activeProfile')
-    this.logger.log(`Active profile: '${chalk.bold(activeProfileName)}'`)
-    this.logger.json(profileEntries)
+    const activeProfileMsg = `Active profile: '${chalk.bold(chalk.cyanBright(activeProfileName))}'`
+
+    this.logger.log(activeProfileMsg)
+    this.logger.json(!_shouldOmitToken(this.argv) ? profileEntries : profileEntries.map(_stripProfileToken))
+    this.logger.log(activeProfileMsg)
   }
 }
 
@@ -86,3 +92,11 @@ const _updateGlobalCache = async (props: {
   await props.globalCache.set('token', props.profile.token)
   await props.globalCache.set('workspaceId', props.profile.workspaceId)
 }
+
+const _stripProfileToken = (profile: ProfileEntry | ProfileEntryWithoutToken): ProfileEntryWithoutToken => ({
+  name: profile.name,
+  apiUrl: profile.apiUrl,
+  workspaceId: profile.workspaceId,
+})
+
+const _shouldOmitToken = (argv: { displayToken: boolean }) => !argv.displayToken
