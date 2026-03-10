@@ -261,7 +261,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     })
   }
 
-  _refinement(refinement: RefinementEffect['refinement']): IZodEffects<this, Output, Input> {
+  _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
     return builders.refine(this, refinement)
   }
 

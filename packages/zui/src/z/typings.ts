@@ -1593,26 +1593,26 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect = {
+export type RefinementEffect<I, O = unknown> = {
   type: 'refinement'
-  refinement(arg: unknown, ctx: RefinementCtx): unknown
+  refinement(arg: I, ctx: RefinementCtx): O
 }
 
-export type TransformEffect = {
+export type TransformEffect<I, O = unknown> = {
   type: 'transform'
-  transform: (arg: unknown, ctx: RefinementCtx) => unknown
+  transform: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type PreprocessEffect = {
+export type PreprocessEffect<I, O = unknown> = {
   type: 'preprocess'
-  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown
+  preprocess: (arg: I, ctx: RefinementCtx) => O
 }
 
-export type Effect = RefinementEffect | TransformEffect | PreprocessEffect
+export type Effect<I, O = unknown> = RefinementEffect<I, O> | TransformEffect<I, O> | PreprocessEffect<I, O>
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
-  effect: Effect
+  effect: Effect<unknown>
 } & ZodTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
