@@ -1609,7 +1609,7 @@ export type PreprocessEffect = {
 }
 
 export type Effect = RefinementEffect | TransformEffect | PreprocessEffect
-export type ZodEffectsDef<T extends IZodType = IZodType, O = unknown> = {
+export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
   effect: Effect
@@ -1617,7 +1617,7 @@ export type ZodEffectsDef<T extends IZodType = IZodType, O = unknown> = {
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodEffects<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
-  extends IZodType<Output, ZodEffectsDef<T, Output>, Input> {
+  extends IZodType<Output, ZodEffectsDef<T>, Input> {
   innerType(): T
   /**
    * @deprecated use naked() instead
