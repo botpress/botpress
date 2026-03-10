@@ -17,7 +17,6 @@ import type {
   IZodArray,
   IZodBranded,
   IZodCatch,
-  IZodDefault,
   IZodIntersection,
   IZodNullable,
   IZodOptional,

@@ -231,7 +231,7 @@ export {
   strictObjectType as strictObject,
   stringType as string,
   symbolType as symbol,
-  transformType as transformer,
+  transformerType as transformer,
   tupleType as tuple,
   undefinedType as undefined,
   unionType as union,

@@ -309,7 +309,7 @@ export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
     ..._processCreateParams(params),
   })
 
-export const transformType: ZodBuilders['transformer'] = <T extends IZodType, O>(
+export const transformerType: ZodBuilders['transformer'] = <T extends IZodType, O>(
   schema: T,
   transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
   params?: ZodCreateParams
@@ -393,7 +393,7 @@ setBuilders({
   strictObject: strictObjectType,
   string: stringType,
   symbol: symbolType,
-  transformer: transformType,
+  transformer: transformerType,
   tuple: tupleType,
   undefined: undefinedType,
   union: unionType,
