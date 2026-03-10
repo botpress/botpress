@@ -1,4 +1,4 @@
-import type { IZodBoolean, ZodBooleanDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodBoolean, IZodType, ZodBooleanDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> implements IZodBoolean {
@@ -20,7 +20,7 @@ export class ZodBooleanImpl extends ZodBaseTypeImpl<boolean, ZodBooleanDef> impl
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodBooleanImpl)) return false
     return this._def.coerce === schema._def.coerce
   }

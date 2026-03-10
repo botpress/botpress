@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
 import * as utils from '../../../utils'
-import type { EnumLike, IZodNativeEnum, ZodNativeEnumDef, ParseInput, ParseReturnType } from '../../typings'
+import type { EnumLike, IZodNativeEnum, IZodType, ZodNativeEnumDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
@@ -38,7 +38,7 @@ export class ZodNativeEnumImpl<T extends EnumLike = EnumLike>
     return this._def.values
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodNativeEnumImpl)) return false
     return isEqual(this._def.values, schema._def.values)
   }

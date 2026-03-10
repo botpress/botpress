@@ -1,5 +1,13 @@
 import * as utils from '../../../utils'
-import { type IZodDate, ZodDateCheck, ZodDateDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import {
+  type IZodDate,
+  type IZodType,
+  ZodDateCheck,
+  ZodDateDef,
+  ParseContext,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
 import { addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZodDate {
@@ -113,7 +121,7 @@ export class ZodDateImpl extends ZodBaseTypeImpl<Date, ZodDateDef> implements IZ
     return max != null ? new Date(max) : null
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodDateImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodDateCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodDateCheck>(schema._def.checks)

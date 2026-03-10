@@ -30,11 +30,11 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
       : (this._def.schema as T)
   }
 
-  dereference(defs: Record<string, IZodType>): IZodType {
+  dereference(defs: Record<string, IZodType>): IZodEffects {
     return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.dereference(defs),
-    })
+    }) as IZodEffects
   }
 
   getReferences(): string[] {
@@ -45,7 +45,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.clone() as T,
-    })
+    }) as IZodEffects<T, Output, Input>
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
@@ -70,7 +70,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     checkCtx.addIssue = checkCtx.addIssue.bind(checkCtx)
 
     if (effect.type === 'preprocess') {
-      const processed = effect.transform(ctx.data, checkCtx)
+      const processed = effect.preprocess(ctx.data, checkCtx)
 
       if (ctx.common.async) {
         return Promise.resolve(processed).then(async (processed) => {
@@ -152,7 +152,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
           )
         }
 
-        return { status: status.value, value: result }
+        return { status: status.value, value: result } as ParseReturnType<this['_output']>
       } else {
         return this._def.schema._parseAsync({ data: ctx.data, path: ctx.path, parent: ctx }).then((base) => {
           if (!isValid(base)) return base
@@ -161,7 +161,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
             status: status.value,
             value: result,
           }))
-        })
+        }) as ParseReturnType<this['_output']>
       }
     }
 
@@ -184,7 +184,7 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
 
     if (this._def.effect.type === 'preprocess') {
       if (schema._def.effect.type !== 'preprocess') return false
-      return utils.others.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+      return utils.others.compareFunctions(this._def.effect.preprocess, schema._def.effect.preprocess)
     }
 
     this._def.effect satisfies never
@@ -199,6 +199,6 @@ export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, I
     return new ZodEffectsImpl({
       ...this._def,
       schema: this._def.schema.mandatory(),
-    })
+    }) as IZodEffects<IZodType>
   }
 }

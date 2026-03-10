@@ -51,6 +51,9 @@ import type {
   ZodErrorMap,
   ZuiExtensionObject,
   ZodBuilders,
+  RefinementCtx,
+  IZodEffects,
+  output,
 } from './typings'
 
 type _ProcessedCreateParams = {
@@ -286,13 +289,34 @@ export const functionType: ZodBuilders['function'] = (
   })
 }
 
-export const effectsType: ZodBuilders['effects'] = (schema, effect, params) =>
-  new ZodEffectsImpl({ schema, typeName: 'ZodEffects', effect, ..._processCreateParams(params) })
-
 export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, params) =>
   new ZodEffectsImpl({
     schema,
-    effect: { type: 'preprocess', transform: preprocess },
+    effect: { type: 'preprocess', preprocess },
+    typeName: 'ZodEffects',
+    ..._processCreateParams(params),
+  })
+
+export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
+  schema: T,
+  refinement: (arg: T['_output'], ctx: RefinementCtx) => unknown,
+  params?: ZodCreateParams
+): IZodEffects<T> =>
+  new ZodEffectsImpl({
+    schema,
+    effect: { type: 'refinement', refinement },
+    typeName: 'ZodEffects',
+    ..._processCreateParams(params),
+  })
+
+export const transformType: ZodBuilders['transformer'] = <T extends IZodType, O>(
+  schema: T,
+  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
+  params?: ZodCreateParams
+): IZodEffects<T, O> =>
+  new ZodEffectsImpl({
+    schema,
+    effect: { type: 'transform', transform },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
   })
@@ -343,7 +367,6 @@ setBuilders({
   date: dateType,
   default: defaultType,
   discriminatedUnion: discriminatedUnionType,
-  effects: effectsType,
   enum: enumType,
   function: functionType,
   instanceof: instanceOfType,
@@ -364,12 +387,13 @@ setBuilders({
   promise: promiseType,
   record: recordType,
   ref: refType,
+  refine: refineType,
   readonly: readonlyType,
   set: setType,
   strictObject: strictObjectType,
   string: stringType,
   symbol: symbolType,
-  transformer: effectsType,
+  transformer: transformType,
   tuple: tupleType,
   undefined: undefinedType,
   union: unionType,

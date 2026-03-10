@@ -262,7 +262,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   }
 
   _refinement(refinement: RefinementEffect<Output>['refinement']): IZodEffects<this, Output, Input> {
-    return builders.effects(this, { type: 'refinement', refinement })
+    return builders.refine(this, refinement)
   }
 
   superRefine<RefinedOutput extends Output>(
@@ -348,10 +348,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   transform<NewOut>(
     transform: (arg: Output, ctx: RefinementCtx) => NewOut | Promise<NewOut>
   ): IZodEffects<this, NewOut> {
-    return builders.effects(this, {
-      type: 'transform',
-      transform,
-    })
+    return builders.transformer(this, transform)
   }
 
   default(def: utils.types.NoUndefined<Input>): IZodDefault<this>

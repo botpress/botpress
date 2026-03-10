@@ -1,5 +1,13 @@
 import * as utils from '../../../utils'
-import { type IZodBigInt, ZodBigIntCheck, ZodBigIntDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import {
+  type IZodBigInt,
+  type IZodType,
+  ZodBigIntCheck,
+  ZodBigIntDef,
+  ParseContext,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
 import { addIssueToContext, ParseStatus, ZodBaseTypeImpl } from '../basetype'
 
 export class ZodBigIntImpl extends ZodBaseTypeImpl<bigint, ZodBigIntDef> implements IZodBigInt {
@@ -66,7 +74,7 @@ export class ZodBigIntImpl extends ZodBaseTypeImpl<bigint, ZodBigIntDef> impleme
     return { status: status.value, value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodBigIntImpl)) {
       return false
     }

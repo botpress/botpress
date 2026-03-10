@@ -100,10 +100,7 @@ describe('dereference', () => {
     expect(result.success).toBe(true)
   })
   test('transformer', () => {
-    const refSchema = z.transformer(foo, {
-      type: 'transform',
-      transform: (data) => data,
-    })
+    const refSchema = z.transformer(foo, (data) => data)
     const derefSchema = refSchema.dereference(deref)
     const result = derefSchema.safeParse('astring')
     expect(result.success).toBe(true)
@@ -205,10 +202,7 @@ describe('getReferences', () => {
     expect(refs).toEqual(['foo'])
   })
   test('transformer', () => {
-    const refSchema = z.transformer(foo, {
-      type: 'transform',
-      transform: (data) => data,
-    })
+    const refSchema = z.transformer(foo, (data) => data)
     const refs = refSchema.getReferences()
     expect(refs).toEqual(['foo'])
   })

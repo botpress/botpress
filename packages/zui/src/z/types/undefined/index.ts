@@ -1,5 +1,5 @@
 import { builders } from '../../internal-builders'
-import type { IZodNever, IZodUndefined, ZodUndefinedDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodNever, IZodType, IZodUndefined, ZodUndefinedDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodUndefinedImpl extends ZodBaseTypeImpl<undefined, ZodUndefinedDef> implements IZodUndefined {
@@ -17,7 +17,7 @@ export class ZodUndefinedImpl extends ZodBaseTypeImpl<undefined, ZodUndefinedDef
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodUndefinedImpl
   }
 

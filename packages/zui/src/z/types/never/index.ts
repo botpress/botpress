@@ -1,4 +1,4 @@
-import type { IZodNever, ZodNeverDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodNever, IZodType, ZodNeverDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export type { ZodNeverDef }
@@ -13,7 +13,7 @@ export class ZodNeverImpl extends ZodBaseTypeImpl<never, ZodNeverDef> implements
     })
     return { status: 'aborted' }
   }
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodNeverImpl
   }
 }

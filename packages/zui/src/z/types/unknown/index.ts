@@ -1,4 +1,4 @@
-import type { IZodUnknown, ZodUnknownDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodUnknown, IZodType, ZodUnknownDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl } from '../basetype'
 
 export class ZodUnknownImpl extends ZodBaseTypeImpl<unknown, ZodUnknownDef> implements IZodUnknown {
@@ -8,7 +8,7 @@ export class ZodUnknownImpl extends ZodBaseTypeImpl<unknown, ZodUnknownDef> impl
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodUnknownImpl
   }
 }
