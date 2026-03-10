@@ -68,7 +68,7 @@ export const executeMessageReceived = async ({
     })
   }
 
-  let messageWithoutAuthor = _.trim(zendeskTrigger.comment, '-').trim()
+  let messageWithoutAuthor = _.trimStart(zendeskTrigger.comment, '-').trim()
   const firstLine = messageWithoutAuthor.split('\n').at(0)
 
   if (firstLine && ON_BEHALF_REGEXP.test(firstLine)) {
