@@ -96,6 +96,8 @@ test('basic transformations', () => {
     .string()
     .transform((data) => data.length)
     .parse('asdf')
+
+  assert.assertEqual<typeof r1, number>(true)
   expect(r1).toEqual(4)
 })
 
