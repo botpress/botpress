@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
-import * as z from '../../index'
-import * as assert from '../../../assertions.utils.test'
+import * as z from '../index'
+import * as assert from '../../assertions.utils.test'
 
 const stringToNumber = z.string().transform((arg) => parseFloat(arg))
 // const numberToString = z
