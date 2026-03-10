@@ -72,7 +72,7 @@ export const executeMessageReceived = async ({
   const firstLine = messageWithoutAuthor.split('\n').at(0)
 
   if (firstLine && ON_BEHALF_REGEXP.test(firstLine)) {
-    messageWithoutAuthor = messageWithoutAuthor.replace(ON_BEHALF_REGEXP, '').trim()
+    messageWithoutAuthor = messageWithoutAuthor.split('\n').slice(1).join('\n').trim()
   }
 
   await client.createMessage({
