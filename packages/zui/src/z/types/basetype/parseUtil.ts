@@ -43,12 +43,13 @@ export const makeIssue = (params: {
   }
 }
 
-export type ParsePath = (string | number)[]
-export const EMPTY_PATH: ParsePath = []
-
-export type MergeObjectPair = {
+type _ParsePath = (string | number)[]
+type _ObjectPair = {
   key: SyncParseReturnType
   value: SyncParseReturnType
+}
+
+export type MergeObjectPair = _ObjectPair & {
   alwaysSet?: boolean
 }
 
@@ -67,10 +68,6 @@ export function addIssueToContext(ctx: ParseContext, issueData: IssueData): void
   ctx.common.issues.push(issue)
 }
 
-export type ObjectPair = {
-  key: SyncParseReturnType
-  value: SyncParseReturnType
-}
 export class ParseStatus {
   value: 'aborted' | 'dirty' | 'valid' = 'valid'
   dirty() {
@@ -95,7 +92,7 @@ export class ParseStatus {
     status: ParseStatus,
     pairs: { key: ParseReturnType; value: ParseReturnType }[]
   ): Promise<SyncParseReturnType> {
-    const syncPairs: ObjectPair[] = []
+    const syncPairs: _ObjectPair[] = []
     for (const pair of pairs) {
       syncPairs.push({
         key: await pair.key,
@@ -193,10 +190,10 @@ export const getParsedType = (data: unknown): ZodParsedType => {
 export class ParseInputLazyPath implements ParseInput {
   parent: ParseContext
   data: any
-  _path: ParsePath
+  _path: _ParsePath
   _key: string | number | (string | number)[]
-  _cachedPath: ParsePath = []
-  constructor(parent: ParseContext, value: any, path: ParsePath, key: string | number | (string | number)[]) {
+  _cachedPath: _ParsePath = []
+  constructor(parent: ParseContext, value: any, path: _ParsePath, key: string | number | (string | number)[]) {
     this.parent = parent
     this.data = value
     this._path = path

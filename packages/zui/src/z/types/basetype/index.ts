@@ -43,9 +43,9 @@ import { getParsedType, isAsync, isValid, ParseStatus } from './parseUtil'
 export * from './parseUtil'
 
 class _CircularDependencyError extends Error {
-  public constructor(private _propName: keyof IZodType) {
+  public constructor(propName: keyof IZodType) {
     super(
-      `Cannot access property ${_propName} before initialization. You're probably importing ZUI incorrectly. If not, reach out to the maintainers.`
+      `Cannot access property ${propName} before initialization. You're probably importing ZUI incorrectly. If not, reach out to the maintainers.`
     )
   }
 }
@@ -69,12 +69,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
-  /** deeply replace all references in the schema */
   dereference(_defs: Record<string, IZodType>): IZodType {
     return this
   }
 
-  /** deeply scans the schema to check if it contains references */
   getReferences(): string[] {
     return []
   }
@@ -86,7 +84,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     })
   }
 
-  /** checks if a schema is equal to another */
   abstract isEqual(schema: IZodType): boolean
 
   _getType(input: ParseInput): string {
@@ -189,17 +186,8 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this._handleResult(ctx, result)
   }
 
-  /** Alias of safeParseAsync */
   spa = this.safeParseAsync
 
-  refine<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): IZodEffects<this, RefinedOutput, Input>
-  refine(
-    check: (arg: Output) => unknown | Promise<unknown>,
-    message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
-  ): IZodEffects<this, Output, Input>
   refine(
     check: (arg: Output) => unknown,
     message?: string | CustomErrorParams | ((arg: Output) => CustomErrorParams)
@@ -239,14 +227,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     })
   }
 
-  refinement<RefinedOutput extends Output>(
-    check: (arg: Output) => arg is RefinedOutput,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, RefinedOutput, Input>
-  refinement(
-    check: (arg: Output) => boolean,
-    refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
-  ): IZodEffects<this, Output, Input>
   refinement(
     check: (arg: Output) => unknown,
     refinementData: IssueData | ((arg: Output, ctx: RefinementCtx) => IssueData)
@@ -265,11 +245,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.refine(this, refinement)
   }
 
-  superRefine<RefinedOutput extends Output>(
-    refinement: (arg: Output, ctx: RefinementCtx) => arg is RefinedOutput
-  ): IZodEffects<this, RefinedOutput, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => void): IZodEffects<this, Output, Input>
-  superRefine(refinement: (arg: Output, ctx: RefinementCtx) => Promise<void>): IZodEffects<this, Output, Input>
   superRefine(
     refinement: (arg: Output, ctx: RefinementCtx) => unknown | Promise<unknown>
   ): IZodEffects<this, Output, Input> {
@@ -319,20 +294,7 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
   promise(): IZodPromise<this> {
     return builders.promise(this, this._def) // TODO(why): find out why def is passed as second argument
   }
-  /**
-   * # \#\#\# Experimental \#\#\#
-   *
-   * @experimental This function is experimental and is subject to breaking changes in the future.
-   *
-   * Would have been named `required` but a method with that name already exists in ZodObject.
-   * Makes the schema required; i.e. not optional or undefined. If the schema is already required than it returns itself.
-   * Null is not considered optional and remains unchanged.
-   *
-   * @example z.string().optional().mandatory() // z.string()
-   * @example z.string().nullable().mandatory() // z.string().nullable()
-   * @example z.string().or(z.undefined()).mandatory() // z.string()
-   * @example z.union([z.string(), z.number(), z.undefined()]).mandatory() // z.union([z.string(), z.number()])
-   */
+
   mandatory(): IZodType {
     return this
   }
@@ -351,8 +313,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return builders.transformer(this, transform)
   }
 
-  default(def: utils.types.NoUndefined<Input>): IZodDefault<this>
-  default(def: () => utils.types.NoUndefined<Input>): IZodDefault<this>
   default(def: utils.types.NoUndefined<Input> | (() => utils.types.NoUndefined<Input>)) {
     const defaultValueFunc = typeof def === 'function' ? def : () => def
     return builders.default(this, defaultValueFunc)
@@ -388,9 +348,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.safeParse(null).success
   }
 
-  // BOTPRESS EXTENSIONS
-
-  /** append metadata to the schema */
   metadata(data: Record<string, ZuiMetadata>): this {
     const clone = this.clone() as this
     const root = clone._metadataRoot
@@ -404,20 +361,14 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return clone
   }
 
-  /** get metadata of the schema */
   getMetadata(): Record<string, ZuiMetadata> {
     return { ...this._metadataRoot._def[zuiKey] }
   }
 
-  /** set metadata of the schema */
   setMetadata(data: Record<string, ZuiMetadata>): void {
     this._metadataRoot._def[zuiKey] = { ...data }
   }
 
-  /**
-   * get metadata of the schema
-   * @deprecated use `getMetadata()` instead
-   */
   get ui(): Record<string, ZuiMetadata> {
     return { ...this._metadataRoot._def[zuiKey] }
   }
@@ -439,17 +390,10 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.metadata({ displayAs: [options.id, options.params] })
   }
 
-  /**
-   * The title of the field. Defaults to the field name.
-   */
   title(title: string): this {
     return this.metadata({ title })
   }
 
-  /**
-   * Whether the field is hidden in the UI. Useful for internal fields.
-   * @default false
-   */
   hidden<T = this['_output']>(value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -462,10 +406,6 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.metadata({ hidden: data })
   }
 
-  /**
-   * Whether the field is disabled
-   * @default false
-   */
   disabled<T = this['_output']>(value?: boolean | ((shape: T | null) => DeepPartialBoolean<T> | boolean)): this {
     let data: ZuiMetadata
     if (value === undefined) {
@@ -478,46 +418,22 @@ export abstract class ZodBaseTypeImpl<Output = any, Def extends ZodTypeDef = Zod
     return this.metadata({ disabled: data })
   }
 
-  /**
-   * Placeholder text for the field
-   */
   placeholder(placeholder: string): this {
     return this.metadata({ placeholder })
   }
 
-  /**
-   *
-   * @deprecated use z.transforms.toJSONSchema(schema) instead
-   * @returns a JSON Schema equivalent to the Zui schema
-   */
   toJSONSchema(): transforms.json.Schema {
     throw new _CircularDependencyError('toJSONSchema')
   }
 
-  /**
-   *
-   * @deprecated use z.transforms.toTypescriptType(schema) instead
-   * @param options generation options
-   * @returns a string of the TypeScript type representing the schema
-   */
   toTypescriptType(_opts?: transforms.TypescriptGenerationOptions): string {
     throw new _CircularDependencyError('toTypescriptType')
   }
 
-  /**
-   *
-   * @deprecated use z.transforms.toTypescriptSchema(schema) instead
-   * @param options generation options
-   * @returns a typescript program (a string) that would construct the given schema if executed
-   */
   toTypescriptSchema(): string {
     throw new _CircularDependencyError('toTypescriptSchema')
   }
 
-  /**
-   * Allows removing all wrappers around the schema
-   * @returns either this or the closest children schema that represents the actual data
-   */
   naked(): IZodType {
     return this
   }
