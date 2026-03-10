@@ -1593,31 +1593,31 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 //* ─────────────────────────── ZodEffects ───────────────────────────────────
 
-export type RefinementEffect<T> = {
+export type RefinementEffect = {
   type: 'refinement'
-  refinement: (arg: T, ctx: RefinementCtx) => any
+  refinement(arg: unknown, ctx: RefinementCtx): unknown
 }
 
-export type TransformEffect<T> = {
+export type TransformEffect = {
   type: 'transform'
-  transform: (arg: T, ctx: RefinementCtx) => any
+  transform: (arg: unknown, ctx: RefinementCtx) => unknown
 }
 
-export type PreprocessEffect<T> = {
+export type PreprocessEffect = {
   type: 'preprocess'
-  transform: (arg: T, ctx: RefinementCtx) => any
+  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown
 }
 
-export type Effect<T> = RefinementEffect<T> | TransformEffect<T> | PreprocessEffect<T>
-export type ZodEffectsDef<T extends IZodType = IZodType> = {
+export type Effect = RefinementEffect | TransformEffect | PreprocessEffect
+export type ZodEffectsDef<T extends IZodType = IZodType, O = unknown> = {
   schema: T
   typeName: 'ZodEffects'
-  effect: Effect<any>
+  effect: Effect
 } & ZodTypeDef
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
 export interface IZodEffects<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
-  extends IZodType<Output, ZodEffectsDef<T>, Input> {
+  extends IZodType<Output, ZodEffectsDef<T, Output>, Input> {
   innerType(): T
   /**
    * @deprecated use naked() instead
@@ -1822,16 +1822,29 @@ export declare function createFunction(
   params?: ZodCreateParams
 ): IZodFunction<any, any>
 
-export declare function createEffects<I extends IZodType, O extends IZodType>(
-  schema: I,
-  effect: Effect<O['_output']>,
+export declare function createRefine<T extends IZodType, O>(
+  schema: T,
+  refinement: (arg: output<T>, ctx: RefinementCtx) => arg is O,
   params?: ZodCreateParams
-): IZodEffects<I, O['_output']>
-export declare function createPreprocess<I extends IZodType>(
-  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown,
-  schema: I,
+): IZodEffects<T, O>
+export declare function createRefine<T extends IZodType>(
+  schema: T,
+  refinement: (arg: output<T>, ctx: RefinementCtx) => unknown | Promise<unknown>,
   params?: ZodCreateParams
-): IZodEffects<I, I['_output'], unknown>
+): IZodEffects<T>
+
+export declare function createTransform<T extends IZodType, O>(
+  schema: T,
+  transform: (arg: output<T>, ctx: RefinementCtx) => O | Promise<O>,
+  params?: ZodCreateParams
+): IZodEffects<T, O>
+
+export declare function createPreprocess<T extends IZodType<O>, O>(
+  preprocess: (arg: unknown, ctx: RefinementCtx) => unknown | Promise<unknown>,
+  schema: T,
+  params?: ZodCreateParams
+): IZodEffects<T, output<T>, unknown>
+
 export declare function createOptional<T extends IZodType>(type: T, params?: ZodCreateParams): IZodOptional<T>
 export declare function createNullable<T extends IZodType>(type: T, params?: ZodCreateParams): IZodNullable<T>
 export declare function createReadonly<T extends IZodType>(type: T, params?: ZodCreateParams): IZodReadonly<T>
@@ -1859,7 +1872,6 @@ export type ZodBuilders = {
   date: typeof createDate
   default: typeof createDefault
   discriminatedUnion: typeof createDiscriminatedUnion
-  effects: typeof createEffects
   enum: typeof createEnum
   function: typeof createFunction
   instanceof: typeof createInstanceOf
@@ -1880,12 +1892,13 @@ export type ZodBuilders = {
   promise: typeof createPromise
   record: typeof createRecord
   ref: typeof createRef
+  refine: typeof createRefine
   readonly: typeof createReadonly
   set: typeof createSet
   strictObject: typeof createStrictObject
   string: typeof createString
   symbol: typeof createSymbol
-  transformer: typeof createEffects
+  transformer: typeof createTransform
   tuple: typeof createTuple
   undefined: typeof createUndefined
   union: typeof createUnion

@@ -79,7 +79,7 @@ export class ZodPipelineImpl<A extends IZodType = IZodType, B extends IZodType =
     }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodPipelineImpl)) return false
     if (!this._def.in.isEqual(schema._def.in)) return false
     if (!this._def.out.isEqual(schema._def.out)) return false

@@ -1,5 +1,13 @@
 import * as utils from '../../../utils'
-import { type IZodNumber, ZodNumberCheck, ZodNumberDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import {
+  type IZodNumber,
+  type IZodType,
+  ZodNumberCheck,
+  ZodNumberDef,
+  ParseContext,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
 
 // https://stackoverflow.com/questions/3966484/why-does-modulus-operator-return-fractional-number-in-javascript/31711034#31711034
@@ -244,7 +252,7 @@ export class ZodNumberImpl extends ZodBaseTypeImpl<number, ZodNumberDef> impleme
     return Number.isFinite(min) && Number.isFinite(max)
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodNumberImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodNumberCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodNumberCheck>(schema._def.checks)

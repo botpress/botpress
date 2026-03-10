@@ -1,4 +1,4 @@
-import type { IZodSymbol, ZodSymbolDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodSymbol, IZodType, ZodSymbolDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> implements IZodSymbol {
@@ -17,7 +17,7 @@ export class ZodSymbolImpl extends ZodBaseTypeImpl<symbol, ZodSymbolDef> impleme
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodSymbolImpl
   }
 }

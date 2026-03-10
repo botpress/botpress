@@ -1,4 +1,4 @@
-import type { IZodVoid, ZodVoidDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodVoid, IZodType, ZodVoidDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodVoidImpl extends ZodBaseTypeImpl<void, ZodVoidDef> implements IZodVoid {
@@ -16,7 +16,7 @@ export class ZodVoidImpl extends ZodBaseTypeImpl<void, ZodVoidDef> implements IZ
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodVoidImpl
   }
 }

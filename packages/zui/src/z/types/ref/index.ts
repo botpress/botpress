@@ -36,7 +36,7 @@ export class ZodRefImpl extends ZodBaseTypeImpl<NonNullable<unknown>, ZodRefDef>
     return false
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodRefImpl)) return false
     return this._def.uri === schema._def.uri
   }

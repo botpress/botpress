@@ -1,6 +1,14 @@
 import * as utils from '../../../utils'
 import { zuiKey } from '../../consts'
-import { type IZodString, ZodStringCheck, ZodStringDef, ParseContext, ParseInput, ParseReturnType } from '../../typings'
+import {
+  type IZodString,
+  type IZodType,
+  ZodStringCheck,
+  ZodStringDef,
+  ParseContext,
+  ParseInput,
+  ParseReturnType,
+} from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext, ParseStatus } from '../basetype'
 
 export type { ZodStringCheck, ZodStringDef }
@@ -462,7 +470,7 @@ export class ZodStringImpl extends ZodBaseTypeImpl<string, ZodStringDef> impleme
     return max
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodStringImpl)) return false
     const thisChecks = new utils.ds.CustomSet<ZodStringCheck>(this._def.checks)
     const thatChecks = new utils.ds.CustomSet<ZodStringCheck>(schema._def.checks)

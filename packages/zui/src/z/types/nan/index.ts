@@ -1,4 +1,4 @@
-import type { IZodNaN, ZodNaNDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodNaN, IZodType, ZodNaNDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZodNaN {
@@ -17,7 +17,7 @@ export class ZodNaNImpl extends ZodBaseTypeImpl<number, ZodNaNDef> implements IZ
     return { status: 'valid', value: input.data }
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     return schema instanceof ZodNaNImpl
   }
 }

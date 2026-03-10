@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash-es'
-import type { IZodLiteral, Primitive, ZodLiteralDef, ParseInput, ParseReturnType } from '../../typings'
+import type { IZodLiteral, IZodType, Primitive, ZodLiteralDef, ParseInput, ParseReturnType } from '../../typings'
 import { ZodBaseTypeImpl, addIssueToContext } from '../basetype'
 
 export class ZodLiteralImpl<T extends Primitive = Primitive>
@@ -23,7 +23,7 @@ export class ZodLiteralImpl<T extends Primitive = Primitive>
     return this._def.value
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodLiteralImpl)) return false
     return isEqual(this._def.value, schema._def.value)
   }

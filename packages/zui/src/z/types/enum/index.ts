@@ -3,6 +3,7 @@ import { builders } from '../../internal-builders'
 import type {
   FilterEnum,
   IZodEnum,
+  IZodType,
   EnumValuesMap,
   NeverCast,
   ZodEnumDef,
@@ -85,7 +86,7 @@ export class ZodEnumImpl<T extends EnumValues = EnumValues>
     }) as IZodEnum<NeverCast<utils.types.Writeable<FilterEnum<T, ToExclude[number]>>, [string, ...string[]]>>
   }
 
-  isEqual(schema: ZodBaseTypeImpl): boolean {
+  isEqual(schema: IZodType): boolean {
     if (!(schema instanceof ZodEnumImpl)) return false
     const thisValues = new utils.ds.CustomSet<string>(this._def.values)
     const thatValues = new utils.ds.CustomSet<string>(schema._def.values)
