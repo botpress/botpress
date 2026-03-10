@@ -18,27 +18,33 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
 
   await props.workflow.acknowledgeStartOfProcessing()
 
-  const { finished } = await SyncQueue.queueProcessor.processQueue({
-    logger,
-    syncQueue,
-    fileRepository: props.client,
-    integration: createIntegrationTransferHandler({
-      integrationName: props.workflow.tags.integrationDefinitionName,
-      integrationAlias: props.workflow.tags.integrationInstanceAlias,
-      client: props.client,
-      transferFileToBotpressAlias: props.workflow.input.transferFileToBotpressAlias,
-      shouldIndex: true,
-    }),
-    updateSyncQueue: (params) => SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue),
-  })
+  try {
+    const processResult = await SyncQueue.queueProcessor.processQueue({
+      logger,
+      syncQueue,
+      fileRepository: props.client,
+      integration: createIntegrationTransferHandler({
+        integrationName: props.workflow.tags.integrationDefinitionName,
+        integrationAlias: props.workflow.tags.integrationInstanceAlias,
+        client: props.client,
+        transferFileToBotpressAlias: props.workflow.input.transferFileToBotpressAlias,
+        shouldIndex: true,
+      }),
+      updateSyncQueue: (params) => SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue),
+    })
 
-  if (finished === 'batch') {
-    logger.info('Batch sync success. Continuing to next batch...')
-    const timeIn5Minutes = new Date(Date.now() + 300_000).toISOString()
-    await props.workflow.update({ timeoutAt: timeIn5Minutes })
+    if (processResult.finished === 'batch') {
+      logger.info('Batch sync success. Continuing to next batch...')
+      const timeIn5Minutes = new Date(Date.now() + 300_000).toISOString()
+      await props.workflow.update({ timeoutAt: timeIn5Minutes })
+      return
+    }
+
+    logger.info('Sync completed successfully')
+    await props.workflow.setCompleted()
+  } catch (error) {
+    logger.error('Error processing queue:', error)
+    await props.workflow.setFailed({ failureReason: 'Error processing queue' })
     return
   }
-
-  logger.info('Sync completed successfully')
-  await props.workflow.setCompleted()
 }
