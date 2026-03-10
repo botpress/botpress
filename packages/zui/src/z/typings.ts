@@ -1612,6 +1612,8 @@ export type Effect<I, O = unknown> = RefinementEffect<I, O> | TransformEffect<I,
 export type ZodEffectsDef<T extends IZodType = IZodType> = {
   schema: T
   typeName: 'ZodEffects'
+
+  // We don't care about the specific type here as this is a storage type. Type inference is done at the builder level.
   effect: Effect<unknown>
 } & ZodTypeDef
 
