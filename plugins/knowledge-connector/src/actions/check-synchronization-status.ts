@@ -48,7 +48,13 @@ export const callAction: bp.PluginHandlers['actionHandlers']['checkSynchronizati
       const jobFileContent = await fetch(jobFile.url, { signal: AbortSignal.timeout(30000) }).then((res) => res.text())
       fileStats = _computeFileStats(jobFileContent, props.logger)
     } catch (error) {
-      props.logger.error(`Failed to retrieve sync queue file: ${error}`)
+      props.logger.error(`Failed to retrieve sync queue file: ${error}. File stats will be unavailable.`)
+      fileStats = {
+        totalFiles: -1,
+        processedFiles: -1,
+        skippedFiles: -1,
+        failedFiles: -1,
+      }
     }
   }
 

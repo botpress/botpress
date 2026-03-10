@@ -61,11 +61,14 @@ export const enumerateFilesInFolder = async (props: {
       })
 
       for (const item of response.items) {
+        const basePath = currentFolder.absolutePath.endsWith('/')
+          ? currentFolder.absolutePath
+          : `${currentFolder.absolutePath}/`
         if (item.type === 'folder') {
-          const subfolderPath = item.absolutePath ?? `${currentFolder.absolutePath}${item.name}/`
+          const subfolderPath = item.absolutePath ?? `${basePath}${item.name}/`
           pendingFolders.push({ folderId: item.id, absolutePath: subfolderPath })
         } else {
-          const filePath = item.absolutePath ?? `${currentFolder.absolutePath}${item.name}`
+          const filePath = item.absolutePath ?? `${basePath}${item.name}`
           files.push({
             id: item.id,
             name: item.name,

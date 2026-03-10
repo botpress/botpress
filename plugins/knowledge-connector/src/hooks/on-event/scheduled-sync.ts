@@ -52,9 +52,11 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
 
   logger.info(`Scheduled sync starting for ${integrationGroups.length} integration(s)`)
 
+  let hasSucceeded = false
   for (const group of integrationGroups) {
     try {
       await _syncIntegrationGroup(props, group)
+      hasSucceeded = true
     } catch (error) {
       logger.error(
         `Scheduled sync failed for integration "${group.integrationInstanceAlias}": ${error instanceof Error ? error.message : String(error)}`
@@ -62,9 +64,13 @@ export const handleEvent = async (props: ScheduledSyncProps) => {
     }
   }
 
-  await props.states.bot.lastScheduledSync.set(ctx.botId, {
-    lastSyncAt: new Date().toISOString(),
-  })
+  if (hasSucceeded) {
+    await props.states.bot.lastScheduledSync.set(ctx.botId, {
+      lastSyncAt: new Date().toISOString(),
+    })
+  } else {
+    logger.warn('Scheduled sync: all integration groups failed, will retry on next trigger')
+  }
 }
 
 const _hasEnoughTimeElapsed = async (props: ScheduledSyncProps, intervalHours: number): Promise<boolean> => {
@@ -133,15 +139,21 @@ const _syncIntegrationGroup = async (props: ScheduledSyncProps, group: Integrati
   const allFiles: Array<{ id: string; name: string; absolutePath: string; sizeInBytes?: number; kbId: string }> = []
 
   for (const folder of group.folders) {
-    const files = await enumerateFilesInFolder({
-      listItemsInFolder: props.actions['files-readonly'].listItemsInFolder,
-      folderId: folder.folderId,
-      folderPath: folder.path,
-      logger,
-    })
+    try {
+      const files = await enumerateFilesInFolder({
+        listItemsInFolder: props.actions['files-readonly'].listItemsInFolder,
+        folderId: folder.folderId,
+        folderPath: folder.path,
+        logger,
+      })
 
-    for (const file of files) {
-      allFiles.push({ ...file, kbId: folder.kbId })
+      for (const file of files) {
+        allFiles.push({ ...file, kbId: folder.kbId })
+      }
+    } catch (error) {
+      logger.error(
+        `Failed to enumerate files in folder "${folder.path}" (${folder.folderId}): ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
