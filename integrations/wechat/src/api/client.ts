@@ -40,11 +40,11 @@ export class WeChatClient {
     const contentType = response.headers.get('content-type') ?? undefined
     if (contentType?.includes('application/json')) {
       const data = (await response.json()) as { video_url?: string; errcode?: number; errmsg?: string }
-      if (data.errcode) {
-        throw new RuntimeError(`Failed to download WeChat media: ${data.errmsg}`)
-      }
-      if (!data.video_url) {
-        throw new RuntimeError('Failed to download WeChat media: missing video_url')
+
+      const hasErrorCode = data.errcode && data.errcode !== 0
+      if (hasErrorCode || !data.video_url) {
+        const errorSuffix = hasErrorCode ? `${data.errmsg} (code: ${data.errcode})` : 'missing video_url'
+        throw new RuntimeError(`Failed to download media from WeChat -> ${errorSuffix}`)
       }
       // THIS IS VERY SKETCHY! We should NOT be using recursion here
       return this._downloadWeChatMediaFromUrl(data.video_url)
