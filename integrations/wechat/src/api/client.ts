@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Result } from '../types'
 import { useHandleCaughtError } from '../utils'
+import { getValidMediaPropOrThrow } from './helpers'
 import {
   weChatAuthTokenRespSchema,
   type WeChatSendMessageResp,
@@ -41,13 +42,9 @@ export class WeChatClient {
     if (contentType?.includes('application/json')) {
       const data = (await response.json()) as { video_url?: string; errcode?: number; errmsg?: string }
 
-      const hasErrorCode = data.errcode && data.errcode !== 0
-      if (hasErrorCode || !data.video_url) {
-        const errorSuffix = hasErrorCode ? `${data.errmsg} (code: ${data.errcode})` : 'missing video_url'
-        throw new RuntimeError(`Failed to download media from WeChat -> ${errorSuffix}`)
-      }
+      const videoUrl = getValidMediaPropOrThrow('video_url', data, 'Failed to download media from WeChat')
       // THIS IS VERY SKETCHY! We should NOT be using recursion here
-      return this._downloadWeChatMediaFromUrl(data.video_url)
+      return this._downloadWeChatMediaFromUrl(videoUrl)
     }
 
     const content = await response.arrayBuffer()
@@ -87,15 +84,7 @@ export class WeChatClient {
     if (!result.success) {
       throw new RuntimeError(`Unexpected response received when uploading media to WeChat -> ${result.error.message}`)
     }
-    const uploadData = result.data
-
-    const hasErrorCode = uploadData.errcode && uploadData.errcode !== 0
-    if (hasErrorCode || !uploadData.media_id) {
-      const errorSuffix = hasErrorCode ? `${uploadData.errmsg} (code: ${uploadData.errcode})` : 'missing media_id'
-      throw new RuntimeError(`Failed to upload media to WeChat -> ${errorSuffix}`)
-    }
-
-    return uploadData.media_id
+    return getValidMediaPropOrThrow('media_id', result.data, 'Failed to upload media to WeChat')
   }
 
   public static async create(ctx: bp.Context) {
