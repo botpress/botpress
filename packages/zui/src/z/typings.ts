@@ -383,9 +383,6 @@ export type ZodTypeDef = {
   ['x-zui']?: ZuiExtensionObject
 }
 
-/**
- * @deprecated - use ZodType instead
- */
 export type ZodTypeAny = IZodType<any, any, any>
 
 /**
@@ -486,15 +483,6 @@ export interface IZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef, Inp
    * @deprecated use `getMetadata()` instead
    */
   ui: Record<string, ZuiMetadata>
-  /**
-   * The type of component to use to display the field and its options
-   */
-  // displayAs<
-  //   UI extends UIComponentDefinitions = UIComponentDefinitions,
-  //   Type extends _BaseType = _ZodKindToBaseType<this['_def']>,
-  // >(
-  //   options: ValueOf<UI[Type]>
-  // ): this
   /**
    * The title of the field. Defaults to the field name.
    */
@@ -825,7 +813,7 @@ export type ZodTupleItems = [IZodType, ...IZodType[]]
 export type AssertArray<T> = T extends any[] ? T : never
 
 export type OutputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_output'] : never
+  [k in keyof T]: T[k] extends ZodTypeAny ? T[k]['_output'] : never
 }>
 
 export type OutputTypeOfTupleWithRest<
@@ -834,7 +822,7 @@ export type OutputTypeOfTupleWithRest<
 > = Rest extends IZodType ? [...OutputTypeOfTuple<T>, ...Rest['_output'][]] : OutputTypeOfTuple<T>
 
 export type InputTypeOfTuple<T extends ZodTupleItems | []> = AssertArray<{
-  [k in keyof T]: T[k] extends IZodType<any, any> ? T[k]['_input'] : never
+  [k in keyof T]: T[k] extends ZodTypeAny ? T[k]['_input'] : never
 }>
 
 export type InputTypeOfTupleWithRest<
@@ -848,9 +836,6 @@ export type ZodTupleDef<T extends ZodTupleItems | [] = ZodTupleItems, Rest exten
   typeName: 'ZodTuple'
 } & ZodTypeDef
 
-/**
- * @deprecated use ZodTuple instead
- */
 export type AnyZodTuple = IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
@@ -964,9 +949,6 @@ export type DeepPartial<T extends IZodType> = T extends IZodObject
  */
 export type SomeZodObject = IZodObject<ZodRawShape, UnknownKeysParam>
 
-/**
- * @deprecated use ZodObject instead
- */
 export type AnyZodObject = IZodObject<any, any>
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
@@ -1003,7 +985,7 @@ export interface IZodObject<
    * inferred type of merged objects. Please
    * upgrade if you are experiencing issues.
    */
-  merge<Incoming extends IZodObject<any>, Augmentation extends Incoming['shape']>(
+  merge<Incoming extends AnyZodObject, Augmentation extends Incoming['shape']>(
     merging: Incoming
   ): IZodObject<ExtendShape<T, Augmentation>, Incoming['_def']['unknownKeys']>
   setKey<Key extends string, Schema extends IZodType>(
@@ -1084,7 +1066,7 @@ export type ZodDiscriminatedUnionDef<
 > = {
   discriminator: Discriminator
   options: Options
-  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
+  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<Discriminator>>
   typeName: 'ZodDiscriminatedUnion'
 } & ZodTypeDef
 
@@ -1095,7 +1077,7 @@ export interface IZodDiscriminatedUnion<
 > extends IZodType<output<Options[number]>, ZodDiscriminatedUnionDef<Discriminator, Options>, input<Options[number]>> {
   discriminator: Discriminator
   options: Options
-  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<any>>
+  optionsMap: Map<Primitive, ZodDiscriminatedUnionOption<Discriminator>>
 }
 
 //* ─────────────────────────── ZodUnknown ───────────────────────────────────
@@ -1109,23 +1091,23 @@ export interface IZodUnknown extends IZodType<unknown, ZodUnknownDef> {}
 
 //* ─────────────────────────── ZodFunction ───────────────────────────────────
 
-export type ZodFunctionDef<Args extends IZodTuple<any, any> = IZodTuple, Returns extends IZodType = IZodType> = {
+export type ZodFunctionDef<Args extends AnyZodTuple = IZodTuple, Returns extends IZodType = IZodType> = {
   args: Args
   returns: Returns
   typeName: 'ZodFunction'
 } & ZodTypeDef
 
-export type OuterTypeOfFunction<Args extends IZodTuple<any, any>, Returns extends IZodType> =
-  Args['_input'] extends Array<any> ? (...args: Args['_input']) => Returns['_output'] : never
+export type OuterTypeOfFunction<Args extends AnyZodTuple, Returns extends IZodType> = Args['_input'] extends any[]
+  ? (...args: Args['_input']) => Returns['_output']
+  : never
 
-export type InnerTypeOfFunction<Args extends IZodTuple<any, any>, Returns extends IZodType> =
-  Args['_output'] extends Array<any> ? (...args: Args['_output']) => Returns['_input'] : never
+export type InnerTypeOfFunction<Args extends AnyZodTuple, Returns extends IZodType> = Args['_output'] extends any[]
+  ? (...args: Args['_output']) => Returns['_input']
+  : never
 
 /* oxlint-disable typescript-eslint(consistent-type-definitions) */
-export interface IZodFunction<
-  Args extends IZodTuple<any, any> = IZodTuple<any, any>,
-  Returns extends IZodType = IZodType,
-> extends IZodType<
+export interface IZodFunction<Args extends AnyZodTuple = AnyZodTuple, Returns extends IZodType = IZodType>
+  extends IZodType<
     OuterTypeOfFunction<Args, Returns>,
     ZodFunctionDef<Args, Returns>,
     InnerTypeOfFunction<Args, Returns>
@@ -1135,7 +1117,7 @@ export interface IZodFunction<
   args<Items extends [IZodType, ...IZodType[]] | []>(
     ...items: Items
   ): IZodFunction<IZodTuple<Items, IZodUnknown>, Returns>
-  returns<NewReturnType extends IZodType<any, any>>(returnType: NewReturnType): IZodFunction<Args, NewReturnType>
+  returns<NewReturnType extends ZodTypeAny>(returnType: NewReturnType): IZodFunction<Args, NewReturnType>
   implement<F extends InnerTypeOfFunction<Args, Returns>>(
     func: F
   ): ReturnType<F> extends Returns['_output']
@@ -1718,8 +1700,8 @@ export type ZodNativeTypeName = ZodNativeTypeDef['typeName']
 type _CustomParams = CustomErrorParams & { fatal?: boolean }
 
 export declare function createCustom<T>(
-  check?: (data: unknown) => any,
-  params?: string | _CustomParams | ((input: any) => _CustomParams),
+  check?: (data: unknown) => unknown,
+  params?: string | _CustomParams | ((input: unknown) => _CustomParams),
   fatal?: boolean
 ): IZodType<T>
 export declare function createInstanceOf<T extends abstract new (...args: any[]) => any>(
@@ -1818,11 +1800,7 @@ export declare function createFunction<
   T extends IZodTuple<[IZodType, ...IZodType[]] | [], IZodType | null>,
   U extends IZodType,
 >(args: T, returns: U, params: ZodCreateParams): IZodFunction<T, U>
-export declare function createFunction(
-  args?: IZodTuple<any, any>,
-  returns?: IZodType,
-  params?: ZodCreateParams
-): IZodFunction<any, any>
+export declare function createFunction(args?: AnyZodTuple, returns?: IZodType, params?: ZodCreateParams): IZodFunction
 
 export declare function createRefine<T extends IZodType, O>(
   schema: T,
