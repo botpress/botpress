@@ -32,3 +32,6 @@ export type WeChatSendMessageResp = z.infer<typeof wechatSendMessageRespSchema>
 
 export const wechatUploadMediaRespSchema = _wechatErrorRespSchema.partial().extend({ media_id: z.string().optional() })
 export type WeChatUploadMediaResp = z.infer<typeof wechatUploadMediaRespSchema>
+
+export const wechatVideoUrlRespSchema = _wechatErrorRespSchema.partial().extend({ video_url: z.string().optional() })
+export type WeChatVideoUrlResp = z.infer<typeof wechatVideoUrlRespSchema>

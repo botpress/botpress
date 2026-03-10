@@ -8,6 +8,7 @@ import {
   type WeChatSendMessageResp,
   wechatSendMessageRespSchema,
   wechatUploadMediaRespSchema,
+  wechatVideoUrlRespSchema,
 } from './schemas'
 import * as bp from '.botpress'
 
@@ -44,10 +45,13 @@ export class WeChatClient {
     }
 
     const contentType = response.headers.get('content-type') ?? undefined
-    if (contentType?.includes('application/json')) {
-      const data = (await response.json()) as { video_url?: string; errcode?: number; errmsg?: string }
+    if (contentType === 'application/json') {
+      const result = wechatVideoUrlRespSchema.safeParse(await response.json())
+      if (!result.success) {
+        throw new RuntimeError('Received unexpected response when downloading WeChat media')
+      }
 
-      const videoUrl = getValidMediaPropOrThrow('video_url', data, 'Failed to download media from WeChat')
+      const videoUrl = getValidMediaPropOrThrow('video_url', result.data, 'Failed to download media from WeChat')
       return this._downloadWeChatMediaFromUrl(videoUrl, false)
     }
 
