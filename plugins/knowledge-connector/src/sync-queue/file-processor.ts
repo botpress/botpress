@@ -32,8 +32,9 @@ export const processQueueFile = async (props: ProcessFileProps): Promise<types.S
 
   fileToSync.status = 'newly-synced'
 
+  const existingTags = existingFile?.tags ?? {}
   await _deleteExistingFileFromFilesApi(props, existingFile)
-  await _transferFileToBotpress(props, fileToSync)
+  await _transferFileToBotpress(props, fileToSync, existingTags)
 
   return fileToSync
 }
@@ -91,7 +92,11 @@ const _deleteExistingFileFromFilesApi = async (props: ProcessFileProps, existing
   }
 }
 
-const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: types.SyncQueueItem) => {
+const _transferFileToBotpress = async (
+  props: ProcessFileProps,
+  fileToSync: types.SyncQueueItem,
+  existingTags: Record<string, string> = {}
+) => {
   try {
     const { botpressFileId } = await props.integration.transferFileToBotpress({
       file: fileToSync,
@@ -101,6 +106,7 @@ const _transferFileToBotpress = async (props: ProcessFileProps, fileToSync: type
     await props.fileRepository.updateFileMetadata({
       id: botpressFileId,
       tags: {
+        ...existingTags,
         integrationName: props.integration.name,
         integrationAlias: props.integration.alias,
         externalId: fileToSync.id,
