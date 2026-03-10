@@ -295,19 +295,19 @@ export const preprocessType: ZodBuilders['preprocess'] = (preprocess, schema, pa
     effect: { type: 'preprocess', preprocess },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
-  }) as IZodEffects<typeof schema>
+  })
 
 export const refineType: ZodBuilders['refine'] = <T extends IZodType>(
   schema: T,
   refinement: (arg: T['_output'], ctx: RefinementCtx) => unknown,
-  params: ZodCreateParams
+  params?: ZodCreateParams
 ): IZodEffects<T> =>
   new ZodEffectsImpl({
     schema,
     effect: { type: 'refinement', refinement },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
-  }) as IZodEffects<T>
+  })
 
 export const transformType: ZodBuilders['transformer'] = <T extends IZodType, O>(
   schema: T,
@@ -319,7 +319,7 @@ export const transformType: ZodBuilders['transformer'] = <T extends IZodType, O>
     effect: { type: 'transform', transform },
     typeName: 'ZodEffects',
     ..._processCreateParams(params),
-  }) as IZodEffects<T, O>
+  })
 
 export const optionalType: ZodBuilders['optional'] = (type, params) =>
   new ZodOptionalImpl({ innerType: type, typeName: 'ZodOptional', ..._processCreateParams(params) })

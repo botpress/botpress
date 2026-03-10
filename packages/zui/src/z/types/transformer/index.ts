@@ -14,7 +14,7 @@ import type {
 import { ZodBaseTypeImpl, addIssueToContext, isValid } from '../basetype'
 
 export class ZodEffectsImpl<T extends IZodType = IZodType, Output = output<T>, Input = input<T>>
-  extends ZodBaseTypeImpl<Output, ZodEffectsDef<T, Output>, Input>
+  extends ZodBaseTypeImpl<Output, ZodEffectsDef<T>, Input>
   implements IZodEffects<T, Output, Input>
 {
   innerType() {
