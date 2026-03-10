@@ -1,20 +1,21 @@
 import { z } from '@botpress/sdk'
 
+const _wechatErrorRespSchema = z.object({
+  errcode: z.coerce.number(),
+  errmsg: z.string(),
+})
+
 const MISSING_ACCESS_TOKEN_MSG = 'The WeChat access token is missing from the response'
 export const weChatAuthTokenRespSchema = z.union([
-  z.object({
-    errcode: z.number(),
-    errmsg: z.string(),
-  }),
+  _wechatErrorRespSchema,
   z.object({
     access_token: z.string({ required_error: MISSING_ACCESS_TOKEN_MSG }).min(1, MISSING_ACCESS_TOKEN_MSG),
   }),
 ])
 
-export const wechatSendMessageRespSchema = z
-  .object({
-    errcode: z.number().optional(),
-    errmsg: z.string().optional(),
+export const wechatSendMessageRespSchema = _wechatErrorRespSchema
+  .partial()
+  .extend({
     // NOTE: AFAIK the "sendMessage" response doesn't contain
     // any Message ID, because WeChat doesn't send one back.
     // The properties below can likely be safely removed.
@@ -29,8 +30,5 @@ export const wechatSendMessageRespSchema = z
   }))
 export type WeChatSendMessageResp = z.infer<typeof wechatSendMessageRespSchema>
 
-export const wechatUploadMediaRespSchema = z.object({
-  media_id: z.string().optional(),
-  errcode: z.coerce.number().optional(),
-  errmsg: z.string().optional(),
-})
+export const wechatUploadMediaRespSchema = _wechatErrorRespSchema.partial().extend({ media_id: z.string().optional() })
+export type WeChatUploadMediaResp = z.infer<typeof wechatUploadMediaRespSchema>
