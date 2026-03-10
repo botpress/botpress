@@ -87,7 +87,7 @@ export class WeChatClient {
     if (!result.success) {
       throw new RuntimeError(`Unexpected response received when uploading media to WeChat -> ${result.error.message}`)
     }
-    const uploadData = resp.data
+    const uploadData = result.data
 
     const hasErrorCode = uploadData.errcode && uploadData.errcode !== 0
     if (hasErrorCode || !uploadData.media_id) {
