@@ -1595,7 +1595,7 @@ export interface IZodSymbol extends IZodType<symbol, ZodSymbolDef> {}
 
 export type RefinementEffect<I, O = unknown> = {
   type: 'refinement'
-  refinement(arg: I, ctx: RefinementCtx): O
+  refinement: (arg: I, ctx: RefinementCtx) => O
 }
 
 export type TransformEffect<I, O = unknown> = {
