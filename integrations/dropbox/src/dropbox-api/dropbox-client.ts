@@ -3,7 +3,7 @@ import { Dropbox } from 'dropbox'
 import { File as FileEntity, Folder as FolderEntity, Deleted as DeletedEntity } from '../../definitions'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { ActionInput, RequestMapping, ResponseMapping } from './mapping'
-import { DropboxOAuthClient } from './oauth-client'
+import { DropboxOAuthClient, getAuthorizationCode, getOAuthClientId, getOAuthClientSecret } from './oauth-client'
 import * as bp from '.botpress'
 
 type File = FileEntity.InferredType
@@ -27,8 +27,8 @@ export class DropboxClient {
 
     return new DropboxClient({
       accessToken,
-      clientId: ctx.configuration.clientId,
-      clientSecret: ctx.configuration.clientSecret,
+      clientId: getOAuthClientId({ ctx }),
+      clientSecret: getOAuthClientSecret({ ctx }),
       accountId,
     })
   }
@@ -38,8 +38,13 @@ export class DropboxClient {
   }
 
   public static async processAuthorizationCode(props: { client: bp.Client; ctx: bp.Context }): Promise<void> {
+    const authorizationCode = getAuthorizationCode({ ctx: props.ctx })
+    if (!authorizationCode) {
+      throw new Error('Authorization code is required')
+    }
     const oauthClient = new DropboxOAuthClient(props)
-    await oauthClient.processAuthorizationCode(props.ctx.configuration.authorizationCode)
+    // For manual configuration (no redirect_uri used), pass empty string
+    await oauthClient.processAuthorizationCode(authorizationCode, '')
   }
 
   @handleErrors('Failed to validate Dropbox authentication')
