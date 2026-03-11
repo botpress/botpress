@@ -75,7 +75,7 @@ export class WeChatClient {
 
     const data = parseResult.data
     if (data.errorCode && data.errorCode !== 0) {
-      throw new RuntimeError(`Failed to send WeChat message: ${data.errorMsg} (code: ${data.errorCode})`)
+      throw new RuntimeError(`Failed to send WeChat message -> (Error code: ${data.errorCode}) ${data.errorMsg}`)
     }
 
     return data
