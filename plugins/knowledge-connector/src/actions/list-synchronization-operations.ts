@@ -1,4 +1,4 @@
-import { WORKFLOW_ACTIVE_STATUSES } from 'src/consts'
+import { WORKFLOW_ACTIVE_STATUSES } from '../consts'
 import type { Workflow } from '../types'
 import * as bp from '.botpress'
 

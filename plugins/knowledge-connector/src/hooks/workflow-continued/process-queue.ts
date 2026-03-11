@@ -9,10 +9,11 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
   if (
     !props.workflow.tags.integrationInstanceAlias ||
     !props.workflow.tags.syncJobId ||
-    !props.workflow.tags.integrationDefinitionName
+    !props.workflow.tags.integrationDefinitionName ||
+    !props.workflow.tags.syncInitiatedAt
   ) {
     throw new Error(
-      'Missing required workflow tags: integrationInstanceAlias, integrationDefinitionName, and syncJobId'
+      'Missing required workflow tags: integrationInstanceAlias, integrationDefinitionName, syncJobId, and syncInitiatedAt'
     )
   }
 
@@ -30,7 +31,13 @@ export const handleEvent: bp.WorkflowHandlers['processQueue'] = async (props) =>
         transferFileToBotpressAlias: props.workflow.input.transferFileToBotpressAlias,
         shouldIndex: true,
       }),
-      updateSyncQueue: (params) => SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue),
+      updateSyncQueue: (params) =>
+        SyncQueue.jobFileManager.updateSyncQueue(props, key, params.syncQueue, {
+          syncJobId: props.workflow.tags.syncJobId!,
+          integrationName: props.workflow.tags.integrationDefinitionName!,
+          integrationInstanceAlias: props.workflow.tags.integrationInstanceAlias!,
+          syncInitiatedAt: props.workflow.tags.syncInitiatedAt!,
+        }),
     })
 
     if (processResult.finished === 'batch') {

@@ -12,9 +12,10 @@ export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'
     return
   }
 
-  for (const deletedItem of modifiedItems.deleted) {
+  // Process deletes first to avoid conflicts with upserts
+  const deletePromises = modifiedItems.deleted.map((deletedItem) => {
     if (deletedItem.type === 'file') {
-      await handleFileDeleted({
+      return handleFileDeleted({
         ...props,
         event: {
           ...props.event,
@@ -23,7 +24,7 @@ export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'
         },
       })
     } else {
-      await handleFolderDeletedRecursive({
+      return handleFolderDeletedRecursive({
         ...props,
         event: {
           ...props.event,
@@ -32,21 +33,27 @@ export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'
         },
       })
     }
-  }
+  })
+
+  await Promise.allSettled(deletePromises)
+
+  const upsertPromises: Promise<void>[] = []
 
   for (const createdItem of modifiedItems.created) {
     if (createdItem.type !== 'file') {
       continue
     }
 
-    await handleFileCreated({
-      ...props,
-      event: {
-        ...props.event,
-        type: `${integrationAlias}:fileCreated` as 'files-readonly:fileCreated',
-        payload: { file: createdItem },
-      },
-    })
+    upsertPromises.push(
+      handleFileCreated({
+        ...props,
+        event: {
+          ...props.event,
+          type: `${integrationAlias}:fileCreated` as 'files-readonly:fileCreated',
+          payload: { file: createdItem },
+        },
+      })
+    )
   }
 
   for (const updatedItem of modifiedItems.updated) {
@@ -54,13 +61,17 @@ export const handleEvent: bp.EventHandlers['files-readonly:aggregateFileChanges'
       continue
     }
 
-    await handleFileUpdated({
-      ...props,
-      event: {
-        ...props.event,
-        type: `${integrationAlias}:fileUpdated` as 'files-readonly:fileUpdated',
-        payload: { file: updatedItem },
-      },
-    })
+    upsertPromises.push(
+      handleFileUpdated({
+        ...props,
+        event: {
+          ...props.event,
+          type: `${integrationAlias}:fileUpdated` as 'files-readonly:fileUpdated',
+          payload: { file: updatedItem },
+        },
+      })
+    )
   }
+
+  await Promise.allSettled(upsertPromises)
 }

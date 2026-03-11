@@ -141,7 +141,13 @@ const _syncIntegrationGroup = async (props: ScheduledSyncProps, group: Integrati
   for (const folder of group.folders) {
     try {
       const files = await enumerateFilesInFolder({
-        listItemsInFolder: props.actions['files-readonly'].listItemsInFolder,
+        listItemsInFolder: (input) =>
+          props.client
+            .callAction({
+              type: `${group.integrationInstanceAlias}:filesReadonlyListItemsInFolder`,
+              input,
+            })
+            .then((r) => r.output),
         folderId: folder.folderId,
         folderPath: folder.path,
         logger,

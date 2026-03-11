@@ -17,6 +17,7 @@ export const handleEvent: bp.EventHandlers['files-readonly:fileDeleted'] = async
       },
     })
 
+
     for (const filesApiFile of files) {
       await props.client.deleteFile({ id: filesApiFile.id })
     }

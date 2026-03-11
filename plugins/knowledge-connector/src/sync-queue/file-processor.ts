@@ -30,11 +30,13 @@ export const processQueueFile = async (props: ProcessFileProps): Promise<types.S
     return fileToSync
   }
 
-  fileToSync.status = 'newly-synced'
-
   const existingTags = existingFile?.tags ?? {}
   await _deleteExistingFileFromFilesApi(props, existingFile)
   await _transferFileToBotpress(props, fileToSync, existingTags)
+
+  if (fileToSync.status !== 'errored') {
+    fileToSync.status = 'newly-synced'
+  }
 
   return fileToSync
 }

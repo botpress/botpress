@@ -37,9 +37,9 @@ export const handleFileUpsert = async (props: FileUpsertProps) => {
     return
   }
 
-  const { kbId } = folderMatch
+  const { kbId, integrationDefinitionName, transferFileToBotpressAlias } = folderMatch
 
-  await SyncQueue.fileProcessor.processQueueFile({
+  const result = await SyncQueue.fileProcessor.processQueueFile({
     fileRepository: props.client,
     fileToSync: {
       ...file,
@@ -47,13 +47,18 @@ export const handleFileUpsert = async (props: FileUpsertProps) => {
       addToKbId: kbId,
     },
     integration: createIntegrationTransferHandler({
-      integrationName: integrationAlias,
+      integrationName: integrationDefinitionName ?? integrationAlias,
       integrationAlias,
       client: props.client,
+      transferFileToBotpressAlias,
       shouldIndex: kbId !== undefined,
     }),
     logger: props.logger,
   })
 
-  props.logger.info(`File ${file.absolutePath} has been synchronized`)
+  if (result.status === 'errored') {
+    props.logger.error(`File ${file.absolutePath} failed to synchronize: ${result.errorMessage}`)
+  } else {
+    props.logger.info(`File ${file.absolutePath} has been synchronized`)
+  }
 }

@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { WORKFLOW_ACTIVE_STATUSES } from 'src/consts'
+import { WORKFLOW_ACTIVE_STATUSES } from '../consts'
 import { QUEUE_ITEM_SCHEMA, type Workflow } from '../types'
 import * as utils from '../utils'
 import * as bp from '.botpress'
