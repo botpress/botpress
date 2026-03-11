@@ -1,5 +1,5 @@
 import { z, IntegrationDefinition } from '@botpress/sdk'
-import { channels, user } from 'definitions'
+import { channels, states, user } from 'definitions'
 
 export default new IntegrationDefinition({
   name: 'wechat',
@@ -19,5 +19,6 @@ export default new IntegrationDefinition({
     }),
   },
   channels,
+  states,
   user,
 })

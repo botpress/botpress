@@ -33,9 +33,9 @@ const _handleTextMessage = async (props: bp.MessageProps['channel']['text']) => 
 }
 
 const _handleImageMessage = async (props: bp.MessageProps['channel']['image']) => {
-  const { ctx, payload, logger } = props
+  const { payload, logger } = props
   try {
-    const wechatClient = await WeChatClient.create(ctx, logger)
+    const wechatClient = await WeChatClient.create(props)
     const mediaId = await _uploadWeChatMedia(wechatClient, payload.imageUrl, 'image')
     await _sendMessage(
       props,
@@ -65,16 +65,17 @@ const _handleVideoMessage = async (props: bp.MessageProps['channel']['video']) =
 }
 
 const _sendMessage = async (
-  { conversation, ctx, ack, logger }: bp.AnyMessageProps,
+  props: bp.AnyMessageProps,
   message: WeChatOutgoingMessage,
   wechatClient?: WeChatClient
 ): Promise<void> => {
+  const { conversation, ack } = props
   const wechatConvoId = conversation.tags?.id
   if (!wechatConvoId) {
     throw new RuntimeError('Conversation does not have a WeChat chat ID')
   }
 
-  wechatClient ??= await WeChatClient.create(ctx, logger)
+  wechatClient ??= await WeChatClient.create(props)
   const sendResponse = await wechatClient.sendMessage(wechatConvoId, message)
 
   const ackId = sendResponse.msgId ?? createAckId('wechat')

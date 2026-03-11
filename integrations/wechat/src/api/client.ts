@@ -1,19 +1,17 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
-import { Result } from '../types'
-import { useHandleCaughtError, usePromiseToResult } from '../utils'
+import { useHandleCaughtError } from '../utils'
+import { getOrRefreshAccessToken } from './auth'
 import { httpGetAsJsonOrBuffer } from './axios-helpers'
+import { WECHAT_API_BASE } from './constants'
 import { getValidMediaPropOrThrow } from './helpers'
 import {
-  weChatAuthTokenRespSchema,
   type WeChatSendMessageResp,
   wechatSendMessageRespSchema,
   wechatUploadMediaRespSchema,
   wechatVideoUrlRespSchema,
 } from './schemas'
 import * as bp from '.botpress'
-
-export const WECHAT_API_BASE = 'https://api.weixin.qq.com/cgi-bin'
 
 type WeChatMediaResponse = Promise<{ content: Buffer; contentType: string }>
 type WeChatTextMessage = { msgtype: 'text'; text: { content: string } }
@@ -96,39 +94,8 @@ export class WeChatClient {
     return getValidMediaPropOrThrow('media_id', result.data, 'Failed to upload media to WeChat')
   }
 
-  private static async _getAccessToken(appId: string, appSecret: string): Promise<Result<string>> {
-    const respResult = await axios
-      .get(`${WECHAT_API_BASE}/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`)
-      .then(...usePromiseToResult('Failed to acquire a WeChat access token'))
-    if (!respResult.success) return respResult
-    const resp = respResult.data
-
-    const result = weChatAuthTokenRespSchema.safeParse(resp.data)
-    if (!result.success) {
-      return {
-        success: false,
-        error: new RuntimeError(`Unexpected access token response received -> ${result.error.message}`),
-      }
-    }
-
-    const { data } = result
-    if ('errcode' in data) {
-      return {
-        success: false,
-        error: new RuntimeError(
-          `Failed to acquire a WeChat access token (Error Code: ${data.errcode}) -> ${data.errmsg}`
-        ),
-      }
-    }
-
-    return { success: true, data: data.access_token }
-  }
-
-  public static async create(ctx: bp.Context, logger: bp.Logger) {
-    const { appId, appSecret } = ctx.configuration
-    const tokenResult = await this._getAccessToken(appId, appSecret)
-    if (!tokenResult.success) throw tokenResult.error
-
-    return new WeChatClient(tokenResult.data, logger)
+  public static async create(props: bp.CommonHandlerProps) {
+    const token = await getOrRefreshAccessToken(props)
+    return new WeChatClient(token, props.logger)
   }
 }

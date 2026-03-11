@@ -10,6 +10,7 @@ export const weChatAuthTokenRespSchema = z.union([
   _wechatErrorRespSchema,
   z.object({
     access_token: z.string({ required_error: MISSING_ACCESS_TOKEN_MSG }).min(1, MISSING_ACCESS_TOKEN_MSG),
+    expires_in: z.number().min(1).describe('The number of seconds before the access token expires'),
   }),
 ])
 
