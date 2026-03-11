@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Result } from '../types'
-import { useHandleCaughtError } from '../utils'
+import { useHandleCaughtError, usePromiseToResult } from '../utils'
 import { httpGetAsJsonOrBuffer } from './axios-helpers'
 import { getValidMediaPropOrThrow } from './helpers'
 import {
@@ -97,9 +97,11 @@ export class WeChatClient {
   }
 
   private static async _getAccessToken(appId: string, appSecret: string): Promise<Result<string>> {
-    const resp = await axios
+    const respResult = await axios
       .get(`${WECHAT_API_BASE}/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`)
-      .catch(useHandleCaughtError('Failed to acquire a WeChat access token'))
+      .then(...usePromiseToResult('Failed to acquire a WeChat access token'))
+    if (!respResult.success) return respResult
+    const resp = respResult.data
 
     const result = weChatAuthTokenRespSchema.safeParse(resp.data)
     if (!result.success) {
