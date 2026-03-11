@@ -2,8 +2,8 @@ import { XMLParser } from 'fast-xml-parser'
 import camelCase from 'lodash/camelCase'
 import { Result } from '../types'
 import { usePromiseToResult } from '../utils'
-import { WeChatMediaMessage, WeChatMessage, wechatMessageSchema } from './schemas'
-import { createChannelMessage, createMediaMessage } from './utils'
+import { WeChatMessage, wechatMessageSchema } from './schemas'
+import { BaseMessage, createChannelMessage, createMediaMessage } from './utils'
 import * as bp from '.botpress'
 
 export type BotpressConversation = Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
@@ -21,7 +21,8 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
   if (!parseResult.success) return parseResult
 
   const wechatMessage: WeChatMessage = parseResult.data
-  const wechatConversationId = wechatMessage.fromUserName // This doesn't seem correct to me, will have to confirm in QA
+  // Yes, the WeChat sendMessage request uses the username as the DM conversation identifier
+  const wechatConversationId = wechatMessage.fromUserName
   const wechatUserId = wechatMessage.fromUserName
 
   const convResult = await client
@@ -57,7 +58,7 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
     },
     userId: user.id,
     conversationId: conversation.id,
-  }
+  } satisfies BaseMessage
 
   try {
     switch (wechatMessage.msgType) {
@@ -68,8 +69,7 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
         break
       case 'image':
       case 'video':
-        // Personally, I think the way "mediaMessage" is instantiated is stupid, but TypeScript can't seem to infer it any other way
-        const mediaMessage = { ...wechatMessage, msgType: wechatMessage.msgType } satisfies WeChatMediaMessage
+        const mediaMessage = { ...wechatMessage, msgType: wechatMessage.msgType }
         await createMediaMessage(props, baseMessage, messageId, mediaMessage)
         break
       case 'voice':

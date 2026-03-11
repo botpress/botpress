@@ -2,7 +2,7 @@ import { WeChatClient } from '../api/client'
 import { WeChatMediaMessage } from './schemas'
 import * as bp from '.botpress'
 
-type BaseMessage = {
+export type BaseMessage = {
   conversationId: string
   userId: string
   tags: {
@@ -19,10 +19,12 @@ export const createChannelMessage = async <T extends keyof MessageChannels>(
   type: T,
   payload: MessageChannels[T]
 ) => {
-  const input: CommonCreateMessageInput = { type, payload }
   await client.createMessage({
     ...baseMessage,
-    ...input,
+    ...({
+      type,
+      payload,
+    } satisfies CommonCreateMessageInput),
   })
 }
 
