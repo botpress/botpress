@@ -679,7 +679,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -929,7 +929,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1176,7 +1176,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^5.12.1
-        version: 5.12.1(ws@8.18.2)(zod@3.24.2)
+        version: 5.12.1(ws@8.19.0)(zod@3.24.2)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1212,6 +1212,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      preact:
+        specifier: ^10.26.6
+        version: 10.26.6
 
   integrations/hubspot:
     dependencies:
@@ -1586,7 +1589,7 @@ importers:
         version: link:../../packages/sdk
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.19.0)
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2793,7 +2796,7 @@ importers:
         version: 15.0.1
       openai:
         specifier: ^6.9.0
-        version: 6.9.0(ws@8.18.2)
+        version: 6.9.0(ws@8.19.0)
       posthog-node:
         specifier: 5.14.1
         version: 5.14.1
@@ -20532,14 +20535,14 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
 
-  openai@5.12.1(ws@8.18.2)(zod@3.24.2):
+  openai@5.12.1(ws@8.19.0)(zod@3.24.2):
     optionalDependencies:
-      ws: 8.18.2
+      ws: 8.19.0
       zod: 3.24.2
 
-  openai@6.9.0(ws@8.18.2):
+  openai@6.9.0(ws@8.19.0):
     optionalDependencies:
-      ws: 8.18.2
+      ws: 8.19.0
 
   openapi-types@12.1.3: {}
 
