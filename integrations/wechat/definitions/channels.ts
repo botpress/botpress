@@ -26,9 +26,7 @@ export const channels = {
     },
     conversation: {
       tags: {
-        id: { title: 'ID', description: 'The conversation ID' },
-        fromUserId: { title: 'WeChat User ID', description: 'The conversation WeChat user ID' },
-        chatId: { title: 'Chat ID', description: 'The conversation chat ID' },
+        id: { title: 'ID', description: "The WeChat conversation ID (This is also the Recipient's UserId)" },
       },
     },
   },

@@ -30,8 +30,6 @@ export const processInboundChannelMessage = async (props: bp.HandlerProps): Prom
       channel: 'channel',
       tags: {
         id: wechatConversationId,
-        fromUserId: wechatUserId,
-        chatId: wechatConversationId,
       },
       discriminateByTags: ['id'],
     })

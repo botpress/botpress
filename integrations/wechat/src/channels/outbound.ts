@@ -79,7 +79,7 @@ const _sendMessage = async (
 }
 
 const _getWeChatConversationId = (conversation: { tags: Record<string, string> }): string => {
-  const wechatConvoId = conversation.tags?.id || conversation.tags?.chatId
+  const wechatConvoId = conversation.tags?.id
   if (!wechatConvoId) {
     throw new RuntimeError('Conversation does not have a WeChat chat ID')
   }
