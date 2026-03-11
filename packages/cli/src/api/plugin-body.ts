@@ -100,7 +100,6 @@ export const prepareUpdatePluginBody = (
     actions,
     events,
     states,
-    user: localPlugin.user, // TODO: allow deleting user tags with null
     attributes,
     dependencies,
   }
