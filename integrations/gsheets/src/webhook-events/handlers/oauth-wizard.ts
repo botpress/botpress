@@ -128,11 +128,11 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                     .enableFeature(google.picker.Feature.NAV_HIDDEN)
                     .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
                     .setTitle('Select the spreadsheets and folders you wish to share with Botpress')
-                    .setOAuthToken('${accessToken}')
-                    .setDeveloperKey('${bp.secrets.FILE_PICKER_API_KEY}')
+                    .setOAuthToken(${JSON.stringify(accessToken)})
+                    .setDeveloperKey(${JSON.stringify(bp.secrets.FILE_PICKER_API_KEY)})
                     .setCallback((data) => {
                       if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                        document.location.href = '${oauthWizard.getWizardStepUrl('end', ctx).href}';
+                        document.location.href = ${JSON.stringify(oauthWizard.getWizardStepUrl('end', ctx).href)};
                       } else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
                         // User closed the picker without selecting files.
                         // They can still click "Skip file selection" to continue.
@@ -141,7 +141,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                     .setSize(640,790)
                     // App ID must be the Google Cloud project number (numeric prefix of CLIENT_ID)
                     // Format: <project-number>-<rest>.apps.googleusercontent.com
-                    .setAppId('${bp.secrets.CLIENT_ID.split('-')[0]}')
+                    .setAppId(${JSON.stringify(bp.secrets.CLIENT_ID.split('-')[0])})
                     .build().setVisible(true);
               }
             </script>
@@ -180,11 +180,15 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 }
 
 const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) =>
-  'https://accounts.google.com/o/oauth2/v2/auth?scope=' +
-  'https%3A//www.googleapis.com/auth/drive.file&access_type=offline' +
-  '&include_granted_scopes=true&response_type=code&prompt=consent' +
-  `&state=${ctx.webhookId}&redirect_uri=${encodeURIComponent(_getOAuthRedirectUri().href)}` +
-  `&client_id=${bp.secrets.CLIENT_ID}`
+  'https://accounts.google.com/o/oauth2/v2/auth?' +
+  `scope=${encodeURIComponent('https://www.googleapis.com/auth/drive.file')}` +
+  '&access_type=offline' +
+  '&include_granted_scopes=true' +
+  '&response_type=code' +
+  '&prompt=consent' +
+  `&state=${encodeURIComponent(ctx.webhookId)}` +
+  `&redirect_uri=${encodeURIComponent(_getOAuthRedirectUri().href)}` +
+  `&client_id=${encodeURIComponent(bp.secrets.CLIENT_ID)}`
 
 const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback')
 
