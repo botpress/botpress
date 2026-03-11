@@ -41,7 +41,7 @@ export class GoogleClient {
     ctx: bp.Context
     client: bp.Client
     authorizationCode: string
-    redirectUri?: string
+    redirectUri: string
   }) {
     await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode, redirectUri })
   }

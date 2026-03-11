@@ -96,7 +96,18 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
             integration.
 
             <script>
+              let pickerApiLoaded = false;
+
+              function onPickerApiLoad() {
+                pickerApiLoaded = true;
+              }
+
               function createPicker() {
+                if (!pickerApiLoaded) {
+                  alert('The file picker is still loading. Please try again in a moment.');
+                  return;
+                }
+
                 new google.picker.PickerBuilder()
                     .addView(new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS)
                       .setIncludeFolders(true)
@@ -120,7 +131,7 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                     .build().setVisible(true);
               }
             </script>
-            <script async defer src="https://apis.google.com/js/api.js" onload="gapi.load('picker')"></script>
+            <script async defer src="https://apis.google.com/js/api.js" onload="gapi.load('picker', onPickerApiLoad)"></script>
             `,
           buttons: [
             {
