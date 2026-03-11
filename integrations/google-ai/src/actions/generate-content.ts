@@ -127,7 +127,7 @@ async function buildGenerateContentRequest(
   }
 
   let defaultReasoningEffort: ReasoningEffort = 'none'
-  if (modelId === 'gemini-3-pro') {
+  if (modelId === 'gemini-3-pro' || modelId === 'gemini-2.5-pro') {
     // Gemini 3 Pro doesn't support disabling reasoning, so we use the lowest reasoning effort by default.
     defaultReasoningEffort = 'low'
   }
