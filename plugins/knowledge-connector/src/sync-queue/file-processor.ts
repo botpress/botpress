@@ -99,12 +99,22 @@ const _transferFileToBotpress = async (
   fileToSync: types.SyncQueueItem,
   existingTags: Record<string, string> = {}
 ) => {
+  let botpressFileId: string
   try {
-    const { botpressFileId } = await props.integration.transferFileToBotpress({
+    const result = await props.integration.transferFileToBotpress({
       file: fileToSync,
       fileKey: `${props.integration.alias}:${fileToSync.absolutePath}`,
     })
+    botpressFileId = result.botpressFileId
+  } catch (thrown: unknown) {
+    const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
+    fileToSync.status = 'errored'
+    fileToSync.errorMessage = err.message
+    props.logger.error(`Error while uploading file ${fileToSync.absolutePath}: ${err.message}`)
+    return
+  }
 
+  try {
     await props.fileRepository.updateFileMetadata({
       id: botpressFileId,
       tags: {
@@ -124,6 +134,9 @@ const _transferFileToBotpress = async (
     const err: Error = thrown instanceof Error ? thrown : new Error(String(thrown))
     fileToSync.status = 'errored'
     fileToSync.errorMessage = err.message
-    props.logger.error(`Error while uploading file ${fileToSync.absolutePath}: ${err.message}`)
+    props.logger.error(
+      `File ${fileToSync.absolutePath} was uploaded (id: ${botpressFileId}) but metadata update failed: ${err.message}. ` +
+        `This file may be orphaned and should be cleaned up manually if the next sync does not overwrite it.`
+    )
   }
 }
