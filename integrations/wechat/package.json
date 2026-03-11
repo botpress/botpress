@@ -9,7 +9,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.6.8",
+    "axios": "^1.13.6",
     "fast-xml-parser": "^5.4.2",
     "lodash": "^4.17.21"
   },
