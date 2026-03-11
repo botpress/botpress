@@ -1,9 +1,9 @@
 import { RuntimeError } from '@botpress/sdk'
+import { AirtableApi } from '../client'
 import type { IntegrationProps } from '../misc/types'
-import { getClient } from '../utils'
 
-export const createTable: IntegrationProps['actions']['createTable'] = async ({ ctx, logger, input }) => {
-  const AirtableClient = getClient(ctx.configuration)
+export const createTable: IntegrationProps['actions']['createTable'] = async ({ client, ctx, logger, input }) => {
+  const AirtableClient = new AirtableApi({ client, ctx, logger })
 
   try {
     const table = await AirtableClient.createTable(input.name, input.fields, input.description)
@@ -15,8 +15,8 @@ export const createTable: IntegrationProps['actions']['createTable'] = async ({ 
   }
 }
 
-export const updateTable: IntegrationProps['actions']['updateTable'] = async ({ ctx, logger, input }) => {
-  const AirtableClient = getClient(ctx.configuration)
+export const updateTable: IntegrationProps['actions']['updateTable'] = async ({ client, ctx, logger, input }) => {
+  const AirtableClient = new AirtableApi({ client, ctx, logger })
 
   try {
     const table = await AirtableClient.updateTable(input.tableIdOrName, input.name, input.description)
@@ -28,8 +28,13 @@ export const updateTable: IntegrationProps['actions']['updateTable'] = async ({ 
   }
 }
 
-export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = async ({ ctx, logger, input }) => {
-  const AirtableClient = getClient(ctx.configuration)
+export const getTableRecords: IntegrationProps['actions']['getTableRecords'] = async ({
+  client,
+  ctx,
+  logger,
+  input,
+}) => {
+  const AirtableClient = new AirtableApi({ client, ctx, logger })
   try {
     const records = await AirtableClient.listRecords({
       tableIdOrName: input.tableIdOrName,

@@ -2,6 +2,7 @@ import Airtable, { type FieldSet } from 'airtable'
 import axios, { AxiosInstance } from 'axios'
 import { stringify } from 'querystring'
 import type { CreatableField } from './misc/field-schemas'
+import * as bp from '.botpress'
 
 type TableResponse = {
   id: string
@@ -21,12 +22,19 @@ export class AirtableApi {
   private _base: Airtable.Base
   private _axiosClient: AxiosInstance
   private _baseId: string
+  private _logger: bp.Logger
 
-  public constructor(apiKey: string, baseId: string, endpointUrl?: string) {
+  public constructor({ ctx, logger }: bp.CommonHandlerProps) {
+    this._logger = logger
+    const endpointUrl = ctx.configuration.endpointUrl || 'https://api.airtable.com/v0/'
+    const apiKey = ctx.configuration.accessToken
+    const baseId = ctx.configuration.baseId
     this._baseId = baseId
-    this._base = new Airtable({ apiKey, endpointUrl }).base(baseId)
+
+    // This split is done because the Airtable SDK appends /v0/ path itself
+    this._base = new Airtable({ apiKey, endpointUrl: endpointUrl.replace('/v0/', '') }).base(baseId)
     this._axiosClient = axios.create({
-      baseURL: endpointUrl || 'https://api.airtable.com/v0/',
+      baseURL: endpointUrl,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
@@ -63,7 +71,7 @@ export class AirtableApi {
     }
   }
 
-  public async createRecord(tableIdOrName: string, fields: object): Promise<RecordResponse> {
+  public async createRecord(tableIdOrName: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).create(fields)
     return {
       id: record.id,
@@ -71,7 +79,7 @@ export class AirtableApi {
     }
   }
 
-  public async updateRecord(tableIdOrName: string, recordId: string, fields: object): Promise<RecordResponse> {
+  public async updateRecord(tableIdOrName: string, recordId: string, fields: FieldSet): Promise<RecordResponse> {
     const record = await this._base(tableIdOrName).update(recordId, fields)
     return {
       id: record.id,

@@ -436,3 +436,129 @@ export const creatableFieldSchema = z.discriminatedUnion('type', [
 
 export type AirtableField = z.infer<typeof airtableFieldSchema>
 export type CreatableField = z.infer<typeof creatableFieldSchema>
+
+// Field value schemas (for record create/update — cell values per field type)
+
+const fieldValueBase = z.object({
+  fieldNameOrId: z.string().min(1).title('Field Name or ID').describe('The name or ID of the field'),
+})
+
+const stringFieldValue = (type: (typeof airtableFieldType.options)[number], description: string) =>
+  fieldValueBase.extend({
+    type: airtableFieldType.extract([type]),
+    value: z.string().title('Value').describe(description),
+  })
+
+const numberFieldValue = (type: (typeof airtableFieldType.options)[number], description: string) =>
+  fieldValueBase.extend({
+    type: airtableFieldType.extract([type]),
+    value: z.number().title('Value').describe(description),
+  })
+
+const singleLineTextValue = stringFieldValue('singleLineText', 'Text value')
+const emailValue = stringFieldValue('email', 'Email address')
+const urlValue = stringFieldValue('url', 'URL value')
+const multilineTextValue = stringFieldValue('multilineText', 'Multi-line text value')
+const richTextValue = stringFieldValue('richText', 'Rich text value (supports Airtable-flavored markdown)')
+const phoneNumberValue = stringFieldValue('phoneNumber', 'Phone number')
+const singleSelectValue = stringFieldValue('singleSelect', 'Option name')
+const dateValue = stringFieldValue('date', 'ISO date string (e.g. "2025-03-09")')
+const dateTimeValue = stringFieldValue('dateTime', 'ISO datetime string (e.g. "2025-03-09T14:30:00.000Z")')
+
+const numberValue = numberFieldValue('number', 'Numeric value')
+const percentValue = numberFieldValue('percent', 'Percent as decimal (e.g. 0.5 for 50%)')
+const currencyValue = numberFieldValue('currency', 'Currency amount')
+const durationValue = numberFieldValue('duration', 'Duration in seconds')
+
+const ratingValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['rating']),
+  value: z.number().min(1).max(10).title('Value').describe('Rating value (1 to max configured)'),
+})
+
+const checkboxValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['checkbox']),
+  value: z.boolean().title('Value').describe('Checked state'),
+})
+
+const multipleSelectsValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['multipleSelects']),
+  value: z.array(z.string()).title('Value').describe('Selected option names'),
+})
+
+const multipleRecordLinksValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['multipleRecordLinks']),
+  value: z.array(z.string()).title('Value').describe('Linked record IDs (e.g. ["recABC123"])'),
+})
+
+const multipleAttachmentsValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['multipleAttachments']),
+  value: z
+    .array(
+      z.object({
+        url: z.string().title('URL').describe('Attachment URL'),
+        filename: z.string().optional().title('Filename').describe('Attachment filename'),
+      })
+    )
+    .title('Value')
+    .describe('Attachments to upload'),
+})
+
+const barcodeValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['barcode']),
+  value: z
+    .object({
+      text: z.string().title('Text').describe('Barcode text value'),
+    })
+    .title('Value')
+    .describe('Barcode value'),
+})
+
+const singleCollaboratorValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['singleCollaborator']),
+  value: z
+    .object({
+      id: z.string().title('User ID').describe('Collaborator user ID'),
+    })
+    .title('Value')
+    .describe('Collaborator'),
+})
+
+const multipleCollaboratorsValue = fieldValueBase.extend({
+  type: airtableFieldType.extract(['multipleCollaborators']),
+  value: z
+    .array(
+      z.object({
+        id: z.string().title('User ID').describe('Collaborator user ID'),
+      })
+    )
+    .title('Value')
+    .describe('Collaborators'),
+})
+
+// Writable field value discriminated union (for createRecord/updateRecord)
+
+export const fieldValueSchema = z.discriminatedUnion('type', [
+  singleLineTextValue,
+  emailValue,
+  urlValue,
+  multilineTextValue,
+  richTextValue,
+  phoneNumberValue,
+  singleSelectValue,
+  dateValue,
+  dateTimeValue,
+  numberValue,
+  percentValue,
+  currencyValue,
+  durationValue,
+  ratingValue,
+  checkboxValue,
+  multipleSelectsValue,
+  multipleRecordLinksValue,
+  multipleAttachmentsValue,
+  barcodeValue,
+  singleCollaboratorValue,
+  multipleCollaboratorsValue,
+])
+
+export type FieldValue = z.infer<typeof fieldValueSchema>

@@ -4,12 +4,8 @@ import { AirtableApi } from './client'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({
-  register: async ({ ctx, logger }) => {
-    const airtableClient = new AirtableApi(
-      ctx.configuration.accessToken,
-      ctx.configuration.baseId,
-      ctx.configuration.endpointUrl
-    )
+  register: async ({ client, ctx, logger }) => {
+    const airtableClient = new AirtableApi({ client, ctx, logger })
 
     try {
       await airtableClient.testConnection()
