@@ -93,8 +93,17 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
 
     .addStep({
       id: 'file-picker',
-      async handler({ responses, client, ctx }) {
-        const accessToken = await _getAccessToken({ client, ctx })
+      async handler({ responses, client, ctx, logger }) {
+        let accessToken: string
+        try {
+          accessToken = await _getAccessToken({ client, ctx })
+        } catch (err) {
+          logger.forBot().error('Failed to get access token for file picker:', err)
+          return responses.endWizard({
+            success: false,
+            errorMessage: `Failed to get access token: ${err instanceof Error ? err.message : 'Unknown error'}`,
+          })
+        }
 
         return responses.displayButtons({
           pageTitle: 'Google Sheets Integration',
