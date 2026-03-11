@@ -96,37 +96,37 @@ export class WeChatClient {
     return getValidMediaPropOrThrow('media_id', result.data, 'Failed to upload media to WeChat')
   }
 
+  private static async _getAccessToken(appId: string, appSecret: string): Promise<Result<string>> {
+    const resp = await axios
+      .get(`${WECHAT_API_BASE}/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`)
+      .catch(useHandleCaughtError('Failed to acquire a WeChat access token'))
+
+    const result = weChatAuthTokenRespSchema.safeParse(resp.data)
+    if (!result.success) {
+      return {
+        success: false,
+        error: new RuntimeError(`Unexpected access token response received -> ${result.error.message}`),
+      }
+    }
+
+    const { data } = result
+    if ('errcode' in data) {
+      return {
+        success: false,
+        error: new RuntimeError(
+          `Failed to acquire a WeChat access token (Error Code: ${data.errcode}) -> ${data.errmsg}`
+        ),
+      }
+    }
+
+    return { success: true, data: data.access_token }
+  }
+
   public static async create(ctx: bp.Context, logger: bp.Logger) {
     const { appId, appSecret } = ctx.configuration
-    const tokenResult = await _getAccessToken(appId, appSecret)
+    const tokenResult = await this._getAccessToken(appId, appSecret)
     if (!tokenResult.success) throw tokenResult.error
 
     return new WeChatClient(tokenResult.data, logger)
   }
-}
-
-async function _getAccessToken(appId: string, appSecret: string): Promise<Result<string>> {
-  const resp = await axios
-    .get(`${WECHAT_API_BASE}/token?grant_type=client_credential&appid=${appId}&secret=${appSecret}`)
-    .catch(useHandleCaughtError('Failed to acquire a WeChat access token'))
-
-  const result = weChatAuthTokenRespSchema.safeParse(resp.data)
-  if (!result.success) {
-    return {
-      success: false,
-      error: new RuntimeError(`Unexpected access token response received -> ${result.error.message}`),
-    }
-  }
-
-  const { data } = result
-  if ('errcode' in data) {
-    return {
-      success: false,
-      error: new RuntimeError(
-        `Failed to acquire a WeChat access token (Error Code: ${data.errcode}) -> ${data.errmsg}`
-      ),
-    }
-  }
-
-  return { success: true, data: data.access_token }
 }
