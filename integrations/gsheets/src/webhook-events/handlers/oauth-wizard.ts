@@ -38,12 +38,24 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
       async handler({ query, responses, client, ctx, logger }) {
         const authorizationCode = query.get('code')
         const error = query.get('error')
+        const state = query.get('state')
 
         if (error) {
           logger.forBot().error('OAuth error:', error)
           return responses.endWizard({
             success: false,
             errorMessage: `OAuth error: ${error}`,
+          })
+        }
+
+        // Validate state parameter to prevent CSRF attacks
+        if (state !== ctx.webhookId) {
+          logger
+            .forBot()
+            .error('OAuth state mismatch — possible CSRF attack', { expected: ctx.webhookId, received: state })
+          return responses.endWizard({
+            success: false,
+            errorMessage: 'Invalid OAuth state parameter.',
           })
         }
 
@@ -127,6 +139,8 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                       }
                     })
                     .setSize(640,790)
+                    // App ID must be the Google Cloud project number (numeric prefix of CLIENT_ID)
+                    // Format: <project-number>-<rest>.apps.googleusercontent.com
                     .setAppId('${bp.secrets.CLIENT_ID.split('-')[0]}')
                     .build().setVisible(true);
               }
