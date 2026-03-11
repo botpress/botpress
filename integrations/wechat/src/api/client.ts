@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Result } from '../types'
 import { useHandleCaughtError } from '../utils'
+import { httpGetAsJsonOrBuffer } from './axios-helpers'
 import { getValidMediaPropOrThrow } from './helpers'
 import {
   weChatAuthTokenRespSchema,
@@ -14,7 +15,7 @@ import * as bp from '.botpress'
 
 export const WECHAT_API_BASE = 'https://api.weixin.qq.com/cgi-bin'
 
-type WeChatMediaResponse = Promise<{ content: ArrayBuffer; contentType?: string }>
+type WeChatMediaResponse = Promise<{ content: Buffer; contentType: string }>
 type WeChatTextMessage = { msgtype: 'text'; text: { content: string } }
 type WeChatImageMessage = { msgtype: 'image'; image: { media_id: string } }
 type WeChatVideoMessage = { msgtype: 'video'; video: { media_id: string; title?: string; description?: string } }
@@ -42,14 +43,12 @@ export class WeChatClient {
       throw new RuntimeError('Failed to download media from WeChat -> Too many retries')
     }
 
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new RuntimeError(`Failed to download WeChat media: ${response.status} ${response.statusText}`)
-    }
+    const resp = await httpGetAsJsonOrBuffer(url, this._logger).catch(
+      useHandleCaughtError('Failed to download WeChat media')
+    )
 
-    const contentType = response.headers.get('content-type') ?? undefined
-    if (contentType === 'application/json') {
-      const result = wechatVideoUrlRespSchema.safeParse(await response.json())
+    if (resp.type === 'JSON') {
+      const result = wechatVideoUrlRespSchema.safeParse(resp)
       if (!result.success) {
         throw new RuntimeError('Received unexpected response when downloading WeChat media')
       }
@@ -58,8 +57,7 @@ export class WeChatClient {
       return this._downloadWeChatMediaFromUrl(videoUrl, false)
     }
 
-    const content = await response.arrayBuffer()
-    return { content, contentType }
+    return { content: resp.buffer, contentType: resp.contentType }
   }
 
   public async sendMessage(toUser: string, message: WeChatOutgoingMessage): Promise<WeChatSendMessageResp> {
