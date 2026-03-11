@@ -1,10 +1,11 @@
 import { createOrUpdateUser } from '@botpress/common'
+import _ from 'lodash'
 import type { ZendeskClient } from '../client'
 import type { TriggerPayload } from '../triggers'
 import { retrieveHitlConversation } from './hitl-ticket-filter'
 import * as bp from '.botpress'
 
-const COMMENT_ON_BEHALF_START = '----------------------------------------------\n\n!***'
+const ON_BEHALF_REGEXP: RegExp = /!\*{3}|\*{3}!/
 
 export const executeMessageReceived = async ({
   zendeskClient,
@@ -67,12 +68,11 @@ export const executeMessageReceived = async ({
     })
   }
 
-  let messageWithoutAuthor: string
+  let messageWithoutAuthor = _.trimStart(zendeskTrigger.comment, '-').trim()
+  const firstLine = messageWithoutAuthor.split('\n').at(0)
 
-  if (zendeskTrigger.comment.startsWith(COMMENT_ON_BEHALF_START)) {
-    messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(5).join('\n')
-  } else {
-    messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
+  if (firstLine && ON_BEHALF_REGEXP.test(firstLine)) {
+    messageWithoutAuthor = messageWithoutAuthor.split('\n').slice(1).join('\n').trim()
   }
 
   await client.createMessage({

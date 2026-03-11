@@ -35,10 +35,24 @@ export class SlackOAuthClient {
   private readonly _slackClient: SlackWebClient
   private _currentAuthState: PrivateAuthState | undefined = undefined
 
-  public constructor({ ctx, client, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) {
-    this._clientId = ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID
+  public constructor({
+    ctx,
+    client,
+    logger,
+    clientIdOverride,
+    clientSecretOverride,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+    clientIdOverride?: string
+    clientSecretOverride?: string
+  }) {
+    this._clientId =
+      clientIdOverride ?? (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientId : bp.secrets.CLIENT_ID)
     this._clientSecret =
-      ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET
+      clientSecretOverride ??
+      (ctx.configurationType === 'refreshToken' ? ctx.configuration.clientSecret : bp.secrets.CLIENT_SECRET)
     this._slackClient = new SlackWebClient()
     this._client = client
     this._ctx = ctx
@@ -66,15 +80,18 @@ export class SlackOAuthClient {
      * Exchanges an OAuth callback authorization code for short-lived rotating
      * credentials. This code path is used once when the user selects automatic
      * configuration using our Botpress Slack app.
+     *
+     * @param authorizationCode - The authorization code from Slack's OAuth callback
+     * @param redirectUri - Optional custom redirect URI. Defaults to `${process.env.BP_WEBHOOK_URL}/oauth`
      */
-    fromAuthorizationCode: async (authorizationCode: string) => {
+    fromAuthorizationCode: async (authorizationCode: string, redirectUri?: string) => {
       this._logger.forBot().debug('Exchanging authorization code for short-lived credentials...')
 
       const response = await this._slackClient.oauth.v2
         .access({
           client_id: this._clientId,
           client_secret: this._clientSecret,
-          redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+          redirect_uri: redirectUri ?? `${process.env.BP_WEBHOOK_URL}/oauth`,
           grant_type: 'authorization_code',
           code: authorizationCode,
         })
