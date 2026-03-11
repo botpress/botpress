@@ -110,7 +110,11 @@ export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Res
                     .setCallback((data) => {
                       if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
                         document.location.href = '${oauthWizard.getWizardStepUrl('end', ctx).href}';
-                      }})
+                      } else if (data[google.picker.Response.ACTION] == google.picker.Action.CANCEL) {
+                        // User closed the picker without selecting files.
+                        // They can still click "Skip file selection" to continue.
+                      }
+                    })
                     .setSize(640,790)
                     .setAppId('${bp.secrets.CLIENT_ID.split('-')[0]}')
                     .build().setVisible(true);
@@ -154,7 +158,7 @@ const _getOAuthAuthorizationUri = (ctx: { webhookId: string }) =>
   'https://accounts.google.com/o/oauth2/v2/auth?scope=' +
   'https%3A//www.googleapis.com/auth/drive.file&access_type=offline' +
   '&include_granted_scopes=true&response_type=code&prompt=consent' +
-  `&state=${ctx.webhookId}&redirect_uri=${encodeURI(_getOAuthRedirectUri().href)}` +
+  `&state=${ctx.webhookId}&redirect_uri=${encodeURIComponent(_getOAuthRedirectUri().href)}` +
   `&client_id=${bp.secrets.CLIENT_ID}`
 
 const _getOAuthRedirectUri = () => oauthWizard.getWizardStepUrl('oauth-callback')
