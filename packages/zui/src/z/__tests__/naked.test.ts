@@ -85,7 +85,7 @@ test('naked union', () => {
   assert.equal(z.string().or(z.number()).promise().nullable().naked().typeName, 'ZodUnion')
 })
 
-test('get constructor names', () => {
+test('get type names', () => {
   assert.equal(
     z
       .string()
