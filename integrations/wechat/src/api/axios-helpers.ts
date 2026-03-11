@@ -1,5 +1,31 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { type AxiosResponse } from 'axios'
+import * as bp from '.botpress'
+
+/** Performs an Axios get request and parses the response as json based
+ *  on the content-type, otherwise the data is formatted into a buffer. */
+type JsonOrBufferReturn = { type: 'JSON'; data: object } | { type: 'Buffer'; buffer: Buffer; contentType: string }
+export async function httpGetAsJsonOrBuffer(url: string, logger: bp.Logger): Promise<JsonOrBufferReturn> {
+  const resp = await axios.get(url, {
+    responseType: 'arraybuffer',
+    transitional: { forcedJSONParsing: false },
+  })
+
+  const content = resp.data
+  if (!(content instanceof Buffer)) {
+    // If I understood the Axios docs & configured it correctly, this error should never be thrown
+    throw new RuntimeError('Axios did not convert the response body into a Buffer')
+  }
+
+  const contentType = _getContentType(resp.headers, logger)
+  if (contentType.includes('application/json')) {
+    const charset = _getContentCharset(contentType)
+    const serializedJSON = _bufferToString(content, charset)
+    return { type: 'JSON', data: JSON.parse(serializedJSON) }
+  }
+
+  return { type: 'Buffer', buffer: content, contentType }
+}
 
 type CommonResponseHeadersList = 'Server' | 'Content-Type' | 'Content-Length' | 'Cache-Control' | 'Content-Encoding'
 type ResponseHeaderValue = string | string[] | null
@@ -20,4 +46,31 @@ export function getHeaderValue(headers: AxiosResponse['headers'], key: string): 
   }
 
   return Array.isArray(headerValue) ? headerValue : `${headerValue}`
+}
+
+const _getContentType = (headers: AxiosResponse['headers'], logger: bp.Logger) => {
+  let contentType = getHeaderValue(headers, 'Content-Type')
+
+  if (Array.isArray(contentType)) {
+    // IMO this should never occur, unless WeChat
+    // is doing some weird stuff in their Backend
+    if (contentType.length > 1) {
+      logger.warn(
+        `The 'Content-Type' header has multiple values, using first value. All the values are as follows:\n- ${contentType.join('- ')}`
+      )
+    }
+
+    contentType = contentType[0] ?? null
+  }
+
+  if (!contentType) throw new RuntimeError("The 'Content-Type' header has not been set")
+  return contentType
+}
+
+const _bufferToString = (buffer: Buffer, charset: string = 'utf8') => new TextDecoder(charset).decode(buffer)
+
+const _getContentCharset = (contentType: string) => {
+  const pattern = /charset=([^()<>@,;:\"/[\]?.=\s]*)/i
+  const charset = pattern.test(contentType) ? pattern.exec(contentType)?.[1] : null
+  return charset?.toLowerCase() ?? 'utf8'
 }
