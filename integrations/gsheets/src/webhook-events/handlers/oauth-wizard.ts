@@ -5,7 +5,7 @@ import { getAuthenticatedOAuth2Client } from 'src/google-api/oauth-client'
 import * as bp from '.botpress'
 
 export const handleOAuthWizard = async (props: bp.HandlerProps): Promise<sdk.Response> => {
-  const { client, ctx } = props
+  const { ctx } = props
 
   const wizard = new oauthWizard.OAuthWizardBuilder(props)
 
