@@ -4,22 +4,25 @@ import * as bp from '.botpress'
 
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
-const OAUTH_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+const OAUTH_SCOPES = ['https://www.googleapis.com/auth/drive.file']
 const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth`
 
 export const exchangeAuthCodeAndSaveRefreshToken = async ({
   ctx,
   client,
   authorizationCode,
+  redirectUri,
 }: {
   ctx: bp.Context
   client: bp.Client
   authorizationCode: string
+  redirectUri?: string
 }) => {
   const oauth2Client = _getPlainOAuth2Client()
 
   const { tokens } = await oauth2Client.getToken({
     code: authorizationCode,
+    redirect_uri: redirectUri || GLOBAL_OAUTH_ENDPOINT,
   })
 
   if (!tokens.refresh_token) {
