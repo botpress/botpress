@@ -15,6 +15,6 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@types/lodash": "^4.17.0"
+    "@types/lodash": "^4.14.191"
   }
 }

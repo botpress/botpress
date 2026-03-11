@@ -2092,7 +2092,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
       '@types/lodash':
-        specifier: ^4.17.0
+        specifier: ^4.14.191
         version: 4.17.0
 
   integrations/whatsapp:
