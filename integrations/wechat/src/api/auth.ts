@@ -69,7 +69,7 @@ async function _getCachedAccessToken(client: bp.Client, ctx: bp.Context): Promis
 }
 
 const _applyTokenToCache = async (client: bp.Client, ctx: bp.Context, resp: TokenResp) => {
-  const state = await client.setState({
+  await client.setState({
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
