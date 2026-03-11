@@ -16,6 +16,9 @@ export const prepareCreatePluginBody = async (
   conversation: {
     tags: plugin.conversation?.tags ?? {},
   },
+  message: {
+    tags: plugin.message?.tags ?? {},
+  },
   configuration: plugin.configuration
     ? {
         ...plugin.configuration,
@@ -89,6 +92,8 @@ export const prepareUpdatePluginBody = (
       remotePlugin.dependencies?.interfaces
     ),
   }
+
+  // TODO: set null to conversation, user and message tags that are removed
 
   return {
     ...localPlugin,
