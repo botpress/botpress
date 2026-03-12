@@ -68,6 +68,13 @@
   "pnpm": {
     "patchedDependencies": {
       "source-map-js@1.2.1": "patches/source-map-js@1.2.1.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@sentry/cli",
+      "es5-ext",
+      "esbuild",
+      "msw"
+    ]
   }
 }
