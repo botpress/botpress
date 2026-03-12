@@ -36,6 +36,7 @@ export const callAction: bp.PluginHandlers['actionHandlers']['syncFilesToBotpres
       type: 'file',
       status: 'pending',
       sizeInBytes: file.sizeInBytes,
+      contentHash: file.contentHash,
       addToKbId: props.input.addToKbId,
     })),
     {

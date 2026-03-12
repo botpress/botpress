@@ -214,6 +214,7 @@ const _syncIntegrationGroup = async (props: ScheduledSyncProps, group: Integrati
         type: 'file' as const,
         status: 'pending' as const,
         sizeInBytes: file.sizeInBytes,
+        contentHash: file.contentHash,
         addToKbId: kbId,
       })),
       {

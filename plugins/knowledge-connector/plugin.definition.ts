@@ -192,6 +192,11 @@ export default new sdk.PluginDefinition({
                   .title('Size in Bytes')
                   .describe('The size of the file in bytes.')
                   .optional(),
+                contentHash: sdk.z
+                  .string()
+                  .title('Content Hash')
+                  .describe('A content hash provided by the external service for deduplication.')
+                  .optional(),
               })
             )
             .title('Files to include')

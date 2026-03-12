@@ -125,9 +125,10 @@ const _transferFileToBotpress = async (
         externalSize: fileToSync.sizeInBytes?.toString() ?? null,
         externalContentHash: fileToSync.contentHash ?? null,
         externalPath: fileToSync.absolutePath,
-        ...(fileToSync.addToKbId !== undefined
-          ? { kbId: fileToSync.addToKbId, source: 'knowledge-base', title: fileToSync.name, modalities: '["text"]' }
-          : {}),
+        kbId: fileToSync.addToKbId ?? null,
+        source: fileToSync.addToKbId ? 'knowledge-base' : null,
+        title: fileToSync.addToKbId ? fileToSync.name : null,
+        modalities: fileToSync.addToKbId ? '["text"]' : null,
       },
     })
   } catch (thrown: unknown) {
@@ -135,8 +136,7 @@ const _transferFileToBotpress = async (
     fileToSync.status = 'errored'
     fileToSync.errorMessage = err.message
     props.logger.error(
-      `File ${fileToSync.absolutePath} was uploaded (id: ${botpressFileId}) but metadata update failed: ${err.message}. ` +
-        `This file may be orphaned and should be cleaned up manually if the next sync does not overwrite it.`
+      `File ${fileToSync.absolutePath} was uploaded (id: ${botpressFileId}) but metadata update failed: ${err.message}. This file may be orphaned and should be cleaned up manually if the next sync does not overwrite it.`
     )
   }
 }
