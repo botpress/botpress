@@ -1,5 +1,26 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
+export const DEFAULT_FROM_EMAIL = 'noreply@bp-mailer.com'
+export const DEFAULT_CONTACT_LIST = 'default'
+
+export const configuration = {
+  schema: z.object({
+    fromEmail: z
+      .string()
+      .email()
+      .optional()
+      .default(DEFAULT_FROM_EMAIL)
+      .title('From Email Address')
+      .describe('The sender email address (must be verified in AWS SES)'),
+    contactListName: z
+      .string()
+      .optional()
+      .default(DEFAULT_CONTACT_LIST)
+      .title('SES Contact List Name')
+      .describe('The name of the AWS SES contact list used for subscription management'),
+  }),
+} satisfies NonNullable<IntegrationDefinitionProps['configuration']>
+
 export const actions = {
   sendMail: {
     title: 'Send Email',

@@ -1,5 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { actions, events } from './src/definitions/index'
+import { actions, configuration, events } from './src/definitions/index'
 
 export default new IntegrationDefinition({
   name: 'plus/email-notifier',
@@ -8,6 +8,7 @@ export default new IntegrationDefinition({
   description: 'Send emails to your Botpress bot in minutes',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration,
   secrets: {
     AWS_REGION: {
       description: 'AWS Region',

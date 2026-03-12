@@ -1,6 +1,7 @@
 import { SendEmailCommand } from '@aws-sdk/client-sesv2'
+import { DEFAULT_CONTACT_LIST, DEFAULT_FROM_EMAIL } from '../definitions'
 import { getSesClient } from '../misc/client'
-import { CONTACT_LIST, FROM_EMAIL_ADDRESS, EMAIL_SIGNATURE } from '../misc/constants'
+import { EMAIL_SIGNATURE } from '../misc/constants'
 import { getErrorMessage } from '../misc/error-handler'
 import { escapeHtml } from '../misc/html-utils'
 import { addContactToList } from '../utils'
@@ -8,6 +9,8 @@ import * as bp from '.botpress'
 
 export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ input, logger, client, ctx }) => {
   const sesClient = getSesClient()
+  const fromEmail = ctx.configuration.fromEmail ?? DEFAULT_FROM_EMAIL
+  const contactListName = ctx.configuration.contactListName ?? DEFAULT_CONTACT_LIST
 
   const header = 'This is a notification from your Botpress bot.'
 
@@ -36,7 +39,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
 
   const sendEmailToRecipient = async (email: string): Promise<SendResult> => {
     try {
-      await addContactToList(sesClient, email, logger)
+      await addContactToList(sesClient, email, contactListName, logger)
 
       const sendEmailCommand = new SendEmailCommand({
         Destination: {
@@ -57,9 +60,9 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
           },
         },
         ListManagementOptions: {
-          ContactListName: CONTACT_LIST,
+          ContactListName: contactListName,
         },
-        FromEmailAddress: FROM_EMAIL_ADDRESS,
+        FromEmailAddress: fromEmail,
         ReplyToAddresses: input.replyTo,
       })
 
@@ -77,7 +80,7 @@ export const sendMail: bp.IntegrationProps['actions']['sendMail'] = async ({ inp
           messageId: result.MessageId,
           to: [email],
           subject: input.subject,
-          fromEmail: FROM_EMAIL_ADDRESS,
+          fromEmail,
           timestamp: new Date().toISOString(),
         },
       })
