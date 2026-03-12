@@ -6,7 +6,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new sdk.IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '3.0.6',
+  version: '3.1.1',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow. Trigger workflows from ticket updates as well as manage tickets, access conversations, and engage with customers.',
@@ -61,8 +61,19 @@ export default new sdk.IntegrationDefinition({
             '⚠️This needs a requester name to work. The email of the requester the bot was talking to. This will be set in zendesk.'
           )
           .optional(),
+        ticketFormId: sdk.z
+          .string()
+          .regex(/^\d+$/, 'Must be a numeric ID')
+          .title('Ticket Form ID')
+          .describe(
+            'The ID of the ticket form to use when creating the ticket. This needs to be set up in Zendesk beforehand.'
+          )
+          .optional(),
       }),
     },
+  },
+  attributes: {
+    category: 'Customer Support',
   },
 }).extend(hitl, (self) => ({
   entities: {

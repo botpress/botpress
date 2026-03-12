@@ -93,7 +93,7 @@ const defaultBotPhoneNumberId = {
 }
 
 export const INTEGRATION_NAME = 'whatsapp'
-export const INTEGRATION_VERSION = '4.5.20'
+export const INTEGRATION_VERSION = '4.8.3'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: INTEGRATION_VERSION,
@@ -266,6 +266,14 @@ export default new IntegrationDefinition({
             title: 'Reply To',
             description: 'The ID of the message that this message is a reply to',
           },
+          referralSourceUrl: {
+            title: 'Referral Source URL',
+            description: 'The URL of the ad or content that led to the conversation',
+          },
+          referralSourceId: {
+            title: 'Referral Source ID',
+            description: 'The ID of the ad or content that led to the conversation',
+          },
         },
       },
       conversation: {
@@ -315,6 +323,11 @@ export default new IntegrationDefinition({
     },
   },
   events: {
+    messageRead: {
+      title: 'Message Read',
+      description: 'Triggered when a user reads a message',
+      schema: z.object({}),
+    },
     reactionAdded: {
       title: 'Reaction Added',
       description: 'Triggered when a user adds a reaction to a message',
@@ -418,6 +431,9 @@ export default new IntegrationDefinition({
       description: 'Proactive conversation with a WhatsApp user',
       schema: startConversationProps.input.schema.shape['conversation'],
     },
+  },
+  attributes: {
+    category: 'Communication & Channels',
   },
 })
   .extend(typingIndicator, () => ({ entities: {} }))

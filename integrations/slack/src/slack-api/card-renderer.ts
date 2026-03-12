@@ -38,29 +38,29 @@ export const renderCard = (payload: Card): ChatPostMessageArguments['blocks'] =>
 ]
 
 const _renderButtonUrl = (action: CardAction) => ({
-  type: 'button',
+  type: 'button' as const,
   text: {
-    type: 'plain_text',
+    type: 'plain_text' as const,
     text: action.label,
   },
   url: action.value,
 })
 
 const _renderButtonPostback = (action: CardAction) => ({
-  type: 'button',
+  type: 'button' as const,
   action_id: 'postback',
   text: {
-    type: 'plain_text',
+    type: 'plain_text' as const,
     text: action.label,
   },
   value: action.value,
 })
 
 const _renderButtonSay = (action: CardAction) => ({
-  type: 'button',
+  type: 'button' as const,
   action_id: 'say',
   text: {
-    type: 'plain_text',
+    type: 'plain_text' as const,
     text: action.label,
   },
   value: action.value,
